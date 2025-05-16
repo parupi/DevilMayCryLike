@@ -12,6 +12,7 @@
 #include <LightManager.h>
 #include <ParticleEmitter.h>
 #include "DebugSphere.h"
+#include <GameObject/Player/Player.h>
 
 class GameScene : public BaseScene
 {
@@ -34,23 +35,9 @@ private:
 	CameraManager cameraManager_;
 	std::shared_ptr<Camera> normalCamera_;
 
-	std::unique_ptr<Object3d> object_;
-	std::unique_ptr<Object3d> animationObject_;
-	std::unique_ptr<Sprite> sprite;
-
-	//Vector4 color1 = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//Vector4 color2 = { 1.0f, 1.0f, 1.0f, 1.0f };
-	uint32_t soundHandle = 0u;
-
-	//WorldTransform transform_;
-	//WorldTransform animationTransform_;
 	std::unique_ptr<LightManager> lightManager_;
 
-	//ParticleManager* particleManager_ = nullptr;
-	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
+	std::unique_ptr<Player> player_;
 
-
-	Vector3 axis = { 0.0f, 0.0f, 0.0f };
-	float angle = 1.0f;
 };
 
