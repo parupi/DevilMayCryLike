@@ -18,6 +18,8 @@ void GameScene::Initialize()
 	//normalCamera_->SetTranslate(Vector3{ 0.0f, 0.0f, -10.0f });
 	//normalCamera_->SetRotate(Vector3{ 0.0f, 0.0f, 0.0f });
 
+
+
 	// .objファイルからモデルを読み込む
 	//ModelManager::GetInstance()->LoadModel("resource", "walk.gltf");
 	//ModelManager::GetInstance()->LoadModel("resource", "simpleSkin.gltf");
