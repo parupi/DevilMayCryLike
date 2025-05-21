@@ -8,19 +8,32 @@ struct PixelShaderOutput
     float32_t4 color : SV_TARGET0;
 };
 
+cbuffer VignetteScaleParam : register(b0)
+{
+    float32_t radius;
+    float32_t intensity;
+    float32_t softness;
+}
+
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    output.color = gTexture.Sample(gSampler, input.texcoord);
-    
-    // 周囲を0に、中心になるほど明るくなるように計算で調整
-    float32_t2 correct = input.texcoord * (1.0f - input.texcoord.yx);
-    // correctだけで計算すると中心の最大値が0.0625で暗すぎるのでScaleで調整。一旦16倍
-    float vignette = correct.x * correct.y * 16.0f;
-    // 0.8乗でそれっぽくする
-    vignette = saturate(pow(vignette, 0.8f));
-    // 係数として乗算
-    output.color.rgb *= vignette;
-    
+    float32_t4 texColor = gTexture.Sample(gSampler, input.texcoord);
+
+    // テクスチャ中心からの距離を計算
+    float2 center = float2(0.5f, 0.5f);
+    float dist = distance(input.texcoord, center);
+
+    // 距離に基づいてビネット値を計算
+    float vignette = smoothstep(radius, radius - softness, dist);
+    vignette = 1.0f - vignette; // 中心を1、外側を0に
+
+    // 強度を適用
+    vignette = lerp(1.0f, vignette, intensity);
+
+    // 色に乗算
+    output.color.rgb = texColor.rgb * vignette;
+    output.color.a = texColor.a;
+
     return output;
 }

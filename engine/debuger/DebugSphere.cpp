@@ -1,13 +1,13 @@
 #include "DebugSphere.h"
-#include <ModelManager.h>
+#include <Model/ModelManager.h>
 
 void DebugSphere::Initialize()
 {
-	ModelManager::GetInstance()->LoadModel("resource", "ICO.obj");
-	object_ = std::make_unique<Object3d>();
-	object_->Initialize("ICO.obj");
+	////ModelManager::GetInstance()->LoadModel("resource", "ICO.obj");
+	//object_ = std::make_unique<Object3d>();
+	//object_->Initialize("ICO.obj");
 
-	transform_.Initialize();
+	//transform_.Initialize();
 }
 
 void DebugSphere::Finalize()

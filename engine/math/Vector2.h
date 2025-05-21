@@ -64,4 +64,13 @@ struct Vector2 final {
     bool operator!=(const Vector2& other) const {
         return !(*this == other);
     }
+
+    // 代入演算子
+    Vector2& operator=(const Vector2& other) {
+        if (this != &other) {
+            x = other.x;
+            y = other.y;
+        }
+        return *this;
+    }
 };

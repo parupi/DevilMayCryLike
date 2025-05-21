@@ -8,6 +8,12 @@ struct PixelShaderOutput
     float32_t4 color : SV_TARGET0;
 };
 
+cbuffer GrayScaleParam : register(b0)
+{
+    float32_t blurStrength;
+    int32_t iterations;
+}
+
 static const float32_t2 kIndex3x3[3][3] =
 {
     { { -1.0f, -1.0f }, { 0.0f, -1.0f }, { 1.0f, -1.0f } },
@@ -24,25 +30,34 @@ static const float32_t kKernel3x3[3][3] =
 
 PixelShaderOutput main(VertexShaderOutput input)
 {
-
-    
-    uint32_t width, height; // uvStepSizeの算出
-    gTexture.GetDimensions(width, height);
-    float32_t2 uvStepSize = float32_t2(rcp(width), rcp(height));
-    
     PixelShaderOutput output;
-    //output.color = gTexture.Sample(gSampler, input.texcoord);
-    output.color.rgb = float32_t3(0.0f, 0.0f, 0.0f);
-    output.color.a = 1.0f;
-    for (int32_t x = 0; x < 3; ++x)
+    float32_t4 currentColor = gTexture.Sample(gSampler, input.texcoord);
+
+    uint width, height;
+    gTexture.GetDimensions(width, height);
+    float2 baseStep = float2(1.0f / width, 1.0f / height) * blurStrength;
+
+    float3 resultColor = float3(0.0f, 0.0f, 0.0f);
+
+    // 繰り返しぼかし処理
+    for (int i = 0; i < iterations; ++i)
     {
-        for (int32_t y = 0; y < 3; ++y)
+        float3 sumColor = float3(0.0f, 0.0f, 0.0f);
+        for (int x = 0; x < 3; ++x)
         {
-            float32_t2 texcoord = input.texcoord + kIndex3x3[x][y] * uvStepSize;
-            float32_t3 fetchColor = gTexture.Sample(gSampler, texcoord).rgb;
-            output.color.rgb += fetchColor * kKernel3x3[x][y];
+            for (int y = 0; y < 3; ++y)
+            {
+                float2 offset = kIndex3x3[x][y] * baseStep;
+                float2 coord = input.texcoord + offset;
+                float3 sample = gTexture.Sample(gSampler, coord).rgb;
+                sumColor += sample * kKernel3x3[x][y];
+            }
         }
+        resultColor = lerp(resultColor, sumColor, 1.0f / (i + 1)); // 徐々に平均化
     }
-    
+
+    output.color.rgb = resultColor;
+    output.color.a = currentColor.a; // 元のアルファ維持
+
     return output;
 }
