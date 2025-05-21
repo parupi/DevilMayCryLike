@@ -8,11 +8,24 @@ struct PixelShaderOutput
     float32_t4 color : SV_TARGET0;
 };
 
+cbuffer GrayScaleParam : register(b0)
+{
+    float32_t intensity;
+}
+
 PixelShaderOutput main(VertexShaderOutput input)
 {
     PixelShaderOutput output;
-    output.color = gTexture.Sample(gSampler, input.texcoord);
-    float32_t value = dot(output.color.rgb, float32_t3(0.2125f, 0.7154f, 0.0721f));
-    output.color.rgb = float32_t3(value, value, value);
+
+    // テクスチャカラー取得
+    float4 color = gTexture.Sample(gSampler, input.texcoord);
+
+    // グレースケール値を計算
+    float gray = dot(color.rgb, float3(0.2125f, 0.7154f, 0.0721f));
+
+    // 線形補間でグレースケールと元の色を混ぜる
+    float3 blended = lerp(color.rgb, float3(gray, gray, gray), intensity);
+
+    output.color = float4(blended, color.a);
     return output;
 }

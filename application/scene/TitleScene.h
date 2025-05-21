@@ -11,6 +11,9 @@
 class TitleScene : public BaseScene
 {
 public:
+	TitleScene() = default;
+	~TitleScene() = default;
+
 	// 初期化
 	void Initialize() override;
 	// 終了
@@ -19,6 +22,7 @@ public:
 	void Update() override;
 	// 描画
 	void Draw() override;
+	void DrawRTV() override;
 
 #ifdef _DEBUG
 	void DebugUpdate() override;
@@ -36,7 +40,7 @@ private:
 	};
 private:
 	std::shared_ptr<Camera> camera_ = nullptr;
-	CameraManager cameraManager_;
+	CameraManager* cameraManager_ = CameraManager::GetInstance();
 	std::unique_ptr<Fade> fade_;
 
 	TitlePhase phase_ = TitlePhase::kFadeIn;

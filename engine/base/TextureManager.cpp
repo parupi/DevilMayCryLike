@@ -29,8 +29,9 @@ void TextureManager::Finalize()
 	instance = nullptr;
 }
 
-void TextureManager::LoadTexture(const std::string& filePath)
+void TextureManager::LoadTexture(const std::string& fileName)
 {
+	const std::string filePath = "Resource/Images/" + fileName;
 
 	if (textureData_.contains(filePath)) {
 		// 読み込み済みなら早期return
@@ -38,13 +39,13 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	}
 
 	// テクスチャ枚数上限チェック
-	assert(srvManager_->CanAllocate());
+	ASSERT_MSG(srvManager_->CanAllocate(), "[TextureManager] Maximum number of textures reached. Cannot register new texture.");
 
 	// テクスチャファイルを呼んでプログラムで扱えるようにする
 	DirectX::ScratchImage image{};
 	std::wstring filePathW = StringUtility::ConvertString(filePath);
 	HRESULT hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-	assert(SUCCEEDED(hr));
+	ASSERT_MSG(SUCCEEDED(hr), ("[TextureManager] Failed to find texture"));
 
 	// ミニマップの作成
 	DirectX::ScratchImage mipImages{};
@@ -81,8 +82,10 @@ void TextureManager::LoadTexture(const std::string& filePath)
 	dxManager_->GetDevice()->CreateShaderResourceView(textureData.resource.Get(), &srvDesc, textureData.srvHandleCPU);
 }
 
-uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& filePath)
+uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& fileName)
 {
+	const std::string filePath = "Resource/Images/" + fileName;
+
 	if (textureData_.contains(filePath)) {
 		// 読み込み済みなら要素番号を返す
 		uint32_t textureIndex = textureData_.at(filePath).srvIndex;

@@ -9,8 +9,8 @@ void TitleScene::Initialize()
 
 	// カメラの生成
 	camera_ = std::make_shared<Camera>();
-	cameraManager_.AddCamera(camera_);
-	cameraManager_.SetActiveCamera(0);
+	cameraManager_->AddCamera(camera_);
+	cameraManager_->SetActiveCamera(0);
 
 }
 
@@ -20,7 +20,7 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
-	cameraManager_.Update();
+	cameraManager_->Update();
 
 	fade_->Update();
 
@@ -34,6 +34,10 @@ void TitleScene::Draw()
 
 	SpriteManager::GetInstance()->DrawSet();
 	fade_->DrawSprite();
+}
+
+void TitleScene::DrawRTV()
+{
 }
 
 #ifdef _DEBUG

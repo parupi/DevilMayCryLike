@@ -3,6 +3,10 @@
 #include <TextureManager.h>
 #include <numbers>
 #include <imgui.h>
+//#define NOMINMAX // Windowsのmin/maxマクロを無効化
+#include <algorithm> 
+
+//#include <windows.h>
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
@@ -42,6 +46,8 @@ void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 
 void ParticleManager::Update()
 {
+
+
 	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, camera_->GetRotate(), camera_->GetTranslate());
 	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
 	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
@@ -69,6 +75,7 @@ void ParticleManager::Update()
 
 			// パーティクルの更新処理
 			float alpha{};
+			isBillboard = global_->GetBoolValue(groupName, "IsBillboard");
 
 			(*particleIterator).transform.translate += (*particleIterator).velocity * kDeltaTime;
 			(*particleIterator).currentTime += kDeltaTime;
@@ -80,8 +87,7 @@ void ParticleManager::Update()
 			Matrix4x4 worldMatrix{};
 			if (isBillboard) {
 				worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
-			}
-			else {
+			} else {
 				worldMatrix = MakeAffineMatrix((*particleIterator).transform.scale, (*particleIterator).transform.rotate, (*particleIterator).transform.translate);
 			}
 			Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
@@ -175,8 +181,8 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	global_->AddItem(name, "minRotate", Vector3{});
 	global_->AddItem(name, "maxRotate", Vector3{});
 
-	global_->AddItem(name, "minScale", float{});
-	global_->AddItem(name, "maxScale", float{});
+	global_->AddItem(name, "minScale", Vector3{});
+	global_->AddItem(name, "maxScale", Vector3{});
 
 	global_->AddItem(name, "minVelocity", Vector3{});
 	global_->AddItem(name, "maxVelocity", Vector3{});
@@ -190,6 +196,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	global_->AddItem(name, "minAlpha", float{});
 	global_->AddItem(name, "maxAlpha", float{});
 
+	global_->AddItem(name, "IsBillboard", bool{});
 }
 
 void ParticleManager::DrawSet(BlendMode blendMode)
@@ -203,7 +210,7 @@ void ParticleManager::DrawSet(BlendMode blendMode)
 #ifdef _DEBUG
 void ParticleManager::DebugGui()
 {
-	
+
 
 
 }
@@ -263,7 +270,42 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string nam
 {
 	Particle particle{};
 
-	const auto& params = particleParams_[name];
+	auto& params = particleParams_[name];
+
+	auto FixRange = [](const Vector2& range) {
+		auto [minVal, maxVal] = std::minmax(range.x, range.y);
+		return Vector2{ minVal, maxVal };
+		};
+
+	auto FixRangeVec3 = [](const Vector3& minVal, const Vector3& maxVal) {
+		return std::pair<Vector3, Vector3>{
+			{(std::min)(minVal.x, maxVal.x), (std::min)(minVal.y, maxVal.y), (std::min)(minVal.z, maxVal.z)},
+			{ (std::max)(minVal.x, maxVal.x), (std::max)(minVal.y, maxVal.y), (std::max)(minVal.z, maxVal.z) }
+		};
+		};
+
+	// 各範囲を修正
+	params.translateX = FixRange(params.translateX);
+	params.translateY = FixRange(params.translateY);
+	params.translateZ = FixRange(params.translateZ);
+
+	params.rotateX = FixRange(params.rotateX);
+	params.rotateY = FixRange(params.rotateY);
+	params.rotateZ = FixRange(params.rotateZ);
+
+	params.scaleX = FixRange(params.scaleX);
+	params.scaleY = FixRange(params.scaleY);
+	params.scaleZ = FixRange(params.scaleZ);
+
+	params.velocityX = FixRange(params.velocityX);
+	params.velocityY = FixRange(params.velocityY);
+	params.velocityZ = FixRange(params.velocityZ);
+
+	params.lifeTime = FixRange(params.lifeTime);
+
+	auto [colorMin, colorMax] = FixRangeVec3(params.colorMin, params.colorMax);
+	params.colorMin = colorMin;
+	params.colorMax = colorMax;
 
 	std::uniform_real_distribution<float> distTranslationX(params.translateX.x, params.translateX.y);
 	std::uniform_real_distribution<float> distTranslationY(params.translateY.x, params.translateY.y);
@@ -273,7 +315,9 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string nam
 	std::uniform_real_distribution<float> distRotationY(params.rotateY.x, params.rotateY.y);
 	std::uniform_real_distribution<float> distRotationZ(params.rotateZ.x, params.rotateZ.y);
 
-	std::uniform_real_distribution<float> distScale(params.scale.x, params.scale.y);
+	std::uniform_real_distribution<float> distScaleX(params.scaleX.x, params.scaleX.y);
+	std::uniform_real_distribution<float> distScaleY(params.scaleY.x, params.scaleY.y);
+	std::uniform_real_distribution<float> distScaleZ(params.scaleZ.x, params.scaleZ.y);
 
 	std::uniform_real_distribution<float> distVelocityX(params.velocityX.x, params.velocityX.y);
 	std::uniform_real_distribution<float> distVelocityY(params.velocityY.x, params.velocityY.y);
@@ -283,8 +327,7 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string nam
 	std::uniform_real_distribution<float> distColorR(params.colorMin.x, params.colorMax.x);
 	std::uniform_real_distribution<float> distColorG(params.colorMin.y, params.colorMax.y);
 	std::uniform_real_distribution<float> distColorB(params.colorMin.z, params.colorMax.z);
-	float randomScale = distScale(randomEngine);
-	particle.transform.scale = { randomScale, randomScale, randomScale };
+	particle.transform.scale = { distScaleX(randomEngine), distScaleY(randomEngine), distScaleZ(randomEngine) };
 	particle.transform.rotate = { distRotationX(randomEngine), distRotationY(randomEngine), distRotationZ(randomEngine) };
 	Vector3 randomTranslate = { distTranslationX(randomEngine), distTranslationY(randomEngine), distTranslationZ(randomEngine) };
 	particle.transform.translate = translate + randomTranslate;
@@ -298,7 +341,7 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string nam
 
 ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* global, const std::string& groupName)
 {
-	ParticleParameters params;
+	ParticleParameters params{};
 
 	// Translate
 	params.translateX = { global->GetVector3Value(groupName, "minTranslate").x, global->GetVector3Value(groupName, "maxTranslate").x };
@@ -311,7 +354,9 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 	params.rotateZ = { global->GetVector3Value(groupName, "minRotate").z, global->GetVector3Value(groupName, "maxRotate").z };
 
 	// Scale
-	params.scale = { global->GetFloatValue(groupName, "minScale"), global->GetFloatValue(groupName, "maxScale") };
+	params.scaleX = { global->GetVector3Value(groupName, "minScale").x, global->GetVector3Value(groupName, "maxScale").x };
+	params.scaleY = { global->GetVector3Value(groupName, "minScale").y, global->GetVector3Value(groupName, "maxScale").y };
+	params.scaleZ = { global->GetVector3Value(groupName, "minScale").z, global->GetVector3Value(groupName, "maxScale").z };
 
 	// Velocity
 	params.velocityX = { global->GetVector3Value(groupName, "minVelocity").x, global->GetVector3Value(groupName, "maxVelocity").x };

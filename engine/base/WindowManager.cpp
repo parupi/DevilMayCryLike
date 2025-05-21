@@ -33,7 +33,7 @@ void WindowManager::Initialize()
 	// ウィンドウプロシージャ
 	wndClass_.lpfnWndProc = WindowProc;
 	// ウィンドウクラス名(なんでもいい)
-	wndClass_.lpszClassName = L"CG2WindowClass";
+	wndClass_.lpszClassName = L"WindowClass";
 	// インスタンスハンドル
 	wndClass_.hInstance = GetModuleHandle(nullptr);
 	// カーソル

@@ -45,6 +45,9 @@ public:// アクセッサ
 	// オフスクリーン
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetOffScreenSignature() { return offScreenSignature_; }
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetOffScreenPSO(OffScreenEffectType effectType);
+	// プリミティブ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetPrimitiveSignature() { return primitiveSignature_; }
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPrimitivePSO();
 
 private:
 	// スプライト
@@ -62,6 +65,9 @@ private:
 	// オフスクリーン
 	void CreateOffScreenSignature();
 	void CreateOffScreenPSO(OffScreenEffectType effectType);
+	// プリミティブ
+	void CreatePrimitiveSignature();
+	void CreatePrimitivePSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -81,4 +87,7 @@ private: // データ格納用変数
 	// オフスクリーン
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> offScreenSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 7> offScreenGraphicsPipelineState_;
+	// プリミティブ
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> primitiveSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> primitiveGraphicsPipelineState_;
 };

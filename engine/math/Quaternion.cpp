@@ -5,6 +5,7 @@
 #include <Matrix4x4.h>
 #include <Vector3.h>
 #include <numbers>
+#include <function.h>
 // コンストラクタ
 Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
@@ -161,6 +162,34 @@ const Quaternion EulerRadian(float pitch, float yaw, float roll) noexcept {
     result.z = cosPitch * cos_yaw * sin_roll - sin_pitch * sin_yaw * cos_roll;
     result.w = cosPitch * cos_yaw * cos_roll + sin_pitch * sin_yaw * sin_roll;
     return result;
+}
+
+const Quaternion FromToRotation(const Vector3& from, const Vector3& to)
+{
+    Vector3 f = Normalize(from);
+    Vector3 t = Normalize(to);
+
+    float dot = Dot(f, t);
+
+    // 同じ方向なら回転不要
+    if (dot >= 1.0f - 1e-6f) {
+        return Identity();
+    }
+
+    // 真逆方向（180度回転）
+    if (dot <= -1.0f + 1e-6f) {
+        // 任意の垂直な軸を選ぶ（fromに垂直なベクトル）
+        Vector3 orthogonal = Cross(f, Vector3(1.0f, 0.0f, 0.0f));
+        if (Length(orthogonal) < 1e-6f) {
+            orthogonal = Cross(f, Vector3(0.0f, 1.0f, 0.0f));
+        }
+        orthogonal = Normalize(orthogonal);
+        return MakeRotateAxisAngleQuaternion(orthogonal, float(std::numbers::pi));
+    }
+
+    Vector3 axis = Cross(f, t);
+    float angle = std::acos(dot); // ラジアン
+    return MakeRotateAxisAngleQuaternion(axis, angle);
 }
 
 

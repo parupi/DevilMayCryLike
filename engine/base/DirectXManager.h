@@ -80,7 +80,6 @@ private: // メンバ変数
 
 private:
 
-
 	void InitializeFixFPS();
 	void UpdateFixFPS();
 public:

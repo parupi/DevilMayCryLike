@@ -1,15 +1,15 @@
 #include "SceneManager.h"
 #include <cassert>
 
-std::unique_ptr<SceneManager> SceneManager::instance = nullptr;
+SceneManager* SceneManager::instance = nullptr;
 std::once_flag SceneManager::initInstanceFlag;
 
 SceneManager* SceneManager::GetInstance()
 {
 	std::call_once(initInstanceFlag, []() {
-		instance = std::make_unique<SceneManager>();
+		instance = new SceneManager();
 		});
-	return instance.get();
+	return instance;
 }
 
 void SceneManager::Finalize()
@@ -45,6 +45,11 @@ void SceneManager::Update()
 void SceneManager::Draw()
 {
 	scene_->Draw();
+}
+
+void SceneManager::DrawRTV()
+{
+	scene_->DrawRTV();
 }
 
 void SceneManager::ChangeScene(const std::string& sceneName)

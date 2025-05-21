@@ -1,18 +1,18 @@
 #include <GameScene.h>
 #include <TextureManager.h>
-#include <ModelManager.h>
 #include <ParticleManager.h>
 #include <imgui.h>
 #include <Quaternion.h>
 #include <Vector3.h>
 #include <Matrix4x4.h>
+#include <Model/ModelManager.h>
 
 void GameScene::Initialize()
 {
 	// カメラの生成
 	normalCamera_ = std::make_shared<Camera>();
-	cameraManager_.AddCamera(normalCamera_);
-	cameraManager_.SetActiveCamera(0);
+	cameraManager_->AddCamera(normalCamera_);
+	cameraManager_->SetActiveCamera(0);
 	normalCamera_->SetTranslate(Vector3{ 0.0f, 16.0f, -25.0f });
 	normalCamera_->SetRotate(Vector3{ 0.5f, 0.0f, 0.0f });
 	//normalCamera_->SetTranslate(Vector3{ 0.0f, 0.0f, -10.0f });
@@ -27,7 +27,10 @@ void GameScene::Initialize()
 	//ModelManager::GetInstance()->LoadModel("resource", "plane.obj");
 	//ModelManager::GetInstance()->LoadModel("resource", "AnimatedCube.gltf");
 	//ModelManager::GetInstance()->LoadModel("resource", "terrain/terrain.obj");
-	ModelManager::GetInstance()->LoadModel("resource", "float_body.obj");
+	ModelManager::GetInstance()->LoadModel("PlayerBody");
+	ModelManager::GetInstance()->LoadModel("PlayerHead");
+	ModelManager::GetInstance()->LoadModel("PlayerLeftArm");
+	ModelManager::GetInstance()->LoadModel("PlayerRightArm");
 	//TextureManager::GetInstance()->LoadTexture("resource/uvChecker.png");
 
 	player_ = std::make_unique<Player>();
@@ -44,11 +47,14 @@ void GameScene::Initialize()
 	//sprite->SetSize({ 32.0f,32.0f });
 
 	// ============ライト=================//
-	lightManager_ = std::make_unique<LightManager>();
-	lightManager_->Initialize();
 
-	lightManager_->SetDirLightActive(0, true);
-	lightManager_->SetDirLightIntensity(0, 1.0f);
+	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("Dir1");
+	dirLight->GetLightData().enabled = true;
+	dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
+	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f , 1.0f};
+	dirLight->GetLightData().intensity = 1.0f;
+	//lightManager_->SetDirLightActive(0, true);
+	lightManager_->AddDirectionalLight(std::move(dirLight));
 
 
 }
@@ -64,9 +70,9 @@ void GameScene::Update()
 	//ParticleManager::GetInstance()->Update();
 
 	//animationObject_->AnimationUpdate();
-	cameraManager_.Update();
+	cameraManager_->Update();
 	//sprite->Update();
-
+	lightManager_->UpdateAllLight();
 	//Vector3 normalCameraPos = normalCamera_->GetTranslate();
 	//Vector3 cameraRotate = normalCamera_->GetRotate();
 
@@ -157,6 +163,10 @@ void GameScene::Draw()
 	//SpriteManager::GetInstance()->DrawSet();
 	//sprite->Draw();
 	
+}
+
+void GameScene::DrawRTV()
+{
 }
 
 #ifdef _DEBUG
