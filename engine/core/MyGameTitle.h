@@ -7,9 +7,9 @@
 #include "TextureManager.h"
 #include "Object3d.h"
 #include "Object3dmanager.h"
-#include "Model.h"
-#include "ModelLoader.h"
-#include "ModelManager.h"
+#include "Model/Model.h"
+#include "Model/ModelLoader.h"
+#include "Model/ModelManager.h"
 #include <ParticleManager.h>
 #include "GuchisFramework.h"
 #include "ImGuiManager.h"

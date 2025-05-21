@@ -1,4 +1,5 @@
 #include "GuchisFramework.h"
+#include "utility/DeltaTime.h"
 
 void GuchisFramework::Initialize()
 {
@@ -20,6 +21,8 @@ void GuchisFramework::Initialize()
 	Input::GetInstance()->Initialize();
 	// Audioの初期化
 	Audio::GetInstance()->Initialize();
+	// DeltaTime
+	DeltaTime::Initialize();
 }
 
 void GuchisFramework::Finalize()
@@ -34,6 +37,7 @@ void GuchisFramework::Finalize()
 void GuchisFramework::Update()
 {
 	Input::GetInstance()->Update();
+	DeltaTime::Update();
 	SceneManager::GetInstance()->Update();
 }
 

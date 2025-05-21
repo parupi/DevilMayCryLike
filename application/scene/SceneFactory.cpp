@@ -1,4 +1,5 @@
 #include "SceneFactory.h"
+#include "scene/BaseScene.h"
 #include <TitleScene.h>
 #include <GameScene.h>
 //#include <Result.h>

@@ -1,7 +1,7 @@
 #pragma once
 #include <Object3d.h>
 #include <Sprite.h>
-#include <Model.h>
+#include <Model/Model.h>
 #include <vector>
 #include <Camera.h>
 #include <BaseScene.h>
@@ -9,7 +9,7 @@
 #include <Audio.h>
 #include <CameraManager.h>
 #include <WorldTransform.h>
-#include <LightManager.h>
+#include <Light/LightManager.h>
 #include <ParticleEmitter.h>
 #include "DebugSphere.h"
 #include <GameObject/Player/Player.h>
@@ -17,6 +17,9 @@
 class GameScene : public BaseScene
 {
 public:
+	GameScene() = default;
+	~GameScene() = default;
+
 	// 初期化
 	void Initialize() override;
 	// 終了
@@ -25,6 +28,7 @@ public:
 	void Update() override;
 	// 描画
 	void Draw() override;
+	void DrawRTV() override;
 	
 #ifdef _DEBUG
 	void DebugUpdate() override;
@@ -32,10 +36,10 @@ public:
 
 
 private:
-	CameraManager cameraManager_;
+	CameraManager* cameraManager_ = CameraManager::GetInstance();
 	std::shared_ptr<Camera> normalCamera_;
 
-	std::unique_ptr<LightManager> lightManager_;
+	LightManager* lightManager_ = LightManager::GetInstance();
 
 	std::unique_ptr<Player> player_;
 

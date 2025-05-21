@@ -25,18 +25,6 @@ public:
 	void DrawSet();
 	// アニメーション用描画前処理
 	void DrawSetForAnimation();
-private:
-	void CreateRootSignature();
-	void CreateRootSignatureForAnimation();
-	void CreateInputElementDesc();
-	void CreateInputElementDescForAnimation();
-	void CreateBlendState();
-	void CreateRasterizerState();
-	void LoadShader();
-	void LoadShaderForAnimation();
-	void CreatePipelineState();
-	void CreatePipelineStateForAnimation();
-private:
 
 private:
 	// DirectXのポインタ

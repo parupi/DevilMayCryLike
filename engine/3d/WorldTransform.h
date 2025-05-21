@@ -54,12 +54,14 @@ public:
 	const Matrix4x4& GetMatWorld() { return matWorld_; }
 
 	// アクセッサ	
-	Vector3 GetTranslation() const { return translation_; }
+	Vector3& GetTranslation() { return translation_; }
 	void SetTranslation(const Vector3& translation) { translation_ = translation; }
-	Quaternion GetRotation() const { return rotation_; }
+	Quaternion& GetRotation() { return rotation_; }
 	void SetRotation(const Quaternion& rotation) { rotation_ = rotation; }
-	Vector3 GetScale() const { return scale_; }
+	Vector3& GetScale() { return scale_; }
 	void SetScale(const Vector3& scale) { scale_ = scale; }
+
+	void SetParent(WorldTransform* transform) { parent_ = transform; }
 
 private:
 	// 定数バッファ
@@ -76,7 +78,7 @@ private:
 	// ローカル → ワールド変換行列
 	Matrix4x4 matWorld_;
 	// 親となるワールド変換へのポインタ
-	const WorldTransform* parent_ = nullptr;
+	WorldTransform* parent_ = nullptr;
 
 	// コピー禁止
 	WorldTransform(const WorldTransform&) = delete;
