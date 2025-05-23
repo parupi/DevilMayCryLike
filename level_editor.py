@@ -1,6 +1,9 @@
 import math
-import bpy
-import bpy_extras
+import bpy # type: ignore
+import bpy_extras # type: ignore
+import gpu # type: ignore
+import gpu_extras.batch # type: ignore
+import copy
 
 # ブレンダーに登録するアドオン情報
 bl_info = {
@@ -41,6 +44,7 @@ class OBJECT_PT_file_name(bpy.types.Panel):
         self.layout.operator(MYADDON_OT_create_ico_sphere.bl_idname, text = MYADDON_OT_create_ico_sphere.bl_label)
         self.layout.operator(MYADDON_OT_export_scene.bl_idname, text = MYADDON_OT_export_scene.bl_label)
         """
+
 
 # ファイルネームを追加する
 class MYADDON_OT_add_filename(bpy.types.Operator):
@@ -133,6 +137,81 @@ class MYADDON_OT_export_scene(bpy.types.Operator, bpy_extras.io_utils.ExportHelp
         return {'FINISHED'}
 
 
+# 当たり判定描画用
+class DrawCollider:
+    # 描画ハンドル
+    handle = None
+
+    # 3Dビューに登録する描画関数
+    def draw_collider():
+        # 頂点データ
+        vertices = {"pos":[]}
+        # インデックスデータ
+        indices = []
+
+        # 各項目の、オブジェクト中心からのオフセット
+        offsets = [
+            [-0.5, -0.5, -0.5], # 左下前
+            [+0.5, -0.5, -0.5], # 右下前
+            [-0.5, +0.5, -0.5], # 左上前
+            [+0.5, +0.5, -0.5], # 右上前
+            [-0.5, -0.5, +0.5], # 左下奥
+            [+0.5, -0.5, +0.5], # 右下奥
+            [-0.5, +0.5, +0.5], # 左上奥
+            [+0.5, +0.5, +0.5], # 右上奥
+        ]
+        # 立方体のX,Y,Z方向サイズ
+        size = [2,2,2]
+
+        # 現在シーンのオブジェクトリストを走査
+        for object in bpy.context.scene.objects:
+            # 追加前の頂点数
+            start = len(vertices["pos"])
+
+            # Boxの8頂点分回す
+            for offset in offsets:
+                # オブジェクトの中心座標コピー
+                
+                pos = copy.copy(object.location)
+                # 中心点を基準にずらす
+                pos[0] += offset[0] * size[0]
+                pos[1] += offset[1] * size[1]
+                pos[2] += offset[2] * size[2]
+                # 頂点リストに座標を追加
+                vertices['pos'].append(pos)
+
+
+                # 前面を構成する辺の頂点インデックス
+                indices.append([start + 0, start + 1])
+                indices.append([start + 2, start + 3])
+                indices.append([start + 0, start + 2])
+                indices.append([start + 1, start + 3])
+                # 奥面を構成する辺の頂点インデックス
+                indices.append([start + 4, start + 5])
+                indices.append([start + 6, start + 7])
+                indices.append([start + 4, start + 6])
+                indices.append([start + 5, start + 7])
+                # 手前と奥とをつなぐ辺
+                indices.append([start + 0, start + 4])
+                indices.append([start + 1, start + 5])
+                indices.append([start + 2, start + 6])
+                indices.append([start + 3, start + 7])
+
+
+        # ビルとインのシェーダーを取得
+        shader = gpu.shader.from_builtin("UNIFORM_COLOR")
+        # バッチを作成
+        batch = gpu_extras.batch.batch_for_shader(shader, "LINES", vertices, indices = indices)
+        # シェーダーのパラメータ設定
+        color = [0.5, 1.0, 1.0, 1.0]
+        shader.bind()
+        shader.uniform_float("color", color)
+        # 描画
+        batch.draw(shader)
+
+
+
+# ICO球の追加
 class MYADDON_OT_create_ico_sphere(bpy.types.Operator):
     bl_idname = "myaddon.create_ico_sphere"
     bl_label = "ICO球生成"
@@ -205,6 +284,10 @@ def register():
 
     # メニューに項目を追加
     bpy.types.TOPBAR_MT_editor_menus.append(TOPBAR_MT_my_menu.submenu)
+
+    # 3Dビューに描画関数を追加
+    DrawCollider.handle = bpy.types.SpaceView3D.draw_handler_add(DrawCollider.draw_collider, (), "WINDOW", "POST_VIEW")
+
     print("レベルエディタが有効化されました")
     
 
@@ -212,6 +295,9 @@ def register():
 def unregister():
     # メニューから項目を削除
     bpy.types.TOPBAR_MT_editor_menus.remove(TOPBAR_MT_my_menu.submenu)
+
+    # 3Dビューから描画関数を削除
+    bpy.types.SpaceView3D.draw_handler_remove(DrawCollider.handle, "WINDOW")
 
     # Blenderからクラスを削除
     for cls in classes:
