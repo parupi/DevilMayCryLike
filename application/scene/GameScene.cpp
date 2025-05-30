@@ -6,6 +6,8 @@
 #include <Vector3.h>
 #include <Matrix4x4.h>
 #include <Model/ModelManager.h>
+#include <Renderer/RendererManager.h>
+#include <Renderer/ModelRenderer.h>
 
 void GameScene::Initialize()
 {
@@ -13,8 +15,8 @@ void GameScene::Initialize()
 	normalCamera_ = std::make_shared<Camera>();
 	cameraManager_->AddCamera(normalCamera_);
 	cameraManager_->SetActiveCamera(0);
-	normalCamera_->SetTranslate(Vector3{ 0.0f, 16.0f, -25.0f });
-	normalCamera_->SetRotate(Vector3{ 0.5f, 0.0f, 0.0f });
+	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
+	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
 	//normalCamera_->SetTranslate(Vector3{ 0.0f, 0.0f, -10.0f });
 	//normalCamera_->SetRotate(Vector3{ 0.0f, 0.0f, 0.0f });
 
@@ -27,15 +29,36 @@ void GameScene::Initialize()
 	//ModelManager::GetInstance()->LoadModel("resource", "plane.obj");
 	//ModelManager::GetInstance()->LoadModel("resource", "AnimatedCube.gltf");
 	//ModelManager::GetInstance()->LoadModel("resource", "terrain/terrain.obj");
+
+
 	ModelManager::GetInstance()->LoadModel("PlayerBody");
 	ModelManager::GetInstance()->LoadModel("PlayerHead");
 	ModelManager::GetInstance()->LoadModel("PlayerLeftArm");
 	ModelManager::GetInstance()->LoadModel("PlayerRightArm");
-	//TextureManager::GetInstance()->LoadTexture("resource/uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
+	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerBody", "PlayerBody"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerLeftArm", "PlayerLeftArm"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerRightArm", "PlayerRightArm"));
+
 
 	player_ = std::make_unique<Player>();
+
+	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerBody"));
+	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
+	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerLeftArm"));
+	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerRightArm"));
 	player_->Initialize();
 
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("Enemy", "PlayerBody"));
+
+	enemy_ = std::make_unique<Enemy>();
+
+	enemy_->AddRenderer(RendererManager::GetInstance()->FindRender("Enemy"));
+
+	enemy_->Initialize();
 	//animationObject_ = std::make_unique<Object3d>();
 	//animationObject_->Initialize("walk.gltf");
 
@@ -107,6 +130,8 @@ void GameScene::Update()
 
 
 	player_->Update();
+
+	enemy_->Update();
 	//animationObject_->Update();
 
 	//ImGui::Begin("SetModel");
@@ -156,9 +181,16 @@ void GameScene::Draw()
 	//lightManager_->BindLightsToShader();
 	//animationObject_->Draw();
 
-	Object3dManager::GetInstance()->DrawSet();
+	Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
 	lightManager_->BindLightsToShader();
+	cameraManager_->BindCameraToShader();
 	player_->Draw();
+	enemy_->Draw();
+
+	Object3dManager::GetInstance()->DrawSet(BlendMode::kAdd);
+	lightManager_->BindLightsToShader();
+	cameraManager_->BindCameraToShader();
+	player_->DrawEffect();
 
 	//SpriteManager::GetInstance()->DrawSet();
 	//sprite->Draw();
@@ -172,8 +204,8 @@ void GameScene::DrawRTV()
 #ifdef _DEBUG
 void GameScene::DebugUpdate()
 {
-	//ImGui::Begin("Object");
-	//object_->DebugGui();
-	//ImGui::End();
+	
+	player_->DebugGui();
+	
 }
 #endif // _DEBUG

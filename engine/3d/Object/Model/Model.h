@@ -19,18 +19,21 @@
 #include "BaseModel.h"
 
 class Object3d;
-
+class ModelRenderer;
 class Model : public BaseModel
 {
 public: // メンバ関数
 	// 初期化
 	void Initialize(ModelLoader* modelLoader, const std::string& fileName);
 
+	void InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData);
+
 	void Update() override;
 	// 描画
 	void Draw() override;
 #ifdef _DEBUG
-	void DebugGui(Object3d* object);
+	void DebugGui(ModelRenderer* render);
+	void DebugGuiPrimitive();
 #endif // _DEBUG
 
 
@@ -39,13 +42,10 @@ private:
 	std::vector<std::unique_ptr<Material>> materials_;
 
 	ModelLoader* modelLoader_ = nullptr;
-	//Skeleton* skeleton_ = nullptr;
 
 	ModelData modelData_;
-	//std::string directoryPath_;
 public:
 	ModelData GetModelData() { return modelData_; }
-	//std::string GetDirectoryPath() { return directoryPath_; }
 	DirectXManager* GetDxManager() { return modelLoader_->GetDxManager(); }
 	SrvManager* GetSrvManager() { return modelLoader_->GetSrvManager(); }
 

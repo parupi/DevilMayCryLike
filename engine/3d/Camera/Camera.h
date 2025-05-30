@@ -33,11 +33,9 @@ private:
 
 public: // ゲッター // セッター //
 	// 回転
-	void SetRotate(const Vector3& rotate) { transform_.rotate = rotate; }
-	const Vector3& GetRotate() { return transform_.rotate; }
+	Vector3& GetRotate() { return transform_.rotate; }
 	// 拡縮
-	void SetTranslate(const Vector3& translate) { transform_.translate = translate; }
-	const Vector3& GetTranslate() { return transform_.translate; }
+	Vector3& GetTranslate() { return transform_.translate; }
 
 	void SetFovY(const float& horizontalFOV) { horizontalFOV_ = horizontalFOV; }
 	void SetAspectRate(const float& aspectRatio) { aspectRatio_ = aspectRatio; }

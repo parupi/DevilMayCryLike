@@ -25,13 +25,13 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> PSOManager::GetParticlePSO(BlendMode
 	return particleGraphicsPipelineState_[static_cast<UINT>(blendMode)];
 }
 
-Microsoft::WRL::ComPtr<ID3D12PipelineState> PSOManager::GetObjectPSO()
+Microsoft::WRL::ComPtr<ID3D12PipelineState> PSOManager::GetObjectPSO(BlendMode blendMode)
 {
-	if (!objectGraphicsPipelineState_) {
-		CreateObjectPSO();
+	if (!objectGraphicsPipelineState_[static_cast<UINT>(blendMode)]) {
+		CreateObjectPSO(blendMode);
 	}
 
-	return objectGraphicsPipelineState_;
+	return objectGraphicsPipelineState_[static_cast<UINT>(blendMode)];
 }
 
 Microsoft::WRL::ComPtr<ID3D12PipelineState> PSOManager::GetAnimationPSO()
@@ -502,7 +502,7 @@ void PSOManager::CreateObjectSignature()
 	assert(SUCCEEDED(hr));
 }
 
-void PSOManager::CreateObjectPSO()
+void PSOManager::CreateObjectPSO(BlendMode blendMode)
 {
 	CreateObjectSignature();
 
@@ -524,13 +524,45 @@ void PSOManager::CreateObjectPSO()
 	inputLayoutDesc.pInputElementDescs = inputElementDescs.data();
 	inputLayoutDesc.NumElements = static_cast<UINT>(inputElementDescs.size());
 
-	// すべての色要素を書き込む
+	// BlendStageの設定
 	D3D12_BLEND_DESC blendDesc{};
+	// すべての色要素を書き込む
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc.RenderTarget[0].BlendEnable = TRUE;
-	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
-	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+
+	switch (blendMode)
+	{
+	case BlendMode::kNone:
+		break;
+	case BlendMode::kNormal:
+		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		break;
+	case BlendMode::kAdd:
+		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		break;
+	case BlendMode::kSubtract:
+		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_REV_SUBTRACT;
+		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		break;
+	case BlendMode::kMultiply:
+		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ZERO;
+		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_INV_SRC_COLOR;
+		break;
+	case BlendMode::kScreen:
+		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_INV_DEST_COLOR;
+		blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+		break;
+	default:
+		break;
+	}
+
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
@@ -580,7 +612,7 @@ void PSOManager::CreateObjectPSO()
 	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 
 	// 実際に生成
-	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&objectGraphicsPipelineState_));
+	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&objectGraphicsPipelineState_[static_cast<UINT>(blendMode)]));
 	assert(SUCCEEDED(hr));
 }
 

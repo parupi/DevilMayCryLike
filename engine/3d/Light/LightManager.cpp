@@ -73,7 +73,7 @@ void LightManager::AddSpotLight(std::unique_ptr<SpotLight> light)
 DirectionalLight* LightManager::GetDirectionalLight(const std::string& name)
 {
 	for (auto& light : dirLights_) {
-		if (light->GetName() == name) {
+		if (light->name == name) {
 			return light.get();
 		}
 	}
@@ -83,7 +83,7 @@ DirectionalLight* LightManager::GetDirectionalLight(const std::string& name)
 PointLight* LightManager::GetPointLight(const std::string& name)
 {
 	for (auto& light : pointLights_) {
-		if (light->GetName() == name) {
+		if (light->name == name) {
 			return light.get();
 		}
 	}
@@ -93,7 +93,7 @@ PointLight* LightManager::GetPointLight(const std::string& name)
 SpotLight* LightManager::GetSpotLight(const std::string& name)
 {
 	for (auto& light : spotLights_) {
-		if (light->GetName() == name) {
+		if (light->name == name) {
 			return light.get();
 		}
 	}
@@ -102,7 +102,7 @@ SpotLight* LightManager::GetSpotLight(const std::string& name)
 
 void LightManager::CreateLightResource()
 {
-	// 必要なら Resize（シンプルに常に再作成でも OK）
+	// 必要なら Resize
 	size_t dirSize = std::max<size_t>(1, maxDirLights);
 	dirLightResource_ = dxManager_->CreateBufferResource(sizeof(DirectionalLightData) * dirSize);
 

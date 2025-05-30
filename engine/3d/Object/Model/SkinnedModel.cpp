@@ -5,6 +5,7 @@
 #include <TextureManager.h>
 #include "ModelManager.h"
 #include <Object3d.h>
+#include <Renderer/ModelRenderer.h>
 
 void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileName)
 {
@@ -71,7 +72,7 @@ void SkinnedModel::Draw()
 	}
 }
 
-void SkinnedModel::DebugGui(Object3d* object)
+void SkinnedModel::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {
 		auto& modelMap = ModelManager::GetInstance()->skinnedModels;
@@ -93,7 +94,7 @@ void SkinnedModel::DebugGui(Object3d* object)
 					bool isSelected = (selectedIndex == i);
 					if (ImGui::Selectable(modelNames[i].c_str(), isSelected)) {
 						selectedIndex = i;
-						object->SetModel(modelNames[selectedIndex]);
+						//object->SetModel(modelNames[selectedIndex]);
 					}
 					if (isSelected) {
 						ImGui::SetItemDefaultFocus();

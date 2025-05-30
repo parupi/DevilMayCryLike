@@ -9,6 +9,5 @@ public:
     virtual ~BaseLight() = default;
     virtual void Update() = 0;
 
-
     std::string name;
 };

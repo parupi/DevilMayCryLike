@@ -13,6 +13,7 @@
 #include <ParticleEmitter.h>
 #include "DebugSphere.h"
 #include <GameObject/Player/Player.h>
+#include <GameObject/Enemy/Enemy.h>
 
 class GameScene : public BaseScene
 {
@@ -42,6 +43,7 @@ private:
 	LightManager* lightManager_ = LightManager::GetInstance();
 
 	std::unique_ptr<Player> player_;
+	std::unique_ptr<Enemy> enemy_;
 
 };
 

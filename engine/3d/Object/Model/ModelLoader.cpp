@@ -18,10 +18,6 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	assert(scene && scene->HasMeshes());
 
-	//modelData.rootNode = ReadNode(scene->mRootNode);
-	//modelData.isAnimation = (scene->mNumAnimations > 0);
-	//modelData.isHasBones = HasBones(scene);
-
 	// --- マテリアルの読み込み ---
 	modelData.materials.resize(scene->mNumMaterials);
 	for (uint32_t i = 0; i < scene->mNumMaterials; ++i) {
@@ -63,10 +59,10 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			if (face.mNumIndices == 4) {
-				uint32_t i0 = face.mIndices[0];
-				uint32_t i1 = face.mIndices[1];
-				uint32_t i2 = face.mIndices[2];
-				uint32_t i3 = face.mIndices[3];
+				int32_t i0 = face.mIndices[0];
+				int32_t i1 = face.mIndices[1];
+				int32_t i2 = face.mIndices[2];
+				int32_t i3 = face.mIndices[3];
 				meshData.indices.insert(meshData.indices.end(), { i0, i1, i2, i0, i2, i3 });
 			} else if (face.mNumIndices == 3) {
 				for (uint32_t i = 0; i < 3; ++i) {
@@ -155,10 +151,10 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
 			aiFace& face = mesh->mFaces[faceIndex];
 			if (face.mNumIndices == 4) {
-				uint32_t i0 = face.mIndices[0];
-				uint32_t i1 = face.mIndices[1];
-				uint32_t i2 = face.mIndices[2];
-				uint32_t i3 = face.mIndices[3];
+				int32_t i0 = face.mIndices[0];
+				int32_t i1 = face.mIndices[1];
+				int32_t i2 = face.mIndices[2];
+				int32_t i3 = face.mIndices[3];
 				SkinnedMeshData.meshData.indices.insert(SkinnedMeshData.meshData.indices.end(), { i0, i1, i2, i0, i2, i3 });
 			} else if (face.mNumIndices == 3) {
 				for (uint32_t i = 0; i < 3; ++i) {

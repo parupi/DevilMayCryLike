@@ -10,10 +10,7 @@ public:
 
 	SpotLightData& GetLightData() { return lightData_; }
 
-	std::string GetName() const { return name; }
-
 private:
 	SpotLightData lightData_;
-
 };
 
