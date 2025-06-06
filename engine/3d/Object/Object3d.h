@@ -62,6 +62,7 @@ public: // ゲッター // セッター //
 	void AddCollider(BaseCollider* collider);
 
 	BaseRenderer* GetRenderer(std::string name);
+	BaseCollider* GetCollider(std::string name);
 	// カメラ
 	void SetCamera(Camera* camera) { camera_ = camera; }
 

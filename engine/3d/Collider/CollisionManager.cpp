@@ -55,7 +55,7 @@ BaseCollider* CollisionManager::FindCollider(std::string colliderName)
             return collider.get();
         }
     }
-    Logger::Log("renderが見つかりませんでした");
+    Logger::Log("colliderが見つかりませんでした");
     return nullptr;
 }
 

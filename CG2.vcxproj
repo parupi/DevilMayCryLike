@@ -90,6 +90,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>$(ProjectDir)engine\base;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\input;$(ProjectDir)engine\audio;$(ProjectDir)engine\scene;$(ProjectDir)engine\math;$(ProjectDir)externals\DirectXTex;$(ProjectDir)externals\imgui;$(ProjectDir)externals\nlohmann;$(ProjectDir)engine\debuger;$(ProjectDir)engine\debug;$(ProjectDir)application\scene;$(ProjectDir)engine\core;$(ProjectDir)application\Enemy;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\3d\Camera;$(ProjectDir)engine\3d\Model;$(ProjectDir)engine\3d\Object;$(ProjectDir)engine\3d\Object\Animation;$(ProjectDir)engine;$(ProjectDir)application</AdditionalIncludeDirectories>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -112,6 +113,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\scene\GameScene.cpp" />
     <ClCompile Include="application\scene\TitleScene.cpp" />
     <ClCompile Include="application\GameObject\Enemy\Enemy.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\EnemyDamageEffect.cpp" />
     <ClCompile Include="engine\3d\Collider\AABBCollider.cpp" />
     <ClCompile Include="engine\3d\Collider\BaseCollider.cpp" />
     <ClCompile Include="engine\3d\Collider\CollisionManager.cpp" />
@@ -150,6 +152,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\core\GuchisFramework.cpp" />
     <ClCompile Include="application\scene\fade\Fade.cpp" />
     <ClCompile Include="engine\offscreen\GrayEffect.cpp" />
+    <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\math\function.cpp" />
@@ -189,6 +192,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\Player\State\PlayerStateIdle.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
+    <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\shaders\BoxFilter.PS.hlsl">
@@ -279,6 +283,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\scene\GameScene.h" />
     <ClInclude Include="application\scene\TitleScene.h" />
     <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
+    <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
     <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
     <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
     <ClInclude Include="engine\3d\Collider\CollisionManager.h" />
@@ -364,6 +369,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Player\State\PlayerStateIdle.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateAttack1.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
+    <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
+    <ClInclude Include="application\GameObject\Ground\Ground.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

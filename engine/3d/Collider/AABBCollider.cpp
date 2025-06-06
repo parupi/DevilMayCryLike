@@ -4,12 +4,13 @@
 AABBCollider::AABBCollider(std::string colliderName)
 {
     name = colliderName;
+    transform_ = std::make_unique<WorldTransform>();
+    transform_->Initialize();
 }
 
 void AABBCollider::Initialize()
 {
-	transform_ = std::make_unique<WorldTransform>();
-	transform_->Initialize();
+
 }
 
 void AABBCollider::Update()

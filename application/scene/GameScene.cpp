@@ -8,6 +8,8 @@
 #include <Model/ModelManager.h>
 #include <Renderer/RendererManager.h>
 #include <Renderer/ModelRenderer.h>
+#include <Collider/CollisionManager.h>
+#include <Renderer/PrimitiveRenderer.h>
 
 void GameScene::Initialize()
 {
@@ -35,13 +37,19 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("PlayerHead");
 	ModelManager::GetInstance()->LoadModel("PlayerLeftArm");
 	ModelManager::GetInstance()->LoadModel("PlayerRightArm");
+	ModelManager::GetInstance()->LoadModel("weapon");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+	TextureManager::GetInstance()->LoadTexture("Terrain.png");
+	TextureManager::GetInstance()->LoadTexture("gradationLine_brightened.png");
+	TextureManager::GetInstance()->LoadTexture("MagicEffect.png");
 
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerBody", "PlayerBody"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerLeftArm", "PlayerLeftArm"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerRightArm", "PlayerRightArm"));
+
+
 
 
 	player_ = std::make_unique<Player>();
@@ -50,13 +58,19 @@ void GameScene::Initialize()
 	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
 	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerLeftArm"));
 	player_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerRightArm"));
+
 	player_->Initialize();
 
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("Enemy", "PlayerBody"));
 
+	std::unique_ptr<AABBCollider> enemyCollider = std::make_unique<AABBCollider>("EnemyCollider");
+	CollisionManager::GetInstance()->AddCollider(std::move(enemyCollider));
+
+
 	enemy_ = std::make_unique<Enemy>();
 
 	enemy_->AddRenderer(RendererManager::GetInstance()->FindRender("Enemy"));
+	enemy_->AddCollider(CollisionManager::GetInstance()->FindCollider("EnemyCollider"));
 
 	enemy_->Initialize();
 	//animationObject_ = std::make_unique<Object3d>();
@@ -64,6 +78,21 @@ void GameScene::Initialize()
 
 	//transform_.Initialize();
 	//animationTransform_.Initialize();
+
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Ground", PrimitiveRenderer::PrimitiveType::Plane, "Terrain.png"));
+
+	ground_ = std::make_unique<Ground>();
+
+	ground_->AddRenderer(RendererManager::GetInstance()->FindRender("Ground"));
+
+	ground_->Initialize();
+
+	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("smork", "circle.png");
+
+
+
 
 	//sprite = std::make_unique<Sprite>();
 	//sprite->Initialize("resource/uvChecker.png");
@@ -89,8 +118,8 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-	//particleEmitter_->Update({0.0f, 0.0f, 0.0f}, 8);
-	//ParticleManager::GetInstance()->Update();
+
+	ParticleManager::GetInstance()->Update();
 
 	//animationObject_->AnimationUpdate();
 	cameraManager_->Update();
@@ -108,7 +137,7 @@ void GameScene::Update()
 	//normalCamera_->SetRotate(cameraRotate);
 
 	
-	DebugUpdate();
+	//DebugUpdate();
 
 	//Vector2 uvObjectPos = object_->GetUVPosition();
 	//Vector2 uvObjectSize = object_->GetUVSize();
@@ -132,6 +161,8 @@ void GameScene::Update()
 	player_->Update();
 
 	enemy_->Update();
+
+	ground_->Update();
 	//animationObject_->Update();
 
 	//ImGui::Begin("SetModel");
@@ -173,8 +204,7 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
-	//ParticleManager::GetInstance()->DrawSet();
-	//ParticleManager::GetInstance()->Draw();
+
 
 	//// 3Dオブジェクト描画前処理
 	//Object3dManager::GetInstance()->DrawSetForAnimation();
@@ -184,14 +214,20 @@ void GameScene::Draw()
 	Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
 	lightManager_->BindLightsToShader();
 	cameraManager_->BindCameraToShader();
+
+	ground_->Draw();
 	player_->Draw();
 	enemy_->Draw();
+
 
 	Object3dManager::GetInstance()->DrawSet(BlendMode::kAdd);
 	lightManager_->BindLightsToShader();
 	cameraManager_->BindCameraToShader();
 	player_->DrawEffect();
+	enemy_->DrawEffect();
 
+	ParticleManager::GetInstance()->DrawSet();
+	ParticleManager::GetInstance()->Draw();
 	//SpriteManager::GetInstance()->DrawSet();
 	//sprite->Draw();
 	
@@ -207,5 +243,8 @@ void GameScene::DebugUpdate()
 	
 	player_->DebugGui();
 	
+	ground_->DebugGui();
+
+	enemy_->DebugGui();
 }
 #endif // _DEBUG

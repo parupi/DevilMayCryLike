@@ -8,6 +8,7 @@
 #include <Input.h>
 #include "PlayerAttackEffect.h"
 #include "State/PlayerStateBase.h"
+#include "PlayerWeapon.h"
 
 class Player : public Object3d
 {
@@ -22,6 +23,14 @@ public:
 	void Draw() override;
 	void DrawEffect();
 
+	// 衝突した
+	void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
+	// 衝突中
+	void OnCollisionStay([[maybe_unused]] BaseCollider* other) override;
+	// 離れた
+	void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
+
+
 #ifdef _DEBUG
 	void DebugGui() override;
 #endif // _DEBUG
@@ -30,9 +39,11 @@ public:
 	void ChangeState(const std::string& stateName);
 
 
+
 	// アクセッサ
 	Vector3& GetVelocity() { return velocity_; }
 	PlayerAttackEffect* GetPlayerAttackEffect() { return attackEfect_.get(); }
+	PlayerWeapon* GetWeapon() { return weapon_.get(); }
 
 private:
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_;
@@ -49,6 +60,7 @@ private:
 	Vector3 endDir_ = { 0.0f, 0.0f, 0.0f };
 	
 	std::unique_ptr<PlayerAttackEffect> attackEfect_;
+	std::unique_ptr<PlayerWeapon> weapon_;
 
 
 };

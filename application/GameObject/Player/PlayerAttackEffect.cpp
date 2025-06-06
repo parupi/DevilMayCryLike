@@ -46,6 +46,10 @@ void PlayerAttackEffect::InitializeTargetMarkerEffect(float time)
 
     static_cast<Model*>(GetRenderer("Cylinder3")->GetModel())->GetMaterials(0)->GetUVData().position.x = 0.0f;
     static_cast<Model*>(GetRenderer("Cylinder4")->GetModel())->GetMaterials(0)->GetUVData().position.x = 0.0f;
+    static_cast<Model*>(GetRenderer("Cylinder3")->GetModel())->GetMaterials(0)->GetUVData().size = { 2.0f, 2.0f };
+    static_cast<Model*>(GetRenderer("Cylinder4")->GetModel())->GetMaterials(0)->GetUVData().size = { 1.0f, 1.0f };
+    static_cast<Model*>(GetRenderer("Cylinder3")->GetModel())->GetMaterials(0)->GetColor() = { 1.0f, 0.0f, 0.0f, 1.0f };
+    static_cast<Model*>(GetRenderer("Cylinder4")->GetModel())->GetMaterials(0)->GetColor() = { 1.0f, 1.0f, 1.0f, 1.0f };
 
     targetMarkerData_.isTrue = true;
     targetMarkerData_.phase = MarkerPhase::Expand;
@@ -189,6 +193,7 @@ void PlayerAttackEffect::UpdateTargetMarkerEffect(const Vector3& translate)
         if (targetMarkerData_.currentTime >= targetMarkerData_.shrinkDuration) {
             targetMarkerData_.phase = MarkerPhase::End;
             targetMarkerData_.isTrue = false;
+            //InitializeTargetMarkerEffect(100.0f);
         }
         break;
 

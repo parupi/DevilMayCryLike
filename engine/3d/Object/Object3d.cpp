@@ -67,6 +67,7 @@ void Object3d::DebugGui()
 		renders_[i]->DebugGui(i);
 	}
 }
+#endif // _DEBUG
 
 void Object3d::OnCollisionEnter(BaseCollider* other)
 {
@@ -79,8 +80,6 @@ void Object3d::OnCollisionStay(BaseCollider* other)
 void Object3d::OnCollisionExit(BaseCollider* other)
 {
 }
-
-#endif // _DEBUG
 
 void Object3d::AddRenderer(BaseRenderer* render)
 {
@@ -101,5 +100,16 @@ BaseRenderer* Object3d::GetRenderer(std::string name)
 		}
 	}
 	Logger::Log("renderが見つかりませんでした");
+	return nullptr;
+}
+
+BaseCollider* Object3d::GetCollider(std::string name)
+{
+	for (auto& collider : colliders_) {
+		if (collider->name == name) {
+			return collider;
+		}
+	}
+	Logger::Log("colliderが見つかりませんでした");
 	return nullptr;
 }

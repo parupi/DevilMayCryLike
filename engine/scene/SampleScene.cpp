@@ -136,7 +136,7 @@ void SampleScene::Update()
 
 
 
-	DebugUpdate();
+	//DebugUpdate();
 
 
 	object_->Update();

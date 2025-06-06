@@ -14,6 +14,7 @@
 #include "DebugSphere.h"
 #include <GameObject/Player/Player.h>
 #include <GameObject/Enemy/Enemy.h>
+#include <GameObject/Ground/Ground.h>
 
 class GameScene : public BaseScene
 {
@@ -44,6 +45,9 @@ private:
 
 	std::unique_ptr<Player> player_;
 	std::unique_ptr<Enemy> enemy_;
+
+	std::unique_ptr<Ground> ground_;
+
 
 };
 

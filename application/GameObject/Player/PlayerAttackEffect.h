@@ -39,7 +39,7 @@ private:
 
 	struct AttackCylinderData {
 		bool isTrue = false;
-		float rotateSpeed = 0.1f;
+		float rotateSpeed = 0.01f;
 		TimeData timeData;
 		CylinderPhase phase = CylinderPhase::Inactive;
 		float scaleY = 0.0f;

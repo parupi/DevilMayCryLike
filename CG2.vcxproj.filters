@@ -99,6 +99,9 @@
     <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
     <ClCompile Include="application\GameObject\Enemy\Enemy.cpp" />
+    <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
+    <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\EnemyDamageEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
@@ -190,6 +193,9 @@
     <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateAttack1.h" />
     <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
+    <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
+    <ClInclude Include="application\GameObject\Ground\Ground.h" />
+    <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Fullscreen.hlsli" />

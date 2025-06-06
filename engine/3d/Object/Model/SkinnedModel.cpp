@@ -71,7 +71,7 @@ void SkinnedModel::Draw()
 		mesh->Draw();
 	}
 }
-
+#ifdef _DEBUG
 void SkinnedModel::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {
@@ -106,3 +106,4 @@ void SkinnedModel::DebugGui(ModelRenderer* render)
 		ImGui::TreePop();
 	}
 }
+#endif

@@ -12,6 +12,8 @@ void PlayerStateAttack1::Enter(Player& player)
 
 	player.GetPlayerAttackEffect()->InitializeAttackCylinderEffect(raiseDuration + waitDuration + swingDuration);
 	player.GetPlayerAttackEffect()->InitializeTargetMarkerEffect(raiseDuration + waitDuration + swingDuration);
+
+   
 }
 
 void PlayerStateAttack1::Update(Player& player)
@@ -43,11 +45,13 @@ void PlayerStateAttack1::Update(Player& player)
             // 振り下ろす方向を設定（例えばx = 30度）
             startRot_ = targetRot_;
             targetRot_.x = -30.0f;
+            player.GetWeapon()->SetIsAttack(true);
         }
         break;
     }
     case AttackPhase::Swing:
     {
+
         rot = Slerp(EulerDegree(startRot_), EulerDegree(targetRot_), t);
         if (stateTime_.current >= stateTime_.max) {
             attackPhase_ = AttackPhase::End;
@@ -71,4 +75,6 @@ void PlayerStateAttack1::Exit(Player& player)
 	newRot.x = 0.0f;
 	player.GetRenderer("PlayerLeftArm")->GetWorldTransform()->GetRotation() = EulerDegree(newRot);
 	player.GetRenderer("PlayerRightArm")->GetWorldTransform()->GetRotation() = EulerDegree(newRot);
+
+    player.GetWeapon()->SetIsAttack(false);
 }

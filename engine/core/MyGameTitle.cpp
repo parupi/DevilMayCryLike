@@ -88,7 +88,10 @@ void MyGameTitle::Draw()
 	//SceneManager::GetInstance()->DrawRTV();
 
 	OffScreenManager::GetInstance()->Draw();
-	//CollisionManager::GetInstance()->Draw();
+
+#ifdef _DEBUG
+	CollisionManager::GetInstance()->Draw();
+#endif
 	PrimitiveDrawer::GetInstance()->EndDraw();
 
 
