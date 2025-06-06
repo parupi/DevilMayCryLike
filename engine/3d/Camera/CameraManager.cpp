@@ -13,9 +13,13 @@ CameraManager* CameraManager::GetInstance()
 	return instance;
 }
 
-void CameraManager::Initialize()
+void CameraManager::Initialize(DirectXManager* dxManager)
 {
 	activeCameraIndex_ = 0;
+
+	dxManager_ = dxManager;
+
+	CreateCameraResource();
 }
 
 void CameraManager::Finalize()
@@ -37,6 +41,7 @@ void CameraManager::Update()
 	{
 		cameras_[activeCameraIndex_]->Update();
 	}
+	cameraData_->worldPosition = cameras_[activeCameraIndex_]->GetTranslate();
 }
 
 void CameraManager::SetActiveCamera(int index)
@@ -60,5 +65,16 @@ std::shared_ptr<Camera> CameraManager::GetActiveCamera() const
 
 void CameraManager::BindCameraToShader()
 {
+	// cameraの場所を指定
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(3, cameraResource_->GetGPUVirtualAddress());
+}
 
+void CameraManager::CreateCameraResource()
+{
+	// カメラ用のリソースを作る
+	cameraResource_ = dxManager_->CreateBufferResource(sizeof(CameraForGPU));
+	// 書き込むためのアドレスを取得
+	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
+	// 初期値を入れる
+	cameraData_->worldPosition = { 1.0f, 1.0f, 1.0f };
 }

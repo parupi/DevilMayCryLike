@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseLight.h"
 #include "LightStructs.h"
-class DirectionalLight : BaseLight
+class DirectionalLight : public BaseLight
 {
 public:
 	DirectionalLight(std::string lightName);
@@ -11,8 +11,6 @@ public:
 
 	// アクセッサ
 	DirectionalLightData& GetLightData() { return lightData_; }
-
-	std::string GetName() const { return name; }
 private:
 
 	DirectionalLightData lightData_;

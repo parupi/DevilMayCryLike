@@ -49,7 +49,8 @@ float Dot(const Quaternion& q0, const Quaternion& q1);
 
 const Quaternion EulerDegree(const Vector3& rotate) noexcept;
 const Quaternion EulerRadian(float pitch, float yaw, float roll) noexcept;
+const Quaternion LookRotation(const Vector3& direction);
+Quaternion QuaternionFromMatrix(const Matrix4x4& m);
 
-const Quaternion FromToRotation(const Vector3& from, const Vector3& to);
 // ImGuiを使ったクォータニオンの描画
 void PrintOnImGui(const Quaternion& q, const char* label = "Quaternion");

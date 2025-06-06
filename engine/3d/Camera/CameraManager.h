@@ -3,6 +3,7 @@
 #include <memory>
 #include "Camera.h"
 #include <mutex>
+#include "base/DirectXManager.h"
 
 class CameraManager
 {
@@ -18,7 +19,7 @@ public:
     // シングルトンインスタンスの取得
     static CameraManager* GetInstance();
     // 初期化
-    void Initialize();
+    void Initialize(DirectXManager* dxManager);
     // 終了
     void Finalize();
     // カメラを追加する
@@ -36,7 +37,20 @@ public:
     // アクティブなカメラをシェーダーに送る
     void BindCameraToShader();
 
+
+private:
+    void CreateCameraResource();
+
+    // カメラ座標
+    struct CameraForGPU {
+        Vector3 worldPosition;
+    };
 private:
     std::vector<std::shared_ptr<Camera>> cameras_; // 管理するカメラのリスト
     int activeCameraIndex_; // アクティブなカメラのインデックス
+    DirectXManager* dxManager_ = nullptr;
+
+    Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
+
+    CameraForGPU* cameraData_ = nullptr;
 };

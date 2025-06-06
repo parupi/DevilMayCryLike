@@ -38,7 +38,7 @@ public:// アクセッサ
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetParticlePSO(BlendMode blendMode);
 	// オブジェクト
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetObjectSignature() { return objectSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetObjectPSO();
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetObjectPSO(BlendMode blendMode);
 	// アニメーション
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetAnimationSignature() { return animationSignature_; }
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetAnimationPSO();
@@ -58,7 +58,7 @@ private:
 	void CreateParticlePSO(BlendMode blendMode);
 	// オブジェクト
 	void CreateObjectSignature();
-	void CreateObjectPSO();
+	void CreateObjectPSO(BlendMode blendMode);
 	// アニメーション
 	void CreateAnimationSignature();
 	void CreateAnimationPSO();
@@ -80,7 +80,7 @@ private: // データ格納用変数
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> particleGraphicsPipelineState_;
 	// オブジェクト
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> objectSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> objectGraphicsPipelineState_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> objectGraphicsPipelineState_;
 	// アニメーション
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> animationSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> animationGraphicsPipelineState_;

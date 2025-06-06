@@ -164,32 +164,61 @@ const Quaternion EulerRadian(float pitch, float yaw, float roll) noexcept {
     return result;
 }
 
-const Quaternion FromToRotation(const Vector3& from, const Vector3& to)
+const Quaternion LookRotation(const Vector3& direction)
 {
-    Vector3 f = Normalize(from);
-    Vector3 t = Normalize(to);
+    Vector3 forward = Normalize(direction);
+    Vector3 up = { 0.0f, 1.0f, 0.0f }; // ワールド上の上方向
 
-    float dot = Dot(f, t);
-
-    // 同じ方向なら回転不要
-    if (dot >= 1.0f - 1e-6f) {
-        return Identity();
+    // forwardとupが並行にならないようにチェック
+    if (std::abs(Dot(forward, up)) > 0.999f) {
+        up = { 0.0f, 0.0f, 1.0f }; // 代わりのupベクトル
     }
 
-    // 真逆方向（180度回転）
-    if (dot <= -1.0f + 1e-6f) {
-        // 任意の垂直な軸を選ぶ（fromに垂直なベクトル）
-        Vector3 orthogonal = Cross(f, Vector3(1.0f, 0.0f, 0.0f));
-        if (Length(orthogonal) < 1e-6f) {
-            orthogonal = Cross(f, Vector3(0.0f, 1.0f, 0.0f));
-        }
-        orthogonal = Normalize(orthogonal);
-        return MakeRotateAxisAngleQuaternion(orthogonal, float(std::numbers::pi));
+    Vector3 right = Normalize(Cross(up, forward));
+    up = Cross(forward, right);
+
+    Matrix4x4 lookMatrix = {
+        right.x,   right.y,   right.z,   0.0f,
+        up.x,      up.y,      up.z,      0.0f,
+        forward.x, forward.y, forward.z, 0.0f,
+        0.0f,      0.0f,      0.0f,      1.0f,
+    };
+
+    return QuaternionFromMatrix(lookMatrix);
+}
+
+Quaternion QuaternionFromMatrix(const Matrix4x4& m)
+{
+    Quaternion q{};
+    float trace = m.m[0][0] + m.m[1][1] + m.m[2][2];  // 対角成分の和
+
+    if (trace > 0.0f) {
+        float s = sqrtf(trace + 1.0f) * 2.0f; // s = 4 * qw
+        q.w = 0.25f * s;
+        q.x = (m.m[2][1] - m.m[1][2]) / s;
+        q.y = (m.m[0][2] - m.m[2][0]) / s;
+        q.z = (m.m[1][0] - m.m[0][1]) / s;
+    } else if (m.m[0][0] > m.m[1][1] && m.m[0][0] > m.m[2][2]) {
+        float s = sqrtf(1.0f + m.m[0][0] - m.m[1][1] - m.m[2][2]) * 2.0f; // s = 4 * qx
+        q.w = (m.m[2][1] - m.m[1][2]) / s;
+        q.x = 0.25f * s;
+        q.y = (m.m[0][1] + m.m[1][0]) / s;
+        q.z = (m.m[0][2] + m.m[2][0]) / s;
+    } else if (m.m[1][1] > m.m[2][2]) {
+        float s = sqrtf(1.0f + m.m[1][1] - m.m[0][0] - m.m[2][2]) * 2.0f; // s = 4 * qy
+        q.w = (m.m[0][2] - m.m[2][0]) / s;
+        q.x = (m.m[0][1] + m.m[1][0]) / s;
+        q.y = 0.25f * s;
+        q.z = (m.m[1][2] + m.m[2][1]) / s;
+    } else {
+        float s = sqrtf(1.0f + m.m[2][2] - m.m[0][0] - m.m[1][1]) * 2.0f; // s = 4 * qz
+        q.w = (m.m[1][0] - m.m[0][1]) / s;
+        q.x = (m.m[0][2] + m.m[2][0]) / s;
+        q.y = (m.m[1][2] + m.m[2][1]) / s;
+        q.z = 0.25f * s;
     }
 
-    Vector3 axis = Cross(f, t);
-    float angle = std::acos(dot); // ラジアン
-    return MakeRotateAxisAngleQuaternion(axis, angle);
+    return q;
 }
 
 

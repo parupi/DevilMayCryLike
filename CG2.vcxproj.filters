@@ -85,6 +85,23 @@
     <ClCompile Include="application\scene\GameScene.cpp" />
     <ClCompile Include="application\scene\TitleScene.cpp" />
     <ClCompile Include="application\GameObject\Player\Player.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\MeshGenerator.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\ModelRenderer.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\PrimitiveFactory.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\PrimitiveRenderer.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\RendererManager.cpp" />
+    <ClCompile Include="engine\3d\Collider\AABBCollider.cpp" />
+    <ClCompile Include="engine\3d\Collider\BaseCollider.cpp" />
+    <ClCompile Include="engine\3d\Collider\CollisionManager.cpp" />
+    <ClCompile Include="engine\3d\Collider\SphereCollider.cpp" />
+    <ClCompile Include="application\GameObject\Player\PlayerAttackEffect.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateIdle.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Enemy.cpp" />
+    <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
+    <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\EnemyDamageEffect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
@@ -160,6 +177,25 @@
     <ClInclude Include="application\scene\GameScene.h" />
     <ClInclude Include="application\scene\TitleScene.h" />
     <ClInclude Include="application\GameObject\Player\Player.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\BaseRenderer.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\MeshGenerator.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\ModelRenderer.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\PrimitiveFactory.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\PrimitiveRenderer.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\RendererManager.h" />
+    <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
+    <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
+    <ClInclude Include="engine\3d\Collider\CollisionManager.h" />
+    <ClInclude Include="engine\3d\Collider\SphereCollider.h" />
+    <ClInclude Include="application\GameObject\Player\PlayerAttackEffect.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateBase.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateIdle.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateAttack1.h" />
+    <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
+    <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
+    <ClInclude Include="application\GameObject\Ground\Ground.h" />
+    <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Fullscreen.hlsli" />

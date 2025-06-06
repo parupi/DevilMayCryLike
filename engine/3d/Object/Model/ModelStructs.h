@@ -100,7 +100,7 @@ struct JointWeightData {
 struct MeshData {
 	std::string name;
 	std::vector<VertexData> vertices;
-	std::vector<uint32_t> indices;
+	std::vector<int32_t> indices;
 	uint32_t materialIndex; // このメッシュに持たせるマテリアルのインデックス
 };
 
