@@ -55,14 +55,13 @@ public:
 
 	// アクセッサ	
 	Vector3& GetTranslation() { return translation_; }
-	void SetTranslation(const Vector3& translation) { translation_ = translation; }
 	Quaternion& GetRotation() { return rotation_; }
-	void SetRotation(const Quaternion& rotation) { rotation_ = rotation; }
 	Vector3& GetScale() { return scale_; }
-	void SetScale(const Vector3& scale) { scale_ = scale; }
+	void SetParent(WorldTransform* parent) { parent_ = parent; }
+	WorldTransform* GetParent() { return parent_; }
+	void DetachParent() { parent_ = nullptr; }
 
-	void SetParent(WorldTransform* transform) { parent_ = transform; }
-
+	Vector3 GetWorldPos();
 private:
 	// 定数バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer_;
@@ -79,6 +78,8 @@ private:
 	Matrix4x4 matWorld_;
 	// 親となるワールド変換へのポインタ
 	WorldTransform* parent_ = nullptr;
+	// ワールド座標を保持しておく
+	Vector3 worldPos_{};
 
 	// コピー禁止
 	WorldTransform(const WorldTransform&) = delete;

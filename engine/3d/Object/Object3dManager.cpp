@@ -24,9 +24,9 @@ void Object3dManager::Finalize()
 	instance = nullptr;
 }
 
-void Object3dManager::DrawSet()
+void Object3dManager::DrawSet(BlendMode blendMode)
 {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetObjectPSO().Get());			// PSOを設定
+	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetObjectPSO(blendMode).Get());			// PSOを設定
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetObjectSignature().Get());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }

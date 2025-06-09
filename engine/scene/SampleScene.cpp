@@ -10,6 +10,10 @@
 #include <offscreen/VignetteEffect.h>
 #include <offscreen/SmoothEffect.h>
 #include <Primitive/PrimitiveDrawer.h>
+#include <Renderer/RendererManager.h>
+#include <Collider/CollisionManager.h>
+#include <Collider/SphereCollider.h>
+#include <Renderer/PrimitiveRenderer.h>
 
 void SampleScene::Initialize()
 {
@@ -17,16 +21,16 @@ void SampleScene::Initialize()
 	normalCamera_ = std::make_shared<Camera>();
 	cameraManager_->AddCamera(normalCamera_);
 	cameraManager_->SetActiveCamera(0);
-	normalCamera_->SetTranslate(Vector3{ 0.0f, 35.0f, -44.0f });
-	normalCamera_->SetRotate(Vector3{ 0.68f, 0.0f, 0.0f });
+	normalCamera_->GetTranslate() = { 0.0f, 35.0f, -44.0f };
+	normalCamera_->GetRotate() = { 0.68f, 0.0f, 0.0f };
 
 
-	// .objファイルからモデルを読み込む
+	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
 	ModelManager::GetInstance()->LoadSkinnedModel("simpleSkin");
 	ModelManager::GetInstance()->LoadSkinnedModel("sneakWalk");
 	ModelManager::GetInstance()->LoadSkinnedModel("ParentKoala");
-
+	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane");
 	ModelManager::GetInstance()->LoadModel("Terrain");
 	ModelManager::GetInstance()->LoadModel("axis");
@@ -37,10 +41,30 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 
 	object_ = std::make_unique<Object3d>();
-	object_->Initialize("multiMaterial");
+	object_->Initialize();
 
-	animationObject_ = std::make_unique<Object3d>();
-	animationObject_->Initialize("simpleSkin");
+	object2_ = std::make_unique<Object3d>();
+	object2_->Initialize();
+	//animationObject_ = std::make_unique<Object3d>();
+	//animationObject_->Initialize("simpleSkin");
+
+	render1_ = std::make_unique<ModelRenderer>("render1", "multiMaterial");
+	//render1_->SetModel();
+	//render2_ =;
+	//render2_->SetModel("Terrain");
+
+	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveRenderer::PrimitiveType::Plane, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveRenderer::PrimitiveType::Ring, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveRenderer::PrimitiveType::Cylinder, "uvChecker.png"));
+
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render1"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+
+	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderPlane"));
+	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
+	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
 
 	//transform_.Initialize();
 	//animationTransform_.Initialize();
@@ -67,6 +91,18 @@ void SampleScene::Initialize()
 	//grayEffect_ = std::make_unique<GrayEffect>();
 	//grayEffect_->Initialize();
 
+
+	std::unique_ptr<SphereCollider> collider = std::make_unique<SphereCollider>("collider1");
+	collider->Initialize();
+	CollisionManager::GetInstance()->AddCollider(std::move(collider));
+
+	std::unique_ptr<SphereCollider> collider2 = std::make_unique<SphereCollider>("collider2");
+	collider2->Initialize();
+	CollisionManager::GetInstance()->AddCollider(std::move(collider2));
+
+	object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
+	object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
+
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<SmoothEffect>());
@@ -81,9 +117,8 @@ void SampleScene::Update()
 	particleEmitter_->Update({ 0.0f, 0.0f, 0.0f }, 8);
 	ParticleManager::GetInstance()->Update();
 
-	object_->AnimationUpdate();
-	animationObject_->AnimationUpdate();
 	cameraManager_->Update();
+	lightManager_->UpdateAllLight();
 	//sprite->Update();
 
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
@@ -92,26 +127,22 @@ void SampleScene::Update()
 	ImGui::DragFloat3("Direction", &dirLight_->GetLightData().direction.x, 0.01f);
 	ImGui::End();
 
-	lightManager_->UpdateAllLight();
 
-	Vector3 normalCameraPos = normalCamera_->GetTranslate();
-	Vector3 cameraRotate = normalCamera_->GetRotate();
 
 	ImGui::Begin("Camera Manager");
-	ImGui::DragFloat3("Translate", &normalCameraPos.x, 0.01f);
-	ImGui::DragFloat3("Rotate", &cameraRotate.x, 0.01f);
+	ImGui::DragFloat3("Translate", &normalCamera_->GetTranslate().x, 0.01f);
+	ImGui::DragFloat3("Rotate", &normalCamera_->GetRotate().x, 0.01f);
 	ImGui::End();
 
-	normalCamera_->SetTranslate(normalCameraPos);
-	normalCamera_->SetRotate(cameraRotate);
 
 
-	DebugUpdate();
+	//DebugUpdate();
 
 
 	object_->Update();
+	object2_->Update();
 
-	animationObject_->Update();
+	//animationObject_->Update();
 
 	//Vector2 spritePos = sprite->GetPosition();
 	//Vector2 spriteSize = sprite->GetSize();
@@ -158,13 +189,16 @@ void SampleScene::Draw()
 	//object_->Draw();
   
 	// 3Dオブジェクト描画前処理
-	Object3dManager::GetInstance()->DrawSetForAnimation();
-	lightManager_->BindLightsToShader();
-	animationObject_->Draw();
+	//Object3dManager::GetInstance()->DrawSetForAnimation();
+	//lightManager_->BindLightsToShader();
+	//cameraManager_->BindCameraToShader();
+	//animationObject_->Draw();
 
-	Object3dManager::GetInstance()->DrawSet();
+	Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
 	lightManager_->BindLightsToShader();
+	cameraManager_->BindCameraToShader();
 	object_->Draw();
+	object2_->Draw();
 	
 
 	//SpriteManager::GetInstance()->DrawSet();
@@ -195,8 +229,8 @@ void SampleScene::DebugUpdate()
 	object_->DebugGui();
 	ImGui::End();
 
-	ImGui::Begin("AnimationObject");
-	animationObject_->DebugGui();
+	ImGui::Begin("Object2");
+	object2_->DebugGui();
 	ImGui::End();
 }
 #endif

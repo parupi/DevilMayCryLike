@@ -90,6 +90,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWarningAsError>false</TreatWarningAsError>
       <AdditionalIncludeDirectories>$(ProjectDir)engine\base;$(ProjectDir)engine\2d;$(ProjectDir)engine\3d;$(ProjectDir)engine\input;$(ProjectDir)engine\audio;$(ProjectDir)engine\scene;$(ProjectDir)engine\math;$(ProjectDir)externals\DirectXTex;$(ProjectDir)externals\imgui;$(ProjectDir)externals\nlohmann;$(ProjectDir)engine\debuger;$(ProjectDir)engine\debug;$(ProjectDir)application\scene;$(ProjectDir)engine\core;$(ProjectDir)application\Enemy;$(ProjectDir)externals\assimp\include;$(ProjectDir)engine\3d\Camera;$(ProjectDir)engine\3d\Model;$(ProjectDir)engine\3d\Object;$(ProjectDir)engine\3d\Object\Animation;$(ProjectDir)engine;$(ProjectDir)application</AdditionalIncludeDirectories>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -111,8 +112,19 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\Player\Player.cpp" />
     <ClCompile Include="application\scene\GameScene.cpp" />
     <ClCompile Include="application\scene\TitleScene.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Enemy.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\EnemyDamageEffect.cpp" />
+    <ClCompile Include="engine\3d\Collider\AABBCollider.cpp" />
+    <ClCompile Include="engine\3d\Collider\BaseCollider.cpp" />
+    <ClCompile Include="engine\3d\Collider\CollisionManager.cpp" />
+    <ClCompile Include="engine\3d\Collider\SphereCollider.cpp" />
     <ClCompile Include="engine\3d\Light\BaseLight.cpp" />
     <ClCompile Include="engine\3d\Light\DirectionalLight.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\MeshGenerator.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\ModelRenderer.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\PrimitiveFactory.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\PrimitiveRenderer.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\RendererManager.cpp" />
     <ClCompile Include="engine\offscreen\BaseOffScreen.cpp" />
     <ClCompile Include="engine\base\utility\DeltaTime.cpp" />
     <ClCompile Include="engine\debuger\DebugSphere.cpp" />
@@ -140,6 +152,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\core\GuchisFramework.cpp" />
     <ClCompile Include="application\scene\fade\Fade.cpp" />
     <ClCompile Include="engine\offscreen\GrayEffect.cpp" />
+    <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\math\function.cpp" />
@@ -175,6 +188,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\Primitive\PrimitiveDrawer.cpp" />
     <ClCompile Include="engine\3d\Light\PointLight.cpp" />
     <ClCompile Include="engine\3d\Light\SpotLight.cpp" />
+    <ClCompile Include="application\GameObject\Player\PlayerAttackEffect.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateIdle.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
+    <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\shaders\BoxFilter.PS.hlsl">
@@ -264,10 +282,22 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Player\Player.h" />
     <ClInclude Include="application\scene\GameScene.h" />
     <ClInclude Include="application\scene\TitleScene.h" />
+    <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
+    <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
+    <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
+    <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
+    <ClInclude Include="engine\3d\Collider\CollisionManager.h" />
+    <ClInclude Include="engine\3d\Collider\SphereCollider.h" />
     <ClInclude Include="engine\3d\Light\DirectionalLight.h" />
     <ClInclude Include="engine\3d\Light\BaseLight.h" />
     <ClInclude Include="engine\3d\Light\LightStructs.h" />
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\BaseRenderer.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\MeshGenerator.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\ModelRenderer.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\PrimitiveFactory.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\PrimitiveRenderer.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\RendererManager.h" />
     <ClInclude Include="engine\offscreen\BaseOffScreen.h" />
     <ClInclude Include="engine\base\utility\DeltaTime.h" />
     <ClInclude Include="engine\3d\Object\Model\ModelStructs.h" />
@@ -334,6 +364,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\Primitive\PrimitiveDrawer.h" />
     <ClInclude Include="engine\3d\Light\PointLight.h" />
     <ClInclude Include="engine\3d\Light\SpotLight.h" />
+    <ClInclude Include="application\GameObject\Player\PlayerAttackEffect.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateBase.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateIdle.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateAttack1.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
+    <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
+    <ClInclude Include="application\GameObject\Ground\Ground.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

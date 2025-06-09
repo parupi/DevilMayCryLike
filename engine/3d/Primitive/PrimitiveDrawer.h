@@ -25,6 +25,9 @@ public:
 	static PrimitiveDrawer* GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+	// 終了
+	void Finalize();
+
 	// 描画前処理
 	void BeginDraw();
 	// 描画後処理

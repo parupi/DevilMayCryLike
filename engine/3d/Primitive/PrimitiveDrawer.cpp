@@ -24,6 +24,12 @@ void PrimitiveDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoManag
 	transform_->Initialize();
 }
 
+void PrimitiveDrawer::Finalize()
+{
+	delete instance;
+	instance = nullptr;
+}
+
 void PrimitiveDrawer::BeginDraw()
 {
 	vertices_.clear();
@@ -47,7 +53,7 @@ void PrimitiveDrawer::DrawLine(const Vector3& start, const Vector3& end, const V
 	vertices_.push_back({ end, color });
 	indices_.push_back(baseIndex);
 	indices_.push_back(baseIndex + 1);
-	currentTopology_ = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	currentTopology_ = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 }
 
 void PrimitiveDrawer::DrawRing(const Vector3& center, float innerRadius, float outerRadius, Vector4 color, int kRingDivide, RingDrawMode mode, std::string filePath)

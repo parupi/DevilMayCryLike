@@ -9,6 +9,7 @@
 #include "Mesh/Mesh.h"
 #include "Material/Material.h"
 #include <Object3d.h>
+#include <Renderer/ModelRenderer.h>
 
 void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 {
@@ -32,6 +33,21 @@ void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 	}
 }
 
+void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData)
+{
+	modelLoader_ = ModelManager::GetInstance()->GetModelLoader();
+
+	// Meshの生成と初期化
+	auto mesh = std::make_unique<Mesh>();
+	mesh->Initialize(modelLoader_->GetDxManager(), modelLoader_->GetSrvManager(), meshData);
+	meshes_.push_back(std::move(mesh));
+
+	// Materialの生成と初期化
+	auto material = std::make_unique<Material>();
+	material->Initialize(modelLoader_->GetDxManager(), modelLoader_->GetSrvManager(), materialData);
+	materials_.push_back(std::move(material));
+}
+
 void Model::Update()
 {
 	for (size_t i = 0; i < materials_.size(); i++) {
@@ -53,7 +69,7 @@ void Model::Draw()
 }
 
 #ifdef _DEBUG
-void Model::DebugGui(Object3d* object)
+void Model::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {
 		auto& modelMap = ModelManager::GetInstance()->models;
@@ -75,7 +91,7 @@ void Model::DebugGui(Object3d* object)
 					bool isSelected = (selectedIndex == i);
 					if (ImGui::Selectable(modelNames[i].c_str(), isSelected)) {
 						selectedIndex = i;
-						object->SetModel(modelNames[selectedIndex]);
+						render->SetModel(modelNames[selectedIndex]);
 					}
 					if (isSelected) {
 						ImGui::SetItemDefaultFocus();
@@ -93,5 +109,10 @@ void Model::DebugGui(Object3d* object)
 		}
 		materials_[i]->DebugGui(static_cast<uint32_t>(i));
 	}
+}
+
+void Model::DebugGuiPrimitive()
+{
+	materials_[0]->DebugGui(static_cast<uint32_t>(1));
 }
 #endif // _DEBUG

@@ -22,7 +22,7 @@ public:
 	// 終了
 	void Finalize();
 	// 描画前処理
-	void DrawSet();
+	void DrawSet(BlendMode blendMode);
 	// アニメーション用描画前処理
 	void DrawSetForAnimation();
 

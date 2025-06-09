@@ -16,6 +16,7 @@ void OffScreen::Finalize()
 
 void OffScreen::Update()
 {
+#ifdef _DEBUG
 	ImGui::Begin("OffScreen");
 	// エフェクト名の文字列配列
 	const char* effectNames[] = {
@@ -37,6 +38,7 @@ void OffScreen::Update()
 		effectType_ = static_cast<OffScreenEffectType>(currentEffect);
 	}
 	ImGui::End();
+#endif
 }
 
 void OffScreen::Draw(/*OffScreenEffectType effectType*/)
