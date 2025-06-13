@@ -102,6 +102,9 @@
     <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
     <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="application\GameObject\Enemy\EnemyDamageEffect.cpp" />
+    <ClCompile Include="engine\Include\SceneLoader.cpp" />
+    <ClCompile Include="engine\Include\SceneBuilder.cpp" />
+    <ClCompile Include="application\scene\Object3dFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
@@ -196,6 +199,11 @@
     <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
     <ClInclude Include="application\GameObject\Ground\Ground.h" />
     <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
+    <ClInclude Include="engine\Include\SceneLoader.h" />
+    <ClInclude Include="engine\3d\Collider\ColliderStructs.h" />
+    <ClInclude Include="engine\Include\SceneBuilder.h" />
+    <ClInclude Include="application\scene\Object3dFactory.h" />
+    <ClInclude Include="application\CollisionCategory.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Fullscreen.hlsli" />

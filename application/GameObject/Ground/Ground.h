@@ -3,7 +3,7 @@
 class Ground : public Object3d
 {
 public:
-	Ground();
+	Ground(std::string objectName);
 	~Ground() override = default;
 	// 初期
 	void Initialize() override;

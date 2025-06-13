@@ -7,6 +7,12 @@
 //#include <Skeleton.h>
 //#include <Animator.h>
 #include "Model/ModelManager.h"
+
+Object3d::Object3d(std::string objectName)
+{
+	name = objectName;
+}
+
 Object3d::~Object3d()
 {
 }
@@ -27,8 +33,6 @@ void Object3d::Update()
 	}
 
 	transform_->TransferMatrix();
-
-	//model_->Update();
 
 	camera_ = objectManager_->GetDefaultCamera();
 
@@ -57,7 +61,6 @@ void Object3d::Draw()
 #ifdef _DEBUG
 void Object3d::DebugGui()
 {
-	//model_->DebugGui(this);
 	if (ImGui::TreeNode("Transform")) {
 		transform_->DebugGui();
 		ImGui::TreePop();

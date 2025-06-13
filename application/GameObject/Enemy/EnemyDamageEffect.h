@@ -3,7 +3,7 @@
 class EnemyDamageEffect : public Object3d
 {
 public:
-	EnemyDamageEffect();
+	EnemyDamageEffect(std::string objectName);
 	~EnemyDamageEffect() override = default;
 	// 初期
 	void Initialize() override;

@@ -36,9 +36,7 @@ public:
 	void Run();
 
 protected:
-#ifdef _DEBUG
-	std::unique_ptr<D3DResourceLeakChecker> leakCheck;
-#endif // _DEBUG
+
 
 	std::unique_ptr<WindowManager> winManager = nullptr;
 	std::unique_ptr<DirectXManager> dxManager = nullptr;

@@ -1,20 +1,15 @@
 #include "Ground.h"
 
-Ground::Ground()
+Ground::Ground(std::string objectName) : Object3d(objectName)
 {
-
+	Object3d::Initialize();
 }
 
 void Ground::Initialize()
 {
-	Object3d::Initialize();
 
-	GetWorldTransform()->GetTranslation().y = -5.0f;
-	GetWorldTransform()->GetScale() = { 60.0f, 1.0f, 100.0f };
 
-	static_cast<Model*>(GetRenderer("Ground")->GetModel())->GetMaterials(0)->SetColor({ 0.5f, 0.5f, 0.5f, 1.0f });
-
-	Object3d::Update();
+	GetCollider(name)->category_ = CollisionCategory::Ground;
 }
 
 void Ground::Update()

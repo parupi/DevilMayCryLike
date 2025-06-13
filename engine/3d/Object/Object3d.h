@@ -22,7 +22,7 @@ struct TimeData {
 class Object3d
 {
 public: // メンバ関数
-	Object3d() = default;
+	Object3d(std::string objectName);
 	virtual ~Object3d();
 	// 初期化処理
 	virtual void Initialize();
@@ -43,20 +43,12 @@ public: // メンバ関数
 
 private: // メンバ変数
 	Object3dManager* objectManager_ = nullptr;
-	//BaseModel* model_ = nullptr;
-	//SkinnedModel* skinnedModel_ = nullptr;
 	Camera* camera_ = nullptr;
-	//Animator* animator_ = nullptr;
-
 	std::unique_ptr<WorldTransform> transform_;
 
 	std::vector<BaseRenderer*> renders_;
 	std::vector<BaseCollider*> colliders_;
 public: // ゲッター // セッター // 
-	// モデル
-	//void SetModel(const std::string& filePath);
-	//BaseModel* GetModel() { return model_; }
-
 	// レンダー追加処理
 	void AddRenderer(BaseRenderer* render);
 	void AddCollider(BaseCollider* collider);
@@ -68,4 +60,6 @@ public: // ゲッター // セッター //
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }
+
+	std::string name;
 };

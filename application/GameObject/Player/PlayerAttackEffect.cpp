@@ -1,7 +1,7 @@
 #include "PlayerAttackEffect.h"
 #include <Renderer/PrimitiveRenderer.h>
 
-PlayerAttackEffect::PlayerAttackEffect()
+PlayerAttackEffect::PlayerAttackEffect(std::string objectName) : Object3d(objectName)
 {
 
 

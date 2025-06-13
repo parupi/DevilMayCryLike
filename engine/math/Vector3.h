@@ -22,6 +22,8 @@ struct Vector3 final {
     Vector3& operator+=(const Vector3& other);
     // ベクトルの減算代入
     Vector3& operator-=(const Vector3& other);
+
+    Vector3& operator*=(const Vector3& other);
     // ベクトルのスカラー倍代入
     Vector3& operator*=(float scalar);
     // ベクトルのスカラー除算代入
