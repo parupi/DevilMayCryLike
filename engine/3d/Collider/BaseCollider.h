@@ -3,6 +3,7 @@
 #include <memory>
 #include <WorldTransform.h>
 
+#include <CollisionCategory.h>
 enum class CollisionShapeType {
 	AABB,
 	Sphere,
@@ -18,6 +19,7 @@ public:
 	virtual CollisionShapeType GetShapeType() const = 0;
 	virtual void SetOwner(Object3d* owner) { owner_ = owner; }
 
+	CollisionCategory category_;
 	std::string name;
 	Object3d* owner_;
 	std::unique_ptr<WorldTransform> transform_;

@@ -40,10 +40,10 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 
-	object_ = std::make_unique<Object3d>();
+	object_ = std::make_unique<Object3d>("");
 	object_->Initialize();
 
-	object2_ = std::make_unique<Object3d>();
+	object2_ = std::make_unique<Object3d>("");
 	object2_->Initialize();
 	//animationObject_ = std::make_unique<Object3d>();
 	//animationObject_->Initialize("simpleSkin");

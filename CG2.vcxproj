@@ -153,6 +153,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\scene\fade\Fade.cpp" />
     <ClCompile Include="engine\offscreen\GrayEffect.cpp" />
     <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
+    <ClCompile Include="engine\Include\SceneLoader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\math\function.cpp" />
@@ -193,6 +194,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
+    <ClCompile Include="engine\Include\SceneBuilder.cpp" />
+    <ClCompile Include="application\scene\Object3dFactory.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\shaders\BoxFilter.PS.hlsl">
@@ -286,6 +289,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
     <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
     <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
+    <ClInclude Include="engine\3d\Collider\ColliderStructs.h" />
+    <ClInclude Include="application\CollisionCategory.h" />
     <ClInclude Include="engine\3d\Collider\CollisionManager.h" />
     <ClInclude Include="engine\3d\Collider\SphereCollider.h" />
     <ClInclude Include="engine\3d\Light\DirectionalLight.h" />
@@ -371,6 +376,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
     <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
     <ClInclude Include="application\GameObject\Ground\Ground.h" />
+    <ClInclude Include="engine\Include\SceneLoader.h" />
+    <ClInclude Include="engine\Include\SceneBuilder.h" />
+    <ClInclude Include="application\scene\Object3dFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

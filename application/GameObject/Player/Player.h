@@ -13,7 +13,7 @@
 class Player : public Object3d
 {
 public:
-	Player();
+	Player(std::string objectNama);
 	~Player() override = default;
 	// 初期
 	void Initialize() override;
@@ -50,6 +50,7 @@ private:
 	PlayerStateBase* currentState_ = nullptr;
 
 	Vector3 velocity_{};
+	Vector3 acceleration_{0.0f, -0.5f, 0.0f};
 
 	Input* input = Input::GetInstance();
 	// 攻撃のフラグ

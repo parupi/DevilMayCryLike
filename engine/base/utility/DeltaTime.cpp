@@ -1,5 +1,6 @@
 #include "DeltaTime.h"
 #include <thread>
+#include <imgui.h>
 
 std::chrono::high_resolution_clock::time_point DeltaTime::preTime_;
 float DeltaTime::deltaTime_ = 0.0f;
@@ -12,8 +13,12 @@ void DeltaTime::Initialize()
 
 void DeltaTime::Update()
 {
-    auto currentTime = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed = currentTime - preTime_;
-    deltaTime_ = elapsed.count(); // 秒で保持
-    preTime_ = currentTime;
+	auto currentTime = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double> elapsed = currentTime - preTime_;
+	deltaTime_ = elapsed.count(); // 秒で保持
+	preTime_ = currentTime;
+
+	ImGui::Begin("DeltaTime");
+	ImGui::Text("DeltaTime: %.6f sec", deltaTime_);
+	ImGui::End();
 }

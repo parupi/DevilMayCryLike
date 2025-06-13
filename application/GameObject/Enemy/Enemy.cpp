@@ -2,7 +2,8 @@
 #include <Renderer/RendererManager.h>
 #include <Renderer/PrimitiveRenderer.h>
 
-Enemy::Enemy()
+
+Enemy::Enemy(std::string objectName) : Object3d(objectName)
 {
 }
 
@@ -12,7 +13,7 @@ void Enemy::Initialize()
 
 	GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, 5.0f };
 	GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
-	static_cast<Model*>(GetRenderer("Enemy")->GetModel())->GetMaterials(0)->GetColor() = { 1.0f, 0.0f, 0.0f, 1.0f };
+	//static_cast<Model*>(GetRenderer("Enemy")->GetModel())->GetMaterials(0)->GetColor() = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 	particleEmitter_ = std::make_unique<ParticleEmitter>();
 	particleEmitter_->Initialize("test");
@@ -21,13 +22,13 @@ void Enemy::Initialize()
 	particleEmitter1_->Initialize("fire");
 
 	particleEmitter2_ = std::make_unique<ParticleEmitter>();
-	particleEmitter2_->Initialize("smork");
+	particleEmitter2_->Initialize("smoke");
 
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder5", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Ring1", PrimitiveRenderer::PrimitiveType::Ring, "gradationLine_brightened.png"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Ring2", PrimitiveRenderer::PrimitiveType::Ring, "gradationLine_brightened.png"));
 
-	effect_ = std::make_unique<EnemyDamageEffect>();
+	effect_ = std::make_unique<EnemyDamageEffect>("Effect");
 
 	effect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder5"));
 	effect_->AddRenderer(RendererManager::GetInstance()->FindRender("Ring1"));
@@ -80,29 +81,31 @@ void Enemy::DebugGui()
 
 void Enemy::OnCollisionEnter(BaseCollider* other)
 {
+	if (other->category_ == CollisionCategory::PlayerWeapon) {
+		particleEmitter1_->Emit();
 
+		effect_->InitializeCameraShake(CameraManager::GetInstance()->GetActiveCamera().get()->GetTranslate(), 0.5f, 0.2f, 30.0f);
+		effect_->InitializeGroundRippleEffect(1.0f);
+		effect_->InitializeDamageRingEffect(1.0f);
+	}
 
-
-
-	particleEmitter1_->Emit();
-
-
-	effect_->InitializeCameraShake(CameraManager::GetInstance()->GetActiveCamera().get()->GetTranslate(), 0.5f, 0.2f, 30.0f);
-	effect_->InitializeGroundRippleEffect(1.0f);
-	effect_->InitializeDamageRingEffect(1.0f);
 }
 
 void Enemy::OnCollisionStay(BaseCollider* other)
 {
-	particleEmitter_->Emit();
+	if (other->category_ == CollisionCategory::PlayerWeapon) {
+		particleEmitter_->Emit();
+	}
 }
 
 void Enemy::OnCollisionExit(BaseCollider* other)
 {
-	particleEmitter2_->Emit();
-	hp_--;
+	if (other->category_ == CollisionCategory::PlayerWeapon) {
+		particleEmitter2_->Emit();
+		hp_--;
 
-	if (hp_ <= 0) {
-		//GetWorldTransform()->GetScale() = { 0.0f, 0.0f, 0.0f };
+		if (hp_ <= 0) {
+			//GetWorldTransform()->GetScale() = { 0.0f, 0.0f, 0.0f };
+		}
 	}
 }
