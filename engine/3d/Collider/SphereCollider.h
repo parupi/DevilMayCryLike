@@ -3,14 +3,12 @@
 #include "Object/Object3d.h"
 #include <Vector3.h>
 #include "Camera/CameraManager.h"
+#include "ColliderStructs.h"
 
 class SphereCollider : public BaseCollider
 {
 private:
-	struct SphereData {
-		float radius = 0.5f;
-		Vector3 offset = { 0.0f, 0.0f, 0.0f };
-	} sphereData_;
+	SphereData sphereData_;
 
 public:
 	SphereCollider(std::string colliderName);

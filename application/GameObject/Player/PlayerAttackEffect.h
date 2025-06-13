@@ -3,7 +3,7 @@
 class PlayerAttackEffect : public Object3d
 {
 public:
-	PlayerAttackEffect();
+	PlayerAttackEffect(std::string objectName);
 	~PlayerAttackEffect() override = default;
 	// 初期
 	void Initialize() override;

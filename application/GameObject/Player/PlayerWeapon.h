@@ -3,7 +3,7 @@
 class PlayerWeapon : public Object3d
 {
 public:
-	PlayerWeapon();
+	PlayerWeapon(std::string objectName);
 	~PlayerWeapon() override = default;
 	// 初期
 	void Initialize() override;

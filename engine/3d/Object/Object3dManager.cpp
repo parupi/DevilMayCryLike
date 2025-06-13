@@ -1,4 +1,5 @@
 #include "Object3dManager.h"
+#include <Object3d.h>
 
 Object3dManager* Object3dManager::instance = nullptr;
 std::once_flag Object3dManager::initInstanceFlag;
@@ -37,3 +38,9 @@ void Object3dManager::DrawSetForAnimation()
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetAnimationSignature().Get());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
+
+void Object3dManager::AddObject(std::unique_ptr<Object3d> object)
+{
+	objects_.push_back(std::move(object));
+}
+

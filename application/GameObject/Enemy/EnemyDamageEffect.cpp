@@ -1,8 +1,7 @@
 #include "EnemyDamageEffect.h"
 
-EnemyDamageEffect::EnemyDamageEffect()
+EnemyDamageEffect::EnemyDamageEffect(std::string objectName) : Object3d(objectName)
 {
-
 }
 
 void EnemyDamageEffect::Initialize()

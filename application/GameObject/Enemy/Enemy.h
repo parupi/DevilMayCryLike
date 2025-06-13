@@ -5,7 +5,7 @@
 class Enemy : public Object3d
 {
 public:
-	Enemy();
+	Enemy(std::string objectName);
 	~Enemy() override = default;
 	// 初期
 	void Initialize() override;
