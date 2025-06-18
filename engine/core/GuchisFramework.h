@@ -43,7 +43,5 @@ protected:
 	std::unique_ptr<SrvManager> srvManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
-	//std::unique_ptr<OffScreen> offScreen_ = nullptr;
-
 };
 

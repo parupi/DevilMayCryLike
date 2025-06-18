@@ -3,14 +3,14 @@
 #include "GameObject/Player/Player.h"
 #include "GameObject/Ground/Ground.h"
 
-Object3d* Object3dFactory::Create(const std::string& className, const std::string& objectName) {
+std::unique_ptr<Object3d> Object3dFactory::Create(const std::string& className, const std::string& objectName) {
     if (className == "Player") {
-        return new Player(objectName);
+        return std::make_unique<Player>(objectName);
     } else if (className == "Enemy") {
-        return new Enemy(objectName);
+        return std::make_unique<Enemy>(objectName);
     } else if (className == "Ground") {
-        return new Ground(objectName);
+        return std::make_unique<Ground>(objectName);
     } else {
-        return new Object3d(objectName); // デフォルト
+        return std::make_unique<Object3d>(objectName); // デフォルト
     }
 }

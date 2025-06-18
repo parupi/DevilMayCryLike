@@ -37,7 +37,7 @@ void PlayerStateMove::Update(Player& player)
 			Quaternion lookRot = LookRotation(moveDirection);
 
 			// Z+を向くように補正 → -Zを前にしたいのでY軸180度回転
-			Quaternion correction = MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, std::numbers::pi);
+			Quaternion correction = MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, static_cast<float>(std::numbers::pi));
 
 			// Apply correction BEFORE LookRotation
 			player.GetWorldTransform()->GetRotation() = correction * lookRot; // ← 順番重要（補正を先に掛ける）

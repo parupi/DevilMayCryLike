@@ -154,6 +154,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\offscreen\GrayEffect.cpp" />
     <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="engine\Include\SceneLoader.cpp" />
+    <ClCompile Include="application\GameObject\Camera\GameCamera.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\math\function.cpp" />
@@ -196,6 +197,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
     <ClCompile Include="engine\Include\SceneBuilder.cpp" />
     <ClCompile Include="application\scene\Object3dFactory.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateJump.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateAir.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\shaders\BoxFilter.PS.hlsl">
@@ -290,7 +293,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
     <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
     <ClInclude Include="engine\3d\Collider\ColliderStructs.h" />
-    <ClInclude Include="application\CollisionCategory.h" />
+    <ClInclude Include="application\GameData\CollisionCategory.h" />
     <ClInclude Include="engine\3d\Collider\CollisionManager.h" />
     <ClInclude Include="engine\3d\Collider\SphereCollider.h" />
     <ClInclude Include="engine\3d\Light\DirectionalLight.h" />
@@ -379,6 +382,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\Include\SceneLoader.h" />
     <ClInclude Include="engine\Include\SceneBuilder.h" />
     <ClInclude Include="application\scene\Object3dFactory.h" />
+    <ClInclude Include="application\GameObject\Camera\GameCamera.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateJump.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateAir.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

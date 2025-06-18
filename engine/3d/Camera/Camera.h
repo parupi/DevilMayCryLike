@@ -1,16 +1,18 @@
 #pragma once
 #include <function.h>
 #include <WindowManager.h>
+#include <memory>
 class Camera
 {
 public: // メンバ関数
-	Camera();
+	Camera(std::string objectName);
+	virtual ~Camera() = default;
 
 	// 更新
-	void Update();
+	virtual void Update();
 
 	// フォローカメラ
-	void FollowCamera(const Vector3& target);
+	//virtual void FollowCamera(const Vector3& target);
 
 private:
 	EulerTransform transform_;
@@ -29,7 +31,9 @@ private:
 
 	Vector3 followCameraOffsetPosition_ = Vector3(0.0f, 30.0f, -50.0f);
 
-	Vector3 followCameraOffsetRotare_ = Vector3(0.51f, 0.0f, 0.0f);
+	Vector3 followCameraOffsetRotate_ = Vector3(0.51f, 0.0f, 0.0f);
+
+
 
 public: // ゲッター // セッター //
 	// 回転
@@ -46,5 +50,7 @@ public: // ゲッター // セッター //
 	const Matrix4x4& GetViewMatrix() const { return viewMatrix_; }
 	const Matrix4x4& GetProjectionMatrix() const { return projectionMatrix_; }
 	const Matrix4x4& GetViewProjectionMatrix() const { return worldViewProjectionMatrix_; }
+
+	std::string name;
 };
 

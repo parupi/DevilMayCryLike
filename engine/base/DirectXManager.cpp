@@ -38,9 +38,44 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 void DirectXManager::Finalize()
 {
+	// GPUが処理を終えるのを待機（Fenceがあれば）
+	if (fence_ && commandQueue_) {
+		fenceValue_++;
+		commandQueue_->Signal(fence_.Get(), fenceValue_);
+		if (fence_->GetCompletedValue() < fenceValue_) {
+			fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+			WaitForSingleObject(fenceEvent_, INFINITE);
+		}
+	}
+
+	// フェンスイベント解放
 	if (fenceEvent_) {
 		CloseHandle(fenceEvent_);
+		fenceEvent_ = nullptr;
 	}
+
+	// 各種リソースの解放（重要）
+	offScreenResource_.Reset();
+	backBuffers_.clear(); // vector内のComPtrも明示的にクリア
+	depthBuffer_.Reset();
+
+	rtvHeap_.Reset();
+	dsvHeap_.Reset();
+
+	commandList_.Reset();
+	commandAllocator_.Reset();
+	commandQueue_.Reset();
+
+	swapChain_.Reset();
+
+	dxcCompiler_.Reset();
+	dxcUtils_.Reset();
+	includeHandler_.Reset();
+
+	fence_.Reset();
+
+	device_.Reset(); // 最後にデバイスを解放
+	dxgiFactory_.Reset();
 }
 
 ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible)

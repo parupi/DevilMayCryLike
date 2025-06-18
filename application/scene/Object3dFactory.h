@@ -5,6 +5,6 @@
 class Object3dFactory
 {
 public:
-	static Object3d* Create(const std::string& className, const std::string& objectName);
+	static std::unique_ptr<Object3d> Create(const std::string& className, const std::string& objectName);
 };
 

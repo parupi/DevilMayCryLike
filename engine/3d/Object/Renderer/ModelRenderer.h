@@ -27,6 +27,6 @@ private:
 	BaseModel* model_;
 
 
-	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera().get();
+	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
 };
 

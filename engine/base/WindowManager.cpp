@@ -72,14 +72,11 @@ void WindowManager::Initialize()
 
 bool WindowManager::ProcessMessage()
 {
-	MSG msg{};
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&msg_);
+		DispatchMessage(&msg_);
 	}
-	// ウィンドウの×ボタンが押されるまでループ
-	if (msg.message == WM_QUIT) {
+	if (msg_.message == WM_QUIT) {
 		return true;
 	}
 	return false;

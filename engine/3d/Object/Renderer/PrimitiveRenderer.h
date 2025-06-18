@@ -26,7 +26,7 @@ public:
 private:
     std::unique_ptr<Model> model_;
     std::unique_ptr<WorldTransform> localTransform_;
-    Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera().get();
+    Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
 
     //void CreatePrimitiveModel(PrimitiveType type);
 };

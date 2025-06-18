@@ -11,16 +11,14 @@
 #include <Object3dFactory.h>
 #include "Vector3.h"
 
-std::vector<Object3d*> SceneBuilder::BuildScene(const std::vector<SceneObject>& sceneObjects) {
-	std::vector<Object3d*> roots;
+void SceneBuilder::BuildScene(const std::vector<SceneObject>& sceneObjects) {
 	for (const auto& obj : sceneObjects) {
-		roots.push_back(BuildObjectRecursive(obj, nullptr));
+		Object3dManager::GetInstance()->AddObject(BuildObjectRecursive(obj, nullptr));
 	}
-	return roots;
 }
 
-Object3d* SceneBuilder::BuildObjectRecursive(const SceneObject& sceneObj, Object3d* parent) {
-	Object3d* object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
+std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& sceneObj, Object3d* parent) {
+	std::unique_ptr<Object3d> object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
 
 	// トランスフォーム設定
 	WorldTransform* transform = object->GetWorldTransform();
@@ -41,7 +39,7 @@ Object3d* SceneBuilder::BuildObjectRecursive(const SceneObject& sceneObj, Object
 	}
 
 	// --- Rendererの生成と登録 ---
-	if (sceneObj.fileName) {
+	if (sceneObj.fileName && sceneObj.fileName != "") {
 		const std::string& fileName = sceneObj.fileName.value();
 		ModelManager::GetInstance()->LoadModel(fileName);
 
@@ -98,7 +96,7 @@ Object3d* SceneBuilder::BuildObjectRecursive(const SceneObject& sceneObj, Object
 
 	// 子オブジェクトの構築
 	for (const auto& child : sceneObj.children) {
-		BuildObjectRecursive(child, object);
+		BuildObjectRecursive(child, object.get());
 	}
 
 	return object;

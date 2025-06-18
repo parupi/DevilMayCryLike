@@ -105,6 +105,9 @@
     <ClCompile Include="engine\Include\SceneLoader.cpp" />
     <ClCompile Include="engine\Include\SceneBuilder.cpp" />
     <ClCompile Include="application\scene\Object3dFactory.cpp" />
+    <ClCompile Include="application\GameObject\Camera\GameCamera.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateJump.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\PlayerStateAir.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
@@ -203,7 +206,10 @@
     <ClInclude Include="engine\3d\Collider\ColliderStructs.h" />
     <ClInclude Include="engine\Include\SceneBuilder.h" />
     <ClInclude Include="application\scene\Object3dFactory.h" />
-    <ClInclude Include="application\CollisionCategory.h" />
+    <ClInclude Include="application\GameData\CollisionCategory.h" />
+    <ClInclude Include="application\GameObject\Camera\GameCamera.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateJump.h" />
+    <ClInclude Include="application\GameObject\Player\State\PlayerStateAir.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Fullscreen.hlsli" />

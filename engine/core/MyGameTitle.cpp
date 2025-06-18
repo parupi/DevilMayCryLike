@@ -52,6 +52,7 @@ void MyGameTitle::Finalize()
 	RendererManager::GetInstance()->Finalize();
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
+	LightManager::GetInstance()->Finalize();
 	ParticleManager::GetInstance()->Finalize();
 	SpriteManager::GetInstance()->Finalize();
 	Object3dManager::GetInstance()->Finalize();
@@ -65,6 +66,9 @@ void MyGameTitle::Finalize()
 void MyGameTitle::Update()
 {
 	ImGuiManager::GetInstance()->Begin();
+	CameraManager::GetInstance()->Update();
+	ParticleManager::GetInstance()->Update();
+	Object3dManager::GetInstance()->Update();
 	GuchisFramework::Update();
 	CollisionManager::GetInstance()->Update();
 

@@ -29,18 +29,17 @@ void CameraManager::Finalize()
 	instance = nullptr;
 }
 
-void CameraManager::AddCamera(std::shared_ptr<Camera> camera)
+void CameraManager::AddCamera(std::unique_ptr<Camera> camera)
 {
-	cameras_.emplace_back(camera);
+	cameras_.push_back(std::move(camera));
 }
 
 void CameraManager::Update()
 {
 	// アクティブカメラを更新
-	if (activeCameraIndex_ >= 0 && activeCameraIndex_ < cameras_.size())
-	{
-		cameras_[activeCameraIndex_]->Update();
-	}
+	if (activeCameraIndex_ < 0 || activeCameraIndex_ >= cameras_.size())	return;
+
+	cameras_[activeCameraIndex_]->Update();
 	cameraData_->worldPosition = cameras_[activeCameraIndex_]->GetTranslate();
 }
 
@@ -54,11 +53,11 @@ void CameraManager::SetActiveCamera(int index)
 	}
 }
 
-std::shared_ptr<Camera> CameraManager::GetActiveCamera() const
+Camera* CameraManager::GetActiveCamera() const
 {
 	if (activeCameraIndex_ >= 0 && activeCameraIndex_ < cameras_.size())
 	{
-		return cameras_[activeCameraIndex_];
+		return cameras_[activeCameraIndex_].get();
 	}
 	return nullptr;
 }
