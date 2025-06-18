@@ -3,7 +3,7 @@
 #include <memory>
 #include <WorldTransform.h>
 
-#include <CollisionCategory.h>
+#include <GameData/CollisionCategory.h>
 enum class CollisionShapeType {
 	AABB,
 	Sphere,

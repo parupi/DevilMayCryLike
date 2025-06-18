@@ -11,6 +11,7 @@
 Object3d::Object3d(std::string objectName)
 {
 	name = objectName;
+	Initialize();
 }
 
 Object3d::~Object3d()
@@ -24,6 +25,8 @@ void Object3d::Initialize()
 
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();
+
+	camera_ = objectManager_->GetDefaultCamera();
 }
 
 void Object3d::Update()

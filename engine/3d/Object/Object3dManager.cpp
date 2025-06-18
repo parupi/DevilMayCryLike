@@ -1,5 +1,7 @@
 #include "Object3dManager.h"
 #include <Object3d.h>
+#include <Light/LightManager.h>
+#include <CameraManager.h>
 
 Object3dManager* Object3dManager::instance = nullptr;
 std::once_flag Object3dManager::initInstanceFlag;
@@ -25,11 +27,36 @@ void Object3dManager::Finalize()
 	instance = nullptr;
 }
 
-void Object3dManager::DrawSet(BlendMode blendMode)
+void Object3dManager::Update()
 {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetObjectPSO(blendMode).Get());			// PSOを設定
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetObjectSignature().Get());
-	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	for (auto& object : objects_) {
+		object->Update();
+	}
+}
+
+void Object3dManager::DrawSet()
+{
+	for (auto& object : objects_) {
+		// ブレンドモードが違っていたら新しくPSOを設定
+		if (blendMode_ != object->GetOption().blendMode) {
+			// ブレンドモードを最新にしておく
+			blendMode_ = object->GetOption().blendMode;
+
+			dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetObjectPSO(blendMode_).Get());			// PSOを設定
+			dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetObjectSignature().Get());
+			dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			// psoのセットをしたらlight,cameraもバインドしておく
+			LightManager::GetInstance()->BindLightsToShader();
+			CameraManager::GetInstance()->BindCameraToShader();
+		}
+
+		object->Draw();
+	}
+
+
+	// 次回の為にNoneに戻しておく
+	blendMode_ = BlendMode::kNone;
 }
 
 void Object3dManager::DrawSetForAnimation()

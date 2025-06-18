@@ -8,9 +8,6 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("resource/fade1x1.png");
 
 	// カメラの生成
-	camera_ = std::make_shared<Camera>();
-	cameraManager_->AddCamera(camera_);
-	cameraManager_->SetActiveCamera(0);
 
 }
 

@@ -24,5 +24,5 @@ public:
 	SphereData& GetColliderData() { return sphereData_; }
 
 private:
-	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera().get();
+	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
 };

@@ -3,10 +3,7 @@
 #include <TextureManager.h>
 #include <numbers>
 #include <imgui.h>
-//#define NOMINMAX // Windowsのmin/maxマクロを無効化
 #include <algorithm> 
-
-//#include <windows.h>
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
@@ -33,8 +30,6 @@ void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 	srvManager_ = srvManager;
 	psoManager_ = psoManager;
 
-	//camera_ = ParticleResources::GetInstance()->GetCamera();
-
 	// リソースの生成と値の設定
 	CreateParticleResource();
 	CreateMaterialResource();
@@ -46,7 +41,7 @@ void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 
 void ParticleManager::Update()
 {
-
+	if (camera_ == nullptr) return;
 
 	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, camera_->GetRotate(), camera_->GetTranslate());
 	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
@@ -210,8 +205,6 @@ void ParticleManager::DrawSet(BlendMode blendMode)
 #ifdef _DEBUG
 void ParticleManager::DebugGui()
 {
-
-
 
 }
 #endif // DEBUG

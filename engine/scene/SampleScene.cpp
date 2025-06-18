@@ -18,11 +18,11 @@
 void SampleScene::Initialize()
 {
 	// カメラの生成
-	normalCamera_ = std::make_shared<Camera>();
-	cameraManager_->AddCamera(normalCamera_);
-	cameraManager_->SetActiveCamera(0);
-	normalCamera_->GetTranslate() = { 0.0f, 35.0f, -44.0f };
-	normalCamera_->GetRotate() = { 0.68f, 0.0f, 0.0f };
+	//normalCamera_ = std::make_shared<Camera>();
+	//cameraManager_->AddCamera(normalCamera_);
+	//cameraManager_->SetActiveCamera(0);
+	//normalCamera_->GetTranslate() = { 0.0f, 35.0f, -44.0f };
+	//normalCamera_->GetRotate() = { 0.68f, 0.0f, 0.0f };
 
 
 	// .gltfファイルからモデルを読み込む
@@ -194,12 +194,12 @@ void SampleScene::Draw()
 	//cameraManager_->BindCameraToShader();
 	//animationObject_->Draw();
 
-	Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
-	lightManager_->BindLightsToShader();
-	cameraManager_->BindCameraToShader();
-	object_->Draw();
-	object2_->Draw();
-	
+	//Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
+	//lightManager_->BindLightsToShader();
+	//cameraManager_->BindCameraToShader();
+	//object_->Draw();
+	//object2_->Draw();
+	//
 
 	//SpriteManager::GetInstance()->DrawSet();
 	//sprite->Draw();

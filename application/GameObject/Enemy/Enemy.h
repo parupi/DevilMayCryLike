@@ -32,7 +32,7 @@ private:
 	std::unique_ptr<ParticleEmitter> particleEmitter1_ = nullptr;
 	std::unique_ptr<ParticleEmitter> particleEmitter2_ = nullptr;
 
-	std::unique_ptr<EnemyDamageEffect> effect_;
+	//std::unique_ptr<EnemyDamageEffect> effect_;
 
 	int32_t hp_ = 3;
 };

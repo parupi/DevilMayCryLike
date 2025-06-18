@@ -15,6 +15,7 @@
 #include <GameObject/Player/Player.h>
 #include <GameObject/Enemy/Enemy.h>
 #include <GameObject/Ground/Ground.h>
+#include <GameObject/Camera/GameCamera.h>
 
 class GameScene : public BaseScene
 {
@@ -39,16 +40,9 @@ public:
 
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
-	std::shared_ptr<Camera> normalCamera_;
-
+	//std::shared_ptr<Camera> normalCamera_;
+	std::unique_ptr<GameCamera> gameCamera_;
+	                                                                                                           
 	LightManager* lightManager_ = LightManager::GetInstance();
-
-	std::unique_ptr<Player> player_;
-	std::unique_ptr<Enemy> enemy_;
-
-	std::vector<Object3d*> sceneObjects_;
-	//std::unique_ptr<Ground> ground_;
-
-
 };
 

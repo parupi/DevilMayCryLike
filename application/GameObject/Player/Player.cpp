@@ -7,38 +7,59 @@
 #include <Collider/AABBCollider.h>
 #include <Collider/CollisionManager.h>
 #include <utility/DeltaTime.h>
+#include "State/PlayerStateJump.h"
+#include "State/PlayerStateAir.h"
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
+	Object3d::Initialize();
+
+	// レンダラーの生成
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerBody", "PlayerBody"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerLeftArm", "PlayerLeftArm"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerRightArm", "PlayerRightArm"));
+
+	// コライダーの生成
+	//CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("Player"));
+
+	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerBody"));
+	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
+	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerLeftArm"));
+	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerRightArm"));
+
+	//AddCollider(CollisionManager::GetInstance()->FindCollider("Player"));
+
 	states_["Idle"] = std::make_unique<PlayerStateIdle>();
 	states_["Move"] = std::make_unique<PlayerStateMove>();
+	states_["Jump"] = std::make_unique<PlayerStateJump>();
+	states_["Air"] = std::make_unique<PlayerStateAir>();
 	states_["Attack1"] = std::make_unique<PlayerStateAttack1>();
 	currentState_ = states_["Idle"].get();
 }
 
 void Player::Initialize()
 {
-	Object3d::Initialize();
-
 	GetRenderer("PlayerLeftArm")->GetWorldTransform()->GetTranslation() = { -0.4f, 0.8f, 0.0f };
 	GetRenderer("PlayerRightArm")->GetWorldTransform()->GetTranslation() = { 0.4f, 0.8f, 0.0f };
+	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMax *= 0.5f;
+	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMin *= 0.5f;
 
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder1", PrimitiveRenderer::PrimitiveType::Cylinder, "MagicEffect.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder2", PrimitiveRenderer::PrimitiveType::Cylinder, "MagicEffect.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder3", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder4", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder1", PrimitiveRenderer::PrimitiveType::Cylinder, "MagicEffect.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder2", PrimitiveRenderer::PrimitiveType::Cylinder, "MagicEffect.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder3", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder4", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
 
-	attackEfect_ = std::make_unique<PlayerAttackEffect>("Effect");
-	attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder1"));
-	attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder2"));
-	attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder3"));
-	attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder4"));
-	attackEfect_->Initialize();
+	//attackEfect_ = std::make_unique<PlayerAttackEffect>("Effect");
+	//attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder1"));
+	//attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder2"));
+	//attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder3"));
+	//attackEffect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder4"));
+	//attackEfect_->Initialize();
 
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "weapon"));
 
-	std::unique_ptr<AABBCollider> playerCollider = std::make_unique<AABBCollider>("WeaponCollider");
-	CollisionManager::GetInstance()->AddCollider(std::move(playerCollider));
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("WeaponCollider"));
 
 	weapon_ = std::make_unique<PlayerWeapon>("PlayerWeapon");
 
@@ -60,10 +81,10 @@ void Player::Update()
 	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
 	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 
-	attackEfect_->Update();
+	//attackEfect_->Update();
 
-	attackEfect_->UpdateAttackCylinderEffect(GetWorldTransform()->GetTranslation());
-	attackEfect_->UpdateTargetMarkerEffect({ 0.0f, 0.0f, 5.0f });
+	//attackEfect_->UpdateAttackCylinderEffect(GetWorldTransform()->GetTranslation());
+	//attackEfect_->UpdateTargetMarkerEffect({ 0.0f, 0.0f, 5.0f });
 
 
 	weapon_->Update();
@@ -84,15 +105,15 @@ void Player::Draw()
 
 void Player::DrawEffect()
 {
-	attackEfect_->Draw();
+	//attackEfect_->Draw();
 }
 
 #ifdef _DEBUG
 void Player::DebugGui()
 {
-	ImGui::Begin("Effect");
-	attackEfect_->DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Effect");
+	//attackEfect_->DebugGui();
+	//ImGui::End();
 
 	ImGui::Begin("Object");
 	Object3d::DebugGui();

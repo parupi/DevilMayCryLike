@@ -32,8 +32,6 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 
 	localTransform_->SetMapWVP(worldViewProjectionMatrix);
 	localTransform_->SetMapWorld(localTransform_->GetMatWorld());
-	//localTransform_->SetMapWorld(parentTransform->GetMatWorld());
-	//localTransform_->SetMapWVP(parentTransform->GetMatWorld());
 }
 
 void ModelRenderer::Draw(WorldTransform* parentTransform)

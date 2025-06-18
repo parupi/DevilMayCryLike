@@ -18,7 +18,9 @@ void DeltaTime::Update()
 	deltaTime_ = elapsed.count(); // 秒で保持
 	preTime_ = currentTime;
 
+#ifdef _DEBUG
 	ImGui::Begin("DeltaTime");
 	ImGui::Text("DeltaTime: %.6f sec", deltaTime_);
 	ImGui::End();
+#endif // _DEBUG
 }

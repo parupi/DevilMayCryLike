@@ -35,5 +35,6 @@ private:
 	// Window関連
 	HWND hwnd_ = nullptr;   // ウィンドウハンドル
 	WNDCLASS wndClass_{}; // ウィンドウクラス
+	MSG msg_{};
 };
 

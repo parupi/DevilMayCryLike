@@ -48,6 +48,12 @@ private: // メンバ変数
 
 	std::vector<BaseRenderer*> renders_;
 	std::vector<BaseCollider*> colliders_;
+
+	// どうやって描画するかの設定
+	struct DrawOption {
+		BlendMode blendMode = BlendMode::kNormal;
+	}drawOption_;
+
 public: // ゲッター // セッター // 
 	// レンダー追加処理
 	void AddRenderer(BaseRenderer* render);
@@ -57,6 +63,8 @@ public: // ゲッター // セッター //
 	BaseCollider* GetCollider(std::string name);
 	// カメラ
 	void SetCamera(Camera* camera) { camera_ = camera; }
+
+	DrawOption GetOption() const { return drawOption_; }
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }

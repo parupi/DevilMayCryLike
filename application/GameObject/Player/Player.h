@@ -42,7 +42,7 @@ public:
 
 	// アクセッサ
 	Vector3& GetVelocity() { return velocity_; }
-	PlayerAttackEffect* GetPlayerAttackEffect() { return attackEfect_.get(); }
+	PlayerAttackEffect* GetPlayerAttackEffect() { return attackEffect_.get(); }
 	PlayerWeapon* GetWeapon() { return weapon_.get(); }
 
 private:
@@ -60,7 +60,7 @@ private:
 	Vector3 startDir_ = { 0.0f, 0.0f, 0.0f };
 	Vector3 endDir_ = { 0.0f, 0.0f, 0.0f };
 	
-	std::unique_ptr<PlayerAttackEffect> attackEfect_;
+	std::unique_ptr<PlayerAttackEffect> attackEffect_;
 	std::unique_ptr<PlayerWeapon> weapon_;
 
 
