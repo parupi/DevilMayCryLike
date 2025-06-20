@@ -1,7 +1,7 @@
 #include "SampleScene.h"
 #include <TextureManager.h>
 #include <Model/ModelManager.h>
-#include <ParticleManager.h>
+#include <Particle/ParticleManager.h>
 #include <imgui.h>
 #include <Quaternion.h>
 #include <Vector3.h>
@@ -55,9 +55,9 @@ void SampleScene::Initialize()
 
 	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveRenderer::PrimitiveType::Plane, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveRenderer::PrimitiveType::Ring, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveRenderer::PrimitiveType::Cylinder, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
 
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render1"));
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));

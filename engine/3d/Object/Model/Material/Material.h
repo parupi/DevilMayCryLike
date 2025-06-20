@@ -15,7 +15,7 @@ public:
 	void Update();
 
 	// 描画
-	void Draw();
+	void Bind();
 
 #ifdef _DEBUG
 	void DebugGui(uint32_t index);

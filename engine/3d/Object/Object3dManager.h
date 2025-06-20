@@ -32,6 +32,8 @@ public:
 
 	void AddObject(std::unique_ptr<Object3d> object);
 
+	Object3d* FindObject(std::string objectName);
+
 private:
 	// DirectXのポインタ
 	DirectXManager* dxManager_ = nullptr;

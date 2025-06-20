@@ -11,6 +11,8 @@ public:
 	// 描画処理
 	void Draw();
 
+	void Bind();
+
 private:
 
 	// 頂点データの生成

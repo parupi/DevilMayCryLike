@@ -38,10 +38,14 @@ public:
 	// 状態の切り替え
 	void ChangeState(const std::string& stateName);
 
+	bool GetOnGround() const { return onGround_; }
 
+	// 移動処理メソッド
+	void Move();
 
 	// アクセッサ
 	Vector3& GetVelocity() { return velocity_; }
+	Vector3& GetAcceleration() { return acceleration_; }
 	PlayerAttackEffect* GetPlayerAttackEffect() { return attackEffect_.get(); }
 	PlayerWeapon* GetWeapon() { return weapon_.get(); }
 
@@ -50,7 +54,7 @@ private:
 	PlayerStateBase* currentState_ = nullptr;
 
 	Vector3 velocity_{};
-	Vector3 acceleration_{0.0f, -0.5f, 0.0f};
+	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
 
 	Input* input = Input::GetInstance();
 	// 攻撃のフラグ
@@ -59,10 +63,11 @@ private:
 	float timeAttackMax_ = 0.5f;
 	Vector3 startDir_ = { 0.0f, 0.0f, 0.0f };
 	Vector3 endDir_ = { 0.0f, 0.0f, 0.0f };
-	
+
 	std::unique_ptr<PlayerAttackEffect> attackEffect_;
 	std::unique_ptr<PlayerWeapon> weapon_;
 
-
+	// 地面と接触しているか
+	bool onGround_;
 };
 

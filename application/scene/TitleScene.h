@@ -4,8 +4,8 @@
 #include "SceneManager.h"
 #include <memory>
 #include <fade/Fade.h>
-#include "ParticleEmitter.h"
-#include "ParticleManager.h"
+#include "Particle/ParticleEmitter.h"
+#include "Particle/ParticleManager.h"
 #include "CameraManager.h"
 
 class TitleScene : public BaseScene

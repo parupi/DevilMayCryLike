@@ -31,6 +31,8 @@ public: // メンバ関数
 	void Update() override;
 	// 描画
 	void Draw() override;
+	// 
+	void Bind();
 #ifdef _DEBUG
 	void DebugGui(ModelRenderer* render);
 	void DebugGuiPrimitive();

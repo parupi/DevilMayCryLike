@@ -71,3 +71,14 @@ void Object3dManager::AddObject(std::unique_ptr<Object3d> object)
 	objects_.push_back(std::move(object));
 }
 
+Object3d* Object3dManager::FindObject(std::string objectName)
+{
+	for (auto& object : objects_) {
+		if (object->name == objectName) {
+			return object.get();
+		}
+	}
+	Logger::Log("renderが見つかりませんでした");
+	return nullptr;
+}
+

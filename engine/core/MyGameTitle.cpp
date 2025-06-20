@@ -1,6 +1,6 @@
 #include "MyGameTitle.h"
 #include <SceneFactory.h>
-#include <ParticleManager.h>
+#include <Particle/ParticleManager.h>
 #include "offscreen/OffScreenManager.h"
 #include "Primitive/PrimitiveDrawer.h"
 #include <Light/LightManager.h>
@@ -68,8 +68,8 @@ void MyGameTitle::Update()
 	ImGuiManager::GetInstance()->Begin();
 	CameraManager::GetInstance()->Update();
 	ParticleManager::GetInstance()->Update();
-	Object3dManager::GetInstance()->Update();
 	GuchisFramework::Update();
+	Object3dManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();

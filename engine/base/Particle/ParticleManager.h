@@ -162,7 +162,6 @@ private:
 
 
 	bool isBillboard = true;
-	const float kDeltaTime = 1.0f / 60.0f;
 
 	Matrix4x4 scaleMatrix;
 	Matrix4x4 translateMatrix;

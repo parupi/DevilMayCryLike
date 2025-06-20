@@ -1,6 +1,6 @@
 #include <GameScene.h>
 #include <TextureManager.h>
-#include <ParticleManager.h>
+#include <Particle/ParticleManager.h>
 #include <imgui.h>
 #include <Quaternion.h>
 #include <Vector3.h>
