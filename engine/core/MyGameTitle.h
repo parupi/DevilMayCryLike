@@ -10,7 +10,7 @@
 #include "Model/Model.h"
 #include "Model/ModelLoader.h"
 #include "Model/ModelManager.h"
-#include <ParticleManager.h>
+#include <Particle/ParticleManager.h>
 #include "GuchisFramework.h"
 #include "ImGuiManager.h"
 #include "GlobalVariables.h"

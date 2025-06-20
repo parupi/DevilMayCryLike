@@ -65,7 +65,7 @@ void SkinnedModel::Draw()
 	for (const auto& mesh : meshes_) {
 		// このメッシュに対応するマテリアルを設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
-		materials_[mesh->GetMeshData().materialIndex]->Draw();
+		materials_[mesh->GetMeshData().materialIndex]->Bind();
 
 		// メッシュを描画
 		mesh->Draw();

@@ -4,6 +4,7 @@
 #include <numbers>
 #include <imgui.h>
 #include <algorithm> 
+#include <utility/DeltaTime.h>
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
@@ -72,8 +73,8 @@ void ParticleManager::Update()
 			float alpha{};
 			isBillboard = global_->GetBoolValue(groupName, "IsBillboard");
 
-			(*particleIterator).transform.translate += (*particleIterator).velocity * kDeltaTime;
-			(*particleIterator).currentTime += kDeltaTime;
+			(*particleIterator).transform.translate += (*particleIterator).velocity * DeltaTime::GetDeltaTime();
+			(*particleIterator).currentTime += DeltaTime::GetDeltaTime();
 			alpha = 1.0f - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
 
 			// ワールド行列の計算

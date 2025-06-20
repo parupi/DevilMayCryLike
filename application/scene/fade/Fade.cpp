@@ -2,7 +2,7 @@
 #include "TextureManager.h"
 #include <algorithm>
 #include "imgui.h"
-#include "ParticleManager.h"
+#include "Particle/ParticleManager.h"
 #include <Easing.h>
 
 void Fade::Initialize()

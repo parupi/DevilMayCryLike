@@ -12,7 +12,7 @@ public: // メンバ関数
 	virtual void Update();
 
 	// フォローカメラ
-	//virtual void FollowCamera(const Vector3& target);
+	virtual void LookAt(const Vector3& target);
 
 private:
 	EulerTransform transform_;

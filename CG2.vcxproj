@@ -155,6 +155,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="engine\Include\SceneLoader.cpp" />
     <ClCompile Include="application\GameObject\Camera\GameCamera.cpp" />
+    <ClCompile Include="engine\3d\Object\Renderer\InstancingRenderer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\math\function.cpp" />
@@ -169,11 +170,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\base\TextureManager.cpp" />
     <ClCompile Include="engine\base\WindowManager.cpp" />
     <ClCompile Include="engine\base\SrvManager.cpp" />
-    <ClCompile Include="engine\base\ParticleManager.cpp" />
+    <ClCompile Include="engine\base\Particle\ParticleManager.cpp" />
     <ClCompile Include="engine\core\MyGameTitle.cpp" />
     <ClCompile Include="engine\scene\SceneManager.cpp" />
     <ClCompile Include="application\scene\SceneFactory.cpp" />
-    <ClCompile Include="engine\base\ParticleEmitter.cpp" />
+    <ClCompile Include="engine\base\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="engine\math\Quaternion.cpp" />
     <ClCompile Include="engine\math\Vector3.cpp" />
     <ClCompile Include="engine\math\Matrix4x4.cpp" />
@@ -306,6 +307,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\3d\Object\Renderer\PrimitiveFactory.h" />
     <ClInclude Include="engine\3d\Object\Renderer\PrimitiveRenderer.h" />
     <ClInclude Include="engine\3d\Object\Renderer\RendererManager.h" />
+    <ClInclude Include="engine\base\Particle\ParticleStruct.h" />
     <ClInclude Include="engine\offscreen\BaseOffScreen.h" />
     <ClInclude Include="engine\base\utility\DeltaTime.h" />
     <ClInclude Include="engine\3d\Object\Model\ModelStructs.h" />
@@ -348,14 +350,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\base\TextureManager.h" />
     <ClInclude Include="engine\base\WindowManager.h" />
     <ClInclude Include="engine\base\SrvManager.h" />
-    <ClInclude Include="engine\base\ParticleManager.h" />
+    <ClInclude Include="engine\base\Particle\ParticleManager.h" />
     <ClInclude Include="engine\debuger\ImGuiManager.h" />
     <ClInclude Include="engine\core\MyGameTitle.h" />
     <ClInclude Include="engine\debuger\LeakChecker.h" />
     <ClInclude Include="engine\core\GuchisFramework.h" />
     <ClInclude Include="engine\scene\SceneManager.h" />
     <ClInclude Include="application\scene\SceneFactory.h" />
-    <ClInclude Include="engine\base\ParticleEmitter.h" />
+    <ClInclude Include="engine\base\Particle\ParticleEmitter.h" />
     <ClInclude Include="engine\math\Quaternion.h" />
     <ClInclude Include="application\scene\fade\Fade.h" />
     <ClInclude Include="engine\offscreen\OffScreen.h" />
@@ -385,6 +387,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Camera\GameCamera.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateJump.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateAir.h" />
+    <ClInclude Include="engine\3d\Object\Renderer\InstancingRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

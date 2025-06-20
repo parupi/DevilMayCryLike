@@ -3,7 +3,7 @@
 
 void PlayerStateJump::Enter(Player& player)
 {
-	player.GetVelocity().y = 30.0f;
+	player.GetVelocity().y = 8.0f;
 }
 
 void PlayerStateJump::Update(Player& player)

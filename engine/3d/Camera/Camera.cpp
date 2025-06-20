@@ -24,16 +24,32 @@ void Camera::Update()
 	worldViewProjectionMatrix_ = viewMatrix_ * projectionMatrix_;
 }
 
-//void Camera::FollowCamera(const Vector3& target)
-//{
-//	// カメラの位置を対象の後方に設定
-//	ImGui::Begin("Camera Manager");
-//	ImGui::DragFloat3("normalPos", &followCameraOffsetPosition_.x, 0.01f);
-//	ImGui::DragFloat3("normalRotate", &followCameraOffsetPosition_.x, 0.01f);
-//	ImGui::End();
-//	transform_.rotate = followCameraOffsetRotate_;
-//	transform_.translate = target + followCameraOffsetPosition_; // 例: 後方10ユニット、上に4ユニットオフセット
-//	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
-//	viewMatrix_ = Inverse(worldMatrix_);
-//
-//}
+void Camera::LookAt(const Vector3& target)
+{
+    // カメラの現在位置
+    Vector3 eye = transform_.translate;
+
+    // 前方向（Z+を前としている前提で）
+    Vector3 forward = Normalize(target - eye);
+
+    // 仮のUpベクトル（Y軸）
+    Vector3 up = { 0.0f, 1.0f, 0.0f };
+
+    // 正確な右方向を計算
+    Vector3 right = Normalize(Cross(up, forward));
+
+    // 再計算された正確な上方向
+    up = Cross(forward, right);
+
+    // 回転行列作成
+    Matrix4x4 matRot = {
+        right.x,   right.y,   right.z,   0.0f,
+        up.x,      up.y,      up.z,      0.0f,
+        forward.x, forward.y, forward.z, 0.0f,
+        0.0f,      0.0f,      0.0f,      1.0f
+    };
+
+    // 行列からオイラー角へ変換（Y軸→X軸→Z軸回転などの順序に合わせる必要あり）
+    transform_.rotate = Transform(transform_.rotate, matRot);
+}
+

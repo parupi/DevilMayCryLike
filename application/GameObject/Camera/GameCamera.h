@@ -1,5 +1,6 @@
 #pragma once
 #include "Camera/Camera.h"
+class Player;
 class GameCamera : public Camera
 {
 public:
@@ -7,5 +8,8 @@ public:
 	~GameCamera() override = default;
 
 	void Update() override;
+
+private:
+	Player* player_;
 };
 

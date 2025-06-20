@@ -61,11 +61,23 @@ void Model::Draw()
 	for (const auto& mesh : meshes_) {
 		// このメッシュに対応するマテリアルを設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
-		materials_[mesh->GetMeshData().materialIndex]->Draw();
+		materials_[mesh->GetMeshData().materialIndex]->Bind();
 
 		// メッシュを描画
 		mesh->Draw();
 	}
+}
+
+void Model::Bind()
+{
+	    for (const auto& mesh : meshes_) {
+        // メッシュに対応するマテリアルをバインド
+        assert(mesh->GetMeshData().materialIndex < materials_.size());
+        materials_[mesh->GetMeshData().materialIndex]->Bind();
+
+        // メッシュをバインド（頂点バッファなど）
+        mesh->Bind();
+    }
 }
 
 #ifdef _DEBUG

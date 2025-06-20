@@ -9,6 +9,7 @@
 #include <utility/DeltaTime.h>
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
+#include <numbers>
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
@@ -20,15 +21,10 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerLeftArm", "PlayerLeftArm"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerRightArm", "PlayerRightArm"));
 
-	// コライダーの生成
-	//CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("Player"));
-
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerBody"));
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerLeftArm"));
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerRightArm"));
-
-	//AddCollider(CollisionManager::GetInstance()->FindCollider("Player"));
 
 	states_["Idle"] = std::make_unique<PlayerStateIdle>();
 	states_["Move"] = std::make_unique<PlayerStateMove>();
@@ -44,18 +40,6 @@ void Player::Initialize()
 	GetRenderer("PlayerRightArm")->GetWorldTransform()->GetTranslation() = { 0.4f, 0.8f, 0.0f };
 	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMin *= 0.5f;
-
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder1", PrimitiveRenderer::PrimitiveType::Cylinder, "MagicEffect.png"));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder2", PrimitiveRenderer::PrimitiveType::Cylinder, "MagicEffect.png"));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder3", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder4", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
-
-	//attackEfect_ = std::make_unique<PlayerAttackEffect>("Effect");
-	//attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder1"));
-	//attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder2"));
-	//attackEfect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder3"));
-	//attackEffect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder4"));
-	//attackEfect_->Initialize();
 
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "weapon"));
 
@@ -81,11 +65,8 @@ void Player::Update()
 	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
 	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 
-	//attackEfect_->Update();
-
-	//attackEfect_->UpdateAttackCylinderEffect(GetWorldTransform()->GetTranslation());
-	//attackEfect_->UpdateTargetMarkerEffect({ 0.0f, 0.0f, 5.0f });
-
+	// 毎フレーム切っておく
+	onGround_ = false;
 
 	weapon_->Update();
 	Object3d::Update();
@@ -105,15 +86,12 @@ void Player::Draw()
 
 void Player::DrawEffect()
 {
-	//attackEfect_->Draw();
+
 }
 
 #ifdef _DEBUG
 void Player::DebugGui()
 {
-	//ImGui::Begin("Effect");
-	//attackEfect_->DebugGui();
-	//ImGui::End();
 
 	ImGui::Begin("Object");
 	Object3d::DebugGui();
@@ -135,6 +113,48 @@ void Player::ChangeState(const std::string& stateName)
 	if (it != states_.end()) {
 		currentState_ = it->second.get();
 		currentState_->Enter(*this);
+	}
+}
+
+void Player::Move()
+{
+	// 各フレームでまず速度をゼロに初期化
+	velocity_ = { 0.0f, velocity_.y, 0.0f };
+
+	if (Input::GetInstance()->PushKey(DIK_W)) {
+		velocity_.z += 1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_S)) {
+		velocity_.z -= 1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_D)) {
+		velocity_.x += 1.0f;
+	}
+	if (Input::GetInstance()->PushKey(DIK_A)) {
+		velocity_.x -= 1.0f;
+	}
+
+	if (Length(velocity_) > 0.01f) {
+		// y座標は正規化させないでおく
+		float velocityY = velocity_.y;
+		velocity_ = Normalize(velocity_) * 10.0f;
+		velocity_.y = velocityY;
+
+		Vector3 moveDirection = velocity_;
+		moveDirection.y = 0.0f;
+		moveDirection.z *= -1.0f;
+
+		// moveDirection がゼロベクトルかチェック
+		if (Length(moveDirection) > 0.0001f) {
+			// Z+が前を向くように回転を取得
+			Quaternion lookRot = LookRotation(moveDirection);
+
+			// Z+を向くように補正 → -Zを前にしたいのでY軸180度回転
+			Quaternion correction = MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, static_cast<float>(std::numbers::pi));
+
+			// Apply correction BEFORE LookRotation
+			GetWorldTransform()->GetRotation() = correction * lookRot; // ← 順番重要（補正を先に掛ける）
+		}
 	}
 }
 
@@ -162,11 +182,13 @@ void Player::OnCollisionEnter(BaseCollider* other)
 		} else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
-			velocity_.y = 0.0f;
+			GetWorldTransform()->GetTranslation().y -= 0.1f;
+			//velocity_.y = 0.0f;
+			onGround_ = true;
 		} else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
-			velocity_ *= -1.0f;
+			//velocity_ *= -1.0f;
 		} else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
@@ -201,11 +223,13 @@ void Player::OnCollisionStay(BaseCollider* other)
 		} else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
-			velocity_.y = 0.0f;
+			GetWorldTransform()->GetTranslation().y -= 0.1f;
+			//velocity_.y = 0.0f;
+			onGround_ = true;
 		} else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
-			velocity_ *= -1.0f;
+			//velocity_ *= -1.0f;
 		} else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;

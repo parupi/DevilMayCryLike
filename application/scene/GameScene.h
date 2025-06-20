@@ -10,7 +10,7 @@
 #include <CameraManager.h>
 #include <WorldTransform.h>
 #include <Light/LightManager.h>
-#include <ParticleEmitter.h>
+#include <Particle/ParticleEmitter.h>
 #include "DebugSphere.h"
 #include <GameObject/Player/Player.h>
 #include <GameObject/Enemy/Enemy.h>

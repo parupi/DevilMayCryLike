@@ -4,13 +4,14 @@
 #include <CameraManager.h>
 #include <Camera/Camera.h>
 
+enum class PrimitiveType {
+    Plane,
+    Ring,
+    Cylinder
+};
+
 class PrimitiveRenderer : public BaseRenderer {
 public:
-    enum class PrimitiveType {
-        Plane,
-        Ring,
-        Cylinder
-    };
 
     PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName);
 
