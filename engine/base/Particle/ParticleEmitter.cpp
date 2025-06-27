@@ -16,18 +16,18 @@ void ParticleEmitter::Initialize(std::string name)
 
 void ParticleEmitter::Update(Vector3 Position, uint32_t count)
 {
-	emitter.isActive = GlobalVariables::GetInstance()->GetBoolValue(emitter.name, "IsActive");
+	emitter.isActive = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "IsActive");
 
-	emitter.transform.translate = GlobalVariables::GetInstance()->GetVector3Value(emitter.name, "EmitPosition");
-	emitter.frequency = GlobalVariables::GetInstance()->GetFloatValue(emitter.name, "Frequency");
+	emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+	emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
 
-	emitter.count = GlobalVariables::GetInstance()->GetIntValue(emitter.name, "Count");
+	emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
 
 	if (emitter.isActive) {
-		emitter.transform.translate = GlobalVariables::GetInstance()->GetVector3Value(emitter.name, "EmitPosition");
-		emitter.frequency = GlobalVariables::GetInstance()->GetFloatValue(emitter.name, "Frequency");
+		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+		emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
 
-		emitter.count = GlobalVariables::GetInstance()->GetIntValue(emitter.name, "Count");
+		emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
 		if (emitter.count < 0) {
 			emitter.count = 0;
 		}
@@ -40,7 +40,7 @@ void ParticleEmitter::Update(Vector3 Position, uint32_t count)
 		}
 	}
 
-	emitAll_ = GlobalVariables::GetInstance()->GetBoolValue(emitter.name, "EmitAll");
+	emitAll_ = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "EmitAll");
 
 	if (emitAll_) {
 		Emit();

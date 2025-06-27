@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "imgui.h"
+#include "function.h"
 
 Camera::Camera(std::string cameraName)
 	: transform_({ {1.0f,1.0f,1.0f},{0.3f,0.0f,0.0f},{0.0f,4.0f,-10.0f} })
@@ -24,32 +25,39 @@ void Camera::Update()
 	worldViewProjectionMatrix_ = viewMatrix_ * projectionMatrix_;
 }
 
-void Camera::LookAt(const Vector3& target)
-{
-    // カメラの現在位置
-    Vector3 eye = transform_.translate;
+void Camera::LookAt(const Vector3& target) {
+	Vector3 eye = transform_.translate;
+	Vector3 forward = Normalize(target - eye);
 
-    // 前方向（Z+を前としている前提で）
-    Vector3 forward = Normalize(target - eye);
+	// 水平方向のみの回転（XZ平面に投影）
+	forward.y = 0.0f;
+	forward = Normalize(forward);
 
-    // 仮のUpベクトル（Y軸）
-    Vector3 up = { 0.0f, 1.0f, 0.0f };
+	// Y軸の回転角だけ計算
+	float angle = std::atan2(forward.x, forward.z); // Y軸回転角（ラジアン）
 
-    // 正確な右方向を計算
-    Vector3 right = Normalize(Cross(up, forward));
-
-    // 再計算された正確な上方向
-    up = Cross(forward, right);
-
-    // 回転行列作成
-    Matrix4x4 matRot = {
-        right.x,   right.y,   right.z,   0.0f,
-        up.x,      up.y,      up.z,      0.0f,
-        forward.x, forward.y, forward.z, 0.0f,
-        0.0f,      0.0f,      0.0f,      1.0f
-    };
-
-    // 行列からオイラー角へ変換（Y軸→X軸→Z軸回転などの順序に合わせる必要あり）
-    transform_.rotate = Transform(transform_.rotate, matRot);
+	transform_.rotate = { transform_.rotate.x, angle, transform_.rotate.z };
 }
 
+
+// カメラの前方向を取得
+Vector3 Camera::GetForward() const {
+	Matrix4x4 rotMat = MakeRotateXYZMatrix(transform_.rotate);
+	// 第3列がZ方向（前方向） ※左手系Z+前提
+	return Normalize(Vector3{
+		rotMat.m[2][0],
+		rotMat.m[2][1],
+		rotMat.m[2][2]
+		});
+}
+
+// カメラの右方向を取得
+Vector3 Camera::GetRight() const {
+	Matrix4x4 rotMat = MakeRotateXYZMatrix(transform_.rotate);
+	// 第1列がX方向（右方向）
+	return Normalize(Vector3{
+		rotMat.m[0][0],
+		rotMat.m[0][1],
+		rotMat.m[0][2]
+		});
+}

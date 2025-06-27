@@ -141,3 +141,37 @@ Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to)
 
 	return rotationMatrix;
 }
+
+Vector3 MatrixToEulerYXZ(const Matrix4x4& m)
+{
+	Vector3 euler{};
+
+	// YXZの順序（Z+が前提）
+	if (std::abs(m.m[2][0]) < 1.0f - 1e-5f) {
+		// 通常時
+		euler.y = std::asin(-m.m[2][0]);
+		euler.x = std::atan2(m.m[2][1], m.m[2][2]);
+		euler.z = std::atan2(m.m[1][0], m.m[0][0]);
+	} else {
+		// Gimbal Lock（m.m[2][0] が ±1 付近）
+		euler.y = std::asin(-m.m[2][0]);
+		euler.x = std::atan2(-m.m[0][1], m.m[1][1]);
+		euler.z = 0.0f;
+	}
+
+	return euler;
+}
+
+
+Vector3 CatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t)
+{
+	float t2 = t * t;
+	float t3 = t2 * t;
+
+	return 0.5f * (
+		(2.0f * p1) +
+		(-p0 + p2) * t +
+		(2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 +
+		(-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3
+		);
+}

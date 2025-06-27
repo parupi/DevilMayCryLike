@@ -1,118 +1,101 @@
 #pragma once
-#include "variant"
-#include "map"
-#include "string"
+#include <variant>
+#include <map>
+#include <string>
+#include <fstream>
+#include <filesystem>
+#include <cassert>
 #include "Vector3.h"
+
+#ifdef _DEBUG
+#include <imgui.h>
+#include <Windows.h>
+#endif
 #include <json.hpp>
 
-using json = nlohmann::json;
-
-/// <summary>
-/// グローバル変数
-/// </summary>
-const std::string kDirectoryPath = "resource/GlobalVariables/";
-
 class GlobalVariables {
-public: // インナークラス
+public:
+	using json = nlohmann::json;
 
-	// 項目
+	// 値の型
+	using Value = std::variant<int32_t, float, Vector3, bool>;
+
+	// 項目構造体
 	struct Item {
-		// 項目の値
-		std::variant<int32_t, float, Vector3, bool> value;
+		Value value;
 	};
 
-	// グループ
+	// グループ構造体
 	struct Group {
 		std::map<std::string, Item> items;
 	};
 
-public: // メンバ関数
+	// 型正規化（int → int32_t）
+	template<typename T> struct NormalizeType { using Type = T; };
+	template<> struct NormalizeType<int> { using Type = int32_t; };
 
-	/// <summary>
-	/// 更新
-	/// </summary>
-	void Update();
-
-	/// <summary>
-	/// インスタンスの取得
-	/// </summary>
+	// インスタンス取得
 	static GlobalVariables* GetInstance();
 
-	/// <summary>
-	/// グループの作成
-	/// </summary>
+	// グループ作成
 	void CreateGroup(const std::string& groupName);
 
-	/// <summary>
-	/// ファイルの書き出し
-	/// </summary>
-	void SaveFile(const std::string& groupName);
+	// 項目追加（テンプレート）
+	template<typename T>
+	void AddItem(const std::string& groupName, const std::string& key, const T& value);
 
-	/// <summary>
-	/// ディレクトリの全ファイル読み込み
-	/// </summary>
+	// 値のセット（テンプレート）
+	template<typename T>
+	void SetValue(const std::string& groupName, const std::string& key, const T& value);
+
+	// 値の取得参照（テンプレート）
+	template <typename T>
+	T& GetValueRef(const std::string& groupName, const std::string& key);
+
+	// アイテムの切り離し
+	void RemoveItem(const std::string& groupName, const std::string& key);
+
+	// ファイル入出力
+	void SaveFile(const std::string& groupName);
+	void LoadFile(const std::string& groupName);
 	void LoadFiles();
 
-	/// <summary>
-	/// ファイルから読み込む
-	/// </summary>
-	/// <param name="groupName"></param>
-	void LoadFile(const std::string& groupName);
-
-	/// <summary>
-	/// 項目の追加(int)
-	/// </summary>
-	void AddItem(const std::string& groupName, const std::string& key, int32_t value);
-
-	/// <summary>
-	/// 項目の追加(float)
-	/// </summary>
-	void AddItem(const std::string& groupName, const std::string& key, float value);
-
-	/// <summary>
-	/// 項目の追加(Vector3)
-	/// </summary>
-	void AddItem(const std::string& groupName, const std::string& key, const Vector3& value);
-
-	/// <summary>
-	/// 項目の追加(bool)
-	/// </summary>
-	void AddItem(const std::string& groupName, const std::string& key, const bool& value);
-
-	// 値のセット（int）
-	void SetValue(const std::string& groupName, const std::string& key, int32_t value);
-	// 値のセット（float）
-	void SetValue(const std::string& groupName, const std::string& key, float value);
-	// 値のセット（Vector3）
-	void SetValue(const std::string& groupName, const std::string& key, const Vector3 value);
-	// 値のセット (bool)
-	void SetValue(const std::string& groupName, const std::string& key, const bool& value);
-
-
-
-public: // アクセッサ
-
-	int32_t GetIntValue(const std::string& groupName, const std::string& key) const;
-	float GetFloatValue(const std::string& groupName, const std::string& key) const;
-	Vector3 GetVector3Value(const std::string& groupName, const std::string& key) const;
-	bool GetBoolValue(const std::string& groupName, const std::string& key) const;
-
-
 private:
-	// コンストラクタ
 	GlobalVariables() = default;
-	// デストラクタ
 	~GlobalVariables() = default;
-	// コピーコンストラクタを無効
-	GlobalVariables(const GlobalVariables& obj) = delete;
-	// 代入演算子を無効
-	GlobalVariables& operator=(const GlobalVariables& obj) = delete;
+	GlobalVariables(const GlobalVariables&) = delete;
+	GlobalVariables& operator=(const GlobalVariables&) = delete;
 
-	// 全データ
 	std::map<std::string, Group> datas_;
-
-
-
+	const std::string kDirectoryPath = "resource/GlobalVariables/";
 };
 
+// テンプレート関数実装
 
+template<typename T>
+void GlobalVariables::AddItem(const std::string& groupName, const std::string& key, const T& value) {
+	using NormalizedT = typename NormalizeType<T>::Type;
+	Group& group = datas_[groupName];
+	if (group.items.find(key) == group.items.end()) {
+		SetValue<NormalizedT>(groupName, key, value);
+	}
+}
+
+template<typename T>
+void GlobalVariables::SetValue(const std::string& groupName, const std::string& key, const T& value) {
+	using NormalizedT = typename NormalizeType<T>::Type;
+	Group& group = datas_[groupName];
+	group.items[key] = Item{ Value(static_cast<NormalizedT>(value)) };
+}
+
+template <typename T>
+T& GlobalVariables::GetValueRef(const std::string& groupName, const std::string& key) {
+	using NormalizedT = typename NormalizeType<T>::Type;
+
+	assert(datas_.find(groupName) != datas_.end());
+	Group& group = datas_.at(groupName);
+	assert(group.items.find(key) != group.items.end());
+	Item& item = group.items.at(key);
+	assert(std::holds_alternative<NormalizedT>(item.value));
+	return std::get<NormalizedT>(item.value);
+}

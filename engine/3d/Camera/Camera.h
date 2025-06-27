@@ -14,7 +14,7 @@ public: // メンバ関数
 	// フォローカメラ
 	virtual void LookAt(const Vector3& target);
 
-private:
+protected:
 	EulerTransform transform_;
 	Matrix4x4 worldMatrix_;
 	Matrix4x4 viewMatrix_;
@@ -40,6 +40,12 @@ public: // ゲッター // セッター //
 	Vector3& GetRotate() { return transform_.rotate; }
 	// 拡縮
 	Vector3& GetTranslate() { return transform_.translate; }
+
+	// カメラの前方向（Z+が前提）
+	Vector3 GetForward() const;
+
+	// カメラの右方向（X+が右）
+	Vector3 GetRight() const;
 
 	void SetFovY(const float& horizontalFOV) { horizontalFOV_ = horizontalFOV; }
 	void SetAspectRate(const float& aspectRatio) { aspectRatio_ = aspectRatio; }

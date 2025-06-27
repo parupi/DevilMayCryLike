@@ -32,8 +32,12 @@ private:
 	std::unique_ptr<ParticleEmitter> particleEmitter1_ = nullptr;
 	std::unique_ptr<ParticleEmitter> particleEmitter2_ = nullptr;
 
-	//std::unique_ptr<EnemyDamageEffect> effect_;
+	Vector3 velocity_{};
+	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
 
 	int32_t hp_ = 3;
+
+	// 地面と接触しているか
+	bool onGround_;
 };
 
