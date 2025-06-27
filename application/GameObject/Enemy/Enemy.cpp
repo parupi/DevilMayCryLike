@@ -21,9 +21,8 @@ void Enemy::Initialize()
 	
 	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMin *= 0.5f;
-	//GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, 5.0f };
+	
 	GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
-	//static_cast<Model*>(GetRenderer("Enemy")->GetModel())->GetMaterials(0)->GetColor() = { 1.0f, 0.0f, 0.0f, 1.0f };
 
 	particleEmitter_ = std::make_unique<ParticleEmitter>();
 	particleEmitter_->Initialize("test");
@@ -34,32 +33,19 @@ void Enemy::Initialize()
 	particleEmitter2_ = std::make_unique<ParticleEmitter>();
 	particleEmitter2_->Initialize("smoke");
 
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Cylinder5", PrimitiveRenderer::PrimitiveType::Cylinder, "gradationLine_brightened.png"));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Ring1", PrimitiveRenderer::PrimitiveType::Ring, "gradationLine_brightened.png"));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Ring2", PrimitiveRenderer::PrimitiveType::Ring, "gradationLine_brightened.png"));
-
-	//effect_ = std::make_unique<EnemyDamageEffect>("Effect");
-
-	//effect_->AddRenderer(RendererManager::GetInstance()->FindRender("Cylinder5"));
-	//effect_->AddRenderer(RendererManager::GetInstance()->FindRender("Ring1"));
-	//effect_->AddRenderer(RendererManager::GetInstance()->FindRender("Ring2"));
-
-	//effect_->Initialize();
 }
 
 void Enemy::Update()
 {
-	particleEmitter_->Update({ 0.0f, 0.0f, 0.0f }, 8);
-	particleEmitter1_->Update({ 0.0f, 0.0f, 0.0f }, 8);
-	particleEmitter2_->Update({ 0.0f, 0.0f, 0.0f }, 8);
+	particleEmitter_->Update(GetWorldTransform()->GetTranslation(), 8);
+	particleEmitter1_->Update(GetWorldTransform()->GetTranslation(), 8);
+	particleEmitter2_->Update(GetWorldTransform()->GetTranslation(), 8);
 
-	//effect_->UpdateCameraShake(CameraManager::GetInstance()->GetActiveCamera());
-	//effect_->UpdateDamageRingEffect(GetWorldTransform()->GetTranslation());
-	//effect_->UpdateGroundRippleEffect(GetWorldTransform()->GetTranslation());
-	//effect_->Update();
+	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
+	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
+
+
 	Object3d::Update();
-
-
 }
 
 void Enemy::Draw()
@@ -93,18 +79,85 @@ void Enemy::OnCollisionEnter(BaseCollider* other)
 {
 	if (other->category_ == CollisionCategory::PlayerWeapon) {
 		particleEmitter1_->Emit();
-
-		//effect_->InitializeCameraShake(CameraManager::GetInstance()->GetActiveCamera()->GetTranslate(), 0.5f, 0.2f, 30.0f);
-		//effect_->InitializeGroundRippleEffect(1.0f);
-		//effect_->InitializeDamageRingEffect(1.0f);
 	}
 
+	if (other->category_ == CollisionCategory::Ground) {
+
+		AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name));
+
+		AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
+
+		Vector3 outNormal = AABBCollider::CalculateCollisionNormal(enemyCollider, blockCollider);
+
+		Vector3 enemyMin = enemyCollider->GetMin();
+		Vector3 enemyMax = enemyCollider->GetMax();
+
+		float enemyOffset = (enemyMax.x - enemyMin.x) * 0.5f;
+
+		if (outNormal.x == 1.0f) {
+			// 右に当たってる
+			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + enemyOffset;
+		} else if (outNormal.x == -1.0f) {
+			// 左に当たってる
+			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - enemyOffset;
+		} else if (outNormal.y == 1.0f) {
+			// 上に当たってる
+			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + enemyOffset;
+			GetWorldTransform()->GetTranslation().y -= 0.1f;
+			velocity_.y = 0.0f;
+			onGround_ = true;
+		} else if (outNormal.y == -1.0f) {
+			// 下に当たってる
+			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - enemyOffset;
+			//velocity_ *= -1.0f;
+		} else if (outNormal.z == 1.0f) {
+			// 奥に当たってる
+			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + enemyOffset;
+		} else if (outNormal.z == -1.0f) {
+			// 手前に当たってる
+			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - enemyOffset;
+		}
+	}
 }
 
 void Enemy::OnCollisionStay(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::PlayerWeapon) {
-		particleEmitter_->Emit();
+	if (other->category_ == CollisionCategory::Ground) {
+
+		AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name));
+
+		AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
+		// 法線を取得
+		Vector3 outNormal = AABBCollider::CalculateCollisionNormal(enemyCollider, blockCollider);
+
+		Vector3 enemyMin = enemyCollider->GetMin();
+		Vector3 enemyMax = enemyCollider->GetMax();
+
+		float enemyOffset = (enemyMax.x - enemyMin.x) * 0.5f;
+
+		if (outNormal.x == 1.0f) {
+			// 右に当たってる
+			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + enemyOffset;
+		} else if (outNormal.x == -1.0f) {
+			// 左に当たってる
+			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - enemyOffset;
+		} else if (outNormal.y == 1.0f) {
+			// 上に当たってる
+			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + enemyOffset;
+			GetWorldTransform()->GetTranslation().y -= 0.1f;
+			velocity_.y = 0.0f;
+			onGround_ = true;
+		} else if (outNormal.y == -1.0f) {
+			// 下に当たってる
+			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - enemyOffset;
+			//velocity_ *= -1.0f;
+		} else if (outNormal.z == 1.0f) {
+			// 奥に当たってる
+			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + enemyOffset;
+		} else if (outNormal.z == -1.0f) {
+			// 手前に当たってる
+			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - enemyOffset;
+		}
 	}
 }
 

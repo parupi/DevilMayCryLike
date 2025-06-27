@@ -73,7 +73,6 @@ void MyGameTitle::Update()
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();
-	GlobalVariables::GetInstance()->Update();
 
 	ImGuiManager::GetInstance()->End();
 }

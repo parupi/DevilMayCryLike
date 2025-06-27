@@ -8,7 +8,11 @@
 #include <Input.h>
 #include "PlayerAttackEffect.h"
 #include "State/PlayerStateBase.h"
+#include "State/Attack/PlayerStateAttackBase.h"
 #include "PlayerWeapon.h"
+#include "math/Vector3.h"
+#include "math/function.h"
+#include <GlobalVariables.h>
 
 class Player : public Object3d
 {
@@ -22,6 +26,10 @@ public:
 	// 描画
 	void Draw() override;
 	void DrawEffect();
+
+	// ImGUiによる攻撃のエディター
+	void DrawAttackDataEditor(PlayerStateAttackBase* attack);
+
 
 	// 衝突した
 	void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
@@ -53,10 +61,13 @@ private:
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_;
 	PlayerStateBase* currentState_ = nullptr;
 
+	GlobalVariables* gv = GlobalVariables::GetInstance();
+	Input* input = Input::GetInstance();
+
 	Vector3 velocity_{};
 	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
 
-	Input* input = Input::GetInstance();
+
 	// 攻撃のフラグ
 	bool isAttack_ = false;
 	float timeAttackCurrent_ = 0.0f;

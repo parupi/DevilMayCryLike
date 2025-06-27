@@ -1,7 +1,6 @@
 #include "Player.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateMove.h"
-#include "State/PlayerStateAttack1.h"
 #include <Renderer/RendererManager.h>
 #include <Renderer/PrimitiveRenderer.h>
 #include <Collider/AABBCollider.h>
@@ -10,41 +9,38 @@
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
 #include <numbers>
+#include <Primitive/PrimitiveDrawer.h>
+#include "State/Attack/PlayerStateAttack1.h"
+
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
 	Object3d::Initialize();
 
 	// レンダラーの生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerBody", "PlayerBody"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerBody", "PlayerBody"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerLeftArm", "PlayerLeftArm"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerRightArm", "PlayerRightArm"));
 
-	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerBody"));
+	//AddRenderer(RendererManager::GetInstance()->FindRender("PlayerBody"));
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
-	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerLeftArm"));
-	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerRightArm"));
 
 	states_["Idle"] = std::make_unique<PlayerStateIdle>();
 	states_["Move"] = std::make_unique<PlayerStateMove>();
 	states_["Jump"] = std::make_unique<PlayerStateJump>();
 	states_["Air"] = std::make_unique<PlayerStateAir>();
-	states_["Attack1"] = std::make_unique<PlayerStateAttack1>();
+	states_["Attack1"] = std::make_unique<PlayerStateAttack1>("Attack1");
 	currentState_ = states_["Idle"].get();
 }
 
 void Player::Initialize()
 {
-	GetRenderer("PlayerLeftArm")->GetWorldTransform()->GetTranslation() = { -0.4f, 0.8f, 0.0f };
-	GetRenderer("PlayerRightArm")->GetWorldTransform()->GetTranslation() = { 0.4f, 0.8f, 0.0f };
 	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMin *= 0.5f;
-
+	// 武器のレンダラー生成
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "weapon"));
-
+	// 武器用のコライダー生成
 	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("WeaponCollider"));
-
+	// 武器を生成
 	weapon_ = std::make_unique<PlayerWeapon>("PlayerWeapon");
 
 	weapon_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerWeapon"));
@@ -53,7 +49,7 @@ void Player::Initialize()
 
 	weapon_->Initialize();
 
-	weapon_->GetWorldTransform()->SetParent(GetRenderer("PlayerRightArm")->GetWorldTransform());
+	weapon_->GetWorldTransform()->SetParent(GetRenderer("PlayerHead")->GetWorldTransform());
 }
 
 void Player::Update()
@@ -71,23 +67,68 @@ void Player::Update()
 	weapon_->Update();
 	Object3d::Update();
 
-	ImGui::Begin("Player");
-	ImGui::DragFloat3("Translate", &GetWorldTransform()->GetTranslation().x, 0.01f);
-	ImGui::DragFloat3("Rotate", &GetWorldTransform()->GetRotation().x, 0.01f);
-	ImGui::DragFloat3("Scale", &GetWorldTransform()->GetScale().x, 0.01f);
-	ImGui::End();
+	// ImGuiによるエディターを描画
+	for (auto& [name, state] : states_) {
+		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
+		if (attackState) {
+			DrawAttackDataEditor(attackState);
+			attackState->UpdateControlPoints();
+		}
+	}
 }
 
 void Player::Draw()
 {
 	weapon_->Draw();
 	Object3d::Draw();
+
+
+	for (auto& [name, state] : states_) {
+		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
+		if (attackState) {
+			attackState->DrawControlPoints();
+		}
+	}
 }
 
 void Player::DrawEffect()
 {
 
 }
+
+void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
+{
+	const char* attackName = attack->name.c_str();
+	ImGui::Begin(attackName);
+
+	int32_t& pointCount = gv->GetValueRef<int32_t>(attackName, "PointCount");
+
+	for (int32_t i = 0; i < pointCount; ++i) {
+		Vector3& point = gv->GetValueRef<Vector3>(attackName, "ControlPoint_" + std::to_string(i));
+		ImGui::DragFloat3(("P" + std::to_string(i)).c_str(), &point.x, 0.01f);
+	}
+
+	if (ImGui::Button("Add Point")) {
+		gv->AddItem(attackName, "ControlPoint_" + std::to_string(pointCount), Vector3{});
+		++pointCount;
+	}
+
+	if (ImGui::Button("Remove Last") && pointCount > 0) {
+		--pointCount;
+		gv->RemoveItem(attackName, "ControlPoint_" + std::to_string(pointCount));
+	}
+
+	ImGui::DragFloat("Damage", &gv->GetValueRef<float>(attackName, "Damage"), 0.01f);
+
+	if (ImGui::Button("Save")) {
+		gv->SaveFile(attackName);
+		std::string message = std::format("{}.json saved.", attackName);
+		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+	}
+	ImGui::End();
+}
+
+
 
 #ifdef _DEBUG
 void Player::DebugGui()
@@ -100,7 +141,6 @@ void Player::DebugGui()
 	ImGui::Begin("Weapon");
 	weapon_->DebugGui();
 	ImGui::End();
-
 
 }
 
@@ -118,42 +158,45 @@ void Player::ChangeState(const std::string& stateName)
 
 void Player::Move()
 {
+	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	if (!camera) return;
+
 	// 各フレームでまず速度をゼロに初期化
 	velocity_ = { 0.0f, velocity_.y, 0.0f };
+	// 入力方向をローカル（プレイヤーから見た）方向で作成
+	Vector3 inputDir = { 0.0f, 0.0f, 0.0f };
+	if (Input::GetInstance()->PushKey(DIK_W)) inputDir.z += 1.0f;
+	if (Input::GetInstance()->PushKey(DIK_S)) inputDir.z -= 1.0f;
+	if (Input::GetInstance()->PushKey(DIK_D)) inputDir.x += 1.0f;
+	if (Input::GetInstance()->PushKey(DIK_A)) inputDir.x -= 1.0f;
 
-	if (Input::GetInstance()->PushKey(DIK_W)) {
-		velocity_.z += 1.0f;
-	}
-	if (Input::GetInstance()->PushKey(DIK_S)) {
-		velocity_.z -= 1.0f;
-	}
-	if (Input::GetInstance()->PushKey(DIK_D)) {
-		velocity_.x += 1.0f;
-	}
-	if (Input::GetInstance()->PushKey(DIK_A)) {
-		velocity_.x -= 1.0f;
-	}
+	if (Length(inputDir) > 0.01f) {
+		inputDir = Normalize(inputDir);
 
-	if (Length(velocity_) > 0.01f) {
-		// y座標は正規化させないでおく
+		// カメラのforward/right（Y方向カット）
+		Vector3 camForward = camera->GetForward(); // カメラの「向き」
+		camForward.y = 0.0f;
+		camForward = Normalize(camForward);
+
+		Vector3 camRight = camera->GetRight(); // カメラの右
+		camRight.y = 0.0f;
+		camRight = Normalize(camRight);
+
+		// 入力方向をカメラの向きに投影
+		Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
+		moveDir = Normalize(moveDir);
+
+		// 移動速度に反映
 		float velocityY = velocity_.y;
-		velocity_ = Normalize(velocity_) * 10.0f;
+		velocity_ = moveDir * 10.0f;
 		velocity_.y = velocityY;
 
-		Vector3 moveDirection = velocity_;
-		moveDirection.y = 0.0f;
-		moveDirection.z *= -1.0f;
+		// プレイヤーの向きも更新
+		if (Length(moveDir) > 0.001f) {
+			moveDir.x *= -1.0f;
+			Quaternion lookRot = LookRotation(moveDir);
 
-		// moveDirection がゼロベクトルかチェック
-		if (Length(moveDirection) > 0.0001f) {
-			// Z+が前を向くように回転を取得
-			Quaternion lookRot = LookRotation(moveDirection);
-
-			// Z+を向くように補正 → -Zを前にしたいのでY軸180度回転
-			Quaternion correction = MakeRotateAxisAngleQuaternion({ 0.0f, 1.0f, 0.0f }, static_cast<float>(std::numbers::pi));
-
-			// Apply correction BEFORE LookRotation
-			GetWorldTransform()->GetRotation() = correction * lookRot; // ← 順番重要（補正を先に掛ける）
+			GetWorldTransform()->GetRotation() = lookRot;
 		}
 	}
 }

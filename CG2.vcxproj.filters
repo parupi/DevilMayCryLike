@@ -97,7 +97,7 @@
     <ClCompile Include="application\GameObject\Player\PlayerAttackEffect.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateIdle.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
-    <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\Attack\PlayerStateAttack1.cpp" />
     <ClCompile Include="application\GameObject\Enemy\Enemy.cpp" />
     <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
     <ClCompile Include="application\GameObject\Ground\Ground.cpp" />
@@ -109,6 +109,7 @@
     <ClCompile Include="application\GameObject\Player\State\PlayerStateJump.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateAir.cpp" />
     <ClCompile Include="engine\3d\Object\Renderer\InstancingRenderer.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
@@ -198,7 +199,7 @@
     <ClInclude Include="application\GameObject\Player\State\PlayerStateBase.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateIdle.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
-    <ClInclude Include="application\GameObject\Player\State\PlayerStateAttack1.h" />
+    <ClInclude Include="application\GameObject\Player\State\Attack\PlayerStateAttack1.h" />
     <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
     <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
     <ClInclude Include="application\GameObject\Ground\Ground.h" />
@@ -213,6 +214,8 @@
     <ClInclude Include="application\GameObject\Player\State\PlayerStateAir.h" />
     <ClInclude Include="engine\3d\Object\Renderer\InstancingRenderer.h" />
     <ClInclude Include="engine\base\Particle\ParticleStruct.h" />
+    <ClInclude Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.h" />
+    <ClInclude Include="application\GameObject\Enemy\State\EnemyStateBase.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Fullscreen.hlsli" />

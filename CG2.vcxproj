@@ -193,13 +193,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\3d\Light\SpotLight.cpp" />
     <ClCompile Include="application\GameObject\Player\PlayerAttackEffect.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateIdle.cpp" />
-    <ClCompile Include="application\GameObject\Player\State\PlayerStateAttack1.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\Attack\PlayerStateAttack1.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="application\GameObject\Player\PlayerWeapon.cpp" />
     <ClCompile Include="engine\Include\SceneBuilder.cpp" />
     <ClCompile Include="application\scene\Object3dFactory.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateJump.cpp" />
     <ClCompile Include="application\GameObject\Player\State\PlayerStateAir.cpp" />
+    <ClCompile Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="resource\shaders\BoxFilter.PS.hlsl">
@@ -291,6 +292,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\scene\TitleScene.h" />
     <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
     <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
+    <ClInclude Include="application\GameObject\Enemy\State\EnemyStateBase.h" />
     <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
     <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
     <ClInclude Include="engine\3d\Collider\ColliderStructs.h" />
@@ -377,7 +379,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Player\PlayerAttackEffect.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateBase.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateIdle.h" />
-    <ClInclude Include="application\GameObject\Player\State\PlayerStateAttack1.h" />
+    <ClInclude Include="application\GameObject\Player\State\Attack\PlayerStateAttack1.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateMove.h" />
     <ClInclude Include="application\GameObject\Player\PlayerWeapon.h" />
     <ClInclude Include="application\GameObject\Ground\Ground.h" />
@@ -388,6 +390,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Player\State\PlayerStateJump.h" />
     <ClInclude Include="application\GameObject\Player\State\PlayerStateAir.h" />
     <ClInclude Include="engine\3d\Object\Renderer\InstancingRenderer.h" />
+    <ClInclude Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

@@ -71,7 +71,7 @@ void ParticleManager::Update()
 
 			// パーティクルの更新処理
 			float alpha{};
-			isBillboard = global_->GetBoolValue(groupName, "IsBillboard");
+			isBillboard = global_->GetValueRef<bool>(groupName, "IsBillboard");
 
 			(*particleIterator).transform.translate += (*particleIterator).velocity * DeltaTime::GetDeltaTime();
 			(*particleIterator).currentTime += DeltaTime::GetDeltaTime();
@@ -338,31 +338,31 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 	ParticleParameters params{};
 
 	// Translate
-	params.translateX = { global->GetVector3Value(groupName, "minTranslate").x, global->GetVector3Value(groupName, "maxTranslate").x };
-	params.translateY = { global->GetVector3Value(groupName, "minTranslate").y, global->GetVector3Value(groupName, "maxTranslate").y };
-	params.translateZ = { global->GetVector3Value(groupName, "minTranslate").z, global->GetVector3Value(groupName, "maxTranslate").z };
+	params.translateX = { global->GetValueRef<Vector3>(groupName, "minTranslate").x, global->GetValueRef<Vector3>(groupName, "maxTranslate").x };
+	params.translateY = { global->GetValueRef<Vector3>(groupName, "minTranslate").y, global->GetValueRef<Vector3>(groupName, "maxTranslate").y };
+	params.translateZ = { global->GetValueRef<Vector3>(groupName, "minTranslate").z, global->GetValueRef<Vector3>(groupName, "maxTranslate").z };
 
-	// Rotate
-	params.rotateX = { global->GetVector3Value(groupName, "minRotate").x, global->GetVector3Value(groupName, "maxRotate").x };
-	params.rotateY = { global->GetVector3Value(groupName, "minRotate").y, global->GetVector3Value(groupName, "maxRotate").y };
-	params.rotateZ = { global->GetVector3Value(groupName, "minRotate").z, global->GetVector3Value(groupName, "maxRotate").z };
+	// GetValue<Vector3>
+	params.rotateX = { global->GetValueRef<Vector3>(groupName, "minRotate").x, global->GetValueRef<Vector3>(groupName, "maxRotate").x };
+	params.rotateY = { global->GetValueRef<Vector3>(groupName, "minRotate").y, global->GetValueRef<Vector3>(groupName, "maxRotate").y };
+	params.rotateZ = { global->GetValueRef<Vector3>(groupName, "minRotate").z, global->GetValueRef<Vector3>(groupName, "maxRotate").z };
 
 	// Scale
-	params.scaleX = { global->GetVector3Value(groupName, "minScale").x, global->GetVector3Value(groupName, "maxScale").x };
-	params.scaleY = { global->GetVector3Value(groupName, "minScale").y, global->GetVector3Value(groupName, "maxScale").y };
-	params.scaleZ = { global->GetVector3Value(groupName, "minScale").z, global->GetVector3Value(groupName, "maxScale").z };
+	params.scaleX = { global->GetValueRef<Vector3>(groupName, "minScale").x, global->GetValueRef<Vector3>(groupName, "maxScale").x };
+	params.scaleY = { global->GetValueRef<Vector3>(groupName, "minScale").y, global->GetValueRef<Vector3>(groupName, "maxScale").y };
+	params.scaleZ = { global->GetValueRef<Vector3>(groupName, "minScale").z, global->GetValueRef<Vector3>(groupName, "maxScale").z };
 
 	// Velocity
-	params.velocityX = { global->GetVector3Value(groupName, "minVelocity").x, global->GetVector3Value(groupName, "maxVelocity").x };
-	params.velocityY = { global->GetVector3Value(groupName, "minVelocity").y, global->GetVector3Value(groupName, "maxVelocity").y };
-	params.velocityZ = { global->GetVector3Value(groupName, "minVelocity").z, global->GetVector3Value(groupName, "maxVelocity").z };
+	params.velocityX = { global->GetValueRef<Vector3>(groupName, "minVelocity").x, global->GetValueRef<Vector3>(groupName, "maxVelocity").x };
+	params.velocityY = { global->GetValueRef<Vector3>(groupName, "minVelocity").y, global->GetValueRef<Vector3>(groupName, "maxVelocity").y };
+	params.velocityZ = { global->GetValueRef<Vector3>(groupName, "minVelocity").z, global->GetValueRef<Vector3>(groupName, "maxVelocity").z };
 
 	// LifeTime
-	params.lifeTime = { global->GetFloatValue(groupName, "minLifeTime"), global->GetFloatValue(groupName, "maxLifeTime") };
+	params.lifeTime = { global->GetValueRef<float>(groupName, "minLifeTime"), global->GetValueRef<float>(groupName, "maxLifeTime") };
 
 	// Color
-	params.colorMin = global->GetVector3Value(groupName, "minColor");
-	params.colorMax = global->GetVector3Value(groupName, "maxColor");
+	params.colorMin = global->GetValueRef<Vector3>(groupName, "minColor");
+	params.colorMax = global->GetValueRef<Vector3>(groupName, "maxColor");
 
 	return params;
 }

@@ -1,6 +1,6 @@
 #include "CameraManager.h"
 #include <Object3dManager.h>
-#include "ParticleManager.h"
+#include "Particle/ParticleManager.h"
 
 CameraManager* CameraManager::instance = nullptr;
 std::once_flag CameraManager::initInstanceFlag;

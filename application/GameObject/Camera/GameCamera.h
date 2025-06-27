@@ -11,5 +11,7 @@ public:
 
 private:
 	Player* player_;
+
+	float horizontalAngle_ = 0.0f; // 左右回転角（ラジアン）
 };
 
