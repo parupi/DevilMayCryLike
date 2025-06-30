@@ -1,8 +1,8 @@
 #pragma once
-#include <Model/ModelStructs.h>
+#include <3d/Object/Model/ModelStructs.h>
 #include <memory>
-#include <Model/Model.h>
 #include "PrimitiveRenderer.h"
+#include <3d/Object/Model/Model.h>
 
 class PrimitiveFactory {
 public:

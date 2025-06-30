@@ -1,12 +1,12 @@
 #pragma once
 #include "BaseRenderer.h"
 #include <vector>
-#include <DirectXTex.h>
+#include <DirectXTex/DirectXTex.h>
 #include <wrl.h>
 #include <d3d12.h>
-#include <Vector4.h>
-#include "Model/Model.h"
-#include "Renderer/PrimitiveRenderer.h"
+#include <math/Vector4.h>
+#include "3d/Object/Model/Model.h"
+#include "3d/Object/Renderer/PrimitiveRenderer.h"
 
 struct InstanceData {
     Matrix4x4 world;

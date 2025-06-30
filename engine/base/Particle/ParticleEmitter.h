@@ -1,12 +1,12 @@
 #pragma once
-#include <function.h>
-#include <Particle/ParticleManager.h>
-#include <utility/DeltaTime.h>
+#include <math/function.h>
+#include <base/Particle/ParticleManager.h>
+#include <base/utility/DeltaTime.h>
 class ParticleEmitter
 {
 public:
 	// 初期化
-	void Initialize(std::string name);
+	void Initialize(std::string name_);
 	// 更新
 	void Update(Vector3 Position, uint32_t count);
 	// 発生
@@ -14,7 +14,7 @@ public:
 private:
 
 	struct Emitter {
-		std::string name; //!< パーティクルの名前
+		std::string name_; //!< パーティクルの名前
 		EulerTransform transform; //!< エミッタのTransform
 		uint32_t count; //!< 発生数
 		float frequency; //!< 発生頻度

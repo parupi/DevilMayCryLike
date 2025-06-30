@@ -2,7 +2,7 @@
 
 SpotLight::SpotLight(std::string lightName) : BaseLight()
 {
-	name = lightName;
+	name_ = lightName;
 }
 
 void SpotLight::Update()

@@ -1,7 +1,10 @@
 #pragma once
-#include <function.h>
-#include <WindowManager.h>
+#include <math/function.h>
+#include <base/WindowManager.h>
 #include <memory>
+#include <math/Matrix4x4.h>
+#include <math/Vector3.h>
+#include <math/Quaternion.h>
 class Camera
 {
 public: // メンバ関数
@@ -57,6 +60,6 @@ public: // ゲッター // セッター //
 	const Matrix4x4& GetProjectionMatrix() const { return projectionMatrix_; }
 	const Matrix4x4& GetViewProjectionMatrix() const { return worldViewProjectionMatrix_; }
 
-	std::string name;
+	std::string name_;
 };
 

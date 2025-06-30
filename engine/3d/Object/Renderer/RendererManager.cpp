@@ -34,7 +34,7 @@ void RendererManager::AddRenderer(std::unique_ptr<BaseRenderer> render)
 BaseRenderer* RendererManager::FindRender(std::string renderName)
 {
 	for (auto& render : renders_) {
-		if (render->name == renderName) {
+		if (render->name_ == renderName) {
 			return render.get();
 		}
 	}

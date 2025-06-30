@@ -1,6 +1,6 @@
 #pragma once
-#include "DirectXManager.h"
-#include <SrvManager.h>
+#include "base/DirectXManager.h"
+#include "base/SrvManager.h"
 #include "ModelStructs.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>

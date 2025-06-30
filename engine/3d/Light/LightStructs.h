@@ -1,6 +1,9 @@
 #pragma once
-#include <Vector4.h>
-#include <Vector3.h>
+#pragma warning(push)
+#pragma warning(disable: 4324) 
+#include <math/Vector4.h>
+#include <math/Vector3.h>
+
 
 struct  alignas(16) DirectionalLightData {
 	Vector4 color;		//!< ライトの色

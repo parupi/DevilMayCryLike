@@ -1,10 +1,10 @@
 #pragma once
-#include <Vector3.h>
+#include <math/Vector3.h>
 #include "assert.h"
 #include "cmath"
-#include <Matrix4x4.h>
-#include <Quaternion.h>
-#include <imgui.h>
+#include <math/Matrix4x4.h>
+#include <math/Quaternion.h>
+#include <imgui/imgui.h>
 #include <vector>
 
 static const int kColumnWidth = 60;

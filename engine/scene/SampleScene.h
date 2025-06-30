@@ -1,21 +1,19 @@
 #pragma once
-#include <Object3d.h>
-#include <Sprite.h>
-#include <Model/Model.h>
+#include <3d/Object/Object3d.h>
+#include <2d/Sprite.h>
+#include <3d/Object/Model/Model.h>
 #include <vector>
-#include <Camera.h>
-#include <BaseScene.h>
+#include <3d/Camera/Camera.h>
+#include <scene/BaseScene.h>
 #include <memory>
-#include <Audio.h>
-#include <CameraManager.h>
-#include <WorldTransform.h>
-#include <Particle/ParticleEmitter.h>
-#include "DebugSphere.h"
-//#include <OffScreen.h>
+#include <audio/Audio.h>
+#include <3d/Camera/CameraManager.h>
+#include <3d/WorldTransform.h>
+#include <base/Particle/ParticleEmitter.h>
 #include "offscreen/GrayEffect.h"
-#include <Light/LightManager.h>
-#include <Renderer/ModelRenderer.h>
-#include <Collider/AABBCollider.h>
+#include <3d/Light/LightManager.h>
+#include <3d/Object/Renderer/ModelRenderer.h>
+#include <3d/Collider/AABBCollider.h>
 class SampleScene : public BaseScene
 {
 public:

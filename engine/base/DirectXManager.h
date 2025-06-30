@@ -7,11 +7,11 @@
 #include "WindowManager.h"
 #include "Logger.h"
 #include "StringUtility.h"
-#include "DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 #include <chrono>
 #include <thread>
 #include <vector>
-#include <Vector4.h>
+#include <math/Vector4.h>
 
 class SrvManager;
 

@@ -1,19 +1,19 @@
 #include "SampleScene.h"
-#include <TextureManager.h>
-#include <Model/ModelManager.h>
-#include <Particle/ParticleManager.h>
-#include <imgui.h>
-#include <Quaternion.h>
-#include <Vector3.h>
-#include <Matrix4x4.h>
+#include <base/TextureManager.h>
+#include <3d/Object/Model/ModelManager.h>
+#include <base/Particle/ParticleManager.h>
+#include <imgui/imgui.h>
+#include <math/Quaternion.h>
+#include <math/Vector3.h>
+#include <math/Matrix4x4.h>
 #include <offscreen/OffScreenManager.h>
 #include <offscreen/VignetteEffect.h>
 #include <offscreen/SmoothEffect.h>
-#include <Primitive/PrimitiveLineDrawer.h>
-#include <Renderer/RendererManager.h>
-#include <Collider/CollisionManager.h>
-#include <Collider/SphereCollider.h>
-#include <Renderer/PrimitiveRenderer.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <3d/Object/Renderer/RendererManager.h>
+#include <3d/Collider/CollisionManager.h>
+#include <3d/Collider/SphereCollider.h>
+#include <3d/Object/Renderer/PrimitiveRenderer.h>
 
 void SampleScene::Initialize()
 {

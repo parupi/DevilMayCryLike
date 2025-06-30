@@ -1,5 +1,5 @@
 #pragma once
-#include <DirectXManager.h>
+#include <base/DirectXManager.h>
 class SrvManager
 {
 public:

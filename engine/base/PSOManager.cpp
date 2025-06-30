@@ -1,6 +1,7 @@
 #include "PsoManager.h"
-#include <Logger.h>
+#include "Logger.h"
 #include <cassert>
+#include <DirectXTex/d3dx12.h>
 
 void PSOManager::Initialize(DirectXManager* dxManager)
 {

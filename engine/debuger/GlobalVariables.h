@@ -5,13 +5,13 @@
 #include <fstream>
 #include <filesystem>
 #include <cassert>
-#include "Vector3.h"
+#include "math/Vector3.h"
 
 #ifdef _DEBUG
-#include <imgui.h>
+#include <imgui/imgui.h>
 #include <Windows.h>
 #endif
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 
 class GlobalVariables {
 public:

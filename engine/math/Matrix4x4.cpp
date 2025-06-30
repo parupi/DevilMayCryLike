@@ -1,7 +1,7 @@
 #include "Matrix4x4.h"
-#include <imgui.h>
-#include <Quaternion.h>
-#include <Vector3.h>
+#include <imgui/imgui.h>
+#include <math/Quaternion.h>
+#include <math/Vector3.h>
 
 // デフォルトコンストラクタ
 Matrix4x4::Matrix4x4() : m{ {0.0f} } {}

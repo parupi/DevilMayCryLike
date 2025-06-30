@@ -1,8 +1,8 @@
 #include "SkinCluster.h"
-#include "Model/SkinnedModel.h"
-#include "Model/Animation/Skeleton.h"
-#include "DirectXManager.h"
-#include "SrvManager.h"
+#include "3d/Object/Model/SkinnedModel.h"
+#include "3d/Object/Model/Animation/Skeleton.h"
+#include "base/DirectXManager.h"
+#include "base/SrvManager.h"
 
 void SkinCluster::Initialize(
 	const SkeletonData& skeleton,

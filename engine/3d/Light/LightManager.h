@@ -1,16 +1,16 @@
 #pragma once
 #include <vector>
-#include <Vector4.h>
-#include <Vector3.h>
+#include <math/Vector4.h>
+#include <math/Vector3.h>
 #include <wrl.h>
 #include <d3d12.h>
-#include <DirectXManager.h>
 #include <mutex>
 #include "BaseLight.h"
 #include "LightStructs.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
+#include <base/DirectXManager.h>
 
 constexpr int maxDirLights = 3;
 constexpr int maxPointLights = 3; // ポイントライトの最大数
@@ -41,9 +41,9 @@ public:
 	void AddPointLight(std::unique_ptr<PointLight> light);
 	void AddSpotLight(std::unique_ptr<SpotLight> light);
 
-	DirectionalLight* GetDirectionalLight(const std::string& name);
-	PointLight* GetPointLight(const std::string& name);
-	SpotLight* GetSpotLight(const std::string& name);
+	DirectionalLight* GetDirectionalLight(const std::string& name_);
+	PointLight* GetPointLight(const std::string& name_);
+	SpotLight* GetSpotLight(const std::string& name_);
 private:
 	//void CreateDirLightResource();
 	//void CreatePointLightResource();

@@ -1,15 +1,15 @@
 #define NOMINMAX
 #include "SceneBuilder.h"
-#include "Object/Object3d.h"
-#include "WorldTransform.h"
-#include "Renderer/ModelRenderer.h"
-#include "Model/ModelManager.h"
-#include "Collider/AABBCollider.h"
-#include "Collider/SphereCollider.h"
-#include <Collider/CollisionManager.h>
-#include <Renderer/RendererManager.h>
-#include <Object3dFactory.h>
-#include "Vector3.h"
+#include "3d/Object/Object3d.h"
+#include "3d/WorldTransform.h"
+#include "3d/Object/Renderer/ModelRenderer.h"
+#include "3d/Object/Model/ModelManager.h"
+#include "3d/Collider/AABBCollider.h"
+#include "3d/Collider/SphereCollider.h"
+#include <3d/Collider/CollisionManager.h>
+#include <3d/Object/Renderer/RendererManager.h>
+#include "math/Vector3.h"
+#include <scene/Object3dFactory.h>
 
 void SceneBuilder::BuildScene(const std::vector<SceneObject>& sceneObjects) {
 	for (const auto& obj : sceneObjects) {
@@ -18,7 +18,7 @@ void SceneBuilder::BuildScene(const std::vector<SceneObject>& sceneObjects) {
 }
 
 std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& sceneObj, Object3d* parent) {
-	std::unique_ptr<Object3d> object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
+	std::unique_ptr<Object3d> object = Object3dFactory::Create(sceneObj.className, sceneObj.name_);
 
 	// トランスフォーム設定
 	WorldTransform* transform = object->GetWorldTransform();
@@ -43,7 +43,7 @@ std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& 
 		const std::string& fileName = sceneObj.fileName.value();
 		ModelManager::GetInstance()->LoadModel(fileName);
 
-		std::unique_ptr<ModelRenderer> renderer = std::make_unique<ModelRenderer>(sceneObj.name, fileName);
+		std::unique_ptr<ModelRenderer> renderer = std::make_unique<ModelRenderer>(sceneObj.name_, fileName);
 		renderer->SetModel(fileName);
 
 		BaseRenderer* rendererPtr = renderer.get(); // 登録前にポインタを保存
@@ -58,7 +58,7 @@ std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& 
 		const Collider& col = sceneObj.collider.value();
 
 		if (col.type == ColliderType::AABB) {
-			std::unique_ptr<AABBCollider> collider = std::make_unique<AABBCollider>(sceneObj.name);
+			std::unique_ptr<AABBCollider> collider = std::make_unique<AABBCollider>(sceneObj.name_);
 			AABBData scaledAABB = col.aabb;
 
 			// スケールを適用
@@ -71,7 +71,7 @@ std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& 
 			CollisionManager::GetInstance()->AddCollider(std::move(collider));
 			object->AddCollider(colPtr);
 		} else if (col.type == ColliderType::Sphere) {
-			std::unique_ptr<SphereCollider> collider = std::make_unique<SphereCollider>(sceneObj.name);
+			std::unique_ptr<SphereCollider> collider = std::make_unique<SphereCollider>(sceneObj.name_);
 
 			SphereData scaledSphere = col.sphere;
 

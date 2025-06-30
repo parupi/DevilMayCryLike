@@ -1,7 +1,7 @@
-#include <WorldTransform.h>
-#include <function.h>
-#include <DirectXManager.h>
-#include <Object3dManager.h>
+#include <3d/WorldTransform.h>
+#include <math/function.h>
+#include <base/DirectXManager.h>
+#include <3d/Object/Object3dManager.h>
 
 void WorldTransform::Initialize()
 {

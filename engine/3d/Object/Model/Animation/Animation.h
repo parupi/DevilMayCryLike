@@ -1,12 +1,12 @@
 #pragma once
-#include <Vector3.h>
-#include <Quaternion.h>
-#include <Matrix4x4.h>
+#include <math/Vector3.h>
+#include <math/Quaternion.h>
+#include <math/Matrix4x4.h>
 #include <vector>
 #include <map>
 #include <string>
 #include <optional>
-#include "Model/ModelStructs.h"
+#include "3d/Object/Model/ModelStructs.h"
 
 //#include <Skeleton.h>
 

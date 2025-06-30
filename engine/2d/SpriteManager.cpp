@@ -1,4 +1,5 @@
 #include "SpriteManager.h"
+#include <cassert>
 
 SpriteManager* SpriteManager::instance = nullptr;
 std::once_flag SpriteManager::initInstanceFlag;

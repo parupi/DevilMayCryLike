@@ -1,7 +1,8 @@
 #include "Object3dManager.h"
-#include <Object3d.h>
-#include <Light/LightManager.h>
-#include <CameraManager.h>
+#include "3d/Object/Object3d.h"
+#include <cassert>
+#include <3d/Light/LightManager.h>
+#include <3d/Camera/CameraManager.h>
 
 Object3dManager* Object3dManager::instance = nullptr;
 std::once_flag Object3dManager::initInstanceFlag;
@@ -80,7 +81,7 @@ void Object3dManager::AddObject(std::unique_ptr<Object3d> object)
 Object3d* Object3dManager::FindObject(std::string objectName)
 {
 	for (auto& object : objects_) {
-		if (object->name == objectName) {
+		if (object->name_ == objectName) {
 			return object.get();
 		}
 	}

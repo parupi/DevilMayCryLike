@@ -1,5 +1,5 @@
 #pragma once
-#include <Vector3.h>
+#include <math/Vector3.h>
 
 struct AABBData {
 	Vector3 offsetMax = { 0.5f, 0.5f, 0.5f };

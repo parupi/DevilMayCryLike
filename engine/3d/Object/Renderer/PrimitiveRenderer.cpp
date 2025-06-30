@@ -3,7 +3,7 @@
 #include "RendererManager.h"
 
 PrimitiveRenderer::PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName) {
-    name = renderName;
+    name_ = renderName;
     localTransform_ = std::make_unique<WorldTransform>();
     localTransform_->Initialize();
 
@@ -25,6 +25,7 @@ void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
 }
 
 void PrimitiveRenderer::Draw(WorldTransform* parentTransform) {
+    parentTransform;
     RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
 
     model_->Draw();

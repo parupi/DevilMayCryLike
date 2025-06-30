@@ -1,14 +1,15 @@
 #include "Windows.h"
 
-#include "DirectXManager.h"
+#include "base/DirectXManager.h"
 #include <cassert>
 #include <format>
-#include <SrvManager.h>
-
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_win32.h"
+#include <base/SrvManager.h>
+#include <dxgi1_6.h>
+#include "imgui/imgui_impl_dx12.h"
+#include "imgui/imgui_impl_win32.h"
 
 #pragma comment(lib, "d3d12.lib")
+
 #pragma comment(lib, "dxgi.lib")
 
 using namespace Microsoft::WRL;

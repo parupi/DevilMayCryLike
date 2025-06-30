@@ -1,14 +1,14 @@
 #pragma once
 #pragma once
-#include <DirectXManager.h>
-#include <SrvManager.h>
+#include <base/DirectXManager.h>
+#include <base/SrvManager.h>
 #include <random>
-#include <Vector4.h>
-#include <Matrix4x4.h>
-#include <Camera.h>
-#include <Vector2.h>
-#include "GlobalVariables.h"
-#include "PSOManager.h"
+#include <math/Vector4.h>
+#include <math/Matrix4x4.h>
+#include <3d/Camera/Camera.h>
+#include <math/Vector2.h>
+#include "debuger/GlobalVariables.h"
+#include "base/PSOManager.h"
 class ParticleManager
 {
 private:
@@ -30,7 +30,7 @@ public:
 	// 描画
 	void Draw();
 	// パーティクルグループを登録する
-	void CreateParticleGroup(const std::string name, const std::string textureFilePath);
+	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
 	// 描画前処理
 	void DrawSet(BlendMode blendMode = BlendMode::kAdd);
 
@@ -45,7 +45,7 @@ private: // 構造体
 	};
 
 	struct MaterialData {
-		std::string name;
+		std::string name_;
 		float Ns;
 		Color Ka;	// 環境光色
 		Color Kd;	// 拡散反射色
@@ -123,13 +123,13 @@ private:
 	// WVP用のリソースを生成 
 	void CreateMaterialResource();
 	// パーティクルを生成する関数
-	Particle MakeNewParticle(const std::string name, std::mt19937& randomEngine, const Vector3& translate);
+	Particle MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate);
 
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
-	std::list<Particle> Emit(const std::string name, const Vector3& position, uint32_t count);
+	std::list<Particle> Emit(const std::string name_, const Vector3& position, uint32_t count);
 
 private:
 	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
@@ -173,7 +173,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
 
 public:
-	void SetAlpha(const std::string name, float alpha) { alpha_[name] = alpha; }
+	void SetAlpha(const std::string name_, float alpha) { alpha_[name_] = alpha; }
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 	Camera* GetCamera() { return camera_; }

@@ -1,6 +1,8 @@
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>
-#include "MyGameTitle.h"
+
+#include "core/MyGameTitle.h"
+
 
 // Windowsアプリでのエントリーポイント(main関数)
 int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {

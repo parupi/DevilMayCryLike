@@ -2,7 +2,7 @@
 
 PointLight::PointLight(std::string lightName) : BaseLight()
 {
-	name = lightName;
+	name_ = lightName;
 }
 
 void PointLight::Update()

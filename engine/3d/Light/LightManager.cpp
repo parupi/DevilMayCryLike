@@ -1,5 +1,5 @@
 #include "LightManager.h"
-#include <Object3dManager.h>
+#include <3d/Object/Object3dManager.h>
 #include <numbers>
 
 LightManager* LightManager::instance = nullptr;
@@ -86,30 +86,30 @@ void LightManager::AddSpotLight(std::unique_ptr<SpotLight> light)
 	spotLights_.push_back(std::move(light));
 }
 
-DirectionalLight* LightManager::GetDirectionalLight(const std::string& name)
+DirectionalLight* LightManager::GetDirectionalLight(const std::string& name_)
 {
 	for (auto& light : dirLights_) {
-		if (light->name == name) {
+		if (light->name_ == name_) {
 			return light.get();
 		}
 	}
 	return nullptr;
 }
 
-PointLight* LightManager::GetPointLight(const std::string& name)
+PointLight* LightManager::GetPointLight(const std::string& name_)
 {
 	for (auto& light : pointLights_) {
-		if (light->name == name) {
+		if (light->name_ == name_) {
 			return light.get();
 		}
 	}
 	return nullptr;
 }
 
-SpotLight* LightManager::GetSpotLight(const std::string& name)
+SpotLight* LightManager::GetSpotLight(const std::string& name_)
 {
 	for (auto& light : spotLights_) {
-		if (light->name == name) {
+		if (light->name_ == name_) {
 			return light.get();
 		}
 	}

@@ -1,10 +1,10 @@
 #include "SphereCollider.h"
-#include <Primitive/PrimitiveLineDrawer.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
 #include <cmath>
 
 SphereCollider::SphereCollider(std::string colliderName)
 {
-	name = colliderName;
+	name_ = colliderName;
 }
 
 void SphereCollider::Initialize()

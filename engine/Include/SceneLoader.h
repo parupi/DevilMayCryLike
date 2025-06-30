@@ -1,8 +1,8 @@
 #pragma once
 #include <fstream>
-#include <json.hpp> 
-#include <Collider/ColliderStructs.h>
-#include <function.h>
+#include <nlohmann/json.hpp> 
+#include <3d/Collider/ColliderStructs.h>
+#include <math/function.h>
 
 using json = nlohmann::json;
 
@@ -23,7 +23,7 @@ struct Collider {
 };
 
 struct SceneObject {
-    std::string name;
+    std::string name_;
     std::string type;
     std::string className = "Object3d"; // 追加
     EulerTransform transform;

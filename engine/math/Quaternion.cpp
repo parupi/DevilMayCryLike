@@ -1,11 +1,11 @@
 #include "Quaternion.h"
 #include <cmath>    // sqrtf
 #include <stdexcept>
-#include <imgui.h>
-#include <Matrix4x4.h>
-#include <Vector3.h>
+#include <imgui/imgui.h>
+#include <math/Matrix4x4.h>
+#include <math/Vector3.h>
 #include <numbers>
-#include <function.h>
+#include <math/function.h>
 // コンストラクタ
 Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 

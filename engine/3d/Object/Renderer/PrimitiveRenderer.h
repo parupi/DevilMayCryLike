@@ -1,8 +1,8 @@
 #pragma once
 #include "BaseRenderer.h"
-#include <Model/Model.h>
-#include <CameraManager.h>
-#include <Camera/Camera.h>
+#include <3d/Object/Model/Model.h>
+#include <3d/Camera/CameraManager.h>
+#include <3d/Camera/Camera.h>
 
 enum class PrimitiveType {
     Plane,

@@ -1,5 +1,5 @@
 #pragma once
-#include "Model/ModelStructs.h"
+#include <3d/Object/Model/ModelStructs.h>
 
 class SkinnedModel;
 class Skeleton;

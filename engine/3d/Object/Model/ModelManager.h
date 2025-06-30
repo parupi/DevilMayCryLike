@@ -8,7 +8,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <TextureManager.h>
+#include <base/TextureManager.h>
 
 class ModelManager
 {
