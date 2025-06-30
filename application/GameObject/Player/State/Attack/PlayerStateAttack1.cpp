@@ -28,19 +28,11 @@ void PlayerStateAttack1::Update(Player& player)
 	stateTime_.current += DeltaTime::GetDeltaTime();
 	float t = std::clamp(stateTime_.current / stateTime_.max, 0.0f, 1.0f);
 
+	Vector3 weaponPos = CatmullRomSpline(attackData_.controlPoints,t);
+
+	player.GetWeapon()->GetWorldTransform()->GetTranslation() = weaponPos;
 
 
-
-
-	Vector3 pos = CatmullRom(
-		attackData_.controlPoints[0],
-		attackData_.controlPoints[1],
-		attackData_.controlPoints[2],
-		attackData_.controlPoints[3],
-		t
-	);
-
-	player.GetWeapon()->GetWorldTransform()->GetTranslation() = pos;
 
 	if (t >= 1.0f) {
 		player.ChangeState("Idle");

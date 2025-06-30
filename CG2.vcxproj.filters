@@ -77,7 +77,7 @@
     <ClCompile Include="engine\offscreen\OffScreenManager.cpp" />
     <ClCompile Include="engine\offscreen\VignetteEffect.cpp" />
     <ClCompile Include="engine\offscreen\SmoothEffect.cpp" />
-    <ClCompile Include="engine\3d\Primitive\PrimitiveDrawer.cpp" />
+    <ClCompile Include="engine\3d\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="engine\3d\Light\PointLight.cpp" />
     <ClCompile Include="engine\3d\Light\DirectionalLight.cpp" />
     <ClCompile Include="engine\3d\Light\BaseLight.cpp" />
@@ -110,6 +110,10 @@
     <ClCompile Include="application\GameObject\Player\State\PlayerStateAir.cpp" />
     <ClCompile Include="engine\3d\Object\Renderer\InstancingRenderer.cpp" />
     <ClCompile Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateMove.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateIdle.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateAir.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\Hellkaina.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\3d\Object\Model\BaseModel.h" />
@@ -176,7 +180,7 @@
     <ClInclude Include="engine\offscreen\GrayEffect.h" />
     <ClInclude Include="engine\offscreen\VignetteEffect.h" />
     <ClInclude Include="engine\offscreen\SmoothEffect.h" />
-    <ClInclude Include="engine\3d\Primitive\PrimitiveDrawer.h" />
+    <ClInclude Include="engine\3d\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="engine\3d\Light\BaseLight.h" />
     <ClInclude Include="engine\3d\Light\PointLight.h" />
     <ClInclude Include="engine\3d\Light\LightStructs.h" />
@@ -215,7 +219,11 @@
     <ClInclude Include="engine\3d\Object\Renderer\InstancingRenderer.h" />
     <ClInclude Include="engine\base\Particle\ParticleStruct.h" />
     <ClInclude Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.h" />
-    <ClInclude Include="application\GameObject\Enemy\State\EnemyStateBase.h" />
+    <ClInclude Include="application\GameObject\Enemy\EnemyStateBase.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateMove.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateIdle.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateAir.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\Hellkaina.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resource\shaders\Fullscreen.hlsli" />

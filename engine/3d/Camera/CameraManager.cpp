@@ -24,9 +24,25 @@ void CameraManager::Initialize(DirectXManager* dxManager)
 
 void CameraManager::Finalize()
 {
+	// カメラリストを解放（unique_ptr なので明示的に clear）
 	cameras_.clear();
+
+	// アクティブカメラインデックス初期化
+	activeCameraIndex_ = -1;
+
+	// カメラ用リソース解放
+	if (cameraResource_) {
+		cameraResource_.Reset();
+		cameraData_ = nullptr;
+	}
+
+	// 外部参照のポインタをヌルに
+	dxManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
+
+	Logger::Log("CameraManager finalized.\n");
 }
 
 void CameraManager::AddCamera(std::unique_ptr<Camera> camera)

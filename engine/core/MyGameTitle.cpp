@@ -2,7 +2,7 @@
 #include <SceneFactory.h>
 #include <Particle/ParticleManager.h>
 #include "offscreen/OffScreenManager.h"
-#include "Primitive/PrimitiveDrawer.h"
+#include "Primitive/PrimitiveLineDrawer.h"
 #include <Light/LightManager.h>
 #include <CameraManager.h>
 #include <Renderer/RendererManager.h>
@@ -26,7 +26,7 @@ void MyGameTitle::Initialize()
 
 	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	PrimitiveDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
 	RendererManager::GetInstance()->Initialize(dxManager.get());
 
@@ -48,18 +48,24 @@ void MyGameTitle::Initialize()
 
 void MyGameTitle::Finalize()
 {
-	PrimitiveDrawer::GetInstance()->Finalize();
-	RendererManager::GetInstance()->Finalize();
+	// 描画処理系
+	ImGuiManager::GetInstance()->Finalize();               // 最もUI描画の最後に使うので最初に破棄
+	PrimitiveLineDrawer::GetInstance()->Finalize();        // モデル等の描画で使っているかも
+	RendererManager::GetInstance()->Finalize();            // SpriteやModelに使われる
+
+	// ゲームオブジェクト系
+	ParticleManager::GetInstance()->Finalize();            // TextureやRendererに依存
+	SpriteManager::GetInstance()->Finalize();              // Textureに依存
+	Object3dManager::GetInstance()->Finalize();            // ModelManagerやCollisionに依存
+	ModelManager::GetInstance()->Finalize();               // Textureに依存
+
+	// 基盤系
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
-	ParticleManager::GetInstance()->Finalize();
-	SpriteManager::GetInstance()->Finalize();
-	Object3dManager::GetInstance()->Finalize();
-	ModelManager::GetInstance()->Finalize();
-	TextureManager::GetInstance()->Finalize();
-	OffScreenManager::GetInstance()->Finalize();
-	ImGuiManager::GetInstance()->Finalize();
+	TextureManager::GetInstance()->Finalize();             // 多くの描画系に依存される
+	OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
+	// フレームワークベース
 	GuchisFramework::Finalize();
 }
 
@@ -81,7 +87,7 @@ void MyGameTitle::Draw()
 {
 	dxManager->BeginDrawForRenderTarget();
 	srvManager->BeginDraw();
-	PrimitiveDrawer::GetInstance()->BeginDraw();
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 	SceneManager::GetInstance()->Draw();
 
 
@@ -95,7 +101,7 @@ void MyGameTitle::Draw()
 #ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();
 #endif
-	PrimitiveDrawer::GetInstance()->EndDraw();
+	PrimitiveLineDrawer::GetInstance()->EndDraw();
 
 
 	ImGuiManager::GetInstance()->Draw();

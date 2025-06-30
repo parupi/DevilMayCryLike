@@ -2,42 +2,55 @@
 #include "3d/Object/Object3d.h"
 #include "Particle/ParticleEmitter.h"
 #include "EnemyDamageEffect.h"
+#include "EnemyStateBase.h"
+class Player;
 class Enemy : public Object3d
 {
 public:
-	Enemy(std::string objectName);
-	~Enemy() override = default;
-	// 初期
-	void Initialize() override;
-	// 更新
-	void Update() override;
-	// 描画
-	void Draw() override;
-	void DrawEffect();
+    Enemy(std::string objectName);
+    virtual ~Enemy() override = default;
+
+    // 初期化と更新は virtual にする
+    virtual void Initialize() override;
+    virtual void Update() override;
+    virtual void Draw() override;
+    virtual void DrawEffect();
 
 #ifdef _DEBUG
-	void DebugGui() override;
+    virtual void DebugGui() override;
 #endif // _DEBUG
 
-	// 衝突した
-	void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
-	// 衝突中
-	void OnCollisionStay([[maybe_unused]] BaseCollider* other) override;
-	// 離れた
-	void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
+    // 衝突系
+    virtual void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
+    virtual void OnCollisionStay([[maybe_unused]] BaseCollider* other) override;
+    virtual void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
 
-private:
+    // 状態切り替え（共通）
+    void ChangeState(const std::string& stateName);
 
-	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
-	std::unique_ptr<ParticleEmitter> particleEmitter1_ = nullptr;
-	std::unique_ptr<ParticleEmitter> particleEmitter2_ = nullptr;
+    // Getter / Setter（共通）
+    bool GetOnGround() const { return onGround_; }
+    Player* GetPlayer() { return player_; }
+    void SetPlayer(Player* player) { player_ = player; }
 
-	Vector3 velocity_{};
-	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
+    Vector3 GetVelocity() const { return velocity_; }
+    void SetVelocity(const Vector3& velocity) { velocity_ = velocity; }
 
-	int32_t hp_ = 3;
+    Vector3 GetAcceleration() const { return acceleration_; }
+    void SetAcceleration(const Vector3& acceleration) { acceleration_ = acceleration; }
 
-	// 地面と接触しているか
-	bool onGround_;
+    int32_t GetHp() const { return hp_; }
+    void SetHp(int32_t hp) { hp_ = hp; }
+
+protected:
+    std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
+    EnemyStateBase* currentState_ = nullptr;
+
+    Player* player_ = nullptr;
+
+    Vector3 velocity_{};
+    Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
+
+    int32_t hp_ = 3;
+    bool onGround_ = false;
 };
-

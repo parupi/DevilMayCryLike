@@ -21,8 +21,43 @@ ParticleManager* ParticleManager::GetInstance()
 
 void ParticleManager::Finalize()
 {
+	// パーティクルグループのインスタンシングリソースを解放
+	for (auto& [name, group] : particleGroups_) {
+		group.instancingResource.Reset();
+		group.instancingDataPtr = nullptr;
+		group.particleList.clear();
+	}
+	particleGroups_.clear();
+
+	// パーティクル用のリソース
+	instancingResource_.Reset();
+	materialResource_.Reset();
+	vertexResource.Reset();
+
+	instancingData_ = nullptr;
+	materialData_ = nullptr;
+	vertexData_ = nullptr;
+
+	// パーティクルパラメータ・α値もクリア
+	particleParams_.clear();
+	alpha_.clear();
+
+	// 全体のパーティクルリストもクリア
+	particles.clear();
+
+	// カメラへの参照も解放（ただし所有権はない）
+	camera_ = nullptr;
+
+	// 外部への参照も切っておく（所有権は持っていないのでdeleteはしない）
+	dxManager_ = nullptr;
+	srvManager_ = nullptr;
+	psoManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
+
+	// ログ出力など（任意）
+	Logger::Log("ParticleManager finalized.\n");
 }
 
 void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager)
@@ -197,8 +232,8 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 void ParticleManager::DrawSet(BlendMode blendMode)
 {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetParticlePSO(blendMode).Get());
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetParticleSignature().Get());
+	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetParticlePSO(blendMode));
+	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 

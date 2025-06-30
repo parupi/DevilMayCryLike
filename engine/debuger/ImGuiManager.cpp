@@ -40,7 +40,7 @@ void ImGuiManager::Initialize(WindowManager* winManager, DirectXManager* directX
 	assert(SUCCEEDED(result));
 
 	ImGui_ImplDX12_Init(
-		dxManager_->GetDevice().Get(),
+		dxManager_->GetDevice(),
 		static_cast<int>(dxManager_->GetBackBufferCount()),
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, srvHeap_.Get(),
 		srvHeap_->GetCPUDescriptorHandleForHeapStart(),
@@ -62,7 +62,7 @@ void ImGuiManager::End()
 
 void ImGuiManager::Draw()
 {
-	ID3D12GraphicsCommandList* commandList = dxManager_->GetCommandList().Get();
+	ID3D12GraphicsCommandList* commandList = dxManager_->GetCommandList();
 
 	// デスクリプタ―ヒープの配列をセットするコマンド
 	ID3D12DescriptorHeap* ppHeaps[] = { srvHeap_.Get() };
@@ -76,4 +76,6 @@ void ImGuiManager::Finalize()
 	ImGui_ImplDX12_Shutdown();
 	ImGui_ImplWin32_Shutdown();
 	ImGui::DestroyContext();
+	srvHeap_.Reset(); // 明示的にリセット
+	dxManager_ = nullptr;
 }

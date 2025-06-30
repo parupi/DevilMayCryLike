@@ -19,6 +19,12 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 
 void OffScreenManager::Finalize()
 {
+	// オフスクリーンエフェクトの解放
+	effects_.clear();
+
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
 }
@@ -41,8 +47,8 @@ void OffScreenManager::Draw()
 	}
 	// もし描画されていなければ
 	if (!isDraw) {
-		dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone).Get());
-		dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature().Get());
+		dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone));
+		dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
 		dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvHandle().second);
 		dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 1);
 	}
