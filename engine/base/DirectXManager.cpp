@@ -53,6 +53,21 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 void DirectXManager::Finalize()
 {
+	// GPUが処理を終えるのを待機（Fenceがあれば）
+	if (fence_ && commandQueue_) {
+		fenceValue_++;
+		commandQueue_->Signal(fence_.Get(), fenceValue_);
+		if (fence_->GetCompletedValue() < fenceValue_) {
+			fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+			WaitForSingleObject(fenceEvent_, INFINITE);
+		}
+	}
+
+	// フェンスイベント解放
+	if (fenceEvent_) {
+		CloseHandle(fenceEvent_);
+		fenceEvent_ = nullptr;
+	}
 
 	// 2. コマンドリスト、コマンドアロケータ、キューの解放
 	commandList_.Reset();

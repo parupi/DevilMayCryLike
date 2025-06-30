@@ -13,7 +13,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 	game->Run();
 
 #ifdef _DEBUG
-	//D3DResourceLeakChecker leakCheck;
+	D3DResourceLeakChecker leakCheck;
 #endif // _DEBUG
 
 	return 0;

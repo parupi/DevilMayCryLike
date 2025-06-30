@@ -6,12 +6,12 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GuchisEngin", "GuchisEngin.vcxproj", "{D96BD56B-4521-4E61-CE15-48383ACA4465}"
 	ProjectSection(ProjectDependencies) = postProject
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77} = {371B9FA9-4C90-4AC6-A123-ACED756D6C77}
-		{DEB468D3-0718-44B0-A9F7-333C06A638B6} = {DEB468D3-0718-44B0-A9F7-333C06A638B6}
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1} = {0098A80F-6CAC-D0C0-352E-7420A101CDF1}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DirectXTex", "Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj", "{371B9FA9-4C90-4AC6-A123-ACED756D6C77}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "Externals\imgui\imgui.vcxproj", "{DEB468D3-0718-44B0-A9F7-333C06A638B6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "imgui", "imgui.vcxproj", "{0098A80F-6CAC-D0C0-352E-7420A101CDF1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,10 +27,10 @@ Global
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Debug|x64.Build.0 = Debug|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.ActiveCfg = Release|x64
 		{371B9FA9-4C90-4AC6-A123-ACED756D6C77}.Release|x64.Build.0 = Release|x64
-		{DEB468D3-0718-44B0-A9F7-333C06A638B6}.Debug|x64.ActiveCfg = Debug|x64
-		{DEB468D3-0718-44B0-A9F7-333C06A638B6}.Debug|x64.Build.0 = Debug|x64
-		{DEB468D3-0718-44B0-A9F7-333C06A638B6}.Release|x64.ActiveCfg = Release|x64
-		{DEB468D3-0718-44B0-A9F7-333C06A638B6}.Release|x64.Build.0 = Release|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Debug|x64.ActiveCfg = Debug|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Debug|x64.Build.0 = Debug|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Release|x64.ActiveCfg = Release|x64
+		{0098A80F-6CAC-D0C0-352E-7420A101CDF1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

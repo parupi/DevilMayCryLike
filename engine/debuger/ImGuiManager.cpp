@@ -2,7 +2,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_win32.h>
 #include <imgui/imgui_impl_dx12.h>
-#pragma comment(lib, "dxgi.lib")
+#include <dxgi.h>
+#include <dxgi1_6.h> // DXGI 1.6まで必要な場合
 
 std::unique_ptr<ImGuiManager> ImGuiManager::instance = nullptr;
 std::once_flag ImGuiManager::initInstanceFlag;
