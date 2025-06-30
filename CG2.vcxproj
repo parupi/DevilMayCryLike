@@ -114,6 +114,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="application\scene\TitleScene.cpp" />
     <ClCompile Include="application\GameObject\Enemy\Enemy.cpp" />
     <ClCompile Include="application\GameObject\Enemy\EnemyDamageEffect.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateMove.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateIdle.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateAir.cpp" />
     <ClCompile Include="engine\3d\Collider\AABBCollider.cpp" />
     <ClCompile Include="engine\3d\Collider\BaseCollider.cpp" />
     <ClCompile Include="engine\3d\Collider\CollisionManager.cpp" />
@@ -156,6 +159,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\Include\SceneLoader.cpp" />
     <ClCompile Include="application\GameObject\Camera\GameCamera.cpp" />
     <ClCompile Include="engine\3d\Object\Renderer\InstancingRenderer.cpp" />
+    <ClCompile Include="application\GameObject\Enemy\Hellkaina\Hellkaina.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="engine\math\Easing.cpp" />
     <ClCompile Include="engine\math\function.cpp" />
@@ -188,7 +192,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="engine\offscreen\OffScreenManager.cpp" />
     <ClCompile Include="engine\offscreen\VignetteEffect.cpp" />
     <ClCompile Include="engine\offscreen\SmoothEffect.cpp" />
-    <ClCompile Include="engine\3d\Primitive\PrimitiveDrawer.cpp" />
+    <ClCompile Include="engine\3d\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="engine\3d\Light\PointLight.cpp" />
     <ClCompile Include="engine\3d\Light\SpotLight.cpp" />
     <ClCompile Include="application\GameObject\Player\PlayerAttackEffect.cpp" />
@@ -292,7 +296,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\scene\TitleScene.h" />
     <ClInclude Include="application\GameObject\Enemy\Enemy.h" />
     <ClInclude Include="application\GameObject\Enemy\EnemyDamageEffect.h" />
-    <ClInclude Include="application\GameObject\Enemy\State\EnemyStateBase.h" />
+    <ClInclude Include="application\GameObject\Enemy\EnemyStateBase.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateMove.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateIdle.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\State\EnemyStateAir.h" />
     <ClInclude Include="engine\3d\Collider\AABBCollider.h" />
     <ClInclude Include="engine\3d\Collider\BaseCollider.h" />
     <ClInclude Include="engine\3d\Collider\ColliderStructs.h" />
@@ -373,7 +380,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="engine\offscreen\GrayEffect.h" />
     <ClInclude Include="engine\offscreen\VignetteEffect.h" />
     <ClInclude Include="engine\offscreen\SmoothEffect.h" />
-    <ClInclude Include="engine\3d\Primitive\PrimitiveDrawer.h" />
+    <ClInclude Include="engine\3d\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="engine\3d\Light\PointLight.h" />
     <ClInclude Include="engine\3d\Light\SpotLight.h" />
     <ClInclude Include="application\GameObject\Player\PlayerAttackEffect.h" />
@@ -391,6 +398,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="application\GameObject\Player\State\PlayerStateAir.h" />
     <ClInclude Include="engine\3d\Object\Renderer\InstancingRenderer.h" />
     <ClInclude Include="application\GameObject\Player\State\Attack\PlayerStateAttackBase.h" />
+    <ClInclude Include="application\GameObject\Enemy\Hellkaina\Hellkaina.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="externals\imgui\LICENSE.txt" />

@@ -27,11 +27,12 @@ void GuchisFramework::Initialize()
 
 void GuchisFramework::Finalize()
 {
+	SceneManager::GetInstance()->Finalize();
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
-	SceneManager::GetInstance()->Finalize();
-	dxManager->Finalize();
 	winManager->Finalize();
+	srvManager->Finalize();
+	dxManager->Finalize(); // デバイスが最後
 }
 
 void GuchisFramework::Update()

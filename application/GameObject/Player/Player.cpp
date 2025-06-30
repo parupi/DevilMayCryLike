@@ -9,7 +9,7 @@
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
 #include <numbers>
-#include <Primitive/PrimitiveDrawer.h>
+#include <Primitive/PrimitiveLineDrawer.h>
 #include "State/Attack/PlayerStateAttack1.h"
 
 
@@ -49,7 +49,9 @@ void Player::Initialize()
 
 	weapon_->Initialize();
 
-	weapon_->GetWorldTransform()->SetParent(GetRenderer("PlayerHead")->GetWorldTransform());
+	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
+
+	GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 1.5f;
 }
 
 void Player::Update()
@@ -72,7 +74,7 @@ void Player::Update()
 		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
 		if (attackState) {
 			DrawAttackDataEditor(attackState);
-			attackState->UpdateControlPoints();
+			attackState->UpdateAttackData();
 		}
 	}
 }
@@ -86,7 +88,7 @@ void Player::Draw()
 	for (auto& [name, state] : states_) {
 		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
 		if (attackState) {
-			attackState->DrawControlPoints();
+			attackState->DrawControlPoints(*this);
 		}
 	}
 }
@@ -117,8 +119,29 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 		--pointCount;
 		gv->RemoveItem(attackName, "ControlPoint_" + std::to_string(pointCount));
 	}
+	ImGui::Separator();
+
+	// 移動系
+	ImGui::DragFloat("Move Speed", &gv->GetValueRef<float>(attackName, "MoveSpeed"), 0.01f);
+	ImGui::DragFloat("KnockBack Speed", &gv->GetValueRef<float>(attackName, "KnockBackSpeed"), 0.01f);
+
+	ImGui::Separator();
+
+	// タイマー系
+	ImGui::DragFloat("Total Duration", &gv->GetValueRef<float>(attackName, "TotalDuration"), 0.01f);
+	ImGui::DragFloat("Pre Delay", &gv->GetValueRef<float>(attackName, "PreDelay"), 0.01f);
+	ImGui::DragFloat("Attack Duration", &gv->GetValueRef<float>(attackName, "AttackDuration"), 0.01f);
+	ImGui::DragFloat("Post Delay", &gv->GetValueRef<float>(attackName, "PostDelay"), 0.01f);
+	ImGui::DragFloat("Next Attack Delay", &gv->GetValueRef<float>(attackName, "NextAttackDelay"), 0.01f);
+
+	ImGui::Separator();
+
+	// その他
+	ImGui::Checkbox("Draw Debug Control Points", &gv->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
 
 	ImGui::DragFloat("Damage", &gv->GetValueRef<float>(attackName, "Damage"), 0.01f);
+
+	ImGui::Separator();
 
 	if (ImGui::Button("Save")) {
 		gv->SaveFile(attackName);

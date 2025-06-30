@@ -17,6 +17,10 @@ void SceneManager::Finalize()
 	// 最後のシーンの終了と解放
 	scene_->Finalize();
 	delete scene_;
+	scene_ = nullptr;
+
+	delete instance;
+	instance = nullptr;
 }
 
 void SceneManager::Update()

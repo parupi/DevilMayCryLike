@@ -3,49 +3,42 @@
 #include <Renderer/PrimitiveRenderer.h>
 #include <Collider/CollisionManager.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
+#include "GameObject/Player/Player.h"
+
 
 Enemy::Enemy(std::string objectName) : Object3d(objectName)
 {
 	Object3d::Initialize();
 
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name, "PlayerBody"));
 
-	//CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("EnemyCollider"));
 
-	AddRenderer(RendererManager::GetInstance()->FindRender(name));
-	//AddCollider(CollisionManager::GetInstance()->FindCollider("EnemyCollider"));
+	
 }
 
 void Enemy::Initialize()
 {
 	
-	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMax *= 0.5f;
-	static_cast<AABBCollider*>(GetCollider(name))->GetColliderData().offsetMin *= 0.5f;
-	
-	GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
-
-	particleEmitter_ = std::make_unique<ParticleEmitter>();
-	particleEmitter_->Initialize("test");
-
-	particleEmitter1_ = std::make_unique<ParticleEmitter>();
-	particleEmitter1_->Initialize("fire");
-
-	particleEmitter2_ = std::make_unique<ParticleEmitter>();
-	particleEmitter2_->Initialize("smoke");
 
 }
 
 void Enemy::Update()
 {
-	particleEmitter_->Update(GetWorldTransform()->GetTranslation(), 8);
-	particleEmitter1_->Update(GetWorldTransform()->GetTranslation(), 8);
-	particleEmitter2_->Update(GetWorldTransform()->GetTranslation(), 8);
+	if (!player_) {
+		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+	}
+
+	if (currentState_) {
+		currentState_->Update(*this);
+	}
+
 
 	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
 	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 
 
 	Object3d::Update();
+
+	onGround_ = false;
 }
 
 void Enemy::Draw()
@@ -77,10 +70,6 @@ void Enemy::DebugGui()
 
 void Enemy::OnCollisionEnter(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::PlayerWeapon) {
-		particleEmitter1_->Emit();
-	}
-
 	if (other->category_ == CollisionCategory::Ground) {
 
 		AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name));
@@ -163,12 +152,22 @@ void Enemy::OnCollisionStay(BaseCollider* other)
 
 void Enemy::OnCollisionExit(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::PlayerWeapon) {
-		particleEmitter2_->Emit();
-		hp_--;
+	//if (other->category_ == CollisionCategory::PlayerWeapon) {
+	//	
+	//	hp_--;
 
-		if (hp_ <= 0) {
-			//GetWorldTransform()->GetScale() = { 0.0f, 0.0f, 0.0f };
-		}
+	//	if (hp_ <= 0) {
+	//		//GetWorldTransform()->GetScale() = { 0.0f, 0.0f, 0.0f };
+	//	}
+	//}
+}
+
+void Enemy::ChangeState(const std::string& stateName)
+{
+	currentState_->Exit(*this);
+	auto it = states_.find(stateName);
+	if (it != states_.end()) {
+		currentState_ = it->second.get();
+		currentState_->Enter(*this);
 	}
 }

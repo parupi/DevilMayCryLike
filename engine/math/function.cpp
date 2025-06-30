@@ -163,15 +163,33 @@ Vector3 MatrixToEulerYXZ(const Matrix4x4& m)
 }
 
 
-Vector3 CatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t)
-{
-	float t2 = t * t;
-	float t3 = t2 * t;
+Vector3 CatmullRomSpline(const std::vector<Vector3>& points, float t) {
+	size_t numPoints = points.size();
+	if (numPoints < 4) {
+		// 最低4点必要
+		return Vector3{};
+	}
 
+	// セグメント数は controlPoints.size() - 3
+	size_t numSegments = numPoints - 3;
+
+	// tをセグメントごとの位置に変換
+	float scaledT = t * numSegments;
+	size_t segment = static_cast<size_t>(scaledT);
+	segment = std::min(segment, numSegments - 1); // 範囲外防止
+
+	float localT = scaledT - segment;
+
+	const Vector3& p0 = points[segment];
+	const Vector3& p1 = points[segment + 1];
+	const Vector3& p2 = points[segment + 2];
+	const Vector3& p3 = points[segment + 3];
+
+	// 通常のCatmull-Rom補間
 	return 0.5f * (
 		(2.0f * p1) +
-		(-p0 + p2) * t +
-		(2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * t2 +
-		(-p0 + 3.0f * p1 - 3.0f * p2 + p3) * t3
+		(-p0 + p2) * localT +
+		(2.0f * p0 - 5.0f * p1 + 4.0f * p2 - p3) * (localT * localT) +
+		(-p0 + 3.0f * p1 - 3.0f * p2 + p3) * (localT * localT * localT)
 		);
 }

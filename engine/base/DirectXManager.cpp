@@ -15,6 +15,20 @@ using namespace Microsoft::WRL;
 
 void DirectXManager::Initialize(WindowManager* winManager)
 {
+#ifdef _DEBUG
+	Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
+	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
+		debugController->EnableDebugLayer();
+
+		// ID3D12Debug1 を取得して GPU ベース検証も有効化
+		Microsoft::WRL::ComPtr<ID3D12Debug1> debugController1;
+		if (SUCCEEDED(debugController->QueryInterface(IID_PPV_ARGS(&debugController1)))) {
+			debugController1->SetEnableGPUBasedValidation(true);
+			debugController1->SetEnableSynchronizedCommandQueueValidation(true);
+		}
+	}
+#endif
+
 	assert(winManager);
 
 	winManager_ = winManager;
@@ -38,44 +52,47 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 void DirectXManager::Finalize()
 {
-	// GPUが処理を終えるのを待機（Fenceがあれば）
-	if (fence_ && commandQueue_) {
-		fenceValue_++;
-		commandQueue_->Signal(fence_.Get(), fenceValue_);
-		if (fence_->GetCompletedValue() < fenceValue_) {
-			fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-			WaitForSingleObject(fenceEvent_, INFINITE);
-		}
-	}
 
-	// フェンスイベント解放
+	// 2. コマンドリスト、コマンドアロケータ、キューの解放
+	commandList_.Reset();
+	commandAllocator_.Reset();
+	commandQueue_.Reset();
+
+	// 3. スワップチェーンの解放
+	swapChain_.Reset();
+
+	// 4. バックバッファなどリソース解放
+	for (auto& buffer : backBuffers_) {
+		buffer.Reset();
+	}
+	backBuffers_.clear();
+
+	// 5. 深度バッファの解放
+	depthBuffer_.Reset();
+
+	// 6. デスクリプタヒープの解放
+	rtvHeap_.Reset();
+	dsvHeap_.Reset();
+
+	// 7. GPUフェンス、イベントハンドルの解放
+	fence_.Reset();
 	if (fenceEvent_) {
 		CloseHandle(fenceEvent_);
 		fenceEvent_ = nullptr;
 	}
 
-	// 各種リソースの解放（重要）
-	offScreenResource_.Reset();
-	backBuffers_.clear(); // vector内のComPtrも明示的にクリア
-	depthBuffer_.Reset();
+//#if defined(_DEBUG)
+//	// 8. デバッグインターフェースから生きているオブジェクトを報告
+//	Microsoft::WRL::ComPtr<ID3D12DebugDevice> debugDevice;
+//	if (device_ && SUCCEEDED(device_.As(&debugDevice))) {
+//		debugDevice->ReportLiveDeviceObjects(D3D12_RLDO_DETAIL);
+//	}
+//#endif
 
-	rtvHeap_.Reset();
-	dsvHeap_.Reset();
+	// 9. 最後にデバイスを解放
+	device_.Reset();
 
-	commandList_.Reset();
-	commandAllocator_.Reset();
-	commandQueue_.Reset();
-
-	swapChain_.Reset();
-
-	dxcCompiler_.Reset();
-	dxcUtils_.Reset();
-	includeHandler_.Reset();
-
-	fence_.Reset();
-
-	device_.Reset(); // 最後にデバイスを解放
-	dxgiFactory_.Reset();
+	Logger::Log("DirectXManager finalized.\n");
 }
 
 ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible)
@@ -359,17 +376,6 @@ void DirectXManager::CreateSRVForOffScreen(SrvManager* srvManager)
 void DirectXManager::InitializeDXGIDevice()
 {
 	HRESULT hr;
-
-#ifdef _DEBUG
-	// デバッグ
-	ComPtr<ID3D12Debug1> debugController = nullptr;
-	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
-		// デバッグレイヤーを有効化する
-		debugController->EnableDebugLayer();
-		// さらにGPU側でもチェックを行うようにする
-		debugController->SetEnableGPUBasedValidation(true);
-	}
-#endif
 
 	// DXGIファクトリーの生成
 	hr = CreateDXGIFactory(IID_PPV_ARGS(&dxgiFactory_));

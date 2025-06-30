@@ -28,8 +28,16 @@ void PlayerStateMove::Update(Player& player)
 		player.ChangeState("Jump");
 		return;
 	}
+	// 攻撃のトリガー
+	if (Input::GetInstance()->TriggerKey(DIK_J)) {
+		player.ChangeState("Attack1");
+		return;
+	}
+
 }
 
 void PlayerStateMove::Exit(Player& player)
 {
+	player.GetVelocity().x = 0.0f;
+	player.GetVelocity().z = 0.0f;
 }

@@ -9,7 +9,7 @@
 #include <offscreen/OffScreenManager.h>
 #include <offscreen/VignetteEffect.h>
 #include <offscreen/SmoothEffect.h>
-#include <Primitive/PrimitiveDrawer.h>
+#include <Primitive/PrimitiveLineDrawer.h>
 #include <Renderer/RendererManager.h>
 #include <Collider/CollisionManager.h>
 #include <Collider/SphereCollider.h>

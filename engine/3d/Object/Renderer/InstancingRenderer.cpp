@@ -53,7 +53,7 @@ void InstancingRenderer::Draw(WorldTransform* parentTransform)
 {
     if (instances_.empty()) return;
 
-    auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList().Get();
+    auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
 
     model_->Bind();
 

@@ -25,6 +25,16 @@ void TextureManager::Initialize(DirectXManager* dxManager, SrvManager* srvManage
 
 void TextureManager::Finalize()
 {
+	// テクスチャデータをクリア（ComPtrのリファレンスカウントが減り解放される）
+	textureData_.clear();
+
+	// 管理しているDirectXManagerとSrvManagerのポインタをクリア（所有権はない想定）
+	dxManager_ = nullptr;
+	srvManager_ = nullptr;
+
+	// 必要なら、whiteTextureIndex_もリセット（任意）
+	whiteTextureIndex_ = 0;
+
 	delete instance;
 	instance = nullptr;
 }
@@ -111,4 +121,68 @@ const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& fileP
 
 	TextureData& textureData = textureData_[filePath];
 	return textureData.metadata;
+}
+
+uint32_t TextureManager::CreateWhiteTexture()
+{
+	const std::string key = "__WHITE__";
+
+	if (textureData_.contains(key)) {
+		return textureData_[key].srvIndex;
+	}
+
+	// 1x1 白画像データ生成 (RGBA: 255,255,255,255)
+	DirectX::TexMetadata metadata{};
+	metadata.width = 1;
+	metadata.height = 1;
+	metadata.arraySize = 1;
+	metadata.mipLevels = 1;
+	metadata.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+
+	DirectX::ScratchImage image{};
+
+	// ✅ ピクセルデータありで初期化
+	HRESULT hr = image.Initialize2D(
+		DXGI_FORMAT_R8G8B8A8_UNORM,
+		1, // width
+		1, // height
+		1, // arraySize
+		1  // mipLevels
+	);
+	assert(SUCCEEDED(hr));
+
+	// ✅ ピクセルデータを書き込み
+	uint8_t* pixels = image.GetPixels();
+	pixels[0] = 255; // R
+	pixels[1] = 255; // G
+	pixels[2] = 255; // B
+	pixels[3] = 255; // A
+
+	// SRV確保
+	TextureData texData{};
+	texData.srvIndex = srvManager_->Allocate();
+	texData.metadata = metadata;
+	texData.resource = dxManager_->CreateTextureResource(metadata);
+
+	dxManager_->UploadTextureData(texData.resource, image);
+
+	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);
+	texData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(texData.srvIndex);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = metadata.format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = static_cast<UINT>(metadata.mipLevels);
+	srvDesc.Texture2D.PlaneSlice = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	dxManager_->GetDevice()->CreateShaderResourceView(texData.resource.Get(), &srvDesc, texData.srvHandleCPU);
+
+	textureData_[key] = texData;
+	whiteTextureIndex_ = texData.srvIndex;
+
+	return texData.srvIndex;
 }

@@ -23,6 +23,12 @@ void Object3dManager::Initialize(DirectXManager* directXManager, PSOManager* pso
 
 void Object3dManager::Finalize()
 {
+	objects_.clear();
+
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+	defaultCamera_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
 }
@@ -42,8 +48,8 @@ void Object3dManager::DrawSet()
 			// ブレンドモードを最新にしておく
 			blendMode_ = object->GetOption().blendMode;
 
-			dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetObjectPSO(blendMode_).Get());			// PSOを設定
-			dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetObjectSignature().Get());
+			dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetObjectPSO(blendMode_));			// PSOを設定
+			dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetObjectSignature());
 			dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			// psoのセットをしたらlight,cameraもバインドしておく
@@ -61,8 +67,8 @@ void Object3dManager::DrawSet()
 
 void Object3dManager::DrawSetForAnimation()
 {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetAnimationPSO().Get());			// PSOを設定
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetAnimationSignature().Get());
+	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetAnimationPSO());			// PSOを設定
+	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetAnimationSignature());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 

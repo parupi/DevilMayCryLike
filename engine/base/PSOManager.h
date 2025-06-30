@@ -31,23 +31,23 @@ public:
 
 public:// アクセッサ
 	// スプライト
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetSpriteSignature() { return spriteSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetSpritePSO(BlendMode blendMode);
-	// パーティクル
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetParticleSignature() { return particleSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetParticlePSO(BlendMode blendMode);
-	// オブジェクト
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetObjectSignature() { return objectSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetObjectPSO(BlendMode blendMode);
-	// アニメーション
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetAnimationSignature() { return animationSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetAnimationPSO();
-	// オフスクリーン
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetOffScreenSignature() { return offScreenSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetOffScreenPSO(OffScreenEffectType effectType);
-	// プリミティブ
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> GetPrimitiveSignature() { return primitiveSignature_; }
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> GetPrimitivePSO();
+	ID3D12RootSignature* GetSpriteSignature() { return spriteSignature_.Get(); }
+	ID3D12PipelineState* GetSpritePSO(BlendMode blendMode);
+					   
+	ID3D12RootSignature* GetParticleSignature() { return particleSignature_.Get(); }
+	ID3D12PipelineState* GetParticlePSO(BlendMode blendMode);
+					   
+	ID3D12RootSignature* GetObjectSignature() { return objectSignature_.Get(); }
+	ID3D12PipelineState* GetObjectPSO(BlendMode blendMode);
+					   
+	ID3D12RootSignature* GetAnimationSignature() { return animationSignature_.Get(); }
+	ID3D12PipelineState* GetAnimationPSO();
+					   
+	ID3D12RootSignature* GetOffScreenSignature() { return offScreenSignature_.Get(); }
+	ID3D12PipelineState* GetOffScreenPSO(OffScreenEffectType effectType);
+					   
+	ID3D12RootSignature* GetPrimitiveSignature() { return primitiveSignature_.Get(); }
+	ID3D12PipelineState* GetPrimitivePSO();
 
 private:
 	// スプライト

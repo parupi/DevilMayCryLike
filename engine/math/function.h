@@ -5,6 +5,7 @@
 #include <Matrix4x4.h>
 #include <Quaternion.h>
 #include <imgui.h>
+#include <vector>
 
 static const int kColumnWidth = 60;
 static const int kRowHeight = 20;
@@ -55,7 +56,7 @@ Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
 Vector3 ExtractTranslation(const Matrix4x4& matrix);
 
-Vector3 CatmullRom(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t);
+Vector3 CatmullRomSpline(const std::vector<Vector3>& points, float t);
 
 Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
 

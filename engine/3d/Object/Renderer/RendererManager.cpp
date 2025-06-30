@@ -18,6 +18,10 @@ void RendererManager::Initialize(DirectXManager* dxManager)
 
 void RendererManager::Finalize()
 {
+	renders_.clear();
+
+	dxManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
 }

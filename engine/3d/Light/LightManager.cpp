@@ -22,6 +22,22 @@ void LightManager::Initialize(DirectXManager* dxManager)
 
 void LightManager::Finalize()
 {
+	dirLights_.clear();
+	spotLights_.clear();
+	pointLights_.clear();
+
+	if (dirLightResource_) {
+		dirLightResource_.Reset();
+	}
+	if (spotLightResource_) {
+		spotLightResource_.Reset();
+	}
+	if (pointLightResource_) {
+		pointLightResource_.Reset();
+	}
+
+	dxManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
 }

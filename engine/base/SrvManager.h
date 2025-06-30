@@ -5,6 +5,8 @@ class SrvManager
 public:
 	// 初期化
 	void Initialize(DirectXManager* dxManager);
+	// 終了
+	void Finalize();
 	// 確保
 	uint32_t Allocate();
 	void BeginDraw();
@@ -35,9 +37,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap_ = nullptr;
 	// 次に使用するSRVインデックス
 	uint32_t useIndex = 0;
-
-public: // アクセッサ
-
-
 };
 

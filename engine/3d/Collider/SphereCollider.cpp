@@ -1,5 +1,5 @@
 #include "SphereCollider.h"
-#include <Primitive/PrimitiveDrawer.h>
+#include <Primitive/PrimitiveLineDrawer.h>
 #include <cmath>
 
 SphereCollider::SphereCollider(std::string colliderName)
@@ -37,7 +37,7 @@ void SphereCollider::DrawDebug()
 	float radius = GetRadius();
 	Vector4 color = { 1.0f, 0.0f, 0.0f, 1.0f }; // 赤
 
-	PrimitiveDrawer* drawer = PrimitiveDrawer::GetInstance();
+	PrimitiveLineDrawer* drawer = PrimitiveLineDrawer::GetInstance();
 
 	const int segments = 20;
 

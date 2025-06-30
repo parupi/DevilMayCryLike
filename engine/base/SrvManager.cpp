@@ -11,6 +11,22 @@ void SrvManager::Initialize(DirectXManager* dxManager)
 	descriptorSize_ = dxManager_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
 
+void SrvManager::Finalize()
+{
+	// デスクリプタヒープを解放する
+	if (descriptorHeap_)
+	{
+		descriptorHeap_.Reset();
+	}
+
+	// 使用中のインデックスをリセット（必要に応じて）
+	useIndex = 0;
+
+	dxManager_ = nullptr;
+
+	Logger::Log("SrvManager finalized.\n");
+}
+
 uint32_t SrvManager::Allocate()
 {
 	assert(useIndex < kMaxCount);
