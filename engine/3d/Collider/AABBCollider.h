@@ -1,8 +1,8 @@
 #pragma once
 #include "BaseCollider.h"
-#include "Object/Object3d.h"
-#include <Vector3.h>
-#include "Camera/CameraManager.h"
+#include "3d/Object/Object3d.h"
+#include <math/Vector3.h>
+#include "3d/Camera/CameraManager.h"
 #include "ColliderStructs.h"
 
 class AABBCollider : public BaseCollider

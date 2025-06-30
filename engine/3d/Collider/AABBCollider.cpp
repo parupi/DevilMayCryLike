@@ -1,9 +1,9 @@
 #include "AABBCollider.h"
-#include <Primitive/PrimitiveLineDrawer.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
 
 AABBCollider::AABBCollider(std::string colliderName)
 {
-    name = colliderName;
+    name_ = colliderName;
     transform_ = std::make_unique<WorldTransform>();
     transform_->Initialize();
 }

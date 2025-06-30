@@ -1,6 +1,6 @@
 #include "Mesh.h"
-#include "DirectXManager.h"
-#include "SrvManager.h"
+#include "base/DirectXManager.h"
+#include "base/SrvManager.h"
 
 void Mesh::Initialize(DirectXManager* directXManager, SrvManager* srvManager, const MeshData& meshData)
 {

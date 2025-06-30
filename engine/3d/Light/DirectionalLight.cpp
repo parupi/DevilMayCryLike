@@ -3,7 +3,7 @@
 DirectionalLight::DirectionalLight(std::string lightName)
 	: BaseLight()
 {
-	name = lightName;
+	name_ = lightName;
 }
 
 

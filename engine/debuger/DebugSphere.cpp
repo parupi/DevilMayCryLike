@@ -1,5 +1,5 @@
 #include "DebugSphere.h"
-#include <Model/ModelManager.h>
+#include <3d/Object/Model/ModelManager.h>
 
 void DebugSphere::Initialize()
 {
@@ -17,6 +17,7 @@ void DebugSphere::Finalize()
 
 void DebugSphere::Update(const Vector3& position)
 {
+	position;
 	//transform_.scale_ = { 0.05f, 0.05f, 0.05f };
 	//transform_.translation_ = position;
 	//transform_.TransferMatrix();

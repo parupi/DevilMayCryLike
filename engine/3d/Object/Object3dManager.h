@@ -1,9 +1,9 @@
 #pragma once
-#include "DirectXManager.h"
-#include <Camera.h>
+#include "base/DirectXManager.h"
+#include <3d/Camera/Camera.h>
 #include <memory>
 #include <mutex>
-#include "PSOManager.h"
+#include <base/PSOManager.h>
 
 class Object3d;
 class Object3dManager

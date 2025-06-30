@@ -1,8 +1,8 @@
 #include "GrayEffect.h"
-#include <PSOManager.h>
+#include <base/PSOManager.h>
 #include "OffScreenManager.h"
-#include <imgui.h>
 #include <algorithm>
+#include <imgui/imgui.h>
 
 GrayEffect::GrayEffect() : BaseOffScreen()
 {

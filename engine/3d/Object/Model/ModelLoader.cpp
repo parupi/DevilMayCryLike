@@ -1,6 +1,6 @@
 #include "ModelLoader.h"
-
-#include <TextureManager.h>
+#include <cassert>
+#include <base/TextureManager.h>
 
 void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
 {
@@ -23,7 +23,7 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 	for (uint32_t i = 0; i < scene->mNumMaterials; ++i) {
 		aiMaterial* material = scene->mMaterials[i];
 		MaterialData matData;
-		matData.name = material->GetName().C_Str();
+		matData.name_ = material->GetName().C_Str();
 
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 			aiString textureFilePath;
@@ -109,9 +109,9 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 	for (uint32_t i = 0; i < scene->mNumMaterials; ++i) {
 		aiMaterial* material = scene->mMaterials[i];
 		MaterialData matData;
-		matData.name = material->GetName().C_Str();
+		matData.name_ = material->GetName().C_Str();
 
-		if (matData.name == "") {
+		if (matData.name_ == "") {
 			break;
 		}
 
@@ -209,7 +209,7 @@ Node ModelLoader::ReadNode(aiNode* node)
 	result.transform.translate = { -translate.x, translate.y, translate.z }; // x軸を反転
 	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
 
-	result.name = node->mName.C_Str(); // node名を格納
+	result.name_ = node->mName.C_Str(); // node名を格納
 	result.children.resize(node->mNumChildren); // 子供の数だけ確保
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {
 		// 再帰的に読むことで階層構造を作る

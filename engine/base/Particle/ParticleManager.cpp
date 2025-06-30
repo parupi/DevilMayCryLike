@@ -1,10 +1,10 @@
 #include "ParticleManager.h"
-#include <function.h>
-#include <TextureManager.h>
+#include "math/function.h"
 #include <numbers>
-#include <imgui.h>
+#include <debuger/ImGuiManager.h>
 #include <algorithm> 
-#include <utility/DeltaTime.h>
+#include <base/utility/DeltaTime.h>
+#include <base/TextureManager.h>
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
@@ -22,7 +22,7 @@ ParticleManager* ParticleManager::GetInstance()
 void ParticleManager::Finalize()
 {
 	// パーティクルグループのインスタンシングリソースを解放
-	for (auto& [name, group] : particleGroups_) {
+	for (auto& [name_, group] : particleGroups_) {
 		group.instancingResource.Reset();
 		group.instancingDataPtr = nullptr;
 		group.particleList.clear();
@@ -91,7 +91,7 @@ void ParticleManager::Update()
 	billboardMatrix.m[3][2] = 0.0f;
 
 	for (auto& [groupName, particleGroup] : particleGroups_) {
-		uint32_t numInstance = 0;
+		numInstance = 0;
 
 		for (auto particleIterator = particleGroup.particleList.begin(); particleIterator != particleGroup.particleList.end();) {
 			if ((*particleIterator).lifeTime <= (*particleIterator).currentTime) {
@@ -171,16 +171,16 @@ void ParticleManager::Draw()
 	}
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
+void ParticleManager::CreateParticleGroup(const std::string name_, const std::string textureFilePath)
 {
-	if (particleGroups_.contains(name)) {
+	if (particleGroups_.contains(name_)) {
 		// 登録済みの名前なら早期リターン
 		return;
 	}
 
 	// グループを追加
-	particleGroups_[name] = ParticleGroup();
-	ParticleGroup& particleGroup = particleGroups_[name];
+	particleGroups_[name_] = ParticleGroup();
+	ParticleGroup& particleGroup = particleGroups_[name_];
 
 	// テクスチャを読み込む（未読み込みならロードする）
 	particleGroup.materialData.textureFilePath = textureFilePath;
@@ -206,28 +206,28 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroup.instanceCount = 0;
 
 	// パーティクルグループごとにグローバルバリアースを作る
-	global_->AddItem(name, "minTranslate", Vector3{});
-	global_->AddItem(name, "maxTranslate", Vector3{});
+	global_->AddItem(name_, "minTranslate", Vector3{});
+	global_->AddItem(name_, "maxTranslate", Vector3{});
 
-	global_->AddItem(name, "minRotate", Vector3{});
-	global_->AddItem(name, "maxRotate", Vector3{});
+	global_->AddItem(name_, "minRotate", Vector3{});
+	global_->AddItem(name_, "maxRotate", Vector3{});
 
-	global_->AddItem(name, "minScale", Vector3{});
-	global_->AddItem(name, "maxScale", Vector3{});
+	global_->AddItem(name_, "minScale", Vector3{});
+	global_->AddItem(name_, "maxScale", Vector3{});
 
-	global_->AddItem(name, "minVelocity", Vector3{});
-	global_->AddItem(name, "maxVelocity", Vector3{});
+	global_->AddItem(name_, "minVelocity", Vector3{});
+	global_->AddItem(name_, "maxVelocity", Vector3{});
 
-	global_->AddItem(name, "minLifeTime", float{});
-	global_->AddItem(name, "maxLifeTime", float{});
+	global_->AddItem(name_, "minLifeTime", float{});
+	global_->AddItem(name_, "maxLifeTime", float{});
 
-	global_->AddItem(name, "minColor", Vector3{});
-	global_->AddItem(name, "maxColor", Vector3{});
+	global_->AddItem(name_, "minColor", Vector3{});
+	global_->AddItem(name_, "maxColor", Vector3{});
 
-	global_->AddItem(name, "minAlpha", float{});
-	global_->AddItem(name, "maxAlpha", float{});
+	global_->AddItem(name_, "minAlpha", float{});
+	global_->AddItem(name_, "maxAlpha", float{});
 
-	global_->AddItem(name, "IsBillboard", bool{});
+	global_->AddItem(name_, "IsBillboard", bool{});
 }
 
 void ParticleManager::DrawSet(BlendMode blendMode)
@@ -295,11 +295,11 @@ void ParticleManager::CreateMaterialResource()
 	materialData_->uvTransform = MakeIdentity4x4();
 }
 
-ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string name, std::mt19937& randomEngine, const Vector3& translate)
+ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate)
 {
 	Particle particle{};
 
-	auto& params = particleParams_[name];
+	auto& params = particleParams_[name_];
 
 	auto FixRange = [](const Vector2& range) {
 		auto [minVal, maxVal] = std::minmax(range.x, range.y);
@@ -402,12 +402,12 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 	return params;
 }
 
-std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name_, const Vector3& position, uint32_t count)
 {
-	ParticleGroup& particleGroup = particleGroups_[name];
+	ParticleGroup& particleGroup = particleGroups_[name_];
 	std::list<Particle> newParticles;
 	for (uint32_t nowCount = 0; nowCount < count; ++nowCount) {
-		Particle particle = MakeNewParticle(name, randomEngine, position);
+		Particle particle = MakeNewParticle(name_, position);
 		newParticles.push_back(particle);
 	}
 	particleGroup.particleList.splice(particleGroup.particleList.end(), newParticles);

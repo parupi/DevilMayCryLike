@@ -1,6 +1,6 @@
 #include "ModelRenderer.h"
 #include "RendererManager.h"
-#include <Model/ModelManager.h>
+#include <3d/Object/Model/ModelManager.h>
 
 
 ModelRenderer::ModelRenderer(const std::string& renderName, const std::string& filePath)
@@ -8,7 +8,7 @@ ModelRenderer::ModelRenderer(const std::string& renderName, const std::string& f
 	localTransform_ = std::make_unique<WorldTransform>();
 	localTransform_->Initialize();
 	SetModel(filePath);
-	name = renderName;
+	name_ = renderName;
 }
 
 void ModelRenderer::Update(WorldTransform* parentTransform)
@@ -36,6 +36,7 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 
 void ModelRenderer::Draw(WorldTransform* parentTransform)
 {
+	parentTransform;
 	RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
 
 	model_->Draw();

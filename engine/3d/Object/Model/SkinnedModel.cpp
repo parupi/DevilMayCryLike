@@ -1,11 +1,11 @@
 #include "SkinnedModel.h"
-#include "Model/Animation/Skeleton.h"
-#include "Model/Animation/SkinCluster.h"
-#include "Model/Animation/Animation.h"
-#include <TextureManager.h>
-#include "ModelManager.h"
-#include <Object3d.h>
-#include <Renderer/ModelRenderer.h>
+#include "3d/Object/Model/Animation/Skeleton.h"
+#include "3d/Object/Model/Animation/SkinCluster.h"
+#include "3d/Object/Model/Animation/Animation.h"
+#include <base/TextureManager.h>
+#include "3d/Object/Model/ModelManager.h"
+#include <3d/Object/Object3d.h>
+#include <3d/Object/Renderer/ModelRenderer.h>
 
 void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileName)
 {
@@ -94,7 +94,7 @@ void SkinnedModel::DebugGui(ModelRenderer* render)
 					bool isSelected = (selectedIndex == i);
 					if (ImGui::Selectable(modelNames[i].c_str(), isSelected)) {
 						selectedIndex = i;
-						//object->SetModel(modelNames[selectedIndex]);
+						render->SetModel(modelNames[selectedIndex]);
 					}
 					if (isSelected) {
 						ImGui::SetItemDefaultFocus();

@@ -1,15 +1,15 @@
 #include "Model.h"
-#include "function.h"
-#include "TextureManager.h"
-#include <Vector4.h>
-#include <Vector2.h>
-#include <Model/ModelManager.h>
-#include <WorldTransform.h>
-#include <Model/Animation/Animation.h>
+#include "math/function.h"
+#include "base/TextureManager.h"
+#include <math/Vector4.h>
+#include <math/Vector2.h>
+#include <3d/Object/Model/ModelManager.h>
+#include <3d/WorldTransform.h>
+#include <3d/Object/Model/Animation/Animation.h>
 #include "Mesh/Mesh.h"
-#include "Material/Material.h"
-#include <Object3d.h>
-#include <Renderer/ModelRenderer.h>
+#include "3d/Object/Model/Material/Material.h"
+#include <3d/Object/Object3d.h>
+#include <3d/Object/Renderer/ModelRenderer.h>
 
 void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 {

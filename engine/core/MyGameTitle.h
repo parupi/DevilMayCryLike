@@ -2,18 +2,18 @@
 
 #pragma comment(lib,"dxguid.lib")
 #pragma comment(lib,"dxcompiler.lib")
-#include "Sprite.h"
-#include "SpriteManager.h"
-#include "TextureManager.h"
-#include "Object3d.h"
-#include "Object3dmanager.h"
-#include "Model/Model.h"
-#include "Model/ModelLoader.h"
-#include "Model/ModelManager.h"
-#include <Particle/ParticleManager.h>
-#include "GuchisFramework.h"
-#include "ImGuiManager.h"
-#include "GlobalVariables.h"
+#include "2d/Sprite.h"
+#include "2d/SpriteManager.h"
+#include "base/TextureManager.h"
+#include "3d/Object/Object3d.h"
+#include "3d/Object/Object3dManager.h"
+#include "3d/Object/Model/Model.h"
+#include "3d/Object/Model/ModelLoader.h"
+#include "3d/Object/Model/ModelManager.h"
+#include "base/Particle/ParticleManager.h"
+#include "core/GuchisFramework.h"
+#include "debuger/ImGuiManager.h"
+#include "debuger/GlobalVariables.h"
 
 class MyGameTitle : public GuchisFramework
 {

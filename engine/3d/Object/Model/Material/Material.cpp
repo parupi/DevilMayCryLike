@@ -1,7 +1,7 @@
 #include "Material.h"
-#include "DirectXManager.h"
-#include "SrvManager.h"
-#include <TextureManager.h>
+#include "base/DirectXManager.h"
+#include "base/SrvManager.h"
+#include <base/TextureManager.h>
 
 Material::Material()
 {

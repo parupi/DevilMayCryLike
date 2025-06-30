@@ -1,7 +1,7 @@
 #include "Sprite.h"
-#include "function.h"
+#include "math/function.h"
 #ifdef _DEBUG
-#include <imgui.h>
+#include <imgui/imgui.h>
 #endif _DEBUG
 
 Sprite::~Sprite() {

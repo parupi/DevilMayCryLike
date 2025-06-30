@@ -1,6 +1,6 @@
 #include "Camera.h"
-#include "imgui.h"
-#include "function.h"
+#include "imgui/imgui.h"
+#include "math/function.h"
 
 Camera::Camera(std::string cameraName)
 	: transform_({ {1.0f,1.0f,1.0f},{0.3f,0.0f,0.0f},{0.0f,4.0f,-10.0f} })
@@ -12,7 +12,7 @@ Camera::Camera(std::string cameraName)
 	, viewMatrix_(Inverse(worldMatrix_))
 	, projectionMatrix_(MakePerspectiveFovMatrix(horizontalFOV_, aspectRatio_, nearClip_, farClip_))
 {
-	name = cameraName;
+	name_ = cameraName;
 	// 一番最初に更新だけしておく
 	Update();
 }

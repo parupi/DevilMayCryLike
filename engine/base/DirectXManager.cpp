@@ -1,14 +1,15 @@
 #include "Windows.h"
 
-#include "DirectXManager.h"
+#include "base/DirectXManager.h"
 #include <cassert>
 #include <format>
-#include <SrvManager.h>
-
-#include "imgui_impl_dx12.h"
-#include "imgui_impl_win32.h"
+#include <base/SrvManager.h>
+#include <dxgi1_6.h>
+#include "imgui/imgui_impl_dx12.h"
+#include "imgui/imgui_impl_win32.h"
 
 #pragma comment(lib, "d3d12.lib")
+
 #pragma comment(lib, "dxgi.lib")
 
 using namespace Microsoft::WRL;
@@ -52,6 +53,21 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 void DirectXManager::Finalize()
 {
+	// GPUが処理を終えるのを待機（Fenceがあれば）
+	if (fence_ && commandQueue_) {
+		fenceValue_++;
+		commandQueue_->Signal(fence_.Get(), fenceValue_);
+		if (fence_->GetCompletedValue() < fenceValue_) {
+			fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+			WaitForSingleObject(fenceEvent_, INFINITE);
+		}
+	}
+
+	// フェンスイベント解放
+	if (fenceEvent_) {
+		CloseHandle(fenceEvent_);
+		fenceEvent_ = nullptr;
+	}
 
 	// 2. コマンドリスト、コマンドアロケータ、キューの解放
 	commandList_.Reset();

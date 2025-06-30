@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 #include <array>
-#include <Matrix4x4.h>
+#include <math/Matrix4x4.h>
 #include <vector>
 #include <d3d12.h>
 #include <span>
@@ -9,16 +9,16 @@
 #include <optional>
 #include <string>
 #include <map>
-#include "function.h"
-#include "Vector2.h"
-#include <Vector4.h>
+#include "math/function.h"
+#include "math/Vector2.h"
+#include <math/Vector4.h>
 
 // 骨
 struct Joint {
 	QuaternionTransform transform;
 	Matrix4x4 localMatrix;
 	Matrix4x4 skeletonSpaceMatrix;
-	std::string name;
+	std::string name_;
 	std::vector<int32_t> children;
 	int32_t index;
 	std::optional<int32_t> parent;
@@ -66,7 +66,7 @@ struct Color {
 };
 
 struct MaterialData {
-	std::string name;
+	std::string name_;
 	float Ns;
 	Color Ka;	// 環境光色
 	Color Kd;	// 拡散反射色
@@ -81,7 +81,7 @@ struct MaterialData {
 struct Node {
 	QuaternionTransform transform;
 	Matrix4x4 localMatrix;
-	std::string name;
+	std::string name_;
 	std::vector<Node> children;
 };
 
@@ -98,7 +98,7 @@ struct JointWeightData {
 
 
 struct MeshData {
-	std::string name;
+	std::string name_;
 	std::vector<VertexData> vertices;
 	std::vector<int32_t> indices;
 	uint32_t materialIndex; // このメッシュに持たせるマテリアルのインデックス

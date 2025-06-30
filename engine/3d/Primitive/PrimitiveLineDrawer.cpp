@@ -1,7 +1,7 @@
 #include "PrimitiveLineDrawer.h"
-#include <Camera/CameraManager.h>
-#include <TextureManager.h>
+#include <3d/Camera/CameraManager.h>
 #include <numbers>
+#include <base/TextureManager.h>
 
 PrimitiveLineDrawer* PrimitiveLineDrawer::instance = nullptr;
 std::once_flag PrimitiveLineDrawer::initInstanceFlag;

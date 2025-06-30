@@ -1,6 +1,6 @@
 #include "WindowManager.h"
-#include "imgui.h"
-#include <Logger.h>
+#include <imgui/imgui.h>
+#include "Logger.h"
 #pragma comment(lib, "winmm.lib")
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPatam);

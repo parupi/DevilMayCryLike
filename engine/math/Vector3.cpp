@@ -1,6 +1,6 @@
 #include "Vector3.h"
-#include <imgui.h>
-#include <Quaternion.h>
+#include <imgui/imgui.h>
+#include <math/Quaternion.h>
 
 Vector3 Vector3::operator-() const
 {

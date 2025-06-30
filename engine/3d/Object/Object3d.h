@@ -1,16 +1,16 @@
 #pragma once
 #include "Object3dManager.h"
-#include "Vector3.h"
-#include "Vector2.h"
-#include "Vector4.h"
-#include "Matrix4x4.h"
-#include "function.h"
+#include "math/Vector3.h"
+#include "math/Vector2.h"
+#include "math/Vector4.h"
+#include "math/Matrix4x4.h"
+#include "math/function.h"
 #include <fstream>
 #include "Model/Model.h"
 #include "Model/BaseModel.h"
-#include <Camera.h>
-#include <Renderer/BaseRenderer.h>
-#include <Collider/BaseCollider.h>
+#include <3d/Camera/Camera.h>
+#include <3d/Object/Renderer/BaseRenderer.h>
+#include <3d/Collider/BaseCollider.h>
 class Object3dManager;
 class WorldTransform;
 
@@ -59,8 +59,8 @@ public: // ゲッター // セッター //
 	void AddRenderer(BaseRenderer* render);
 	void AddCollider(BaseCollider* collider);
 
-	BaseRenderer* GetRenderer(std::string name);
-	BaseCollider* GetCollider(std::string name);
+	BaseRenderer* GetRenderer(std::string name_);
+	BaseCollider* GetCollider(std::string name_);
 	// カメラ
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
@@ -69,5 +69,5 @@ public: // ゲッター // セッター //
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }
 
-	std::string name;
+	std::string name_;
 };

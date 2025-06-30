@@ -1,12 +1,13 @@
 #include "MyGameTitle.h"
-#include <SceneFactory.h>
-#include <Particle/ParticleManager.h>
+#include <scene/SceneFactory.h>
+#include <base/Particle/ParticleManager.h>
 #include "offscreen/OffScreenManager.h"
-#include "Primitive/PrimitiveLineDrawer.h"
-#include <Light/LightManager.h>
-#include <CameraManager.h>
-#include <Renderer/RendererManager.h>
-#include <Collider/CollisionManager.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <3d/Object/Renderer/RendererManager.h>
+#include <3d/Collider/CollisionManager.h>
+#include <3d/Camera/CameraManager.h>
+#include <3d/Light/LightManager.h>
+#include <scene/SceneManager.h>
 
 void MyGameTitle::Initialize()
 {

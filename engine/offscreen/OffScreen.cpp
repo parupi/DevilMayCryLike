@@ -1,6 +1,7 @@
 #include "OffScreen.h"
 #ifdef _DEBUG
-#include <imgui.h>
+#include "debuger/ImGuiManager.h"
+#include <imgui/imgui.h>
 #endif
 
 void OffScreen::Initialize(DirectXManager* dxManager, PSOManager* psoManager)

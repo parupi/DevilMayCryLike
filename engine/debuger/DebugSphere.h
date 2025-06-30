@@ -1,6 +1,6 @@
 #pragma once
-#include <WorldTransform.h>
-#include <Object3d.h>
+#include <3d/WorldTransform.h>
+#include <3d/Object/Object3d.h>
 #include <memory>
 class DebugSphere
 {

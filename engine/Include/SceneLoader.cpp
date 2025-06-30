@@ -23,7 +23,7 @@ std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
 }
 
 void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
-    outObject.name = objJson["name"];
+    outObject.name_ = objJson["name"];
     outObject.type = objJson["type"];
     outObject.className = objJson.value("class", "Object3d");
 

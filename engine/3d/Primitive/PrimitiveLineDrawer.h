@@ -1,13 +1,13 @@
 #pragma once
-#include <DirectXManager.h>
-#include <PSOManager.h>
-#include <Vector3.h>
-#include <Vector4.h>
-#include <WorldTransform.h>
+#include <base/DirectXManager.h>
+#include <math/Vector3.h>
+#include <math/Vector4.h>
+#include <3d/WorldTransform.h>
 #include <vector>
 #include <memory>
 #include <mutex>
-#include <Vector2.h>
+#include <math/Vector2.h>
+#include <base/PSOManager.h>
 
 class PrimitiveLineDrawer
 {

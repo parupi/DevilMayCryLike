@@ -1,6 +1,6 @@
 #pragma once
-#include <BaseScene.h>
-#include <AbstractSceneFactory.h>
+#include <scene/BaseScene.h>
+#include <scene/AbstractSceneFactory.h>
 #include <memory>
 #include <mutex>
 class SceneManager

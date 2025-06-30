@@ -6,7 +6,7 @@
 
 InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveType type, const std::string& texturePath)
 {
-    name = renderName;
+    name_ = renderName;
     texturePath_ = texturePath;
 
     localTransform_ = std::make_unique<WorldTransform>();
@@ -51,6 +51,7 @@ void InstancingRenderer::Update(WorldTransform* parentTransform)
 
 void InstancingRenderer::Draw(WorldTransform* parentTransform)
 {
+    parentTransform;
     if (instances_.empty()) return;
 
     auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();

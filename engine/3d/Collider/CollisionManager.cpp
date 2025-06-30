@@ -1,5 +1,5 @@
 #include "CollisionManager.h"
-#include <Logger.h>
+#include "base/Logger.h"
 
 
 CollisionManager* CollisionManager::instance = nullptr;
@@ -51,7 +51,7 @@ void CollisionManager::AddCollider(std::unique_ptr<BaseCollider> collider)
 BaseCollider* CollisionManager::FindCollider(std::string colliderName)
 {
     for (auto& collider : colliders_) {
-        if (collider->name == colliderName) {
+        if (collider->name_ == colliderName) {
             return collider.get();
         }
     }
