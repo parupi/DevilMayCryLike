@@ -30,7 +30,12 @@ void PlayerStateMove::Update(Player& player)
 	}
 	// 攻撃のトリガー
 	if (Input::GetInstance()->TriggerKey(DIK_J)) {
-		player.ChangeState("Attack1");
+		player.ChangeState("AttackComboA1");
+		return;
+	}
+	// 攻撃のトリガー
+	if (Input::GetInstance()->TriggerKey(DIK_H)) {
+		player.ChangeState("AttackHighTime");
 		return;
 	}
 

@@ -10,7 +10,14 @@
 #include "State/PlayerStateAir.h"
 #include <numbers>
 #include <3d/Primitive/PrimitiveLineDrawer.h>
-#include "State/Attack/PlayerStateAttack1.h"
+#include "State/Attack/PlayerStateAttackComboA1.h"
+#include "State/Attack/PlayerStateAttackComboA2.h"
+#include "State/Attack/PlayerStateAttackComboA3.h"
+#include "State/Attack/PlayerStateAttackComboB2.h"
+#include "State/Attack/PlayerStateAttackComboB3.h"
+#include "State/Attack/PlayerStateAttackHighTime.h"
+#include "State/Attack/PlayerStateAttackAerialRave1.h"
+#include "State/Attack/PlayerStateAttackAerialRave2.h"
 
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
@@ -28,7 +35,14 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	states_["Move"] = std::make_unique<PlayerStateMove>();
 	states_["Jump"] = std::make_unique<PlayerStateJump>();
 	states_["Air"] = std::make_unique<PlayerStateAir>();
-	states_["Attack1"] = std::make_unique<PlayerStateAttack1>("Attack1");
+	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackComboA1>("AttackComboA1");
+	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackComboA2>("AttackComboA2");
+	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackComboA3>("AttackComboA3");
+	states_["AttackComboB2"] = std::make_unique<PlayerStateAttackComboB2>("AttackComboB2");
+	states_["AttackComboB3"] = std::make_unique<PlayerStateAttackComboB3>("AttackComboB3");
+	states_["AttackHighTime"] = std::make_unique<PlayerStateAttackHighTime>("AttackHighTime");
+	states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackAerialRave1>("AttackAerialRave1");
+	states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackAerialRave2>("AttackAerialRave2");
 	currentState_ = states_["Idle"].get();
 }
 
@@ -122,8 +136,8 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 	ImGui::Separator();
 
 	// 移動系
-	ImGui::DragFloat("Move Speed", &gv->GetValueRef<float>(attackName, "MoveSpeed"), 0.01f);
-	ImGui::DragFloat("KnockBack Speed", &gv->GetValueRef<float>(attackName, "KnockBackSpeed"), 0.01f);
+	ImGui::DragFloat3("Move Speed", &gv->GetValueRef<Vector3>(attackName, "MoveSpeed").x, 0.01f);
+	ImGui::DragFloat3("KnockBack Speed", &gv->GetValueRef<Vector3>(attackName, "KnockBackSpeed").x, 0.01f);
 
 	ImGui::Separator();
 

@@ -46,11 +46,11 @@ void GameCamera::Update()
     // カメラの更新（親クラスの Update を呼ぶ）
     Camera::Update();
 
-    ImGui::Begin("Camera");
-    ImGui::DragFloat3("Translate", &offset.x, 0.01f);
-    ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
-    ImGui::DragFloat("angle", &horizontalAngle_, 0.01f);
-    ImGui::End();
+    //ImGui::Begin("Camera");
+    //ImGui::DragFloat3("Translate", &offset.x, 0.01f);
+    //ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
+    //ImGui::DragFloat("angle", &horizontalAngle_, 0.01f);
+    //ImGui::End();
 
-    PrintOnImGui(GetForward(), "forward");
+    //PrintOnImGui(GetForward(), "forward");
 }

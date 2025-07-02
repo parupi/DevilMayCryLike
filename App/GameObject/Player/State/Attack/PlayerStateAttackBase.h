@@ -1,6 +1,7 @@
 #pragma once
 #include "GameObject/Player/State/PlayerStateBase.h"
 #include "debuger/GlobalVariables.h"
+#include "3d/Object/Object3d.h"
 
 enum class AttackType {
 	Thrust, // 刺突
@@ -14,15 +15,15 @@ struct AttackData {
 	std::vector<Vector3> controlPoints;      // 制御点（Vector3）
 
 	// 移動系
-	float moveSpeed = 0.0f;                  // 攻撃中の移動速度
-	float knockBackSpeed = 0.0f;             // 敵のノックバック速度
+	Vector3 moveVelocity{};                  // 攻撃中の移動速度
+	Vector3 knockBackSpeed{};             // 敵のノックバック速度
 
 	// タイマー系
 	float totalDuration = 0.0f;              // 攻撃全体にかかる時間
 	float preDelay = 0.0f;                   // 予備動作の時間
 	float attackDuration = 0.0f;             // 攻撃中の時間
 	float postDelay = 0.0f;                  // 技後の硬直時間
-	float nextAttackDelay = 0.0f;            // 次の攻撃が可能になるまでの時間
+	float nextAttackDelay = 0.0f;            // 次のアクションを受け付ける時間
 
 	// その他
 	bool drawDebugControlPoints = false;     // 制御点のデバッグ描画フラグ
@@ -36,9 +37,9 @@ class PlayerStateAttackBase : public PlayerStateBase
 public:
 	PlayerStateAttackBase(std::string attackName);
 	virtual ~PlayerStateAttackBase() = default;
-	virtual void Enter(Player& player) = 0;
-	virtual void Update(Player& player) = 0;
-	virtual void Exit(Player& player) = 0;
+	virtual void Enter(Player& player);
+	virtual void Update(Player& player);
+	virtual void Exit(Player& player);
 
 	AttackData GetAttackData() { return attackData_; }
 
@@ -50,7 +51,14 @@ public:
 	std::string name_;
 protected:
 	
+	TimeData stateTime_;
 
+	enum class AttackPhase {
+		Startup, // 予備動作
+		Active, // 攻撃中
+		Recovery, // 硬直
+		Cancel, // 入力待ち時間
+	}attackPhase_;
 
 	GlobalVariables* gv = GlobalVariables::GetInstance();
 
