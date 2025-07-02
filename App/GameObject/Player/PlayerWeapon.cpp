@@ -9,11 +9,7 @@ void PlayerWeapon::Initialize()
 {
 	Object3d::Initialize();
 
-	//GetWorldTransform()->GetTranslation() = {0.75f, -1.3f, -0.3f};
-
-	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetTranslation() = { -1.5f, -0.15f, 0.0f };
-	//GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, -30.0f, 90.0f });
-	//GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = {3.0f, 3.0f, 3.0f};
+	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = {1.0f, 0.25f, 1.0f };
 
 	GetCollider("WeaponCollider")->category_ = CollisionCategory::PlayerWeapon;
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMax = { 0.5f, 0.5f, 0.5f };
@@ -24,10 +20,11 @@ void PlayerWeapon::Initialize()
 
 void PlayerWeapon::Update()
 {
-	ImGui::Begin("Weapon");
-	ImGui::DragFloat3("translate", &GetRenderer("PlayerWeapon")->GetWorldTransform()->GetTranslation().x, 0.01f);
-	ImGui::End();
 
+
+	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
+	
+	
 	Object3d::Update();
 }
 

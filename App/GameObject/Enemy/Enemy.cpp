@@ -134,7 +134,7 @@ void Enemy::OnCollisionStay(BaseCollider* other)
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + enemyOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
-			velocity_.y = 0.0f;
+			//velocity_.y = 0.0f;
 			onGround_ = true;
 		} else if (outNormal.y == -1.0f) {
 			// 下に当たってる

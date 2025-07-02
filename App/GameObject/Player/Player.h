@@ -56,6 +56,8 @@ public:
 	Vector3& GetAcceleration() { return acceleration_; }
 	PlayerAttackEffect* GetPlayerAttackEffect() { return attackEffect_.get(); }
 	PlayerWeapon* GetWeapon() { return weapon_.get(); }
+	AttackData GetAttackData() const { return attackData_; }
+	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; }
 
 private:
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_;
@@ -67,6 +69,8 @@ private:
 	Vector3 velocity_{};
 	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
 
+	// 今出している攻撃のパラメータの受け皿
+	AttackData attackData_;
 
 	// 攻撃のフラグ
 	bool isAttack_ = false;

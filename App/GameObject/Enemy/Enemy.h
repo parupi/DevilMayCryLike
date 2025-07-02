@@ -39,8 +39,8 @@ public:
     Vector3 GetAcceleration() const { return acceleration_; }
     void SetAcceleration(const Vector3& acceleration) { acceleration_ = acceleration; }
 
-    int32_t GetHp() const { return hp_; }
-    void SetHp(int32_t hp) { hp_ = hp; }
+    float GetHp() const { return hp_; }
+    void SetHp(float hp) { hp_ = hp; }
 
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
@@ -51,6 +51,6 @@ protected:
     Vector3 velocity_{};
     Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
 
-    int32_t hp_ = 3;
+    float hp_ = 3;
     bool onGround_ = false;
 };
