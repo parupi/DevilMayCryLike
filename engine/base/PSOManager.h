@@ -48,6 +48,8 @@ public:// アクセッサ
 	ID3D12RootSignature* GetPrimitiveSignature() { return primitiveSignature_.Get(); }
 	ID3D12PipelineState* GetPrimitivePSO();
 
+	ID3D12RootSignature* GetSkyboxSignature() { return skyboxSignature_.Get(); }
+	ID3D12PipelineState* GetSkyboxPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -67,6 +69,10 @@ private:
 	// プリミティブ
 	void CreatePrimitiveSignature();
 	void CreatePrimitivePSO();
+	// スカイボックス
+	void CreateSkyboxSignature();
+	void CreateSkyboxPSO();
+
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -89,4 +95,7 @@ private: // データ格納用変数
 	// プリミティブ
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> primitiveSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> primitiveGraphicsPipelineState_;
+	// スカイボックス
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> skyboxSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> skyboxGraphicsPipelineState_;
 };
