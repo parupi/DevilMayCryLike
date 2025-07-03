@@ -5,6 +5,8 @@
 SphereCollider::SphereCollider(std::string colliderName)
 {
 	name_ = colliderName;
+	transform_ = std::make_unique<WorldTransform>();
+	transform_->Initialize();
 }
 
 void SphereCollider::Initialize()

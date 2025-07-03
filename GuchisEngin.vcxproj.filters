@@ -454,6 +454,7 @@
     <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave1.h" />
     <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackHighTime.h" />
     <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave2.h" />
+    <ClInclude Include="Engine\3d\SkySystem\SkySystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
@@ -535,9 +536,6 @@
       <Filter>Engine\3d\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\Collider\AABBCollider.cpp">
-      <Filter>Engine\3d\Collider</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3d\Collider\BaseCollider.cpp">
       <Filter>Engine\3d\Collider</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\Collider\CollisionManager.cpp">
@@ -752,5 +750,13 @@
     <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave1.cpp" />
     <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackHighTime.cpp" />
     <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave2.cpp" />
+    <ClCompile Include="Engine\3d\SkySystem\SkySystem.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resource\shaders\Skybox.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Resource\shaders\Skybox.VS.hlsl" />
+    <FxCompile Include="Resource\shaders\Skybox.PS.hlsl" />
   </ItemGroup>
 </Project>
