@@ -13,6 +13,7 @@
 #include <audio/Audio.h>
 //#include "OffScreen.h"
 #include "base/PSOManager.h"
+#include <3d/SkySystem/SkySystem.h>
 
 class GuchisFramework
 {
@@ -43,5 +44,7 @@ protected:
 	std::unique_ptr<SrvManager> srvManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
+	// ↓↓↓シングルトンにしたいです
+	std::unique_ptr<SkySystem> skySystem_ = nullptr;
 };
 

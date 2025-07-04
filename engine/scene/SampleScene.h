@@ -34,7 +34,9 @@ public:
 
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
-	std::shared_ptr<Camera> normalCamera_;
+	std::unique_ptr<Camera> normalCamera_;
+
+	LightManager* lightManager_ = LightManager::GetInstance();
 
 	std::unique_ptr<Object3d> object_;
 	std::unique_ptr<Object3d> object2_;
@@ -45,9 +47,6 @@ private:
 	//Vector4 color2 = { 1.0f, 1.0f, 1.0f, 1.0f };
 	uint32_t soundHandle = 0u;
 
-	//WorldTransform transform_;
-	//WorldTransform animationTransform_;
-	LightManager* lightManager_ = LightManager::GetInstance();
 
 	//ParticleManager* particleManager_ = nullptr;
 	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;

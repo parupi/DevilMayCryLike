@@ -18,11 +18,11 @@
 void SampleScene::Initialize()
 {
 	// カメラの生成
-	//normalCamera_ = std::make_shared<Camera>();
-	//cameraManager_->AddCamera(normalCamera_);
-	//cameraManager_->SetActiveCamera(0);
-	//normalCamera_->GetTranslate() = { 0.0f, 35.0f, -44.0f };
-	//normalCamera_->GetRotate() = { 0.68f, 0.0f, 0.0f };
+	normalCamera_ = std::make_unique<Camera>("GameCamera");
+	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
+	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
+	cameraManager_->AddCamera(std::move(normalCamera_));
+	cameraManager_->SetActiveCamera(0);
 
 
 	// .gltfファイルからモデルを読み込む
@@ -39,11 +39,12 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("multiMaterial");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 
-	object_ = std::make_unique<Object3d>("");
+	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
 
-	object2_ = std::make_unique<Object3d>("");
+	object2_ = std::make_unique<Object3d>("obj2");
 	object2_->Initialize();
 	//animationObject_ = std::make_unique<Object3d>();
 	//animationObject_->Initialize("simpleSkin");
@@ -66,8 +67,19 @@ void SampleScene::Initialize()
 	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
 	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
 
-	//transform_.Initialize();
-	//animationTransform_.Initialize();
+
+	// コライダーの生成、追加
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("collider1"));
+	// コライダーの設定
+	object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
+	// ゲームオブジェクトを追加
+	Object3dManager::GetInstance()->AddObject(std::move(object_));
+
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<SphereCollider>("collider2"));
+
+	object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
+
+	Object3dManager::GetInstance()->AddObject(std::move(object2_));
 
 	//sprite = std::make_unique<Sprite>();
 	//sprite->Initialize("Resource/uvChecker.png");
@@ -75,8 +87,7 @@ void SampleScene::Initialize()
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
-	std::unique_ptr<DirectionalLight> dirLight;
-	dirLight = std::make_unique<DirectionalLight>("dir1");
+	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
 	dirLight->GetLightData().intensity = 1.0f;
 	dirLight->GetLightData().enabled = true;
 	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -92,16 +103,6 @@ void SampleScene::Initialize()
 	//grayEffect_->Initialize();
 
 
-	std::unique_ptr<SphereCollider> collider = std::make_unique<SphereCollider>("collider1");
-	collider->Initialize();
-	CollisionManager::GetInstance()->AddCollider(std::move(collider));
-
-	std::unique_ptr<SphereCollider> collider2 = std::make_unique<SphereCollider>("collider2");
-	collider2->Initialize();
-	CollisionManager::GetInstance()->AddCollider(std::move(collider2));
-
-	object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
-	object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
 
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
@@ -129,18 +130,18 @@ void SampleScene::Update()
 
 
 
-	ImGui::Begin("Camera Manager");
-	ImGui::DragFloat3("Translate", &normalCamera_->GetTranslate().x, 0.01f);
-	ImGui::DragFloat3("Rotate", &normalCamera_->GetRotate().x, 0.01f);
-	ImGui::End();
+	//ImGui::Begin("Camera Manager");
+	//ImGui::DragFloat3("Translate", &normalCamera_->GetTranslate().x, 0.01f);
+	//ImGui::DragFloat3("Rotate", &normalCamera_->GetRotate().x, 0.01f);
+	//ImGui::End();
 
 
 
 	//DebugUpdate();
 
 
-	object_->Update();
-	object2_->Update();
+	//object_->Update();
+	//object2_->Update();
 
 	//animationObject_->Update();
 
@@ -194,12 +195,12 @@ void SampleScene::Draw()
 	//cameraManager_->BindCameraToShader();
 	//animationObject_->Draw();
 
-	//Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
+	Object3dManager::GetInstance()->DrawSet();
 	//lightManager_->BindLightsToShader();
 	//cameraManager_->BindCameraToShader();
 	//object_->Draw();
 	//object2_->Draw();
-	//
+	
 
 	//SpriteManager::GetInstance()->DrawSet();
 	//sprite->Draw();
