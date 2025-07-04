@@ -42,6 +42,9 @@ void MyGameTitle::Initialize()
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->ChangeScene("SAMPLE");
+	// キューブマップの生成
+	skySystem_ = std::make_unique<SkySystem>();
+	skySystem_->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -91,7 +94,7 @@ void MyGameTitle::Draw()
 	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 	SceneManager::GetInstance()->Draw();
 
-
+	skySystem_->Draw();
 
 	dxManager->BeginDraw();
 
