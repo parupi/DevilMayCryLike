@@ -92,4 +92,7 @@ void CameraManager::CreateCameraResource()
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
 	// 初期値を入れる
 	cameraData_->worldPosition = { 1.0f, 1.0f, 1.0f };
+
+	// ログ出力
+	Logger::LogBufferCreation("Camera", cameraResource_.Get(), sizeof(CameraForGPU));
 }

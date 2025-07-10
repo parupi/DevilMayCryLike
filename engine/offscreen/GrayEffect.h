@@ -6,7 +6,7 @@ class GrayEffect : public BaseOffScreen
 {
 public:
 	GrayEffect();
-	~GrayEffect() = default;
+	~GrayEffect();
 
 	// 更新
 	void Update() override;

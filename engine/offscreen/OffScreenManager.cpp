@@ -51,11 +51,11 @@ void OffScreenManager::Draw()
 		dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
 		dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvHandle().second);
 		dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 1);
+		dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 	}
 }
 
-void OffScreenManager::AddEfect(std::unique_ptr<BaseOffScreen> effect)
+void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect)
 {
 	effects_.emplace_back(std::move(effect));
 }

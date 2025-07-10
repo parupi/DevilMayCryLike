@@ -3,6 +3,19 @@
 #include <base/DirectXManager.h>
 #include <3d/Object/Object3dManager.h>
 
+WorldTransform::~WorldTransform()
+{
+	// GPUリソースの解放
+	if (constBuffer_) {
+		constBuffer_->Unmap(0, nullptr);
+		constBuffer_.Reset();
+	}
+
+#ifdef _DEBUG
+	Logger::Log("WorldTransform resources released.\n");
+#endif
+}
+
 void WorldTransform::Initialize()
 {
 	// ワールド行列の初期化
@@ -25,6 +38,9 @@ void WorldTransform::CreateConstBuffer()
 	constMap->WVP = MakeIdentity4x4();
 	constMap->World = MakeIdentity4x4();
 	constMap->WorldInverseTranspose = MakeIdentity4x4();
+
+	// ログ出力
+	Logger::LogBufferCreation("WorldTransform", constBuffer_.Get(), sizeof(TransformationMatrix));
 }
 
 void WorldTransform::TransferMatrix()
@@ -43,8 +59,6 @@ void WorldTransform::TransferMatrix()
 		constMap->World = matWorld_; // 定数バッファに行列をコピー
 		constMap->WorldInverseTranspose = Inverse(matWorld_);
 	}
-
-
 }
 
 #ifdef _DEBUG
@@ -68,9 +82,6 @@ void WorldTransform::DebugGui()
 	ImGui::DragFloat3("rotation", &rotate.x, 0.1f);
 	rotation_ = (rotation_ * Normalize(EulerDegree(rotate)));
 }
-
-
-
 #endif // _DEBUG
 
 Vector3 WorldTransform::GetWorldPos()

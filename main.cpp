@@ -10,11 +10,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	std::unique_ptr<GuchisFramework> game = std::make_unique<MyGameTitle>();
 
-	game->Run();
-
 #ifdef _DEBUG
-	D3DResourceLeakChecker leakCheck;
-#endif // _DEBUG
+	// DirectXManager を取り出して渡す
+	D3DResourceLeakChecker leakChecker(game->GetDXManager());
+#endif
+
+	game->Run();
 
 	return 0;
 }

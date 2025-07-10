@@ -25,7 +25,7 @@ void MyGameTitle::Initialize()
 	// オブジェクト共通部
 	Object3dManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
+	//OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
 	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
@@ -53,12 +53,12 @@ void MyGameTitle::Initialize()
 void MyGameTitle::Finalize()
 {
 	// 描画処理系
-	ImGuiManager::GetInstance()->Finalize();               // 最もUI描画の最後に使うので最初に破棄
-	PrimitiveLineDrawer::GetInstance()->Finalize();        // モデル等の描画で使っているかも
-	RendererManager::GetInstance()->Finalize();            // SpriteやModelに使われる
+	ImGuiManager::GetInstance()->Finalize(); // 最もUI描画の最後に使うので最初に破棄
+	PrimitiveLineDrawer::GetInstance()->Finalize(); // モデル等の描画で使っているかも
+	RendererManager::GetInstance()->Finalize(); // SpriteやModelに使われる
 
 	// ゲームオブジェクト系
-	ParticleManager::GetInstance()->Finalize();            // TextureやRendererに依存
+	ParticleManager::GetInstance()->Finalize(); // TextureやRendererに依存
 	SpriteManager::GetInstance()->Finalize();              // Textureに依存
 	Object3dManager::GetInstance()->Finalize();            // ModelManagerやCollisionに依存
 	ModelManager::GetInstance()->Finalize();               // Textureに依存
@@ -68,7 +68,7 @@ void MyGameTitle::Finalize()
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();             // 多くの描画系に依存される
-	OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
+	//OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
@@ -82,7 +82,7 @@ void MyGameTitle::Update()
 	Object3dManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
-	OffScreenManager::GetInstance()->Update();
+	//OffScreenManager::GetInstance()->Update();
 
 	ImGuiManager::GetInstance()->End();
 }
@@ -91,16 +91,20 @@ void MyGameTitle::Draw()
 {
 	dxManager->BeginDrawForRenderTarget();
 	srvManager->BeginDraw();
-	PrimitiveLineDrawer::GetInstance()->BeginDraw();
-	SceneManager::GetInstance()->Draw();
 
 	skySystem_->Draw();
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
+
+
+	SceneManager::GetInstance()->Draw();
+
+
 
 	dxManager->BeginDraw();
 
 	//SceneManager::GetInstance()->DrawRTV();
 
-	OffScreenManager::GetInstance()->Draw();
+	//OffScreenManager::GetInstance()->Draw();
 
 #ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();

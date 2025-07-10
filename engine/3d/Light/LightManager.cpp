@@ -61,14 +61,20 @@ void LightManager::UpdateAllLight()
 	std::vector<DirectionalLightData> dirData;
 	for (auto& light : dirLights_) dirData.push_back(light->GetLightData());
 	UpdateBuffer(dirLightResource_.Get(), dirData.data(), sizeof(DirectionalLightData) * dirData.size());
+	// ログ出力
+	Logger::LogBufferCreation("Light:Directional", dirLightResource_.Get(), sizeof(DirectionalLightData));
 
 	std::vector<PointLightData> pointData;
 	for (auto& light : pointLights_) pointData.push_back(light->GetLightData());
 	UpdateBuffer(pointLightResource_.Get(), pointData.data(), sizeof(PointLightData) * pointData.size());
+	// ログ出力
+	Logger::LogBufferCreation("Light:Point", pointLightResource_.Get(), sizeof(PointLightData));
 
 	std::vector<SpotLightData> spotData;
 	for (auto& light : spotLights_) spotData.push_back(light->GetLightData());
 	UpdateBuffer(spotLightResource_.Get(), spotData.data(), sizeof(SpotLightData) * spotData.size());
+	// ログ出力
+	Logger::LogBufferCreation("Light:Spot", spotLightResource_.Get(), sizeof(SpotLightData));
 }
 
 void LightManager::AddDirectionalLight(std::unique_ptr<DirectionalLight> light)

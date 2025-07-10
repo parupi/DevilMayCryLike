@@ -2,6 +2,19 @@
 #include "base/DirectXManager.h"
 #include "base/SrvManager.h"
 
+Mesh::~Mesh() {
+	if (vertexResource_) {
+		vertexResource_->Unmap(0, nullptr);
+		vertexResource_.Reset();  // ← ここでリソースを解放
+		vertexData_ = nullptr;
+	}
+	if (indexResource_) {
+		indexResource_->Unmap(0, nullptr);
+		indexResource_.Reset();   // ← ここでリソースを解放
+		indexData_ = nullptr;
+	}
+}
+
 void Mesh::Initialize(DirectXManager* directXManager, SrvManager* srvManager, const MeshData& meshData)
 {
 	directXManager_ = directXManager;
@@ -46,6 +59,9 @@ void Mesh::CreateVertexResource()
 	// 頂点リソースにデータを書き込む
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_)); // 書き込むためのアドレスを取得
 	std::memcpy(vertexData_, meshData_.vertices.data(), sizeof(VertexData) * meshData_.vertices.size());
+	
+	// ログ出力
+	Logger::LogBufferCreation("Mesh:Vertex", vertexResource_.Get(), meshData_.vertices.size());
 }
 
 void Mesh::CreateIndexResource()
@@ -58,4 +74,7 @@ void Mesh::CreateIndexResource()
 
 	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
 	std::memcpy(indexData_, meshData_.indices.data(), sizeof(uint32_t) * meshData_.indices.size());
+
+	// ログ出力
+	Logger::LogBufferCreation("Mesh:Index", indexResource_.Get(), meshData_.indices.size());
 }

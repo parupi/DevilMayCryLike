@@ -23,6 +23,7 @@ void SampleScene::Initialize()
 	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera(0);
+	camera_ptr = cameraManager_->GetActiveCamera();
 
 
 	// .gltfファイルからモデルを読み込む
@@ -39,23 +40,23 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("multiMaterial");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
-	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
+	//TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 
+	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
 
+	// オブジェクトを生成
 	object2_ = std::make_unique<Object3d>("obj2");
 	object2_->Initialize();
-	//animationObject_ = std::make_unique<Object3d>();
-	//animationObject_->Initialize("simpleSkin");
 
-	render1_ = std::make_unique<ModelRenderer>("render1", "multiMaterial");
-	//render1_->SetModel();
-	//render2_ =;
-	//render2_->SetModel("Terrain");
+	// モデルレンダラーの生成
+	render1_ = std::make_unique<ModelRenderer>("render1", "plane");
 
+	// レンダラーの追加
 	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	// プリミティブレンダラーの生成、追加
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
@@ -104,9 +105,9 @@ void SampleScene::Initialize()
 
 
 
-	OffScreenManager::GetInstance()->AddEfect(std::make_unique<GrayEffect>());
-	OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
-	OffScreenManager::GetInstance()->AddEfect(std::make_unique<SmoothEffect>());
+	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
+	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
+	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<SmoothEffect>());
 }
 
 void SampleScene::Finalize()
@@ -130,10 +131,10 @@ void SampleScene::Update()
 
 
 
-	//ImGui::Begin("Camera Manager");
-	//ImGui::DragFloat3("Translate", &normalCamera_->GetTranslate().x, 0.01f);
-	//ImGui::DragFloat3("Rotate", &normalCamera_->GetRotate().x, 0.01f);
-	//ImGui::End();
+	ImGui::Begin("Camera Manager");
+	ImGui::DragFloat3("Translate", &camera_ptr->GetTranslate().x, 0.01f);
+	ImGui::DragFloat3("Rotate", &camera_ptr->GetRotate().x, 0.01f);
+	ImGui::End();
 
 
 

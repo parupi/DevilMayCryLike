@@ -31,6 +31,8 @@ public:
 	virtual void Draw() = 0;
 	// 終了チェック
 	virtual bool IsEndRequest() { return winManager->ProcessMessage(); }
+	// デバッグ用に取得できるようにしておく
+	DirectXManager* GetDXManager() const { return dxManager.get(); }
 
 public:
 	// 実行

@@ -12,6 +12,17 @@ GrayEffect::GrayEffect() : BaseOffScreen()
 	CreateEffectResource();
 }
 
+GrayEffect::~GrayEffect()
+{
+	// 借りてるポインタを破棄
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+
+	// 生成したリソースの削除
+	effectData_ = nullptr;
+	effectResource_.Reset();
+}
+
 void GrayEffect::Update()
 {
 #ifdef _DEBUG
@@ -32,7 +43,7 @@ void GrayEffect::Draw()
 
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
 
-	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 1);
+	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void GrayEffect::CreateEffectResource()
@@ -43,4 +54,6 @@ void GrayEffect::CreateEffectResource()
 	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
 	// 初期値を設定
 	effectData_->intensity = 1.0f;
+
+	effectResource_->Unmap(0, nullptr);
 }

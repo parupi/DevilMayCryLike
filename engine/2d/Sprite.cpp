@@ -77,6 +77,9 @@ void Sprite::CreateVertexResource()
 	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6;
 	// 1頂点当たりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Vertex", vertexResource_.Get(), vertexBufferView_.SizeInBytes);
 }
 
 void Sprite::CreateIndexResource()
@@ -89,6 +92,9 @@ void Sprite::CreateIndexResource()
 	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
 	// インデックスはuint32_tとする
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Index", indexResource_.Get(), indexBufferView_.SizeInBytes);
 }
 
 void Sprite::CreateMaterialResource()
@@ -100,6 +106,9 @@ void Sprite::CreateMaterialResource()
 	// 今回は白を書き込んで置く
 	materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	materialData_->uvTransform = MakeIdentity4x4();
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Material", materialResource_.Get(), sizeof(Material));
 }
 
 void Sprite::CreateTransformationResource()
@@ -111,6 +120,9 @@ void Sprite::CreateTransformationResource()
 	// 単位行列を書き込んでおく
 	transformationMatrixData_->World = MakeIdentity4x4();
 	transformationMatrixData_->WVP = MakeIdentity4x4();
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Transform", transformationMatrixResource_.Get(), sizeof(TransformationMatrix));
 }
 
 void Sprite::SetSpriteData()
