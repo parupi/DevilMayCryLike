@@ -1,6 +1,6 @@
 #include "Mesh.h"
-#include "DirectXManager.h"
-#include "SrvManager.h"
+#include "base/DirectXManager.h"
+#include "base/SrvManager.h"
 
 void Mesh::Initialize(DirectXManager* directXManager, SrvManager* srvManager, const MeshData& meshData)
 {
@@ -21,6 +21,18 @@ void Mesh::Draw()
 	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
 
 	directXManager_->GetCommandList()->DrawIndexedInstanced(UINT(meshData_.indices.size()), 1, 0, 0, 0);
+}
+
+void Mesh::Bind()
+{
+	// 頂点バッファをセット
+	directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+
+	// インデックスバッファをセット
+	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
+
+	// トポロジ（プリミティブの種類）もここで設定しておくと安心
+	directXManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Mesh::CreateVertexResource()

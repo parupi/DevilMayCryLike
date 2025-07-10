@@ -1,12 +1,13 @@
 #include "MyGameTitle.h"
-#include <SceneFactory.h>
-#include <ParticleManager.h>
+#include <scene/SceneFactory.h>
+#include <base/Particle/ParticleManager.h>
 #include "offscreen/OffScreenManager.h"
-#include "Primitive/PrimitiveDrawer.h"
-#include <Light/LightManager.h>
-#include <CameraManager.h>
-#include <Renderer/RendererManager.h>
-#include <Collider/CollisionManager.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <3d/Object/Renderer/RendererManager.h>
+#include <3d/Collider/CollisionManager.h>
+#include <3d/Camera/CameraManager.h>
+#include <3d/Light/LightManager.h>
+#include <scene/SceneManager.h>
 
 void MyGameTitle::Initialize()
 {
@@ -26,7 +27,7 @@ void MyGameTitle::Initialize()
 
 	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	PrimitiveDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
 	RendererManager::GetInstance()->Initialize(dxManager.get());
 
@@ -41,6 +42,9 @@ void MyGameTitle::Initialize()
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	// キューブマップの生成
+	skySystem_ = std::make_unique<SkySystem>();
+	skySystem_->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -48,28 +52,37 @@ void MyGameTitle::Initialize()
 
 void MyGameTitle::Finalize()
 {
-	PrimitiveDrawer::GetInstance()->Finalize();
-	RendererManager::GetInstance()->Finalize();
+	// 描画処理系
+	ImGuiManager::GetInstance()->Finalize();               // 最もUI描画の最後に使うので最初に破棄
+	PrimitiveLineDrawer::GetInstance()->Finalize();        // モデル等の描画で使っているかも
+	RendererManager::GetInstance()->Finalize();            // SpriteやModelに使われる
+
+	// ゲームオブジェクト系
+	ParticleManager::GetInstance()->Finalize();            // TextureやRendererに依存
+	SpriteManager::GetInstance()->Finalize();              // Textureに依存
+	Object3dManager::GetInstance()->Finalize();            // ModelManagerやCollisionに依存
+	ModelManager::GetInstance()->Finalize();               // Textureに依存
+
+	// 基盤系
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
-	ParticleManager::GetInstance()->Finalize();
-	SpriteManager::GetInstance()->Finalize();
-	Object3dManager::GetInstance()->Finalize();
-	ModelManager::GetInstance()->Finalize();
-	TextureManager::GetInstance()->Finalize();
-	OffScreenManager::GetInstance()->Finalize();
-	ImGuiManager::GetInstance()->Finalize();
+	LightManager::GetInstance()->Finalize();
+	TextureManager::GetInstance()->Finalize();             // 多くの描画系に依存される
+	OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
+	// フレームワークベース
 	GuchisFramework::Finalize();
 }
 
 void MyGameTitle::Update()
 {
 	ImGuiManager::GetInstance()->Begin();
+	CameraManager::GetInstance()->Update();
+	ParticleManager::GetInstance()->Update();
 	GuchisFramework::Update();
+	Object3dManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();
-	GlobalVariables::GetInstance()->Update();
 
 	ImGuiManager::GetInstance()->End();
 }
@@ -78,10 +91,10 @@ void MyGameTitle::Draw()
 {
 	dxManager->BeginDrawForRenderTarget();
 	srvManager->BeginDraw();
-	PrimitiveDrawer::GetInstance()->BeginDraw();
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 	SceneManager::GetInstance()->Draw();
 
-
+	skySystem_->Draw();
 
 	dxManager->BeginDraw();
 
@@ -92,7 +105,7 @@ void MyGameTitle::Draw()
 #ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();
 #endif
-	PrimitiveDrawer::GetInstance()->EndDraw();
+	PrimitiveLineDrawer::GetInstance()->EndDraw();
 
 
 	ImGuiManager::GetInstance()->Draw();

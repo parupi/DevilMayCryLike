@@ -1,5 +1,5 @@
 #include "GuchisFramework.h"
-#include "utility/DeltaTime.h"
+#include "base/utility/DeltaTime.h"
 
 void GuchisFramework::Initialize()
 {
@@ -27,11 +27,12 @@ void GuchisFramework::Initialize()
 
 void GuchisFramework::Finalize()
 {
+	SceneManager::GetInstance()->Finalize();
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
-	SceneManager::GetInstance()->Finalize();
 	winManager->Finalize();
-	dxManager->Finalize();
+	srvManager->Finalize();
+	dxManager->Finalize(); // デバイスが最後
 }
 
 void GuchisFramework::Update()
@@ -41,20 +42,16 @@ void GuchisFramework::Update()
 	SceneManager::GetInstance()->Update();
 }
 
-void GuchisFramework::Run()
-{
-	Initialize();
-
-	while (true) {
-		Update();
-
-		//Windowにメッセージが来てたら最優先で処理させる
-		if (IsEndRequest()) {
-			// ゲームループを抜ける
-			break;
+void GuchisFramework::Run() {
+	try {
+		Initialize();
+		while (true) {
+			if (IsEndRequest()) break;
+			Update();
+			Draw();
 		}
-
-		Draw();
+	} catch (const std::exception& e) {
+		MessageBoxA(nullptr, e.what(), "例外発生", MB_OK | MB_ICONERROR);
 	}
 	Finalize();
 }

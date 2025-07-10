@@ -1,16 +1,14 @@
 #include "Object3d.h"
 #include "Object3dManager.h"
-#include "TextureManager.h"
-//#include "imgui.h"
-#include <WorldTransform.h>
+#include "base/TextureManager.h"
+#include <3d/WorldTransform.h>
 #include <numbers>
-//#include <Skeleton.h>
-//#include <Animator.h>
 #include "Model/ModelManager.h"
 
 Object3d::Object3d(std::string objectName)
 {
-	name = objectName;
+	name_ = objectName;
+	Initialize();
 }
 
 Object3d::~Object3d()
@@ -24,6 +22,8 @@ void Object3d::Initialize()
 
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();
+
+	camera_ = objectManager_->GetDefaultCamera();
 }
 
 void Object3d::Update()
@@ -74,14 +74,17 @@ void Object3d::DebugGui()
 
 void Object3d::OnCollisionEnter(BaseCollider* other)
 {
+	other;
 }
 
 void Object3d::OnCollisionStay(BaseCollider* other)
 {
+	other;
 }
 
 void Object3d::OnCollisionExit(BaseCollider* other)
 {
+	other;
 }
 
 void Object3d::AddRenderer(BaseRenderer* render)
@@ -98,7 +101,7 @@ void Object3d::AddCollider(BaseCollider* collider)
 BaseRenderer* Object3d::GetRenderer(std::string name)
 {
 	for (auto& render : renders_) {
-		if (render->name == name) {
+		if (render->name_ == name) {
 			return render;
 		}
 	}
@@ -109,7 +112,7 @@ BaseRenderer* Object3d::GetRenderer(std::string name)
 BaseCollider* Object3d::GetCollider(std::string name)
 {
 	for (auto& collider : colliders_) {
-		if (collider->name == name) {
+		if (collider->name_ == name) {
 			return collider;
 		}
 	}

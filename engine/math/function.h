@@ -1,10 +1,11 @@
 #pragma once
-#include <Vector3.h>
+#include <math/Vector3.h>
 #include "assert.h"
 #include "cmath"
-#include <Matrix4x4.h>
-#include <Quaternion.h>
-#include <imgui.h>
+#include <math/Matrix4x4.h>
+#include <math/Quaternion.h>
+#include <imgui/imgui.h>
+#include <vector>
 
 static const int kColumnWidth = 60;
 static const int kRowHeight = 20;
@@ -34,8 +35,6 @@ Vector3 Transform(const Vector3& vector, const Matrix4x4& matrix);
 
 Matrix4x4 MakeRotateXYZMatrix(Vector3 rotate);
 
-//Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Vector3& rotate, const Vector3& translate);
-
 // tanθの逆数
 float cotf(float theta);
 
@@ -51,20 +50,14 @@ Matrix4x4 MakeViewPortMatrix(float left, float top, float width, float height, f
 // クロス積
 Vector3 Cross(const Vector3& v1, const Vector3& v2);
 
-//// デバッグ用
-//void VectorScreenPrintf(int x, int y, const Vector3& vector, const char* label);
-//void MatrixScreenPrintf(int x, int y, const Matrix4x4& matrix, const char* label);
-
 Matrix4x4 LookAt(const Vector3& eye, const Vector3& target, const Vector3& up);
 
 Vector3 TransformNormal(const Vector3& v, const Matrix4x4& m);
 
 Vector3 ExtractTranslation(const Matrix4x4& matrix);
 
-//Matrix4x4 ScaleMatrixFromVector3(const Vector3& scale);
-//
-//Matrix4x4 TranslationMatrixFromVector3(const Vector3& translate);
-
-//Matrix4x4 MakeRotaeAxisAngle(const Vector3& axis, float angle);
+Vector3 CatmullRomSpline(const std::vector<Vector3>& points, float t);
 
 Matrix4x4 DirectionToDirection(const Vector3& from, const Vector3& to);
+
+Vector3 MatrixToEulerYXZ(const Matrix4x4& m);

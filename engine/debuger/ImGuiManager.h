@@ -1,6 +1,6 @@
 #pragma once
-#include "WindowManager.h"
-#include "DirectXManager.h"
+#include "base/WindowManager.h"
+#include "base/DirectXManager.h"
 #include <memory>
 #include <mutex>
 class ImGuiManager

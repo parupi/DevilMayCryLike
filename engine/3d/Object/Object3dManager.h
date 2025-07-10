@@ -1,9 +1,9 @@
 #pragma once
-#include "DirectXManager.h"
-#include <Camera.h>
+#include "base/DirectXManager.h"
+#include <3d/Camera/Camera.h>
 #include <memory>
 #include <mutex>
-#include "PSOManager.h"
+#include <base/PSOManager.h>
 
 class Object3d;
 class Object3dManager
@@ -23,12 +23,16 @@ public:
 	void Initialize(DirectXManager* directXManager, PSOManager* psoManager);
 	// 終了
 	void Finalize();
+	// 更新
+	void Update();
 	// 描画前処理
-	void DrawSet(BlendMode blendMode);
+	void DrawSet();
 	// アニメーション用描画前処理
 	void DrawSetForAnimation();
 
 	void AddObject(std::unique_ptr<Object3d> object);
+
+	Object3d* FindObject(std::string objectName);
 
 private:
 	// DirectXのポインタ
@@ -36,6 +40,8 @@ private:
 	PSOManager* psoManager_ = nullptr;
 	// カメラのポインタ
 	Camera* defaultCamera_ = nullptr;
+
+	BlendMode blendMode_ = BlendMode::kNone;
 
 	std::vector<std::unique_ptr<Object3d>> objects_;
 

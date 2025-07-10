@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Matrix4x4.h"
-#include "Vector3.h"
-#include "Quaternion.h"
+#include "math/Matrix4x4.h"
+#include "math/Vector3.h"
+#include "math/Quaternion.h"
 #include <d3d12.h>
 #include <type_traits>
 #include <wrl.h>

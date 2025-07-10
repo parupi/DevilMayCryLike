@@ -1,6 +1,6 @@
 #pragma once
-#include <Vector3.h>
-#include <Vector4.h>
+#include <math/Vector3.h>
+#include <math/Vector4.h>
 #include <string>
 
 class BaseLight {
@@ -9,5 +9,5 @@ public:
     virtual ~BaseLight() = default;
     virtual void Update() = 0;
 
-    std::string name;
+    std::string name_;
 };

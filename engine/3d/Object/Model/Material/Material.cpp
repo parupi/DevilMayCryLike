@@ -1,7 +1,5 @@
 #include "Material.h"
-#include "DirectXManager.h"
-#include "SrvManager.h"
-#include <TextureManager.h>
+#include <base/TextureManager.h>
 
 Material::Material()
 {
@@ -31,7 +29,7 @@ void Material::Update()
 	materialForGPU_->uvTransform = uvTransformMatrix;
 }
 
-void Material::Draw()
+void Material::Bind()
 {
 	// マテリアルCBufferの場所を指定
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());

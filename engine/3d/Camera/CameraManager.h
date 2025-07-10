@@ -23,7 +23,7 @@ public:
     // 終了
     void Finalize();
     // カメラを追加する
-    void AddCamera(std::shared_ptr<Camera> camera);
+    void AddCamera(std::unique_ptr<Camera> camera);
 
     // アクティブなカメラを更新する
     void Update();
@@ -32,7 +32,7 @@ public:
     void SetActiveCamera(int index);
 
     // アクティブなカメラを取得する
-    std::shared_ptr<Camera> GetActiveCamera() const;
+    Camera* GetActiveCamera() const;
 
     // アクティブなカメラをシェーダーに送る
     void BindCameraToShader();
@@ -46,7 +46,7 @@ private:
         Vector3 worldPosition;
     };
 private:
-    std::vector<std::shared_ptr<Camera>> cameras_; // 管理するカメラのリスト
+    std::vector<std::unique_ptr<Camera>> cameras_; // 管理するカメラのリスト
     int activeCameraIndex_; // アクティブなカメラのインデックス
     DirectXManager* dxManager_ = nullptr;
 

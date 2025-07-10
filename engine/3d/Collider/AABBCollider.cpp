@@ -1,9 +1,9 @@
 #include "AABBCollider.h"
-#include <Primitive/PrimitiveDrawer.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
 
 AABBCollider::AABBCollider(std::string colliderName)
 {
-    name = colliderName;
+    name_ = colliderName;
     transform_ = std::make_unique<WorldTransform>();
     transform_->Initialize();
 }
@@ -42,7 +42,7 @@ void AABBCollider::DrawDebug()
         {min.x, max.y, max.z}  // 7
     };
 
-    PrimitiveDrawer* drawer = PrimitiveDrawer::GetInstance();
+    PrimitiveLineDrawer* drawer = PrimitiveLineDrawer::GetInstance();
     Vector4 color = { 0.0f, 1.0f, 0.0f, 1.0f }; // 黄色
 
     // 底面

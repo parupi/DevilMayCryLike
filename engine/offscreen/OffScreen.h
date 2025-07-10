@@ -1,7 +1,7 @@
 #pragma once
-#include "DirectXManager.h"
+#include "base/DirectXManager.h"
 #include <mutex>
-#include "PSOManager.h"
+#include "base/PSOManager.h"
 class OffScreen
 {
 public:

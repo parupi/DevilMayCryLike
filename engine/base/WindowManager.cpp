@@ -1,5 +1,6 @@
 #include "WindowManager.h"
-#include "imgui.h"
+#include <imgui/imgui.h>
+#include "Logger.h"
 #pragma comment(lib, "winmm.lib")
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPatam);
@@ -72,14 +73,11 @@ void WindowManager::Initialize()
 
 bool WindowManager::ProcessMessage()
 {
-	MSG msg{};
-	if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
+		TranslateMessage(&msg_);
+		DispatchMessage(&msg_);
 	}
-	// ウィンドウの×ボタンが押されるまでループ
-	if (msg.message == WM_QUIT) {
+	if (msg_.message == WM_QUIT) {
 		return true;
 	}
 	return false;
@@ -87,6 +85,17 @@ bool WindowManager::ProcessMessage()
 
 void WindowManager::Finalize()
 {
+	if (hwnd_) {
+		// DestroyWindowでWM_DESTROYが送られ、PostQuitMessageが呼ばれるのが理想
+		DestroyWindow(hwnd_);
+		hwnd_ = nullptr;
+	}
+
+	// システムタイマー精度を元に戻す
+	timeEndPeriod(1);
+
+	// COMの終了
 	CoUninitialize();
-	CloseWindow(hwnd_);
+
+	Logger::Log("WindowManager finalized.\n");
 }

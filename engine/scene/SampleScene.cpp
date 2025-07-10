@@ -1,28 +1,28 @@
 #include "SampleScene.h"
-#include <TextureManager.h>
-#include <Model/ModelManager.h>
-#include <ParticleManager.h>
-#include <imgui.h>
-#include <Quaternion.h>
-#include <Vector3.h>
-#include <Matrix4x4.h>
+#include <base/TextureManager.h>
+#include <3d/Object/Model/ModelManager.h>
+#include <base/Particle/ParticleManager.h>
+#include <imgui/imgui.h>
+#include <math/Quaternion.h>
+#include <math/Vector3.h>
+#include <math/Matrix4x4.h>
 #include <offscreen/OffScreenManager.h>
 #include <offscreen/VignetteEffect.h>
 #include <offscreen/SmoothEffect.h>
-#include <Primitive/PrimitiveDrawer.h>
-#include <Renderer/RendererManager.h>
-#include <Collider/CollisionManager.h>
-#include <Collider/SphereCollider.h>
-#include <Renderer/PrimitiveRenderer.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <3d/Object/Renderer/RendererManager.h>
+#include <3d/Collider/CollisionManager.h>
+#include <3d/Collider/SphereCollider.h>
+#include <3d/Object/Renderer/PrimitiveRenderer.h>
 
 void SampleScene::Initialize()
 {
 	// カメラの生成
-	normalCamera_ = std::make_shared<Camera>();
-	cameraManager_->AddCamera(normalCamera_);
+	normalCamera_ = std::make_unique<Camera>("GameCamera");
+	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
+	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
+	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera(0);
-	normalCamera_->GetTranslate() = { 0.0f, 35.0f, -44.0f };
-	normalCamera_->GetRotate() = { 0.68f, 0.0f, 0.0f };
 
 
 	// .gltfファイルからモデルを読み込む
@@ -39,11 +39,12 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("multiMaterial");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 
-	object_ = std::make_unique<Object3d>("");
+	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
 
-	object2_ = std::make_unique<Object3d>("");
+	object2_ = std::make_unique<Object3d>("obj2");
 	object2_->Initialize();
 	//animationObject_ = std::make_unique<Object3d>();
 	//animationObject_->Initialize("simpleSkin");
@@ -55,9 +56,9 @@ void SampleScene::Initialize()
 
 	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveRenderer::PrimitiveType::Plane, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveRenderer::PrimitiveType::Ring, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveRenderer::PrimitiveType::Cylinder, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
 
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render1"));
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
@@ -66,8 +67,19 @@ void SampleScene::Initialize()
 	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
 	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
 
-	//transform_.Initialize();
-	//animationTransform_.Initialize();
+
+	// コライダーの生成、追加
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("collider1"));
+	// コライダーの設定
+	object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
+	// ゲームオブジェクトを追加
+	Object3dManager::GetInstance()->AddObject(std::move(object_));
+
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<SphereCollider>("collider2"));
+
+	object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
+
+	Object3dManager::GetInstance()->AddObject(std::move(object2_));
 
 	//sprite = std::make_unique<Sprite>();
 	//sprite->Initialize("Resource/uvChecker.png");
@@ -75,8 +87,7 @@ void SampleScene::Initialize()
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
-	std::unique_ptr<DirectionalLight> dirLight;
-	dirLight = std::make_unique<DirectionalLight>("dir1");
+	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
 	dirLight->GetLightData().intensity = 1.0f;
 	dirLight->GetLightData().enabled = true;
 	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -92,16 +103,6 @@ void SampleScene::Initialize()
 	//grayEffect_->Initialize();
 
 
-	std::unique_ptr<SphereCollider> collider = std::make_unique<SphereCollider>("collider1");
-	collider->Initialize();
-	CollisionManager::GetInstance()->AddCollider(std::move(collider));
-
-	std::unique_ptr<SphereCollider> collider2 = std::make_unique<SphereCollider>("collider2");
-	collider2->Initialize();
-	CollisionManager::GetInstance()->AddCollider(std::move(collider2));
-
-	object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
-	object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
 
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
@@ -129,18 +130,18 @@ void SampleScene::Update()
 
 
 
-	ImGui::Begin("Camera Manager");
-	ImGui::DragFloat3("Translate", &normalCamera_->GetTranslate().x, 0.01f);
-	ImGui::DragFloat3("Rotate", &normalCamera_->GetRotate().x, 0.01f);
-	ImGui::End();
+	//ImGui::Begin("Camera Manager");
+	//ImGui::DragFloat3("Translate", &normalCamera_->GetTranslate().x, 0.01f);
+	//ImGui::DragFloat3("Rotate", &normalCamera_->GetRotate().x, 0.01f);
+	//ImGui::End();
 
 
 
 	//DebugUpdate();
 
 
-	object_->Update();
-	object2_->Update();
+	//object_->Update();
+	//object2_->Update();
 
 	//animationObject_->Update();
 
@@ -194,11 +195,11 @@ void SampleScene::Draw()
 	//cameraManager_->BindCameraToShader();
 	//animationObject_->Draw();
 
-	Object3dManager::GetInstance()->DrawSet(BlendMode::kNormal);
-	lightManager_->BindLightsToShader();
-	cameraManager_->BindCameraToShader();
-	object_->Draw();
-	object2_->Draw();
+	Object3dManager::GetInstance()->DrawSet();
+	//lightManager_->BindLightsToShader();
+	//cameraManager_->BindCameraToShader();
+	//object_->Draw();
+	//object2_->Draw();
 	
 
 	//SpriteManager::GetInstance()->DrawSet();

@@ -1,9 +1,9 @@
 #pragma once
 #include <string>
 #include <memory>
-#include <WorldTransform.h>
+#include <3d/WorldTransform.h>
 
-#include <CollisionCategory.h>
+#include <GameData/CollisionCategory.h>
 enum class CollisionShapeType {
 	AABB,
 	Sphere,
@@ -20,7 +20,7 @@ public:
 	virtual void SetOwner(Object3d* owner) { owner_ = owner; }
 
 	CollisionCategory category_;
-	std::string name;
+	std::string name_;
 	Object3d* owner_;
 	std::unique_ptr<WorldTransform> transform_;
 };

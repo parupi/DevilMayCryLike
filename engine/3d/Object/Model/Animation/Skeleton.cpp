@@ -1,6 +1,6 @@
 #include "Skeleton.h"
 #include "Animation.h"
-#include <Model/SkinnedModel.h>
+#include <3d/Object/Model/SkinnedModel.h>
 
 void Skeleton::Initialize(SkinnedModel* model)
 {
@@ -26,7 +26,7 @@ void Skeleton::Update()
 void Skeleton::ApplyAnimation(const AnimationData& animation, float animationTime)
 {
 	for (auto& joint : skeletonData_.joints) {
-		auto it = animation.nodeAnimations.find(joint.name);
+		auto it = animation.nodeAnimations.find(joint.name_);
 		if (it != animation.nodeAnimations.end()) {
 			const NodeAnimation& nodeAnimation = it->second;
 			joint.transform.translate = Animation::CalculateValue(nodeAnimation.translate.keyframes, animationTime);
@@ -40,13 +40,13 @@ void Skeleton::CreateSkeleton(const Node& rootNode) {
 	skeletonData_.root = CreateJoint(rootNode, {}, skeletonData_.joints);
 
 	for (const auto& joint : skeletonData_.joints) {
-		skeletonData_.jointMap.emplace(joint.name, joint.index);
+		skeletonData_.jointMap.emplace(joint.name_, joint.index);
 	}
 }
 
 int32_t Skeleton::CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
 	Joint joint;
-	joint.name = node.name;
+	joint.name_ = node.name_;
 	joint.localMatrix = node.localMatrix;
 	joint.skeletonSpaceMatrix = MakeIdentity4x4();
 	joint.transform = node.transform;
@@ -67,7 +67,7 @@ std::vector<std::pair<std::string, Matrix4x4>> Skeleton::GetBoneMatrices() const
 {
 	std::vector<std::pair<std::string, Matrix4x4>> boneMatrices;
 	for (const auto& joint : skeletonData_.joints) {
-		boneMatrices.emplace_back(joint.name, joint.skeletonSpaceMatrix);
+		boneMatrices.emplace_back(joint.name_, joint.skeletonSpaceMatrix);
 	}
 	return boneMatrices;
 }

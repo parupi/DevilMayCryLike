@@ -136,7 +136,7 @@ struct ASSIMP_API aiNode {
     aiNode();
 
     /** Construction from a specific name */
-    explicit aiNode(const std::string& name);
+    explicit aiNode(const std::string& name_);
 
     /** Destructor */
     ~aiNode();
@@ -149,18 +149,18 @@ struct ASSIMP_API aiNode {
      *  @return nullptr or a valid Node if the search was successful.
      */
     inline
-    const aiNode* FindNode(const aiString& name) const {
-        return FindNode(name.data);
+    const aiNode* FindNode(const aiString& name_) const {
+        return FindNode(name_.data);
     }
 
     inline
-    aiNode* FindNode(const aiString& name) {
-        return FindNode(name.data);
+    aiNode* FindNode(const aiString& name_) {
+        return FindNode(name_.data);
     }
 
-    const aiNode* FindNode(const char* name) const;
+    const aiNode* FindNode(const char* name_) const;
 
-    aiNode* FindNode(const char* name);
+    aiNode* FindNode(const char* name_);
 
     /**
      * @brief   Will add new children.

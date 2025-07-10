@@ -1,4 +1,5 @@
 #include "SpriteManager.h"
+#include <cassert>
 
 SpriteManager* SpriteManager::instance = nullptr;
 std::once_flag SpriteManager::initInstanceFlag;
@@ -19,13 +20,16 @@ void SpriteManager::Initialize(DirectXManager* directXManager, PSOManager* psoMa
 
 void SpriteManager::DrawSet(BlendMode blendMode)
 {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetSpritePSO(blendMode).Get());			// PSOを設定
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetSpriteSignature().Get());
+	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetSpritePSO(blendMode));			// PSOを設定
+	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetSpriteSignature());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void SpriteManager::Finalize()
 {
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
 }

@@ -1,6 +1,6 @@
 #include "CameraManager.h"
-#include <Object3dManager.h>
-#include "ParticleManager.h"
+#include <3d/Object/Object3dManager.h>
+#include "base/Particle/ParticleManager.h"
 
 CameraManager* CameraManager::instance = nullptr;
 std::once_flag CameraManager::initInstanceFlag;
@@ -24,23 +24,38 @@ void CameraManager::Initialize(DirectXManager* dxManager)
 
 void CameraManager::Finalize()
 {
+	// カメラリストを解放（unique_ptr なので明示的に clear）
 	cameras_.clear();
+
+	// アクティブカメラインデックス初期化
+	activeCameraIndex_ = -1;
+
+	// カメラ用リソース解放
+	if (cameraResource_) {
+		cameraResource_.Reset();
+		cameraData_ = nullptr;
+	}
+
+	// 外部参照のポインタをヌルに
+	dxManager_ = nullptr;
+
 	delete instance;
 	instance = nullptr;
+
+	Logger::Log("CameraManager finalized.\n");
 }
 
-void CameraManager::AddCamera(std::shared_ptr<Camera> camera)
+void CameraManager::AddCamera(std::unique_ptr<Camera> camera)
 {
-	cameras_.emplace_back(camera);
+	cameras_.push_back(std::move(camera));
 }
 
 void CameraManager::Update()
 {
 	// アクティブカメラを更新
-	if (activeCameraIndex_ >= 0 && activeCameraIndex_ < cameras_.size())
-	{
-		cameras_[activeCameraIndex_]->Update();
-	}
+	if (activeCameraIndex_ < 0 || activeCameraIndex_ >= cameras_.size())	return;
+
+	cameras_[activeCameraIndex_]->Update();
 	cameraData_->worldPosition = cameras_[activeCameraIndex_]->GetTranslate();
 }
 
@@ -54,11 +69,11 @@ void CameraManager::SetActiveCamera(int index)
 	}
 }
 
-std::shared_ptr<Camera> CameraManager::GetActiveCamera() const
+Camera* CameraManager::GetActiveCamera() const
 {
 	if (activeCameraIndex_ >= 0 && activeCameraIndex_ < cameras_.size())
 	{
-		return cameras_[activeCameraIndex_];
+		return cameras_[activeCameraIndex_].get();
 	}
 	return nullptr;
 }

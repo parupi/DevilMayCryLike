@@ -2,5 +2,5 @@
 
 BaseLight::BaseLight()
 {
-	name = "";
+	name_ = "";
 }

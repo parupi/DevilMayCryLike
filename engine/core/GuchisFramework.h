@@ -1,18 +1,19 @@
 #pragma once
-#include "WindowManager.h"
-#include "DirectXManager.h"
-#include "SrvManager.h"
-#include "Input.h"
+#include "base/WindowManager.h"
+#include "base/DirectXManager.h"
+#include "base/SrvManager.h"
+#include "input/Input.h"
 #ifdef _DEBUG
-#include "LeakChecker.h"
+#include "debuger/LeakChecker.h"
 #endif // _DEBUG
 
-#include <SceneManager.h>
-#include <SceneFactory.h>
-#include <AbstractSceneFactory.h>
-#include <Audio.h>
+#include <scene/SceneManager.h>
+#include <scene/SceneFactory.h>
+#include <scene/AbstractSceneFactory.h>
+#include <audio/Audio.h>
 //#include "OffScreen.h"
-#include "PSOManager.h"
+#include "base/PSOManager.h"
+#include <3d/SkySystem/SkySystem.h>
 
 class GuchisFramework
 {
@@ -43,7 +44,7 @@ protected:
 	std::unique_ptr<SrvManager> srvManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
-	//std::unique_ptr<OffScreen> offScreen_ = nullptr;
-
+	// ↓↓↓シングルトンにしたいです
+	std::unique_ptr<SkySystem> skySystem_ = nullptr;
 };
 

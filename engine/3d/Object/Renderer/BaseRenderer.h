@@ -1,5 +1,5 @@
 #pragma once
-#include <WorldTransform.h>
+#include <3d/WorldTransform.h>
 #include <memory>
 class BaseModel;
 
@@ -14,7 +14,7 @@ public:
 	virtual void DebugGui(size_t index) = 0;
 #endif // DEBUG
 
-	std::string name;
+	std::string name_;
 	std::unique_ptr<WorldTransform> localTransform_;
 
 	virtual WorldTransform* GetWorldTransform() const = 0;

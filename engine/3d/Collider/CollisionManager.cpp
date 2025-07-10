@@ -1,5 +1,5 @@
 #include "CollisionManager.h"
-#include <Logger.h>
+#include "base/Logger.h"
 
 
 CollisionManager* CollisionManager::instance = nullptr;
@@ -51,7 +51,7 @@ void CollisionManager::AddCollider(std::unique_ptr<BaseCollider> collider)
 BaseCollider* CollisionManager::FindCollider(std::string colliderName)
 {
     for (auto& collider : colliders_) {
-        if (collider->name == colliderName) {
+        if (collider->name_ == colliderName) {
             return collider.get();
         }
     }
@@ -118,6 +118,9 @@ bool CollisionManager::CheckCollision(BaseCollider* a, BaseCollider* b)
 
 bool CollisionManager::CheckAABBToAABBCollision(AABBCollider* a, AABBCollider* b)
 {
+    // コライダーがどちらもactiveになってるか確認
+    if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return false;
+
     Vector3 MaxPosA = a->GetMax();
     Vector3 MaxPosB = b->GetMax();
     Vector3 MinPosA = a->GetMin();
@@ -132,6 +135,9 @@ bool CollisionManager::CheckAABBToAABBCollision(AABBCollider* a, AABBCollider* b
 
 bool CollisionManager::CheckSphereToSphereCollision(SphereCollider* a, SphereCollider* b)
 {
+    // コライダーがどちらもactiveになってるか確認
+    if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return false;
+
     float distSq = Length(a->GetCenter() - b->GetCenter());
     float radiusSum = a->GetRadius() + b->GetRadius();
     return distSq <= (radiusSum * radiusSum);

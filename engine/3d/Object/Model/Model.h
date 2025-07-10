@@ -1,14 +1,14 @@
 #pragma once
 #include "ModelLoader.h"
-#include "Vector4.h"
-#include "Vector3.h"
-#include "Vector2.h"
-#include "Matrix4x4.h"
+#include "math/Vector4.h"
+#include "math/Vector3.h"
+#include "math/Vector2.h"
+#include "math/Matrix4x4.h"
 #include <fstream>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <Camera.h>
+#include <3d/Camera/Camera.h>
 #include <span>
 #include <map>
 #include "Animation/SkinCluster.h"
@@ -31,6 +31,8 @@ public: // メンバ関数
 	void Update() override;
 	// 描画
 	void Draw() override;
+	// 
+	void Bind();
 #ifdef _DEBUG
 	void DebugGui(ModelRenderer* render);
 	void DebugGuiPrimitive();

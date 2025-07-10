@@ -7,11 +7,11 @@
 #include "WindowManager.h"
 #include "Logger.h"
 #include "StringUtility.h"
-#include "DirectXTex.h"
+#include "DirectXTex/DirectXTex.h"
 #include <chrono>
 #include <thread>
 #include <vector>
-#include <Vector4.h>
+#include <math/Vector4.h>
 
 class SrvManager;
 
@@ -136,8 +136,8 @@ public:
 	void EndDraw();
 
 public: // ゲッター/セッター //
-	Microsoft::WRL::ComPtr<ID3D12Device> GetDevice() { return device_; }
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> GetCommandList() { return commandList_; }
+	ID3D12Device* GetDevice() { return device_.Get(); }
+	ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
 	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSRVHeap() { return srvHeap_; }
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	//uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }

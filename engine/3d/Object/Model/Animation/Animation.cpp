@@ -3,8 +3,8 @@
 #include <assimp/scene.h>
 #include <cassert>
 
-#include <Model/Animation/Skeleton.h>
-#include "Model/SkinnedModel.h"
+#include <3d/Object/Model/Animation/Skeleton.h>
+#include "3d/Object/Model/SkinnedModel.h"
 
 void Animation::Initialize(SkinnedModel* model, const std::string& filename)
 {
@@ -17,7 +17,7 @@ void Animation::Update()
 	animationTime += 1.0f / 60.0f;
 	animationTime = std::fmod(animationTime, animation_.duration); // 最後までいったらリピート再生
 
-	NodeAnimation& rootNodeAnimation = animation_.nodeAnimations[model_->GetModelData().rootNode.name]; // ルートノードに入ってるアニメーションを取得
+	NodeAnimation& rootNodeAnimation = animation_.nodeAnimations[model_->GetModelData().rootNode.name_]; // ルートノードに入ってるアニメーションを取得
 	Vector3 scale, translate;
 	Quaternion rotate;
 

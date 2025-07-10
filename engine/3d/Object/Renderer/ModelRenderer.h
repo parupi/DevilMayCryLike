@@ -1,8 +1,8 @@
 #pragma once
 #include "BaseRenderer.h"
-#include <Model/Model.h>
-#include <CameraManager.h>
-#include <Camera/Camera.h>
+#include <3d/Object/Model/Model.h>
+#include <3d/Camera/Camera.h>
+#include <3d/Camera/CameraManager.h>
 class ModelRenderer : public BaseRenderer
 {
 public:
@@ -27,6 +27,6 @@ private:
 	BaseModel* model_;
 
 
-	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera().get();
+	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
 };
 

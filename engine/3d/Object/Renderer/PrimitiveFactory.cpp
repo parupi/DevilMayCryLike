@@ -1,25 +1,25 @@
 #include "PrimitiveFactory.h"
 #include "MeshGenerator.h"
-#include <TextureManager.h>
+#include <base/TextureManager.h>
 
 // PrimitiveFactory.cpp
-std::unique_ptr<Model> PrimitiveFactory::Create(PrimitiveRenderer::PrimitiveType type, std::string textureName) {
+std::unique_ptr<Model> PrimitiveFactory::Create(PrimitiveType type, std::string textureName) {
     MeshData meshData;
     MaterialData mat;
 
     // メッシュ生成
     switch (type) {
-    case PrimitiveRenderer::PrimitiveType::Plane:
+    case PrimitiveType::Plane:
         meshData = MeshGenerator::CreatePlane();
-        mat.name = "PlaneMaterial";
+        mat.name_ = "PlaneMaterial";
         break;
-    case PrimitiveRenderer::PrimitiveType::Ring:
+    case PrimitiveType::Ring:
         meshData = MeshGenerator::CreateRing();
-        mat.name = "RingMaterial";
+        mat.name_ = "RingMaterial";
         break;
-    case PrimitiveRenderer::PrimitiveType::Cylinder:
+    case PrimitiveType::Cylinder:
         meshData = MeshGenerator::CreateCylinder();
-        mat.name = "CylinderMaterial";
+        mat.name_ = "CylinderMaterial";
         break;
     }
 

@@ -1,6 +1,11 @@
 #include "Vector3.h"
-#include <imgui.h>
-#include <Quaternion.h>
+#include <imgui/imgui.h>
+#include <math/Quaternion.h>
+
+Vector3 Vector3::operator-() const
+{
+    return Vector3(-x, -y, -z);
+}
 
 // ベクトルの加算
 Vector3 Vector3::operator+(const Vector3& other) const {
@@ -86,15 +91,12 @@ Vector3 Normalize(const Vector3& v) {
     return { v.x / len, v.y / len, v.z / len };
 }
 
-Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion) {
-    Quaternion vecQuat(vector.x, vector.y, vector.z, 0.0f); // ベクトルをクォータニオンに変換
-    Quaternion conjugateQuat = Conjugate(quaternion);
-
-    // クォータニオンの積で回転を適用
-    Quaternion rotatedQuat = quaternion * vecQuat * conjugateQuat;
-
-    // 回転後のベクトルを返す
-    return Vector3(rotatedQuat.x, rotatedQuat.y, rotatedQuat.z);
+Vector3 RotateVector(const Vector3& v, const Quaternion& q) {
+    // q * v * q^-1
+    Quaternion vq = { v.x, v.y, v.z, 0.0f };
+    Quaternion qInv = Inverse(q);
+    Quaternion result = q * vq * qInv;
+    return { result.x, result.y, result.z };
 }
 
 Vector3 Lerp(const Vector3& start, const Vector3& end, float t) {

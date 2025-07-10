@@ -1,6 +1,6 @@
 #pragma once
 #include <mutex>
-#include <DirectXManager.h>
+#include <base/DirectXManager.h>
 #include "BaseRenderer.h"
 class RendererManager
 {
