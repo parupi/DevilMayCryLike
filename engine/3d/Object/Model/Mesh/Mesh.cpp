@@ -51,7 +51,7 @@ void Mesh::Bind()
 void Mesh::CreateVertexResource()
 {
 	// 頂点リソースを作る
-	vertexResource_ = directXManager_->CreateBufferResource(sizeof(VertexData) * meshData_.vertices.size());
+	directXManager_->CreateBufferResource(sizeof(VertexData) * meshData_.vertices.size(), vertexResource_);
 	// 頂点バッファビューを作成する
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();	// リソースの先頭アドレスから使う
 	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * meshData_.vertices.size()); // 使用するリソースのサイズは頂点のサイズ
@@ -66,7 +66,7 @@ void Mesh::CreateVertexResource()
 
 void Mesh::CreateIndexResource()
 {
-	indexResource_ = directXManager_->CreateBufferResource(sizeof(uint32_t) * meshData_.indices.size());
+	directXManager_->CreateBufferResource(sizeof(uint32_t) * meshData_.indices.size(), indexResource_);
 
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
 	indexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(uint32_t) * meshData_.indices.size());

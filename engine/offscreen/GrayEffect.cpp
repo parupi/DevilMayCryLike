@@ -49,7 +49,7 @@ void GrayEffect::Draw()
 void GrayEffect::CreateEffectResource()
 {
 	// グレイスケール用のリソースを作る
-	effectResource_ = dxManager_->CreateBufferResource(sizeof(GrayEffectData));
+	dxManager_->CreateBufferResource(sizeof(GrayEffectData), effectResource_);
 	// 書き込むためのアドレスを取得
 	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
 	// 初期値を設定

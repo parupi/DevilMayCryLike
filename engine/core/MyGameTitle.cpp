@@ -25,7 +25,7 @@ void MyGameTitle::Initialize()
 	// オブジェクト共通部
 	Object3dManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	//OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
+	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
 	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
@@ -68,7 +68,7 @@ void MyGameTitle::Finalize()
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();             // 多くの描画系に依存される
-	//OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
+	OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
@@ -82,7 +82,7 @@ void MyGameTitle::Update()
 	Object3dManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
-	//OffScreenManager::GetInstance()->Update();
+	OffScreenManager::GetInstance()->Update();
 
 	ImGuiManager::GetInstance()->End();
 }
@@ -104,7 +104,7 @@ void MyGameTitle::Draw()
 
 	//SceneManager::GetInstance()->DrawRTV();
 
-	//OffScreenManager::GetInstance()->Draw();
+	OffScreenManager::GetInstance()->Draw();
 
 #ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();

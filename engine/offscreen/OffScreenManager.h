@@ -11,8 +11,8 @@ private:
 
 	OffScreenManager() = default;
 	~OffScreenManager() = default;
-	OffScreenManager(OffScreenManager&) = default;
-	OffScreenManager& operator=(OffScreenManager&) = default;
+	OffScreenManager(const OffScreenManager&) = default;
+	OffScreenManager& operator=(const OffScreenManager&) = default;
 public:
 	// シングルトンインスタンスの取得
 	static OffScreenManager* GetInstance();

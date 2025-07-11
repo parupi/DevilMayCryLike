@@ -141,7 +141,7 @@ void PrimitiveLineDrawer::DrawWireSphere(const Vector3& center, float radius, co
 
 void PrimitiveLineDrawer::UpdateVertexResource()
 {
-	vertexResource_ = dxManager_->CreateBufferResource(sizeof(Vertex) * vertices_.size());
+	dxManager_->CreateBufferResource(sizeof(Vertex) * vertices_.size(), vertexResource_);
 
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	vertexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(Vertex) * vertices_.size());
@@ -155,7 +155,7 @@ void PrimitiveLineDrawer::UpdateVertexResource()
 
 void PrimitiveLineDrawer::UpdateIndexResource()
 {
-	indexResource_ = dxManager_->CreateBufferResource(sizeof(uint32_t) * indices_.size());
+	dxManager_->CreateBufferResource(sizeof(uint32_t) * indices_.size(), indexResource_);
 
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
 	indexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(uint32_t) * indices_.size());

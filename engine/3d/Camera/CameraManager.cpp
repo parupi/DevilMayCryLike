@@ -87,7 +87,7 @@ void CameraManager::BindCameraToShader()
 void CameraManager::CreateCameraResource()
 {
 	// カメラ用のリソースを作る
-	cameraResource_ = dxManager_->CreateBufferResource(sizeof(CameraForGPU));
+	dxManager_->CreateBufferResource(sizeof(CameraForGPU), cameraResource_);
 	// 書き込むためのアドレスを取得
 	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
 	// 初期値を入れる

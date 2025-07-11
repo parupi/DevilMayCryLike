@@ -53,60 +53,59 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 void DirectXManager::Finalize()
 {
-	// GPUが処理を終えるのを待機（Fenceがあれば）
-	if (fence_ && commandQueue_) {
+	// --- GPUの完了を確実に待つ処理 ---
+	if (commandQueue_ && fence_) {
 		fenceValue_++;
-		commandQueue_->Signal(fence_.Get(), fenceValue_);
+		HRESULT hr = commandQueue_->Signal(fence_.Get(), fenceValue_);
+		assert(SUCCEEDED(hr));
+
 		if (fence_->GetCompletedValue() < fenceValue_) {
-			fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+			if (!fenceEvent_) {
+				fenceEvent_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+			}
+			hr = fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
+			assert(SUCCEEDED(hr));
 			WaitForSingleObject(fenceEvent_, INFINITE);
 		}
 	}
 
-	// フェンスイベント解放
+	// --- フェンスイベント解放 ---
 	if (fenceEvent_) {
 		CloseHandle(fenceEvent_);
 		fenceEvent_ = nullptr;
 	}
 
-	// コマンド周り
+	// --- リソース解放 ---
 	commandList_.Reset();
 	commandAllocator_.Reset();
 	commandQueue_.Reset();
 
-	// スワップチェーン
 	swapChain_.Reset();
 
-	// バックバッファ
 	for (auto& buffer : backBuffers_) {
 		buffer.Reset();
 	}
 	backBuffers_.clear();
 
-	// オフスクリーンリソース
-	offScreenResource_.Reset();  // ← これが抜けていた！
+	offScreenResource_.Reset(); // ❗忘れがち
 
-	// 深度バッファ
 	depthBuffer_.Reset();
 
-	// ヒープ
 	rtvHeap_.Reset();
 	dsvHeap_.Reset();
 
-	// フェンス
 	fence_.Reset();
 
-	// デバイス・DXGIファクトリー
 	device_.Reset();
 	dxgiFactory_.Reset();
 
-	// DXC関連
 	dxcUtils_.Reset();
 	dxcCompiler_.Reset();
 	includeHandler_.Reset();
 
 	Logger::Log("DirectXManager finalized.\n");
 }
+
 
 ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(ComPtr<ID3D12Device> device, D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible)
 {
@@ -306,7 +305,7 @@ void DirectXManager::UploadTextureData(ComPtr<ID3D12Resource> texture, const Dir
 	}
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateBufferResource(size_t sizeInBytes)
+void DirectXManager::CreateBufferResource(size_t sizeInBytes, Microsoft::WRL::ComPtr<ID3D12Resource>& outResource)
 {
 	// リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
@@ -324,18 +323,16 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateBufferResource(size
 	// バッファの場合はこれにする決まり
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
 	// 実際にリソースを作る
-	Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
-	HRESULT hr = device_->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&resource));
+	//Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
+	HRESULT hr = device_->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&outResource));
 	assert(SUCCEEDED(hr));
 
 	// 
 #ifdef _DEBUG
-	std::wstring debugName = L"Buffer_" + std::to_wstring(reinterpret_cast<uintptr_t>(resource.Get()));
-	resource->SetName(debugName.c_str());
+	std::wstring debugName = L"Buffer_" + std::to_wstring(reinterpret_cast<uintptr_t>(outResource.Get()));
+	outResource->SetName(debugName.c_str());
 	OutputDebugStringW((L"Created " + debugName + L"\n").c_str());
 #endif
-
-	return resource;
 }
 
 Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_CLEAR_VALUE color)

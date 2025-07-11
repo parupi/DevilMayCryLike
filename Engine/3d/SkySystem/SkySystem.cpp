@@ -32,7 +32,7 @@ void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager, Sr
 
 
 	// 定数バッファリソースの生成
-	skyboxConstBuffer_ = dxManager_->CreateBufferResource(sizeof(SkyboxMatrix));
+	dxManager_->CreateBufferResource(sizeof(SkyboxMatrix), skyboxConstBuffer_);
 }
 
 void SkySystem::Draw()
@@ -132,7 +132,7 @@ void SkySystem::CreateVertexResource()
 	// バッファサイズの計算
 	UINT sizeVB = static_cast<UINT>(sizeof(VertexDataForSkybox) * vertexData_.size());
 
-	vertexResource_ = dxManager_->CreateBufferResource(sizeVB);
+	dxManager_->CreateBufferResource(sizeVB, vertexResource_);
 
 	// 頂点データの書き込み
 	VertexDataForSkybox* vertexMap = nullptr;
@@ -152,7 +152,7 @@ void SkySystem::CreateIndexResource()
 	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * indexData_.size());
 
 	// リソース生成
-	indexResource_ = dxManager_->CreateBufferResource(sizeIB);
+	dxManager_->CreateBufferResource(sizeIB, indexResource_);
 
 	// インデックスデータの書き込み
 	uint16_t* indexMap = nullptr;

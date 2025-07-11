@@ -68,7 +68,7 @@ void Material::DebugGui(uint32_t index)
 void Material::CreateMaterialResource()
 {
 	// マテリアル用のリソースを作る。今回はFcolor1つ分のサイズを用意する
-	materialResource_ = directXManager_->CreateBufferResource(sizeof(MaterialForGPU));
+	directXManager_->CreateBufferResource(sizeof(MaterialForGPU), materialResource_);
 	// 書き込むためのアドレスを取得
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialForGPU_));
 	// 白を入れる

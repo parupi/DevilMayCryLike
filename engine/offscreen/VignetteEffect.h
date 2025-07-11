@@ -4,7 +4,7 @@ class VignetteEffect : public BaseOffScreen
 {
 public:
 	VignetteEffect();
-	~VignetteEffect() = default;
+	~VignetteEffect();
 
 	// 更新
 	void Update() override;

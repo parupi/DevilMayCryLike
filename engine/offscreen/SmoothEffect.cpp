@@ -10,6 +10,16 @@ SmoothEffect::SmoothEffect()
 	CreateEffectResource();
 }
 
+SmoothEffect::~SmoothEffect()
+{
+	// 借りてるポインタを破棄
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+	// 生成したリソースの削除
+	effectData_ = nullptr;
+	effectResource_.Reset();
+}
+
 void SmoothEffect::Update()
 {
 #ifdef _DEBUG
@@ -35,7 +45,7 @@ void SmoothEffect::Draw()
 void SmoothEffect::CreateEffectResource()
 {
 	// ヴィネット用のリソースを作る
-	effectResource_ = dxManager_->CreateBufferResource(sizeof(SmoothEffectData));
+	dxManager_->CreateBufferResource(sizeof(SmoothEffectData), effectResource_);
 	// 書き込むためのアドレスを取得
 	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
 	// 初期値を設定

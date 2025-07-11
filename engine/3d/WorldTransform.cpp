@@ -31,7 +31,7 @@ void WorldTransform::Initialize()
 void WorldTransform::CreateConstBuffer()
 {
 	// MVP用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	constBuffer_ = Object3dManager::GetInstance()->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix));
+	Object3dManager::GetInstance()->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix), constBuffer_);
 	// 書き込むためのアドレスを取得
 	constBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&constMap));
 	// 単位行列を書き込んでおく

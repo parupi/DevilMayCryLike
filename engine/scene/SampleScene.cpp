@@ -105,9 +105,9 @@ void SampleScene::Initialize()
 
 
 
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
-	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
-	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<SmoothEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
 }
 
 void SampleScene::Finalize()

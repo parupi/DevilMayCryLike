@@ -318,7 +318,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\math\Quaternion.cpp" />
     <ClCompile Include="Engine\math\Vector3.cpp" />
     <ClCompile Include="Engine\math\function.cpp" />
-    <ClCompile Include="Engine\offscreen\BaseOffScreen.cpp" />
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp" />
     <ClCompile Include="Engine\offscreen\OffScreen.cpp" />
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp" />

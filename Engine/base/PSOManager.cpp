@@ -8,6 +8,43 @@ void PSOManager::Initialize(DirectXManager* dxManager)
 	dxManager_ = dxManager;
 }
 
+// PSOManager.cpp に実装
+void PSOManager::Finalize()
+{
+	// スプライト
+	spriteSignature_.Reset();
+	for (auto& pso : spriteGraphicsPipelineState_) {
+		pso.Reset();
+	}
+	// パーティクル
+	particleSignature_.Reset();
+	for (auto& pso : particleGraphicsPipelineState_) {
+		pso.Reset();
+	}
+	// オブジェクト
+	objectSignature_.Reset();
+	for (auto& pso : objectGraphicsPipelineState_) {
+		pso.Reset();
+	}
+	// アニメーション
+	animationSignature_.Reset();
+	animationGraphicsPipelineState_.Reset();
+	// オフスクリーン
+	offScreenSignature_.Reset();
+	for (auto& pso : offScreenGraphicsPipelineState_) {
+		pso.Reset();
+	}
+	// プリミティブ
+	primitiveSignature_.Reset();
+	primitiveGraphicsPipelineState_.Reset();
+	// スカイボックス
+	skyboxSignature_.Reset();
+	skyboxGraphicsPipelineState_.Reset();
+
+	dxManager_ = nullptr;
+}
+
+
 ID3D12PipelineState* PSOManager::GetSpritePSO(BlendMode blendMode)
 {
 	if (!spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)]) {
@@ -1051,7 +1088,7 @@ void PSOManager::CreatePrimitivePSO()
 
 void PSOManager::CreateSkyboxSignature()
 {
- // SRVのディスクリプタレンジ（gTexture用）
+	// SRVのディスクリプタレンジ（gTexture用）
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
 	descriptorRange[0].BaseShaderRegister = 0; // t0
 	descriptorRange[0].NumDescriptors = 1;

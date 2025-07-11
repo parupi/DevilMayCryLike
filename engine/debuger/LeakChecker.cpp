@@ -1,15 +1,29 @@
 #include "LeakChecker.h"
-#include <dxgidebug.h>
-#include <d3d12sdklayers.h>
-#include <base/DirectXManager.h>
+#include <Windows.h>
 
-D3DResourceLeakChecker::D3DResourceLeakChecker(DirectXManager* dxManager) : dxManager_(dxManager)
+void D3DResourceLeakChecker::SetDXManager(DirectXManager* dxManager)
 {
+    dxManager_ = dxManager;
 }
 
-D3DResourceLeakChecker::~D3DResourceLeakChecker()
+void D3DResourceLeakChecker::Check()
 {
-       // Live Object Report
+    OutputDebugStringA("---- D3DResourceLeakChecker Start ----\n");
+
+    // まずは RefCount を確認
+    if (dxManager_) {
+        auto device = dxManager_->GetDevice();
+        if (device) {
+            device->AddRef(); // 一時的に加算してから Release で現在のカウントを取得
+            ULONG refCount = device->Release();
+
+            std::stringstream ss;
+            ss << "[LeakChecker] ID3D12Device RefCount: " << refCount << "\n";
+            OutputDebugStringA(ss.str().c_str());
+        }
+    }
+
+    // Live Object Report 出力
     Microsoft::WRL::ComPtr<IDXGIDebug1> debug;
     if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug)))) {
         debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_DETAIL);
@@ -17,15 +31,5 @@ D3DResourceLeakChecker::~D3DResourceLeakChecker()
         debug->ReportLiveObjects(DXGI_DEBUG_D3D12, DXGI_DEBUG_RLO_DETAIL);
     }
 
-    if (dxManager_) {
-        auto device = dxManager_->GetDevice();
-        if (device) {
-            ULONG refCount = device->Release();
-            device->AddRef();
-
-            std::stringstream ss;
-            ss << "ID3D12Device RefCount: " << refCount << "\n";
-            OutputDebugStringA(ss.str().c_str());
-        }
-    }
+    OutputDebugStringA("---- D3DResourceLeakChecker End ----\n");
 }
