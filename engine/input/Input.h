@@ -176,6 +176,17 @@ public: // メンバ関数
 	/// <returns>接続されているジョイスティック数</returns>
 	size_t GetNumberOfJoysticks();
 
+	/// <summary>
+	/// Aボタンが押されているか（XInput限定）
+	/// </summary>
+	bool IsXInputAPressed(int32_t stickNo = 0) const;
+
+	/// <summary>
+	/// 左スティックの値を取得（XInput限定）
+	/// deadZone 無視、[-1.0f, +1.0f] 範囲
+	/// </summary>
+	Vector2 GetXInputLeftStick(int32_t stickNo = 0) const;
+
 private:
 	static BOOL CALLBACK
 		EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) noexcept;

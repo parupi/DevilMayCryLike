@@ -23,17 +23,77 @@ void Skeleton::Update()
 	}
 }
 
-void Skeleton::ApplyAnimation(const AnimationData& animation, float animationTime)
+void Skeleton::ApplyAnimation(
+    AnimationData* current,
+    AnimationData* prev,
+    float time,
+    float blendTime,
+    float blendProgress)
 {
-	for (auto& joint : skeletonData_.joints) {
-		auto it = animation.nodeAnimations.find(joint.name_);
-		if (it != animation.nodeAnimations.end()) {
-			const NodeAnimation& nodeAnimation = it->second;
-			joint.transform.translate = Animation::CalculateValue(nodeAnimation.translate.keyframes, animationTime);
-			joint.transform.rotate = Animation::CalculateValue(nodeAnimation.rotate.keyframes, animationTime);
-			joint.transform.scale = Animation::CalculateValue(nodeAnimation.scale.keyframes, animationTime);
-		}
-	}
+    assert(current);
+
+    const float blendT = (blendTime > 0.0f) ? std::clamp(blendProgress / blendTime, 0.0f, 1.0f) : 1.0f;
+
+    for (auto& joint : skeletonData_.joints) {
+        const std::string& nodeName = joint.name_;
+
+        Vector3 scale = { 1, 1, 1 };
+        Vector3 translate = { 0, 0, 0 };
+        Quaternion rotate = Identity();
+
+        // currentアニメーションから取得
+        auto curIt = current->nodeAnimations.find(nodeName);
+        if (curIt != current->nodeAnimations.end()) {
+            const auto& curNode = curIt->second;
+            scale = Animation::CalculateValue(curNode.scale.keyframes, time);
+            translate = Animation::CalculateValue(curNode.translate.keyframes, time);
+            rotate = Animation::CalculateValue(curNode.rotate.keyframes, time);
+        }
+
+        // prevがあるなら補間
+        if (prev && blendProgress < blendTime) {
+            auto prevIt = prev->nodeAnimations.find(nodeName);
+            if (prevIt != prev->nodeAnimations.end()) {
+                const auto& prevNode = prevIt->second;
+
+                Vector3 prevScale = Animation::CalculateValue(prevNode.scale.keyframes, time);
+                Vector3 prevTranslate = Animation::CalculateValue(prevNode.translate.keyframes, time);
+                Quaternion prevRotate = Animation::CalculateValue(prevNode.rotate.keyframes, time);
+
+                scale = Lerp(prevScale, scale, blendT);
+                translate = Lerp(prevTranslate, translate, blendT);
+                rotate = Slerp(prevRotate, rotate, blendT);
+            }
+        }
+
+        // 変換を保存
+        joint.transform.scale = scale;
+        joint.transform.translate = translate;
+        joint.transform.rotate = rotate;
+
+        // ローカル行列生成
+        joint.localMatrix = MakeAffineMatrix(scale, rotate, translate);
+    }
+
+    // 階層をたどってワールド空間行列（skeletonSpaceMatrix）を更新
+    for (auto& joint : skeletonData_.joints) {
+        if (joint.parent.has_value()) {
+            const Matrix4x4& parentMatrix = skeletonData_.joints[joint.parent.value()].skeletonSpaceMatrix;
+            joint.skeletonSpaceMatrix = parentMatrix * joint.localMatrix;
+        } else {
+            joint.skeletonSpaceMatrix = joint.localMatrix;
+        }
+    }
+}
+
+const Matrix4x4& Skeleton::GetJointMatrix(const std::string& name) const
+{
+    for (const auto& joint : skeletonData_.joints) {
+        if (joint.name_ == name) {
+            return joint.skeletonSpaceMatrix;
+        }
+    }
+    return skeletonData_.joints[0].skeletonSpaceMatrix;
 }
 
 void Skeleton::CreateSkeleton(const Node& rootNode) {

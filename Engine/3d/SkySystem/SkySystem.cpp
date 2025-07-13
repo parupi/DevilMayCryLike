@@ -31,26 +31,26 @@ void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager, Sr
 
 void SkySystem::Draw()
 {
-	auto* commandList = dxManager_->GetCommandList();
+	//auto* commandList = dxManager_->GetCommandList();
 
-	// PSOとルートシグネチャを設定
-	commandList->SetPipelineState(psoManager_->GetSkyboxPSO());
-	commandList->SetGraphicsRootSignature(psoManager_->GetSkyboxSignature());
-	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//// PSOとルートシグネチャを設定
+	//commandList->SetPipelineState(psoManager_->GetSkyboxPSO());
+	//commandList->SetGraphicsRootSignature(psoManager_->GetSkyboxSignature());
+	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// 頂点バッファ設定
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	//// 頂点バッファ設定
+	//commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
-	commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	//commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
 
-	// SRV（キューブマップ）バインド
-	//srvManager_->SetGraphicsRootDescriptorTable(2, textureIndex_);
-	material_->Bind();
+	//// SRV（キューブマップ）バインド
+	////srvManager_->SetGraphicsRootDescriptorTable(2, textureIndex_);
+	//material_->Bind();
 
 
-	
-	// 描画コール
-	commandList->DrawInstanced(36, 1, 0, 0);
+	//
+	//// 描画コール
+	//commandList->DrawInstanced(36, 1, 0, 0);
 }
 
 void SkySystem::CreateSkyBoxVertex()

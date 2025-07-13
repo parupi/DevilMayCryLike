@@ -85,7 +85,7 @@ Object3d* Object3dManager::FindObject(std::string objectName)
 			return object.get();
 		}
 	}
-	Logger::Log("renderが見つかりませんでした");
+	Logger::Log("not found renderer");
 	return nullptr;
 }
 

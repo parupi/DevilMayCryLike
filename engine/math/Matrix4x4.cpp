@@ -345,3 +345,38 @@ void PrintOnImGui(const Matrix4x4& matrix, const char* label) {
     }
     ImGui::End();
 }
+
+Vector3 GetTranslation(const Matrix4x4& matrix)
+{
+    return { matrix.m[3][0], matrix.m[3][1], matrix.m[3][2] };
+}
+
+void DecomposeMatrix(const Matrix4x4& m, Vector3& outScale, Quaternion& outRot, Vector3& outTrans)
+{
+    // 平行移動（4列目）
+    outTrans = { m.m[3][0], m.m[3][1], m.m[3][2] };
+
+    // 回転スケーリング行列の各列をベクトルとする
+    Vector3 xAxis = { m.m[0][0], m.m[1][0], m.m[2][0] };
+    Vector3 yAxis = { m.m[0][1], m.m[1][1], m.m[2][1] };
+    Vector3 zAxis = { m.m[0][2], m.m[1][2], m.m[2][2] };
+
+    outScale = {
+        Length(xAxis),
+        Length(yAxis),
+        Length(zAxis)
+    };
+
+    // 正規化して回転だけを抽出
+    xAxis = Normalize(xAxis);
+    yAxis = Normalize(yAxis);
+    zAxis = Normalize(zAxis);
+
+    // 正規化後の軸を回転行列に設定
+    Matrix4x4 rotMat = MakeIdentity4x4();
+    rotMat.m[0][0] = xAxis.x; rotMat.m[1][0] = xAxis.y; rotMat.m[2][0] = xAxis.z;
+    rotMat.m[0][1] = yAxis.x; rotMat.m[1][1] = yAxis.y; rotMat.m[2][1] = yAxis.z;
+    rotMat.m[0][2] = zAxis.x; rotMat.m[1][2] = zAxis.y; rotMat.m[2][2] = zAxis.z;
+
+    outRot = QuaternionFromMatrix(rotMat);
+}
