@@ -39,6 +39,7 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("multiMaterial");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+	TextureManager::GetInstance()->LoadTexture("Cube.png");
 	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 
 	object_ = std::make_unique<Object3d>("obj1");
@@ -49,37 +50,38 @@ void SampleScene::Initialize()
 	//animationObject_ = std::make_unique<Object3d>();
 	//animationObject_->Initialize("simpleSkin");
 
-	render1_ = std::make_unique<ModelRenderer>("render1", "multiMaterial");
-	//render1_->SetModel();
-	//render2_ =;
-	//render2_->SetModel("Terrain");
+	render1_ = std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Terrain.png");
+
+	//static_cast<Model*>(render1_->GetModel())->SetMeshMaterialIndex(0, TextureManager::GetInstance()->GetTextureIndexByFilePath("std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Cube.png").png"));
+	render1_->GetWorldTransform()->GetScale() = { 1000.0f, 10.0f, 10.0f };
+	static_cast<Model*>(render1_->GetModel())->GetMaterials(0)->GetUVData().size.x = 100;
 
 	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Cube"));
+	//RendererManager::GetInstance()->AddRenderer();
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
 
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render1"));
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderPlane"));
+	//object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderPlane"));
-	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
-	object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
+	//object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderPlane"));
+	//object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
+	//object2_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
 
 
-	// コライダーの生成、追加
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("collider1"));
-	// コライダーの設定
-	object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
-	// ゲームオブジェクトを追加
+	//// コライダーの生成、追加
+	//CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("collider1"));
+	//// コライダーの設定
+	//object_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider1"));
+	//// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<SphereCollider>("collider2"));
+	//CollisionManager::GetInstance()->AddCollider(std::make_unique<SphereCollider>("collider2"));
 
-	object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
+	//object2_->AddCollider(CollisionManager::GetInstance()->FindCollider("collider2"));
 
-	Object3dManager::GetInstance()->AddObject(std::move(object2_));
+	//Object3dManager::GetInstance()->AddObject(std::move(object2_));
 
 	//sprite = std::make_unique<Sprite>();
 	//sprite->Initialize("Resource/uvChecker.png");
@@ -104,9 +106,9 @@ void SampleScene::Initialize()
 
 
 
-	OffScreenManager::GetInstance()->AddEfect(std::make_unique<GrayEffect>());
-	OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
-	OffScreenManager::GetInstance()->AddEfect(std::make_unique<SmoothEffect>());
+	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<GrayEffect>());
+	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<VignetteEffect>());
+	//OffScreenManager::GetInstance()->AddEfect(std::make_unique<SmoothEffect>());
 }
 
 void SampleScene::Finalize()
@@ -227,11 +229,11 @@ void SampleScene::DrawRTV()
 void SampleScene::DebugUpdate()
 {
 	ImGui::Begin("Object");
-	object_->DebugGui();
+	object_ptr->DebugGui();
 	ImGui::End();
 
-	ImGui::Begin("Object2");
-	object2_->DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Object2");
+	//object2_->DebugGui();
+	//ImGui::End();
 }
 #endif

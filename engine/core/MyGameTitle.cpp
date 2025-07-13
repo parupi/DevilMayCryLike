@@ -41,7 +41,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 	// キューブマップの生成
 	skySystem_ = std::make_unique<SkySystem>();
 	skySystem_->Initialize(dxManager.get(), psoManager.get(), srvManager.get());

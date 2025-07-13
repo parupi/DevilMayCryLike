@@ -13,6 +13,7 @@
 #include "offscreen/GrayEffect.h"
 #include <3d/Light/LightManager.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
+#include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/Collider/AABBCollider.h>
 class SampleScene : public BaseScene
 {
@@ -40,6 +41,8 @@ private:
 
 	std::unique_ptr<Object3d> object_;
 	std::unique_ptr<Object3d> object2_;
+	Object3d* object_ptr;
+
 	//std::unique_ptr<Object3d> animationObject_;
 	std::unique_ptr<Sprite> sprite;
 
@@ -53,7 +56,7 @@ private:
 
 	DirectionalLight* dirLight_;
 
-	std::unique_ptr<ModelRenderer> render1_;
+	std::unique_ptr<PrimitiveRenderer> render1_;
 	std::unique_ptr<ModelRenderer> render2_;
 
 
