@@ -8,7 +8,7 @@
 class D3DResourceLeakChecker {
 public:
     D3DResourceLeakChecker() = default;
-    ~D3DResourceLeakChecker() = default;
+    ~D3DResourceLeakChecker();
 
     // DXManager を後から渡す
     void SetDXManager(DirectXManager* dxManager);

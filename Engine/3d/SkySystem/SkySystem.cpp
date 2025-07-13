@@ -37,45 +37,45 @@ void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager, Sr
 
 void SkySystem::Draw()
 {
-	//auto* commandList = dxManager_->GetCommandList();
+	auto* commandList = dxManager_->GetCommandList();
 
-	//// カメラ取得
-	//Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
-	//Matrix4x4 view = camera->GetViewMatrix();
-	//Matrix4x4 proj = camera->GetProjectionMatrix();
+	// カメラ取得
+	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	Matrix4x4 view = camera->GetViewMatrix();
+	Matrix4x4 proj = camera->GetProjectionMatrix();
 
-	//// 平行移動を除去
-	//view.m[3][0] = 0.0f;
-	//view.m[3][1] = 0.0f;
-	//view.m[3][2] = 0.0f;
+	// 平行移動を除去
+	view.m[3][0] = 0.0f;
+	view.m[3][1] = 0.0f;
+	view.m[3][2] = 0.0f;
 
-	//// 転送
-	//skyboxMatrix_.viewProjectionNoTranslate = view * proj;
+	// 転送
+	skyboxMatrix_.viewProjectionNoTranslate = view * proj;
 
-	//// 定数バッファ更新
-	//void* mapped = nullptr;
-	//skyboxConstBuffer_->Map(0, nullptr, &mapped);
-	//memcpy(mapped, &skyboxMatrix_, sizeof(skyboxMatrix_));
-	//skyboxConstBuffer_->Unmap(0, nullptr);
+	// 定数バッファ更新
+	void* mapped = nullptr;
+	skyboxConstBuffer_->Map(0, nullptr, &mapped);
+	memcpy(mapped, &skyboxMatrix_, sizeof(skyboxMatrix_));
+	skyboxConstBuffer_->Unmap(0, nullptr);
 
 
-	//// PSOとルートシグネチャを設定
-	//commandList->SetPipelineState(psoManager_->GetSkyboxPSO());
-	//commandList->SetGraphicsRootSignature(psoManager_->GetSkyboxSignature());
-	//commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	// PSOとルートシグネチャを設定
+	commandList->SetPipelineState(psoManager_->GetSkyboxPSO());
+	commandList->SetGraphicsRootSignature(psoManager_->GetSkyboxSignature());
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//// 頂点バッファ設定
-	//commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	// 頂点バッファ設定
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
-	//commandList->IASetIndexBuffer(&indexBufferView_);
+	commandList->IASetIndexBuffer(&indexBufferView_);
 
-	//commandList->SetGraphicsRootConstantBufferView(1, skyboxConstBuffer_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(1, skyboxConstBuffer_->GetGPUVirtualAddress());
 
-	//// SRV（キューブマップ）バインド
-	//material_->Bind();
+	// SRV（キューブマップ）バインド
+	material_->Bind();
 
-	//// 描画コール
-	//commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);
+	// 描画コール
+	commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);
 }
 
 void SkySystem::CreateSkyBoxVertex()

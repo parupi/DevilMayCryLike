@@ -39,7 +39,9 @@ public:
 	void Run();
 
 protected:
-
+#ifdef _DEBUG
+	D3DResourceLeakChecker leakChecker;
+#endif
 
 	std::unique_ptr<WindowManager> winManager = nullptr;
 	std::unique_ptr<DirectXManager> dxManager = nullptr;

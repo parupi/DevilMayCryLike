@@ -1,6 +1,11 @@
 #include "LeakChecker.h"
 #include <Windows.h>
 
+D3DResourceLeakChecker::~D3DResourceLeakChecker()
+{
+    Check();
+}
+
 void D3DResourceLeakChecker::SetDXManager(DirectXManager* dxManager)
 {
     dxManager_ = dxManager;
