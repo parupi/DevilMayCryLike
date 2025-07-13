@@ -22,7 +22,6 @@ SkinClusterData SkinCluster::CreateSkinCluster(
 	SrvManager* srvManager)
 {
 	SkinClusterData skinCluster;
-
 	// palette用のResource確保
 	skinCluster.paletteResource = dxManager->CreateBufferResource(sizeof(WellForGPU) * skeleton.joints.size());
 	WellForGPU* mappedPalette = nullptr;
@@ -47,8 +46,11 @@ SkinClusterData SkinCluster::CreateSkinCluster(
 	skinCluster.influenceResource = dxManager->CreateBufferResource(sizeof(VertexInfluence) * meshData.meshData.vertices.size());
 	VertexInfluence* mappedInfluence = nullptr;
 	skinCluster.influenceResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedInfluence));
+
+	// mappedInfluence を必ず vertices 数にリサイズしてから使う
 	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * meshData.meshData.vertices.size());
 	skinCluster.mappedInfluence = { mappedInfluence, meshData.meshData.vertices.size() };
+
 
 	// Influence用のVBVを生成
 	skinCluster.influenceBufferView.BufferLocation = skinCluster.influenceResource->GetGPUVirtualAddress();

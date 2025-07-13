@@ -15,6 +15,8 @@
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/Collider/AABBCollider.h>
+#include "GameObject/Player/Player.h"
+#include "GameObject/Camera/GameCamera.h"
 class SampleScene : public BaseScene
 {
 public:
@@ -35,15 +37,15 @@ public:
 
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
-	std::unique_ptr<Camera> normalCamera_;
+	std::unique_ptr<GameCamera> normalCamera_;
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 
 	std::unique_ptr<Object3d> object_;
-	std::unique_ptr<Object3d> object2_;
-	Object3d* object_ptr;
+	std::unique_ptr<Object3d> weapon_;
+	std::unique_ptr<Player> player_;
 
-	//std::unique_ptr<Object3d> animationObject_;
+
 	std::unique_ptr<Sprite> sprite;
 
 	//Vector4 color1 = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -52,7 +54,7 @@ private:
 
 
 	//ParticleManager* particleManager_ = nullptr;
-	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
+
 
 	DirectionalLight* dirLight_;
 

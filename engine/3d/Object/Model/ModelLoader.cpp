@@ -121,6 +121,10 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 			matData.textureFilePath = textureFilePath.C_Str();
 			TextureManager::GetInstance()->LoadTexture(matData.textureFilePath);
 			matData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(matData.textureFilePath);
+		} else {
+			// テクスチャが無い場合は白テクスチャを使用
+			matData.textureFilePath = "__WHITE__"; // ログなどのデバッグ用
+			matData.textureIndex = TextureManager::GetInstance()->GetWhiteTextureIndex();
 		}
 
 		modelData.materials[i] = matData;
@@ -129,23 +133,26 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 	// --- メッシュの読み込み ---
 	modelData.meshes.resize(scene->mNumMeshes);
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
-		SkinnedMeshData SkinnedMeshData;
 		aiMesh* mesh = scene->mMeshes[meshIndex];
-
 		assert(mesh->HasNormals());
-		assert(mesh->HasTextureCoords(0));
+		bool hasUV = mesh->HasTextureCoords(0);  // UVの有無を確認
 
+		SkinnedMeshData SkinnedMeshData;
 		SkinnedMeshData.skinClusterName = mesh->mName.C_Str();
-
 		SkinnedMeshData.meshData.vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& pos = mesh->mVertices[vertexIndex];
 			aiVector3D& norm = mesh->mNormals[vertexIndex];
-			aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
 
 			SkinnedMeshData.meshData.vertices[vertexIndex].position = { -pos.x, pos.y, pos.z, 1.0f };
 			SkinnedMeshData.meshData.vertices[vertexIndex].normal = { -norm.x, norm.y, norm.z };
-			SkinnedMeshData.meshData.vertices[vertexIndex].texcoord = { uv.x, uv.y };
+
+			if (hasUV) {
+				aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
+				SkinnedMeshData.meshData.vertices[vertexIndex].texcoord = { uv.x, uv.y };
+			} else {
+				SkinnedMeshData.meshData.vertices[vertexIndex].texcoord = { 0.0f, 0.0f }; // ダミー
+			}
 		}
 
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -167,7 +174,7 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 		for (uint32_t boneIndex = 0; boneIndex < mesh->mNumBones; ++boneIndex) {
 			aiBone* bone = mesh->mBones[boneIndex];
 			std::string jointName = bone->mName.C_Str();
-			JointWeightData& jointWeightData = modelData.skinClusterData[jointName];
+			JointWeightData& jointWeightData = SkinnedMeshData.skinClusterData[jointName];
 
 			aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();
 			aiVector3D scale, translate;

@@ -19,13 +19,14 @@ void ParticleEmitter::Update(Vector3 Position, uint32_t count)
 	count; Position;
 	emitter.isActive = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name_, "IsActive");
 
-	emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name_, "EmitPosition");
+	//emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name_, "EmitPosition");
 	emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name_, "Frequency");
 
 	emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name_, "Count");
 
 	if (emitter.isActive) {
-		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name_, "EmitPosition");
+		//emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name_, "EmitPosition");
+		emitter.transform.translate = Position;
 		emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name_, "Frequency");
 
 		emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name_, "Count");
