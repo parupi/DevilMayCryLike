@@ -27,6 +27,8 @@ class PSOManager {
 public:
 	// 初期化
 	void Initialize(DirectXManager* dxManager);
+	// 終了処理
+	void Finalize();
 
 public:// アクセッサ
 	// スプライト

@@ -4,7 +4,7 @@ class SmoothEffect : public BaseOffScreen
 {
 public:
 	SmoothEffect();
-	~SmoothEffect() = default;
+	~SmoothEffect();
 
 	// 更新
 	void Update() override;

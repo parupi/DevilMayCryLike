@@ -1,5 +1,6 @@
 #include "Input.h"
 #include <stdexcept>
+#include <string>
 
 Input* Input::instance = nullptr;
 std::once_flag Input::initInstanceFlag;
@@ -89,6 +90,11 @@ void Input::Update() {
             joystick.device_->GetDeviceState(sizeof(DIJOYSTATE2), &joystick.state_.directInput_);
         }
     }
+
+    //Vector2 stick = GetXInputLeftStick();
+    //bool a = IsXInputAPressed();
+    //OutputDebugStringA(("LeftStick: " + std::to_string(stick.x) + ", " + std::to_string(stick.y) + "\n").c_str());
+    //if (a) OutputDebugStringA("Aボタン押下中\n");
 }
 
 // キーが押されているかのチェック
@@ -171,6 +177,32 @@ void Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t dead
 size_t Input::GetNumberOfJoysticks() {
     return devJoysticks_.size();
 }
+bool Input::IsXInputAPressed(int32_t stickNo) const {
+    XINPUT_STATE state{};
+    if (XInputGetState(stickNo, &state) == ERROR_SUCCESS) {
+        return (state.Gamepad.wButtons & XINPUT_GAMEPAD_A) != 0;
+    }
+    return false;
+}
+
+Vector2 Input::GetXInputLeftStick(int32_t stickNo) const {
+    XINPUT_STATE state{};
+    if (XInputGetState(stickNo, &state) != ERROR_SUCCESS) {
+        return { 0.0f, 0.0f };
+    }
+
+    // 正規化 [-1.0, 1.0]
+    float normLX = static_cast<float>(state.Gamepad.sThumbLX) / 32767.0f;
+    float normLY = static_cast<float>(state.Gamepad.sThumbLY) / 32767.0f;
+
+    // デッドゾーン処理（必要に応じて調整可能）
+    const float deadZone = 0.2f;
+    if (std::abs(normLX) < deadZone) normLX = 0.0f;
+    if (std::abs(normLY) < deadZone) normLY = 0.0f;
+
+    return { normLX, normLY };
+}
+
 
 // ジョイスティック列挙のコールバック
 BOOL CALLBACK Input::EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) noexcept {

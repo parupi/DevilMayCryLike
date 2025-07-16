@@ -12,6 +12,7 @@
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <Include/SceneLoader.h>
 #include <Include/SceneBuilder.h>
+#include <3d/SkySystem/SkySystem.h>
 
 void GameScene::Initialize()
 {
@@ -41,6 +42,8 @@ void GameScene::Initialize()
 	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("smoke", "circle.png");
 
+	// スカイボックスを生成
+	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
 	// ============ライト=================//
 	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("Dir1");

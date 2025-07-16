@@ -117,12 +117,11 @@ struct ModelData {
 
 struct SkinnedMeshData {
 	MeshData meshData;
-
 	std::string skinClusterName; // このメッシュが参照するスキンクラスタの名前
+	std::map<std::string, JointWeightData> skinClusterData;
 };
 
 struct SkinnedModelData {
-	std::map<std::string, JointWeightData> skinClusterData;
 	std::vector<SkinnedMeshData> meshes;
 	std::vector<MaterialData> materials;
 	Node rootNode;

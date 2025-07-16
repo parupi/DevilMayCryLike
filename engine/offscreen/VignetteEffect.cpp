@@ -10,6 +10,16 @@ VignetteEffect::VignetteEffect()
 	CreateEffectResource();
 }
 
+VignetteEffect::~VignetteEffect()
+{
+	// 借りてるポインタを破棄
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+	// 生成したリソースの削除
+	effectData_ = nullptr;
+	effectResource_.Reset();
+}
+
 void VignetteEffect::Update()
 {
 #ifdef _DEBUG
@@ -30,13 +40,13 @@ void VignetteEffect::Draw()
 
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
 
-	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 1);
+	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void VignetteEffect::CreateEffectResource()
 {
 	// ヴィネット用のリソースを作る
-	effectResource_ = dxManager_->CreateBufferResource(sizeof(VignetteEffectData));
+	dxManager_->CreateBufferResource(sizeof(VignetteEffectData), effectResource_);
 	// 書き込むためのアドレスを取得
 	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
 	// 初期値を設定

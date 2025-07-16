@@ -11,8 +11,8 @@ private:
 
 	OffScreenManager() = default;
 	~OffScreenManager() = default;
-	OffScreenManager(OffScreenManager&) = default;
-	OffScreenManager& operator=(OffScreenManager&) = default;
+	OffScreenManager(const OffScreenManager&) = default;
+	OffScreenManager& operator=(const OffScreenManager&) = default;
 public:
 	// シングルトンインスタンスの取得
 	static OffScreenManager* GetInstance();
@@ -25,7 +25,7 @@ public:
 	// 描画
 	void Draw(/*OffScreenEffectType effectType = OffScreenEffectType::kNone*/);
 	// オフスクリーンの追加
-	void AddEfect(std::unique_ptr<BaseOffScreen> effect);
+	void AddEffect(std::unique_ptr<BaseOffScreen> effect);
 
 	// アクセッサ
 	DirectXManager* GetDXManager() { return dxManager_; }

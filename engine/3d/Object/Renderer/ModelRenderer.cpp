@@ -13,6 +13,7 @@ ModelRenderer::ModelRenderer(const std::string& renderName, const std::string& f
 
 void ModelRenderer::Update(WorldTransform* parentTransform)
 {
+	camera_ = CameraManager::GetInstance()->GetActiveCamera();
 	model_->Update();
 
 	if (localTransform_->GetParent() == nullptr) {

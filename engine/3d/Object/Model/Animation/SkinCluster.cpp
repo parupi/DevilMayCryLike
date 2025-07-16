@@ -22,9 +22,8 @@ SkinClusterData SkinCluster::CreateSkinCluster(
 	SrvManager* srvManager)
 {
 	SkinClusterData skinCluster;
-
 	// palette用のResource確保
-	skinCluster.paletteResource = dxManager->CreateBufferResource(sizeof(WellForGPU) * skeleton.joints.size());
+	dxManager->CreateBufferResource(sizeof(WellForGPU) * skeleton.joints.size(), skinCluster.paletteResource);
 	WellForGPU* mappedPalette = nullptr;
 	skinCluster.paletteResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedPalette));
 	skinCluster.mappedPalette = { mappedPalette, skeleton.joints.size() };
@@ -44,11 +43,14 @@ SkinClusterData SkinCluster::CreateSkinCluster(
 	dxManager->GetDevice()->CreateShaderResourceView(skinCluster.paletteResource.Get(), &paletteSrvDesc, skinCluster.paletteSrvHandle.first);
 
 	// influence用のResourceを確保
-	skinCluster.influenceResource = dxManager->CreateBufferResource(sizeof(VertexInfluence) * meshData.meshData.vertices.size());
+	dxManager->CreateBufferResource(sizeof(VertexInfluence) * meshData.meshData.vertices.size(), skinCluster.influenceResource);
 	VertexInfluence* mappedInfluence = nullptr;
 	skinCluster.influenceResource->Map(0, nullptr, reinterpret_cast<void**>(&mappedInfluence));
+
+	// mappedInfluence を必ず vertices 数にリサイズしてから使う
 	std::memset(mappedInfluence, 0, sizeof(VertexInfluence) * meshData.meshData.vertices.size());
 	skinCluster.mappedInfluence = { mappedInfluence, meshData.meshData.vertices.size() };
+
 
 	// Influence用のVBVを生成
 	skinCluster.influenceBufferView.BufferLocation = skinCluster.influenceResource->GetGPUVirtualAddress();

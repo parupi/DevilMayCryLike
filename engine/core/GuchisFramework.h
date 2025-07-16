@@ -31,20 +31,22 @@ public:
 	virtual void Draw() = 0;
 	// 終了チェック
 	virtual bool IsEndRequest() { return winManager->ProcessMessage(); }
+	// デバッグ用に取得できるようにしておく
+	DirectXManager* GetDXManager() const { return dxManager.get(); }
 
 public:
 	// 実行
 	void Run();
 
 protected:
-
+#ifdef _DEBUG
+	D3DResourceLeakChecker leakChecker;
+#endif
 
 	std::unique_ptr<WindowManager> winManager = nullptr;
 	std::unique_ptr<DirectXManager> dxManager = nullptr;
 	std::unique_ptr<SrvManager> srvManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
-	// ↓↓↓シングルトンにしたいです
-	std::unique_ptr<SkySystem> skySystem_ = nullptr;
 };
 

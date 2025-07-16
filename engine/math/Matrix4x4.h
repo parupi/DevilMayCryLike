@@ -72,3 +72,7 @@ Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion);
 Matrix4x4 MakeRotateAxisAngle(const Vector3& axis, float angle);
 
 void PrintOnImGui(const Matrix4x4& matrix, const char* label = "Matrix");
+
+Vector3 GetTranslation(const Matrix4x4& matrix);
+
+void DecomposeMatrix(const Matrix4x4& m, Vector3& outScale, Quaternion& outRot, Vector3& outTrans);

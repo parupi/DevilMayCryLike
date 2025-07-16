@@ -83,15 +83,14 @@ void TextureManager::LoadTexture(const std::string& fileName)
 	textureData.srvIndex = srvManager_->Allocate();
 	textureData.metadata = mipImages.GetMetadata();
 	textureData.resource = dxManager_->CreateTextureResource(textureData.metadata);
-	dxManager_->UploadTextureData(textureData.resource, mipImages);
-
-	// テクスチャデータの要素数番号をSRVのインデックスとする
-	//uint32_t srvIndex = static_cast<uint32_t>(textureData_.size() - 1) + kSRVIndexTop;
+	auto intermediate = dxManager_->UploadTextureData(textureData.resource.Get(), mipImages, dxManager_->GetDevice(), dxManager_->GetCommandList());
+	dxManager_->FlushUpload();
 
 	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
 	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
 
 	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+
 	// SRVの設定を行う
 	srvDesc.Format = textureData.metadata.format;
 	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
@@ -105,11 +104,9 @@ void TextureManager::LoadTexture(const std::string& fileName)
 		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
 		srvDesc.Texture2D.MostDetailedMip = 0;
 		srvDesc.Texture2D.MipLevels = static_cast<UINT>(textureData.metadata.mipLevels);
-		srvDesc.Texture2D.PlaneSlice = 0;
-		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
 	}
 
-	// 設定をもとにSRVの生成
+	 //設定をもとにSRVの生成
 	dxManager_->GetDevice()->CreateShaderResourceView(textureData.resource.Get(), &srvDesc, textureData.srvHandleCPU);
 }
 
@@ -184,9 +181,10 @@ uint32_t TextureManager::CreateWhiteTexture()
 	TextureData texData{};
 	texData.srvIndex = srvManager_->Allocate();
 	texData.metadata = metadata;
-	texData.resource = dxManager_->CreateTextureResource(metadata);
+	texData.resource = dxManager_->CreateTextureResource(texData.metadata);
 
-	dxManager_->UploadTextureData(texData.resource, image);
+	auto intermediate = dxManager_->UploadTextureData(texData.resource.Get(), image, dxManager_->GetDevice(), dxManager_->GetCommandList());
+	dxManager_->FlushUpload();
 
 	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);
 	texData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(texData.srvIndex);

@@ -173,5 +173,4 @@ void GlobalVariables::LoadFile(const std::string& groupName) {
 			SetValue(groupName, itemName, value);
 		}
 	}
-
 }

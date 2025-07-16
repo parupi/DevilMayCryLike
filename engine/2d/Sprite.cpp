@@ -70,47 +70,59 @@ void Sprite::Draw()
 void Sprite::CreateVertexResource()
 {
 	// Sprite用の頂点リソースを作る
-	vertexResource_ = spriteManager_->GetDxManager()->CreateBufferResource(sizeof(VertexData) * 6);
+	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(VertexData) * 6, vertexResource_);
 	// リソースの先頭アドレスから使う
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	// 使用するリソースのサイズは頂点6つ分のサイズ
 	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6;
 	// 1頂点当たりのサイズ
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Vertex", vertexResource_.Get(), vertexBufferView_.SizeInBytes);
 }
 
 void Sprite::CreateIndexResource()
 {
 	// Sprite用のリソースインデックスの作成
-	indexResource_ = spriteManager_->GetDxManager()->CreateBufferResource(sizeof(uint32_t) * 6);
+	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(uint32_t) * 6, indexResource_);
 	// リソースの先頭のアドレスから使う
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
 	// 使用するリソースのサイズはインデックス6つ分のサイズ
 	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
 	// インデックスはuint32_tとする
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Index", indexResource_.Get(), indexBufferView_.SizeInBytes);
 }
 
 void Sprite::CreateMaterialResource()
 {
 	// Sprite用のマテリアルリソースを作る
-	materialResource_ = spriteManager_->GetDxManager()->CreateBufferResource(sizeof(Material));
+	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(Material), materialResource_);
 	// 書き込むためのアドレスを取得
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
 	// 今回は白を書き込んで置く
 	materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	materialData_->uvTransform = MakeIdentity4x4();
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Material", materialResource_.Get(), sizeof(Material));
 }
 
 void Sprite::CreateTransformationResource()
 {
 	// Sprite用のTransformationMatrix用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	transformationMatrixResource_ = spriteManager_->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix));
+	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix), transformationMatrixResource_);
 	// 書き込むためのアドレスを取得
 	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
 	// 単位行列を書き込んでおく
 	transformationMatrixData_->World = MakeIdentity4x4();
 	transformationMatrixData_->WVP = MakeIdentity4x4();
+
+	// ログ出力
+	Logger::LogBufferCreation("Sprite:Transform", transformationMatrixResource_.Get(), sizeof(TransformationMatrix));
 }
 
 void Sprite::SetSpriteData()
