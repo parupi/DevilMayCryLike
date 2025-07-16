@@ -9,69 +9,137 @@
 void Animation::Initialize(SkinnedModel* model, const std::string& filename)
 {
 	model_ = model;
-	animation_ = LoadAnimationFile(filename);
+	//animation_ = LoadAnimationFile(filename);
+	LoadAnimations(filename);
 }
 
 void Animation::Update()
 {
+	if (!currentAnimation_) return;
+
 	animationTime += 1.0f / 60.0f;
-	animationTime = std::fmod(animationTime, animation_.duration); // 最後までいったらリピート再生
 
-	NodeAnimation& rootNodeAnimation = animation_.nodeAnimations[model_->GetModelData().rootNode.name_]; // ルートノードに入ってるアニメーションを取得
-	Vector3 scale, translate;
-	Quaternion rotate;
+	if (loop_) {
+		animationTime = std::fmod(animationTime, currentAnimation_->duration);
+	} else {
+		animationTime = std::min(animationTime, currentAnimation_->duration);
+	}
 
-	translate = CalculateValue(rootNodeAnimation.translate.keyframes, animationTime);
-	rotate = CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime);
-	scale = CalculateValue(rootNodeAnimation.scale.keyframes, animationTime);
-	model_->SetLocalMatrix(MakeAffineMatrix(scale, rotate, translate));
+	// ブレンドの進行
+	if (prevAnimation_ && blendTimer_ < blendTime_) {
+		blendTimer_ += 1.0f / 60.0f;
+		if (blendTimer_ >= blendTime_) {
+			prevAnimation_ = nullptr;
+		}
+	}
+
+	// Skeleton側で全ボーンに対して適用（ブレンドも含む）
+	model_->GetSkeleton()->ApplyAnimation(currentAnimation_, prevAnimation_, animationTime, blendTime_, blendTimer_);
 }
 
-AnimationData Animation::LoadAnimationFile(const std::string& filename)
+
+void Animation::Play(const std::string& animationName, bool isLoop, float blendTime)
 {
-	AnimationData animation; // 今回作るアニメーション
+	auto it = animations_.find(animationName);
+	if (it != animations_.end()) {
+		// 既に再生中なら無視
+		if (currentAnimationName_ == animationName) return;
+
+		// ブレンドの準備
+		prevAnimation_ = currentAnimation_;
+		currentAnimation_ = &it->second;
+		currentAnimationName_ = animationName;
+		animationTime = 0.0f;
+		loop_ = isLoop;
+
+		// ブレンドの初期化
+		blendTime_ = blendTime;
+		blendTimer_ = 0.0f;
+	}
+}
+
+
+bool Animation::IsAnimationFinished(const std::string& animationName) const
+{
+	auto it = animations_.find(animationName);
+	if (it == animations_.end()) return true; // アニメーションが見つからない場合は終了扱い
+
+	const AnimationData& animData = it->second;
+	// ループの場合は常に終了しない
+	if (loop_) return false;
+	// animationTimeがduration以上なら終了
+	return animationTime >= animData.duration;
+}
+
+void Animation::BlendTo(const std::string& animationName, float blendDuration, bool isLoop)
+{
+	auto it = animations_.find(animationName);
+	if (it != animations_.end() && &it->second != currentAnimation_) {
+		prevAnimation_ = currentAnimation_;
+		currentAnimation_ = &it->second;
+		currentAnimationName_ = animationName;
+		loop_ = isLoop;
+
+		blendTime_ = blendDuration;
+		blendTimer_ = 0.0f;
+		blending_ = true;
+	}
+}
+
+void Animation::LoadAnimations(const std::string& filename)
+{
 	Assimp::Importer importer;
 	std::string filePath = "Resource/Models/" + filename + "/" + filename + ".gltf";
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), 0);
-	assert(scene->mNumAnimations != 0); // アニメーションがない場合
-	aiAnimation* animationAssimp = scene->mAnimations[0]; // 最初のアニメーションだけ採用
-	animation.duration = float(animationAssimp->mDuration / animationAssimp->mTicksPerSecond); // 時間の単位を変換
+	assert(scene && scene->mNumAnimations > 0);
 
-	for (uint32_t channelIndex = 0; channelIndex < animationAssimp->mNumChannels; ++channelIndex) {
-		aiNodeAnim* nodeAnimationAssimp = animationAssimp->mChannels[channelIndex];
-		NodeAnimation& nodeAnimation = animation.nodeAnimations[nodeAnimationAssimp->mNodeName.C_Str()];
+	for (uint32_t animIndex = 0; animIndex < scene->mNumAnimations; ++animIndex) {
+		aiAnimation* anim = scene->mAnimations[animIndex];
+		AnimationData data;
+		data.duration = float(anim->mDuration / anim->mTicksPerSecond);
 
-		// Position
-		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumPositionKeys; ++keyIndex) {
-			aiVectorKey& keyAssimp = nodeAnimationAssimp->mPositionKeys[keyIndex];
-			KeyframeVector3 keyframe{};
-			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // 秒に変換
-			keyframe.value = { -keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z }; // 右手->左手
-			nodeAnimation.translate.keyframes.push_back(keyframe);
+		for (uint32_t channelIndex = 0; channelIndex < anim->mNumChannels; ++channelIndex) {
+			aiNodeAnim* nodeAnim = anim->mChannels[channelIndex];
+			NodeAnimation& node = data.nodeAnimations[nodeAnim->mNodeName.C_Str()];
+
+			// Translate
+			for (uint32_t i = 0; i < nodeAnim->mNumPositionKeys; ++i) {
+				KeyframeVector3 key;
+				key.time = float(nodeAnim->mPositionKeys[i].mTime / anim->mTicksPerSecond);
+				key.value = { -nodeAnim->mPositionKeys[i].mValue.x, nodeAnim->mPositionKeys[i].mValue.y, nodeAnim->mPositionKeys[i].mValue.z };
+				node.translate.keyframes.push_back(key);
+			}
+
+			// Scale
+			for (uint32_t i = 0; i < nodeAnim->mNumScalingKeys; ++i) {
+				KeyframeVector3 key;
+				key.time = float(nodeAnim->mScalingKeys[i].mTime / anim->mTicksPerSecond);
+				key.value = { nodeAnim->mScalingKeys[i].mValue.x, nodeAnim->mScalingKeys[i].mValue.y, nodeAnim->mScalingKeys[i].mValue.z };
+				node.scale.keyframes.push_back(key);
+			}
+
+			// Rotate
+			for (uint32_t i = 0; i < nodeAnim->mNumRotationKeys; ++i) {
+				KeyframeQuaternion key;
+				key.time = float(nodeAnim->mRotationKeys[i].mTime / anim->mTicksPerSecond);
+				key.value = { -nodeAnim->mRotationKeys[i].mValue.x, nodeAnim->mRotationKeys[i].mValue.y,
+							  nodeAnim->mRotationKeys[i].mValue.z, -nodeAnim->mRotationKeys[i].mValue.w };
+				node.rotate.keyframes.push_back(key);
+			}
 		}
 
-		// Scale
-		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumScalingKeys; ++keyIndex) {
-			aiVectorKey& keyAssimp = nodeAnimationAssimp->mScalingKeys[keyIndex];
-			KeyframeVector3 keyframe{};
-			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // 秒に変換
-			keyframe.value = { keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z }; // 右手->左手変換は不要
-			nodeAnimation.scale.keyframes.push_back(keyframe);
+		// アニメーション名で登録（無名なら "Anim0", "Anim1", ...）
+		std::string name = anim->mName.C_Str();
+		if (name.empty()) {
+			name = "Anim" + std::to_string(animIndex);
 		}
-
-		// Rotation
-		for (uint32_t keyIndex = 0; keyIndex < nodeAnimationAssimp->mNumRotationKeys; ++keyIndex) {
-			aiQuatKey& keyAssimp = nodeAnimationAssimp->mRotationKeys[keyIndex];
-			KeyframeQuaternion keyframe;
-			keyframe.time = float(keyAssimp.mTime / animationAssimp->mTicksPerSecond); // 秒に変換
-
-			// 右手->左手座標系の変換
-			keyframe.value = { -keyAssimp.mValue.x, keyAssimp.mValue.y, keyAssimp.mValue.z, -keyAssimp.mValue.w };
-			nodeAnimation.rotate.keyframes.push_back(keyframe);
-		}
+		animations_[name] = std::move(data);
 	}
-	// 解析完了
-	return animation;
+
+	// 最初のアニメーションを選択
+	if (!animations_.empty()) {
+		currentAnimation_ = &animations_.begin()->second;
+	}
 }
 
 Vector3 Animation::CalculateValue(const std::vector<KeyframeVector3>& keyframes, float time)

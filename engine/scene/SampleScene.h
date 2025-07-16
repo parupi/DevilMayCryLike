@@ -13,7 +13,10 @@
 #include "offscreen/GrayEffect.h"
 #include <3d/Light/LightManager.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
+#include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/Collider/AABBCollider.h>
+#include "GameObject/Player/Player.h"
+#include "GameObject/Camera/GameCamera.h"
 class SampleScene : public BaseScene
 {
 public:
@@ -34,14 +37,16 @@ public:
 
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
+
 	std::unique_ptr<Camera> normalCamera_;
-	Camera* camera_ptr;
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 
 	std::unique_ptr<Object3d> object_;
-	std::unique_ptr<Object3d> object2_;
-	//std::unique_ptr<Object3d> animationObject_;
+	std::unique_ptr<Object3d> weapon_;
+	std::unique_ptr<Player> player_;
+
+
 	std::unique_ptr<Sprite> sprite;
 
 	//Vector4 color1 = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -50,11 +55,11 @@ private:
 
 
 	//ParticleManager* particleManager_ = nullptr;
-	std::unique_ptr<ParticleEmitter> particleEmitter_ = nullptr;
+
 
 	DirectionalLight* dirLight_;
 
-	std::unique_ptr<ModelRenderer> render1_;
+	std::unique_ptr<PrimitiveRenderer> render1_;
 	std::unique_ptr<ModelRenderer> render2_;
 
 

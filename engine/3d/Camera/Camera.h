@@ -15,7 +15,7 @@ public: // メンバ関数
 	virtual void Update();
 
 	// フォローカメラ
-	virtual void LookAt(const Vector3& target);
+	void LookAt(const Vector3& target);
 
 protected:
 	EulerTransform transform_;

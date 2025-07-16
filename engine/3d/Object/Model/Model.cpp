@@ -80,6 +80,15 @@ void Model::Bind()
     }
 }
 
+void Model::SetMeshMaterialIndex(size_t meshIndex, uint32_t materialIndex)
+{
+	if (meshIndex < meshes_.size() && materialIndex < materials_.size()) {
+		// SkinnedMeshDataはmeshDataを持つので、そちらのmaterialIndexを変更
+		modelData_.meshes[meshIndex].materialIndex = materialIndex;
+		meshes_[meshIndex]->GetMeshData().materialIndex = materialIndex;
+	}
+}
+
 #ifdef _DEBUG
 void Model::DebugGui(ModelRenderer* render)
 {
@@ -127,4 +136,6 @@ void Model::DebugGuiPrimitive()
 {
 	materials_[0]->DebugGui(static_cast<uint32_t>(1));
 }
+
 #endif // _DEBUG
+

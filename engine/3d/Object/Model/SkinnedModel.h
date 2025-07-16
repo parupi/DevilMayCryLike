@@ -26,9 +26,9 @@ public: // メンバ関数
 private:
 	std::vector<std::unique_ptr<Mesh>> meshes_;
 	std::vector<std::unique_ptr<Material>> materials_;
-	std::unique_ptr<Animation> animator_;
+	std::unique_ptr<Animation> animation_;
 	std::unique_ptr<Skeleton> skeleton_;
-	std::unique_ptr<SkinCluster> skinCluster_;
+	std::vector<std::unique_ptr<SkinCluster>> skinClusters_;
 
 	ModelLoader* modelLoader_ = nullptr;
 
@@ -41,6 +41,8 @@ private:
 
 public:
 	SkinnedModelData GetModelData() { return modelData_; }
+	Animation* GetAnimation() { return animation_.get(); }
+	Skeleton* GetSkeleton() { return skeleton_.get(); }
 	std::string GetDirectoryPath() { return directoryPath_; }
 	DirectXManager* GetDxManager() { return modelLoader_->GetDxManager(); }
 	SrvManager* GetSrvManager() { return modelLoader_->GetSrvManager(); }

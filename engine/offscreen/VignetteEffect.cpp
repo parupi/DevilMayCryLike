@@ -40,7 +40,7 @@ void VignetteEffect::Draw()
 
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
 
-	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 1);
+	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void VignetteEffect::CreateEffectResource()

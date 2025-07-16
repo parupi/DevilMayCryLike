@@ -63,9 +63,9 @@ void SkySystem::Draw()
 	commandList->SetGraphicsRootSignature(psoManager_->GetSkyboxSignature());
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	// 頂点バッファ設定
+	//// 頂点バッファ設定
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
-
+  
 	commandList->IASetIndexBuffer(&indexBufferView_);
 
 	commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());

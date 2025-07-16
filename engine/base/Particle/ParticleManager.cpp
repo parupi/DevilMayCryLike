@@ -402,12 +402,12 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 	return params;
 }
 
-std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name_, const Vector3& position, uint32_t count)
+std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
 {
-	ParticleGroup& particleGroup = particleGroups_[name_];
+	ParticleGroup& particleGroup = particleGroups_[name];
 	std::list<Particle> newParticles;
 	for (uint32_t nowCount = 0; nowCount < count; ++nowCount) {
-		Particle particle = MakeNewParticle(name_, position);
+		Particle particle = MakeNewParticle(name, position);
 		newParticles.push_back(particle);
 	}
 	particleGroup.particleList.splice(particleGroup.particleList.end(), newParticles);
