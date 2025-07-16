@@ -20,7 +20,7 @@ class WorldTransform {
 public:
 
 	WorldTransform() = default;
-	~WorldTransform() = default;
+	~WorldTransform();
 
 	/// <summary>
 	/// 初期化

@@ -35,6 +35,7 @@ void Material::Bind()
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
+
 }
 
 #ifdef _DEBUG
@@ -67,7 +68,7 @@ void Material::DebugGui(uint32_t index)
 void Material::CreateMaterialResource()
 {
 	// マテリアル用のリソースを作る。今回はFcolor1つ分のサイズを用意する
-	materialResource_ = directXManager_->CreateBufferResource(sizeof(MaterialForGPU));
+	directXManager_->CreateBufferResource(sizeof(MaterialForGPU), materialResource_);
 	// 書き込むためのアドレスを取得
 	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialForGPU_));
 	// 白を入れる
@@ -76,11 +77,14 @@ void Material::CreateMaterialResource()
 	materialForGPU_->uvTransform = MakeIdentity4x4();
 	materialForGPU_->shininess = 20.0f;
 
-	//// MaterialData から反映
+	// MaterialData から反映
 	//materialForGPU_->color.x = materialData_.Kd.r;                 // 拡散反射色を使用
 	//materialForGPU_->color.y = materialData_.Kd.g;                 // 拡散反射色を使用
 	//materialForGPU_->color.z = materialData_.Kd.r;                 // 拡散反射色を使用
 	//materialForGPU_->enableLighting = true;
 	//materialForGPU_->uvTransform = MakeIdentity4x4();
 	//materialForGPU_->shininess = materialData_.Ns;             // 鏡面反射強度を反映
+
+		// ログ出力
+	Logger::LogBufferCreation("Material", materialResource_.Get(), sizeof(MaterialForGPU));
 }

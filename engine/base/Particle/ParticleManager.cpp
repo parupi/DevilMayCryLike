@@ -188,7 +188,7 @@ void ParticleManager::CreateParticleGroup(const std::string name_, const std::st
 	particleGroup.materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 
 	// インスタンシング用リソースの生成
-	particleGroup.instancingResource = dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
+	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, particleGroup.instancingResource);
 
 	// インスタンシング用にSRVを確保してSRVインデックスを記録
 	//particleGroup.srvIndex = srvManager_->Allocate();
@@ -248,7 +248,7 @@ void ParticleManager::DebugGui()
 void ParticleManager::CreateParticleResource()
 {
 	// インスタンス用のTransformationMatrixリソースを作る
-	instancingResource_ = dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance);
+	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, instancingResource_);
 	// 書き込むためのアドレスを取得
 	instancingResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_));
 	// 単位行列を書き込んでおく
@@ -270,7 +270,7 @@ void ParticleManager::CreateParticleResource()
 	modelData.vertices.push_back({ .position = {-1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
 	//modelData.material.textureFilePath = "resource/uvChecker.png";
 	// 頂点リソースを作る
-	vertexResource = dxManager_->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size());
+	dxManager_->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size(), vertexResource);
 	// 頂点バッファビューを作成する
 	vertexBufferView_.BufferLocation = vertexResource->GetGPUVirtualAddress();	// リソースの先頭アドレスから使う
 	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());		// 使用するリソースのサイズは頂点のサイズ
@@ -284,7 +284,7 @@ void ParticleManager::CreateParticleResource()
 void ParticleManager::CreateMaterialResource()
 {
 	// マテリアル用のリソースを作る。
-	materialResource_ = dxManager_->CreateBufferResource(sizeof(Material));
+	dxManager_->CreateBufferResource(sizeof(Material), materialResource_);
 	// マテリアルにデータを書き込む
 	materialData_ = nullptr;
 	// 書き込むためのアドレスを取得

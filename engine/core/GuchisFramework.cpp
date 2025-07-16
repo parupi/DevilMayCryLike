@@ -30,6 +30,7 @@ void GuchisFramework::Finalize()
 	SceneManager::GetInstance()->Finalize();
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
+	psoManager->Finalize();
 	winManager->Finalize();
 	srvManager->Finalize();
 	dxManager->Finalize(); // デバイスが最後

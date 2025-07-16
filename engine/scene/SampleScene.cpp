@@ -14,14 +14,17 @@
 #include <3d/Collider/CollisionManager.h>
 #include <3d/Collider/SphereCollider.h>
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <GameObject/Camera/GameCamera.h>
+#include <3d/SkySystem/SkySystem.h>
 
 void SampleScene::Initialize()
 {
 	// カメラの生成
-	normalCamera_ = std::make_unique<GameCamera>("GameCamera");
-
-
+	normalCamera_ = std::make_unique<Camera>("GameCamera");
+	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
+	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
+	cameraManager_->AddCamera(std::move(normalCamera_));
+	cameraManager_->SetActiveCamera(0);
+	camera_ptr = cameraManager_->GetActiveCamera();
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -40,24 +43,35 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("weapon");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+
 	TextureManager::GetInstance()->LoadTexture("Cube.png");
 	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
+	// 天球の生成
+	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
+
+	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
 	object_->GetWorldTransform()->GetTranslation().y = -4.0f;
 
-	weapon_ = std::make_unique<Object3d>("Weapon");
-	weapon_->Initialize();
+	// オブジェクトを生成
+	object2_ = std::make_unique<Object3d>("obj2");
+	object2_->Initialize();
 
-	player_ = std::make_unique<Player>("Player");
-	player_->Initialize();
+	// モデルレンダラーの生成
+	render1_ = std::make_unique<ModelRenderer>("render1", "plane");
 
-	cameraManager_->AddCamera(std::move(normalCamera_));
-	cameraManager_->SetActiveCamera(0);
+	// レンダラーの追加
+	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	// プリミティブレンダラーの生成、追加
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
 
 	render1_ = std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Terrain.png");
 
@@ -93,6 +107,20 @@ void SampleScene::Initialize()
 	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
 	lightManager_->AddDirectionalLight(std::move(dirLight));
+
+	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
+
+	particleEmitter_ = std::make_unique<ParticleEmitter>();
+	particleEmitter_->Initialize("test");
+
+	//grayEffect_ = std::make_unique<GrayEffect>();
+	//grayEffect_->Initialize();
+
+
+
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
 }
 
 void SampleScene::Finalize()
@@ -110,7 +138,6 @@ void SampleScene::Update()
 	lightManager_->UpdateAllLight();
 
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
-
 }
 
 void SampleScene::Draw()

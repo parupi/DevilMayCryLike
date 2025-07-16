@@ -37,7 +37,8 @@ public:
 
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
-	std::unique_ptr<GameCamera> normalCamera_;
+
+	std::unique_ptr<Camera> normalCamera_;
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 

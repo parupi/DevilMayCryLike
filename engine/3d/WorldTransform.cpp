@@ -3,6 +3,19 @@
 #include <base/DirectXManager.h>
 #include <3d/Object/Object3dManager.h>
 
+WorldTransform::~WorldTransform()
+{
+	// GPUリソースの解放
+	if (constBuffer_) {
+		constBuffer_->Unmap(0, nullptr);
+		constBuffer_.Reset();
+	}
+
+#ifdef _DEBUG
+	Logger::Log("WorldTransform resources released.\n");
+#endif
+}
+
 void WorldTransform::Initialize()
 {
 	// ワールド行列の初期化
@@ -18,13 +31,16 @@ void WorldTransform::Initialize()
 void WorldTransform::CreateConstBuffer()
 {
 	// MVP用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	constBuffer_ = Object3dManager::GetInstance()->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix));
+	Object3dManager::GetInstance()->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix), constBuffer_);
 	// 書き込むためのアドレスを取得
 	constBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&constMap));
 	// 単位行列を書き込んでおく
 	constMap->WVP = MakeIdentity4x4();
 	constMap->World = MakeIdentity4x4();
 	constMap->WorldInverseTranspose = MakeIdentity4x4();
+
+	// ログ出力
+	Logger::LogBufferCreation("WorldTransform", constBuffer_.Get(), sizeof(TransformationMatrix));
 }
 
 void WorldTransform::TransferMatrix()
@@ -35,7 +51,7 @@ void WorldTransform::TransferMatrix()
 	// 親が存在する場合、親のワールド行列を掛け合わせる
 	if (parent_) {
 		Matrix4x4 parentMatrix = parent_->matWorld_;
-		matWorld_ = matWorld_ * parentMatrix; // 親の行列と自身の行列を合成
+		matWorld_ *= parentMatrix; // 親の行列と自身の行列を合成
 	}
 
 	// ワールド行列を定数バッファに転送
@@ -43,8 +59,6 @@ void WorldTransform::TransferMatrix()
 		constMap->World = matWorld_; // 定数バッファに行列をコピー
 		constMap->WorldInverseTranspose = Inverse(matWorld_);
 	}
-
-
 }
 
 #ifdef _DEBUG
@@ -68,9 +82,6 @@ void WorldTransform::DebugGui()
 	ImGui::DragFloat3("rotation", &rotate.x, 0.1f);
 	rotation_ = (rotation_ * Normalize(EulerDegree(rotate)));
 }
-
-
-
 #endif // _DEBUG
 
 Vector3 WorldTransform::GetWorldPos()

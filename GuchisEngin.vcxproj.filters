@@ -737,9 +737,6 @@
     <ClCompile Include="Engine\math\function.cpp">
       <Filter>Engine\math</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\offscreen\BaseOffScreen.cpp">
-      <Filter>Engine\offscreen</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp">
       <Filter>Engine\offscreen</Filter>
     </ClCompile>

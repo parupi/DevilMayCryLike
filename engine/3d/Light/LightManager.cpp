@@ -61,14 +61,20 @@ void LightManager::UpdateAllLight()
 	std::vector<DirectionalLightData> dirData;
 	for (auto& light : dirLights_) dirData.push_back(light->GetLightData());
 	UpdateBuffer(dirLightResource_.Get(), dirData.data(), sizeof(DirectionalLightData) * dirData.size());
+	// ログ出力
+	Logger::LogBufferCreation("Light:Directional", dirLightResource_.Get(), sizeof(DirectionalLightData));
 
 	std::vector<PointLightData> pointData;
 	for (auto& light : pointLights_) pointData.push_back(light->GetLightData());
 	UpdateBuffer(pointLightResource_.Get(), pointData.data(), sizeof(PointLightData) * pointData.size());
+	// ログ出力
+	Logger::LogBufferCreation("Light:Point", pointLightResource_.Get(), sizeof(PointLightData));
 
 	std::vector<SpotLightData> spotData;
 	for (auto& light : spotLights_) spotData.push_back(light->GetLightData());
 	UpdateBuffer(spotLightResource_.Get(), spotData.data(), sizeof(SpotLightData) * spotData.size());
+	// ログ出力
+	Logger::LogBufferCreation("Light:Spot", spotLightResource_.Get(), sizeof(SpotLightData));
 }
 
 void LightManager::AddDirectionalLight(std::unique_ptr<DirectionalLight> light)
@@ -120,13 +126,13 @@ void LightManager::CreateLightResource()
 {
 	// 必要なら Resize
 	size_t dirSize = std::max<size_t>(1, maxDirLights);
-	dirLightResource_ = dxManager_->CreateBufferResource(sizeof(DirectionalLightData) * dirSize);
+	dxManager_->CreateBufferResource(sizeof(DirectionalLightData) * dirSize, dirLightResource_);
 
 	size_t pointSize = std::max<size_t>(1, maxPointLights);
-	pointLightResource_ = dxManager_->CreateBufferResource(sizeof(PointLightData) * pointSize);
+	dxManager_->CreateBufferResource(sizeof(PointLightData) * pointSize, pointLightResource_);
 
 	size_t spotSize = std::max<size_t>(1, maxSpotLights);
-	spotLightResource_ = dxManager_->CreateBufferResource(sizeof(SpotLightData) * spotSize);
+	dxManager_->CreateBufferResource(sizeof(SpotLightData) * spotSize, spotLightResource_);
 }
 
 void LightManager::UpdateBuffer(ID3D12Resource* resource, const void* data, size_t size)
