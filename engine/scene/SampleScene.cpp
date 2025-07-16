@@ -24,7 +24,6 @@ void SampleScene::Initialize()
 	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera(0);
-	camera_ptr = cameraManager_->GetActiveCamera();
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -58,12 +57,6 @@ void SampleScene::Initialize()
 	object_->Initialize();
 	object_->GetWorldTransform()->GetTranslation().y = -4.0f;
 
-	// オブジェクトを生成
-	object2_ = std::make_unique<Object3d>("obj2");
-	object2_->Initialize();
-
-	// モデルレンダラーの生成
-	render1_ = std::make_unique<ModelRenderer>("render1", "plane");
 
 	// レンダラーの追加
 	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
@@ -85,20 +78,6 @@ void SampleScene::Initialize()
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
-	
-
-	render2_ = std::make_unique<ModelRenderer>("Weapon", "weapon");
-
-	render2_->GetWorldTransform()->GetScale() = { 0.5f, 0.5f, 0.5f };
-	render2_->GetWorldTransform()->GetTranslation().y = 0.4f;
-
-	// 武器のレンダラーを生成
-	RendererManager::GetInstance()->AddRenderer(std::move(render2_));
-	// 武器のレンダラーを追加
-	weapon_->AddRenderer(RendererManager::GetInstance()->FindRender("Weapon"));
-	// ゲームオブジェクトを追加
-	Object3dManager::GetInstance()->AddObject(std::move(weapon_));
-
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
 	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
@@ -109,14 +88,6 @@ void SampleScene::Initialize()
 	lightManager_->AddDirectionalLight(std::move(dirLight));
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
-
-	particleEmitter_ = std::make_unique<ParticleEmitter>();
-	particleEmitter_->Initialize("test");
-
-	//grayEffect_ = std::make_unique<GrayEffect>();
-	//grayEffect_->Initialize();
-
-
 
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());

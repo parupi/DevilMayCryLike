@@ -60,9 +60,5 @@ private:
 	DirectionalLight* dirLight_;
 
 	std::unique_ptr<PrimitiveRenderer> render1_;
-	std::unique_ptr<ModelRenderer> render2_;
-
-
-	Vector3 pos_{0.0f, -2.0f, 0.0f};
 };
 
