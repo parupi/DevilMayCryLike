@@ -30,7 +30,9 @@ void PlayerWeapon::Update()
 
 void PlayerWeapon::Draw()
 {
-	Object3d::Draw();
+	if (isAttack_) {
+		Object3d::Draw();
+	}
 }
 
 void PlayerWeapon::DrawEffect()

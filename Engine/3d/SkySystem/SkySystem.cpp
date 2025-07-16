@@ -3,40 +3,46 @@
 #include <base/TextureManager.h>
 #include <3d/Camera/CameraManager.h>
 
+SkySystem* SkySystem::instance = nullptr;
+std::once_flag SkySystem::initInstanceFlag;
+
+SkySystem* SkySystem::GetInstance()
+{
+	std::call_once(initInstanceFlag, []() {
+		instance = new SkySystem();
+		});
+	return instance;
+}
 
 void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
 {
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
 	srvManager_ = srvManager;
+}
 
-	CreateSkyBoxVertex();
-	CreateVertexResource();
-	CreateIndexResource();
+void SkySystem::Finalize()
+{
+	dxManager_ = nullptr;
+	psoManager_ = nullptr;
+	srvManager_ = nullptr;
 
-	TextureManager::GetInstance()->LoadTexture("skybox_cube.dds");
+	if (vertexResource_) {
+		vertexResource_.Reset();
+	}
 
-	MaterialData materialData;
-	materialData.textureFilePath = "skybox_cube.dds";
-	const DirectX::TexMetadata& meta = TextureManager::GetInstance()->GetMetaData("Resource/Images/skybox_cube.dds");
+	if (indexResource_) {
+		indexResource_.Reset();
+	}
 
-	Logger::Log(std::format("Cubemap?: {}\n", meta.IsCubemap() ? "Yes" : "No"));
-	Logger::Log(std::format("Format: {}\n", static_cast<int>(meta.format)));
-
-	materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
-	//materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
-
-	material_ = std::make_unique<Material>();
-	material_->Initialize(dxManager_, srvManager_, materialData);
-
-
-
-	// 定数バッファリソースの生成
-	dxManager_->CreateBufferResource(sizeof(SkyboxMatrix), skyboxConstBuffer_);
+	delete instance;
+	instance = nullptr;
 }
 
 void SkySystem::Draw()
 {
+	if (!material_) return; // SkyBoxが作られていない場合は描画しない
+
 	auto* commandList = dxManager_->GetCommandList();
 
 	// カメラ取得
@@ -50,14 +56,7 @@ void SkySystem::Draw()
 	view.m[3][2] = 0.0f;
 
 	// 転送
-	skyboxMatrix_.viewProjectionNoTranslate = view * proj;
-
-	// 定数バッファ更新
-	void* mapped = nullptr;
-	skyboxConstBuffer_->Map(0, nullptr, &mapped);
-	memcpy(mapped, &skyboxMatrix_, sizeof(skyboxMatrix_));
-	skyboxConstBuffer_->Unmap(0, nullptr);
-
+	transform_->SetMapWVP(view * proj);
 
 	// PSOとルートシグネチャを設定
 	commandList->SetPipelineState(psoManager_->GetSkyboxPSO());
@@ -69,13 +68,33 @@ void SkySystem::Draw()
 
 	commandList->IASetIndexBuffer(&indexBufferView_);
 
-	commandList->SetGraphicsRootConstantBufferView(1, skyboxConstBuffer_->GetGPUVirtualAddress());
+	commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
 
 	// SRV（キューブマップ）バインド
 	material_->Bind();
 
 	// 描画コール
 	commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);
+}
+
+void SkySystem::CreateSkyBox(const std::string& textureFilePath)
+{
+	CreateSkyBoxVertex();
+	CreateVertexResource();
+	CreateIndexResource();
+
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+
+	MaterialData materialData;
+	materialData.textureFilePath = textureFilePath;
+	materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+
+	material_ = std::make_unique<Material>();
+	material_->Initialize(dxManager_, srvManager_, materialData);
+
+	// 定数バッファリソースの生成
+	transform_ = std::make_unique<WorldTransform>();
+	transform_->Initialize();
 }
 
 void SkySystem::CreateSkyBoxVertex()

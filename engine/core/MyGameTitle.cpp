@@ -29,6 +29,8 @@ void MyGameTitle::Initialize()
 
 	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
+	SkySystem::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+
 	RendererManager::GetInstance()->Initialize(dxManager.get());
 
 	CollisionManager::GetInstance()->Initialize();
@@ -41,10 +43,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("SAMPLE");
-	// キューブマップの生成
-	skySystem_ = std::make_unique<SkySystem>();
-	skySystem_->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -53,22 +52,23 @@ void MyGameTitle::Initialize()
 void MyGameTitle::Finalize()
 {
 	// 描画処理系
-	ImGuiManager::GetInstance()->Finalize(); // 最もUI描画の最後に使うので最初に破棄
-	PrimitiveLineDrawer::GetInstance()->Finalize(); // モデル等の描画で使っているかも
-	RendererManager::GetInstance()->Finalize(); // SpriteやModelに使われる
+	ImGuiManager::GetInstance()->Finalize();
+	PrimitiveLineDrawer::GetInstance()->Finalize();
+	RendererManager::GetInstance()->Finalize();
+	SkySystem::GetInstance()->Finalize();
 
 	// ゲームオブジェクト系
-	ParticleManager::GetInstance()->Finalize(); // TextureやRendererに依存
-	SpriteManager::GetInstance()->Finalize();              // Textureに依存
-	Object3dManager::GetInstance()->Finalize();            // ModelManagerやCollisionに依存
-	ModelManager::GetInstance()->Finalize();               // Textureに依存
+	ParticleManager::GetInstance()->Finalize(); 
+	SpriteManager::GetInstance()->Finalize();           
+	Object3dManager::GetInstance()->Finalize();         
+	ModelManager::GetInstance()->Finalize();            
 
 	// 基盤系
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
-	TextureManager::GetInstance()->Finalize();             // 多くの描画系に依存される
-	OffScreenManager::GetInstance()->Finalize();           // RTV/DSV/Texture使っている可能性がある
+	TextureManager::GetInstance()->Finalize();          
+	OffScreenManager::GetInstance()->Finalize();        
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
@@ -91,14 +91,12 @@ void MyGameTitle::Draw()
 {
 	dxManager->BeginDrawForRenderTarget();
 	srvManager->BeginDraw();
-
-	skySystem_->Draw();
+	// プリミティブ描画前処理
 	PrimitiveLineDrawer::GetInstance()->BeginDraw();
-
-
+	// 天球やスカイボックスの描画
+	SkySystem::GetInstance()->Draw();
+	// シーン描画処理
 	SceneManager::GetInstance()->Draw();
-
-
 
 	dxManager->BeginDraw();
 

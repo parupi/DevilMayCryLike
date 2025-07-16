@@ -12,19 +12,31 @@ struct VertexDataForSkybox {
 	Vector3 texcoord{};
 };
 
-struct SkyboxMatrix {
-	Matrix4x4 viewProjectionNoTranslate;
-};
-
 class SkySystem
 {
-public:
-	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+private:
+	static SkySystem* instance;
+	static std::once_flag initInstanceFlag;
 
+	SkySystem() = default;
+	~SkySystem() = default;
+	SkySystem(SkySystem&) = default;
+	SkySystem& operator=(SkySystem&) = default;
+public:
+	// インスタンスの取得
+	static SkySystem* GetInstance();
+	// 初期化
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+	// 終了
+	void Finalize();
 
 	void Draw();
 
+	// スカイボックス生成
+	void CreateSkyBox(const std::string& textureFilePath);
+
 private:
+	// VertexData生成
 	void CreateSkyBoxVertex();
 	void CreateVertexResource();
 	void CreateIndexResource();
@@ -44,8 +56,7 @@ private:
 	int32_t textureIndex_ = 0;
 
 	std::unique_ptr<Material> material_;
-	// カメラのデータを送る
-	Microsoft::WRL::ComPtr<ID3D12Resource> skyboxConstBuffer_;
-	SkyboxMatrix skyboxMatrix_;  // CPU 側データ
+
+	std::unique_ptr<WorldTransform> transform_;
 };
 

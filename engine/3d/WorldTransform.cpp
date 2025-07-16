@@ -51,7 +51,7 @@ void WorldTransform::TransferMatrix()
 	// 親が存在する場合、親のワールド行列を掛け合わせる
 	if (parent_) {
 		Matrix4x4 parentMatrix = parent_->matWorld_;
-		matWorld_ = matWorld_ * parentMatrix; // 親の行列と自身の行列を合成
+		matWorld_ *= parentMatrix; // 親の行列と自身の行列を合成
 	}
 
 	// ワールド行列を定数バッファに転送

@@ -14,6 +14,7 @@
 #include <3d/Collider/CollisionManager.h>
 #include <3d/Collider/SphereCollider.h>
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
+#include <3d/SkySystem/SkySystem.h>
 
 void SampleScene::Initialize()
 {
@@ -41,6 +42,9 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	//TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
+
+	// 天球の生成
+	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
 	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
