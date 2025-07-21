@@ -58,6 +58,7 @@ void Material::DebugGui(uint32_t index)
 		ImGui::DragFloat2("UVScale", &uvData_.size.x, 0.01f, -10.0f, 10.0f);
 		ImGui::SliderAngle("UVRotate", &uvData_.rotation);
 		ImGui::ColorEdit4("color", &materialForGPU_->color.x);
+		ImGui::SliderFloat("environmentIntensity", &materialForGPU_->environmentIntensity, 0.0f, 1.0f);
 		ImGui::TreePop();
 	}
 }
