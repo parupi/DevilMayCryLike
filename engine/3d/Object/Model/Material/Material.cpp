@@ -35,7 +35,6 @@ void Material::Bind()
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
 
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
-
 }
 
 #ifdef _DEBUG
@@ -76,6 +75,7 @@ void Material::CreateMaterialResource()
 	materialForGPU_->enableLighting = true;
 	materialForGPU_->uvTransform = MakeIdentity4x4();
 	materialForGPU_->shininess = 20.0f;
+	materialForGPU_->environmentIntensity = 0.3f; 
 
 	// MaterialData から反映
 	//materialForGPU_->color.x = materialData_.Kd.r;                 // 拡散反射色を使用

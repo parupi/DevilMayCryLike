@@ -73,7 +73,7 @@ void SkinnedModel::Draw()
 		const auto& skinCluster = skinClusters_[i];
 
 		// パレットSRVをバインド
-		modelLoader_->GetDxManager()->GetCommandList()->SetGraphicsRootDescriptorTable(7, skinCluster->GetSkinCluster().paletteSrvHandle.second);
+		modelLoader_->GetDxManager()->GetCommandList()->SetGraphicsRootDescriptorTable(8, skinCluster->GetSkinCluster().paletteSrvHandle.second);
 
 		// 頂点バッファ（インフルエンス）を設定
 		const auto& view = skinCluster->GetSkinCluster().influenceBufferView;

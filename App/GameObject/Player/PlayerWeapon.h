@@ -1,5 +1,6 @@
 #pragma once
 #include "3d/Object/Object3d.h"
+#include <GameData/Score/StylishScoreManager.h>
 class PlayerWeapon : public Object3d
 {
 public:
@@ -24,8 +25,11 @@ public:
 	void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
 
 	void SetIsAttack(bool flag) { isAttack_ = flag; }
+
+	void SetScoreManager(StylishScoreManager* scoreManager) { scoreManager_ = scoreManager; }
 private:
 	bool isAttack_ = false;
 
+	StylishScoreManager* scoreManager_;
 };
 

@@ -13,6 +13,7 @@
 #include "math/Vector3.h"
 #include "math/function.h"
 #include <debuger/GlobalVariables.h>
+#include <GameData/Score/StylishScoreManager.h>
 
 class Player : public Object3d
 {
@@ -65,6 +66,8 @@ private:
 
 	GlobalVariables* gv = GlobalVariables::GetInstance();
 	Input* input = Input::GetInstance();
+	// スコア管理用
+	std::unique_ptr<StylishScoreManager> scoreManager;
 
 	Vector3 velocity_{};
 	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };

@@ -102,7 +102,7 @@ void GameScene::DrawRTV()
 #ifdef _DEBUG
 void GameScene::DebugUpdate()
 {
-	//player_->DebugGui();
+	Object3dManager::GetInstance()->FindObject("Player")->DebugGui();
 	
 	//enemy_->DebugGui();
 }

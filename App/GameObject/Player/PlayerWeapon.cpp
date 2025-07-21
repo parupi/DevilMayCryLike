@@ -1,5 +1,6 @@
 #include "PlayerWeapon.h"
 #include <3d/Collider/AABBCollider.h>
+#include "Player.h"
 
 PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName)
 {
@@ -41,7 +42,10 @@ void PlayerWeapon::DrawEffect()
 
 void PlayerWeapon::OnCollisionEnter(BaseCollider* other)
 {
-	other;
+	if (other->category_ == CollisionCategory::Enemy) {
+		scoreManager_->AddScore(50);
+	}
+	static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"))->GetAttackData();
 }
 void PlayerWeapon::OnCollisionStay(BaseCollider* other)
 {

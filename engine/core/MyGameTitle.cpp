@@ -31,7 +31,7 @@ void MyGameTitle::Initialize()
 
 	SkySystem::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
-	RendererManager::GetInstance()->Initialize(dxManager.get());
+	RendererManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
 
 	CollisionManager::GetInstance()->Initialize();
 

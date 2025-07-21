@@ -35,6 +35,9 @@ public:
 	// スカイボックス生成
 	void CreateSkyBox(const std::string& textureFilePath);
 
+	// テクスチャインデックスを取得
+	int32_t GetEnvironmentMapIndex() const { return textureIndex_; }
+
 private:
 	// VertexData生成
 	void CreateSkyBoxVertex();
@@ -53,7 +56,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
 
-	int32_t textureIndex_ = 0;
+	int32_t textureIndex_ = -1;
 
 	std::unique_ptr<Material> material_;
 
