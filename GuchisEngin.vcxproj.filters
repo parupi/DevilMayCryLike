@@ -426,9 +426,6 @@
     <ClInclude Include="Engine\offscreen\GrayEffect.h">
       <Filter>Engine\offscreen</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\offscreen\OffScreen.h">
-      <Filter>Engine\offscreen</Filter>
-    </ClInclude>
     <ClInclude Include="Engine\offscreen\OffScreenManager.h">
       <Filter>Engine\offscreen</Filter>
     </ClInclude>
@@ -475,6 +472,7 @@
       <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
+    <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
@@ -741,9 +739,6 @@
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp">
       <Filter>Engine\offscreen</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\offscreen\OffScreen.cpp">
-      <Filter>Engine\offscreen</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp">
       <Filter>Engine\offscreen</Filter>
     </ClCompile>
@@ -785,5 +780,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
+    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
   </ItemGroup>
 </Project>

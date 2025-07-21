@@ -15,6 +15,7 @@
 #include <3d/Collider/SphereCollider.h>
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/SkySystem/SkySystem.h>
+#include <offscreen/GaussianEffect.h>
 
 void SampleScene::Initialize()
 {
@@ -44,7 +45,6 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 
 	TextureManager::GetInstance()->LoadTexture("Cube.png");
-	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
@@ -59,22 +59,19 @@ void SampleScene::Initialize()
 
 
 	// レンダラーの追加
-	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
 	// プリミティブレンダラーの生成、追加
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
 
-	render1_ = std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Terrain.png");
+	//render1_ = std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Terrain.png");
 
-	render1_->GetWorldTransform()->GetScale() = { 1000.0f, 10.0f, 1000.0f };
-	static_cast<Model*>(render1_->GetModel())->GetMaterials(0)->GetUVData().size.x = 100;
-	static_cast<Model*>(render1_->GetModel())->GetMaterials(0)->GetUVData().size.y = 100;
+	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 
-	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderPlane"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
@@ -92,6 +89,7 @@ void SampleScene::Initialize()
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GaussianEffect>());
 }
 
 void SampleScene::Finalize()
@@ -102,8 +100,6 @@ void SampleScene::Update()
 {
 
 	ParticleManager::GetInstance()->Update();
-
-	player_->Update();
 
 	cameraManager_->Update();
 	lightManager_->UpdateAllLight();
@@ -118,7 +114,6 @@ void SampleScene::Draw()
 	Object3dManager::GetInstance()->DrawSetForAnimation();
 	lightManager_->BindLightsToShader();
 	cameraManager_->BindCameraToShader();
-	player_->Draw();
 
 	ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();

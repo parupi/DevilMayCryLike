@@ -12,9 +12,9 @@ public:
 	void Draw() override;
 
 private:
+	// エフェクトの情報を入れるためのリソース生成
 	void CreateEffectResource();
 
-private:
 	struct SmoothEffectData {
 		float blurStrength; // ぼかしの強さ
 		int iterations; // ブラーの回数

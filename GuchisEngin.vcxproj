@@ -213,7 +213,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\math\function.h" />
     <ClInclude Include="Engine\offscreen\BaseOffScreen.h" />
     <ClInclude Include="Engine\offscreen\GrayEffect.h" />
-    <ClInclude Include="Engine\offscreen\OffScreen.h" />
     <ClInclude Include="Engine\offscreen\OffScreenManager.h" />
     <ClInclude Include="Engine\offscreen\SmoothEffect.h" />
     <ClInclude Include="Engine\offscreen\VignetteEffect.h" />
@@ -230,6 +229,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
+    <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
@@ -320,7 +320,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\math\Vector3.cpp" />
     <ClCompile Include="Engine\math\function.cpp" />
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp" />
-    <ClCompile Include="Engine\offscreen\OffScreen.cpp" />
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp" />
     <ClCompile Include="Engine\offscreen\SmoothEffect.cpp" />
     <ClCompile Include="Engine\offscreen\VignetteEffect.cpp" />
@@ -334,6 +333,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
   </ItemGroup>
