@@ -154,11 +154,12 @@ struct AnimationData {
 struct MaterialForGPU {
 	Vector4 color;
 	bool enableLighting;
-	float padding[3];
+	float environmentIntensity;
+	float padding[2];   // ← パディングは2つで合計4バイト x 3 ＝ 12バイト
 	Matrix4x4 uvTransform;
 	float shininess;
+	float padding2[3];  // 16バイトアラインメント確保
 };
-
 struct UVData {
 	Vector2 position = { 0.0f, 0.0f };
 	float rotation = 0.0f;

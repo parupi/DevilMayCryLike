@@ -17,7 +17,6 @@ Object3d::~Object3d()
 
 void Object3d::Initialize()
 {
-
 	objectManager_ = Object3dManager::GetInstance();
 
 	transform_ = std::make_unique<WorldTransform>();

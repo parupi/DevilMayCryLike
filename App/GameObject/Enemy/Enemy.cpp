@@ -17,7 +17,7 @@ Enemy::Enemy(std::string objectName) : Object3d(objectName)
 
 void Enemy::Initialize()
 {
-	
+
 
 }
 
@@ -25,6 +25,7 @@ void Enemy::Update()
 {
 	if (!player_) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+		GetCollider(name_)->category_ = CollisionCategory::Enemy;
 	}
 
 	if (currentState_) {
