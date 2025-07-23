@@ -12,6 +12,7 @@
 #include <thread>
 #include <vector>
 #include <math/Vector4.h>
+#include "Graphics/GraphicsDevice.h"
 
 class SrvManager;
 
@@ -23,12 +24,13 @@ public:
 	// 終了
 	void Finalize();
 
+
+	ID3D12Device* GetDevice() { return graphicsDevice_->GetDevice(); }
 private: // メンバ変数
 	// WindowAPI
 	WindowManager* winManager_ = nullptr;
 
-	Microsoft::WRL::ComPtr<IDXGIFactory7> dxgiFactory_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Device> device_ = nullptr;
+	std::unique_ptr<GraphicsDevice> graphicsDevice_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_ = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_ = nullptr;
@@ -89,7 +91,7 @@ public:
 	IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile);
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateDepthStencilTextureResource(Microsoft::WRL::ComPtr<ID3D12Device> device, int32_t width, int32_t height);
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTextureResource(const DirectX::TexMetadata& metadata);
-	//void UploadTextureData(Microsoft::WRL::ComPtr<ID3D12Resource> texture, const DirectX::ScratchImage& mipImages);
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(ID3D12Resource* texture, const DirectX::ScratchImage& mipImages, ID3D12Device* device, ID3D12GraphicsCommandList* commandList);
 
 	void CreateBufferResource(size_t sizeInBytes, Microsoft::WRL::ComPtr<ID3D12Resource>& outResource);
@@ -100,7 +102,7 @@ public:
 	void CreateSRVForOffScreen(SrvManager* srvManager);
 	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> GetSrvHandle() const { return srvHandle_; }
 private:
-	void InitializeDXGIDevice();
+
 	// コマンド関連の初期化
 	void InitializeCommand();
 	// スワップチェーンの生成
@@ -139,7 +141,7 @@ public:
 	void FlushUpload();
 
 public: // ゲッター/セッター //
-	ID3D12Device* GetDevice() { return device_.Get(); }
+
 	ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
 	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSRVHeap() { return srvHeap_; }
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }

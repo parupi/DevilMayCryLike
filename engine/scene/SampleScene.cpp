@@ -61,17 +61,8 @@ void SampleScene::Initialize()
 	// レンダラーの追加
 	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
-	// プリミティブレンダラーの生成、追加
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
-
-	//render1_ = std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Terrain.png");
-
-	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderRing"));
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderCylinder"));
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
