@@ -39,4 +39,12 @@ namespace Logger {
             assert(false);
         }
     }
+
+    void CheckHR(HRESULT hr, const std::string& errorMessage)
+    {
+        if (FAILED(hr)) {
+            Logger::Log(errorMessage);
+            throw std::runtime_error(errorMessage);
+        }
+    }
 }

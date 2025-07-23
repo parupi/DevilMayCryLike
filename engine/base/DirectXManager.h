@@ -13,6 +13,7 @@
 #include <vector>
 #include <math/Vector4.h>
 #include "Graphics/GraphicsDevice.h"
+#include "Graphics/CommandContext.h"
 
 class SrvManager;
 
@@ -24,17 +25,17 @@ public:
 	// 終了
 	void Finalize();
 
-
+	// デバイスを取得
 	ID3D12Device* GetDevice() { return graphicsDevice_->GetDevice(); }
+	// コマンドリストを取得
+	ID3D12GraphicsCommandList* GetCommandList() { return commandContext_->GetCommandList(); }
 private: // メンバ変数
 	// WindowAPI
 	WindowManager* winManager_ = nullptr;
 
 	std::unique_ptr<GraphicsDevice> graphicsDevice_ = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_ = nullptr;
+	std::unique_ptr<CommandContext> commandContext_ = nullptr;
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
@@ -58,16 +59,16 @@ private: // メンバ変数
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
-	uint64_t fenceValue_ = 0;
+	//uint64_t fenceValue_ = 0;
 	// TransitionBurrierの設定
 	//D3D12_RESOURCE_BARRIER barrier_{};
 	// 初期値0でFenceを作る
-	Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
-	HANDLE fenceEvent_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
+	//HANDLE fenceEvent_ = nullptr;
 	// RTVを2つ作るのでディスクリプタを2つ用意
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[3]{};
 
-	D3D12_RESOURCE_BARRIER barrier_{};
+	//D3D12_RESOURCE_BARRIER barrier_{};
 
 	// 記録時間(FPS固定用)
 	std::chrono::steady_clock::time_point reference_;
@@ -102,9 +103,6 @@ public:
 	void CreateSRVForOffScreen(SrvManager* srvManager);
 	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> GetSrvHandle() const { return srvHandle_; }
 private:
-
-	// コマンド関連の初期化
-	void InitializeCommand();
 	// スワップチェーンの生成
 	void CreateSwapChain();
 
@@ -116,7 +114,7 @@ private:
 
 	void InitializeDepthStencilView();
 
-	void CreateFence();
+	//void CreateFence();
 
 	void SetViewPort();
 
@@ -142,7 +140,7 @@ public:
 
 public: // ゲッター/セッター //
 
-	ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }
+
 	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> GetSRVHeap() { return srvHeap_; }
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	//uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
@@ -150,10 +148,6 @@ public: // ゲッター/セッター //
 	// バックバッファの数を取得
 	size_t GetBackBufferCount() { return backBuffers_.size(); }
 public:
-	void TransitionResource(
-		ID3D12Resource* resource,
-		D3D12_RESOURCE_STATES stateBefore,
-		D3D12_RESOURCE_STATES stateAfter);
 
 	void SetRenderTargets(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
 

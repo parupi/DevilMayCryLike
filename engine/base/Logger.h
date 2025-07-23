@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <d3d12.h>
 
 // ログ出力
 namespace Logger
@@ -12,6 +13,9 @@ namespace Logger
 
 	// アサート失敗時のウィンドウ付きログ出力（汎用）
 	void AssertWithMessage(bool condition, const char* expression, const char* message, const char* file, int line);
+
+	// 
+	void CheckHR(HRESULT hr, const std::string& errorMessage);
 }
 
 // マクロ：ファイル名、行番号を自動取得

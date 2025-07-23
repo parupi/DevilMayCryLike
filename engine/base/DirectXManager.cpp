@@ -45,6 +45,14 @@ void DirectXManager::Initialize(WindowManager* winManager)
 		throw std::runtime_error("Failed to initialize GraphicsDevice.");
 	}
 
+	// コマンドクラスの生成
+	commandContext_ = std::make_unique<CommandContext>();
+	// コマンドリストの初期化
+	if (!commandContext_->Initialize(GetDevice())) {
+		Logger::Log("CommandContext initialization failed.");
+		throw std::runtime_error("Failed to initialize CommandContext.");
+	}
+
 	InitializeCommand();
 	CreateSwapChain();
 	CreateDepthBuffer();
@@ -52,7 +60,7 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	CreateRTVForOffScreen();
 	CreateRenderTargetView();
 	InitializeDepthStencilView();
-	CreateFence();
+	commandContext_->CreateFence();
 	SetViewPort();
 	SetScissor();
 	InitializeDXCCompiler();
@@ -60,32 +68,10 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 void DirectXManager::Finalize()
 {
-	// --- GPUの完了を確実に待つ処理 ---
-	if (commandQueue_ && fence_) {
-		fenceValue_++;
-		HRESULT hr = commandQueue_->Signal(fence_.Get(), fenceValue_);
-		assert(SUCCEEDED(hr));
 
-		if (fence_->GetCompletedValue() < fenceValue_) {
-			if (!fenceEvent_) {
-				fenceEvent_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-			}
-			hr = fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-			assert(SUCCEEDED(hr));
-			WaitForSingleObject(fenceEvent_, INFINITE);
-		}
-	}
-
-	// --- フェンスイベント解放 ---
-	if (fenceEvent_) {
-		CloseHandle(fenceEvent_);
-		fenceEvent_ = nullptr;
-	}
 
 	// --- リソース解放 ---
-	commandList_.Reset();
-	commandAllocator_.Reset();
-	commandQueue_.Reset();
+	commandContext_.reset();
 
 	swapChain_.Reset();
 
@@ -94,14 +80,13 @@ void DirectXManager::Finalize()
 	}
 	backBuffers_.clear();
 
-	offScreenResource_.Reset(); // ❗忘れがち
+	offScreenResource_.Reset();
 
 	depthBuffer_.Reset();
 
 	rtvHeap_.Reset();
 	dsvHeap_.Reset();
 
-	fence_.Reset();
 
 	graphicsDevice_.reset();
 
@@ -399,31 +384,6 @@ void DirectXManager::CreateSRVForOffScreen(SrvManager* srvManager)
 	srvManager->CreateSRVforTexture2D(srvIndex_, offScreenResource_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
 }
 
-void DirectXManager::InitializeCommand()
-{
-	HRESULT hr;
-	// コマンドキューを生成する
-	D3D12_COMMAND_QUEUE_DESC commandQueueDesc{};
-	hr = GetDevice()->CreateCommandQueue(&commandQueueDesc, IID_PPV_ARGS(&commandQueue_));
-	assert(SUCCEEDED(hr));
-	commandQueue_->SetName(L"CommandQueue");
-	Logger::Log("Complete create ID3D12CommandQueue!!!\n");// コマンドキュー生成完了のログを出す
-
-	// コマンドアロケータを生成する
-	hr = GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator_));
-	// コマンドアロケータの生成がうまくいかなかったので起動できない
-	assert(SUCCEEDED(hr));
-	commandAllocator_->SetName(L"CommandAllocator");
-	Logger::Log("Complete create ID3D12CommandAllocator!!!\n");// コマンドアロケータ生成完了のログを出す
-
-	// コマンドリストを生成する
-	hr = GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator_.Get(), nullptr, IID_PPV_ARGS(&commandList_));
-	// コマンドリストの生成がうまくいかなかったので起動できない
-	assert(SUCCEEDED(hr));
-	commandList_->SetName(L"CommandList");
-	Logger::Log("Complete create ID3D12GraphicsCommandList!!!\n");// コマンドリスト生成完了のログを出す
-}
-
 void DirectXManager::CreateSwapChain()
 {
 	HRESULT hr{};
@@ -436,7 +396,7 @@ void DirectXManager::CreateSwapChain()
 	swapChainDesc.BufferCount = 2; //ダブルバッファ
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //モニタに移したら、中身を破棄
 	// コマンドキュー、ウィンドウハンドル、設定を渡して生成する
-	hr = graphicsDevice_->GetFactory()->CreateSwapChainForHwnd(commandQueue_.Get(), winManager_->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
+	hr = graphicsDevice_->GetFactory()->CreateSwapChainForHwnd(commandContext_->GetCommandQueue(), winManager_->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
 	assert(SUCCEEDED(hr));
 	Logger::Log("Complete create IDXGISwapChain4!!!\n");// スワップチェーン生成完了のログを出す
 }
@@ -503,18 +463,6 @@ void DirectXManager::InitializeDepthStencilView()
 	depthBuffer_->SetName(L"DepthStencilResource");
 }
 
-void DirectXManager::CreateFence()
-{
-	HRESULT hr{};
-	hr = GetDevice()->CreateFence(fenceValue_, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence_));
-	assert(SUCCEEDED(hr));
-
-	// FenceのSignalを持つためのイベントを作成する
-	fenceEvent_ = CreateEvent(NULL, FALSE, FALSE, NULL);
-	fence_->SetName(L"Fence");
-	assert(fenceEvent_ != nullptr);
-}
-
 void DirectXManager::SetViewPort()
 {
 	// クライアント領域のサイズと一緒にして画面全体に表示
@@ -553,16 +501,14 @@ void DirectXManager::BeginDraw()
 	// バックバッファのインデックスを取得
 	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
 
-	TransitionResource(
+	commandContext_->TransitionResource(
 		offScreenResource_.Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_GENERIC_READ
 	);
 
-
-
 	// バックバッファのリソースバリアを設定
-	TransitionResource(
+	commandContext_->TransitionResource(
 		backBuffers_[backBufferIndex].Get(),
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -583,7 +529,7 @@ void DirectXManager::BeginDraw()
 
 void DirectXManager::BeginDrawForRenderTarget()
 {
-	TransitionResource(
+	commandContext_->TransitionResource(
 		offScreenResource_.Get(),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
 		D3D12_RESOURCE_STATE_RENDER_TARGET
@@ -611,98 +557,38 @@ void DirectXManager::EndDraw()
 	// FPS固定
 	UpdateFixFPS();
 
-	// 画面に描く処理はすべて終わり、画面に移すので、状態を遷移
-	// 今回はRenderTargetからPresentにする
-	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	// TransitionBarrierを振る
-	commandList_->ResourceBarrier(1, &barrier_);
+	commandContext_->Flush();
 
-	// コマンドリストの内容和確定させる。すべてのコマンドを詰んでからCloseすること
-	hr = commandList_->Close();
-	assert(SUCCEEDED(hr));
-
-	// GPUにコマンドリストの実行を行わせる
-	ComPtr<ID3D12CommandList> commandLists[] = { commandList_ };
-	commandQueue_->ExecuteCommandLists(1, commandLists->GetAddressOf());
 	// GPUとOSに画面の交換を行うように通知する
 	swapChain_->Present(1, 0);
 	assert(SUCCEEDED(hr));
 
-	// Fenceの値を更新
-	fenceValue_++;
-	// GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-	commandQueue_->Signal(fence_.Get(), fenceValue_);
-
-	if (fence_->GetCompletedValue() < fenceValue_) {
-		// 指定したSignalにたどりつけてないので、たどり着くまで待つようにイベントを設定する
-		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-		// イベントを待つ
-		WaitForSingleObject(fenceEvent_, INFINITE);
-	}
-
-	// 次のフレーム用のコマンドリストを準備
-	hr = commandAllocator_->Reset();
-	assert(SUCCEEDED(hr));
-	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
-	assert(SUCCEEDED(hr));
+	commandContext_->Begin();
 }
 
 void DirectXManager::FlushUpload()
 {
-	HRESULT hr = commandList_->Close();
-	assert(SUCCEEDED(hr));
-
-	ID3D12CommandList* commandLists[] = { commandList_.Get() };
-	commandQueue_->ExecuteCommandLists(1, commandLists);
-
-	// Fence シグナル & 待機
-	fenceValue_++;
-	commandQueue_->Signal(fence_.Get(), fenceValue_);
-	if (fence_->GetCompletedValue() < fenceValue_) {
-		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-		WaitForSingleObject(fenceEvent_, INFINITE);
-	}
-
-	// コマンドリストを次のフレーム用にリセット
-	hr = commandAllocator_->Reset();
-	assert(SUCCEEDED(hr));
-	hr = commandList_->Reset(commandAllocator_.Get(), nullptr);
-	assert(SUCCEEDED(hr));
-}
-
-void DirectXManager::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES stateBefore, D3D12_RESOURCE_STATES stateAfter)
-{
-	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier_.Transition.pResource = resource;
-	barrier_.Transition.StateBefore = stateBefore;
-	barrier_.Transition.StateAfter = stateAfter;
-	barrier_.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
-
-	commandList_->ResourceBarrier(1, &barrier_);
+	commandContext_->FlushAndWait();
 }
 
 void DirectXManager::SetRenderTargets(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
-
-	commandList_->OMSetRenderTargets(1, &rtvHandle, false, &dsvHandle);
+	commandContext_->SetRenderTarget(rtvHandle, dsvHandle);
 }
 
 void DirectXManager::ClearDepthStencilView()
 {
 	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
-	commandList_->ClearDepthStencilView(dsvHandle, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	commandContext_->ClearDepth(dsvHandle);
 }
 
 void DirectXManager::ClearRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
-	commandList_->ClearRenderTargetView(rtvHandle, clearValue.Color, 0, nullptr);
+	commandContext_->ClearRenderTarget(rtvHandle, clearValue.Color);
 }
 
 void DirectXManager::SetViewportAndScissorRect()
 {
-	commandList_->RSSetViewports(1, &viewport_);
-	commandList_->RSSetScissorRects(1, &scissorRect_);
+	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }

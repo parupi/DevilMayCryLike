@@ -474,6 +474,7 @@
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
     <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
     <ClInclude Include="Engine\Graphics\GraphicsDevice.h" />
+    <ClInclude Include="Engine\Graphics\CommandContext.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
@@ -783,5 +784,6 @@
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
     <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
     <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp" />
+    <ClCompile Include="Engine\Graphics\CommandContext.cpp" />
   </ItemGroup>
 </Project>
