@@ -60,12 +60,7 @@ private: // メンバ変数
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
-	//uint64_t fenceValue_ = 0;
-	// TransitionBurrierの設定
-	//D3D12_RESOURCE_BARRIER barrier_{};
-	// 初期値0でFenceを作る
-	//Microsoft::WRL::ComPtr<ID3D12Fence> fence_ = nullptr;
-	//HANDLE fenceEvent_ = nullptr;
+
 	// RTVを2つ作るのでディスクリプタを2つ用意
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[3]{};
 
@@ -146,14 +141,4 @@ public: // ゲッター/セッター //
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	//uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
-
-public:
-
-	void SetRenderTargets(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
-
-	void ClearDepthStencilView();
-
-	void ClearRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
-
-	void SetViewportAndScissorRect();
 };

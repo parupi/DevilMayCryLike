@@ -529,17 +529,19 @@ void DirectXManager::BeginDraw()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
+
 	// 描画ターゲットと深度ステンシルビューの設定
-	SetRenderTargets(rtvHandles_[backBufferIndex]);
+	commandContext_->SetRenderTarget(rtvHandles_[backBufferIndex], dsvHandle);
 
 	// レンダーターゲットのクリア
-	ClearRenderTarget(rtvHandles_[backBufferIndex]);
+	commandContext_->ClearRenderTarget(rtvHandles_[backBufferIndex], clearValue.Color);
 
 	// 深度ビューのクリア
-	ClearDepthStencilView();
+	commandContext_->ClearDepth(dsvHandle);
 
 	// ビューポートとシザーレクトの設定
-	SetViewportAndScissorRect();
+	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
 void DirectXManager::BeginDrawForRenderTarget()
@@ -550,17 +552,19 @@ void DirectXManager::BeginDrawForRenderTarget()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
+
 	// 描画ターゲットと深度ステンシルビューの設定
-	SetRenderTargets(rtvHandles_[2]);
+	commandContext_->SetRenderTarget(rtvHandles_[2], dsvHandle);
 
 	// レンダーターゲットのクリア
-	ClearRenderTarget(rtvHandles_[2]);
+	commandContext_->ClearRenderTarget(rtvHandles_[2], clearValue.Color);
 
 	// 深度ビューのクリア
-	ClearDepthStencilView();
+	commandContext_->ClearDepth(dsvHandle);
 
 	// ビューポートとシザーレクトの設定
-	SetViewportAndScissorRect();
+	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
 void DirectXManager::EndDraw()
@@ -584,26 +588,4 @@ void DirectXManager::EndDraw()
 void DirectXManager::FlushUpload()
 {
 	commandContext_->FlushAndWait();
-}
-
-void DirectXManager::SetRenderTargets(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
-	commandContext_->SetRenderTarget(rtvHandle, dsvHandle);
-}
-
-void DirectXManager::ClearDepthStencilView()
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
-	commandContext_->ClearDepth(dsvHandle);
-}
-
-void DirectXManager::ClearRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
-{
-	commandContext_->ClearRenderTarget(rtvHandle, clearValue.Color);
-}
-
-void DirectXManager::SetViewportAndScissorRect()
-{
-	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
