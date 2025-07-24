@@ -14,6 +14,7 @@
 #include <math/Vector4.h>
 #include "Graphics/GraphicsDevice.h"
 #include "Graphics/CommandContext.h"
+#include "Graphics/SwapChainManager.h"
 
 class SrvManager;
 
@@ -29,6 +30,8 @@ public:
 	ID3D12Device* GetDevice() { return graphicsDevice_->GetDevice(); }
 	// コマンドリストを取得
 	ID3D12GraphicsCommandList* GetCommandList() { return commandContext_->GetCommandList(); }
+	// バックバッファの数を取得
+	size_t GetBackBufferCount() { return swapChainManager_->GetBackBufferCount(); }
 private: // メンバ変数
 	// WindowAPI
 	WindowManager* winManager_ = nullptr;
@@ -37,9 +40,7 @@ private: // メンバ変数
 
 	std::unique_ptr<CommandContext> commandContext_ = nullptr;
 
-	Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_ = nullptr;
-	DXGI_SWAP_CHAIN_DESC1 swapChainDesc{};
-	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers_;
+	std::unique_ptr<SwapChainManager> swapChainManager_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_;
 
@@ -104,7 +105,7 @@ public:
 	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> GetSrvHandle() const { return srvHandle_; }
 private:
 	// スワップチェーンの生成
-	void CreateSwapChain();
+
 
 	void CreateDepthBuffer();
 
@@ -145,8 +146,7 @@ public: // ゲッター/セッター //
 	uint32_t GetDescriptorSizeRTV() { return descriptorSizeRTV_; }
 	//uint32_t GetDescriptorSizeSRV() { return descriptorSizeSRV_; }
 	uint32_t GetDescriptorSizeDSV() { return descriptorSizeDSV_; }
-	// バックバッファの数を取得
-	size_t GetBackBufferCount() { return backBuffers_.size(); }
+
 public:
 
 	void SetRenderTargets(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);

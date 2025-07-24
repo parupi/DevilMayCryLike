@@ -53,8 +53,14 @@ void DirectXManager::Initialize(WindowManager* winManager)
 		throw std::runtime_error("Failed to initialize CommandContext.");
 	}
 
-	InitializeCommand();
-	CreateSwapChain();
+	// スワップチェイン生成
+	swapChainManager_ = std::make_unique<SwapChainManager>();
+	// コマンドリストの初期化
+	if (!swapChainManager_->Initialize(graphicsDevice_.get(), commandContext_.get(), winManager_)) {
+		Logger::Log("SwapChain initialization failed.");
+		throw std::runtime_error("Failed to initialize SwapChain.");
+	}
+
 	CreateDepthBuffer();
 	CreateHeap();
 	CreateRTVForOffScreen();
@@ -73,12 +79,7 @@ void DirectXManager::Finalize()
 	// --- リソース解放 ---
 	commandContext_.reset();
 
-	swapChain_.Reset();
-
-	for (auto& buffer : backBuffers_) {
-		buffer.Reset();
-	}
-	backBuffers_.clear();
+	swapChainManager_.reset();
 
 	offScreenResource_.Reset();
 
@@ -384,23 +385,6 @@ void DirectXManager::CreateSRVForOffScreen(SrvManager* srvManager)
 	srvManager->CreateSRVforTexture2D(srvIndex_, offScreenResource_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
 }
 
-void DirectXManager::CreateSwapChain()
-{
-	HRESULT hr{};
-	// スワップチェーンを生成する
-	swapChainDesc.Width = WindowManager::kClientWidth; //画面の幅。ウィンドウンおクライアント領域を同じものにしておく
-	swapChainDesc.Height = WindowManager::kClientHeight; //画面の高さ。ウィンドウのクライアント領域を同じものにしておく
-	swapChainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM; //色の形式
-	swapChainDesc.SampleDesc.Count = 1; //マルチサンプルしない
-	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT; //描画のターゲットとして利用する
-	swapChainDesc.BufferCount = 2; //ダブルバッファ
-	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; //モニタに移したら、中身を破棄
-	// コマンドキュー、ウィンドウハンドル、設定を渡して生成する
-	hr = graphicsDevice_->GetFactory()->CreateSwapChainForHwnd(commandContext_->GetCommandQueue(), winManager_->GetHwnd(), &swapChainDesc, nullptr, nullptr, reinterpret_cast<IDXGISwapChain1**>(swapChain_.GetAddressOf()));
-	assert(SUCCEEDED(hr));
-	Logger::Log("Complete create IDXGISwapChain4!!!\n");// スワップチェーン生成完了のログを出す
-}
-
 void DirectXManager::CreateDepthBuffer()
 {
 	// DepthStencilTextureをウィンドウサイズで作成
@@ -423,33 +407,64 @@ void DirectXManager::CreateHeap()
 
 void DirectXManager::CreateRenderTargetView()
 {
-	HRESULT hr{};
-	// SwapChainからResourceを引っ張ってくる
-	backBuffers_.resize(2);
-	hr = swapChain_->GetBuffer(0, IID_PPV_ARGS(&backBuffers_[0]));
-	// うまく取得できなければ起動できない
-	assert(SUCCEEDED(hr));
-	hr = swapChain_->GetBuffer(1, IID_PPV_ARGS(&backBuffers_[1]));
-	assert(SUCCEEDED(hr));
-	Logger::Log("Complete get ID3D12Resource!!!\n");// リソースの取得完了のログを出す
-	//backBuffers_[2] = offScreenResource_;
-	// RTVの指定
-	rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;			// 出力結果をSRGB二変換して書き込む
-	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;		// 2dテクスチャとして書き込む
-	// ディスクリプタの先頭を取得する
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
+	//HRESULT hr{};
+	//// SwapChainからResourceを引っ張ってくる
+	//backBuffers_.resize(2);
+	//hr = swapChain_->GetBuffer(0, IID_PPV_ARGS(&backBuffers_[0]));
+	//// うまく取得できなければ起動できない
+	//assert(SUCCEEDED(hr));
+	//hr = swapChain_->GetBuffer(1, IID_PPV_ARGS(&backBuffers_[1]));
+	//assert(SUCCEEDED(hr));
+	//Logger::Log("Complete get ID3D12Resource!!!\n");// リソースの取得完了のログを出す
+	////backBuffers_[2] = offScreenResource_;
+	//// RTVの指定
+	//rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;			// 出力結果をSRGB二変換して書き込む
+	//rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;		// 2dテクスチャとして書き込む
+	//// ディスクリプタの先頭を取得する
+	//D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
 
-	rtvHandles_[0] = rtvStartHandle;
-	GetDevice()->CreateRenderTargetView(backBuffers_[0].Get(), &rtvDesc_, rtvHandles_[0]);
-	backBuffers_[0]->SetName(L"BackBuffer0");
+	//rtvHandles_[0] = rtvStartHandle;
+	//GetDevice()->CreateRenderTargetView(backBuffers_[0].Get(), &rtvDesc_, rtvHandles_[0]);
+	//backBuffers_[0]->SetName(L"BackBuffer0");
 
-	rtvHandles_[1].ptr = rtvHandles_[0].ptr + GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	GetDevice()->CreateRenderTargetView(backBuffers_[1].Get(), &rtvDesc_, rtvHandles_[1]);
-	backBuffers_[1]->SetName(L"BackBuffer1");
+	//rtvHandles_[1].ptr = rtvHandles_[0].ptr + GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	//GetDevice()->CreateRenderTargetView(backBuffers_[1].Get(), &rtvDesc_, rtvHandles_[1]);
+	//backBuffers_[1]->SetName(L"BackBuffer1");
 
-	rtvHandles_[2].ptr = rtvHandles_[1].ptr + GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[2]);
+	//rtvHandles_[2].ptr = rtvHandles_[1].ptr + GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	//GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[2]);
+	//offScreenResource_->SetName(L"OffScreenRenderTarget");
+
+		// RTVディスクリプタの設定
+	rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+	// ディスクリプタの先頭を取得
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
+	UINT handleIncrement = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+	// SwapChainManagerからバックバッファを取得してRTV作成
+	size_t backBufferCount = swapChainManager_->GetBackBufferCount();
+	for (UINT i = 0; i < backBufferCount; ++i) {
+		ID3D12Resource* backBuffer = swapChainManager_->GetBackBuffer(i);
+		rtvHandles_[i] = rtvHandle;
+
+		GetDevice()->CreateRenderTargetView(backBuffer, &rtvDesc_, rtvHandles_[i]);
+
+		// リソースに名前をつける（デバッグ用）
+		std::wstring name = L"BackBuffer" + std::to_wstring(i);
+		backBuffer->SetName(name.c_str());
+
+		// 次のハンドル位置に進める
+		rtvHandle.ptr += handleIncrement;
+	}
+
+	// オフスクリーンRTVの作成（swapchainとは別）
+	rtvHandles_[backBufferCount] = rtvHandle;
+	GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[backBufferCount]);
 	offScreenResource_->SetName(L"OffScreenRenderTarget");
+
+	Logger::Log("Complete CreateRenderTargetViews!\n");
 }
 
 void DirectXManager::InitializeDepthStencilView()
@@ -499,7 +514,7 @@ void DirectXManager::InitializeDXCCompiler()
 void DirectXManager::BeginDraw()
 {
 	// バックバッファのインデックスを取得
-	UINT backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+	UINT backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
 
 	commandContext_->TransitionResource(
 		offScreenResource_.Get(),
@@ -509,7 +524,7 @@ void DirectXManager::BeginDraw()
 
 	// バックバッファのリソースバリアを設定
 	commandContext_->TransitionResource(
-		backBuffers_[backBufferIndex].Get(),
+		swapChainManager_->GetBackBuffer(backBufferIndex),
 		D3D12_RESOURCE_STATE_PRESENT,
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
@@ -552,7 +567,7 @@ void DirectXManager::EndDraw()
 {
 	HRESULT hr{};
 	UINT backBufferIndex;
-	backBufferIndex = swapChain_->GetCurrentBackBufferIndex();
+	backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
 
 	// FPS固定
 	UpdateFixFPS();
@@ -560,7 +575,7 @@ void DirectXManager::EndDraw()
 	commandContext_->Flush();
 
 	// GPUとOSに画面の交換を行うように通知する
-	swapChain_->Present(1, 0);
+	swapChainManager_->Present();
 	assert(SUCCEEDED(hr));
 
 	commandContext_->Begin();
