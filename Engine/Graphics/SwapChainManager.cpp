@@ -3,6 +3,7 @@
 #include "GraphicsDevice.h"
 #include "CommandContext.h"
 #include <base/Logger.h>
+#include <cassert>
 
 SwapChainManager::~SwapChainManager()
 {
@@ -41,7 +42,7 @@ UINT SwapChainManager::GetCurrentBackBufferIndex() const
 
 ID3D12Resource* SwapChainManager::GetBackBuffer(UINT index) const  
 {  
-   Logger::CheckHR(static_cast<size_t>(index) >= backBuffers_.size(), "buck buffer over size");  
+    assert(static_cast<size_t>(index) < backBuffers_.size());
    return backBuffers_[index].Get();  
 }
 

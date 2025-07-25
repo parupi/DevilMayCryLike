@@ -476,7 +476,6 @@
     <ClInclude Include="Engine\Graphics\GraphicsDevice.h" />
     <ClInclude Include="Engine\Graphics\CommandContext.h" />
     <ClInclude Include="Engine\Graphics\SwapChainManager.h" />
-    <ClInclude Include="Engine\Graphics\RenderTargets.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
@@ -788,6 +787,5 @@
     <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp" />
     <ClCompile Include="Engine\Graphics\CommandContext.cpp" />
     <ClCompile Include="Engine\Graphics\SwapChainManager.cpp" />
-    <ClCompile Include="Engine\Graphics\RenderTargets.cpp" />
   </ItemGroup>
 </Project>

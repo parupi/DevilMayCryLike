@@ -2,6 +2,7 @@
 #include <wrl/client.h>
 #include <d3d12.h>
 #include <cstdint>
+#include <unordered_map>
 class CommandContext
 {
 public:
@@ -45,5 +46,7 @@ private:
 	HANDLE fenceEvent_ = nullptr;
 	uint64_t fenceValue_ = 0;
 	D3D12_RESOURCE_BARRIER barrier_{};
+
+	std::unordered_map<ID3D12Resource*, D3D12_RESOURCE_STATES> resourceStates_;
 };
 

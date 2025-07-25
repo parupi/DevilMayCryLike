@@ -32,6 +32,8 @@ public:
 	ID3D12GraphicsCommandList* GetCommandList() { return commandContext_->GetCommandList(); }
 	// バックバッファの数を取得
 	size_t GetBackBufferCount() { return swapChainManager_->GetBackBufferCount(); }
+
+	CommandContext* GetCommandContext() const {return commandContext_.get();}
 private: // メンバ変数
 	// WindowAPI
 	WindowManager* winManager_ = nullptr;
@@ -46,7 +48,7 @@ private: // メンバ変数
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap_ = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap_ = nullptr;
-
+	
 
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc_{};
 
@@ -70,13 +72,11 @@ private: // メンバ変数
 	std::chrono::steady_clock::time_point reference_;
 
 	// オフスクリーン用変数
-	Microsoft::WRL::ComPtr<ID3D12Resource> offScreenResource_;
-	uint32_t srvIndex_;
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> srvHandle_;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> offScreenResource_;
+	//uint32_t srvIndex_;
+	//std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> srvHandle_;
 
 	D3D12_CLEAR_VALUE clearValue{};
-
-
 private:
 
 	void InitializeFixFPS();
@@ -95,9 +95,15 @@ public:
 
 	// オフスクリーン用関数
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_CLEAR_VALUE color);
-	void CreateRTVForOffScreen();
-	void CreateSRVForOffScreen(SrvManager* srvManager);
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> GetSrvHandle() const { return srvHandle_; }
+	//void CreateRTVForOffScreen();
+	//void CreateSRVForOffScreen(SrvManager* srvManager);
+	////std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> GetSrvHandle() const { return srvHandle_; }
+
+	D3D12_CPU_DESCRIPTOR_HANDLE CreateRTVForTexture(ID3D12Resource* resource, DXGI_FORMAT format);
+
+	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
+
+	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() const {return dsvHeap_->GetCPUDescriptorHandleForHeapStart();}
 private:
 	// スワップチェーンの生成
 

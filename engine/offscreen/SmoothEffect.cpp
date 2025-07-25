@@ -8,6 +8,8 @@ SmoothEffect::SmoothEffect()
 	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
 
 	CreateEffectResource();
+
+	//isActive_ = true;
 }
 
 SmoothEffect::~SmoothEffect()
@@ -35,7 +37,7 @@ void SmoothEffect::Draw()
 {
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kSmooth));
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
-	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvHandle().second);
+	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
 

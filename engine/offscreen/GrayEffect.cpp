@@ -10,6 +10,8 @@ GrayEffect::GrayEffect() : BaseOffScreen()
 	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
 
 	CreateEffectResource();
+
+	isActive_ = true;
 }
 
 GrayEffect::~GrayEffect()
@@ -39,7 +41,8 @@ void GrayEffect::Draw()
 {
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kGray));
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
-	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvHandle().second);
+	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
 

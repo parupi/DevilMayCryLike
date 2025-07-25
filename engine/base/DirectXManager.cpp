@@ -63,7 +63,13 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 	CreateDepthBuffer();
 	CreateHeap();
-	CreateRTVForOffScreen();
+
+	clearValue.Color[0] = 0.6f;
+	clearValue.Color[1] = 0.5f;
+	clearValue.Color[2] = 0.1f;
+	clearValue.Color[3] = 1.0f;
+
+	//CreateRTVForOffScreen();
 	CreateRenderTargetView();
 	InitializeDepthStencilView();
 	commandContext_->CreateFence();
@@ -81,7 +87,7 @@ void DirectXManager::Finalize()
 
 	swapChainManager_.reset();
 
-	offScreenResource_.Reset();
+	//offScreenResource_.Reset();
 
 	depthBuffer_.Reset();
 
@@ -367,22 +373,33 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResour
 	return renderTexture;
 }
 
-void DirectXManager::CreateRTVForOffScreen()
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::CreateRTVForTexture(ID3D12Resource* resource, DXGI_FORMAT format)
 {
-	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue.Color[0] = 0.6f;
-	clearValue.Color[1] = 0.5f;
-	clearValue.Color[2] = 0.1f;
-	clearValue.Color[3] = 1.0f;
-	offScreenResource_ = CreateRenderTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, clearValue.Format, clearValue);
+	// 今使っていない RTV スロットを使う（rtvHandles_[0～2] を使い回す）
+	static uint32_t rtvCurrentIndex = 0;
+	assert(rtvCurrentIndex < _countof(rtvHandles_)); // 最大数制限（仮）
+
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = rtvHandles_[rtvCurrentIndex++];
+
+	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+	rtvDesc.Format = format;
+	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+	rtvDesc.Texture2D.MipSlice = 0;
+
+	GetDevice()->CreateRenderTargetView(resource, &rtvDesc, handle);
+
+	return handle;
 }
 
-void DirectXManager::CreateSRVForOffScreen(SrvManager* srvManager)
+void DirectXManager::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 {
-	srvIndex_ = srvManager->Allocate();
-	srvHandle_.first = srvManager->GetCPUDescriptorHandle(srvIndex_);
-	srvHandle_.second = srvManager->GetGPUDescriptorHandle(srvIndex_);
-	srvManager->CreateSRVforTexture2D(srvIndex_, offScreenResource_.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
+	// コマンドリストにレンダーターゲットのみ設定（深度ステンシルはなし）
+	commandContext_->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
+
+	// ビューポートとシザーも設定（画面全体描画するなら必要）
+	commandContext_->GetCommandList()->RSSetViewports(1, &viewport_);
+	commandContext_->GetCommandList()->RSSetScissorRects(1, &scissorRect_);
 }
 
 void DirectXManager::CreateDepthBuffer()
@@ -407,35 +424,7 @@ void DirectXManager::CreateHeap()
 
 void DirectXManager::CreateRenderTargetView()
 {
-	//HRESULT hr{};
-	//// SwapChainからResourceを引っ張ってくる
-	//backBuffers_.resize(2);
-	//hr = swapChain_->GetBuffer(0, IID_PPV_ARGS(&backBuffers_[0]));
-	//// うまく取得できなければ起動できない
-	//assert(SUCCEEDED(hr));
-	//hr = swapChain_->GetBuffer(1, IID_PPV_ARGS(&backBuffers_[1]));
-	//assert(SUCCEEDED(hr));
-	//Logger::Log("Complete get ID3D12Resource!!!\n");// リソースの取得完了のログを出す
-	////backBuffers_[2] = offScreenResource_;
-	//// RTVの指定
-	//rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;			// 出力結果をSRGB二変換して書き込む
-	//rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;		// 2dテクスチャとして書き込む
-	//// ディスクリプタの先頭を取得する
-	//D3D12_CPU_DESCRIPTOR_HANDLE rtvStartHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
-
-	//rtvHandles_[0] = rtvStartHandle;
-	//GetDevice()->CreateRenderTargetView(backBuffers_[0].Get(), &rtvDesc_, rtvHandles_[0]);
-	//backBuffers_[0]->SetName(L"BackBuffer0");
-
-	//rtvHandles_[1].ptr = rtvHandles_[0].ptr + GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	//GetDevice()->CreateRenderTargetView(backBuffers_[1].Get(), &rtvDesc_, rtvHandles_[1]);
-	//backBuffers_[1]->SetName(L"BackBuffer1");
-
-	//rtvHandles_[2].ptr = rtvHandles_[1].ptr + GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	//GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[2]);
-	//offScreenResource_->SetName(L"OffScreenRenderTarget");
-
-		// RTVディスクリプタの設定
+	// RTVディスクリプタの設定
 	rtvDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc_.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
@@ -459,10 +448,10 @@ void DirectXManager::CreateRenderTargetView()
 		rtvHandle.ptr += handleIncrement;
 	}
 
-	// オフスクリーンRTVの作成（swapchainとは別）
-	rtvHandles_[backBufferCount] = rtvHandle;
-	GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[backBufferCount]);
-	offScreenResource_->SetName(L"OffScreenRenderTarget");
+	//// オフスクリーンRTVの作成（swapchainとは別）
+	//rtvHandles_[backBufferCount] = rtvHandle;
+	//GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[backBufferCount]);
+	//offScreenResource_->SetName(L"OffScreenRenderTarget");
 
 	Logger::Log("Complete CreateRenderTargetViews!\n");
 }
@@ -516,12 +505,6 @@ void DirectXManager::BeginDraw()
 	// バックバッファのインデックスを取得
 	UINT backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
 
-	commandContext_->TransitionResource(
-		offScreenResource_.Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		D3D12_RESOURCE_STATE_GENERIC_READ
-	);
-
 	// バックバッファのリソースバリアを設定
 	commandContext_->TransitionResource(
 		swapChainManager_->GetBackBuffer(backBufferIndex),
@@ -546,30 +529,29 @@ void DirectXManager::BeginDraw()
 
 void DirectXManager::BeginDrawForRenderTarget()
 {
-	commandContext_->TransitionResource(
-		offScreenResource_.Get(),
-		D3D12_RESOURCE_STATE_GENERIC_READ,
-		D3D12_RESOURCE_STATE_RENDER_TARGET
-	);
+	//commandContext_->TransitionResource(
+	//	offScreenResource_.Get(),
+	//	D3D12_RESOURCE_STATE_GENERIC_READ,
+	//	D3D12_RESOURCE_STATE_RENDER_TARGET
+	//);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
+	//D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
 
-	// 描画ターゲットと深度ステンシルビューの設定
-	commandContext_->SetRenderTarget(rtvHandles_[2], dsvHandle);
+	//// 描画ターゲットと深度ステンシルビューの設定
+	//commandContext_->SetRenderTarget(rtvHandles_[2], dsvHandle);
 
-	// レンダーターゲットのクリア
-	commandContext_->ClearRenderTarget(rtvHandles_[2], clearValue.Color);
+	//// レンダーターゲットのクリア
+	//commandContext_->ClearRenderTarget(rtvHandles_[2], clearValue.Color);
 
-	// 深度ビューのクリア
-	commandContext_->ClearDepth(dsvHandle);
+	//// 深度ビューのクリア
+	//commandContext_->ClearDepth(dsvHandle);
 
-	// ビューポートとシザーレクトの設定
-	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
+	//// ビューポートとシザーレクトの設定
+	//commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
 void DirectXManager::EndDraw()
 {
-	HRESULT hr{};
 	UINT backBufferIndex;
 	backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
 
@@ -580,7 +562,6 @@ void DirectXManager::EndDraw()
 
 	// GPUとOSに画面の交換を行うように通知する
 	swapChainManager_->Present();
-	assert(SUCCEEDED(hr));
 
 	commandContext_->Begin();
 }

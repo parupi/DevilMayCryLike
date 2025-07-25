@@ -233,7 +233,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
     <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
-    <ClInclude Include="Engine\Graphics\RenderTargets.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
@@ -343,7 +342,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
-    <ClCompile Include="Engine\Graphics\RenderTargets.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="imgui.vcxproj">
