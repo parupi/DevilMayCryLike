@@ -962,7 +962,7 @@ void PSOManager::CreateOffScreenPSO(OffScreenEffectType effectType)
 	graphicsPipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 	// DepthStencilの設定
 	graphicsPipelineStateDesc.DepthStencilState = depthStencilDesc;
-	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	graphicsPipelineStateDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 
 	// 実際に生成
 	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&graphicsPipelineStateDesc, IID_PPV_ARGS(&offScreenGraphicsPipelineState_[static_cast<UINT>(effectType)]));

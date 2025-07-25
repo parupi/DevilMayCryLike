@@ -145,6 +145,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\scene\fade\Fade.h" />
+    <ClInclude Include="Engine\Graphics\CommandContext.h" />
+    <ClInclude Include="Engine\Graphics\GraphicsDevice.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\3d\Camera\Camera.h" />
@@ -183,6 +185,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="Engine\3d\SkySystem\SkySystem.h" />
     <ClInclude Include="Engine\3d\WorldTransform.h" />
+    <ClInclude Include="Engine\Graphics\SwapChainManager.h" />
     <ClInclude Include="Engine\Include\SceneBuilder.h" />
     <ClInclude Include="Engine\Include\SceneLoader.h" />
     <ClInclude Include="Engine\audio\Audio.h" />
@@ -213,7 +216,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\math\function.h" />
     <ClInclude Include="Engine\offscreen\BaseOffScreen.h" />
     <ClInclude Include="Engine\offscreen\GrayEffect.h" />
-    <ClInclude Include="Engine\offscreen\OffScreen.h" />
     <ClInclude Include="Engine\offscreen\OffScreenManager.h" />
     <ClInclude Include="Engine\offscreen\SmoothEffect.h" />
     <ClInclude Include="Engine\offscreen\VignetteEffect.h" />
@@ -230,6 +232,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
+    <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
@@ -262,6 +265,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\scene\fade\Fade.cpp" />
+    <ClCompile Include="Engine\Graphics\CommandContext.cpp" />
+    <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\Camera.cpp" />
@@ -294,6 +299,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="Engine\3d\SkySystem\SkySystem.cpp" />
     <ClCompile Include="Engine\3d\WorldTransform.cpp" />
+    <ClCompile Include="Engine\Graphics\SwapChainManager.cpp" />
     <ClCompile Include="Engine\Include\SceneBuilder.cpp" />
     <ClCompile Include="Engine\Include\SceneLoader.cpp" />
     <ClCompile Include="Engine\audio\Audio.cpp" />
@@ -320,7 +326,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\math\Vector3.cpp" />
     <ClCompile Include="Engine\math\function.cpp" />
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp" />
-    <ClCompile Include="Engine\offscreen\OffScreen.cpp" />
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp" />
     <ClCompile Include="Engine\offscreen\SmoothEffect.cpp" />
     <ClCompile Include="Engine\offscreen\VignetteEffect.cpp" />
@@ -334,6 +339,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
   </ItemGroup>
