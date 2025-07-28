@@ -25,7 +25,7 @@ void MyGameTitle::Initialize()
 	// オブジェクト共通部
 	Object3dManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
+	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
 	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
@@ -43,7 +43,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -89,7 +89,8 @@ void MyGameTitle::Update()
 
 void MyGameTitle::Draw()
 {
-	dxManager->BeginDrawForRenderTarget();
+	OffScreenManager::GetInstance()->BeginDrawToPingPong();
+
 	srvManager->BeginDraw();
 	// プリミティブ描画前処理
 	PrimitiveLineDrawer::GetInstance()->BeginDraw();
@@ -98,11 +99,12 @@ void MyGameTitle::Draw()
 	// シーン描画処理
 	SceneManager::GetInstance()->Draw();
 
-	dxManager->BeginDraw();
+	OffScreenManager::GetInstance()->EndDrawToPingPong();
 
+	dxManager->BeginDraw();
 	//SceneManager::GetInstance()->DrawRTV();
 
-	OffScreenManager::GetInstance()->Draw();
+	OffScreenManager::GetInstance()->DrawPostEffect();
 
 #ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();

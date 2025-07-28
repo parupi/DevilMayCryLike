@@ -16,7 +16,7 @@ void GuchisFramework::Initialize()
 	psoManager = std::make_unique<PSOManager>();
 	psoManager->Initialize(dxManager.get());
 
-	dxManager->CreateSRVForOffScreen(srvManager.get());
+	//dxManager->CreateSRVForOffScreen(srvManager.get());
 	// 入力の初期化
 	Input::GetInstance()->Initialize();
 	// Audioの初期化

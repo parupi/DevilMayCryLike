@@ -1,10 +1,10 @@
 #pragma once
 #include "BaseOffScreen.h"
-class SmoothEffect : public BaseOffScreen
+class OutlineEffect : public BaseOffScreen
 {
 public:
-	SmoothEffect();
-	~SmoothEffect();
+	OutlineEffect();
+	~OutlineEffect();
 
 	// 更新
 	void Update() override;
@@ -15,12 +15,11 @@ private:
 	// エフェクトの情報を入れるためのリソース生成
 	void CreateEffectResource();
 
-	struct SmoothEffectData {
-		float blurStrength; // ぼかしの強さ
-		int iterations; // ブラーの回数
+	struct OutlineEffectData {
+
 	};
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> effectResource_ = nullptr;
-	SmoothEffectData* effectData_ = nullptr;
+	OutlineEffectData* effectData_ = nullptr;
 };
 

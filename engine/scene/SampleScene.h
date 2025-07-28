@@ -43,22 +43,8 @@ private:
 	LightManager* lightManager_ = LightManager::GetInstance();
 
 	std::unique_ptr<Object3d> object_;
-	std::unique_ptr<Object3d> weapon_;
-	std::unique_ptr<Player> player_;
-
-
-	std::unique_ptr<Sprite> sprite;
-
-	//Vector4 color1 = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//Vector4 color2 = { 1.0f, 1.0f, 1.0f, 1.0f };
-	uint32_t soundHandle = 0u;
-
-
-	//ParticleManager* particleManager_ = nullptr;
-
 
 	DirectionalLight* dirLight_;
 
-	std::unique_ptr<PrimitiveRenderer> render1_;
 };
 
