@@ -113,6 +113,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="App\GameData\CollisionCategory.h" />
+    <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
     <ClInclude Include="App\GameObject\Camera\GameCamera.h" />
     <ClInclude Include="App\GameObject\Enemy\Enemy.h" />
     <ClInclude Include="App\GameObject\Enemy\EnemyDamageEffect.h" />
@@ -145,8 +146,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\scene\fade\Fade.h" />
-    <ClInclude Include="Engine\Graphics\CommandContext.h" />
-    <ClInclude Include="Engine\Graphics\GraphicsDevice.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\3d\Camera\Camera.h" />
@@ -185,6 +184,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="Engine\3d\SkySystem\SkySystem.h" />
     <ClInclude Include="Engine\3d\WorldTransform.h" />
+    <ClInclude Include="Engine\Graphics\CommandContext.h" />
+    <ClInclude Include="Engine\Graphics\GraphicsDevice.h" />
     <ClInclude Include="Engine\Graphics\SwapChainManager.h" />
     <ClInclude Include="Engine\Include\SceneBuilder.h" />
     <ClInclude Include="Engine\Include\SceneLoader.h" />
@@ -215,8 +216,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\math\Vector4.h" />
     <ClInclude Include="Engine\math\function.h" />
     <ClInclude Include="Engine\offscreen\BaseOffScreen.h" />
+    <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
     <ClInclude Include="Engine\offscreen\GrayEffect.h" />
     <ClInclude Include="Engine\offscreen\OffScreenManager.h" />
+    <ClInclude Include="Engine\offscreen\OutlineEffect.h" />
     <ClInclude Include="Engine\offscreen\SmoothEffect.h" />
     <ClInclude Include="Engine\offscreen\VignetteEffect.h" />
     <ClInclude Include="Engine\scene\AbstractSceneFactory.h" />
@@ -231,10 +234,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
-    <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
     <ClCompile Include="App\GameObject\Enemy\Enemy.cpp" />
     <ClCompile Include="App\GameObject\Enemy\EnemyDamageEffect.cpp" />
@@ -265,8 +267,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\scene\fade\Fade.cpp" />
-    <ClCompile Include="Engine\Graphics\CommandContext.cpp" />
-    <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\Camera.cpp" />
@@ -299,6 +299,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="Engine\3d\SkySystem\SkySystem.cpp" />
     <ClCompile Include="Engine\3d\WorldTransform.cpp" />
+    <ClCompile Include="Engine\Graphics\CommandContext.cpp" />
+    <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp" />
     <ClCompile Include="Engine\Graphics\SwapChainManager.cpp" />
     <ClCompile Include="Engine\Include\SceneBuilder.cpp" />
     <ClCompile Include="Engine\Include\SceneLoader.cpp" />
@@ -325,8 +327,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\math\Quaternion.cpp" />
     <ClCompile Include="Engine\math\Vector3.cpp" />
     <ClCompile Include="Engine\math\function.cpp" />
+    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp" />
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp" />
+    <ClCompile Include="Engine\offscreen\OutlineEffect.cpp" />
     <ClCompile Include="Engine\offscreen\SmoothEffect.cpp" />
     <ClCompile Include="Engine\offscreen\VignetteEffect.cpp" />
     <ClCompile Include="Engine\scene\BaseScene.cpp" />
@@ -339,9 +343,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="imgui.vcxproj">
@@ -350,6 +352,16 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{12345678-ABCD-4321-DCBA-1234567890AB}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Resource\shaders\Skinning.CS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

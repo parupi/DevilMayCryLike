@@ -7,6 +7,9 @@
     <Filter Include="App\GameData">
       <UniqueIdentifier>{E90015FD-D563-A4A1-7EE9-DC576A2B7024}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameData\Score">
+      <UniqueIdentifier>{D4E34E3C-C0C7-0F92-2928-0AE5152BFA13}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject">
       <UniqueIdentifier>{06590EB0-F226-02B6-DBBA-72DCC727DE1A}</UniqueIdentifier>
     </Filter>
@@ -82,6 +85,9 @@
     <Filter Include="Engine\3d\SkySystem">
       <UniqueIdentifier>{6C5F14A6-D8C0-F1B3-612E-3866CD8E2873}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics">
+      <UniqueIdentifier>{7B960115-E721-6FD9-F032-F2CD5C3DCBD9}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Include">
       <UniqueIdentifier>{2E026591-1AD0-5897-0364-C9BDEFD034FC}</UniqueIdentifier>
     </Filter>
@@ -125,6 +131,9 @@
   <ItemGroup>
     <ClInclude Include="App\GameData\CollisionCategory.h">
       <Filter>App\GameData</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameData\Score\StylishScoreManager.h">
+      <Filter>App\GameData\Score</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Camera\GameCamera.h">
       <Filter>App\GameObject\Camera</Filter>
@@ -336,6 +345,15 @@
     <ClInclude Include="Engine\3d\WorldTransform.h">
       <Filter>Engine\3d</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\CommandContext.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\GraphicsDevice.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\SwapChainManager.h">
+      <Filter>Engine\Graphics</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Include\SceneBuilder.h">
       <Filter>Engine\Include</Filter>
     </ClInclude>
@@ -423,10 +441,16 @@
     <ClInclude Include="Engine\offscreen\BaseOffScreen.h">
       <Filter>Engine\offscreen</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\offscreen\GaussianEffect.h">
+      <Filter>Engine\offscreen</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\offscreen\GrayEffect.h">
       <Filter>Engine\offscreen</Filter>
     </ClInclude>
     <ClInclude Include="Engine\offscreen\OffScreenManager.h">
+      <Filter>Engine\offscreen</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\offscreen\OutlineEffect.h">
       <Filter>Engine\offscreen</Filter>
     </ClInclude>
     <ClInclude Include="Engine\offscreen\SmoothEffect.h">
@@ -471,13 +495,11 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
-    <ClInclude Include="Engine\offscreen\GaussianEffect.h" />
-    <ClInclude Include="Engine\Graphics\GraphicsDevice.h" />
-    <ClInclude Include="Engine\Graphics\CommandContext.h" />
-    <ClInclude Include="Engine\Graphics\SwapChainManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
+      <Filter>App\GameData\Score</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
@@ -664,6 +686,15 @@
     <ClCompile Include="Engine\3d\WorldTransform.cpp">
       <Filter>Engine\3d</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\CommandContext.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\SwapChainManager.cpp">
+      <Filter>Engine\Graphics</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Include\SceneBuilder.cpp">
       <Filter>Engine\Include</Filter>
     </ClCompile>
@@ -739,10 +770,16 @@
     <ClCompile Include="Engine\math\function.cpp">
       <Filter>Engine\math</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp">
+      <Filter>Engine\offscreen</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp">
       <Filter>Engine\offscreen</Filter>
     </ClCompile>
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp">
+      <Filter>Engine\offscreen</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\offscreen\OutlineEffect.cpp">
       <Filter>Engine\offscreen</Filter>
     </ClCompile>
     <ClCompile Include="Engine\offscreen\SmoothEffect.cpp">
@@ -782,10 +819,8 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
-    <ClCompile Include="Engine\offscreen\GaussianEffect.cpp" />
-    <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp" />
-    <ClCompile Include="Engine\Graphics\CommandContext.cpp" />
-    <ClCompile Include="Engine\Graphics\SwapChainManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Resource\shaders\Skinning.CS.hlsl" />
   </ItemGroup>
 </Project>
