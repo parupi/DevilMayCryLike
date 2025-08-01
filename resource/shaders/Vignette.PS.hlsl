@@ -8,7 +8,7 @@ struct PixelShaderOutput
     float32_t4 color : SV_TARGET0;
 };
 
-cbuffer VignetteScaleParam : register(b0)
+cbuffer VignetteParam : register(b0)
 {
     float32_t radius;
     float32_t intensity;

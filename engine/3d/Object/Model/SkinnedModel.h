@@ -20,6 +20,8 @@ public: // メンバ関数
 	void Update() override;
 	// 描画
 	void Draw() override;
+	// CSによるSkinningの更新
+	void UpdateSkinningWithCS();
 #ifdef _DEBUG
 	void DebugGui(ModelRenderer* render) override;
 #endif // _DEBUG
@@ -28,7 +30,7 @@ private:
 	std::vector<std::unique_ptr<Material>> materials_;
 	std::unique_ptr<Animation> animation_;
 	std::unique_ptr<Skeleton> skeleton_;
-	std::vector<std::unique_ptr<SkinCluster>> skinClusters_;
+	//std::vector<std::unique_ptr<SkinCluster>> skinClusters_;
 
 	ModelLoader* modelLoader_ = nullptr;
 
@@ -47,5 +49,7 @@ public:
 	DirectXManager* GetDxManager() { return modelLoader_->GetDxManager(); }
 	SrvManager* GetSrvManager() { return modelLoader_->GetSrvManager(); }
 	void SetLocalMatrix(const Matrix4x4& matrix) { modelData_.rootNode.localMatrix = matrix; }
+
+	Material* GetMaterials(uint32_t index) { return materials_[index].get(); }
 };
 

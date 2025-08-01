@@ -11,15 +11,15 @@ std::unique_ptr<Model> PrimitiveFactory::Create(PrimitiveType type, std::string 
     switch (type) {
     case PrimitiveType::Plane:
         meshData = MeshGenerator::CreatePlane();
-        mat.name_ = "PlaneMaterial";
+        mat.name = "PlaneMaterial";
         break;
     case PrimitiveType::Ring:
         meshData = MeshGenerator::CreateRing();
-        mat.name_ = "RingMaterial";
+        mat.name = "RingMaterial";
         break;
     case PrimitiveType::Cylinder:
         meshData = MeshGenerator::CreateCylinder();
-        mat.name_ = "CylinderMaterial";
+        mat.name = "CylinderMaterial";
         break;
     }
 

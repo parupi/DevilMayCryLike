@@ -91,6 +91,8 @@ void SkySystem::CreateSkyBox(const std::string& textureFilePath)
 
 	material_ = std::make_unique<Material>();
 	material_->Initialize(dxManager_, srvManager_, materialData);
+	// テクスチャのインデックスを保存しておく
+	textureIndex_ = materialData.textureIndex;
 
 	// 定数バッファリソースの生成
 	transform_ = std::make_unique<WorldTransform>();

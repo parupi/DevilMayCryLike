@@ -19,8 +19,6 @@ void ModelManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
 
 void ModelManager::Finalize()
 {
-
-
 	delete instance;
 	instance = nullptr;
 }
@@ -67,15 +65,3 @@ BaseModel* ModelManager::FindModel(const std::string& fileName)
 	}
 	return nullptr;
 }
-
-//SkinnedModel* ModelManager::FindSkinnedModel(const std::string& filePath)
-//{
-//	// 読み込み済みモデルを検索
-//	if (skinnedModels.contains(filePath)) {
-//		// 読み込みモデルを戻り値としてreturn
-//		return skinnedModels.at(filePath).get();
-//	}
-//
-//	// ファイル名が一致しなければnull
-//	return nullptr;
-//}

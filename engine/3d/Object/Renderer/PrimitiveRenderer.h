@@ -16,7 +16,7 @@ public:
     PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName);
 
     void Update(WorldTransform* parentTransform) override;
-    void Draw(WorldTransform* parentTransform) override;
+    void Draw() override;
 
 #ifdef _DEBUG
     void DebugGui(size_t index) override;

@@ -34,7 +34,8 @@ void Animation::Update()
 	}
 
 	// Skeleton側で全ボーンに対して適用（ブレンドも含む）
-	model_->GetSkeleton()->ApplyAnimation(currentAnimation_, prevAnimation_, animationTime, blendTime_, blendTimer_);
+	//model_->GetSkeleton()->ApplyAnimation(currentAnimation_, prevAnimation_, animationTime, blendTime_, blendTimer_);
+	model_->GetSkeleton()->ApplyAnimation(currentAnimation_, animationTime);
 }
 
 

@@ -47,6 +47,7 @@ private:
 
 public: // ゲッター // セッター //
 	DirectXManager* GetDxManager() const { return dxManager_; }
+	PSOManager* GetPsoManager() const { return psoManager_; }
 	// デフォルトカメラ
 	void SetDefaultCamera(Camera* camera) { defaultCamera_ = camera; }
 	Camera* GetDefaultCamera() const { return defaultCamera_; }

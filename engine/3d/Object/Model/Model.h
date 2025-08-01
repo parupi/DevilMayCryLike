@@ -54,7 +54,7 @@ public:
 
 	Material* GetMaterials(uint32_t index) {return materials_[index].get();}
 
-	// 指定メッシュのマテリアルを切り替える
-	void SetMeshMaterialIndex(size_t meshIndex, uint32_t materialIndex);
+	//// 指定メッシュのマテリアルを切り替える
+	//void SetMeshMaterialIndex(size_t meshIndex, uint32_t materialIndex);
 };
 

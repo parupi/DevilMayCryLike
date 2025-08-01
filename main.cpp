@@ -10,11 +10,11 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int) {
 
 	std::unique_ptr<GuchisFramework> game = std::make_unique<MyGameTitle>();
 
-
+#ifdef _DEBUG
+	D3DResourceLeakChecker leakChecker;
+#endif
 
 	game->Run();
-
-
 
 	return 0;
 }

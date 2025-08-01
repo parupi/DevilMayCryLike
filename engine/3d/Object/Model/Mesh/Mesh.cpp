@@ -23,29 +23,51 @@ void Mesh::Initialize(DirectXManager* directXManager, SrvManager* srvManager, co
 	meshData_ = meshData;
 
 	CreateVertexResource();
-	CreateIndexResource();
 
+	CreateIndexResource();
 }
 
-void Mesh::Draw()
+void Mesh::Initialize(DirectXManager* directXManager, SrvManager* srvManager, const SkinnedMeshData& meshData)
 {
-	// VertexBufferViewを設定
-	directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
+	directXManager_ = directXManager;
+	srvManager_ = srvManager;
 
-	directXManager_->GetCommandList()->DrawIndexedInstanced(UINT(meshData_.indices.size()), 1, 0, 0, 0);
+	skinnedMeshData_ = meshData;
+	// skinnedMeshから普通のメッシュデータに抽出
+	meshData_.indices = skinnedMeshData_.indices;
+	meshData_.materialIndex = skinnedMeshData_.materialIndex;
+	meshData_.name = skinnedMeshData_.name;
+	meshData_.vertices = skinnedMeshData_.vertices;
+
+	CreateVertexResource();
+
+	CreateIndexResource();
+}
+
+void Mesh::Update()
+{
+	skinCluster_->UpdateSkinning();
 }
 
 void Mesh::Bind()
 {
-	// 頂点バッファをセット
-	directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	// VertexBufferViewを設定
+	// スキニングしていなければ普通の
+	if (skinnedMeshData_.skinClusterData.size() == 0) {
+		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	} else {
+		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &skinCluster_->GetSkinCluster().mappedOutputVertex);
+	}
 
-	// インデックスバッファをセット
 	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
 
-	// トポロジ（プリミティブの種類）もここで設定しておくと安心
 	directXManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+}
+
+void Mesh::CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData)
+{
+	skinCluster_ = std::make_unique<SkinCluster>();
+	skinCluster_->Initialize(skeleton, meshData, skinClusterData, directXManager_, srvManager_);
 }
 
 void Mesh::CreateVertexResource()

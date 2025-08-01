@@ -66,6 +66,10 @@ void Player::Initialize()
 	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
 
 	GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 1.5f;
+
+	scoreManager = std::make_unique<StylishScoreManager>();
+
+	weapon_->SetScoreManager(scoreManager.get());
 }
 
 void Player::Update()
@@ -73,6 +77,8 @@ void Player::Update()
 	if (currentState_) {
 		currentState_->Update(*this);
 	}
+
+	scoreManager->Update();
 
 	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
 	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();

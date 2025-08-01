@@ -17,7 +17,6 @@ Object3d::~Object3d()
 
 void Object3d::Initialize()
 {
-
 	objectManager_ = Object3dManager::GetInstance();
 
 	transform_ = std::make_unique<WorldTransform>();
@@ -53,7 +52,18 @@ void Object3d::Update()
 void Object3d::Draw()
 {
 	for (size_t i = 0; i < renders_.size(); i++) {
-		renders_[i]->Draw(transform_.get());
+		// ComputeSkinningを前処理として呼ぶ（SkinnedModelなら）
+		if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {
+			skinned->UpdateSkinningWithCS();
+		}
+
+		
+		// グラフィックスパイプラインに戻す
+		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
+		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetObjectSignature());
+		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		renders_[i]->Draw();
 	}
 }
 

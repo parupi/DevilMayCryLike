@@ -1,7 +1,8 @@
 #include "ModelRenderer.h"
 #include "RendererManager.h"
 #include <3d/Object/Model/ModelManager.h>
-
+#include <3d/SkySystem/SkySystem.h>
+#include "3d/Object/Model/ModelStructs.h"
 
 ModelRenderer::ModelRenderer(const std::string& renderName, const std::string& filePath)
 {
@@ -35,10 +36,20 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 	localTransform_->SetMapWorld(localTransform_->GetMatWorld());
 }
 
-void ModelRenderer::Draw(WorldTransform* parentTransform)
+void ModelRenderer::Draw()
 {
-	parentTransform;
 	RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
+
+	// 環境マップバインド
+	int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
+
+	if (envMapIndex >= 0) {
+		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+	} else {
+		TextureManager::GetInstance()->LoadTexture("skybox_cube.dds");
+		envMapIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
+		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+	}
 
 	model_->Draw();
 }

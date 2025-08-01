@@ -10,6 +10,7 @@
 #include "3d/Object/Model/Material/Material.h"
 #include <3d/Object/Object3d.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
+#include <3d/Light/LightManager.h>
 
 void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 {
@@ -63,8 +64,12 @@ void Model::Draw()
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
 		materials_[mesh->GetMeshData().materialIndex]->Bind();
 
+		CameraManager::GetInstance()->BindCameraToShader();
+		LightManager::GetInstance()->BindLightsToShader();
+
 		// メッシュを描画
-		mesh->Draw();
+		mesh->Bind();
+		modelLoader_->GetDxManager()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
 	}
 }
 
@@ -78,15 +83,6 @@ void Model::Bind()
         // メッシュをバインド（頂点バッファなど）
         mesh->Bind();
     }
-}
-
-void Model::SetMeshMaterialIndex(size_t meshIndex, uint32_t materialIndex)
-{
-	if (meshIndex < meshes_.size() && materialIndex < materials_.size()) {
-		// SkinnedMeshDataはmeshDataを持つので、そちらのmaterialIndexを変更
-		modelData_.meshes[meshIndex].materialIndex = materialIndex;
-		meshes_[meshIndex]->GetMeshData().materialIndex = materialIndex;
-	}
 }
 
 #ifdef _DEBUG

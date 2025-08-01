@@ -11,9 +11,10 @@ RendererManager* RendererManager::GetInstance()
 	return instance;
 }
 
-void RendererManager::Initialize(DirectXManager* dxManager)
+void RendererManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
 {
 	dxManager_ = dxManager;
+	srvManager_ = srvManager;
 }
 
 void RendererManager::Finalize()

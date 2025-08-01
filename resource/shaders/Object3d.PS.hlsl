@@ -9,8 +9,11 @@ struct Material
 {
     float4 color;
     int enableLighting;
+    float environmentIntensity;
+    float2 padding;  // 16バイトアラインメント
     float4x4 uvTransform;
     float shininess;
+    float3 padding2;
 };
 ConstantBuffer<Material> gMaterial : register(b0);
 
@@ -64,6 +67,9 @@ cbuffer SpotLights : register(b4)
 {
     SpotLight gSpotLights[MAX_SPOT_LIGHTS];
 }
+
+// 環境マップ
+TextureCube<float32_t4> gEnvironmentTexture : register(t1);
 
 Texture2D<float4> gTexture : register(t0);
 SamplerState gSampler : register(s0);
@@ -153,12 +159,22 @@ PixelShaderOutput main(VertexShaderOutput input)
             finalDiffuse += gSpotLights[i].color.rgb * gSpotLights[i].intensity * falloffFactor * gMaterial.color.rgb * textureColor.rgb * diff;
             finalSpecular += gSpotLights[i].color.rgb * gSpotLights[i].intensity * falloffFactor * spec;
         }
+        
+        
     }
     else
     {
         finalDiffuse = gMaterial.color.rgb * textureColor.rgb;
     }
 
-    output.color = float4(finalDiffuse + finalSpecular, textureColor.a);
+    // 環境マップの計算
+    float32_t3 cameraToPosition = normalize(input.worldPosition - gCamera.worldPosition);
+    float32_t3 reflectedVector = reflect(cameraToPosition, normalize(input.normal));
+    float32_t4 environmentColor = gEnvironmentTexture.Sample(gSampler, reflectedVector);
+
+    // 環境マップを反映
+    float3 finalColor = finalDiffuse + finalSpecular + environmentColor.rgb * gMaterial.environmentIntensity;
+
+    output.color = float4(finalColor, textureColor.a);
     return output;
 }

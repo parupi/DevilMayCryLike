@@ -15,6 +15,7 @@
 #include <3d/Collider/SphereCollider.h>
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/SkySystem/SkySystem.h>
+#include <offscreen/GaussianEffect.h>
 
 void SampleScene::Initialize()
 {
@@ -29,9 +30,10 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
 	ModelManager::GetInstance()->LoadSkinnedModel("simpleSkin");
 	ModelManager::GetInstance()->LoadSkinnedModel("sneakWalk");
-	//ModelManager::GetInstance()->LoadSkinnedModel("ParentKoala");
+	ModelManager::GetInstance()->LoadSkinnedModel("ParentKoala");
+	ModelManager::GetInstance()->LoadSkinnedModel("Warrior");
 	//ModelManager::GetInstance()->LoadSkinnedModel("Characters_Anne");
-	//ModelManager::GetInstance()->LoadSkinnedModel("BrainStem");
+	ModelManager::GetInstance()->LoadSkinnedModel("BrainStem");
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane");
 	ModelManager::GetInstance()->LoadModel("Terrain");
@@ -44,7 +46,6 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 
 	TextureManager::GetInstance()->LoadTexture("Cube.png");
-	TextureManager::GetInstance()->LoadTexture("rostock_laage_airport_4k.dds");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
@@ -55,28 +56,25 @@ void SampleScene::Initialize()
 	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
-	object_->GetWorldTransform()->GetTranslation().y = -4.0f;
-
+	object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
 
 	// レンダラーの追加
-	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
-	// プリミティブレンダラーの生成、追加
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderRing", PrimitiveType::Ring, "uvChecker.png"));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("renderCylinder", PrimitiveType::Cylinder, "uvChecker.png"));
+	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
 
-	render1_ = std::make_unique<PrimitiveRenderer>("renderPlane", PrimitiveType::Plane, "Terrain.png");
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
-	render1_->GetWorldTransform()->GetScale() = { 1000.0f, 10.0f, 1000.0f };
-	static_cast<Model*>(render1_->GetModel())->GetMaterials(0)->GetUVData().size.x = 100;
-	static_cast<Model*>(render1_->GetModel())->GetMaterials(0)->GetUVData().size.y = 100;
+	// モデルとアニメーション取得
+	SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
+	Animation* anim = model->GetAnimation();
 
-	RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	anim->Play("Falling", true, 0.5f);
 
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("renderPlane"));
+	for (int32_t i = 0; i < 1; i++) {
+		model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
+	}
 	// ゲームオブジェクトを追加
-	Object3dManager::GetInstance()->AddObject(std::move(object_));
+	//Object3dManager::GetInstance()->AddObject(std::move(object_));
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
@@ -92,6 +90,7 @@ void SampleScene::Initialize()
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
+	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GaussianEffect>());
 }
 
 void SampleScene::Finalize()
@@ -103,22 +102,26 @@ void SampleScene::Update()
 
 	ParticleManager::GetInstance()->Update();
 
-	player_->Update();
-
-	cameraManager_->Update();
 	lightManager_->UpdateAllLight();
 
+	object_->Update();
+
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
+
+#ifdef _DEBUG
+	DebugUpdate();
+#endif // _DEBUG
 }
 
 void SampleScene::Draw()
 {
 	Object3dManager::GetInstance()->DrawSet();
 
-	Object3dManager::GetInstance()->DrawSetForAnimation();
-	lightManager_->BindLightsToShader();
-	cameraManager_->BindCameraToShader();
-	player_->Draw();
+	//Object3dManager::GetInstance()->DrawSetForAnimation();
+	//lightManager_->BindLightsToShader();
+	//cameraManager_->BindCameraToShader();
+	object_->Draw();
+
 
 	ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();
@@ -133,9 +136,9 @@ void SampleScene::DrawRTV()
 #ifdef _DEBUG
 void SampleScene::DebugUpdate()
 {
-	//ImGui::Begin("Object");
-	//object_->DebugGui();
-	//ImGui::End();
+	ImGui::Begin("Object");
+	object_->DebugGui();
+	ImGui::End();
 
 	//ImGui::Begin("Object2");
 	//object2_->DebugGui();

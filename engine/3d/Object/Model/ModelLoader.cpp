@@ -23,7 +23,7 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 	for (uint32_t i = 0; i < scene->mNumMaterials; ++i) {
 		aiMaterial* material = scene->mMaterials[i];
 		MaterialData matData;
-		matData.name_ = material->GetName().C_Str();
+		matData.name = material->GetName().C_Str();
 
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 			aiString textureFilePath;
@@ -109,9 +109,9 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 	for (uint32_t i = 0; i < scene->mNumMaterials; ++i) {
 		aiMaterial* material = scene->mMaterials[i];
 		MaterialData matData;
-		matData.name_ = material->GetName().C_Str();
+		matData.name = material->GetName().C_Str();
 
-		if (matData.name_ == "") {
+		if (matData.name == "") {
 			break;
 		}
 
@@ -139,19 +139,19 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 
 		SkinnedMeshData SkinnedMeshData;
 		SkinnedMeshData.skinClusterName = mesh->mName.C_Str();
-		SkinnedMeshData.meshData.vertices.resize(mesh->mNumVertices);
+		SkinnedMeshData.vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& pos = mesh->mVertices[vertexIndex];
 			aiVector3D& norm = mesh->mNormals[vertexIndex];
 
-			SkinnedMeshData.meshData.vertices[vertexIndex].position = { -pos.x, pos.y, pos.z, 1.0f };
-			SkinnedMeshData.meshData.vertices[vertexIndex].normal = { -norm.x, norm.y, norm.z };
+			SkinnedMeshData.vertices[vertexIndex].position = { -pos.x, pos.y, pos.z, 1.0f };
+			SkinnedMeshData.vertices[vertexIndex].normal = { -norm.x, norm.y, norm.z };
 
 			if (hasUV) {
 				aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
-				SkinnedMeshData.meshData.vertices[vertexIndex].texcoord = { uv.x, uv.y };
+				SkinnedMeshData.vertices[vertexIndex].texcoord = { uv.x, uv.y };
 			} else {
-				SkinnedMeshData.meshData.vertices[vertexIndex].texcoord = { 0.0f, 0.0f }; // ダミー
+				SkinnedMeshData.vertices[vertexIndex].texcoord = { 0.0f, 0.0f }; // ダミー
 			}
 		}
 
@@ -162,10 +162,10 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 				int32_t i1 = face.mIndices[1];
 				int32_t i2 = face.mIndices[2];
 				int32_t i3 = face.mIndices[3];
-				SkinnedMeshData.meshData.indices.insert(SkinnedMeshData.meshData.indices.end(), { i0, i1, i2, i0, i2, i3 });
+				SkinnedMeshData.indices.insert(SkinnedMeshData.indices.end(), { i0, i1, i2, i0, i2, i3 });
 			} else if (face.mNumIndices == 3) {
 				for (uint32_t i = 0; i < 3; ++i) {
-					SkinnedMeshData.meshData.indices.push_back(face.mIndices[i]);
+					SkinnedMeshData.indices.push_back(face.mIndices[i]);
 				}
 			}
 		}
@@ -197,7 +197,7 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 		}
 
 		// --- マテリアルとの紐付け ---
-		SkinnedMeshData.meshData.materialIndex = mesh->mMaterialIndex;
+		SkinnedMeshData.materialIndex = mesh->mMaterialIndex;
 
 		modelData.meshes[meshIndex] = SkinnedMeshData;
 	}
@@ -216,7 +216,7 @@ Node ModelLoader::ReadNode(aiNode* node)
 	result.transform.translate = { -translate.x, translate.y, translate.z }; // x軸を反転
 	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
 
-	result.name_ = node->mName.C_Str(); // node名を格納
+	result.name = node->mName.C_Str(); // node名を格納
 	result.children.resize(node->mNumChildren); // 子供の数だけ確保
 	for (uint32_t childIndex = 0; childIndex < node->mNumChildren; ++childIndex) {
 		// 再帰的に読むことで階層構造を作る

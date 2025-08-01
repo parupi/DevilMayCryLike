@@ -67,8 +67,9 @@ void GameScene::Update()
 	//player_->Update();
 
 	//enemy_->Update();
-
+#ifdef _DEBUG
 	DebugUpdate();
+#endif
 }
 
 void GameScene::Draw()
@@ -102,7 +103,7 @@ void GameScene::DrawRTV()
 #ifdef _DEBUG
 void GameScene::DebugUpdate()
 {
-	//player_->DebugGui();
+	Object3dManager::GetInstance()->FindObject("Player")->DebugGui();
 	
 	//enemy_->DebugGui();
 }
