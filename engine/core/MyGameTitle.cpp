@@ -43,7 +43,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("SAMPLE");
+	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
