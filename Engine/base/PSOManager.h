@@ -52,6 +52,9 @@ public:// アクセッサ
 
 	ID3D12RootSignature* GetSkyboxSignature() { return skyboxSignature_.Get(); }
 	ID3D12PipelineState* GetSkyboxPSO();
+
+	ID3D12RootSignature* GetSkinningSignature() { return skinningSignature_.Get(); }
+	ID3D12PipelineState* GetSkinningPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -74,6 +77,9 @@ private:
 	// スカイボックス
 	void CreateSkyboxSignature();
 	void CreateSkyboxPSO();
+	// ComputeSkinning
+	void CreateSkinningSignature();
+	void CreateSkinningPSO();
 
 private:
 	DirectXManager* dxManager_ = nullptr;
@@ -100,4 +106,7 @@ private: // データ格納用変数
 	// スカイボックス
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> skyboxSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> skyboxGraphicsPipelineState_;
+	// ComputeSkinning
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> skinningSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> skinningComputePipelineState_;
 };
