@@ -19,6 +19,13 @@ Camera::Camera(std::string cameraName)
 
 void Camera::Update()
 {
+#ifdef _DEBUG
+	ImGui::Begin("camera");
+	ImGui::DragFloat3("translate0", &transform_.translate.x, 0.01f);
+	ImGui::DragFloat3("rotate0", &transform_.rotate.x, 0.01f);
+	ImGui::End();
+#endif // _DEBUG
+
 	worldMatrix_ = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	viewMatrix_ = Inverse(worldMatrix_);
 	projectionMatrix_ = MakePerspectiveFovMatrix(horizontalFOV_, aspectRatio_, nearClip_, farClip_);

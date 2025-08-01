@@ -9,28 +9,40 @@ class SrvManager;
 class SkinCluster
 {
 public:
-	void Initialize(
-		const SkeletonData& skeleton,
-		const SkinnedMeshData& meshData, // メッシュごとのデータ
-		const std::map<std::string, JointWeightData>& skinClusterData,
-		DirectXManager* dxManager,
-		SrvManager* srvManager);
+	SkinCluster() = default;
+	~SkinCluster();
+
+	void Initialize(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData, DirectXManager* dxManager, SrvManager* srvManager);
 
 	// SkinClusterを生成する関数
-	SkinClusterData CreateSkinCluster(
-		const SkeletonData& skeleton,
-		const SkinnedMeshData& meshData, // メッシュごとのデータ
-		const std::map<std::string, JointWeightData>& skinClusterData,
-		DirectXManager* dxManager,
-		SrvManager* srvManager);
-	// スキンクラスターの更新
+	void CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
+
+	void UpdateSkinning();
+
+	void UpdateInputVertex(const SkinnedMeshData& modelData);
+
 	void UpdateSkinCluster(const SkeletonData& skeleton);
 
+	// paletteの生成
+	void CreatePaletteResource(const SkeletonData& skeleton);
+	// influenceの生成
+	void CreateInfluenceResource(const SkinnedMeshData& meshData);
+	// inputVertexの生成
+	void CreateInputVertexResource();
+	// outputVertexの生成
+	void CreateOutputVertexResource();
+	// skinningInfoの生成
+	void CreateSkinningInfoResource();
+
+	SkinClusterData& GetSkinCluster() { return skinCluster_; }
 private:
+	DirectXManager* dxManager_ = nullptr;
+	SrvManager* srvManager_ = nullptr;
+
 	// スキンクラスター
 	SkinClusterData skinCluster_;
-
-public:
-	SkinClusterData GetSkinCluster() const { return skinCluster_; }
+	// 頂点数
+	uint32_t vertexCount_;
+	size_t vertexOffset = 0;
 };
 

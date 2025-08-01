@@ -35,7 +35,7 @@ void OutlineEffect::Draw()
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kOutLine));
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
-	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, OffScreenManager::GetInstance()->GetSRVGPUHandle());
+	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
 

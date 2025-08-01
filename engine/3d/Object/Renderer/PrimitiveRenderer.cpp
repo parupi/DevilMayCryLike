@@ -26,8 +26,7 @@ void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
     localTransform_->SetMapWorld(localTransform_->GetMatWorld());
 }
 
-void PrimitiveRenderer::Draw(WorldTransform* parentTransform) {
-    parentTransform;
+void PrimitiveRenderer::Draw() {
     RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
 
     // 環境マップバインド

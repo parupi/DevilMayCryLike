@@ -11,7 +11,7 @@ GrayEffect::GrayEffect() : BaseOffScreen()
 
 	CreateEffectResource();
 
-	isActive_ = true;
+	//isActive_ = true;
 }
 
 GrayEffect::~GrayEffect()

@@ -12,13 +12,14 @@
 #include "math/function.h"
 #include "math/Vector2.h"
 #include <math/Vector4.h>
+#include <dxgi1_6.h>
 
 // 骨
 struct Joint {
 	QuaternionTransform transform;
 	Matrix4x4 localMatrix;
 	Matrix4x4 skeletonSpaceMatrix;
-	std::string name_;
+	std::string name;
 	std::vector<int32_t> children;
 	int32_t index;
 	std::optional<int32_t> parent;
@@ -42,46 +43,48 @@ struct WellForGPU {
 	Matrix4x4 skeletonSpaceInverseTransposeMatrix;
 };
 
-struct SkinClusterData {
-	std::vector<Matrix4x4> inverseBindPoseMatrices;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> influenceResource;
-	D3D12_VERTEX_BUFFER_VIEW influenceBufferView;
-	std::span<VertexInfluence> mappedInfluence;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> paletteResource;
-	std::span<WellForGPU> mappedPalette;
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> paletteSrvHandle;
-	uint32_t srvIndex;
-};
-
 struct VertexData {
 	Vector4 position{};
 	Vector2 texcoord{};
 	Vector3 normal{};
 };
 
-struct Color {
-	float r, g, b;
+struct SkinningInformation {
+	uint32_t vertexCount;
+	uint32_t padding[3];
 };
 
-struct MaterialData {
-	std::string name_;
-	float Ns;
-	Color Ka;	// 環境光色
-	Color Kd;	// 拡散反射色
-	Color Ks;	// 鏡面反射光
-	float Ni;
-	float d;
-	uint32_t illum;
-	std::string textureFilePath;
-	uint32_t textureIndex = 0;
+struct SkinClusterData {
+	std::vector<Matrix4x4> inverseBindPoseMatrices;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> influenceResource;
+	std::span<VertexInfluence> mappedInfluence;
+	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> influenceSrvHandle;
+	uint32_t influenceIndex;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> paletteResource;
+	std::span<WellForGPU> mappedPalette;
+	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> paletteSrvHandle;
+	uint32_t paletteIndex;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> inputVertexResource;
+	std::span<VertexData> mappedInputVertex;
+	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> inputVertexSrvHandle;
+	uint32_t inputVertexIndex;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> outputVertexResource;
+	D3D12_VERTEX_BUFFER_VIEW mappedOutputVertex;
+	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> outputVertexSrvHandle;
+	uint32_t outputVertexIndex;
+
+	Microsoft::WRL::ComPtr<ID3D12Resource> skinningInfoResource;
+	SkinningInformation* skinningInfoData;
 };
 
 struct Node {
 	QuaternionTransform transform;
 	Matrix4x4 localMatrix;
-	std::string name_;
+	std::string name;
 	std::vector<Node> children;
 };
 
@@ -95,28 +98,40 @@ struct JointWeightData {
 	std::vector<VertexWeightData> vertexWeights;
 };
 
-
-
 struct MeshData {
-	std::string name_;
+	std::string name;
 	std::vector<VertexData> vertices;
 	std::vector<int32_t> indices;
 	uint32_t materialIndex; // このメッシュに持たせるマテリアルのインデックス
 };
 
+struct Color {
+	float r, g, b;
+};
+
+struct MaterialData {
+	std::string name;
+	float Ns;
+	Color Ka;	// 環境光色
+	Color Kd;	// 拡散反射色
+	Color Ks;	// 鏡面反射光
+	float Ni;
+	float d;
+	uint32_t illum;
+	std::string textureFilePath;
+	uint32_t textureIndex = 0;
+};
 
 struct ModelData {
-	//std::map<std::string, JointWeightData> skinClusterData;
 	std::vector<MeshData> meshes;
 	std::vector<MaterialData> materials;
-
-	//Node rootNode;
-	//bool isAnimation;
-	//bool isHasBones;
 };
 
 struct SkinnedMeshData {
-	MeshData meshData;
+	std::string name;
+	std::vector<VertexData> vertices;
+	std::vector<int32_t> indices;
+	uint32_t materialIndex; // このメッシュに持たせるマテリアルのインデックス
 	std::string skinClusterName; // このメッシュが参照するスキンクラスタの名前
 	std::map<std::string, JointWeightData> skinClusterData;
 };
@@ -126,6 +141,8 @@ struct SkinnedModelData {
 	std::vector<MaterialData> materials;
 	Node rootNode;
 };
+
+
 
 template <typename tValue>
 struct Keyframe {

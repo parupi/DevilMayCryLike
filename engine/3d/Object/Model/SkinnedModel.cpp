@@ -6,6 +6,10 @@
 #include "3d/Object/Model/ModelManager.h"
 #include <3d/Object/Object3d.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
+#include <DirectXTex/d3dx12.h>
+#include <3d/Light/LightManager.h>
+#include "3d/Object/Object3dManager.h"
+#include "base/PSOManager.h"
 
 void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileName)
 {
@@ -24,9 +28,15 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 	animation_->Initialize(this, fileName);
 
 	// メッシュとマテリアルの作成
-	for (auto& skinnedMeshData : modelData_.meshes) {
+	for (size_t i = 0; i < modelData_.meshes.size(); ++i) {
+		const auto& skinnedMeshData = modelData_.meshes[i];
+
 		auto mesh = std::make_unique<Mesh>();
-		mesh->Initialize(GetDxManager(), GetSrvManager(), skinnedMeshData.meshData);
+		mesh->Initialize(GetDxManager(), GetSrvManager(), skinnedMeshData);
+
+		// 各メッシュにスキンクラスタを作成させる
+		mesh->CreateSkinCluster(skeleton_->GetSkeletonData(), skinnedMeshData, skinnedMeshData.skinClusterData);
+
 		meshes_.emplace_back(std::move(mesh));
 	}
 
@@ -35,60 +45,57 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 		material->Initialize(GetDxManager(), GetSrvManager(), materialData);
 		materials_.emplace_back(std::move(material));
 	}
-
-	// スキンクラスタ作成
-	for (const auto& mesh : modelData_.meshes) {
-		std::unique_ptr<SkinCluster> skinCluster = std::make_unique<SkinCluster>();
-		skinCluster->Initialize(
-			skeleton_->GetSkeletonData(),
-			mesh, // 各メッシュごと
-			mesh.skinClusterData,
-			GetDxManager(),
-			GetSrvManager()
-		);
-		skinClusters_.emplace_back(std::move(skinCluster));
-
-	}
 }
 
 void SkinnedModel::Update()
 {
-	// アニメーションの更新を呼ぶ（ここが抜けていた）
+	// アニメーションの更新を呼ぶ（ここが抜けてい
 	animation_->Update();
 
 	// アニメーションの時間取得
 	animationTime = animation_->GetAnimationTime();
 
-	//skeleton_->ApplyAnimation(animation_->GetCurrentAnimation(), animationTime);
 	skeleton_->Update();
-	for (const auto& skinCluster : skinClusters_) {
-		skinCluster->UpdateSkinCluster(skeleton_->GetSkeletonData());
+
+
+	for (const auto& mesh : meshes_) {
+		auto* cluster = mesh->GetSkinCluster();
+		cluster->UpdateInputVertex(mesh->GetSkinnedMeshData()); // メッシュ単位になったのでこれでOK
+		cluster->UpdateSkinCluster(skeleton_->GetSkeletonData());
 	}
 }
 
 void SkinnedModel::Draw()
 {
-	for (size_t i = 0; i < meshes_.size(); ++i) {
-		assert(i < skinClusters_.size());
-		const auto& skinCluster = skinClusters_[i];
-
-		// パレットSRVをバインド
-		modelLoader_->GetDxManager()->GetCommandList()->SetGraphicsRootDescriptorTable(8, skinCluster->GetSkinCluster().paletteSrvHandle.second);
-
-		// 頂点バッファ（インフルエンス）を設定
-		const auto& view = skinCluster->GetSkinCluster().influenceBufferView;
-		modelLoader_->GetDxManager()->GetCommandList()->IASetVertexBuffers(1, 1, &view);
+	for (auto& mesh : meshes_) {
+		CameraManager::GetInstance()->BindCameraToShader();
+		LightManager::GetInstance()->BindLightsToShader();
 
 		// マテリアル設定
-		const auto& mesh = meshes_[i];
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
 		materials_[mesh->GetMeshData().materialIndex]->Bind();
 
 		// 描画
-		mesh->Draw();
-	}
+		mesh->Bind();
 
+		modelLoader_->GetDxManager()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
+	}
 }
+
+void SkinnedModel::UpdateSkinningWithCS()
+{
+	auto* commandList = modelLoader_->GetDxManager()->GetCommandList();
+
+	// ✅ Compute用のPSOとRootSignature設定
+	commandList->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningPSO());
+	commandList->SetComputeRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningSignature());
+
+	// 各スキンクラスタのスキニング処理
+	for (auto& mesh : meshes_) {
+		mesh->Update();
+	}
+}
+
 #ifdef _DEBUG
 void SkinnedModel::DebugGui(ModelRenderer* render)
 {

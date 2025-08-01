@@ -30,9 +30,10 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
 	ModelManager::GetInstance()->LoadSkinnedModel("simpleSkin");
 	ModelManager::GetInstance()->LoadSkinnedModel("sneakWalk");
-	//ModelManager::GetInstance()->LoadSkinnedModel("ParentKoala");
+	ModelManager::GetInstance()->LoadSkinnedModel("ParentKoala");
+	ModelManager::GetInstance()->LoadSkinnedModel("Warrior");
 	//ModelManager::GetInstance()->LoadSkinnedModel("Characters_Anne");
-	//ModelManager::GetInstance()->LoadSkinnedModel("BrainStem");
+	ModelManager::GetInstance()->LoadSkinnedModel("BrainStem");
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane");
 	ModelManager::GetInstance()->LoadModel("Terrain");
@@ -55,16 +56,25 @@ void SampleScene::Initialize()
 	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
-	object_->GetWorldTransform()->GetTranslation().y = -4.0f;
-
+	object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
 
 	// レンダラーの追加
 	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
 
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
+
+	// モデルとアニメーション取得
+	SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
+	Animation* anim = model->GetAnimation();
+
+	anim->Play("Falling", true, 0.5f);
+
+	for (int32_t i = 0; i < 1; i++) {
+		model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
+	}
 	// ゲームオブジェクトを追加
-	Object3dManager::GetInstance()->AddObject(std::move(object_));
+	//Object3dManager::GetInstance()->AddObject(std::move(object_));
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
@@ -92,19 +102,26 @@ void SampleScene::Update()
 
 	ParticleManager::GetInstance()->Update();
 
-	cameraManager_->Update();
 	lightManager_->UpdateAllLight();
 
+	object_->Update();
+
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
+
+#ifdef _DEBUG
+	DebugUpdate();
+#endif // _DEBUG
 }
 
 void SampleScene::Draw()
 {
 	Object3dManager::GetInstance()->DrawSet();
 
-	Object3dManager::GetInstance()->DrawSetForAnimation();
-	lightManager_->BindLightsToShader();
-	cameraManager_->BindCameraToShader();
+	//Object3dManager::GetInstance()->DrawSetForAnimation();
+	//lightManager_->BindLightsToShader();
+	//cameraManager_->BindCameraToShader();
+	object_->Draw();
+
 
 	ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();
@@ -119,9 +136,9 @@ void SampleScene::DrawRTV()
 #ifdef _DEBUG
 void SampleScene::DebugUpdate()
 {
-	//ImGui::Begin("Object");
-	//object_->DebugGui();
-	//ImGui::End();
+	ImGui::Begin("Object");
+	object_->DebugGui();
+	ImGui::End();
 
 	//ImGui::Begin("Object2");
 	//object2_->DebugGui();
