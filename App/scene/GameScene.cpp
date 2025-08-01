@@ -67,8 +67,9 @@ void GameScene::Update()
 	//player_->Update();
 
 	//enemy_->Update();
-
+#ifdef _DEBUG
 	DebugUpdate();
+#endif
 }
 
 void GameScene::Draw()

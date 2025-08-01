@@ -11,7 +11,7 @@ public:
 
 	void Update(WorldTransform* parentTransform) override;
 
-	void Draw(WorldTransform* parentTransform) override;
+	void Draw() override;
 
 	void SetModel(const std::string& filePath);
 

@@ -4,26 +4,23 @@
 
 void Skeleton::Initialize(SkinnedModel* model)
 {
-	model_ = model;
-
-	CreateSkeleton(model_->GetModelData().rootNode);
+	CreateSkeleton(model->GetModelData().rootNode);
 }
 
 void Skeleton::Update()
 {
-	for (auto& joint : skeletonData_.joints) {
-		joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
-
-		if (joint.parent && *joint.parent < skeletonData_.joints.size()) {
-			joint.skeletonSpaceMatrix = joint.localMatrix * skeletonData_.joints[*joint.parent].skeletonSpaceMatrix;
-		}
-		else {
-			joint.skeletonSpaceMatrix = joint.localMatrix;
-		}
-	}
+    // すべてのJointを更新。親が若いので通常ループで処理可能
+    for (Joint& joint : skeletonData_.joints) {
+        joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+        if (joint.parent) { // 親がいれば親の行列を掛ける
+            joint.skeletonSpaceMatrix = joint.localMatrix * skeletonData_.joints[*joint.parent].skeletonSpaceMatrix;
+        } else { // 親がいないのでlocalMatrixとskeletonSpaceMatrixは一致する
+            joint.skeletonSpaceMatrix = joint.localMatrix;
+        }
+    }
 }
 
-void Skeleton::ApplyAnimation(
+void Skeleton::ApplyNextAnimation(
     AnimationData* current,
     AnimationData* prev,
     float time,
@@ -35,7 +32,7 @@ void Skeleton::ApplyAnimation(
     const float blendT = (blendTime > 0.0f) ? std::clamp(blendProgress / blendTime, 0.0f, 1.0f) : 1.0f;
 
     for (auto& joint : skeletonData_.joints) {
-        const std::string& nodeName = joint.name_;
+        const std::string& nodeName = joint.name;
 
         Vector3 scale = { 1, 1, 1 };
         Vector3 translate = { 0, 0, 0 };
@@ -86,10 +83,22 @@ void Skeleton::ApplyAnimation(
     }
 }
 
+void Skeleton::ApplyAnimation(AnimationData* animation, float animationTime)
+{
+    for (Joint& joint : skeletonData_.joints) {
+        if (auto it = animation->nodeAnimations.find(joint.name); it != animation->nodeAnimations.end()) {
+            const NodeAnimation& rootNodeAnimation = (*it).second;
+            joint.transform.translate = Animation::CalculateValue(rootNodeAnimation.translate.keyframes, animationTime);
+            joint.transform.rotate = Animation::CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime);
+            joint.transform.scale = Animation::CalculateValue(rootNodeAnimation.scale.keyframes, animationTime);
+        }
+    }
+}
+
 const Matrix4x4& Skeleton::GetJointMatrix(const std::string& name) const
 {
     for (const auto& joint : skeletonData_.joints) {
-        if (joint.name_ == name) {
+        if (joint.name == name) {
             return joint.skeletonSpaceMatrix;
         }
     }
@@ -100,13 +109,13 @@ void Skeleton::CreateSkeleton(const Node& rootNode) {
 	skeletonData_.root = CreateJoint(rootNode, {}, skeletonData_.joints);
 
 	for (const auto& joint : skeletonData_.joints) {
-		skeletonData_.jointMap.emplace(joint.name_, joint.index);
+		skeletonData_.jointMap.emplace(joint.name, joint.index);
 	}
 }
 
 int32_t Skeleton::CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
 	Joint joint;
-	joint.name_ = node.name_;
+	joint.name = node.name;
 	joint.localMatrix = node.localMatrix;
 	joint.skeletonSpaceMatrix = MakeIdentity4x4();
 	joint.transform = node.transform;
@@ -127,7 +136,7 @@ std::vector<std::pair<std::string, Matrix4x4>> Skeleton::GetBoneMatrices() const
 {
 	std::vector<std::pair<std::string, Matrix4x4>> boneMatrices;
 	for (const auto& joint : skeletonData_.joints) {
-		boneMatrices.emplace_back(joint.name_, joint.skeletonSpaceMatrix);
+		boneMatrices.emplace_back(joint.name, joint.skeletonSpaceMatrix);
 	}
 	return boneMatrices;
 }

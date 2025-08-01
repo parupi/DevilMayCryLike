@@ -49,9 +49,8 @@ void InstancingRenderer::Update(WorldTransform* parentTransform)
     localTransform_->SetMapWorld(localTransform_->GetMatWorld());
 }
 
-void InstancingRenderer::Draw(WorldTransform* parentTransform)
+void InstancingRenderer::Draw()
 {
-    parentTransform;
     if (instances_.empty()) return;
 
     auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();

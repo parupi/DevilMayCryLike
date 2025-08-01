@@ -306,10 +306,11 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::UploadTextureData(ID3D12R
 	return intermediateResource;
 }
 
-void DirectXManager::CreateBufferResource(size_t sizeInBytes, Microsoft::WRL::ComPtr<ID3D12Resource>& outResource)
+void DirectXManager::CreateBufferResource(size_t sizeInBytes, Microsoft::WRL::ComPtr<ID3D12Resource>& outResource, bool isUAV)
 {
 	// リソース用のヒープの設定
 	D3D12_HEAP_PROPERTIES uploadHeapProperties{};
+
 	uploadHeapProperties.Type = D3D12_HEAP_TYPE_UPLOAD; // UploadHeapを使う
 	// リソースの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
@@ -323,17 +324,30 @@ void DirectXManager::CreateBufferResource(size_t sizeInBytes, Microsoft::WRL::Co
 	resourceDesc.SampleDesc.Count = 1;
 	// バッファの場合はこれにする決まり
 	resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-	// 実際にリソースを作る
-	//Microsoft::WRL::ComPtr<ID3D12Resource> resource = nullptr;
-	HRESULT hr = GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&outResource));
-	assert(SUCCEEDED(hr));
-
-	// 
+	if (isUAV) {
+		uploadHeapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
+		resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+		
+		// 実際にリソースを作る
+		HRESULT hr = GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_COMMON, nullptr, IID_PPV_ARGS(&outResource));
+		assert(SUCCEEDED(hr));
+		// 
 #ifdef _DEBUG
-	std::wstring debugName = L"Buffer_" + std::to_wstring(reinterpret_cast<uintptr_t>(outResource.Get()));
-	outResource->SetName(debugName.c_str());
-	OutputDebugStringW((L"Created " + debugName + L"\n").c_str());
+		std::wstring debugName = L"Buffer_" + std::to_wstring(reinterpret_cast<uintptr_t>(outResource.Get()));
+		outResource->SetName(debugName.c_str());
+		OutputDebugStringW((L"Created " + debugName + L"\n").c_str());
 #endif
+	} else {
+		// 実際にリソースを作る
+		HRESULT hr = GetDevice()->CreateCommittedResource(&uploadHeapProperties, D3D12_HEAP_FLAG_NONE, &resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&outResource));
+		assert(SUCCEEDED(hr));
+		// 
+#ifdef _DEBUG
+		std::wstring debugName = L"Buffer_" + std::to_wstring(reinterpret_cast<uintptr_t>(outResource.Get()));
+		outResource->SetName(debugName.c_str());
+		OutputDebugStringW((L"Created " + debugName + L"\n").c_str());
+#endif
+	}
 }
 
 Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_CLEAR_VALUE color)

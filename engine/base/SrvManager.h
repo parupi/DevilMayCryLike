@@ -22,6 +22,8 @@ public:
 	// SRV生成 (Structured Buffer用)
 	void CreateSRVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
 
+	void CreateUAVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
+
 	void SetGraphicsRootDescriptorTable(UINT PootParameterIndex, uint32_t srvIndex);
 
 

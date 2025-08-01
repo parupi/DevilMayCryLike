@@ -1,5 +1,7 @@
 #pragma once
 #include <3d/Object/Model/ModelStructs.h>
+#include <3d/Object/Model/Animation/SkinCluster.h>
+#include <memory>
 
 class SrvManager;
 class DirectXManager;
@@ -10,11 +12,21 @@ public:
 	~Mesh();
 	// 初期化処理
 	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, const MeshData& meshData);
+
+	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, const SkinnedMeshData& meshData);
 	// 描画処理
-	void Draw();
+	void Update();
 
 	void Bind();
 
+	void CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
+
+	D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const { return vertexBufferView_; }
+
+	const MeshData& GetMeshData() { return meshData_; }
+	const SkinnedMeshData& GetSkinnedMeshData() { return skinnedMeshData_; }
+
+	SkinCluster* GetSkinCluster() { return skinCluster_.get(); }
 private:
 
 	// 頂点データの生成
@@ -36,8 +48,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 
 	MeshData meshData_;
+	SkinnedMeshData skinnedMeshData_;
 
-public:
-	MeshData& GetMeshData() { return meshData_; }
-
+	std::unique_ptr<SkinCluster> skinCluster_; // 追加
 };

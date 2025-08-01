@@ -46,6 +46,8 @@ public:
 	bool GetIsLighting() const { return materialForGPU_->enableLighting; }
 	void SetIsLighting(const bool isLighting) { materialForGPU_->enableLighting = isLighting; }
 
+	void SetEnvironmentIntensity(float intensity) {materialForGPU_->environmentIntensity = intensity; }
+
 	UVData& GetUVData() { return uvData_; }
 };
 

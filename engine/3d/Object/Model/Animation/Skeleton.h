@@ -12,7 +12,9 @@ public:
 	// 更新
 	void Update();
 	// アニメーションを適用
-	void ApplyAnimation(AnimationData* current, AnimationData* prev, float time, float blendTime, float blendProgress);
+	void ApplyNextAnimation(AnimationData* current, AnimationData* prev, float time, float blendTime, float blendProgress);
+
+	void ApplyAnimation(AnimationData* animation, float animationTime);
 
 	const Matrix4x4& GetJointMatrix(const std::string& name) const;
 private:
@@ -24,9 +26,6 @@ private:
 private:
 	// スケルトンデータ
 	SkeletonData skeletonData_;
-
-	// モデルデータ
-	SkinnedModel* model_;
 
 public: // ゲッター // セッター //
 	SkeletonData GetSkeletonData() const { return skeletonData_; }
