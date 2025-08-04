@@ -8,6 +8,11 @@ enum class AttackType {
 	Slash, // 斬撃
 };
 
+enum class AttackPosture {
+	Stand, // 立ち状態
+	Air, // 空中状態
+};
+
 // 攻撃の情報
 struct AttackData {
 	// 挙動系
@@ -30,6 +35,9 @@ struct AttackData {
 
 	// 攻撃力
 	float damage = 0.0f;                      // ダメージ値
+
+	// 派生先
+	AttackPosture posture = AttackPosture::Stand;
 };
 
 class PlayerStateAttackBase : public PlayerStateBase
@@ -63,5 +71,7 @@ protected:
 	GlobalVariables* gv = GlobalVariables::GetInstance();
 
 	AttackData attackData_;
+	// 派生先を管理するためのタイマー
+	TimeData attackChangeTimer_;
 };
 

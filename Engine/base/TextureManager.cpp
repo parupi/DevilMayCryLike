@@ -124,9 +124,10 @@ uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& fileName)
 	return 0;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& filePath)
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& fileName)
 {
 	assert(srvManager_->CanAllocate());
+	const std::string filePath = "Resource/Images/" + fileName;
 
 	TextureData& textureData = textureData_[filePath];
 	return textureData.srvHandleGPU;

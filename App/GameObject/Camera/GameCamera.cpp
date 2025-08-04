@@ -17,40 +17,65 @@ void GameCamera::Update()
     // プレイヤーの位置を取得
     Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
 
-    // === キー操作による水平角度の更新 ===
-    const float angleSpeed = 0.02f; // 回転速度（ラジアン）
-    if (Input::GetInstance()->PushKey(DIK_K)) {
-        horizontalAngle_ -= angleSpeed;
+    Vector3 cameraPos{};
+
+    Vector3 lookTarget = playerPos;
+
+    if (player_->IsLockOn()) {
+        Vector3 lockOnPos = player_->GetLockOnPos();
+
+        // プレイヤー → ロックオン対象のベクトル
+        Vector3 toEnemy = lockOnPos - playerPos;
+        toEnemy.y = 0.0f;
+        toEnemy = Normalize(toEnemy);
+
+        // 背後に回るために逆ベクトルを使用
+        const float distance = 20.0f;
+        const float height = 12.0f;
+
+        cameraPos = playerPos - (toEnemy * distance);
+        cameraPos.y += height;
+
+        // プレイヤーとロックオン対象の中間点を見る
+        lookTarget = (playerPos + lockOnPos) * 0.5f;
+    } else {
+        // === キー操作による水平角度の更新 ===
+        const float angleSpeed = 0.02f; // 回転速度（ラジアン）
+        if (input_->IsConnected()) {
+            if (input_->GetRightStickX() < 0.0f) {
+                horizontalAngle_ -= angleSpeed;
+            }
+            if (input_->GetRightStickX() > 0.0f) {
+                horizontalAngle_ += angleSpeed;
+            }
+        } else {
+            if (input_->PushKey(DIK_K)) {
+                horizontalAngle_ -= angleSpeed;
+            }
+            if (input_->PushKey(DIK_L)) {
+                horizontalAngle_ += angleSpeed;
+            }
+        }
+
+        // 半径と高さを固定しつつ水平回転
+        const float distance = 20.0f;  // プレイヤーからの距離
+        const float height = 12.0f;    // 高さ
+
+        Vector3 offset = {
+            std::sin(horizontalAngle_) * distance,
+            height,
+            std::cos(horizontalAngle_) * distance,
+        };
+
+        // カメラの位置をプレイヤーの位置 + オフセット に設定
+        cameraPos = playerPos + offset;
+
+        // ======== ロックオン先がある場合は、プレイヤーとロックオンの中間点を見る ========
+        lookTarget = playerPos;
+       
     }
-    if (Input::GetInstance()->PushKey(DIK_L)) {
-        horizontalAngle_ += angleSpeed;
-    }
-
-    // 半径と高さを固定しつつ水平回転
-    const float distance = 20.0f;  // プレイヤーからの距離
-    const float height = 12.0f;    // 高さ
-
-    Vector3 offset = {
-        std::sin(horizontalAngle_) * distance,
-        height,
-        std::cos(horizontalAngle_) * distance,
-    };
-
-    // カメラの位置をプレイヤーの位置 + オフセット に設定
-    Vector3 cameraPos = playerPos + offset;
+    
     GetTranslate() = cameraPos;
-
-    // プレイヤーの位置を見るようにカメラの注視点を設定
-    LookAt(playerPos);
-
-    // カメラの更新（親クラスの Update を呼ぶ）
+    LookAt(lookTarget);
     Camera::Update();
-
-    //ImGui::Begin("Camera");
-    //ImGui::DragFloat3("Translate", &offset.x, 0.01f);
-    //ImGui::DragFloat3("Rotate", &transform_.rotate.x, 0.01f);
-    //ImGui::DragFloat("angle", &horizontalAngle_, 0.01f);
-    //ImGui::End();
-
-    //PrintOnImGui(GetForward(), "forward");
 }

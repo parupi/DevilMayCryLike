@@ -43,7 +43,7 @@ void GameScene::Initialize()
 	ParticleManager::GetInstance()->CreateParticleGroup("smoke", "circle.png");
 
 	// スカイボックスを生成
-	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
+	SkySystem::GetInstance()->CreateSkyBox("pretoria_gardens_4k.dds");
 
 	// ============ライト=================//
 	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("Dir1");
@@ -52,6 +52,8 @@ void GameScene::Initialize()
 	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f , 1.0f};
 	dirLight->GetLightData().intensity = 1.0f;
 	lightManager_->AddDirectionalLight(std::move(dirLight));
+
+
 }
 
 void GameScene::Finalize()
@@ -85,6 +87,9 @@ void GameScene::Draw()
 	//for (auto& object : sceneObjects_) {
 	//	object->Draw();
 	//}
+
+	SpriteManager::GetInstance()->DrawSet();
+	static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"))->DrawEffect();
 
 	//Object3dManager::GetInstance()->DrawSet();
 	//lightManager_->BindLightsToShader();

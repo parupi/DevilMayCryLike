@@ -30,6 +30,18 @@ PlayerStateAttackBase::PlayerStateAttackBase(std::string attackName)
 
 	// ダメージなどの汎用パラメータ
 	gv->AddItem(name_, "Damage", float());
+
+	gv->AddItem(name_, "Posture", int32_t());
+
+	// 派生先インデックスの個数
+	gv->AddItem(name_, "NextAttackCount", int32_t(0));
+
+	// 初期で最大3個まで確保（必要なら動的にも増やせる）
+	for (int i = 0; i < 3; ++i) {
+		gv->AddItem(name_, "NextAttackIndex_" + std::to_string(i), int32_t(-1)); // -1 = 無効
+	}
+
+	gv->AddItem(name_, "AttackPosture", int32_t(0));
 }
 
 void PlayerStateAttackBase::Enter(Player& player)
@@ -39,6 +51,9 @@ void PlayerStateAttackBase::Enter(Player& player)
 	stateTime_.max = attackData_.totalDuration;
 
 	attackData_.pointCount = gv->GetValueRef<int32_t>(name_, "PointCount");
+
+	attackChangeTimer_.max = attackData_.nextAttackDelay;
+	attackChangeTimer_.current = 0.0f;
 
 	for (int32_t i = 0; i < attackData_.pointCount; i++) {
 		attackData_.controlPoints.push_back(gv->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i)));
@@ -120,6 +135,50 @@ void PlayerStateAttackBase::Update(Player& player)
 
 		player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
 		break;
+	case AttackPhase::Cancel:
+		attackChangeTimer_.current += DeltaTime::GetDeltaTime();
+
+		int32_t attackPosture = gv->GetValueRef<int32_t>(name_, "AttackPosture");
+		// 接地状態ならば
+		if (attackPosture == 0) {
+			if (Input::GetInstance()->TriggerButton(PadNumber::ButtonA)) {
+				player.ChangeState("Jump");
+				return;
+			}
+		
+			if (player.IsLockOn()) {
+				if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() < 0.0f) {
+					player.ChangeState("AttackHighTime");
+					return;
+				}
+			}
+		}
+
+		if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
+			int nextCount = gv->GetValueRef<int32_t>(name_, "NextAttackCount");
+
+			if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
+				float segment = attackChangeTimer_.max / static_cast<float>(nextCount);  // 1区間の時間
+				float elapsed = attackChangeTimer_.current;  // 今の経過時間
+
+				// どの派生か（例: 0〜2）
+				int derivedIndex = static_cast<int>(elapsed / segment);
+
+				// 安全対策: 範囲外アクセス防止
+				if (derivedIndex >= nextCount) {
+					derivedIndex = nextCount - 1;
+				}
+
+				std::string key = "NextAttackIndex_" + std::to_string(derivedIndex);
+				int32_t nextIndex = gv->GetValueRef<int32_t>(name_, key);
+				if (nextIndex >= 0 && nextIndex < player.GetAttackStateCount()) {
+					std::string nextAttackName = player.GetAttackStateNameByIndex(nextIndex);
+					player.ChangeState(nextAttackName);
+					return;
+				}
+			}
+		}
+		break;
 	}
 
 	// 状態遷移
@@ -131,6 +190,11 @@ void PlayerStateAttackBase::Update(Player& player)
 void PlayerStateAttackBase::Exit(Player& player)
 {
 	player;
+	attackPhase_ = AttackPhase::Startup;
+	stateTime_.current = 0.0f;
+	stateTime_.max = attackData_.totalDuration;
+
+	attackChangeTimer_.current = 0.0f;
 }
 
 void PlayerStateAttackBase::UpdateAttackData()

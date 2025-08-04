@@ -15,10 +15,22 @@ void PlayerStateAttackAerialRave1::Update(Player& player)
 {
 	PlayerStateAttackBase::Update(player);
 	if (attackPhase_ == AttackPhase::Cancel) {
-		if (Input::GetInstance()->TriggerKey(DIK_J)) {
-			player.ChangeState("AttackAerialRave2");
+		if (Input::GetInstance()->IsConnected()) {
+			// 空中攻撃
+			if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
+				player.ChangeState("AttackAerialRave2");
+				return;
+			}
+		} else {
+			// 空中攻撃
+			if (Input::GetInstance()->TriggerKey(DIK_J)) {
+				player.ChangeState("AttackAerialRave2");
+				return;
+			}
 		}
 	}
+
+
 }
 
 void PlayerStateAttackAerialRave1::Exit(Player& player)

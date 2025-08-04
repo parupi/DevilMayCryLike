@@ -53,9 +53,16 @@
             0.0,
             5.0
         ],
+        "NextAttackCount": 0,
         "NextAttackDelay": 0.0,
+        "NextAttackIndex_0": -1,
+        "NextAttackIndex_1": -1,
+        "NextAttackIndex_2": -1,
+        "NextAttackIndex_3": -1,
+        "NextAttackIndex_4": -1,
         "PointCount": 8,
-        "PostDelay": 0.4000000059604645,
+        "PostDelay": 0.30000001192092896,
+        "Posture": 0,
         "PreDelay": 0.10000000149011612,
         "TotalDuration": 0.699999988079071
     }

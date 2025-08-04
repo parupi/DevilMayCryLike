@@ -15,7 +15,7 @@ void PlayerStateAttackComboB2::Update(Player& player)
 {
 	PlayerStateAttackBase::Update(player);
 	if (attackPhase_ == AttackPhase::Cancel) {
-		if (Input::GetInstance()->TriggerKey(DIK_J)) {
+		if (Input::GetInstance()->TriggerKey(DIK_J) || Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
 			player.ChangeState("AttackComboB3");
 		} 
 		// 攻撃のトリガー

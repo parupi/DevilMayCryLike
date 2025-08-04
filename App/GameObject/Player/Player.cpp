@@ -35,14 +35,22 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	states_["Move"] = std::make_unique<PlayerStateMove>();
 	states_["Jump"] = std::make_unique<PlayerStateJump>();
 	states_["Air"] = std::make_unique<PlayerStateAir>();
-	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackComboA1>("AttackComboA1");
-	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackComboA2>("AttackComboA2");
-	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackComboA3>("AttackComboA3");
-	states_["AttackComboB2"] = std::make_unique<PlayerStateAttackComboB2>("AttackComboB2");
-	states_["AttackComboB3"] = std::make_unique<PlayerStateAttackComboB3>("AttackComboB3");
-	states_["AttackHighTime"] = std::make_unique<PlayerStateAttackHighTime>("AttackHighTime");
-	states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackAerialRave1>("AttackAerialRave1");
-	states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackAerialRave2>("AttackAerialRave2");
+	//states_["AttackComboA1"] = std::make_unique<PlayerStateAttackComboA1>("AttackComboA1");
+	//states_["AttackComboA2"] = std::make_unique<PlayerStateAttackComboA2>("AttackComboA2");
+	//states_["AttackComboA3"] = std::make_unique<PlayerStateAttackComboA3>("AttackComboA3");
+	//states_["AttackComboB2"] = std::make_unique<PlayerStateAttackComboB2>("AttackComboB2");
+	//states_["AttackComboB3"] = std::make_unique<PlayerStateAttackComboB3>("AttackComboB3");
+	//states_["AttackHighTime"] = std::make_unique<PlayerStateAttackHighTime>("AttackHighTime");
+	//states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackAerialRave1>("AttackAerialRave1");
+	//states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackAerialRave2>("AttackAerialRave2");
+	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
+	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
+	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
+	states_["AttackComboB2"] = std::make_unique<PlayerStateAttackBase>("AttackComboB2");
+	states_["AttackComboB3"] = std::make_unique<PlayerStateAttackBase>("AttackComboB3");
+	states_["AttackHighTime"] = std::make_unique<PlayerStateAttackBase>("AttackHighTime");
+	states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave1");
+	states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave2");
 	currentState_ = states_["Idle"].get();
 }
 
@@ -70,6 +78,20 @@ void Player::Initialize()
 	scoreManager = std::make_unique<StylishScoreManager>();
 
 	weapon_->SetScoreManager(scoreManager.get());
+
+	sprite_ = std::make_unique<Sprite>();
+	sprite_->Initialize("uvChecker.png");
+	sprite_->SetSize({ 32.0f, 32.0f });
+	sprite_->SetAnchorPoint({ 0.5f, 0.5f });
+
+	// 全攻撃を一度更新しておく
+	for (auto& state : states_) {
+		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
+		if (attackState) {
+			DrawAttackDataEditor(attackState);
+			attackState->UpdateAttackData();
+		}
+	}
 }
 
 void Player::Update()
@@ -80,6 +102,8 @@ void Player::Update()
 
 	scoreManager->Update();
 
+	LockOn();
+
 	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
 	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 
@@ -89,13 +113,19 @@ void Player::Update()
 	weapon_->Update();
 	Object3d::Update();
 
-	// ImGuiによるエディターを描画
-	for (auto& [name, state] : states_) {
-		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
+	// 全攻撃を更新
+	for (auto& state : states_) {
+		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
 		if (attackState) {
-			DrawAttackDataEditor(attackState);
 			attackState->UpdateAttackData();
 		}
+	}
+	
+	DrawAttackDataEditorUI();
+
+	if (lockOnEnemy_) {
+		sprite_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
+		sprite_->Update();
 	}
 }
 
@@ -115,13 +145,15 @@ void Player::Draw()
 
 void Player::DrawEffect()
 {
-
+	if (isLockOn_) {
+		sprite_->Draw();
+	}
 }
 
 void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 {
 	const char* attackName = attack->name_.c_str();
-	ImGui::Begin(attackName);
+	//ImGui::Begin(attackName);
 
 	int32_t& pointCount = gv->GetValueRef<int32_t>(attackName, "PointCount");
 
@@ -161,6 +193,46 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 
 	ImGui::DragFloat("Damage", &gv->GetValueRef<float>(attackName, "Damage"), 0.01f);
 
+	// 攻撃時に地上にいるかの判定
+	ImGui::Separator();
+
+	ImGui::Text("Posture:");
+	ImGui::SameLine();
+	ImGui::RadioButton("Stand", &gv->GetValueRef<int32_t>(attackName, "AttackPosture"), 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Air", &gv->GetValueRef<int32_t>(attackName, "AttackPosture"), 1);
+
+	// === 派生攻撃インデックス ===
+	ImGui::Separator();
+	ImGui::Text("Next Attacks");
+
+	int32_t& nextAttackCount = gv->GetValueRef<int32_t>(attack->name_, "NextAttackCount");
+	ImGui::DragInt("Next Attack Count", &nextAttackCount, 1, 0, 5);
+	nextAttackCount = std::clamp(nextAttackCount, 0, 3);
+
+	// 全攻撃名リストの取得
+	std::vector<std::string> attackNames;
+	for (auto& [name, state] : states_) {
+		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+			attackNames.push_back(name);
+		}
+	}
+	std::vector<const char*> cstrs;
+	for (const auto& name : attackNames) {
+		cstrs.push_back(name.c_str());
+	}
+
+	// 複数の派生攻撃を選択
+	for (int i = 0; i < nextAttackCount; ++i) {
+		std::string key = "NextAttackIndex_" + std::to_string(i);
+		int32_t& index = gv->GetValueRef<int32_t>(attack->name_, key);
+		if (index < 0 || index >= (int32_t)attackNames.size()) {
+			index = 0; // 範囲外防止
+		}
+		std::string label = "Next Attack " + std::to_string(i);
+		ImGui::Combo(label.c_str(), &index, cstrs.data(), static_cast<int>(cstrs.size()));
+	}
+
 	ImGui::Separator();
 
 	if (ImGui::Button("Save")) {
@@ -168,16 +240,62 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 		std::string message = std::format("{}.json saved.", attackName);
 		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 	}
-	ImGui::End();
+
 }
 
+void Player::DrawAttackDataEditorUI()
+{
+	// 攻撃ステートを収集
+	std::vector<PlayerStateAttackBase*> attackStates;
+	std::vector<std::string> attackNames;
+	for (auto& [name, state] : states_) {
+		if (auto* attack = dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+			attackStates.push_back(attack);
+			attackNames.push_back(attack->name_);
+		}
+	}
 
+	// 攻撃ステートが存在しない場合は処理しない
+	if (attackStates.empty()) return;
+
+	// コンボによる選択 UI
+	static int currentIndex = 0;
+	if (currentIndex >= attackStates.size()) currentIndex = 0;
+
+	std::vector<const char*> nameCStrs;
+	for (const auto& name : attackNames) {
+		nameCStrs.push_back(name.c_str());
+	}
+
+	ImGui::Begin("Attack Editor");
+
+	if (ImGui::Combo("Select Attack", &currentIndex, nameCStrs.data(), static_cast<int>(nameCStrs.size()))) {
+		// 選択が変わったら必要に応じて処理
+	}
+
+	// 選択中の攻撃ステートのエディタを表示
+	PlayerStateAttackBase* selectedAttack = attackStates[currentIndex];
+	if (selectedAttack) {
+		DrawAttackDataEditor(selectedAttack);
+	}
+
+	ImGui::End();
+}
 
 #ifdef _DEBUG
 void Player::DebugGui()
 {
+	// 現在のステート名を取得
+	const char* currentStateName = "Unknown";
+	for (const auto& [named, state] : states_) {
+		if (state.get() == currentState_) {
+			currentStateName = named.c_str();
+			break;
+		}
+	}
 
-	ImGui::Begin("Object");
+	ImGui::Begin("Player");
+	ImGui::Text("Current State: %s", currentStateName);
 	Object3d::DebugGui();
 	ImGui::End();
 
@@ -201,6 +319,7 @@ void Player::ChangeState(const std::string& stateName)
 
 void Player::Move()
 {
+	input = Input::GetInstance();
 	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
 	if (!camera) return;
 
@@ -208,10 +327,20 @@ void Player::Move()
 	velocity_ = { 0.0f, velocity_.y, 0.0f };
 	// 入力方向をローカル（プレイヤーから見た）方向で作成
 	Vector3 inputDir = { 0.0f, 0.0f, 0.0f };
-	if (Input::GetInstance()->PushKey(DIK_W)) inputDir.z += 1.0f;
-	if (Input::GetInstance()->PushKey(DIK_S)) inputDir.z -= 1.0f;
-	if (Input::GetInstance()->PushKey(DIK_D)) inputDir.x += 1.0f;
-	if (Input::GetInstance()->PushKey(DIK_A)) inputDir.x -= 1.0f;
+
+	if (input->IsConnected()) {
+		if (input->GetLeftStickY() != 0.0f) {
+			inputDir.z = input->GetLeftStickY();
+		} 
+		if (input->GetLeftStickX() != 0.0f) {
+			inputDir.x = input->GetLeftStickX();
+		}
+	} else {
+		if (Input::GetInstance()->PushKey(DIK_W)) inputDir.z += 1.0f;
+		if (Input::GetInstance()->PushKey(DIK_S)) inputDir.z -= 1.0f;
+		if (Input::GetInstance()->PushKey(DIK_D)) inputDir.x += 1.0f;
+		if (Input::GetInstance()->PushKey(DIK_A)) inputDir.x -= 1.0f;
+	}
 
 	if (Length(inputDir) > 0.01f) {
 		inputDir = Normalize(inputDir);
@@ -234,14 +363,78 @@ void Player::Move()
 		velocity_ = moveDir * 10.0f;
 		velocity_.y = velocityY;
 
-		// プレイヤーの向きも更新
-		if (Length(moveDir) > 0.001f) {
-			moveDir.x *= -1.0f;
-			Quaternion lookRot = LookRotation(moveDir);
+		// ロックオンしていなければプレイヤーの向きも更新
+		if (!isLockOn_) {
+			if (Length(moveDir) > 0.001f) {
+				moveDir.x *= -1.0f;
+				Quaternion lookRot = LookRotation(moveDir);
+
+				GetWorldTransform()->GetRotation() = lookRot;
+			}
+		}
+	}
+}
+
+void Player::LockOn()
+{
+	std::vector<Object3d*> objects;
+	objects = Object3dManager::GetInstance()->GetAllObject();
+	for (auto& object : objects) {
+		if (!object->name_.find("Enemy")) {
+			enemies_.push_back(static_cast<Enemy*>(object));
+		}
+	}
+
+	if (input->TriggerButton(PadNumber::ButtonR)) {
+		isLockOn_ = true;
+		// 敵を設定
+		float lowDistance = 300.0f;
+		for (auto& enemy : enemies_) {
+
+			float length = Length(enemy->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
+			if (length < lowDistance) {
+				lowDistance = length;
+				lockOnEnemy_ = enemy;
+			}
+		}
+	}
+
+	if (input->ReleaseButton(PadNumber::ButtonR)) {
+		isLockOn_ = false;
+	}
+
+	if (isLockOn_) {
+		Vector3 direction = Normalize(lockOnEnemy_->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
+		if (Length(direction) > 0.001f) {
+			direction.x *= -1.0f;
+			Quaternion lookRot = LookRotation(direction);
 
 			GetWorldTransform()->GetRotation() = lookRot;
 		}
 	}
+}
+
+std::string Player::GetAttackStateNameByIndex(int32_t index) const
+{
+	int i = 0;
+	for (const auto& [name, state] : states_) {
+		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+			if (i == index) return name;
+			++i;
+		}
+	}
+	return "";
+}
+
+int32_t Player::GetAttackStateCount() const
+{
+	int32_t count = 0;
+	for (const auto& [_, state] : states_) {
+		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+			++count;
+		}
+	}
+	return count;
 }
 
 void Player::OnCollisionEnter(BaseCollider* other)

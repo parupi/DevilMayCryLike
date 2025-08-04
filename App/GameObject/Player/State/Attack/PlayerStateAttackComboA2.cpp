@@ -15,11 +15,11 @@ void PlayerStateAttackComboA2::Update(Player& player)
 {
 	PlayerStateAttackBase::Update(player);
 	if (attackPhase_ == AttackPhase::Cancel) {
-		if (Input::GetInstance()->TriggerKey(DIK_J)) {
+		if (Input::GetInstance()->TriggerKey(DIK_J) || Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
 			player.ChangeState("AttackComboA3");
 		}
 		// 攻撃のトリガー
-		if (Input::GetInstance()->TriggerKey(DIK_H)) {
+		if (Input::GetInstance()->TriggerKey(DIK_H) || (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() < 0.0f)) {
 			player.ChangeState("AttackHighTime");
 			return;
 		}
