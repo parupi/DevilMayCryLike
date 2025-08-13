@@ -1,6 +1,7 @@
 {
     "AttackAerialRave1": {
         "AttackDuration": 0.14000000059604645,
+        "AttackPosture": 1,
         "ControlPoint_0": [
             1.0,
             -0.5,
@@ -43,9 +44,16 @@
             0.6000000238418579,
             0.0
         ],
-        "NextAttackDelay": 0.6000000238418579,
+        "NextAttackCount": 1,
+        "NextAttackDelay": 0.49000000953674316,
+        "NextAttackIndex_0": 7,
+        "NextAttackIndex_1": 0,
+        "NextAttackIndex_2": -1,
+        "NextAttackIndex_3": -1,
+        "NextAttackIndex_4": -1,
         "PointCount": 6,
         "PostDelay": 0.03999999910593033,
+        "Posture": 0,
         "PreDelay": 0.029999999329447746,
         "TotalDuration": 0.699999988079071
     }

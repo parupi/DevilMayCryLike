@@ -14,6 +14,8 @@
 #include "math/function.h"
 #include <debuger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
+#include <GameObject/Enemy/Enemy.h>
+#include <2d/Sprite.h>
 
 class Player : public Object3d
 {
@@ -30,7 +32,12 @@ public:
 
 	// ImGUiによる攻撃のエディター
 	void DrawAttackDataEditor(PlayerStateAttackBase* attack);
+	void DrawAttackDataEditorUI();
 
+	// インデックスから攻撃名取得
+	std::string GetAttackStateNameByIndex(int32_t index) const;
+	// 
+	int32_t GetAttackStateCount() const;
 
 	// 衝突した
 	void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
@@ -52,6 +59,9 @@ public:
 	// 移動処理メソッド
 	void Move();
 
+	// ロックオン処理メソッド
+	void LockOn();
+
 	// アクセッサ
 	Vector3& GetVelocity() { return velocity_; }
 	Vector3& GetAcceleration() { return acceleration_; }
@@ -59,7 +69,10 @@ public:
 	PlayerWeapon* GetWeapon() { return weapon_.get(); }
 	AttackData GetAttackData() const { return attackData_; }
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; }
-
+	// ロックオン先の座標取得
+	const Vector3& GetLockOnPos() { return lockOnEnemy_->GetWorldTransform()->GetTranslation(); }
+	// ロックオンしているかどうかを取得
+	bool IsLockOn() const { return isLockOn_; }
 private:
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_;
 	PlayerStateBase* currentState_ = nullptr;
@@ -75,17 +88,18 @@ private:
 	// 今出している攻撃のパラメータの受け皿
 	AttackData attackData_;
 
-	// 攻撃のフラグ
-	bool isAttack_ = false;
-	float timeAttackCurrent_ = 0.0f;
-	float timeAttackMax_ = 0.5f;
-	Vector3 startDir_ = { 0.0f, 0.0f, 0.0f };
-	Vector3 endDir_ = { 0.0f, 0.0f, 0.0f };
+
+	std::vector<Enemy*> enemies_;
+	Enemy* lockOnEnemy_ = nullptr;
+	bool isLockOn_ = false;
 
 	std::unique_ptr<PlayerAttackEffect> attackEffect_;
 	std::unique_ptr<PlayerWeapon> weapon_;
 
 	// 地面と接触しているか
 	bool onGround_;
+
+	// スプライト生成 テスト
+	std::unique_ptr<Sprite> sprite_;
 };
 

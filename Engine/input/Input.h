@@ -12,6 +12,22 @@
 #include <mutex>
 
 /// <summary>
+/// パッドのボタン
+/// </summary>
+enum PadNumber {
+	ButtonA = XINPUT_GAMEPAD_A,
+	ButtonB = XINPUT_GAMEPAD_B,
+	ButtonX = XINPUT_GAMEPAD_X,
+	ButtonY = XINPUT_GAMEPAD_Y,
+	ButtonL = XINPUT_GAMEPAD_LEFT_SHOULDER,
+	ButtonR = XINPUT_GAMEPAD_RIGHT_SHOULDER,
+	ButtonBack = XINPUT_GAMEPAD_BACK,
+	ButtonStart = XINPUT_GAMEPAD_START,
+	ButtonLeftStick = XINPUT_GAMEPAD_LEFT_THUMB,
+	ButtonRightStick = XINPUT_GAMEPAD_RIGHT_THUMB,
+};
+
+/// <summary>
 /// 入力
 /// </summary>
 class Input {
@@ -187,6 +203,21 @@ public: // メンバ関数
 	/// </summary>
 	Vector2 GetXInputLeftStick(int32_t stickNo = 0) const;
 
+
+	// パッドの接続状況を確認
+	bool IsConnected() const;
+
+	// コントローラのボタン入力
+	bool PushButton(int buttonNumber) const;
+	bool TriggerButton(int buttonNumber) const;
+	bool HoldButton(int buttonNumber) const;
+	bool ReleaseButton(int buttonNumber) const;
+
+	// スティックやトリガーの位置取得
+	float GetLeftStickX() const;
+	float GetLeftStickY() const;
+	float GetRightStickX() const;
+	float GetRightStickY() const;
 private:
 	static BOOL CALLBACK
 		EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) noexcept;
@@ -195,6 +226,8 @@ private:
 	//Input(const Input&) = delete;
 	//const Input& operator=(const Input&) = delete;
 	void SetupJoysticks();
+
+	float ProcessDeadZone(float value) const;
 
 private: // メンバ変数
 	Microsoft::WRL::ComPtr<IDirectInput8> dInput_;
@@ -207,4 +240,10 @@ private: // メンバ変数
 	DIMOUSESTATE2 mousePre_;
 	HWND hwnd_;
 	Vector2 mousePosition_;
+
+	XINPUT_STATE gamepadStates{};
+	XINPUT_STATE preGamepadStates{};
+
+	// スティックの遊び
+	int deadZone_ = 25;
 };
