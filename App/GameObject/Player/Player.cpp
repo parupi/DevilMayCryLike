@@ -10,14 +10,7 @@
 #include "State/PlayerStateAir.h"
 #include <numbers>
 #include <3d/Primitive/PrimitiveLineDrawer.h>
-#include "State/Attack/PlayerStateAttackComboA1.h"
-#include "State/Attack/PlayerStateAttackComboA2.h"
-#include "State/Attack/PlayerStateAttackComboA3.h"
-#include "State/Attack/PlayerStateAttackComboB2.h"
-#include "State/Attack/PlayerStateAttackComboB3.h"
-#include "State/Attack/PlayerStateAttackHighTime.h"
-#include "State/Attack/PlayerStateAttackAerialRave1.h"
-#include "State/Attack/PlayerStateAttackAerialRave2.h"
+#include "State/Attack/PlayerStateAttackBase.h"
 
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
@@ -377,15 +370,16 @@ void Player::Move()
 
 void Player::LockOn()
 {
+	enemies_.clear();
 	std::vector<Object3d*> objects;
 	objects = Object3dManager::GetInstance()->GetAllObject();
 	for (auto& object : objects) {
-		if (!object->name_.find("Enemy")) {
+		if (!object->name_.find("HellKaina")) {
 			enemies_.push_back(static_cast<Enemy*>(object));
 		}
 	}
 
-	if (input->TriggerButton(PadNumber::ButtonR)) {
+	if (input->TriggerButton(PadNumber::ButtonR) || input->TriggerKey(DIK_P)) {
 		isLockOn_ = true;
 		// 敵を設定
 		float lowDistance = 300.0f;
@@ -399,7 +393,7 @@ void Player::LockOn()
 		}
 	}
 
-	if (input->ReleaseButton(PadNumber::ButtonR)) {
+	if (!input->PushButton(PadNumber::ButtonR) && !input->PushKey(DIK_P)) {
 		isLockOn_ = false;
 	}
 

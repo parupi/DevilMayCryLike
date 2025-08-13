@@ -62,8 +62,8 @@ std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& 
 			AABBData scaledAABB = col.aabb;
 
 			// スケールを適用
-			scaledAABB.offsetMin *= object->GetWorldTransform()->GetScale();
-			scaledAABB.offsetMax *= object->GetWorldTransform()->GetScale();
+			scaledAABB.offsetMin *= object->GetWorldTransform()->GetScale() * 2.0f;
+			scaledAABB.offsetMax *= object->GetWorldTransform()->GetScale() * 2.0f;
 
 			collider->GetColliderData() = scaledAABB;
 

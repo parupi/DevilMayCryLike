@@ -174,31 +174,7 @@
     <ClInclude Include="App\GameObject\Player\PlayerWeapon.h">
       <Filter>App\GameObject\Player</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave1.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave2.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackBase.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboA1.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboA2.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboA3.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboB2.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboB3.h">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackHighTime.h">
       <Filter>App\GameObject\Player\State\Attack</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Player\State\PlayerStateAir.h">
@@ -536,31 +512,7 @@
     <ClCompile Include="App\GameObject\Player\PlayerWeapon.cpp">
       <Filter>App\GameObject\Player</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave1.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackAerialRave2.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackBase.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboA1.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboA2.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboA3.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboB2.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackComboB3.cpp">
-      <Filter>App\GameObject\Player\State\Attack</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackHighTime.cpp">
       <Filter>App\GameObject\Player\State\Attack</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Player\State\PlayerStateAir.cpp">

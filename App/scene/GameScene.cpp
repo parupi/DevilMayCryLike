@@ -29,6 +29,7 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("PlayerLeftArm");
 	ModelManager::GetInstance()->LoadModel("PlayerRightArm");
 	ModelManager::GetInstance()->LoadModel("weapon");
+	ModelManager::GetInstance()->LoadModel("Cube");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("Terrain.png");
@@ -36,7 +37,7 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("MagicEffect.png");
 
 	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/stage.json"));
+	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Untitled.json"));
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");

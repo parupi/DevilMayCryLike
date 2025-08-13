@@ -141,7 +141,7 @@ void PlayerStateAttackBase::Update(Player& player)
 		int32_t attackPosture = gv->GetValueRef<int32_t>(name_, "AttackPosture");
 		// 接地状態ならば
 		if (attackPosture == 0) {
-			if (Input::GetInstance()->TriggerButton(PadNumber::ButtonA)) {
+			if (Input::GetInstance()->TriggerButton(PadNumber::ButtonA) || Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 				player.ChangeState("Jump");
 				return;
 			}
@@ -154,7 +154,7 @@ void PlayerStateAttackBase::Update(Player& player)
 			}
 		}
 
-		if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
+		if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) || Input::GetInstance()->TriggerKey(DIK_J)) {
 			int nextCount = gv->GetValueRef<int32_t>(name_, "NextAttackCount");
 
 			if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
