@@ -1,6 +1,7 @@
 {
     "AttackComboA1": {
         "AttackDuration": 0.15000000596046448,
+        "AttackPosture": 0,
         "ControlPoint_0": [
             -0.75,
             1.0,
@@ -43,9 +44,16 @@
             0.0,
             1.0
         ],
-        "NextAttackDelay": 0.6000000238418579,
+        "NextAttackCount": 2,
+        "NextAttackDelay": 0.28999999165534973,
+        "NextAttackIndex_0": 1,
+        "NextAttackIndex_1": 2,
+        "NextAttackIndex_2": 0,
+        "NextAttackIndex_3": 0,
+        "NextAttackIndex_4": 0,
         "PointCount": 6,
         "PostDelay": 0.07999999821186066,
+        "Posture": 0,
         "PreDelay": 0.07999999821186066,
         "TotalDuration": 0.6000000238418579
     }

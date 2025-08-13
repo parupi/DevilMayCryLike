@@ -34,6 +34,7 @@ public:
 
 	Object3d* FindObject(std::string objectName);
 
+	std::vector<Object3d*> GetAllObject();
 private:
 	// DirectXのポインタ
 	DirectXManager* dxManager_ = nullptr;

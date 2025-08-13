@@ -1,4 +1,7 @@
 #include "Ground.h"
+#include <3d/Object/Renderer/RendererManager.h>
+#include <memory>
+#include "3d/Object/Renderer/ModelRenderer.h"
 
 Ground::Ground(std::string objectName) : Object3d(objectName)
 {
@@ -7,7 +10,11 @@ Ground::Ground(std::string objectName) : Object3d(objectName)
 
 void Ground::Initialize()
 {
+	
+	// レンダラーの生成
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "Cube"));
 
+	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
 
 	GetCollider(name_)->category_ = CollisionCategory::Ground;
 }

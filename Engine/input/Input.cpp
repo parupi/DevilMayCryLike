@@ -66,6 +66,20 @@ void Input::SetupJoysticks() {
     dInput_->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumJoysticksCallback, this, DIEDFL_ATTACHEDONLY);
 }
 
+float Input::ProcessDeadZone(float value) const
+{
+    float maxValue = 1.0f; // スティックの最大値
+    float threshold = maxValue * (deadZone_ / 100.0f); // デッドゾーンを割合で計算
+
+    if (fabs(value) < threshold) {
+        return 0.0f; // デッドゾーン内の値は0にする
+    } else {
+        // デッドゾーンを超えたら、リマップ
+        return (value > 0) ? (value - threshold) / (maxValue - threshold)
+            : (value + threshold) / (maxValue - threshold);
+    }
+}
+
 // 毎フレームの更新処理
 void Input::Update() {
     // 前回のキーとマウスの状態を保存
@@ -78,23 +92,25 @@ void Input::Update() {
     // マウス状態の更新
     devMouse_->GetDeviceState(sizeof(DIMOUSESTATE2), &mouse_);
 
-    // ジョイスティック状態の更新
-    for (auto& joystick : devJoysticks_) {
-        joystick.statePre_ = joystick.state_;
-
-        if (joystick.type_ == PadType::XInput) {
-            XInputGetState(0, &joystick.state_.xInput_);
-        }
-        else {
-            joystick.device_->Poll();
-            joystick.device_->GetDeviceState(sizeof(DIJOYSTATE2), &joystick.state_.directInput_);
-        }
+    preGamepadStates = gamepadStates;
+    DWORD dwResult = XInputGetState(0, &gamepadStates);
+    if (dwResult != ERROR_SUCCESS) {
+        ZeroMemory(&gamepadStates, sizeof(XINPUT_STATE));
     }
 
-    //Vector2 stick = GetXInputLeftStick();
-    //bool a = IsXInputAPressed();
-    //OutputDebugStringA(("LeftStick: " + std::to_string(stick.x) + ", " + std::to_string(stick.y) + "\n").c_str());
-    //if (a) OutputDebugStringA("Aボタン押下中\n");
+    //// ジョイスティック状態の更新
+    //for (auto& joystick : devJoysticks_) {
+    //    joystick.statePre_ = joystick.state_;
+
+    //    if (joystick.type_ == PadType::XInput) {
+    //        XInputGetState(0, &joystick.state_.xInput_);
+    //    }
+    //    else {
+    //        joystick.device_->Poll();
+    //        joystick.device_->GetDeviceState(sizeof(DIJOYSTATE2), &joystick.state_.directInput_);
+    //    }
+    //}
+
 }
 
 // キーが押されているかのチェック
@@ -201,6 +217,51 @@ Vector2 Input::GetXInputLeftStick(int32_t stickNo) const {
     if (std::abs(normLY) < deadZone) normLY = 0.0f;
 
     return { normLX, normLY };
+}
+
+bool Input::IsConnected() const {
+    XINPUT_STATE state;
+    DWORD dwResult = XInputGetState(0, &state);
+    return (dwResult == ERROR_SUCCESS);
+}
+
+bool Input::PushButton(int buttonNumber) const {
+    return (gamepadStates.Gamepad.wButtons & buttonNumber) != 0;
+}
+
+bool Input::TriggerButton(int buttonNumber) const {
+    return !(preGamepadStates.Gamepad.wButtons & buttonNumber) &&
+        (gamepadStates.Gamepad.wButtons & buttonNumber);
+}
+
+bool Input::HoldButton(int buttonNumber) const {
+    return (preGamepadStates.Gamepad.wButtons & buttonNumber) &&
+        (gamepadStates.Gamepad.wButtons & buttonNumber);
+}
+
+bool Input::ReleaseButton(int buttonNumber) const {
+    return (preGamepadStates.Gamepad.wButtons & buttonNumber) &&
+        !(gamepadStates.Gamepad.wButtons & buttonNumber);
+}
+
+float Input::GetLeftStickX() const {
+    float rawValue = gamepadStates.Gamepad.sThumbLX / 32767.0f;
+    return ProcessDeadZone(rawValue);
+}
+
+float Input::GetLeftStickY() const {
+    float rawValue = gamepadStates.Gamepad.sThumbLY / 32767.0f;
+    return ProcessDeadZone(rawValue);
+}
+
+float Input::GetRightStickX() const {
+    float rawValue = gamepadStates.Gamepad.sThumbRX / 32767.0f;
+    return ProcessDeadZone(rawValue);
+}
+
+float Input::GetRightStickY() const {
+    float rawValue = gamepadStates.Gamepad.sThumbRY / 32767.0f;
+    return ProcessDeadZone(rawValue);
 }
 
 

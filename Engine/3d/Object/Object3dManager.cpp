@@ -89,3 +89,14 @@ Object3d* Object3dManager::FindObject(std::string objectName)
 	return nullptr;
 }
 
+std::vector<Object3d*> Object3dManager::GetAllObject()
+{
+	std::vector<Object3d*> objects;
+
+	for (auto& object : objects_) {
+		objects.push_back(object.get());
+	}
+
+	return objects;
+}
+

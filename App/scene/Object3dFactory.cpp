@@ -7,7 +7,7 @@
 std::unique_ptr<Object3d> Object3dFactory::Create(const std::string& className, const std::string& objectName) {
     if (className == "Player") {
         return std::make_unique<Player>(objectName);
-    } else if (className == "Enemy") {
+    } else if (className == "HellKaina") {
         return std::make_unique<Hellkaina>(objectName);
     } else if (className == "Ground") {
         return std::make_unique<Ground>(objectName);

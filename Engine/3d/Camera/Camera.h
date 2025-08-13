@@ -5,6 +5,7 @@
 #include <math/Matrix4x4.h>
 #include <math/Vector3.h>
 #include <math/Quaternion.h>
+#include <math/Vector2.h>
 class Camera
 {
 public: // メンバ関数
@@ -16,6 +17,8 @@ public: // メンバ関数
 
 	// フォローカメラ
 	void LookAt(const Vector3& target);
+	// ワールド座標をスクリーン座標に変換
+	Vector2 WorldToScreen(const Vector3& worldPos, int screenWidth, int screenHeight) const;
 
 protected:
 	EulerTransform transform_;
