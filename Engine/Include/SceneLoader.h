@@ -3,8 +3,20 @@
 #include <nlohmann/json.hpp> 
 #include <3d/Collider/ColliderStructs.h>
 #include <math/function.h>
+#include <GameObject/Enemy/Enemy.h>
 
 using json = nlohmann::json;
+
+struct EnemySpawnInfo {
+    std::string name;
+    float delay;
+};
+
+struct EventInfo {
+    std::string type;
+    std::string trigger;
+    std::vector<EnemySpawnInfo> enemies;
+};
 
 enum class ColliderType {
     None,
@@ -24,12 +36,12 @@ struct Collider {
 
 struct SceneObject {
     std::string name_;
-    std::string type;
-    std::string className = "Object3d"; // 追加
+    std::string className = "Object3d";
     EulerTransform transform;
     std::optional<std::string> fileName;
     std::optional<Collider> collider;
     std::vector<SceneObject> children;
+    std::optional<EventInfo> eventInfo;
 };
 
 

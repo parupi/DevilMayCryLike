@@ -471,6 +471,10 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
+    <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
+    <ClInclude Include="App\GameObject\Event\EventManager.h" />
+    <ClInclude Include="App\GameObject\Event\EventFactory.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -774,5 +778,9 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
+    <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
+    <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
+    <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ public:
     Enemy(std::string objectName);
     virtual ~Enemy() override = default;
 
-    // 初期化と更新は virtual にする
+    
     virtual void Initialize() override;
     virtual void Update() override;
     virtual void Draw() override;
@@ -42,6 +42,9 @@ public:
     float GetHp() const { return hp_; }
     void SetHp(float hp) { hp_ = hp; }
 
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool flag) { isActive_ = flag; }
+
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
     EnemyStateBase* currentState_ = nullptr;
@@ -53,4 +56,6 @@ protected:
 
     float hp_ = 3;
     bool onGround_ = false;
+    // 起動しているかどうか
+    bool isActive_ = true;
 };
