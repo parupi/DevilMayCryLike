@@ -5,15 +5,15 @@
 #include <dxgi.h>
 #include <dxgi1_6.h> // DXGI 1.6まで必要な場合
 
-std::unique_ptr<ImGuiManager> ImGuiManager::instance = nullptr;
+ImGuiManager* ImGuiManager::instance = nullptr;
 std::once_flag ImGuiManager::initInstanceFlag;
 
 ImGuiManager* ImGuiManager::GetInstance()
 {
 	std::call_once(initInstanceFlag, []() {
-		instance = std::make_unique<ImGuiManager>();
+		instance = new ImGuiManager();
 	});
-	return instance.get();
+	return instance;
 }
 
 void ImGuiManager::Initialize(WindowManager* winManager, DirectXManager* directXManager)
@@ -80,4 +80,6 @@ void ImGuiManager::Finalize()
 	ImGui::DestroyContext();
 	srvHeap_.Reset(); // 明示的にリセット
 	dxManager_ = nullptr;
+	delete instance;
+	instance = nullptr;
 }

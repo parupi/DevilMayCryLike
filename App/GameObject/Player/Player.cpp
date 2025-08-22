@@ -49,6 +49,7 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 
 void Player::Initialize()
 {
+	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
 	// 武器のレンダラー生成

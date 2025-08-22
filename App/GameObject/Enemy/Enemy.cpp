@@ -44,9 +44,9 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
-
-
-	Object3d::Draw();
+	if (isActive_) {
+		Object3d::Draw();
+	}
 }
 
 void Enemy::DrawEffect()

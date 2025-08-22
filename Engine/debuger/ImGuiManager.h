@@ -6,26 +6,26 @@
 class ImGuiManager
 {
 private:
-	static std::unique_ptr<ImGuiManager> instance;
+	static ImGuiManager* instance;
 	static std::once_flag initInstanceFlag;
 
+	ImGuiManager() = default;
+	~ImGuiManager() = default;
 	ImGuiManager(ImGuiManager&) = default;
 	ImGuiManager& operator=(ImGuiManager&) = default;
 public:
-	ImGuiManager() = default;
-	~ImGuiManager() = default;
 	// シングルトンインスタンスの取得
 	static ImGuiManager* GetInstance();
 	// 初期化
 	void Initialize(WindowManager* winManager, DirectXManager* directXManager);
+	// 終了
+	void Finalize();
 	// ImGui受付開始
 	void Begin();
 	// ImGui受付終了
 	void End();
 	// 描画
 	void Draw();
-	// 終了
-	void Finalize();
 private:
 	WindowManager* winManager_ = nullptr;
 	DirectXManager* dxManager_ = nullptr;

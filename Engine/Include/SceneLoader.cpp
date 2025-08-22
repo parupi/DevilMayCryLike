@@ -24,7 +24,6 @@ std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
 
 void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
     outObject.name_ = objJson["name"];
-    outObject.type = objJson["type"];
     outObject.className = objJson.value("class", "Object3d");
 
     const auto& transform = objJson["transform"];
@@ -50,6 +49,25 @@ void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
 
     if (objJson.contains("collider")) {
         outObject.collider = ParseCollider(objJson["collider"]);
+    }
+
+    if (objJson.contains("event")) {
+        EventInfo eventInfo;
+        const auto& eventJson = objJson["event"];
+
+        eventInfo.type = eventJson.value("type", "");
+        eventInfo.trigger = eventJson.value("trigger", "");
+
+        if (eventJson.contains("enemies")) {
+            for (const auto& enemyJson : eventJson["enemies"]) {
+                EnemySpawnInfo enemyInfo;
+                enemyInfo.name = enemyJson["name"];
+                enemyInfo.delay = enemyJson.value("delay", 0.0f);
+                eventInfo.enemies.push_back(enemyInfo);
+            }
+        }
+
+        outObject.eventInfo = eventInfo;
     }
 
     if (objJson.contains("children")) {
