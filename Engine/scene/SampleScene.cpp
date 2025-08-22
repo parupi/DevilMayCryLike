@@ -50,6 +50,9 @@ void SampleScene::Initialize()
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
+	emitter_ = std::make_unique<ParticleEmitter>();
+	emitter_->Initialize("test");
+
 	// 天球の生成
 	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
@@ -85,7 +88,7 @@ void SampleScene::Initialize()
 	dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
 	lightManager_->AddDirectionalLight(std::move(dirLight));
 
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
+
 
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
@@ -100,7 +103,9 @@ void SampleScene::Finalize()
 void SampleScene::Update()
 {
 
+	emitter_->Update({0.0f, 0.0f, 0.0f}, 3);
 	ParticleManager::GetInstance()->Update();
+
 
 	lightManager_->UpdateAllLight();
 

@@ -5,6 +5,9 @@
 class ParticleEmitter
 {
 public:
+	ParticleEmitter() = default;
+	~ParticleEmitter() = default;
+
 	// 初期化
 	void Initialize(std::string name_);
 	// 更新

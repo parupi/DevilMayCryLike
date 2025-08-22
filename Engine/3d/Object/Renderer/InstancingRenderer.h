@@ -7,12 +7,7 @@
 #include <math/Vector4.h>
 #include "3d/Object/Model/Model.h"
 #include "3d/Object/Renderer/PrimitiveRenderer.h"
-
-struct InstanceData {
-    Matrix4x4 world;
-    Matrix4x4 wvp;
-    Vector4 color;
-};
+#include "base/Particle/ParticleStruct.h"
 
 class InstancingRenderer : public BaseRenderer
 {

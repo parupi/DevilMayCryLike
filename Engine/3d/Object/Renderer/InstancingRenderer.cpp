@@ -3,6 +3,8 @@
 #include "PrimitiveFactory.h"
 #include <cassert>
 #include <cstring>
+#include <3d/SkySystem/SkySystem.h>
+#include <base/TextureManager.h>
 
 InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveType type, const std::string& texturePath)
 {
@@ -54,13 +56,7 @@ void InstancingRenderer::Draw()
     if (instances_.empty()) return;
 
     auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
-
-    model_->Bind();
-
-    commandList->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-
-    commandList->IASetVertexBuffers(1, 1, &vbView_);
-
+    // インスタンシング描画
     commandList->DrawInstanced(6, static_cast<UINT>(instances_.size()), 0, 0);
 }
 

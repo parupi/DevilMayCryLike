@@ -5,10 +5,10 @@
         "EmitPosition": [
             0.0,
             0.0,
-            5.0
+            0.0
         ],
-        "Frequency": 1.7300000190734863,
-        "IsActive": false,
+        "Frequency": 5.0,
+        "IsActive": true,
         "IsBillboard": false,
         "maxAlpha": 1.0,
         "maxColor": [
@@ -16,7 +16,7 @@
             1.0,
             1.0
         ],
-        "maxLifeTime": 0.30000001192092896,
+        "maxLifeTime": 0.4,
         "maxRotate": [
             3.0,
             3.0,
@@ -37,7 +37,7 @@
             0.0,
             0.0
         ],
-        "minAlpha": 0.0,
+        "minAlpha": 1.0,
         "minColor": [
             1.0,
             1.0,

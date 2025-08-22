@@ -92,6 +92,8 @@ void ParticleManager::Update()
 
 	for (auto& [groupName, particleGroup] : particleGroups_) {
 		numInstance = 0;
+		particleGroup.instanceCache.clear();
+		particleGroup.instanceCache.reserve(particleGroup.particleList.size());
 
 		for (auto particleIterator = particleGroup.particleList.begin(); particleIterator != particleGroup.particleList.end();) {
 			if ((*particleIterator).lifeTime <= (*particleIterator).currentTime) {
@@ -123,14 +125,34 @@ void ParticleManager::Update()
 			}
 			Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
 
-			// インスタンシングデータの設定
+			// ★ CPUキャッシュへ詰める
 			if (numInstance < kNumMaxInstance) {
+				InstanceData id{};
+				id.world = worldMatrix;
+				id.wvp = worldViewProjectionMatrix;
+				id.color = (*particleIterator).color;
+				id.color.w = alpha;
+				particleGroup.instanceCache.push_back(id);
+
+				// 既存のGPU配列も今は維持（後で削除予定）
 				instancingData_[numInstance].WVP = worldViewProjectionMatrix;
 				instancingData_[numInstance].World = worldMatrix;
 				instancingData_[numInstance].color = (*particleIterator).color;
 				instancingData_[numInstance].color.w = alpha;
+
 				++numInstance;
 			}
+
+			std::vector<InstanceData> instanceList;
+			for (auto& particle : particleGroup.particleList) {
+				InstanceData data{};
+				data.world = worldMatrix;
+				data.wvp = worldViewProjectionMatrix;
+				data.color = particle.color;
+				data.color.w = alpha;
+				instanceList.push_back(data);
+			}
+			particleGroup.renderer->SetInstanceList(instanceList);
 
 			++particleIterator;
 		}
@@ -153,8 +175,6 @@ void ParticleManager::Draw()
 	auto commandList = dxManager_->GetCommandList();
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
-
-
 	// すべてのパーティクルグループを描画
 	for (auto& [groupName, particleGroup] : particleGroups_) {
 		if (particleGroup.instanceCount > 0) {
@@ -166,38 +186,38 @@ void ParticleManager::Draw()
 			   // テクスチャのSRVのDescriptorTableを設定
 			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.materialData.textureFilePath));
 
-			commandList->DrawInstanced(6, particleGroup.instanceCount, 0, 0);
+			particleGroup.renderer->Draw();
 		}
 	}
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name_, const std::string textureFilePath)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
 {
-	if (particleGroups_.contains(name_)) {
+	if (particleGroups_.contains(name)) {
 		// 登録済みの名前なら早期リターン
 		return;
 	}
 
 	// グループを追加
-	particleGroups_[name_] = ParticleGroup();
-	ParticleGroup& particleGroup = particleGroups_[name_];
+	particleGroups_[name] = ParticleGroup();
+	ParticleGroup& particleGroup = particleGroups_[name];
 
 	// テクスチャを読み込む（未読み込みならロードする）
 	particleGroup.materialData.textureFilePath = textureFilePath;
 	TextureManager::GetInstance()->LoadTexture(particleGroup.materialData.textureFilePath);
 	particleGroup.materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 
+	// レンダラーを生成
+	particleGroup.renderer = std::make_unique<InstancingRenderer>(name, PrimitiveType::Plane, textureFilePath);
+
 	// インスタンシング用リソースの生成
 	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, particleGroup.instancingResource);
-
-	// インスタンシング用にSRVを確保してSRVインデックスを記録
-	//particleGroup.srvIndex = srvManager_->Allocate();
 
 	// インスタンシングデータを書き込むためのポインタを取得
 	particleGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instancingDataPtr));
 
 	// SRVを作成するDescriptorの場所を決める
-	particleGroup.srvIndex = srvManager_->Allocate() + 1;
+	particleGroup.srvIndex = srvManager_->Allocate();
 
 	// SRVの生成
 	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.instancingResource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
@@ -206,28 +226,28 @@ void ParticleManager::CreateParticleGroup(const std::string name_, const std::st
 	particleGroup.instanceCount = 0;
 
 	// パーティクルグループごとにグローバルバリアースを作る
-	global_->AddItem(name_, "minTranslate", Vector3{});
-	global_->AddItem(name_, "maxTranslate", Vector3{});
+	global_->AddItem(name, "minTranslate", Vector3{});
+	global_->AddItem(name, "maxTranslate", Vector3{});
 
-	global_->AddItem(name_, "minRotate", Vector3{});
-	global_->AddItem(name_, "maxRotate", Vector3{});
+	global_->AddItem(name, "minRotate", Vector3{});
+	global_->AddItem(name, "maxRotate", Vector3{});
 
-	global_->AddItem(name_, "minScale", Vector3{});
-	global_->AddItem(name_, "maxScale", Vector3{});
+	global_->AddItem(name, "minScale", Vector3{});
+	global_->AddItem(name, "maxScale", Vector3{});
 
-	global_->AddItem(name_, "minVelocity", Vector3{});
-	global_->AddItem(name_, "maxVelocity", Vector3{});
+	global_->AddItem(name, "minVelocity", Vector3{});
+	global_->AddItem(name, "maxVelocity", Vector3{});
 
-	global_->AddItem(name_, "minLifeTime", float{});
-	global_->AddItem(name_, "maxLifeTime", float{});
+	global_->AddItem(name, "minLifeTime", float{});
+	global_->AddItem(name, "maxLifeTime", float{});
 
-	global_->AddItem(name_, "minColor", Vector3{});
-	global_->AddItem(name_, "maxColor", Vector3{});
+	global_->AddItem(name, "minColor", Vector3{});
+	global_->AddItem(name, "maxColor", Vector3{});
 
-	global_->AddItem(name_, "minAlpha", float{});
-	global_->AddItem(name_, "maxAlpha", float{});
+	global_->AddItem(name, "minAlpha", float{});
+	global_->AddItem(name, "maxAlpha", float{});
 
-	global_->AddItem(name_, "IsBillboard", bool{});
+	global_->AddItem(name, "IsBillboard", bool{});
 }
 
 void ParticleManager::DrawSet(BlendMode blendMode)
