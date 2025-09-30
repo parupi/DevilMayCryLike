@@ -37,6 +37,7 @@ void Object3dManager::Finalize()
 void Object3dManager::Update()
 {
 	for (auto& object : objects_) {
+		if (!object) continue;
 		object->Update();
 	}
 }
@@ -44,6 +45,8 @@ void Object3dManager::Update()
 void Object3dManager::DrawSet()
 {
 	for (auto& object : objects_) {
+		if (!object) continue;
+
 		// ブレンドモードが違っていたら新しくPSOを設定
 		if (blendMode_ != object->GetOption().blendMode) {
 			// ブレンドモードを最新にしておく
@@ -78,9 +81,29 @@ void Object3dManager::AddObject(std::unique_ptr<Object3d> object)
 	objects_.push_back(std::move(object));
 }
 
+void Object3dManager::DeleteObject(const std::string& name)
+{
+	for (auto& obj : objects_) {
+		if (obj && obj->name_ == name) {
+			obj->ResetObject();
+			obj.reset(); // delete呼ばれてnullptrになる
+		}
+	}
+}
+
+void Object3dManager::DeleteAllObject()
+{
+	for (auto& obj : objects_) {
+		//obj->ResetObject();
+		obj.reset(); // delete呼ばれてnullptrになる
+	}
+	objects_.clear();
+}
+
 Object3d* Object3dManager::FindObject(std::string objectName)
 {
 	for (auto& object : objects_) {
+		if (!object) continue;
 		if (object->name_ == objectName) {
 			return object.get();
 		}
@@ -94,6 +117,7 @@ std::vector<Object3d*> Object3dManager::GetAllObject()
 	std::vector<Object3d*> objects;
 
 	for (auto& object : objects_) {
+		if (!object) continue;
 		objects.push_back(object.get());
 	}
 

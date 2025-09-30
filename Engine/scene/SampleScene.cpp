@@ -103,8 +103,7 @@ void SampleScene::Finalize()
 void SampleScene::Update()
 {
 
-	emitter_->Update({0.0f, 0.0f, 0.0f}, 3);
-	ParticleManager::GetInstance()->Update();
+	emitter_->Update();
 
 
 	lightManager_->UpdateAllLight();

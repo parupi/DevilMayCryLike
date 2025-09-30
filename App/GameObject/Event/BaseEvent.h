@@ -4,7 +4,7 @@
 // イベントの種類を識別するための列挙
 enum class EventType {
 	EnemySpawn,
-	
+	Clear
 };
 
 class BaseEvent : public Object3d
@@ -15,9 +15,6 @@ public:
 
     // イベントを発動する処理
     virtual void Execute() = 0;
-
-    // トリガー条件を判定する
-    //virtual bool CheckTrigger() = 0;
 
     // イベントが発動済みか
     bool IsTriggered() const { return isTriggered_; }

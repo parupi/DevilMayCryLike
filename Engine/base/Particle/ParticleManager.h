@@ -11,6 +11,7 @@
 #include "base/PSOManager.h"
 #include "ParticleStruct.h"
 #include <3d/Object/Renderer/InstancingRenderer.h>
+
 class ParticleManager
 {
 private:
@@ -128,9 +129,11 @@ private:
 	// WVP用のリソースを生成 
 	void CreateMaterialResource();
 	// パーティクルを生成する関数
-	Particle MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate);
+	Particle MakeNewParticle(const std::string name_, const Vector3& translate);
 
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
+
+	void DrawEditor(GlobalVariables* global, const std::string& groupName);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数

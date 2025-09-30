@@ -166,6 +166,7 @@ void ParticleManager::Update()
 		}
 
 		particleParams_[groupName] = LoadParticleParameters(global_, groupName);
+		DrawEditor(global_, groupName);
 	}
 }
 
@@ -421,6 +422,78 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 
 	return params;
 }
+
+void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
+{
+	// Translate
+	ImGui::Begin(groupName.c_str());
+
+	if (ImGui::TreeNode("Particle")) {
+		Vector3& minTranslate = global->GetValueRef<Vector3>(groupName, "minTranslate");
+		Vector3& maxTranslate = global->GetValueRef<Vector3>(groupName, "maxTranslate");
+		if (ImGui::TreeNode("Translate")) {
+			ImGui::DragFloat3("Min Translate", &minTranslate.x, 0.1f);
+			ImGui::DragFloat3("Max Translate", &maxTranslate.x, 0.1f);
+			ImGui::TreePop();
+		}
+
+		// Rotate
+		Vector3& minRotate = global->GetValueRef<Vector3>(groupName, "minRotate");
+		Vector3& maxRotate = global->GetValueRef<Vector3>(groupName, "maxRotate");
+		if (ImGui::TreeNode("Rotate")) {
+			ImGui::DragFloat3("Min Rotate", &minRotate.x, 0.1f);
+			ImGui::DragFloat3("Max Rotate", &maxRotate.x, 0.1f);
+			ImGui::TreePop();
+		}
+
+		// Scale
+		Vector3& minScale = global->GetValueRef<Vector3>(groupName, "minScale");
+		Vector3& maxScale = global->GetValueRef<Vector3>(groupName, "maxScale");
+		if (ImGui::TreeNode("Scale")) {
+			ImGui::DragFloat3("Min Scale", &minScale.x, 0.1f);
+			ImGui::DragFloat3("Max Scale", &maxScale.x, 0.1f);
+			ImGui::TreePop();
+		}
+
+		// Velocity
+		Vector3& minVelocity = global->GetValueRef<Vector3>(groupName, "minVelocity");
+		Vector3& maxVelocity = global->GetValueRef<Vector3>(groupName, "maxVelocity");
+		if (ImGui::TreeNode("Velocity")) {
+			ImGui::DragFloat3("Min Velocity", &minVelocity.x, 0.1f);
+			ImGui::DragFloat3("Max Velocity", &maxVelocity.x, 0.1f);
+			ImGui::TreePop();
+		}
+
+		// LifeTime
+		float& minLifeTime = global->GetValueRef<float>(groupName, "minLifeTime");
+		float& maxLifeTime = global->GetValueRef<float>(groupName, "maxLifeTime");
+		if (ImGui::TreeNode("LifeTime")) {
+			ImGui::DragFloat("Min LifeTime", &minLifeTime, 0.1f, 0.0f, 9999.0f);
+			ImGui::DragFloat("Max LifeTime", &maxLifeTime, 0.1f, 0.0f, 9999.0f);
+			ImGui::TreePop();
+		}
+
+		// Color
+		Vector3& minColor = global->GetValueRef<Vector3>(groupName, "minColor");
+		Vector3& maxColor = global->GetValueRef<Vector3>(groupName, "maxColor");
+		if (ImGui::TreeNode("Color")) {
+			ImGui::ColorEdit3("Min Color", &minColor.x);
+			ImGui::ColorEdit3("Max Color", &maxColor.x);
+			ImGui::TreePop();
+		}
+
+		ImGui::TreePop();
+	}
+
+	if (ImGui::Button("Save")) {
+		GlobalVariables::GetInstance()->SaveFile(groupName);
+		std::string message = std::format("{}.json saved.", groupName);
+		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+	}
+
+	ImGui::End();
+}
+
 
 std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
 {

@@ -44,6 +44,7 @@ private:
 
 	TitlePhase phase_ = TitlePhase::kFadeIn;
 
+	std::unique_ptr<Sprite> sprite_;
 	//std::unique_ptr<ParticleManager> particleManager_ = nullptr;
 	//std::unique_ptr<ParticleEmitter> snowEmitter_ = nullptr;
 };

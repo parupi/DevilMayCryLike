@@ -1,6 +1,7 @@
 {
     "AttackHighTime": {
         "AttackDuration": 0.30000001192092896,
+        "AttackPosture": 0,
         "ControlPoint_0": [
             0.0,
             -1.159999966621399,
@@ -43,6 +44,8 @@
         ],
         "Damage": 0.0,
         "DrawDebugControlPoints": false,
+        "HitStopIntensity": 0.17499999701976776,
+        "HitStopTime": 0.17499999701976776,
         "KnockBackSpeed": [
             0.0,
             7.5,
@@ -53,9 +56,14 @@
             12.0,
             0.0
         ],
+        "NextAttackCount": 0,
         "NextAttackDelay": 0.0,
+        "NextAttackIndex_0": -1,
+        "NextAttackIndex_1": -1,
+        "NextAttackIndex_2": -1,
         "PointCount": 8,
         "PostDelay": 0.10000000149011612,
+        "Posture": 0,
         "PreDelay": 0.05000000074505806,
         "TotalDuration": 0.44999998807907104
     }

@@ -42,6 +42,10 @@ PlayerStateAttackBase::PlayerStateAttackBase(std::string attackName)
 	}
 
 	gv->AddItem(name_, "AttackPosture", int32_t(0));
+
+	gv->AddItem(name_, "HitStopTime", float());
+
+	gv->AddItem(name_, "HitStopIntensity", float());
 }
 
 void PlayerStateAttackBase::Enter(Player& player)
@@ -64,6 +68,12 @@ void PlayerStateAttackBase::Enter(Player& player)
 
 void PlayerStateAttackBase::Update(Player& player)
 {
+	if (player.GetHitStop()->GetHitStopData().isActive) {
+		player.GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation() = player.GetHitStop()->GetHitStopData().translate;
+
+		return;
+	}
+	
 	stateTime_.current += DeltaTime::GetDeltaTime();
 
 	// 攻撃フェーズの更新処理
@@ -220,6 +230,10 @@ void PlayerStateAttackBase::UpdateAttackData()
 	// その他
 	attackData_.drawDebugControlPoints = gv->GetInstance()->GetValueRef<bool>(name_, "DrawDebugControlPoints");
 	attackData_.damage = gv->GetInstance()->GetValueRef<float>(name_, "Damage");
+
+	attackData_.hitStopTime = gv->GetInstance()->GetValueRef<float>(name_, "HitStopTime");
+
+	attackData_.hitStopIntensity = gv->GetInstance()->GetValueRef<float>(name_, "HitStopIntensity");
 }
 
 void PlayerStateAttackBase::DrawControlPoints(Player& player)

@@ -38,6 +38,10 @@ struct AttackData {
 
 	// 派生先
 	AttackPosture posture = AttackPosture::Stand;
+
+	// HitStop
+	float hitStopTime;
+	float hitStopIntensity;
 };
 
 class PlayerStateAttackBase : public PlayerStateBase

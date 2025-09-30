@@ -1,6 +1,7 @@
 {
     "AttackComboB3": {
         "AttackDuration": 0.30000001192092896,
+        "AttackPosture": 0,
         "ControlPoint_0": [
             0.75,
             0.0,
@@ -43,6 +44,8 @@
         ],
         "Damage": 3.0,
         "DrawDebugControlPoints": false,
+        "HitStopIntensity": 0.20000000298023224,
+        "HitStopTime": 0.20000000298023224,
         "KnockBackSpeed": [
             0.0,
             5.0,

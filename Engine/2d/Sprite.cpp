@@ -50,6 +50,9 @@ void Sprite::Update()
 	uvTransformMatrix *= MakeRotateZMatrix(uvTransform_.rotate.z);
 	uvTransformMatrix *= MakeTranslateMatrix(uvTransform_.translate);
 	materialData_->uvTransform = uvTransformMatrix;
+
+
+
 }
 
 void Sprite::Draw()

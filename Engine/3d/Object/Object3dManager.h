@@ -32,6 +32,10 @@ public:
 
 	void AddObject(std::unique_ptr<Object3d> object);
 
+	void DeleteObject(const std::string& name);
+
+	void DeleteAllObject();
+
 	Object3d* FindObject(std::string objectName);
 
 	std::vector<Object3d*> GetAllObject();

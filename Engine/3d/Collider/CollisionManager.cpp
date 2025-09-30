@@ -25,12 +25,17 @@ void CollisionManager::Finalize()
 
 void CollisionManager::Update()
 {
+    // 死んだオブジェクトを消す
+    RemoveDeadObjects();
+
+    // 生きているやつだけUpdate
     for (auto& collider : colliders_) {
         if (collider) {
             collider->Update();
         }
     }
-    // コリジョンが当たっているかを判定
+
+    // 衝突判定してExit発行
     CheckAllCollisions();
 }
 
@@ -57,6 +62,42 @@ BaseCollider* CollisionManager::FindCollider(std::string colliderName)
     }
     Logger::Log("colliderが見つかりませんでした");
     return nullptr;
+}
+
+void CollisionManager::RemoveDeadObjects()
+{
+    // まず消す対象を集める
+    std::vector<BaseCollider*> deadColliders;
+    for (auto& obj : colliders_) {
+        if (!obj->isAlive) {
+            deadColliders.push_back(obj.get());
+        }
+    }
+
+    // previousCollisions_ から死んだコライダーを含むペアを削除
+    for (auto it = previousCollisions_.begin(); it != previousCollisions_.end(); ) {
+        BaseCollider* a = it->first;
+        BaseCollider* b = it->second;
+
+        bool shouldErase =
+            std::find(deadColliders.begin(), deadColliders.end(), a) != deadColliders.end() ||
+            std::find(deadColliders.begin(), deadColliders.end(), b) != deadColliders.end();
+
+        if (shouldErase) {
+            it = previousCollisions_.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    // colliders_ からも削除
+    colliders_.erase(
+        std::remove_if(colliders_.begin(), colliders_.end(),
+            [](const std::unique_ptr<BaseCollider>& obj) {
+                return !obj->isAlive;
+            }),
+        colliders_.end()
+    );
 }
 
 void CollisionManager::CheckAllCollisions()
@@ -93,8 +134,12 @@ void CollisionManager::CheckAllCollisions()
     // 衝突が終了したペアを検出
     for (const auto& pair : previousCollisions_) {
         if (!currentCollisions_.count(pair)) {
-            if (pair.first->owner_) pair.first->owner_->OnCollisionExit(pair.second);
-            if (pair.second->owner_) pair.second->owner_->OnCollisionExit(pair.first);
+            if (pair.first->isAlive && pair.first->owner_) {
+                pair.first->owner_->OnCollisionExit(pair.second);
+            }
+            if (pair.second->isAlive && pair.second->owner_) {
+                pair.second->owner_->OnCollisionExit(pair.first);
+            }
         }
     }
 
