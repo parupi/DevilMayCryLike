@@ -44,6 +44,8 @@ public:
 	DirectionalLight* GetDirectionalLight(const std::string& name_);
 	PointLight* GetPointLight(const std::string& name_);
 	SpotLight* GetSpotLight(const std::string& name_);
+
+	void DeleteAllLight();
 private:
 	//void CreateDirLightResource();
 	//void CreatePointLightResource();
@@ -62,45 +64,5 @@ private:
 	std::vector< std::unique_ptr<PointLight>> pointLights_;
 	std::vector<std::unique_ptr<SpotLight>> spotLights_;
 
-public: // ゲッター // セッター //
-	//// DirLight
-	//Vector4 GetDirLightColor(uint32_t index) const;
-	//void SetDirLightColor(uint32_t index, const Vector4& color);
-	//Vector3 GetDirLightDirection(uint32_t index) const;
-	//void SetDirLightDirection(uint32_t index, const Vector3& dir);
-	//float GetDirLightIntensity(uint32_t index) const;
-	//void SetDirLightIntensity(uint32_t index, float intensity);
-	//bool GetDirLightActive(uint32_t index) const;
-	//void SetDirLightActive(uint32_t index, bool isActive);
-	//// PointLight
-	//Vector4 GetPointLightColor(uint32_t index) const;
-	//void SetPointLightColor(uint32_t index, const Vector4& color);
-	//Vector3 GetPointLightPos(uint32_t index) const;
-	//void SetPointLightPos(uint32_t index, const Vector3& pos);
-	//float GetPointLightIntensity(uint32_t index) const;
-	//void SetPointLightIntensity(uint32_t index, float intensity);
-	//float GetPointLightRadius(uint32_t index) const;
-	//void SetPointLightRadius(uint32_t index, float radius);
-	//void SetPointLightDecay(uint32_t index, float decay);
-	//float GetPointLightDecay(uint32_t index) const;
-	//bool GetPointLightActive(uint32_t index) const;
-	//void SetPointLightActive(uint32_t index, bool isActive);
-	//// SpotLight
-	//void SetSpotLightColor(uint32_t index, const Vector4& color);
-	//void SetSpotLightPos(uint32_t index, const Vector3& pos);
-	//void SetSpotLightIntensity(uint32_t index, float intensity);
-	//void SetSpotLightDirection(uint32_t index, const Vector3& dir);
-	//void SetSpotLightDistance(uint32_t index, float distance);
-	//void SetSpotLightDecay(uint32_t index, float decay);
-	//void SetSpotLightCosAngle(uint32_t index, float cosAngle);
-	//void SetSpotLightActive(uint32_t index, bool isActive);
-	//Vector4 GetSpotLightColor(uint32_t index) const;
-	//Vector3 GetSpotLightPos(uint32_t index) const;
-	//float GetSpotLightIntensity(uint32_t index) const;
-	//Vector3 GetSpotLightDirection(uint32_t index) const;
-	//float GetSpotLightDistance(uint32_t index) const;
-	//float GetSpotLightDecay(uint32_t index) const;
-	//float GetSpotLightCosAngle(uint32_t index) const;
-	//bool GetSpotLightActive(uint32_t index) const;
 };
 

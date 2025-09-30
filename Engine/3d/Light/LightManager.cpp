@@ -122,6 +122,14 @@ SpotLight* LightManager::GetSpotLight(const std::string& name_)
 	return nullptr;
 }
 
+void LightManager::DeleteAllLight()
+{
+	// CPU 側のライトデータ削除
+	dirLights_.clear();
+	pointLights_.clear();
+	spotLights_.clear();
+}
+
 void LightManager::CreateLightResource()
 {
 	// 必要なら Resize
