@@ -16,6 +16,9 @@
     <Filter Include="App\GameObject\Camera">
       <UniqueIdentifier>{BECA2E86-2A37-EA80-F32A-82DE5F560CE9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Effect">
+      <UniqueIdentifier>{02BE2F8B-6E2A-EB85-371E-83E3A3490DEE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Enemy">
       <UniqueIdentifier>{B3A34B42-9F32-D50B-4851-E90634BFE5B1}</UniqueIdentifier>
     </Filter>
@@ -24,6 +27,9 @@
     </Filter>
     <Filter Include="App\GameObject\Enemy\Hellkaina\State">
       <UniqueIdentifier>{5BE624BE-47CD-E6B5-F01D-4DD3DCE35F1C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Event">
+      <UniqueIdentifier>{D7065042-C395-D90B-6CB4-ED065822EAB1}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Ground">
       <UniqueIdentifier>{246AB890-90D6-738B-59CA-0BE9C5F595F3}</UniqueIdentifier>
@@ -138,6 +144,9 @@
     <ClInclude Include="App\GameObject\Camera\GameCamera.h">
       <Filter>App\GameObject\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitStop.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Enemy\Enemy.h">
       <Filter>App\GameObject\Enemy</Filter>
     </ClInclude>
@@ -161,6 +170,21 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Enemy\Hellkaina\State\HellkainaStateKnockBack.h">
       <Filter>App\GameObject\Enemy\Hellkaina\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\BaseEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\ClearEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\EventFactory.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\EventManager.h">
+      <Filter>App\GameObject\Event</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Ground\Ground.h">
       <Filter>App\GameObject\Ground</Filter>
@@ -471,10 +495,7 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
-    <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
-    <ClInclude Include="App\GameObject\Event\EventManager.h" />
-    <ClInclude Include="App\GameObject\Event\EventFactory.h" />
+    <ClInclude Include="App\scene\ClearScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -482,6 +503,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
+      <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Enemy\Enemy.cpp">
       <Filter>App\GameObject\Enemy</Filter>
@@ -503,6 +527,21 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Enemy\Hellkaina\State\HellkainaStateKnockBack.cpp">
       <Filter>App\GameObject\Enemy\Hellkaina\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\ClearEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\EventFactory.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\EventManager.cpp">
+      <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Ground\Ground.cpp">
       <Filter>App\GameObject\Ground</Filter>
@@ -778,9 +817,6 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
-    <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
-    <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
-    <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />
+    <ClCompile Include="App\scene\ClearScene.cpp" />
   </ItemGroup>
 </Project>

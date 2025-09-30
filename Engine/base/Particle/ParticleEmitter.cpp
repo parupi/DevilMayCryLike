@@ -1,35 +1,37 @@
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
 
-void ParticleEmitter::Initialize(std::string name_)
+void ParticleEmitter::Initialize(std::string name)
 {
-	emitter.name_ = name_;
+	emitter.name = name;
 	emitter.frequency = 0.5f;
 	emitter.isActive = true;
-	
-	GlobalVariables::GetInstance()->AddItem(emitter.name_, "EmitPosition", Vector3{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name_, "Frequency", float{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name_, "IsActive", bool{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name_, "EmitAll", bool{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name_, "Count", int{});
+
+	GlobalVariables::GetInstance()->AddItem(emitter.name, "EmitPosition", Vector3{});
+	GlobalVariables::GetInstance()->AddItem(emitter.name, "Frequency", float{});
+	GlobalVariables::GetInstance()->AddItem(emitter.name, "IsActive", bool{});
+	GlobalVariables::GetInstance()->AddItem(emitter.name, "EmitAll", bool{});
+	GlobalVariables::GetInstance()->AddItem(emitter.name, "Count", int{});
 }
 
-void ParticleEmitter::Update(Vector3 Position, uint32_t count)
+void ParticleEmitter::Update(Vector3 position)
 {
-	count; Position;
-	emitter.isActive = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name_, "IsActive");
+	emitter.isActive = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "IsActive");
 
-	//emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name_, "EmitPosition");
-	emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name_, "Frequency");
+	emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
 
-	emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name_, "Count");
+	emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
+
+	if (position == Vector3(0.0f, 0.0f, 0.0f)) {
+		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+	} else {
+		emitter.transform.translate = position;
+	}
 
 	if (emitter.isActive) {
-		//emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name_, "EmitPosition");
-		emitter.transform.translate = Position;
-		emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name_, "Frequency");
+		emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
 
-		emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name_, "Count");
+		emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
 		if (emitter.count < 0) {
 			emitter.count = 0;
 		}
@@ -42,15 +44,58 @@ void ParticleEmitter::Update(Vector3 Position, uint32_t count)
 		}
 	}
 
-	emitAll_ = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name_, "EmitAll");
+	emitAll_ = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "EmitAll");
 
 	if (emitAll_) {
 		Emit();
-		GlobalVariables::GetInstance()->SetValue(emitter.name_, "EmitAll", false);
+		GlobalVariables::GetInstance()->SetValue(emitter.name, "EmitAll", false);
 	}
+	UpdateParam();
 }
 
 void ParticleEmitter::Emit() const
 {
-	ParticleManager::GetInstance()->Emit(emitter.name_, emitter.transform.translate, emitter.count);
+	ParticleManager::GetInstance()->Emit(emitter.name, emitter.transform.translate, emitter.count);
+}
+
+void ParticleEmitter::UpdateParam() const
+{
+	ImGui::Begin(emitter.name.c_str());
+	if (ImGui::TreeNode("Emitter")) {
+		// Emit Position
+		Vector3& emitPos = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+		if (ImGui::TreeNode("Emitter Position")) {
+			ImGui::DragFloat3("Emit Position", &emitPos.x, 0.1f);
+			ImGui::TreePop();
+		}
+
+		// Frequency
+		float& frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
+		if (ImGui::TreeNode("Frequency")) {
+			ImGui::DragFloat("Emit Frequency", &frequency, 0.01f, 0.01f, 10.0f);
+			ImGui::TreePop();
+		}
+
+		// Count
+		int& count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
+		if (ImGui::TreeNode("Count")) {
+			ImGui::DragInt("Emit Count", &count, 1, 0, 1000);
+			ImGui::TreePop();
+		}
+
+		// IsActive
+		bool& isActive = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "IsActive");
+		ImGui::Checkbox("Is Active", &isActive);
+
+		// EmitAll (一回限りの即時発生ボタン風)
+		bool& emitAll = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "EmitAll");
+		if (ImGui::Button("Emit All")) {
+			emitAll = true; // Update() 側で処理される
+		}
+		ImGui::TreePop();
+	}
+
+
+
+	ImGui::End();
 }

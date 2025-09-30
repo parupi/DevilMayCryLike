@@ -9,6 +9,9 @@
 #include <math/Vector2.h>
 #include "debuger/GlobalVariables.h"
 #include "base/PSOManager.h"
+#include "ParticleStruct.h"
+#include <3d/Object/Renderer/InstancingRenderer.h>
+
 class ParticleManager
 {
 private:
@@ -76,10 +79,13 @@ private: // 構造体
 	struct ParticleGroup {
 		MaterialData materialData;  // マテリアルデータ
 		std::list<Particle> particleList;  // パーティクルのリスト
+		std::unique_ptr<InstancingRenderer> renderer;
 		uint32_t srvIndex;  // インスタンシング用SRVインデックス
 		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
 		uint32_t instanceCount;  // インスタンス数
 		ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
+		// レンダラーへ渡すためのCPUキャッシュ
+		std::vector<InstanceData> instanceCache;
 	};
 
 	struct VertexData {
@@ -123,9 +129,11 @@ private:
 	// WVP用のリソースを生成 
 	void CreateMaterialResource();
 	// パーティクルを生成する関数
-	Particle MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate);
+	Particle MakeNewParticle(const std::string name_, const Vector3& translate);
 
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
+
+	void DrawEditor(GlobalVariables* global, const std::string& groupName);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数

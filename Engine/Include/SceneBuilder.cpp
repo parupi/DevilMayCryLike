@@ -13,6 +13,7 @@
 #include <GameObject/Event/EventManager.h>
 #include <GameObject/Event/EventFactory.h>
 #include <GameObject/Event/EnemySpawnEvent.h>
+#include <GameObject/Event/ClearEvent.h>
 
 
 std::vector<const SceneObject*> SceneBuilder::pendingEvents_;
@@ -52,7 +53,7 @@ std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& 
 	std::swap(tempScale.y, tempScale.z);
 	transform->GetScale() = tempScale;
 
-	transform->GetRotation() = EulerDegree(sceneObj.transform.rotate);
+	//transform->GetRotation() = EulerDegree(sceneObj.transform.rotate);
 
 	if (parent) {
 		transform->SetParent(parent->GetWorldTransform());
@@ -107,38 +108,6 @@ std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& 
 	return object;
 }
 
-std::unique_ptr<Object3d> SceneBuilder::CreateEvents(const SceneObject& sceneObj)
-{
-	if (!sceneObj.eventInfo.has_value()) {
-		return nullptr;
-	}
-
-	const EventInfo& info = sceneObj.eventInfo.value();
-
-	std::unique_ptr<BaseEvent> event = EventFactory::Create(sceneObj.className, sceneObj.name_);
-	if (!event) return nullptr;
-
-	if (info.type == "EnemySpawn") {
-		EnemySpawnEvent* spawnEvent = dynamic_cast<EnemySpawnEvent*>(event.get());
-		if (spawnEvent) {
-			for (const auto& enemyInfo : info.enemies) {
-				Enemy* enemy = dynamic_cast<Enemy*>(
-					Object3dManager::GetInstance()->FindObject(enemyInfo.name)
-					);
-				if (enemy) {
-					enemy->SetActive(false); // 最初は非アクティブ
-					spawnEvent->AddEnemy(enemy);
-				}
-			}
-		}
-	}
-
-	EventManager::GetInstance()->AddEvent(event.get());
-
-	return event;
-}
-
-
 void SceneBuilder::BuildPendingEvents()
 {
 	for (const SceneObject* sceneObj : pendingEvents_) {
@@ -160,6 +129,22 @@ void SceneBuilder::BuildPendingEvents()
 						}
 					}
 				}
+			} else if (info.type == "Clear") {
+				ClearEvent* clearEvent = dynamic_cast<ClearEvent*>(eventObject.get());
+				if (clearEvent) {
+					for (const auto& cond : info.conditions) {
+						if (cond.type == "DEFEAT_ENEMIES") {
+							for (const auto& targetName : cond.targets) {
+								Enemy* enemy = dynamic_cast<Enemy*>(
+									Object3dManager::GetInstance()->FindObject(targetName)
+									);
+								if (enemy) {
+									clearEvent->AddTargetEnemy(enemy);
+								}
+							}
+						}
+					}
+				}
 			}
 
 			EventManager::GetInstance()->AddEvent(eventObject.get());
@@ -175,15 +160,16 @@ void SceneBuilder::BuildPendingEvents()
 		std::swap(tempScale.y, tempScale.z);
 		transform->GetScale() = tempScale;
 
-		transform->GetRotation() = EulerDegree(sceneObj->transform.rotate);
+		//transform->GetRotation() = EulerDegree(sceneObj->transform.rotate);
 
 		if (sceneObj->collider) {
 			const Collider& col = sceneObj->collider.value();
 			if (col.type == ColliderType::AABB) {
 				auto collider = std::make_unique<AABBCollider>(sceneObj->name_);
 				AABBData scaledAABB = col.aabb;
-				scaledAABB.offsetMin *= eventObject->GetWorldTransform()->GetScale() * 2.0f;
-				scaledAABB.offsetMax *= eventObject->GetWorldTransform()->GetScale() * 2.0f;
+				scaledAABB.offsetMin *= transform->GetScale() * 2.0f;
+				scaledAABB.offsetMax *= transform->GetScale() * 2.0f;
+				collider->GetColliderData() = scaledAABB;
 				BaseCollider* colPtr = collider.get();
 				CollisionManager::GetInstance()->AddCollider(std::move(collider));
 				eventObject->AddCollider(colPtr);

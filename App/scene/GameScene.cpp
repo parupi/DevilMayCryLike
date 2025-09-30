@@ -30,21 +30,24 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("PlayerRightArm");
 	ModelManager::GetInstance()->LoadModel("weapon");
 	ModelManager::GetInstance()->LoadModel("Cube");
+	ModelManager::GetInstance()->LoadModel("suzannu");
+	ModelManager::GetInstance()->LoadModel("Sword");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("Terrain.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine_brightened.png");
 	TextureManager::GetInstance()->LoadTexture("MagicEffect.png");
+	TextureManager::GetInstance()->LoadTexture("portal.png");
 
 	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Untitled.json"));
+	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("smoke", "circle.png");
 
 	// スカイボックスを生成
-	SkySystem::GetInstance()->CreateSkyBox("pretoria_gardens_4k.dds");
+	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
 	// ============ライト=================//
 	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("Dir1");
@@ -59,6 +62,8 @@ void GameScene::Initialize()
 
 void GameScene::Finalize()
 {
+	Object3dManager::GetInstance()->DeleteAllObject();
+	CameraManager::GetInstance()->DeleteAllCamera();
 }
 
 void GameScene::Update()
@@ -73,6 +78,8 @@ void GameScene::Update()
 #ifdef _DEBUG
 	DebugUpdate();
 #endif
+
+	
 }
 
 void GameScene::Draw()

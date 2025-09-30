@@ -8,7 +8,7 @@
 void Fade::Initialize()
 {
 	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("resource/fade1x1.png");
+	sprite_->Initialize("white.png");
 	sprite_->SetSize(Vector2{ 1280.0f,720.0f });
 	sprite_->SetTextureSize(Vector2{ 1280,720 });
 
@@ -80,18 +80,18 @@ bool Fade::IsFinished() const
 
 void Fade::FadeOutUpdate()
 {
-	counter_ += 1.0f / 60.0f;
+	counter_ += DeltaTime::GetDeltaTime();
 	if (counter_ >= duration_) {
 		counter_ = duration_;
 	}
 
 	float progress = counter_ / duration_; // 進捗（0.0 ～ 1.0）
-	float easedAlpha = easeInQuint(progress);
+	//float easedAlpha = easeInQuint(progress);
 
-	sprite_->SetColor(Vector4{ 1, 1, 1, easedAlpha });
+	sprite_->SetColor(Vector4{ 1, 1, 1, progress });
 	sprite_->Update();
 
-	alphaCounter_ += 1.0f / 60.0f;
+	alphaCounter_ += DeltaTime::GetDeltaTime();
 	alphaCounter_ = std::clamp(alphaCounter_, 0.0f, 1.0f);
 	//float progressParticle = alphaCounter_ / 0.5f;
 	alpha_ = easeOutCubic(progress);
@@ -101,18 +101,18 @@ void Fade::FadeOutUpdate()
 
 void Fade::FadeInUpdate()
 {
-	counter_ += 1.0f / 60.0f;
+	counter_ += DeltaTime::GetDeltaTime();
 	if (counter_ >= duration_) {
 		counter_ = duration_;
 	}
 
 	float progress = counter_ / duration_; // 進捗（0.0 ～ 1.0）
-	float easedAlpha = easeOutQuint(progress);
+	//float easedAlpha = easeOutQuint(progress);
 
-	sprite_->SetColor(Vector4{ 1,1,1,1.0f - easedAlpha });
+	sprite_->SetColor(Vector4{ 1,1,1,1.0f - progress });
 	sprite_->Update();
 
-	alphaCounter_ -= 1.0f / 60.0f;
+	alphaCounter_ -= DeltaTime::GetDeltaTime();
 	alphaCounter_ = std::clamp(alphaCounter_, 0.0f, 1.0f);
 
 	//particleManager_->SetAlpha("sceneChangeParticle", alphaCounter_);

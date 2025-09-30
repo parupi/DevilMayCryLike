@@ -1,6 +1,9 @@
 #pragma once
 #include "3d/Object/Object3d.h"
 #include <GameData/Score/StylishScoreManager.h>
+#include "base/Particle/ParticleEmitter.h"
+
+class Player;
 class PlayerWeapon : public Object3d
 {
 public:
@@ -31,5 +34,10 @@ private:
 	bool isAttack_ = false;
 
 	StylishScoreManager* scoreManager_;
+
+	Player* player_ = nullptr;
+
+
+	std::unique_ptr<ParticleEmitter> smokeEmitter_;
 };
 

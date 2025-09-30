@@ -20,6 +20,8 @@ public:
 	void Initialize(DirectXManager* dxManager, SrvManager* srvManager);
 	// 終了処理
 	void Finalize();
+
+	void RemoveDeadObjects();
 	// レンダー追加処理
 	void AddRenderer(std::unique_ptr<BaseRenderer> render);
 

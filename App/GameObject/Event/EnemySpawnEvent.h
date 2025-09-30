@@ -20,7 +20,7 @@ public:
 private:
 	std::vector<Enemy*> enemies_;
 
-	int skipFrames_ = 10;  // 最初の何フレーム処理をスキップするか
+	int skipFrames_ = 30;  // 最初の何フレーム処理をスキップするか
 	int currentFrame_ = 0;
 };
 

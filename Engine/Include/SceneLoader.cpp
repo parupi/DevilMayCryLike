@@ -52,23 +52,39 @@ void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
     }
 
     if (objJson.contains("event")) {
-        EventInfo eventInfo;
-        const auto& eventJson = objJson["event"];
+        EventInfo info;
+        auto& eventJson = objJson["event"];
 
-        eventInfo.type = eventJson.value("type", "");
-        eventInfo.trigger = eventJson.value("trigger", "");
+        info.type = eventJson.value("type", "");
+        info.trigger = eventJson.value("trigger", "");
 
-        if (eventJson.contains("enemies")) {
-            for (const auto& enemyJson : eventJson["enemies"]) {
-                EnemySpawnInfo enemyInfo;
-                enemyInfo.name = enemyJson["name"];
-                enemyInfo.delay = enemyJson.value("delay", 0.0f);
-                eventInfo.enemies.push_back(enemyInfo);
+        if (info.type == "EnemySpawn") {
+            if (eventJson.contains("enemies")) {
+                for (auto& enemyJson : eventJson["enemies"]) {
+                    EnemySpawnInfo e;
+                    e.name = enemyJson.value("name", "");
+                    e.delay = enemyJson.value("delay", 0.0f);
+                    info.enemies.push_back(e);
+                }
+            }
+        } else if (info.type == "Clear") {
+            if (eventJson.contains("conditions")) {
+                for (auto& condJson : eventJson["conditions"]) {
+                    EventCondition cond;
+                    cond.type = condJson.value("type", "");
+                    if (condJson.contains("targets")) {
+                        for (auto& t : condJson["targets"]) {
+                            cond.targets.push_back(t.get<std::string>());
+                        }
+                    }
+                    info.conditions.push_back(cond);
+                }
             }
         }
 
-        outObject.eventInfo = eventInfo;
+        outObject.eventInfo = info;
     }
+
 
     if (objJson.contains("children")) {
         for (const auto& childJson : objJson["children"]) {

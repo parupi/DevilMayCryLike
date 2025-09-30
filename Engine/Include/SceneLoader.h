@@ -12,10 +12,16 @@ struct EnemySpawnInfo {
     float delay;
 };
 
+struct EventCondition {
+    std::string type;
+    std::vector<std::string> targets;
+};
+
 struct EventInfo {
     std::string type;
     std::string trigger;
-    std::vector<EnemySpawnInfo> enemies;
+    std::vector<EnemySpawnInfo> enemies;   // EnemySpawn 用
+    std::vector<EventCondition> conditions; // ClearEvent 用
 };
 
 enum class ColliderType {

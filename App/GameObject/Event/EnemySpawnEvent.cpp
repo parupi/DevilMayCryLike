@@ -16,6 +16,9 @@ void EnemySpawnEvent::Initialize()
 
 void EnemySpawnEvent::Update()
 {
+	if (currentFrame_ < skipFrames_) {
+		currentFrame_++;
+	}
 
 
 	Object3d::Update();
@@ -33,7 +36,6 @@ void EnemySpawnEvent::Execute()
 void EnemySpawnEvent::OnCollisionEnter(BaseCollider* other)
 {
 	if (currentFrame_ < skipFrames_) {
-		++currentFrame_;
 		return; // 最初の数フレームは処理しない
 	}
 
