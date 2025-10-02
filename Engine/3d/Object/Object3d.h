@@ -30,6 +30,8 @@ public: // メンバ関数
 	virtual void Update();
 	virtual void Draw();
 
+	void ResetObject();
+
 #ifdef _DEBUG
 	virtual void DebugGui();
 #endif // _DEBUG

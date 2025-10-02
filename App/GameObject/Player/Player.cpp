@@ -28,14 +28,6 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	states_["Move"] = std::make_unique<PlayerStateMove>();
 	states_["Jump"] = std::make_unique<PlayerStateJump>();
 	states_["Air"] = std::make_unique<PlayerStateAir>();
-	//states_["AttackComboA1"] = std::make_unique<PlayerStateAttackComboA1>("AttackComboA1");
-	//states_["AttackComboA2"] = std::make_unique<PlayerStateAttackComboA2>("AttackComboA2");
-	//states_["AttackComboA3"] = std::make_unique<PlayerStateAttackComboA3>("AttackComboA3");
-	//states_["AttackComboB2"] = std::make_unique<PlayerStateAttackComboB2>("AttackComboB2");
-	//states_["AttackComboB3"] = std::make_unique<PlayerStateAttackComboB3>("AttackComboB3");
-	//states_["AttackHighTime"] = std::make_unique<PlayerStateAttackHighTime>("AttackHighTime");
-	//states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackAerialRave1>("AttackAerialRave1");
-	//states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackAerialRave2>("AttackAerialRave2");
 	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
 	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
 	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
@@ -49,10 +41,11 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 
 void Player::Initialize()
 {
+	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
 	// 武器のレンダラー生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "weapon"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
 	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("WeaponCollider"));
 	// 武器を生成
@@ -66,11 +59,15 @@ void Player::Initialize()
 
 	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
 
-	GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 1.5f;
+	//GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 1.5f;
 
 	scoreManager = std::make_unique<StylishScoreManager>();
 
+
+
 	weapon_->SetScoreManager(scoreManager.get());
+
+	hitStop_ = std::make_unique<HitStop>();
 
 	sprite_ = std::make_unique<Sprite>();
 	sprite_->Initialize("uvChecker.png");
@@ -93,6 +90,8 @@ void Player::Update()
 		currentState_->Update(*this);
 	}
 
+
+	hitStop_->Update();
 	scoreManager->Update();
 
 	LockOn();
@@ -113,7 +112,7 @@ void Player::Update()
 			attackState->UpdateAttackData();
 		}
 	}
-	
+
 	DrawAttackDataEditorUI();
 
 	if (lockOnEnemy_) {
@@ -146,7 +145,6 @@ void Player::DrawEffect()
 void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 {
 	const char* attackName = attack->name_.c_str();
-	//ImGui::Begin(attackName);
 
 	int32_t& pointCount = gv->GetValueRef<int32_t>(attackName, "PointCount");
 
@@ -185,6 +183,9 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 	ImGui::Checkbox("Draw Debug Control Points", &gv->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
 
 	ImGui::DragFloat("Damage", &gv->GetValueRef<float>(attackName, "Damage"), 0.01f);
+
+	ImGui::DragFloat("HitStopTime", &gv->GetValueRef<float>(attackName, "HitStopTime"), 0.01f);
+	ImGui::DragFloat("HitStopIntensity", &gv->GetValueRef<float>(attackName, "HitStopIntensity"), 0.01f);
 
 	// 攻撃時に地上にいるかの判定
 	ImGui::Separator();
@@ -324,7 +325,7 @@ void Player::Move()
 	if (input->IsConnected()) {
 		if (input->GetLeftStickY() != 0.0f) {
 			inputDir.z = input->GetLeftStickY();
-		} 
+		}
 		if (input->GetLeftStickX() != 0.0f) {
 			inputDir.x = input->GetLeftStickX();
 		}
@@ -398,12 +399,17 @@ void Player::LockOn()
 	}
 
 	if (isLockOn_) {
-		Vector3 direction = Normalize(lockOnEnemy_->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
-		if (Length(direction) > 0.001f) {
-			direction.x *= -1.0f;
-			Quaternion lookRot = LookRotation(direction);
+		if (lockOnEnemy_->IsAlive()) {
+			Vector3 direction = Normalize(lockOnEnemy_->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
+			if (Length(direction) > 0.001f) {
+				direction.x *= -1.0f;
+				Quaternion lookRot = LookRotation(direction);
 
-			GetWorldTransform()->GetRotation() = lookRot;
+				GetWorldTransform()->GetRotation() = lookRot;
+			}
+		} else {
+			isLockOn_ = false;
+			lockOnEnemy_ = nullptr;
 		}
 	}
 }

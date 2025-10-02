@@ -13,4 +13,9 @@ public:
 
 private:
     static std::unique_ptr<Object3d> BuildObjectRecursive(const SceneObject& sceneObj, Object3d* parent);
+
+    // 最後に生成するイベントリスト
+    static std::vector<const SceneObject*> pendingEvents_;
+    static void BuildPendingEvents();
+
 };

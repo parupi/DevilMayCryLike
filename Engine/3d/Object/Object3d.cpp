@@ -13,6 +13,12 @@ Object3d::Object3d(std::string objectName)
 
 Object3d::~Object3d()
 {
+	for (auto& collider : colliders_) {
+		collider->isAlive = false;
+	}
+	for (auto& renderer : renders_) {
+		renderer->isAlive = false;
+	}
 }
 
 void Object3d::Initialize()
@@ -64,6 +70,16 @@ void Object3d::Draw()
 		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 		renders_[i]->Draw();
+	}
+}
+
+void Object3d::ResetObject()
+{
+	for (auto& collider : colliders_) {
+		collider->isAlive = false;
+	}
+	for (auto& renderer : renders_) {
+		renderer->isAlive = false;
 	}
 }
 

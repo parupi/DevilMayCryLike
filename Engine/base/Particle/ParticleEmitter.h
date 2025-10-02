@@ -5,16 +5,21 @@
 class ParticleEmitter
 {
 public:
+	ParticleEmitter() = default;
+	~ParticleEmitter() = default;
+
 	// 初期化
 	void Initialize(std::string name_);
 	// 更新
-	void Update(Vector3 Position, uint32_t count);
+	void Update(Vector3 position = {0.0f, 0.0f, 0.0f});
 	// 発生
 	void Emit() const;
+
+	void UpdateParam() const;
 private:
 
 	struct Emitter {
-		std::string name_; //!< パーティクルの名前
+		std::string name; //!< パーティクルの名前
 		EulerTransform transform; //!< エミッタのTransform
 		uint32_t count; //!< 発生数
 		float frequency; //!< 発生頻度

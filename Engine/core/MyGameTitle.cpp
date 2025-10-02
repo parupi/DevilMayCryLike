@@ -80,6 +80,7 @@ void MyGameTitle::Update()
 	ParticleManager::GetInstance()->Update();
 	GuchisFramework::Update();
 	Object3dManager::GetInstance()->Update();
+	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();

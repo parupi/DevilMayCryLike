@@ -12,7 +12,12 @@ Enemy::Enemy(std::string objectName) : Object3d(objectName)
 
 
 
-	
+	slashEmitter_ = std::make_unique<ParticleEmitter>();
+	slashEmitter_->Initialize("test");
+
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>(name_ + "portal", PrimitiveType::Plane, "portal.png"));
+
+	//AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "portal"));
 }
 
 void Enemy::Initialize()
@@ -23,9 +28,27 @@ void Enemy::Initialize()
 
 void Enemy::Update()
 {
+	//if (!isAlive_) {
+	//	deathTimer_++;
+	//	if (deathTimer_ >= 3) {
+	//		//Object3dManager::GetInstance()->DeleteObject(name_);
+	//	}
+	//	return;
+	//}
+
 	if (!player_) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
+	}
+	if (!isActive_)return;
+
+	slashEmitter_->Update(GetWorldTransform()->GetTranslation());
+
+	hitStop_->Update();
+	if (hitStop_->GetHitStopData().isActive) {
+		GetRenderer(name_)->GetWorldTransform()->GetTranslation() = hitStop_->GetHitStopData().translate;
+		Object3d::Update();
+		return;
 	}
 
 	if (currentState_) {
@@ -44,9 +67,9 @@ void Enemy::Update()
 
 void Enemy::Draw()
 {
-
-
-	Object3d::Draw();
+	if (isActive_ && isAlive_) {
+		Object3d::Draw();
+	}
 }
 
 void Enemy::DrawEffect()
@@ -153,15 +176,14 @@ void Enemy::OnCollisionStay(BaseCollider* other)
 
 void Enemy::OnCollisionExit(BaseCollider* other)
 {
-	//if (other->category_ == CollisionCategory::PlayerWeapon) {
-	//	
-	//	hp_--;
+	if (other->category_ == CollisionCategory::PlayerWeapon) {
 
-	//	if (hp_ <= 0) {
-	//		//GetWorldTransform()->GetScale() = { 0.0f, 0.0f, 0.0f };
-	//	}
-	//}
-	other;
+		hp_--;
+
+		if (hp_ <= 0) {
+			OnDeath();
+		}
+	}
 }
 
 void Enemy::ChangeState(const std::string& stateName)
@@ -172,4 +194,10 @@ void Enemy::ChangeState(const std::string& stateName)
 		currentState_ = it->second.get();
 		currentState_->Enter(*this);
 	}
+}
+
+void Enemy::OnDeath()
+{
+	isAlive_ = false;
+
 }

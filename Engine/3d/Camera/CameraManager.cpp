@@ -84,6 +84,14 @@ void CameraManager::BindCameraToShader()
 	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(3, cameraResource_->GetGPUVirtualAddress());
 }
 
+void CameraManager::DeleteAllCamera()
+{
+	for (auto& camera : cameras_) {
+		camera.reset(); // delete呼ばれてnullptrになる
+	}
+	cameras_.clear();
+}
+
 void CameraManager::CreateCameraResource()
 {
 	// カメラ用のリソースを作る

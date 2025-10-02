@@ -5,10 +5,21 @@
 
 void TitleScene::Initialize()
 {
-	TextureManager::GetInstance()->LoadTexture("resource/fade1x1.png");
+	TextureManager::GetInstance()->LoadTexture("white.png");
+	TextureManager::GetInstance()->LoadTexture("StageClear.png");
+	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 
 	// カメラの生成
 
+
+	fade_ = std::make_unique<Fade>();
+	fade_->Initialize();
+
+	sprite_ = std::make_unique<Sprite>();
+	sprite_->Initialize("StageClear.png");
+	//sprite_->SetPosition({ 630, 360 });
+	sprite_->SetSize({ 1280, 720 });
+	//sprite_->SetAnchorPoint({ 0.5f, 0.5f });
 }
 
 void TitleScene::Finalize()
@@ -21,6 +32,8 @@ void TitleScene::Update()
 
 	fade_->Update();
 
+	sprite_->Update();
+
 	ChangePhase();
 }
 
@@ -31,6 +44,8 @@ void TitleScene::Draw()
 
 	SpriteManager::GetInstance()->DrawSet();
 	fade_->DrawSprite();
+
+	sprite_->Draw();
 }
 
 void TitleScene::DrawRTV()
@@ -52,7 +67,7 @@ void TitleScene::ChangePhase()
 		// キーボードの処理
 		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			phase_ = TitlePhase::kFadeOut;
-			fade_->Start(Status::FadeOut, 2.0f);
+			fade_->Start(Status::FadeOut, 1.0f);
 		}
 		break;
 	case TitlePhase::kFadeIn:

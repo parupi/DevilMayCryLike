@@ -16,6 +16,7 @@
 #include <GameData/Score/StylishScoreManager.h>
 #include <GameObject/Enemy/Enemy.h>
 #include <2d/Sprite.h>
+#include <GameObject/Effect/HitStop.h>
 
 class Player : public Object3d
 {
@@ -73,6 +74,8 @@ public:
 	const Vector3& GetLockOnPos() { return lockOnEnemy_->GetWorldTransform()->GetTranslation(); }
 	// ロックオンしているかどうかを取得
 	bool IsLockOn() const { return isLockOn_; }
+
+	HitStop* GetHitStop() const { return hitStop_.get(); }
 private:
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_;
 	PlayerStateBase* currentState_ = nullptr;
@@ -87,7 +90,8 @@ private:
 
 	// 今出している攻撃のパラメータの受け皿
 	AttackData attackData_;
-
+	// ヒットストップ用のクラス
+	std::unique_ptr<HitStop> hitStop_;
 
 	std::vector<Enemy*> enemies_;
 	Enemy* lockOnEnemy_ = nullptr;
@@ -101,5 +105,6 @@ private:
 
 	// スプライト生成 テスト
 	std::unique_ptr<Sprite> sprite_;
+
 };
 

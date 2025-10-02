@@ -31,11 +31,15 @@ void Hellkaina::Initialize()
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
 
-	GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
+	//GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
+
+	hitStop_ = std::make_unique<HitStop>();
 }
 
 void Hellkaina::Update()
 {
+
+
 	Enemy::Update();
 }
 
@@ -49,6 +53,8 @@ void Hellkaina::OnCollisionEnter(BaseCollider* other)
 			hp_ -= player_->GetAttackData().damage;
 			velocity_ = player_->GetAttackData().knockBackSpeed;
 		}
+		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
+		slashEmitter_->Emit();
 	}
 }
 

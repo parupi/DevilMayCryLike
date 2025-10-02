@@ -3,6 +3,7 @@
 #include "base/Particle/ParticleEmitter.h"
 #include "EnemyDamageEffect.h"
 #include "EnemyStateBase.h"
+#include "GameObject/Effect/HitStop.h"
 class Player;
 class Enemy : public Object3d
 {
@@ -10,7 +11,7 @@ public:
     Enemy(std::string objectName);
     virtual ~Enemy() override = default;
 
-    // 初期化と更新は virtual にする
+    
     virtual void Initialize() override;
     virtual void Update() override;
     virtual void Draw() override;
@@ -27,6 +28,10 @@ public:
 
     // 状態切り替え（共通）
     void ChangeState(const std::string& stateName);
+    // 死亡処理
+    void OnDeath();
+
+    bool IsAlive() const { return isAlive_; }
 
     // Getter / Setter（共通）
     bool GetOnGround() const { return onGround_; }
@@ -42,9 +47,14 @@ public:
     float GetHp() const { return hp_; }
     void SetHp(float hp) { hp_ = hp; }
 
+    bool IsActive() const { return isActive_; }
+    void SetActive(bool flag) { isActive_ = flag; }
+
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
     EnemyStateBase* currentState_ = nullptr;
+
+    std::unique_ptr<ParticleEmitter> slashEmitter_;
 
     Player* player_ = nullptr;
 
@@ -53,4 +63,12 @@ protected:
 
     float hp_ = 3;
     bool onGround_ = false;
+    // 起動しているかどうか
+    bool isActive_ = true;
+    // 生きているかどうか
+    bool isAlive_ = true;
+    int deathTimer_ = 0;
+
+    std::unique_ptr<HitStop> hitStop_;
+
 };

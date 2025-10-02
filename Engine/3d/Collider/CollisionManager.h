@@ -29,6 +29,8 @@ public:
 	void AddCollider(std::unique_ptr<BaseCollider> collider);
 
 	BaseCollider* FindCollider(std::string colliderName);
+
+	void RemoveDeadObjects();
 private:
 	using ColliderPair = std::pair<BaseCollider*, BaseCollider*>;
 

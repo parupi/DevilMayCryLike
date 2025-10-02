@@ -27,6 +27,22 @@ void RendererManager::Finalize()
 	instance = nullptr;
 }
 
+void RendererManager::Update()
+{
+	RemoveDeadObjects();
+}
+
+void RendererManager::RemoveDeadObjects()
+{
+	renders_.erase(
+		std::remove_if(renders_.begin(), renders_.end(),
+			[](const std::unique_ptr<BaseRenderer>& renderer) {
+				return !renderer->isAlive;
+			}),
+		renders_.end()
+	);
+}
+
 void RendererManager::AddRenderer(std::unique_ptr<BaseRenderer> render)
 {
 	renders_.push_back(std::move(render));

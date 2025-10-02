@@ -20,6 +20,8 @@ public:
 	void Initialize(DirectXManager* dxManager, SrvManager* srvManager);
 	// 終了処理
 	void Finalize();
+	// 更新処理
+	void Update();
 	// レンダー追加処理
 	void AddRenderer(std::unique_ptr<BaseRenderer> render);
 
@@ -28,6 +30,9 @@ public:
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 private:
+	// オブジェクト削除メソッド
+	void RemoveDeadObjects();
+
 	DirectXManager* dxManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 

@@ -47,6 +47,8 @@ void SkySystem::Draw()
 
 	// カメラ取得
 	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+
+	if (!camera) return;
 	Matrix4x4 view = camera->GetViewMatrix();
 	Matrix4x4 proj = camera->GetProjectionMatrix();
 

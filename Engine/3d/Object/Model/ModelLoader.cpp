@@ -31,6 +31,10 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 			matData.textureFilePath = textureFilePath.C_Str();
 			TextureManager::GetInstance()->LoadTexture(matData.textureFilePath);
 			matData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(matData.textureFilePath);
+		} else {
+			matData.textureFilePath = "white.png";
+			TextureManager::GetInstance()->LoadTexture(matData.textureFilePath);
+			matData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(matData.textureFilePath);
 		}
 
 		modelData.materials[i] = matData;

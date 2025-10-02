@@ -24,7 +24,6 @@ std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
 
 void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
     outObject.name_ = objJson["name"];
-    outObject.type = objJson["type"];
     outObject.className = objJson.value("class", "Object3d");
 
     const auto& transform = objJson["transform"];
@@ -51,6 +50,41 @@ void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
     if (objJson.contains("collider")) {
         outObject.collider = ParseCollider(objJson["collider"]);
     }
+
+    if (objJson.contains("event")) {
+        EventInfo info;
+        auto& eventJson = objJson["event"];
+
+        info.type = eventJson.value("type", "");
+        info.trigger = eventJson.value("trigger", "");
+
+        if (info.type == "EnemySpawn") {
+            if (eventJson.contains("enemies")) {
+                for (auto& enemyJson : eventJson["enemies"]) {
+                    EnemySpawnInfo e;
+                    e.name = enemyJson.value("name", "");
+                    e.delay = enemyJson.value("delay", 0.0f);
+                    info.enemies.push_back(e);
+                }
+            }
+        } else if (info.type == "Clear") {
+            if (eventJson.contains("conditions")) {
+                for (auto& condJson : eventJson["conditions"]) {
+                    EventCondition cond;
+                    cond.type = condJson.value("type", "");
+                    if (condJson.contains("targets")) {
+                        for (auto& t : condJson["targets"]) {
+                            cond.targets.push_back(t.get<std::string>());
+                        }
+                    }
+                    info.conditions.push_back(cond);
+                }
+            }
+        }
+
+        outObject.eventInfo = info;
+    }
+
 
     if (objJson.contains("children")) {
         for (const auto& childJson : objJson["children"]) {
