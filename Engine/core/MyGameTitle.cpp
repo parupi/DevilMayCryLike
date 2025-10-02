@@ -57,6 +57,9 @@ void MyGameTitle::Finalize()
 	RendererManager::GetInstance()->Finalize();
 	SkySystem::GetInstance()->Finalize();
 
+	// シーン
+	SceneManager::GetInstance()->Finalize();
+
 	// ゲームオブジェクト系
 	ParticleManager::GetInstance()->Finalize(); 
 	SpriteManager::GetInstance()->Finalize();           

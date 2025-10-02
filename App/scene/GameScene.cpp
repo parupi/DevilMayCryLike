@@ -13,6 +13,7 @@
 #include <Include/SceneLoader.h>
 #include <Include/SceneBuilder.h>
 #include <3d/SkySystem/SkySystem.h>
+#include <GameObject/Event/EventManager.h>
 
 void GameScene::Initialize()
 {
@@ -57,7 +58,7 @@ void GameScene::Initialize()
 	dirLight->GetLightData().intensity = 1.0f;
 	lightManager_->AddDirectionalLight(std::move(dirLight));
 
-
+	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 }
 
 void GameScene::Finalize()
@@ -65,6 +66,8 @@ void GameScene::Finalize()
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CameraManager::GetInstance()->DeleteAllCamera();
 	LightManager::GetInstance()->DeleteAllLight();
+
+	EventManager::GetInstance()->Finalize();
 }
 
 void GameScene::Update()
@@ -86,8 +89,11 @@ void GameScene::Draw()
 	Object3dManager::GetInstance()->DrawSet();
 	// スプライトの描画前処理
 	SpriteManager::GetInstance()->DrawSet();
-	// オブジェクトマネージャからプレイヤーを探して描画
-	static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"))->DrawEffect();
+	// プレイヤーのスプライト描画
+	if (player_) {
+		player_->DrawEffect();
+	}
+
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
 }
@@ -99,7 +105,9 @@ void GameScene::DrawRTV()
 #ifdef _DEBUG
 void GameScene::DebugUpdate()
 {
-	Object3dManager::GetInstance()->FindObject("Player")->DebugGui();
+	if (player_) {
+		player_->DebugGui();
+	}
 	
 	//enemy_->DebugGui();
 }

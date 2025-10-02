@@ -14,6 +14,7 @@ class PrimitiveRenderer : public BaseRenderer {
 public:
 
     PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName);
+    ~PrimitiveRenderer() = default;
 
     void Update(WorldTransform* parentTransform) override;
     void Draw() override;

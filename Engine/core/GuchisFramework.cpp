@@ -27,7 +27,7 @@ void GuchisFramework::Initialize()
 
 void GuchisFramework::Finalize()
 {
-	SceneManager::GetInstance()->Finalize();
+
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
 	psoManager->Finalize();
