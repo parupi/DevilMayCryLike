@@ -38,9 +38,12 @@ private:
 		kFadeOut
 	};
 private:
-	std::shared_ptr<Camera> camera_ = nullptr;
+	std::unique_ptr<Camera> camera_ = nullptr;
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
 	std::unique_ptr<Fade> fade_;
+
+	// パーティクルのエミッター生成
+	std::unique_ptr<ParticleEmitter> smokeEmitter_;
 
 	TitlePhase phase_ = TitlePhase::kFadeIn;
 

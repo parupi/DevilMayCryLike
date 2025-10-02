@@ -133,8 +133,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& f
 	return textureData.srvHandleGPU;
 }
 
-const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& filePath)
+const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& fileName)
 {
+	const std::string filePath = "Resource/Images/" + fileName;
+
 	// 範囲外指定違反チェック
 	assert(srvManager_->CanAllocate());
 

@@ -170,9 +170,13 @@ void ParticleManager::Update()
 	}
 }
 
-void ParticleManager::Draw()
+void ParticleManager::Draw(BlendMode blendMode)
 {
 	// グラフィックスパイプラインの設定
+	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetParticlePSO(blendMode));
+	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
+	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	auto commandList = dxManager_->GetCommandList();
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 

@@ -36,7 +36,7 @@ public:
 
     // アクティブなカメラをシェーダーに送る
     void BindCameraToShader();
-
+    // 今ある全てのカメラを消す
     void DeleteAllCamera();
 private:
     void CreateCameraResource();

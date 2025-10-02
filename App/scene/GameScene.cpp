@@ -73,9 +73,6 @@ void GameScene::Update()
 
 	lightManager_->UpdateAllLight();
 
-	//player_->Update();
-
-	//enemy_->Update();
 #ifdef _DEBUG
 	DebugUpdate();
 #endif
@@ -85,28 +82,13 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
+	// 全オブジェクトの描画
 	Object3dManager::GetInstance()->DrawSet();
-	//lightManager_->BindLightsToShader();
-	//cameraManager_->BindCameraToShader();
-
-	//ground_->Draw();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-	//player_->Draw();
-	//enemy_->Draw();
-
-	//for (auto& object : sceneObjects_) {
-	//	object->Draw();
-	//}
-
+	// スプライトの描画前処理
 	SpriteManager::GetInstance()->DrawSet();
+	// オブジェクトマネージャからプレイヤーを探して描画
 	static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"))->DrawEffect();
-
-	//Object3dManager::GetInstance()->DrawSet();
-	//lightManager_->BindLightsToShader();
-	//cameraManager_->BindCameraToShader();
-	//player_->DrawEffect();
-	//enemy_->DrawEffect();
-
-	ParticleManager::GetInstance()->DrawSet();
+	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
 }
 

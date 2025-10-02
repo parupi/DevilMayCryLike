@@ -16,28 +16,13 @@ workspace "GuchisEngin"
       kind "StaticLib"
       language "C++"
    
--- ImGuiを普通のprojectとして登録
-project "imgui"
+-- ImGuiを外部プロジェクトとして登録
+externalproject "imgui"
+   location "Externals/imgui"        -- プロジェクトファイル(.vcxproj)がある場所
+   filename "imgui"                  -- 実際のプロジェクトファイル名（拡張子なし）
+   uuid "87654321-DCBA-1234-ABCD-0987654321BA" -- UUIDはユニークに
    kind "StaticLib"
    language "C++"
-   cppdialect "C++20"
-   staticruntime "on"
-
-   targetdir "../generated/outputs/%{cfg.buildcfg}/%{cfg.platform}"
-   objdir "../generated/obj/%{prj.name}/%{cfg.buildcfg}"
-
-   files {
-      "Externals/imgui/*.cpp",
-      "Externals/imgui/*.h"
-   }
-
-   includedirs {
-      "Externals/imgui"
-   }
-
-   links {
-      "dxgi", "d3d12", "dxguid"
-   }
 
 -- GuchisEnginの設定
 

@@ -31,7 +31,7 @@ public:
 	// 更新
 	void Update();
 	// 描画
-	void Draw();
+	void Draw(BlendMode blendMode = BlendMode::kAdd);
 	// パーティクルグループを登録する
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
 	// 描画前処理
