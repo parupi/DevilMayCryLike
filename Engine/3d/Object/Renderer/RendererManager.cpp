@@ -27,6 +27,11 @@ void RendererManager::Finalize()
 	instance = nullptr;
 }
 
+void RendererManager::Update()
+{
+	RemoveDeadObjects();
+}
+
 void RendererManager::RemoveDeadObjects()
 {
 	renders_.erase(

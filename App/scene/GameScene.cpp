@@ -64,6 +64,7 @@ void GameScene::Finalize()
 {
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CameraManager::GetInstance()->DeleteAllCamera();
+	LightManager::GetInstance()->DeleteAllLight();
 }
 
 void GameScene::Update()

@@ -288,6 +288,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\Object\Model\SkinnedModel.cpp" />
     <ClCompile Include="Engine\3d\Object\Object3d.cpp" />
     <ClCompile Include="Engine\3d\Object\Object3dManager.cpp" />
+    <ClCompile Include="Engine\3d\Object\Renderer\BaseRenderer.cpp" />
     <ClCompile Include="Engine\3d\Object\Renderer\InstancingRenderer.cpp" />
     <ClCompile Include="Engine\3d\Object\Renderer\MeshGenerator.cpp" />
     <ClCompile Include="Engine\3d\Object\Renderer\ModelRenderer.cpp" />

@@ -818,5 +818,6 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
+    <ClCompile Include="Engine\3d\Object\Renderer\BaseRenderer.cpp" />
   </ItemGroup>
 </Project>
