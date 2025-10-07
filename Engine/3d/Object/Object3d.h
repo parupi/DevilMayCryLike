@@ -23,7 +23,7 @@ class Object3d
 {
 public: // メンバ関数
 	Object3d(std::string objectName);
-	virtual ~Object3d();
+	virtual ~Object3d() = default;
 	// 初期化処理
 	virtual void Initialize();
 	// 更新処理
@@ -72,4 +72,6 @@ public: // ゲッター // セッター //
 	WorldTransform* GetWorldTransform() { return transform_.get(); }
 
 	std::string name_;
+
+	bool isAlive;
 };

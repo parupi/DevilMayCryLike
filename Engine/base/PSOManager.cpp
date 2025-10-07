@@ -1,4 +1,4 @@
-﻿#include "PsoManager.h"
+#include "PsoManager.h"
 #include "Logger.h"
 #include <cassert>
 #include <DirectXTex/d3dx12.h>
@@ -383,6 +383,7 @@ void PSOManager::CreateParticlePSO(BlendMode blendMode)
 	switch (blendMode)
 	{
 	case BlendMode::kNone:
+		blendDesc.RenderTarget[0].BlendEnable = FALSE; // ←ブレンドしない
 		break;
 	case BlendMode::kNormal:
 		blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;

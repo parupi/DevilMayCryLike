@@ -51,7 +51,7 @@ private:
 private: // メンバ変数（非公開）
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
 
-	std::unique_ptr<Sprite> sprite_ = nullptr;
+	std::unique_ptr<Sprite> titleWord_ = nullptr;
 
 	Status status_ = Status::None;
 	float duration_ = 0.0f;

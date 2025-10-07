@@ -11,16 +11,6 @@ Object3d::Object3d(std::string objectName)
 	Initialize();
 }
 
-Object3d::~Object3d()
-{
-	for (auto& collider : colliders_) {
-		collider->isAlive = false;
-	}
-	for (auto& renderer : renders_) {
-		renderer->isAlive = false;
-	}
-}
-
 void Object3d::Initialize()
 {
 	objectManager_ = Object3dManager::GetInstance();
@@ -77,12 +67,13 @@ void Object3d::ResetObject()
 {
 	for (auto& collider : colliders_) {
 		collider->isAlive = false;
+		collider = nullptr;
 	}
 	for (auto& renderer : renders_) {
 		renderer->isAlive = false;
+		renderer = nullptr;
 	}
 }
-
 
 #ifdef _DEBUG
 void Object3d::DebugGui()

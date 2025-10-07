@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "ParticleManager.h"
 #include "math/function.h"
 #include <numbers>
@@ -106,13 +107,43 @@ void ParticleManager::Update()
 				break;
 			}
 
+			// エディターで変更したBlendModeを設定しておく
+			particleGroup.blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
+
 			// パーティクルの更新処理
-			float alpha{};
+			float alpha = 1.0f;
+			float t = (*particleIterator).currentTime / (*particleIterator).lifeTime;
+
 			isBillboard = global_->GetValueRef<bool>(groupName, "IsBillboard");
+
+			(*particleIterator).fadeType = static_cast<FadeType>(global_->GetValueRef<int>(groupName, "FadeType"));
 
 			(*particleIterator).transform.translate += (*particleIterator).velocity * DeltaTime::GetDeltaTime();
 			(*particleIterator).currentTime += DeltaTime::GetDeltaTime();
-			alpha = 1.0f - ((*particleIterator).currentTime / (*particleIterator).lifeTime);
+
+			switch ((*particleIterator).fadeType) {
+			case FadeType::Alpha: {
+				// 透明度でフェードアウト
+				alpha = 1.0f - t;
+				break;
+			}
+			case FadeType::ScaleShrink: {
+				// 寿命の90%を過ぎたら急速に縮む
+				const float shrinkStart = global_->GetValueRef<float>(groupName, "ShrinkStartRatio");
+				if (t > shrinkStart) {
+					float progress = (t - shrinkStart) / (1.0f - shrinkStart);
+					float scaleFactor = std::max(0.0f, 1.0f - progress * 1.0f); // 線形縮小
+					(*particleIterator).transform.scale = (*particleIterator).initialScale * scaleFactor;
+				} else {
+					(*particleIterator).initialScale = (*particleIterator).transform.scale;
+				}
+				break;
+			}
+			case FadeType::None:
+			default:
+				// 何もしない（そのまま表示）
+				break;
+			}
 
 			// ワールド行列の計算
 			scaleMatrix = MakeScaleMatrix((*particleIterator).transform.scale);
@@ -170,31 +201,39 @@ void ParticleManager::Update()
 	}
 }
 
-void ParticleManager::Draw(BlendMode blendMode)
+void ParticleManager::Draw()
 {
-	// グラフィックスパイプラインの設定
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetParticlePSO(blendMode));
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
-	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	auto commandList = dxManager_->GetCommandList();
+
+	// プリミティブ形状設定
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
 	// すべてのパーティクルグループを描画
 	for (auto& [groupName, particleGroup] : particleGroups_) {
-		if (particleGroup.instanceCount > 0) {
-			// マテリアルCBufferの場所を指定
-			commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
-			// SRVのDescriptorTableを設定
-			srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.srvIndex);
-			// テクスチャのSRVのDescriptorTableを設定
-			   // テクスチャのSRVのDescriptorTableを設定
-			srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.materialData.textureFilePath));
-
-			particleGroup.renderer->Draw();
+		if (particleGroup.instanceCount == 0) {
+			continue;
 		}
+
+		// === 各グループ専用ブレンドモードに切り替え ===
+		commandList->SetPipelineState(psoManager_->GetParticlePSO(particleGroup.blendMode));
+		
+		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
+
+		// === 定数バッファ設定 ===
+		commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+
+		// === SRV設定 ===
+		srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.srvIndex);
+
+		// === テクスチャ設定 ===
+		srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.materialData.textureFilePath));
+
+		// === 描画 ===
+		particleGroup.renderer->Draw();
 	}
 }
+
 
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
 {
@@ -253,6 +292,12 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	global_->AddItem(name, "maxAlpha", float{});
 
 	global_->AddItem(name, "IsBillboard", bool{});
+
+	global_->AddItem(name, "FadeType", int{});
+
+	global_->AddItem(name, "ShrinkStartRatio", float{});
+
+	global_->AddItem(name, "BlendMode", int{2});
 }
 
 void ParticleManager::DrawSet(BlendMode blendMode)
@@ -429,10 +474,10 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 
 void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
 {
-	// Translate
 	ImGui::Begin(groupName.c_str());
 
 	if (ImGui::TreeNode("Particle")) {
+		// ====== Translate ======
 		Vector3& minTranslate = global->GetValueRef<Vector3>(groupName, "minTranslate");
 		Vector3& maxTranslate = global->GetValueRef<Vector3>(groupName, "maxTranslate");
 		if (ImGui::TreeNode("Translate")) {
@@ -441,7 +486,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
-		// Rotate
+		// ====== Rotate ======
 		Vector3& minRotate = global->GetValueRef<Vector3>(groupName, "minRotate");
 		Vector3& maxRotate = global->GetValueRef<Vector3>(groupName, "maxRotate");
 		if (ImGui::TreeNode("Rotate")) {
@@ -450,7 +495,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
-		// Scale
+		// ====== Scale ======
 		Vector3& minScale = global->GetValueRef<Vector3>(groupName, "minScale");
 		Vector3& maxScale = global->GetValueRef<Vector3>(groupName, "maxScale");
 		if (ImGui::TreeNode("Scale")) {
@@ -459,7 +504,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
-		// Velocity
+		// ====== Velocity ======
 		Vector3& minVelocity = global->GetValueRef<Vector3>(groupName, "minVelocity");
 		Vector3& maxVelocity = global->GetValueRef<Vector3>(groupName, "maxVelocity");
 		if (ImGui::TreeNode("Velocity")) {
@@ -468,7 +513,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
-		// LifeTime
+		// ====== LifeTime ======
 		float& minLifeTime = global->GetValueRef<float>(groupName, "minLifeTime");
 		float& maxLifeTime = global->GetValueRef<float>(groupName, "maxLifeTime");
 		if (ImGui::TreeNode("LifeTime")) {
@@ -477,7 +522,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
-		// Color
+		// ====== Color ======
 		Vector3& minColor = global->GetValueRef<Vector3>(groupName, "minColor");
 		Vector3& maxColor = global->GetValueRef<Vector3>(groupName, "maxColor");
 		if (ImGui::TreeNode("Color")) {
@@ -486,18 +531,60 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
-		ImGui::TreePop();
-	}
+		bool& isBillboard = global->GetValueRef<bool>(groupName, "IsBillboard");
+		if (ImGui::TreeNode("Billboard")) {
+			ImGui::Checkbox("IsBillboard", &isBillboard);
+			ImGui::TreePop();
+		}
 
-	if (ImGui::Button("Save")) {
-		GlobalVariables::GetInstance()->SaveFile(groupName);
-		std::string message = std::format("{}.json saved.", groupName);
-		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+		// ====== FadeType ======
+		if (ImGui::TreeNode("Fade Settings")) {
+
+			int& fadeTypeInt = global->GetValueRef<int>(groupName, "FadeType");
+			const char* fadeTypeNames[] = {
+				"None", "Alpha", "ScaleShrink"
+			};
+
+			// コンボで選択
+			ImGui::Combo("Fade Type", &fadeTypeInt, fadeTypeNames, IM_ARRAYSIZE(fadeTypeNames));
+
+			FadeType fadeType = static_cast<FadeType>(fadeTypeInt);
+
+			// フェードタイプごとに個別パラメータを出す
+			switch (fadeType) {
+			case FadeType::Alpha:
+				
+				break;
+			case FadeType::ScaleShrink: {
+				// このフェードタイプ専用のパラメータ
+				float& shrinkStart = global->GetValueRef<float>(groupName, "ShrinkStartRatio");
+
+				ImGui::SliderFloat("Shrink Start Ratio", &shrinkStart, 0.0f, 1.0f);
+				//ImGui::DragFloat("Shrink Speed", &shrinkSpeed, 0.1f, 0.1f, 10.0f);
+				break;
+			}
+			case FadeType::None:
+			default:
+				
+				break;
+			}
+			ImGui::TreePop();
+		}
+
+		// ===== Blend Settings =====
+		if (ImGui::TreeNode("Blend Mode")) {
+			int& blendModeInt = global->GetValueRef<int>(groupName, "BlendMode");
+			const char* blendNames[] = {"None", "Normal", "Add", "Subtract", "Multiply", "Screen"};
+			ImGui::Combo("Blend Mode", &blendModeInt, blendNames, IM_ARRAYSIZE(blendNames));
+			ImGui::TreePop();
+		}
+
+
+		ImGui::TreePop();
 	}
 
 	ImGui::End();
 }
-
 
 std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
 {

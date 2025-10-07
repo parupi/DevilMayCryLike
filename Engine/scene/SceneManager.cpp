@@ -1,5 +1,8 @@
 #include "SceneManager.h"
 #include <cassert>
+#include <3d/Object/Renderer/RendererManager.h>
+#include <3d/Collider/CollisionManager.h>
+#include <3d/Object/Object3dManager.h>
 
 SceneManager* SceneManager::instance = nullptr;
 std::once_flag SceneManager::initInstanceFlag;
@@ -31,6 +34,11 @@ void SceneManager::Update()
 		if (scene_) {
 			scene_->Finalize();
 			delete scene_;
+
+			// 全オブジェクトを削除
+			RendererManager::GetInstance()->RemoveDeadObjects();
+			CollisionManager::GetInstance()->RemoveDeadObjects();
+			Object3dManager::GetInstance()->RemoveDeadObject();
 		}
 
 		// シーンの切り替え

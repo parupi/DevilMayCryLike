@@ -6,6 +6,7 @@
 
 #include <3d/Camera/CameraManager.h>
 #include "fade/Fade.h"
+#include <3d/Light/LightManager.h>
 
 class TitleScene : public BaseScene
 {
@@ -35,6 +36,7 @@ private:
 	enum class TitlePhase {
 		kFadeIn,
 		kTitle,
+		kUIAnimation,
 		kFadeOut
 	};
 private:
@@ -44,11 +46,28 @@ private:
 
 	// パーティクルのエミッター生成
 	std::unique_ptr<ParticleEmitter> smokeEmitter_;
+	std::unique_ptr<ParticleEmitter> smokeEmitter2_;
+	std::unique_ptr<ParticleEmitter> sphereEmitter_;
 
 	TitlePhase phase_ = TitlePhase::kFadeIn;
 
-	std::unique_ptr<Sprite> sprite_;
-	//std::unique_ptr<ParticleManager> particleManager_ = nullptr;
-	//std::unique_ptr<ParticleEmitter> snowEmitter_ = nullptr;
+	// タイトルのUI群
+	std::unique_ptr<Sprite> titleWord_;
+	std::unique_ptr<Sprite> titleUnder_;
+	std::unique_ptr<Sprite> titleUp_;
+
+	// セレクトのUI群
+	std::array<std::unique_ptr<Sprite>, 2> selectArrows_;
+	std::unique_ptr<Sprite> gameStart_;
+	std::unique_ptr<Sprite> selectMask_;
+	
+
+	LightManager* lightManager_ = LightManager::GetInstance();
+
+	Object3d* weaponObject_;
+
+	float uiAnimationTimer_ = 0.0f;
+	const float uiAnimationDuration_ = 0.3f; // 1秒間アニメーション
+
 };
 

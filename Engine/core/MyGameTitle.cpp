@@ -121,3 +121,10 @@ void MyGameTitle::Draw()
 	dxManager->EndDraw();
 }
 
+void MyGameTitle::RemoveObjects()
+{
+	RendererManager::GetInstance()->RemoveDeadObjects();
+	CollisionManager::GetInstance()->RemoveDeadObjects();
+	Object3dManager::GetInstance()->RemoveDeadObject();
+}
+

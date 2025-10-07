@@ -29,7 +29,7 @@ void RendererManager::Finalize()
 
 void RendererManager::Update()
 {
-	RemoveDeadObjects();
+	
 }
 
 void RendererManager::RemoveDeadObjects()

@@ -85,8 +85,8 @@ void Object3dManager::DeleteObject(const std::string& name)
 {
 	for (auto& obj : objects_) {
 		if (obj && obj->name_ == name) {
+			obj->isAlive = false;
 			obj->ResetObject();
-			obj.reset(); // delete呼ばれてnullptrになる
 		}
 	}
 }
@@ -94,10 +94,21 @@ void Object3dManager::DeleteObject(const std::string& name)
 void Object3dManager::DeleteAllObject()
 {
 	for (auto& obj : objects_) {
-		//obj->ResetObject();
-		obj.reset(); // delete呼ばれてnullptrになる
+		// 全オブジェクトの生存フラグを切る
+		obj->isAlive = false;
+		obj->ResetObject();
 	}
-	objects_.clear();
+}
+
+void Object3dManager::RemoveDeadObject()
+{
+	objects_.erase(
+		std::remove_if(objects_.begin(), objects_.end(),
+			[](const std::unique_ptr<Object3d>& renderer) {
+				return !renderer->isAlive;
+			}),
+		objects_.end()
+	);
 }
 
 Object3d* Object3dManager::FindObject(std::string objectName)
