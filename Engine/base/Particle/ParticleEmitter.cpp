@@ -50,7 +50,10 @@ void ParticleEmitter::Update(Vector3 position)
 		Emit();
 		GlobalVariables::GetInstance()->SetValue(emitter.name, "EmitAll", false);
 	}
+
+#ifdef _DEBUG
 	UpdateParam();
+#endif // _DEBUG
 }
 
 void ParticleEmitter::Emit() const

@@ -197,7 +197,10 @@ void ParticleManager::Update()
 		}
 
 		particleParams_[groupName] = LoadParticleParameters(global_, groupName);
+
+#ifdef _DEBUG
 		DrawEditor(global_, groupName);
+#endif // _DEBUG
 	}
 }
 
@@ -560,7 +563,6 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 				float& shrinkStart = global->GetValueRef<float>(groupName, "ShrinkStartRatio");
 
 				ImGui::SliderFloat("Shrink Start Ratio", &shrinkStart, 0.0f, 1.0f);
-				//ImGui::DragFloat("Shrink Speed", &shrinkSpeed, 0.1f, 0.1f, 10.0f);
 				break;
 			}
 			case FadeType::None:
