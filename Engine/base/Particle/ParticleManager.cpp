@@ -114,7 +114,7 @@ void ParticleManager::Update()
 			float alpha = 1.0f;
 			float t = (*particleIterator).currentTime / (*particleIterator).lifeTime;
 
-			isBillboard = global_->GetValueRef<bool>(groupName, "IsBillboard");
+			isBillboard_ = global_->GetValueRef<bool>(groupName, "IsBillboard");
 
 			(*particleIterator).fadeType = static_cast<FadeType>(global_->GetValueRef<int>(groupName, "FadeType"));
 
@@ -149,7 +149,7 @@ void ParticleManager::Update()
 			scaleMatrix = MakeScaleMatrix((*particleIterator).transform.scale);
 			translateMatrix = MakeTranslateMatrix((*particleIterator).transform.translate);
 			Matrix4x4 worldMatrix{};
-			if (isBillboard) {
+			if (isBillboard_) {
 				worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
 			} else {
 				worldMatrix = MakeAffineMatrix((*particleIterator).transform.scale, (*particleIterator).transform.rotate, (*particleIterator).transform.translate);

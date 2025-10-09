@@ -8,6 +8,7 @@
 Object3d::Object3d(std::string objectName)
 {
 	name_ = objectName;
+	isAlive = true;
 	Initialize();
 }
 

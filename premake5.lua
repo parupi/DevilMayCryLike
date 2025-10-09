@@ -1,53 +1,37 @@
 workspace "GuchisEngin"
-   startproject "GuchisEngin" -- デフォルトのスタートプロジェクトを指定
+   startproject "GuchisEngin"
    configurations { "Debug", "Release" }
    platforms { "x64" }
 
+   targetdir "../generated/outputs/%{cfg.buildcfg}/%{cfg.platform}"
+   objdir "../generated/obj/%{prj.name}/%{cfg.buildcfg}"
 
-   -- 出力ディレクトリの設定
-   targetdir "../generated/outputs/%{cfg.buildcfg}/%{cfg.platform}"  -- 実行ファイルの出力先
-   objdir "../generated/obj/%{prj.name}/%{cfg.buildcfg}"     -- 中間ファイルの出力先
-
-   -- DirectXTexを外部プロジェクトとして登録
-   externalproject "DirectXTex"
-      location "Externals/DirectXTex"           -- フォルダパス（.vcxprojがある場所）
-      filename "DirectXTex_Desktop_2022_Win10"  -- 実際のプロジェクトファイル名 (拡張子は不要)
-      uuid "12345678-ABCD-4321-DCBA-1234567890AB" -- 適宜修正
-      kind "StaticLib"
-      language "C++"
-   
--- ImGuiを外部プロジェクトとして登録
-externalproject "imgui"
-   location "Externals/imgui"        -- プロジェクトファイル(.vcxproj)がある場所
-   filename "imgui"                  -- 実際のプロジェクトファイル名（拡張子なし）
-   uuid "87654321-DCBA-1234-ABCD-0987654321BA" -- UUIDはユニークに
+-- DirectXTex は外部プロジェクトとしてリンクでOK
+externalproject "DirectXTex"
+   location "Externals/DirectXTex"
+   filename "DirectXTex_Desktop_2022_Win10"
    kind "StaticLib"
    language "C++"
 
--- GuchisEnginの設定
-
-project "GuchisEngin" -- プロジェクト名
-   kind "WindowedApp" -- デスクトップアプリケーションに設定
+project "GuchisEngin"
+   kind "WindowedApp"
    language "C++"
-   cppdialect "C++20" -- 言語の設定
+   cppdialect "C++20"
 
-   -- プロジェクトに含むファイル
    files { 
       "*.cpp",
       "*.h",
-
       "Engine/**.cpp",
       "Engine/**.h",
       "Engine/**.ipp",
-
       "App/**.cpp",
       "App/**.h",
 
+      -- ImGui関係を自前で含める
       "Externals/imgui/*.cpp",
-      "Externals/imgui/*.h"
+      "Externals/imgui/*.h",
    }
-   
-   -- 追加のインクルードパス
+
    includedirs { 
       "Engine",
       "Engine/Includes",
@@ -55,31 +39,26 @@ project "GuchisEngin" -- プロジェクト名
       "Externals",
       "Externals/assimp/include",
       "Externals/imgui",
-    } 
+   }
 
-   dependson { "DirectXTex","imgui" } -- 依存していることを指定
+   dependson { "DirectXTex" }
 
    links { 
-   "imgui",
-   "DirectXTex",
+      "DirectXTex",
 
-   -- DXライブラリ系
-   "d3d12",
-   "dxgi",
-   "dxguid",
-   "dxcompiler",
+      -- DirectX系
+      "d3d12",
+      "dxgi",
+      "dxguid",
+      "dxcompiler",
+      "dinput8",
+      "xinput",
+   }
 
-   "dinput8",
-   "xinput"
-   }  -- リンク対象のプロジェクト
+   warnings "Extra"
+   buildoptions { "/utf-8" }
+   flags { "MultiProcessorCompile" }
 
-   warnings "Extra" -- 警告レベル3を設定
-
-   buildoptions { "/utf-8" } -- UTF-8でビルドする設定
-
-   flags { "MultiProcessorCompile" } -- 複数プロセッサでのコンパイルを有効化
-
-   -- ビルド後イベントのコマンド
    postbuildcommands {
       'copy "$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"',
       'copy "$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxil.dll" "$(TargetDir)dxil.dll"'
@@ -88,16 +67,13 @@ project "GuchisEngin" -- プロジェクト名
    filter "configurations:Debug"
       defines { "DEBUG" }
       symbols "On"
-      fatalwarnings { "All" }  -- 警告をエラーとして扱う
-      staticruntime "On"  -- 静的ランタイム（/MTd）
-      linkoptions { "/IGNORE:4049", "/IGNORE:4099" } -- 指定したリンカーの警告を無視
-      libdirs { "Externals/assimp/lib/Debug" } -- デバッグ用追加のライブラリディレクトリ
-      links { "assimp-vc143-mtd" } -- デバッグ用ライブラリ
+      staticruntime "On"
+      libdirs { "Externals/assimp/lib/Debug" }
+      links { "assimp-vc143-mtd" }
 
    filter "configurations:Release"
       defines { "NDEBUG" }
       optimize "On"
-      staticruntime "On"  -- 静的ランタイム（/MT）
-      linkoptions { "/IGNORE:4049", "/IGNORE:4099" } -- 指定したリンカーの警告を無視
-      libdirs { "Externals/assimp/lib/Release" } -- リリース用追加のライブラリディレクトリ
-      links { "assimp-vc143-mt" } -- リリース用ライブラリ
+      staticruntime "On"
+      libdirs { "Externals/assimp/lib/Release" }
+      links { "assimp-vc143-mt" }

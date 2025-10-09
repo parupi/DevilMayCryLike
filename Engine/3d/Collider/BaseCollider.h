@@ -23,6 +23,6 @@ public:
 	std::string name_;
 	Object3d* owner_;
 	std::unique_ptr<WorldTransform> transform_;
-	bool isAlive;
+	bool isAlive = true;
 };
 

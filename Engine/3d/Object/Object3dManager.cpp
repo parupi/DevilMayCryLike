@@ -102,14 +102,24 @@ void Object3dManager::DeleteAllObject()
 
 void Object3dManager::RemoveDeadObject()
 {
+	size_t before = objects_.size();
+
 	objects_.erase(
 		std::remove_if(objects_.begin(), objects_.end(),
-			[](const std::unique_ptr<Object3d>& renderer) {
-				return !renderer->isAlive;
+			[](const std::unique_ptr<Object3d>& object) {
+				return !object->isAlive;
 			}),
 		objects_.end()
 	);
+
+	size_t after = objects_.size();
+	if (before != after) {
+		char buf[128];
+		sprintf_s(buf, "[Object3dManager] Removed %zu dead object(s)\n", before - after);
+		OutputDebugStringA(buf);
+	}
 }
+
 
 Object3d* Object3dManager::FindObject(std::string objectName)
 {

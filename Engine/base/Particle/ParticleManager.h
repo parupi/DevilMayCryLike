@@ -178,7 +178,7 @@ private:
 	std::unordered_map<std::string, float> alpha_;
 
 
-	bool isBillboard = true;
+	bool isBillboard_ = true;
 
 	Matrix4x4 scaleMatrix;
 	Matrix4x4 translateMatrix;
