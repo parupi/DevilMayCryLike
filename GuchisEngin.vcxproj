@@ -222,6 +222,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\scene\BaseScene.h" />
     <ClInclude Include="Engine\scene\SampleScene.h" />
     <ClInclude Include="Engine\scene\SceneManager.h" />
+    <ClInclude Include="Engine\scene\Transition\BaseTransition.h" />
+    <ClInclude Include="Engine\scene\Transition\FadeTransition.h" />
+    <ClInclude Include="Engine\scene\Transition\SceneTransitionController.h" />
+    <ClInclude Include="Engine\scene\Transition\TransitionManager.h" />
     <ClInclude Include="Externals\imgui\imconfig.h" />
     <ClInclude Include="Externals\imgui\imgui.h" />
     <ClInclude Include="Externals\imgui\imgui_impl_dx12.h" />
@@ -333,6 +337,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\scene\BaseScene.cpp" />
     <ClCompile Include="Engine\scene\SampleScene.cpp" />
     <ClCompile Include="Engine\scene\SceneManager.cpp" />
+    <ClCompile Include="Engine\scene\Transition\FadeTransition.cpp" />
+    <ClCompile Include="Engine\scene\Transition\SceneTransitionController.cpp" />
+    <ClCompile Include="Engine\scene\Transition\TransitionManager.cpp" />
     <ClCompile Include="Externals\imgui\imgui.cpp" />
     <ClCompile Include="Externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="Externals\imgui\imgui_draw.cpp" />

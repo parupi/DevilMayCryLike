@@ -3,10 +3,10 @@
 #include <scene/BaseScene.h>
 #include "scene/SceneManager.h"
 #include <memory>
-
 #include <3d/Camera/CameraManager.h>
 #include "fade/Fade.h"
 #include <3d/Light/LightManager.h>
+#include <scene/Transition/SceneTransitionController.h>
 
 class TitleScene : public BaseScene
 {
@@ -42,7 +42,7 @@ private:
 private:
 	std::unique_ptr<Camera> camera_ = nullptr;
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
-	std::unique_ptr<Fade> fade_;
+	//std::unique_ptr<Fade> fade_;
 
 	// パーティクルのエミッター生成
 	std::unique_ptr<ParticleEmitter> smokeEmitter_;
@@ -69,5 +69,6 @@ private:
 	float uiAnimationTimer_ = 0.0f;
 	const float uiAnimationDuration_ = 0.3f; // 1秒間アニメーション
 
+	SceneTransitionController* controller = SceneTransitionController::GetInstance();
 };
 

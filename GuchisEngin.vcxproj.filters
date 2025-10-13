@@ -127,6 +127,9 @@
     <Filter Include="Engine\scene">
       <UniqueIdentifier>{587D5A98-44E0-E93C-ED65-22F3D9A7B5BF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\scene\Transition">
+      <UniqueIdentifier>{5229A86F-BE60-F006-C76A-542A33211700}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Externals">
       <UniqueIdentifier>{7B3ECCEB-E7A8-8062-30E7-31089C905EB7}</UniqueIdentifier>
     </Filter>
@@ -474,6 +477,18 @@
     <ClInclude Include="Engine\scene\SceneManager.h">
       <Filter>Engine\scene</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\BaseTransition.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\FadeTransition.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\SceneTransitionController.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\TransitionManager.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
     <ClInclude Include="Externals\imgui\imconfig.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
@@ -802,6 +817,15 @@
     </ClCompile>
     <ClCompile Include="Engine\scene\SceneManager.cpp">
       <Filter>Engine\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\scene\Transition\FadeTransition.cpp">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\scene\Transition\SceneTransitionController.cpp">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\scene\Transition\TransitionManager.cpp">
+      <Filter>Engine\scene\Transition</Filter>
     </ClCompile>
     <ClCompile Include="Externals\imgui\imgui.cpp">
       <Filter>Externals\imgui</Filter>

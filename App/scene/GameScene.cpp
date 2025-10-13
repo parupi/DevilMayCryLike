@@ -14,6 +14,8 @@
 #include <Include/SceneBuilder.h>
 #include <3d/SkySystem/SkySystem.h>
 #include <GameObject/Event/EventManager.h>
+#include <scene/Transition/TransitionManager.h>
+#include <scene/Transition/SceneTransitionController.h>
 
 void GameScene::Initialize()
 {
@@ -72,7 +74,7 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-
+	SceneTransitionController::GetInstance()->Update();
 
 	lightManager_->UpdateAllLight();
 
@@ -96,6 +98,9 @@ void GameScene::Draw()
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
+
+	SpriteManager::GetInstance()->DrawSet(BlendMode::kNormal);
+	TransitionManager::GetInstance()->Draw();
 }
 
 void GameScene::DrawRTV()

@@ -8,6 +8,8 @@
 #include <3d/Camera/CameraManager.h>
 #include <3d/Light/LightManager.h>
 #include <scene/SceneManager.h>
+#include <scene/Transition/TransitionManager.h>
+#include <scene/Transition/SceneTransitionController.h>
 
 void MyGameTitle::Initialize()
 {
@@ -61,6 +63,8 @@ void MyGameTitle::Finalize()
 	SceneManager::GetInstance()->Finalize();
 
 	// ゲームオブジェクト系
+	TransitionManager::GetInstance()->Finalize();
+	SceneTransitionController::GetInstance()->Finalize();
 	ParticleManager::GetInstance()->Finalize(); 
 	SpriteManager::GetInstance()->Finalize();           
 	Object3dManager::GetInstance()->Finalize();         

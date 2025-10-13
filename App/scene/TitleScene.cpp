@@ -9,6 +9,9 @@
 #include <3d/Light/PointLight.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include <3d/Object/Renderer/RendererManager.h>
+#include <scene/Transition/FadeTransition.h>
+#include <scene/Transition/TransitionManager.h>
+
 
 void TitleScene::Initialize()
 {
@@ -69,9 +72,9 @@ void TitleScene::Initialize()
 	sphereEmitter_ = std::make_unique<ParticleEmitter>();
 	sphereEmitter_->Initialize("TitleSphere");
 
-	fade_ = std::make_unique<Fade>();
-	fade_->Initialize();
-	fade_->Start(Status::FadeIn, 1.0f);
+	//fade_ = std::make_unique<Fade>();
+	//fade_->Initialize();
+	//fade_->Start(Status::FadeIn, 1.0f);
 
 	phase_ = TitlePhase::kFadeIn;
 
@@ -118,7 +121,7 @@ void TitleScene::Initialize()
 	selectMask_->SetPosition({ 640.0f, 520.0f });
 	selectMask_->SetSize({ 500.0f, 100.0f });
 	selectMask_->SetAnchorPoint({ 0.5f, 0.5f });
-	selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f});
+	selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 
 	// プレイヤーの生成
 	std::unique_ptr<Object3d> playerObject = std::make_unique<Object3d>("Player");
@@ -139,6 +142,12 @@ void TitleScene::Initialize()
 
 	weaponObject_ = weaponObject.get();
 	Object3dManager::GetInstance()->AddObject(std::move(weaponObject));
+
+	// トランジションのいろいろ
+	// 新しいトランジションの追加 // 追加したら勝手に設定してくれる
+	TransitionManager::GetInstance()->AddTransition(std::make_unique<FadeTransition>("Fade"));
+
+
 }
 
 void TitleScene::Finalize()
@@ -159,11 +168,11 @@ void TitleScene::Update()
 
 	lightManager_->UpdateAllLight();
 
-	fade_->Update();
+	//fade_->Update();
 
 	titleWord_->Update();
 	titleUnder_->Update();
-	titleUp_->Update(); 
+	titleUp_->Update();
 	gameStart_->Update();
 
 	for (auto& arrow : selectArrows_) {
@@ -172,6 +181,8 @@ void TitleScene::Update()
 
 	selectMask_->Update();
 
+	
+	controller->Update();
 	ChangePhase();
 
 
@@ -202,7 +213,7 @@ void TitleScene::Draw()
 	selectMask_->Draw();
 
 	SpriteManager::GetInstance()->DrawSet(BlendMode::kNormal);
-	fade_->DrawSprite();
+	TransitionManager::GetInstance()->Draw();
 }
 
 void TitleScene::DrawRTV()
@@ -220,44 +231,7 @@ void TitleScene::DebugUpdate()
 
 void TitleScene::ChangePhase()
 {
-	switch (phase_) {
-	case TitlePhase::kTitle:
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-			phase_ = TitlePhase::kUIAnimation;
-			uiAnimationTimer_ = 0.0f; // リセット
-		}
-		break;
-
-	case TitlePhase::kUIAnimation: {
-		uiAnimationTimer_ += DeltaTime::GetDeltaTime(); // 経過時間を加算（DeltaTime関数などがある前提）
-
-		// ★UIをアニメーション
-		float t = std::clamp(uiAnimationTimer_ / uiAnimationDuration_, 0.0f, 1.0f);
-
-		// 例：透明度を下げる or サイズを縮小する
-		selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, t });
-
-		for (auto& arrow : selectArrows_) {
-			arrow->SetSize({ 1.0f - 0.3f * t, 1.0f - 0.3f * t });
-		}
-
-		if (uiAnimationTimer_ >= uiAnimationDuration_) {
-			// アニメーションが終わったらフェード開始
-			phase_ = TitlePhase::kFadeOut;
-			fade_->Start(Status::FadeOut, 1.0f);
-		}
-		break;
-	}
-	case TitlePhase::kFadeIn:
-		if (fade_->IsFinished()) {
-			phase_ = TitlePhase::kTitle;
-		}
-		break;
-
-	case TitlePhase::kFadeOut:
-		if (fade_->IsFinished()) {
-			SceneManager::GetInstance()->ChangeScene("TITLE");
-		}
-		break;
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		controller->RequestSceneChange("GAMEPLAY", true);
 	}
 }
