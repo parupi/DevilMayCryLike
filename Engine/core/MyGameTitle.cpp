@@ -8,6 +8,8 @@
 #include <3d/Camera/CameraManager.h>
 #include <3d/Light/LightManager.h>
 #include <scene/SceneManager.h>
+#include <scene/Transition/TransitionManager.h>
+#include <scene/Transition/SceneTransitionController.h>
 
 void MyGameTitle::Initialize()
 {
@@ -43,7 +45,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("TITLE");
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -57,7 +59,12 @@ void MyGameTitle::Finalize()
 	RendererManager::GetInstance()->Finalize();
 	SkySystem::GetInstance()->Finalize();
 
+	// シーン
+	SceneManager::GetInstance()->Finalize();
+
 	// ゲームオブジェクト系
+	TransitionManager::GetInstance()->Finalize();
+	SceneTransitionController::GetInstance()->Finalize();
 	ParticleManager::GetInstance()->Finalize(); 
 	SpriteManager::GetInstance()->Finalize();           
 	Object3dManager::GetInstance()->Finalize();         
@@ -116,5 +123,12 @@ void MyGameTitle::Draw()
 	ImGuiManager::GetInstance()->Draw();
 
 	dxManager->EndDraw();
+}
+
+void MyGameTitle::RemoveObjects()
+{
+	RendererManager::GetInstance()->RemoveDeadObjects();
+	CollisionManager::GetInstance()->RemoveDeadObjects();
+	Object3dManager::GetInstance()->RemoveDeadObject();
 }
 

@@ -75,8 +75,8 @@ void Material::CreateMaterialResource()
 	materialForGPU_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	materialForGPU_->enableLighting = true;
 	materialForGPU_->uvTransform = MakeIdentity4x4();
-	materialForGPU_->shininess = 20.0f;
-	materialForGPU_->environmentIntensity = 0.5f; 
+	materialForGPU_->shininess = 50.0f;
+	materialForGPU_->environmentIntensity = 0.01f; 
 
 	// MaterialData から反映
 	//materialForGPU_->color.x = materialData_.Kd.r;                 // 拡散反射色を使用

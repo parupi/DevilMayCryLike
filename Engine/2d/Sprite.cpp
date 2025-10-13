@@ -4,10 +4,6 @@
 #include <imgui/imgui.h>
 #endif _DEBUG
 
-Sprite::~Sprite() {
-
-}
-
 void Sprite::Initialize(std::string textureFilePath)
 {
 	spriteManager_ = SpriteManager::GetInstance();
@@ -50,9 +46,6 @@ void Sprite::Update()
 	uvTransformMatrix *= MakeRotateZMatrix(uvTransform_.rotate.z);
 	uvTransformMatrix *= MakeTranslateMatrix(uvTransform_.translate);
 	materialData_->uvTransform = uvTransformMatrix;
-
-
-
 }
 
 void Sprite::Draw()

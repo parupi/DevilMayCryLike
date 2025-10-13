@@ -1,0 +1,72 @@
+{
+    "TitleSmoke": {
+        "BlendMode": 3,
+        "Count": 1,
+        "EmitAll": false,
+        "EmitPosition": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "FadeType": 2,
+        "Frequency": 8.0,
+        "IsActive": true,
+        "IsBillboard": true,
+        "ShrinkSpeed": 0.0,
+        "ShrinkStartRatio": 0.8970000147819519,
+        "maxAlpha": 0.0,
+        "maxColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "maxLifeTime": 3.0,
+        "maxRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "maxScale": [
+            0.5,
+            0.5,
+            0.5
+        ],
+        "maxTranslate": [
+            10.0,
+            1.0,
+            -5.0
+        ],
+        "maxVelocity": [
+            0.10000000149011612,
+            0.800000011920929,
+            0.10000000149011612
+        ],
+        "minAlpha": 0.0,
+        "minColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "minLifeTime": 1.0,
+        "minRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minScale": [
+            0.4000000059604645,
+            0.4000000059604645,
+            0.4000000059604645
+        ],
+        "minTranslate": [
+            -10.0,
+            0.0,
+            -15.0
+        ],
+        "minVelocity": [
+            -0.10000000149011612,
+            0.4000000059604645,
+            -0.10000000149011612
+        ]
+    }
+}

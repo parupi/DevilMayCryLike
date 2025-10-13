@@ -127,6 +127,9 @@
     <Filter Include="Engine\scene">
       <UniqueIdentifier>{587D5A98-44E0-E93C-ED65-22F3D9A7B5BF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\scene\Transition">
+      <UniqueIdentifier>{5229A86F-BE60-F006-C76A-542A33211700}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Externals">
       <UniqueIdentifier>{7B3ECCEB-E7A8-8062-30E7-31089C905EB7}</UniqueIdentifier>
     </Filter>
@@ -215,6 +218,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Player\State\PlayerStateMove.h">
       <Filter>App\GameObject\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\scene\ClearScene.h">
+      <Filter>App\scene</Filter>
     </ClInclude>
     <ClInclude Include="App\scene\GameScene.h">
       <Filter>App\scene</Filter>
@@ -471,6 +477,18 @@
     <ClInclude Include="Engine\scene\SceneManager.h">
       <Filter>Engine\scene</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\BaseTransition.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\FadeTransition.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\SceneTransitionController.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\scene\Transition\TransitionManager.h">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClInclude>
     <ClInclude Include="Externals\imgui\imconfig.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
@@ -495,7 +513,6 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\ClearScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -569,6 +586,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Player\State\PlayerStateMove.cpp">
       <Filter>App\GameObject\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\scene\ClearScene.cpp">
+      <Filter>App\scene</Filter>
     </ClCompile>
     <ClCompile Include="App\scene\GameScene.cpp">
       <Filter>App\scene</Filter>
@@ -653,6 +673,9 @@
     </ClCompile>
     <ClCompile Include="Engine\3d\Object\Object3dManager.cpp">
       <Filter>Engine\3d\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3d\Object\Renderer\BaseRenderer.cpp">
+      <Filter>Engine\3d\Object\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\Object\Renderer\InstancingRenderer.cpp">
       <Filter>Engine\3d\Object\Renderer</Filter>
@@ -795,6 +818,15 @@
     <ClCompile Include="Engine\scene\SceneManager.cpp">
       <Filter>Engine\scene</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\scene\Transition\FadeTransition.cpp">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\scene\Transition\SceneTransitionController.cpp">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\scene\Transition\TransitionManager.cpp">
+      <Filter>Engine\scene\Transition</Filter>
+    </ClCompile>
     <ClCompile Include="Externals\imgui\imgui.cpp">
       <Filter>Externals\imgui</Filter>
     </ClCompile>
@@ -817,7 +849,5 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\scene\ClearScene.cpp" />
-    <ClCompile Include="Engine\3d\Object\Renderer\BaseRenderer.cpp" />
   </ItemGroup>
 </Project>

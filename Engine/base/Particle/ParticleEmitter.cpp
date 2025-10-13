@@ -50,7 +50,10 @@ void ParticleEmitter::Update(Vector3 position)
 		Emit();
 		GlobalVariables::GetInstance()->SetValue(emitter.name, "EmitAll", false);
 	}
+
+#ifdef _DEBUG
 	UpdateParam();
+#endif // _DEBUG
 }
 
 void ParticleEmitter::Emit() const
@@ -72,7 +75,7 @@ void ParticleEmitter::UpdateParam() const
 		// Frequency
 		float& frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
 		if (ImGui::TreeNode("Frequency")) {
-			ImGui::DragFloat("Emit Frequency", &frequency, 0.01f, 0.01f, 10.0f);
+			ImGui::DragFloat("Emit Frequency", &frequency, 0.01f, 0.01f, 1000.0f);
 			ImGui::TreePop();
 		}
 
@@ -95,7 +98,12 @@ void ParticleEmitter::UpdateParam() const
 		ImGui::TreePop();
 	}
 
-
+	// ====== Save ======
+	if (ImGui::Button("Save")) {
+		GlobalVariables::GetInstance()->SaveFile(emitter.name);
+		std::string message = std::format("{}.json saved.", emitter.name);
+		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+	}
 
 	ImGui::End();
 }

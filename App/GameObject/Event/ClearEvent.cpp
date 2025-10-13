@@ -1,5 +1,6 @@
 #include "ClearEvent.h"
 #include <scene/SceneManager.h>
+#include <scene/Transition/SceneTransitionController.h>
 
 ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear)
 {
@@ -33,7 +34,8 @@ void ClearEvent::Update()
 void ClearEvent::Execute()
 {
 	isClear_ = true;
-	SceneManager::GetInstance()->ChangeScene("TITLE");
+
+	SceneTransitionController::GetInstance()->RequestSceneChange("TITLE", true);
 }
 
 void ClearEvent::AddTargetEnemy(Enemy* enemy)

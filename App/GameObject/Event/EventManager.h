@@ -6,7 +6,6 @@ class EventManager
 {
 private:
 	static EventManager* instance;
-	static std::once_flag initInstanceFlag;
 
 	EventManager() = default;
 	~EventManager() = default;
@@ -14,6 +13,8 @@ private:
 	EventManager& operator=(EventManager&) = default;
 public:
 	static EventManager* GetInstance();
+	// 終了処理
+	void Finalize();
 
 	void AddEvent(BaseEvent* event);
 

@@ -29,11 +29,13 @@ void RendererManager::Finalize()
 
 void RendererManager::Update()
 {
-	RemoveDeadObjects();
+	
 }
 
 void RendererManager::RemoveDeadObjects()
 {
+	size_t before = renders_.size();
+
 	renders_.erase(
 		std::remove_if(renders_.begin(), renders_.end(),
 			[](const std::unique_ptr<BaseRenderer>& renderer) {
@@ -41,6 +43,13 @@ void RendererManager::RemoveDeadObjects()
 			}),
 		renders_.end()
 	);
+
+	size_t after = renders_.size();
+	if (before != after) {
+		char buf[128];
+		sprintf_s(buf, "[RendererManager] Removed %zu dead renderer(s)\n", before - after);
+		OutputDebugStringA(buf);
+	}
 }
 
 void RendererManager::AddRenderer(std::unique_ptr<BaseRenderer> render)

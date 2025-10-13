@@ -7,10 +7,12 @@
 
 void Fade::Initialize()
 {
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("white.png");
-	sprite_->SetSize(Vector2{ 1280.0f,720.0f });
-	sprite_->SetTextureSize(Vector2{ 1280,720 });
+	titleWord_ = std::make_unique<Sprite>();
+	titleWord_->Initialize("black.png");
+	titleWord_->SetSize(Vector2{ 1280.0f,720.0f });
+	titleWord_->SetTextureSize(Vector2{ 1280,720 });
+
+	titleWord_->SetColor({ 0.0f, 0.0f, 0.0f, 1.0f });
 
 	//particleManager_ = std::make_unique<ParticleManager>();
 	//particleManager_->Initialize();
@@ -47,7 +49,7 @@ void Fade::Draw()
 void Fade::DrawSprite()
 {
 	if (status_ != Status::None) {
-		sprite_->Draw();
+		titleWord_->Draw();
 	}
 }
 
@@ -69,9 +71,11 @@ bool Fade::IsFinished() const
 	case Status::FadeIn:
 	case Status::FadeOut:
 		if (counter_ >= duration_) {
+			titleWord_->SetColor(Vector4{ 1, 1, 1, 1 });
 			return true;
 		}
 		else {
+		
 			return false;
 		}
 	}
@@ -88,8 +92,8 @@ void Fade::FadeOutUpdate()
 	float progress = counter_ / duration_; // 進捗（0.0 ～ 1.0）
 	//float easedAlpha = easeInQuint(progress);
 
-	sprite_->SetColor(Vector4{ 1, 1, 1, progress });
-	sprite_->Update();
+	titleWord_->SetColor(Vector4{ 1, 1, 1, progress });
+	titleWord_->Update();
 
 	alphaCounter_ += DeltaTime::GetDeltaTime();
 	alphaCounter_ = std::clamp(alphaCounter_, 0.0f, 1.0f);
@@ -109,8 +113,8 @@ void Fade::FadeInUpdate()
 	float progress = counter_ / duration_; // 進捗（0.0 ～ 1.0）
 	//float easedAlpha = easeOutQuint(progress);
 
-	sprite_->SetColor(Vector4{ 1,1,1,1.0f - progress });
-	sprite_->Update();
+	titleWord_->SetColor(Vector4{ 1,1,1,1.0f - progress });
+	titleWord_->Update();
 
 	alphaCounter_ -= DeltaTime::GetDeltaTime();
 	alphaCounter_ = std::clamp(alphaCounter_, 0.0f, 1.0f);

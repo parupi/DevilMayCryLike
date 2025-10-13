@@ -69,16 +69,15 @@ void Player::Initialize()
 
 	hitStop_ = std::make_unique<HitStop>();
 
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("uvChecker.png");
-	sprite_->SetSize({ 32.0f, 32.0f });
-	sprite_->SetAnchorPoint({ 0.5f, 0.5f });
+	titleWord_ = std::make_unique<Sprite>();
+	titleWord_->Initialize("uvChecker.png");
+	titleWord_->SetSize({ 32.0f, 32.0f });
+	titleWord_->SetAnchorPoint({ 0.5f, 0.5f });
 
 	// 全攻撃を一度更新しておく
 	for (auto& state : states_) {
 		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
 		if (attackState) {
-			DrawAttackDataEditor(attackState);
 			attackState->UpdateAttackData();
 		}
 	}
@@ -113,11 +112,14 @@ void Player::Update()
 		}
 	}
 
+#ifdef _DEBUG
+	// エディターの描画
 	DrawAttackDataEditorUI();
+#endif // DEBUG
 
 	if (lockOnEnemy_) {
-		sprite_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
-		sprite_->Update();
+		titleWord_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
+		titleWord_->Update();
 	}
 }
 
@@ -125,7 +127,6 @@ void Player::Draw()
 {
 	weapon_->Draw();
 	Object3d::Draw();
-
 
 	for (auto& [name, state] : states_) {
 		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
@@ -138,7 +139,7 @@ void Player::Draw()
 void Player::DrawEffect()
 {
 	if (isLockOn_) {
-		sprite_->Draw();
+		titleWord_->Draw();
 	}
 }
 

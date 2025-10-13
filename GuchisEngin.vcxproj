@@ -57,7 +57,6 @@
     <ClCompile>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
-      <TreatWarningAsError>true</TreatWarningAsError>
       <PreprocessorDefinitions>DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>Engine;Engine\Includes;App;Externals;Externals\assimp\include;Externals\imgui;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
@@ -74,7 +73,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;dxguid.lib;dxcompiler.lib;dinput8.lib;xinput.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>Externals\assimp\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/IGNORE:4049 /IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -104,7 +102,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>d3d12.lib;dxgi.lib;dxguid.lib;dxcompiler.lib;dinput8.lib;xinput.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>Externals\assimp\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions>/IGNORE:4049 /IGNORE:4099 %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
@@ -139,12 +136,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Player\State\PlayerStateIdle.h" />
     <ClInclude Include="App\GameObject\Player\State\PlayerStateJump.h" />
     <ClInclude Include="App\GameObject\Player\State\PlayerStateMove.h" />
+    <ClInclude Include="App\scene\ClearScene.h" />
     <ClInclude Include="App\scene\GameScene.h" />
     <ClInclude Include="App\scene\Object3dFactory.h" />
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\scene\fade\Fade.h" />
-    <ClInclude Include="App\scene\ClearScene.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\3d\Camera\Camera.h" />
@@ -225,6 +222,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\scene\BaseScene.h" />
     <ClInclude Include="Engine\scene\SampleScene.h" />
     <ClInclude Include="Engine\scene\SceneManager.h" />
+    <ClInclude Include="Engine\scene\Transition\BaseTransition.h" />
+    <ClInclude Include="Engine\scene\Transition\FadeTransition.h" />
+    <ClInclude Include="Engine\scene\Transition\SceneTransitionController.h" />
+    <ClInclude Include="Engine\scene\Transition\TransitionManager.h" />
     <ClInclude Include="Externals\imgui\imconfig.h" />
     <ClInclude Include="Externals\imgui\imgui.h" />
     <ClInclude Include="Externals\imgui\imgui_impl_dx12.h" />
@@ -259,12 +260,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Player\State\PlayerStateIdle.cpp" />
     <ClCompile Include="App\GameObject\Player\State\PlayerStateJump.cpp" />
     <ClCompile Include="App\GameObject\Player\State\PlayerStateMove.cpp" />
+    <ClCompile Include="App\scene\ClearScene.cpp" />
     <ClCompile Include="App\scene\GameScene.cpp" />
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\scene\fade\Fade.cpp" />
-    <ClCompile Include="App\scene\ClearScene.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\Camera.cpp" />
@@ -336,6 +337,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\scene\BaseScene.cpp" />
     <ClCompile Include="Engine\scene\SampleScene.cpp" />
     <ClCompile Include="Engine\scene\SceneManager.cpp" />
+    <ClCompile Include="Engine\scene\Transition\FadeTransition.cpp" />
+    <ClCompile Include="Engine\scene\Transition\SceneTransitionController.cpp" />
+    <ClCompile Include="Engine\scene\Transition\TransitionManager.cpp" />
     <ClCompile Include="Externals\imgui\imgui.cpp" />
     <ClCompile Include="Externals\imgui\imgui_demo.cpp" />
     <ClCompile Include="Externals\imgui\imgui_draw.cpp" />
@@ -346,11 +350,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="imgui.vcxproj">
-      <Project>{0098A80F-6CAC-D0C0-352E-7420A101CDF1}</Project>
-    </ProjectReference>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
-      <Project>{12345678-ABCD-4321-DCBA-1234567890AB}</Project>
+      <Project>{A90EE592-95C6-26E0-FECD-FF3BEAA4C1D0}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

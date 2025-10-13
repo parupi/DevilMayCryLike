@@ -43,5 +43,8 @@ private:
 	std::unique_ptr<GameCamera> gameCamera_;
 	                                                                                                           
 	LightManager* lightManager_ = LightManager::GetInstance();
+
+	// プレイヤーのポインタを持っておく
+	Player* player_ = nullptr;
 };
 

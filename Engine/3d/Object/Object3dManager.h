@@ -35,6 +35,8 @@ public:
 	void DeleteObject(const std::string& name);
 
 	void DeleteAllObject();
+	// 生存フラグを切ったオブジェクトの削除
+	void RemoveDeadObject();
 
 	Object3d* FindObject(std::string objectName);
 

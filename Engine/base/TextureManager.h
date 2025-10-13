@@ -32,7 +32,7 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(const std::string& filePath);
 
 	// メタデータを取得
-	const DirectX::TexMetadata& GetMetaData(const std::string& filePath);
+	const DirectX::TexMetadata& GetMetaData(const std::string& fileName);
 
 	// 白テクスチャを生成して取得
 	uint32_t CreateWhiteTexture();

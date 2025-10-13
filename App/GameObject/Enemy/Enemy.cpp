@@ -40,6 +40,7 @@ void Enemy::Update()
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
 	}
+
 	if (!isActive_)return;
 
 	slashEmitter_->Update(GetWorldTransform()->GetTranslation());

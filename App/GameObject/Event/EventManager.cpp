@@ -2,14 +2,23 @@
 #include <iostream>
 
 EventManager* EventManager::instance = nullptr;
-std::once_flag EventManager::initInstanceFlag;
 
 EventManager* EventManager::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance = new EventManager();
-		});
+    if (!instance) {
+        instance = new EventManager();
+    }
+	
 	return instance;
+}
+
+void EventManager::Finalize()
+{
+    // 既存のイベントを削除
+    events_.clear();
+
+    delete instance;
+    instance = nullptr;
 }
 
 void EventManager::AddEvent(BaseEvent* event)

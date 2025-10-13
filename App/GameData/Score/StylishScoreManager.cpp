@@ -12,12 +12,14 @@ void StylishScoreManager::Update()
         UpdateRank();
     }
 
+#ifdef _DEBUG
     ImGui::Begin("Stylish");
 
     ImGui::Text("Current Rank: %s", GetCurrentRank().c_str());
     ImGui::Text("Current Score: %d", GetCurrentScore());
 
     ImGui::End();
+#endif // DEBUG
 }
 
 void StylishScoreManager::AddScore(int32_t scoreNum, std::string attackName)

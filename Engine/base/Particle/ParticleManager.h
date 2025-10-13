@@ -12,6 +12,12 @@
 #include "ParticleStruct.h"
 #include <3d/Object/Renderer/InstancingRenderer.h>
 
+enum class FadeType {
+	None = 0,        // フェードしない
+	Alpha = 1,       // 透明度で消える
+	ScaleShrink = 2, // 寿命末期で急速に縮む
+};
+
 class ParticleManager
 {
 private:
@@ -74,6 +80,8 @@ private: // 構造体
 		float lifeTime;
 		float currentTime;
 		bool isAlive;
+		Vector3 initialScale;   // 生成時のスケールを保持
+		FadeType fadeType = FadeType::Alpha; // デフォルトをAlphaに
 	};
 
 	struct ParticleGroup {
@@ -86,6 +94,7 @@ private: // 構造体
 		ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
 		// レンダラーへ渡すためのCPUキャッシュ
 		std::vector<InstanceData> instanceCache;
+		BlendMode blendMode = BlendMode::kAdd;
 	};
 
 	struct VertexData {
@@ -169,7 +178,7 @@ private:
 	std::unordered_map<std::string, float> alpha_;
 
 
-	bool isBillboard = true;
+	bool isBillboard_ = true;
 
 	Matrix4x4 scaleMatrix;
 	Matrix4x4 translateMatrix;
