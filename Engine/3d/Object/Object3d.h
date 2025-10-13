@@ -73,5 +73,5 @@ public: // ゲッター // セッター //
 
 	std::string name_;
 
-	bool isAlive;
+	bool isAlive = true;
 };

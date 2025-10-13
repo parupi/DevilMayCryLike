@@ -78,7 +78,6 @@ void Player::Initialize()
 	for (auto& state : states_) {
 		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
 		if (attackState) {
-			DrawAttackDataEditor(attackState);
 			attackState->UpdateAttackData();
 		}
 	}
@@ -113,7 +112,10 @@ void Player::Update()
 		}
 	}
 
+#ifdef _DEBUG
+	// エディターの描画
 	DrawAttackDataEditorUI();
+#endif // DEBUG
 
 	if (lockOnEnemy_) {
 		titleWord_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
@@ -125,7 +127,6 @@ void Player::Draw()
 {
 	weapon_->Draw();
 	Object3d::Draw();
-
 
 	for (auto& [name, state] : states_) {
 		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
