@@ -36,7 +36,7 @@ void ParticleEmitter::Update(Vector3 position)
 			emitter.count = 0;
 		}
 
-		emitter.frequencyTime += kDeltaTime;
+		emitter.frequencyTime += DeltaTime::GetDeltaTime();
 		if (emitter.frequency <= emitter.frequencyTime) {
 			// パーティクルを生成してグループに追加
 			Emit();

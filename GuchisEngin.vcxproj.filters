@@ -513,6 +513,7 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -673,9 +674,6 @@
     </ClCompile>
     <ClCompile Include="Engine\3d\Object\Object3dManager.cpp">
       <Filter>Engine\3d\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3d\Object\Renderer\BaseRenderer.cpp">
-      <Filter>Engine\3d\Object\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\Object\Renderer\InstancingRenderer.cpp">
       <Filter>Engine\3d\Object\Renderer</Filter>
@@ -849,5 +847,6 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
   </ItemGroup>
 </Project>

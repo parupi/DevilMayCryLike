@@ -13,7 +13,16 @@ PrimitiveRenderer::PrimitiveRenderer(const std::string& renderName, PrimitiveTyp
     model_ = PrimitiveFactory::Create(type, textureName); // Plane, Ring, Cylinder を返す
 }
 
+PrimitiveRenderer::~PrimitiveRenderer()
+{
+    model_.reset();
+    localTransform_.reset();
+}
+
 void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
+    Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+    if (!camera) return;
+
     model_->Update();
 
     if (localTransform_->GetParent() == nullptr) {
@@ -21,7 +30,7 @@ void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
     }
     localTransform_->TransferMatrix();
 
-    Matrix4x4 wvp = localTransform_->GetMatWorld() * camera_->GetViewProjectionMatrix();
+    Matrix4x4 wvp = localTransform_->GetMatWorld() * camera->GetViewProjectionMatrix();
     localTransform_->SetMapWVP(wvp);
     localTransform_->SetMapWorld(localTransform_->GetMatWorld());
 }
@@ -31,14 +40,12 @@ void PrimitiveRenderer::Draw() {
 
     // 環境マップバインド
     int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
-    
-    if (envMapIndex >= 0) {
-        RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
-    } else {
+   
+    if (envMapIndex < 0) {
         TextureManager::GetInstance()->LoadTexture("skybox_cube.dds");
         envMapIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
-        RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
     }
+    RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
 
     model_->Draw();
 }

@@ -11,6 +11,7 @@
 #include <3d/Object/Renderer/RendererManager.h>
 #include <scene/Transition/FadeTransition.h>
 #include <scene/Transition/TransitionManager.h>
+#include <GameObject/Camera/TitleCamera.h>
 
 
 void TitleScene::Initialize()
@@ -33,11 +34,13 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("SelectMask.png");
 
 	// カメラの生成
-	camera_ = std::make_unique<Camera>("TitleCamera");
-	camera_->GetTranslate() = { 0.0f, 5.2f, -25.0f };
-	camera_->GetRotate() = { 0.25f, 0.0f, 0.0f };
-	cameraManager_->AddCamera(std::move(camera_));
+	
+	cameraManager_->AddCamera(std::make_unique<TitleCamera>("TitleCamera"));
 	cameraManager_->SetActiveCamera(0);
+
+	camera_ = static_cast<TitleCamera*>(cameraManager_->GetActiveCamera());
+	camera_->Initialize();
+	camera_->Enter();
 
 	// タイトルシーンにあるもやもやを生成
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSphere", "circle2.png");
@@ -72,31 +75,33 @@ void TitleScene::Initialize()
 	sphereEmitter_ = std::make_unique<ParticleEmitter>();
 	sphereEmitter_->Initialize("TitleSphere");
 
-	//fade_ = std::make_unique<Fade>();
-	//fade_->Initialize();
-	//fade_->Start(Status::FadeIn, 1.0f);
-
 	phase_ = TitlePhase::kFadeIn;
 
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
 
-	titleWord_ = std::make_unique<Sprite>();
-	titleWord_->Initialize("Title.png");
-	titleWord_->SetPosition({ 640.0f, 156.0f });
-	titleWord_->SetSize({ 576.0f, 192.0f });
-	titleWord_->SetAnchorPoint({ 0.5f, 0.5f });
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Title", PrimitiveType::Plane, "Title.png"));
 
-	titleUnder_ = std::make_unique<Sprite>();
-	titleUnder_->Initialize("TitleUnder.png");
-	titleUnder_->SetPosition({ 640.0f, 320.0f });
-	titleUnder_->SetSize({ 576.0f, 192.0f });
-	titleUnder_->SetAnchorPoint({ 0.5f, 0.5f });
+	std::unique_ptr<PrimitiveRenderer> primitive = std::make_unique<PrimitiveRenderer>("TitleUp", PrimitiveType::Plane, "TitleUp.png");
+	primitive->GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, 0.7f };
+	RendererManager::GetInstance()->AddRenderer(std::move(primitive));
 
-	titleUp_ = std::make_unique<Sprite>();
-	titleUp_->Initialize("TitleUp.png");
-	titleUp_->SetPosition({ 640.0f, 16.0f });
-	titleUp_->SetSize({ 576.0f, 192.0f });
-	titleUp_->SetAnchorPoint({ 0.5f, 0.5f });
+	primitive = std::make_unique<PrimitiveRenderer>("TitleUnder", PrimitiveType::Plane, "TitleUnder.png");
+	primitive->GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, -0.8f };
+	RendererManager::GetInstance()->AddRenderer(std::move(primitive));
+
+	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("Title");
+	object->Initialize();
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("Title"));
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("TitleUp"));
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("TitleUnder"));
+
+	object->GetWorldTransform()->GetTranslation() = { 0.0f, 3.2f, -7.0f };
+	object->GetWorldTransform()->GetScale() = { 6.0f, 1.0f, 2.0f };
+
+	Vector3 dir = { -90.0f, 0.0f, 0.0f };
+	object->GetWorldTransform()->GetRotation() = EulerDegree(dir);
+
+	Object3dManager::GetInstance()->AddObject(std::move(object));
 
 	for (int32_t i = 0; i < 2; i++) {
 		selectArrows_[i] = std::make_unique<Sprite>();
@@ -143,11 +148,8 @@ void TitleScene::Initialize()
 	weaponObject_ = weaponObject.get();
 	Object3dManager::GetInstance()->AddObject(std::move(weaponObject));
 
-	// トランジションのいろいろ
 	// 新しいトランジションの追加 // 追加したら勝手に設定してくれる
 	TransitionManager::GetInstance()->AddTransition(std::make_unique<FadeTransition>("Fade"));
-
-
 }
 
 void TitleScene::Finalize()
@@ -170,9 +172,9 @@ void TitleScene::Update()
 
 	//fade_->Update();
 
-	titleWord_->Update();
-	titleUnder_->Update();
-	titleUp_->Update();
+	//titleWord_->Update();
+	//titleUnder_->Update();
+	//titleUp_->Update();
 	gameStart_->Update();
 
 	for (auto& arrow : selectArrows_) {
@@ -181,7 +183,7 @@ void TitleScene::Update()
 
 	selectMask_->Update();
 
-	
+	ExitUpdate();
 	controller->Update();
 	ChangePhase();
 
@@ -200,9 +202,6 @@ void TitleScene::Draw()
 	ParticleManager::GetInstance()->Draw();
 
 	SpriteManager::GetInstance()->DrawSet();
-	titleWord_->Draw();
-	titleUnder_->Draw();
-	titleUp_->Draw();
 	gameStart_->Draw();
 
 	for (auto& arrow : selectArrows_) {
@@ -220,18 +219,75 @@ void TitleScene::DrawRTV()
 {
 }
 
+void TitleScene::Exit()
+{
+	isExit_ = true;
+
+	targetArrowSizes_[0] = { -32.0f, 32.0f };
+	targetArrowSizes_[1] = { 32.0f, 32.0f };
+	targetSpriteAlpha_ = 0.0f;
+	targetSelectMaskAlpha = 0.0f;
+
+	for (size_t i = 0; i < selectArrows_.size(); i++) {
+		startArrowSizes_[i] = selectArrows_[i]->GetSize();
+	}
+
+	startSpriteAlpha_ = 1.0f;
+	startSelectMaskAlpha = 0.0f;
+}
+
+void TitleScene::ExitUpdate()
+{
+	if (!isExit_) return;
+
+	exitTimer_ += DeltaTime::GetDeltaTime();
+	// 0.0f ～ 1.0f にクランプ
+	float t = std::clamp(exitTimer_ / exitTime_, 0.0f, 1.0f);
+
+	// --- GameStart スプライトのアルファ補間 ---
+	float spriteAlpha = Lerp(startSpriteAlpha_, targetSpriteAlpha_, t);
+	gameStart_->SetColor({ 1.0f, 1.0f, 1.0f, spriteAlpha });
+
+	// --- マスク透明度（前半フェードイン、後半フェードアウト） ---
+	float maskAlpha = 0.0f;
+	if (t < 0.5f) {
+		float subT = t / 0.5f; // 0.0～1.0
+		maskAlpha = Lerp(startSelectMaskAlpha, 0.8f, subT);
+	} else {
+		float subT = (t - 0.5f) / 0.5f; // 0.0～1.0
+		maskAlpha = Lerp(0.8f, targetSelectMaskAlpha, subT);
+	}
+	selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, maskAlpha });
+
+	// --- 矢印のサイズ補間 ---
+	for (size_t i = 0; i < selectArrows_.size(); i++) {
+		Vector2 size;
+		size.x = Lerp(startArrowSizes_[i].x, targetArrowSizes_[i].x, t);
+		size.y = Lerp(startArrowSizes_[i].y, targetArrowSizes_[i].y, t);
+		selectArrows_[i]->SetSize(size);
+		selectArrows_[i]->SetColor({ 1.0f, 1.0f, 1.0f, spriteAlpha });
+	}
+}
+
 #ifdef _DEBUG
 void TitleScene::DebugUpdate()
 {
 	ImGui::Begin("weapon");
 	weaponObject_->DebugGui();
 	ImGui::End();
+
+	ImGui::Begin("title");
+	Object3dManager::GetInstance()->FindObject("Title")->DebugGui();
+	ImGui::End();
 }
 #endif // _DEBUG
 
 void TitleScene::ChangePhase()
 {
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-		controller->RequestSceneChange("GAMEPLAY", true);
+	if (!camera_->IsExit()) {
+		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+			camera_->Exit();
+			Exit();
+		}
 	}
 }

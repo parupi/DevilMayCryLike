@@ -15,10 +15,12 @@ public:
 #endif // DEBUG
 
 	std::string name_;
-	std::unique_ptr<WorldTransform> localTransform_;
+
 	bool isAlive = true;
 
 	virtual WorldTransform* GetWorldTransform() const = 0;
 	virtual BaseModel* GetModel() const = 0;
+protected:
+	std::unique_ptr<WorldTransform> localTransform_;
 };
 

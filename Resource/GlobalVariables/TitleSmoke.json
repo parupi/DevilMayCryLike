@@ -9,7 +9,7 @@
             0.0
         ],
         "FadeType": 2,
-        "Frequency": 8.0,
+        "Frequency": 0.75,
         "IsActive": true,
         "IsBillboard": true,
         "ShrinkSpeed": 0.0,
@@ -47,7 +47,7 @@
             1.0,
             1.0
         ],
-        "minLifeTime": 1.0,
+        "minLifeTime": 2.0,
         "minRotate": [
             0.0,
             0.0,
