@@ -31,7 +31,6 @@ private:
 	//ParticleManager* particleManager_;
 	bool emitAll_ = false;
 	Emitter emitter{};
-	float kDeltaTime = DeltaTime::GetDeltaTime();
 
 public:
 	void SetFrequency(float time) { emitter.frequency = time; }

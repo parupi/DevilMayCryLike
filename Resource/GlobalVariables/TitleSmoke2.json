@@ -9,7 +9,7 @@
             0.0
         ],
         "FadeType": 1,
-        "Frequency": 3.0,
+        "Frequency": 0.5,
         "IsActive": true,
         "IsBillboard": true,
         "ShrinkStartRatio": 0.0,
@@ -19,7 +19,7 @@
             1.0,
             1.0
         ],
-        "maxLifeTime": 6.0,
+        "maxLifeTime": 7.5,
         "maxRotate": [
             0.0,
             0.0,
@@ -37,7 +37,7 @@
         ],
         "maxVelocity": [
             0.0,
-            0.4000000059604645,
+            0.30000001192092896,
             0.0
         ],
         "minAlpha": 0.0,
@@ -46,7 +46,7 @@
             1.0,
             1.0
         ],
-        "minLifeTime": 4.0,
+        "minLifeTime": 5.0,
         "minRotate": [
             0.0,
             0.0,
@@ -64,7 +64,7 @@
         ],
         "minVelocity": [
             0.0,
-            0.20000000298023224,
+            0.10000000149011612,
             0.0
         ]
     }

@@ -18,7 +18,7 @@ void FadeTransition::Start(bool isFadeOut)
 
 void FadeTransition::Update()
 {
-	const float speed = 0.02f;
+	const float speed = 0.025f;
 
 	if (isFadeOut_) {
 		alpha_ += speed;

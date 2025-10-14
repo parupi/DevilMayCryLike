@@ -14,8 +14,10 @@
 void MyGameTitle::Initialize()
 {
 	GuchisFramework::Initialize();
+#ifdef _DEBUG
 	// ImGui初期化
 	ImGuiManager::GetInstance()->Initialize(winManager.get(), dxManager.get());
+#endif // DEBUG
 	// 2Dテクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
 	// 3Dテクスチャマネージャーの初期化
@@ -54,7 +56,9 @@ void MyGameTitle::Initialize()
 void MyGameTitle::Finalize()
 {
 	// 描画処理系
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->Finalize();
+#endif // DEBUG
 	PrimitiveLineDrawer::GetInstance()->Finalize();
 	RendererManager::GetInstance()->Finalize();
 	SkySystem::GetInstance()->Finalize();
@@ -82,7 +86,9 @@ void MyGameTitle::Finalize()
 
 void MyGameTitle::Update()
 {
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->Begin();
+#endif // DEBUG
 	CameraManager::GetInstance()->Update();
 	ParticleManager::GetInstance()->Update();
 	GuchisFramework::Update();
@@ -91,8 +97,9 @@ void MyGameTitle::Update()
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();
-
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->End();
+#endif // DEBUG
 }
 
 void MyGameTitle::Draw()
@@ -114,13 +121,13 @@ void MyGameTitle::Draw()
 
 	OffScreenManager::GetInstance()->DrawPostEffect();
 
-#ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();
-#endif
+
 	PrimitiveLineDrawer::GetInstance()->EndDraw();
 
-
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->Draw();
+#endif // DEBUG
 
 	dxManager->EndDraw();
 }

@@ -234,6 +234,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -289,7 +290,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\Object\Model\SkinnedModel.cpp" />
     <ClCompile Include="Engine\3d\Object\Object3d.cpp" />
     <ClCompile Include="Engine\3d\Object\Object3dManager.cpp" />
-    <ClCompile Include="Engine\3d\Object\Renderer\BaseRenderer.cpp" />
     <ClCompile Include="Engine\3d\Object\Renderer\InstancingRenderer.cpp" />
     <ClCompile Include="Engine\3d\Object\Renderer\MeshGenerator.cpp" />
     <ClCompile Include="Engine\3d\Object\Renderer\ModelRenderer.cpp" />
@@ -348,6 +348,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
