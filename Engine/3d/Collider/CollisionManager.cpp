@@ -41,11 +41,13 @@ void CollisionManager::Update()
 
 void CollisionManager::Draw()
 {
+#ifdef _DEBUG
     for (auto& collider : colliders_) {
         if (collider) {
             collider->DrawDebug();
         }
     }
+#endif // DEBUG
 }
 
 void CollisionManager::AddCollider(std::unique_ptr<BaseCollider> collider)

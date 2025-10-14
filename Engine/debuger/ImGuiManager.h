@@ -1,4 +1,6 @@
 #pragma once
+#ifdef _DEBUG
+
 #include "base/WindowManager.h"
 #include "base/DirectXManager.h"
 #include <memory>
@@ -33,3 +35,4 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_;
 };
 
+#endif // DEBUG
