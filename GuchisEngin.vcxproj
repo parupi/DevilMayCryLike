@@ -112,6 +112,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameData\CollisionCategory.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
     <ClInclude Include="App\GameObject\Camera\GameCamera.h" />
+    <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
     <ClInclude Include="App\GameObject\Enemy\Enemy.h" />
     <ClInclude Include="App\GameObject\Enemy\EnemyDamageEffect.h" />
@@ -234,11 +235,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
+    <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
     <ClCompile Include="App\GameObject\Enemy\Enemy.cpp" />
     <ClCompile Include="App\GameObject\Enemy\EnemyDamageEffect.cpp" />
@@ -348,7 +349,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

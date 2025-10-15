@@ -147,6 +147,9 @@
     <ClInclude Include="App\GameObject\Camera\GameCamera.h">
       <Filter>App\GameObject\Camera</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Camera\TitleCamera.h">
+      <Filter>App\GameObject\Camera</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -513,13 +516,15 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
       <Filter>App\GameData\Score</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
+      <Filter>App\GameObject\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
@@ -847,6 +852,5 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
   </ItemGroup>
 </Project>
