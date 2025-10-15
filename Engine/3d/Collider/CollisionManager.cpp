@@ -41,11 +41,13 @@ void CollisionManager::Update()
 
 void CollisionManager::Draw()
 {
+#ifdef _DEBUG
     for (auto& collider : colliders_) {
         if (collider) {
             collider->DrawDebug();
         }
     }
+#endif // DEBUG
 }
 
 void CollisionManager::AddCollider(std::unique_ptr<BaseCollider> collider)
@@ -66,7 +68,6 @@ BaseCollider* CollisionManager::FindCollider(std::string colliderName)
 
 void CollisionManager::RemoveDeadObjects()
 {
-    // まず消す対象を集める
     std::vector<BaseCollider*> deadColliders;
     for (auto& obj : colliders_) {
         if (!obj->isAlive) {
@@ -74,8 +75,7 @@ void CollisionManager::RemoveDeadObjects()
         }
     }
 
-    // previousCollisions_ から死んだコライダーを含むペアを削除
-    for (auto it = previousCollisions_.begin(); it != previousCollisions_.end(); ) {
+    for (auto it = previousCollisions_.begin(); it != previousCollisions_.end();) {
         BaseCollider* a = it->first;
         BaseCollider* b = it->second;
 
@@ -90,7 +90,8 @@ void CollisionManager::RemoveDeadObjects()
         }
     }
 
-    // colliders_ からも削除
+    size_t before = colliders_.size();
+
     colliders_.erase(
         std::remove_if(colliders_.begin(), colliders_.end(),
             [](const std::unique_ptr<BaseCollider>& obj) {
@@ -98,6 +99,13 @@ void CollisionManager::RemoveDeadObjects()
             }),
         colliders_.end()
     );
+
+    size_t after = colliders_.size();
+    if (before != after) {
+        char buf[128];
+        sprintf_s(buf, "[CollisionManager] Removed %zu dead collider(s)\n", before - after);
+        OutputDebugStringA(buf);
+    }
 }
 
 void CollisionManager::CheckAllCollisions()
@@ -115,7 +123,7 @@ void CollisionManager::CheckAllCollisions()
 
             if (CheckCollision(a, b)) {
                 ColliderPair pair = std::minmax(a, b);
-
+                 
                 currentCollisions_.insert(pair);
 
                 if (previousCollisions_.count(pair)) {

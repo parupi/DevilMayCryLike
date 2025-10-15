@@ -27,7 +27,7 @@ void GuchisFramework::Initialize()
 
 void GuchisFramework::Finalize()
 {
-	SceneManager::GetInstance()->Finalize();
+
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
 	psoManager->Finalize();
@@ -48,8 +48,11 @@ void GuchisFramework::Run() {
 		Initialize();
 		while (true) {
 			if (IsEndRequest()) break;
+			// 描画が終わった後に削除
+			RemoveObjects();
 			Update();
 			Draw();
+
 		}
 	} catch (const std::exception& e) {
 		MessageBoxA(nullptr, e.what(), "例外発生", MB_OK | MB_ICONERROR);

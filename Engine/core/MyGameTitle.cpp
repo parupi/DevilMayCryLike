@@ -8,12 +8,16 @@
 #include <3d/Camera/CameraManager.h>
 #include <3d/Light/LightManager.h>
 #include <scene/SceneManager.h>
+#include <scene/Transition/TransitionManager.h>
+#include <scene/Transition/SceneTransitionController.h>
 
 void MyGameTitle::Initialize()
 {
 	GuchisFramework::Initialize();
+#ifdef _DEBUG
 	// ImGui初期化
 	ImGuiManager::GetInstance()->Initialize(winManager.get(), dxManager.get());
+#endif // DEBUG
 	// 2Dテクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
 	// 3Dテクスチャマネージャーの初期化
@@ -43,7 +47,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("GAMEPLAY");
+	SceneManager::GetInstance()->ChangeScene("TITLE");
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -52,12 +56,19 @@ void MyGameTitle::Initialize()
 void MyGameTitle::Finalize()
 {
 	// 描画処理系
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->Finalize();
+#endif // DEBUG
 	PrimitiveLineDrawer::GetInstance()->Finalize();
 	RendererManager::GetInstance()->Finalize();
 	SkySystem::GetInstance()->Finalize();
 
+	// シーン
+	SceneManager::GetInstance()->Finalize();
+
 	// ゲームオブジェクト系
+	TransitionManager::GetInstance()->Finalize();
+	SceneTransitionController::GetInstance()->Finalize();
 	ParticleManager::GetInstance()->Finalize(); 
 	SpriteManager::GetInstance()->Finalize();           
 	Object3dManager::GetInstance()->Finalize();         
@@ -75,7 +86,9 @@ void MyGameTitle::Finalize()
 
 void MyGameTitle::Update()
 {
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->Begin();
+#endif // DEBUG
 	CameraManager::GetInstance()->Update();
 	ParticleManager::GetInstance()->Update();
 	GuchisFramework::Update();
@@ -84,8 +97,9 @@ void MyGameTitle::Update()
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();
-
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->End();
+#endif // DEBUG
 }
 
 void MyGameTitle::Draw()
@@ -107,14 +121,21 @@ void MyGameTitle::Draw()
 
 	OffScreenManager::GetInstance()->DrawPostEffect();
 
-#ifdef _DEBUG
 	CollisionManager::GetInstance()->Draw();
-#endif
+
 	PrimitiveLineDrawer::GetInstance()->EndDraw();
 
-
+#ifdef _DEBUG
 	ImGuiManager::GetInstance()->Draw();
+#endif // DEBUG
 
 	dxManager->EndDraw();
+}
+
+void MyGameTitle::RemoveObjects()
+{
+	RendererManager::GetInstance()->RemoveDeadObjects();
+	CollisionManager::GetInstance()->RemoveDeadObjects();
+	Object3dManager::GetInstance()->RemoveDeadObject();
 }
 

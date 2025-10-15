@@ -12,6 +12,11 @@
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include <3d/Light/LightManager.h>
 
+Model::~Model()
+{
+	modelLoader_ = nullptr;
+}
+
 void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 {
 	modelLoader_ = modelManager;

@@ -23,6 +23,9 @@ class ModelRenderer;
 class Model : public BaseModel
 {
 public: // メンバ関数
+	Model() = default;
+	~Model();
+
 	// 初期化
 	void Initialize(ModelLoader* modelLoader, const std::string& fileName);
 

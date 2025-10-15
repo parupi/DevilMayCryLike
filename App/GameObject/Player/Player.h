@@ -104,7 +104,7 @@ private:
 	bool onGround_;
 
 	// スプライト生成 テスト
-	std::unique_ptr<Sprite> sprite_;
+	std::unique_ptr<Sprite> titleWord_;
 
 };
 

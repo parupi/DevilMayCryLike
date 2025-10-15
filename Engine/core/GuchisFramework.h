@@ -29,6 +29,9 @@ public:
 	virtual void Update();
 	// 描画
 	virtual void Draw() = 0;
+	// オブジェクト削除
+	virtual void RemoveObjects() = 0;
+
 	// 終了チェック
 	virtual bool IsEndRequest() { return winManager->ProcessMessage(); }
 	// デバッグ用に取得できるようにしておく

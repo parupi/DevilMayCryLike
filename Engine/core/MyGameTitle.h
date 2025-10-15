@@ -26,5 +26,7 @@ public:
 	void Update() override;
 	// 描画
 	void Draw() override;
+	// オブジェクト削除
+	void RemoveObjects() override;
 };
 

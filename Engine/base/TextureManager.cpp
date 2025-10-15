@@ -71,9 +71,22 @@ void TextureManager::LoadTexture(const std::string& fileName)
 		// 圧縮フォーマットならそのままmoveして使う
 		mipImages = std::move(image);
 	} else {
-		hr = DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages);
+		const auto& meta = image.GetMetadata();
+		// 1x1などミップマップ生成できない場合はスキップ
+		if (meta.width == 1 && meta.height == 1) {
+			mipImages = std::move(image);
+		} else {
+			hr = DirectX::GenerateMipMaps(
+				image.GetImages(),
+				image.GetImageCount(),
+				image.GetMetadata(),
+				DirectX::TEX_FILTER_SRGB,
+				0,
+				mipImages
+			);
+			ASSERT_MSG(SUCCEEDED(hr), "[TextureManager] Failed to generate mipmaps");
+		}
 	}
-	assert(SUCCEEDED(hr));
 
 	// テクスチャデータを追加
 	textureData_[filePath] = TextureData();
@@ -133,8 +146,10 @@ D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetSrvHandleGPU(const std::string& f
 	return textureData.srvHandleGPU;
 }
 
-const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& filePath)
+const DirectX::TexMetadata& TextureManager::GetMetaData(const std::string& fileName)
 {
+	const std::string filePath = "Resource/Images/" + fileName;
+
 	// 範囲外指定違反チェック
 	assert(srvManager_->CanAllocate());
 

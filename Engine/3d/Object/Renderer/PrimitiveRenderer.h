@@ -14,6 +14,7 @@ class PrimitiveRenderer : public BaseRenderer {
 public:
 
     PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName);
+    ~PrimitiveRenderer();
 
     void Update(WorldTransform* parentTransform) override;
     void Draw() override;
@@ -26,8 +27,4 @@ public:
     BaseModel* GetModel() const override { return model_.get(); }
 private:
     std::unique_ptr<Model> model_;
-    std::unique_ptr<WorldTransform> localTransform_;
-    Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
-
-    //void CreatePrimitiveModel(PrimitiveType type);
 };

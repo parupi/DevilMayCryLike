@@ -10,7 +10,9 @@ class SpriteManager;
 // スプライト
 class Sprite {
 public:
-	~Sprite();
+	Sprite() = default;
+	~Sprite() = default;
+
 	void Initialize(std::string textureFilePath);
 	void Update();
 	void Draw();
