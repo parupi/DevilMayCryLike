@@ -5,7 +5,7 @@ on:
       - master
 env: 
   # リポジトリのルートディレクトリを起点としたソリューションファイルのパス
-  SOLUTION_FILE_PATH: project/CG2.sln
+  SOLUTION_FILE_PATH: project/GuchisEngin.sln
   # Visual Studio の構成(Debug / Release )
   CONFIGURATION: Release
 jobs:
