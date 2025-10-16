@@ -363,3 +363,5 @@ FodyWeavers.xsd
 
 # Allow external library binaries
 !Externals/**/lib/
+!Externals/**/lib/Debug/
+!Externals/**/lib/Release
