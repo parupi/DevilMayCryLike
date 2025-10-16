@@ -362,6 +362,5 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Allow external library binaries
-!Externals/**/lib/
-!Externals/**/lib/Debug/
-!Externals/**/lib/Release
+!Externals/assimp/lib/Debug*.lib
+!Externals/assimp/lib/Release*.lib
