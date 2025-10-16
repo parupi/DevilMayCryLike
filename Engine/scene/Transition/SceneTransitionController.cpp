@@ -1,6 +1,7 @@
 #include "SceneTransitionController.h"
 #include "scene/Transition/TransitionManager.h"
 #include <scene/SceneManager.h>
+#include <2d/SpriteManager.h>
 
 SceneTransitionController* SceneTransitionController::instance = nullptr;
 std::once_flag SceneTransitionController::initInstanceFlag;
@@ -52,6 +53,12 @@ void SceneTransitionController::Update()
         break;
     }
 
+}
+
+void SceneTransitionController::Draw()
+{
+    SpriteManager::GetInstance()->DrawSet(BlendMode::kNormal);
+    TransitionManager::GetInstance()->Draw();
 }
 
 void SceneTransitionController::Finalize()

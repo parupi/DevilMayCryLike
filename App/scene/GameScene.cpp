@@ -74,15 +74,13 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-	SceneTransitionController::GetInstance()->Update();
+
 
 	lightManager_->UpdateAllLight();
 
 #ifdef _DEBUG
 	DebugUpdate();
 #endif
-
-	
 }
 
 void GameScene::Draw()
@@ -98,9 +96,6 @@ void GameScene::Draw()
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
-
-	SpriteManager::GetInstance()->DrawSet(BlendMode::kNormal);
-	TransitionManager::GetInstance()->Draw();
 }
 
 void GameScene::DrawRTV()
