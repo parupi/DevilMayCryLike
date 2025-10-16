@@ -361,8 +361,9 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Allow external libs
-!Externals/**/lib/
-!Externals/**/lib/Debug/
-!Externals/**/lib/Release/
+# --- Allow external libraries ---
+!Externals/
+!Externals/**/
 !Externals/**/*.lib
+!Externals/**/Debug/
+!Externals/**/Release/
