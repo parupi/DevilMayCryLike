@@ -166,15 +166,8 @@ void TitleScene::Update()
 
 	sphereEmitter_->Update();
 
-	//cameraManager_->Update();
-
 	lightManager_->UpdateAllLight();
 
-	//fade_->Update();
-
-	//titleWord_->Update();
-	//titleUnder_->Update();
-	//titleUp_->Update();
 	gameStart_->Update();
 
 	for (auto& arrow : selectArrows_) {
@@ -184,9 +177,7 @@ void TitleScene::Update()
 	selectMask_->Update();
 
 	ExitUpdate();
-	controller->Update();
 	ChangePhase();
-
 
 #ifdef _DEBUG
 	DebugUpdate();
@@ -197,7 +188,6 @@ void TitleScene::Update()
 void TitleScene::Draw()
 {
 	Object3dManager::GetInstance()->DrawSet();
-	//fade_->Draw();
 
 	ParticleManager::GetInstance()->Draw();
 
@@ -210,9 +200,6 @@ void TitleScene::Draw()
 
 	SpriteManager::GetInstance()->DrawSet(BlendMode::kAdd);
 	selectMask_->Draw();
-
-	SpriteManager::GetInstance()->DrawSet(BlendMode::kNormal);
-	TransitionManager::GetInstance()->Draw();
 }
 
 void TitleScene::DrawRTV()

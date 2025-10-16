@@ -18,6 +18,8 @@ public:
 	void RequestSceneChange(const std::string& nextScene, bool useTransition = true);
 	// 更新処理
 	void Update();
+	// 描画処理
+	void Draw();
 	// 終了処理
 	void Finalize();
 

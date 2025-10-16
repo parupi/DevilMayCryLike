@@ -92,6 +92,7 @@ void MyGameTitle::Update()
 	CameraManager::GetInstance()->Update();
 	ParticleManager::GetInstance()->Update();
 	GuchisFramework::Update();
+	SceneTransitionController::GetInstance()->Update();
 	Object3dManager::GetInstance()->Update();
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
@@ -113,11 +114,12 @@ void MyGameTitle::Draw()
 	SkySystem::GetInstance()->Draw();
 	// シーン描画処理
 	SceneManager::GetInstance()->Draw();
+	// シーンの描画が終わった後にトランジションの描画
+	SceneTransitionController::GetInstance()->Draw();
 
 	OffScreenManager::GetInstance()->EndDrawToPingPong();
 
 	dxManager->BeginDraw();
-	//SceneManager::GetInstance()->DrawRTV();
 
 	OffScreenManager::GetInstance()->DrawPostEffect();
 
