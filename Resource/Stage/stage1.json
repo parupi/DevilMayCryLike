@@ -7,8 +7,8 @@
             "transform": {
                 "translation": [
                     0.0,
-                    19.9656925201416,
-                    -0.14605975151062012
+                    20.0,
+                    0.0
                 ],
                 "rotation": [
                     90.00000762939453,
@@ -40,8 +40,8 @@
             "class": "HellKaina",
             "transform": {
                 "translation": [
-                    -6.652825355529785,
-                    19.718589782714844,
+                    -7.0,
+                    20.0,
                     0.0
                 ],
                 "rotation": [
@@ -74,9 +74,9 @@
             "class": "HellKaina",
             "transform": {
                 "translation": [
-                    7.124279022216797,
-                    20.80280303955078,
-                    -0.6291310787200928
+                    7.0,
+                    20.0,
+                    0.0
                 ],
                 "rotation": [
                     90.00000762939453,
@@ -424,50 +424,6 @@
                     1.0,
                     1.0,
                     1.0
-                ]
-            }
-        },
-        {
-            "name": "Event_EnemySpawn2",
-            "class": "Event_EnemySpawn",
-            "transform": {
-                "translation": [
-                    -0.4622955322265625,
-                    81.65412902832031,
-                    1.2322769165039062
-                ],
-                "rotation": [
-                    0.0,
-                    -0.0,
-                    0.0
-                ],
-                "scaling": [
-                    15.929776191711426,
-                    15.346831321716309,
-                    1.0
-                ]
-            },
-            "collider": {
-                "type": "BOX",
-                "center": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "size": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "event": {
-                "type": "EnemySpawn",
-                "trigger": "AREA",
-                "enemies": [
-                    {
-                        "name": "HellKaina7",
-                        "delay": 0.0
-                    }
                 ]
             }
         },

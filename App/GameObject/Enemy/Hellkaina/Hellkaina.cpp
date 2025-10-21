@@ -7,6 +7,7 @@
 #include "State/EnemyStateAir.h"
 #include "State/EnemyStateMove.h"
 #include "State/HellkainaStateKnockBack.h"
+#include <scene/Transition/TransitionManager.h>
 
 Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 {
@@ -60,7 +61,6 @@ void Hellkaina::OnCollisionEnter(BaseCollider* other)
 
 void Hellkaina::OnCollisionStay(BaseCollider* other)
 {
-
 	Enemy::OnCollisionStay(other);
 
 	if (other->category_ == CollisionCategory::PlayerWeapon) {

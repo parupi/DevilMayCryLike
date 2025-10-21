@@ -1,6 +1,7 @@
 #include "PlayerWeapon.h"
 #include <3d/Collider/AABBCollider.h>
 #include "Player.h"
+#include <scene/Transition/TransitionManager.h>
 
 PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName)
 {
@@ -27,6 +28,9 @@ void PlayerWeapon::Update()
 	if (player_ == nullptr) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 	}
+
+	// カメラ合切り替え中とフェード中は動かさない
+	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) return;
 
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
 	smokeEmitter_->Update(GetWorldTransform()->GetWorldPos());

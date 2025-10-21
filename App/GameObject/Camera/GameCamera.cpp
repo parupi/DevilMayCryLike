@@ -42,12 +42,13 @@ void GameCamera::Update()
         // === キー操作による水平角度の更新 ===
         const float angleSpeed = 0.02f; // 回転速度（ラジアン）
         if (input_->IsConnected()) {
-            if (input_->GetRightStickX() < 0.0f) {
-                horizontalAngle_ -= angleSpeed;
-            }
-            if (input_->GetRightStickX() > 0.0f) {
-                horizontalAngle_ += angleSpeed;
-            }
+            //if (input_->GetRightStickX() < 0.0f) {
+            //    horizontalAngle_ -= angleSpeed;
+            //}
+            //if (input_->GetRightStickX() > 0.0f) {
+            //    horizontalAngle_ += angleSpeed;
+            //}
+            horizontalAngle_ += input_->GetRightStickX() * angleSpeed;
         } else {
             if (input_->PushKey(DIK_K)) {
                 horizontalAngle_ -= angleSpeed;
