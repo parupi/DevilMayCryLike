@@ -81,12 +81,12 @@ void SampleScene::Initialize()
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
-	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
-	dirLight->GetLightData().intensity = 1.0f;
-	dirLight->GetLightData().enabled = true;
-	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
-	lightManager_->AddDirectionalLight(std::move(dirLight));
+	//std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
+	//dirLight->GetLightData().intensity = 1.0f;
+	//dirLight->GetLightData().enabled = true;
+	//dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
+	//lightManager_->AddDirectionalLight(std::move(dirLight));
 
 
 

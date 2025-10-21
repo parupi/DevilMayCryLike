@@ -50,21 +50,19 @@ void TitleScene::Initialize()
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
-	std::unique_ptr<PointLight> pointLight2 = std::make_unique<PointLight>("Point2");
-	pointLight2->GetLightData().enabled = true;
-	pointLight2->GetLightData().position = { 0.0f, 2.0f, -6.0f };
-	pointLight2->GetLightData().color = { 0.3f, 0.3f, 0.3f , 0.5f };
-	pointLight2->GetLightData().intensity = 2.0f;
-	pointLight2->GetLightData().radius = 10.0f;
-	pointLight2->GetLightData().decay = 1.0f;
-	lightManager_->AddPointLight(std::move(pointLight2));
+	pointLight_ = lightManager_->CreatePointLight("TitlePoint");
+	//pointLight2->GetLightData().position = { 0.0f, 2.0f, -6.0f };
+	//pointLight2->GetLightData().color = { 0.3f, 0.3f, 0.3f , 0.5f };
+	//pointLight2->GetLightData().intensity = 2.0f;
+	//pointLight2->GetLightData().radius = 10.0f;
+	//pointLight2->GetLightData().decay = 1.0f;
 
-	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("Dir1");
-	dirLight->GetLightData().enabled = true;
-	dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
-	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f , 1.0f };
-	dirLight->GetLightData().intensity = 0.1f;
-	lightManager_->AddDirectionalLight(std::move(dirLight));
+	//directionLight_ = lightManager_->CreateDirectionalLight("DirectionLight");
+	//dirLight->GetLightData().enabled = true;
+	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
+	//dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f , 1.0f };
+	//dirLight->GetLightData().intensity = 0.1f;
+	//lightManager_->AddDirectionalLight(std::move(dirLight));
 
 	smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter_->Initialize("TitleSmoke");

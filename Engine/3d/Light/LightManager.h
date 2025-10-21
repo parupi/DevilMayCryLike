@@ -12,9 +12,7 @@
 #include "SpotLight.h"
 #include <base/DirectXManager.h>
 
-constexpr int maxDirLights = 3;
-constexpr int maxPointLights = 3; // ポイントライトの最大数
-constexpr int maxSpotLights = 3;   // スポットライトの最大数
+static inline size_t Align256(size_t s);
 
 class LightManager
 {
@@ -29,40 +27,47 @@ private:
 public:
 	// シングルトンインスタンスの取得
 	static LightManager* GetInstance();
-
+	// 初期化処理
 	void Initialize(DirectXManager* dxManager);
+	// 終了処理
 	void Finalize();
 	// 描画前処理
 	void BindLightsToShader();
 	// ライトの更新処理
 	void UpdateAllLight();
 	// ライトの追加
-	void AddDirectionalLight(std::unique_ptr<DirectionalLight> light);
-	void AddPointLight(std::unique_ptr<PointLight> light);
-	void AddSpotLight(std::unique_ptr<SpotLight> light);
+	// ライト作成
+	DirectionalLight* CreateDirectionalLight(const std::string& name);
+	PointLight* CreatePointLight(const std::string& name);
+	SpotLight* CreateSpotLight(const std::string& name);
+	void CreateDummyLightResources();
 
-	DirectionalLight* GetDirectionalLight(const std::string& name_);
-	PointLight* GetPointLight(const std::string& name_);
-	SpotLight* GetSpotLight(const std::string& name_);
+	// 取得
+	DirectionalLight* GetDirectionalLight(const std::string& name);
+	PointLight* GetPointLight(const std::string& name);
+	SpotLight* GetSpotLight(const std::string& name);
 
 	void DeleteAllLight();
 private:
-	//void CreateDirLightResource();
-	//void CreatePointLightResource();
-	//void CreateSpotLightResource();
-
-	void CreateLightResource();
-	void UpdateBuffer(ID3D12Resource* resource, const void* data, size_t size);
-private:
 	DirectXManager* dxManager_ = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> dirLightResource_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> pointLightResource_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> spotLightResource_ = nullptr;
+	// 集約された GPU バッファ（各フレームの描画用）
+	Microsoft::WRL::ComPtr<ID3D12Resource> aggregatedDirBuffer_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> aggregatedPointBuffer_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> aggregatedSpotBuffer_;
 
 	std::vector<std::unique_ptr<DirectionalLight>> dirLights_;
 	std::vector< std::unique_ptr<PointLight>> pointLights_;
 	std::vector<std::unique_ptr<SpotLight>> spotLights_;
 
+	// 各ライトのダミーリソース
+	Microsoft::WRL::ComPtr<ID3D12Resource> dummyDirLight_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> dummyPointLight_;
+	Microsoft::WRL::ComPtr<ID3D12Resource> dummySpotLight_;
+
+	// 内部ユーティリティ
+	void CreateAggregatedBuffers();
+	void UpdateAggregatedBuffers();
+	void UpdateBuffer(ID3D12Resource* resource, const void* data, size_t size);
 };
 
