@@ -11,6 +11,7 @@
 #include <numbers>
 #include <3d/Primitive/PrimitiveLineDrawer.h>
 #include "State/Attack/PlayerStateAttackBase.h"
+#include <scene/Transition/TransitionManager.h>
 
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
@@ -18,10 +19,8 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	Object3d::Initialize();
 
 	// レンダラーの生成
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerBody", "PlayerBody"));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
 
-	//AddRenderer(RendererManager::GetInstance()->FindRender("PlayerBody"));
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
 
 	states_["Idle"] = std::make_unique<PlayerStateIdle>();
@@ -59,11 +58,7 @@ void Player::Initialize()
 
 	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
 
-	//GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 1.5f;
-
 	scoreManager = std::make_unique<StylishScoreManager>();
-
-
 
 	weapon_->SetScoreManager(scoreManager.get());
 
@@ -81,14 +76,26 @@ void Player::Initialize()
 			attackState->UpdateAttackData();
 		}
 	}
+
+	// プレイヤーをカメラ側を向かせる
+	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
 }
 
 void Player::Update()
 {
+	// カメラ合切り替え中とフェード中は動かさない
+	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) {
+		hitStop_->Update();
+		scoreManager->Update();
+		weapon_->Update();
+		Object3d::Update();
+		return;
+	}
+	
+
 	if (currentState_) {
 		currentState_->Update(*this);
 	}
-
 
 	hitStop_->Update();
 	scoreManager->Update();
@@ -104,13 +111,7 @@ void Player::Update()
 	weapon_->Update();
 	Object3d::Update();
 
-	// 全攻撃を更新
-	for (auto& state : states_) {
-		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
-		if (attackState) {
-			attackState->UpdateAttackData();
-		}
-	}
+
 
 #ifdef _DEBUG
 	// エディターの描画

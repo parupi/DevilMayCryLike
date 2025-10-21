@@ -36,7 +36,7 @@ void TitleScene::Initialize()
 	// カメラの生成
 	
 	cameraManager_->AddCamera(std::make_unique<TitleCamera>("TitleCamera"));
-	cameraManager_->SetActiveCamera(0);
+	cameraManager_->SetActiveCamera("TitleCamera");
 
 	camera_ = static_cast<TitleCamera*>(cameraManager_->GetActiveCamera());
 	camera_->Initialize();

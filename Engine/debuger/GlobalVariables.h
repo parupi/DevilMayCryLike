@@ -18,7 +18,7 @@ public:
 	using json = nlohmann::json;
 
 	// 値の型
-	using Value = std::variant<int32_t, float, Vector3, bool>;
+	using Value = std::variant<int32_t, float, Vector3, bool, std::string>;
 
 	// 項目構造体
 	struct Item {

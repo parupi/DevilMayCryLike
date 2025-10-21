@@ -4,6 +4,7 @@
 #include <3d/Collider/CollisionManager.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include "GameObject/Player/Player.h"
+#include <scene/Transition/TransitionManager.h>
 
 
 Enemy::Enemy(std::string objectName) : Object3d(objectName)
@@ -28,6 +29,17 @@ void Enemy::Initialize()
 
 void Enemy::Update()
 {
+	if (!player_) {
+		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+		GetCollider(name_)->category_ = CollisionCategory::Enemy;
+	}
+
+	// カメラ合切り替え中とフェード中は動かさない
+	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) {
+		Object3d::Update();
+		return;
+	}
+
 	//if (!isAlive_) {
 	//	deathTimer_++;
 	//	if (deathTimer_ >= 3) {
@@ -36,10 +48,7 @@ void Enemy::Update()
 	//	return;
 	//}
 
-	if (!player_) {
-		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-		GetCollider(name_)->category_ = CollisionCategory::Enemy;
-	}
+
 
 	if (!isActive_)return;
 
