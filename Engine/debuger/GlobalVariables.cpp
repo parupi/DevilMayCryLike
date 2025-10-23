@@ -67,6 +67,9 @@ void GlobalVariables::SaveFile(const string& groupName) {
 		else if (std::holds_alternative<bool>(item.value)) {
 			// bool型の値を登録
 			root[groupName][itemName] = std::get<bool>(item.value);
+		}// string型の値を保持していれば
+		else if (std::holds_alternative<std::string>(item.value)) {
+			root[groupName][itemName] = std::get<std::string>(item.value);
 		}
 	}
 	// ディレクトリが無ければ作成する
@@ -170,6 +173,10 @@ void GlobalVariables::LoadFile(const std::string& groupName) {
 		else if (itItem->is_boolean()) {
 			// bool型の値を登録
 			bool value = itItem->get<bool>();
+			SetValue(groupName, itemName, value);
+		}// string型の値を保持していれば
+		else if (itItem->is_string()) {
+			std::string value = itItem->get<std::string>();
 			SetValue(groupName, itemName, value);
 		}
 	}

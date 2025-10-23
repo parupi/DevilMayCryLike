@@ -15,6 +15,7 @@
 #include <GameObject/Enemy/Enemy.h>
 #include <GameObject/Ground/Ground.h>
 #include <GameObject/Camera/GameCamera.h>
+#include <GameObject/UI/StageStart/StageStart.h>
 
 class GameScene : public BaseScene
 {
@@ -40,11 +41,14 @@ public:
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
 	//std::shared_ptr<Camera> normalCamera_;
-	std::unique_ptr<GameCamera> gameCamera_;
+	//std::unique_ptr<GameCamera> gameCamera_;
+	GameCamera* gameCamera_;
 	                                                                                                           
 	LightManager* lightManager_ = LightManager::GetInstance();
 
 	// プレイヤーのポインタを持っておく
 	Player* player_ = nullptr;
+
+	StageStart stageStart_;
 };
 

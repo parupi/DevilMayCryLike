@@ -17,15 +17,17 @@
 #include <scene/Transition/TransitionManager.h>
 #include <scene/Transition/SceneTransitionController.h>
 
+
 void GameScene::Initialize()
 {
 	// カメラの生成
-	gameCamera_ = std::make_unique<GameCamera>("GameCamera");
-	gameCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
-	gameCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
-	cameraManager_->AddCamera(std::move(gameCamera_));
-	cameraManager_->SetActiveCamera(0);
+	std::unique_ptr<GameCamera> gameCamera = std::make_unique<GameCamera>("GameCamera");
+	gameCamera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
+	gameCamera->GetRotate() = { 0.5f, -0.005f, 0.0f };
+	gameCamera_ = gameCamera.get();
+	cameraManager_->AddCamera(std::move(gameCamera));
 
+	stageStart_.Initialize();
 
 	ModelManager::GetInstance()->LoadModel("PlayerBody");
 	ModelManager::GetInstance()->LoadModel("PlayerHead");
@@ -74,7 +76,7 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-
+	stageStart_.Update();
 
 	lightManager_->UpdateAllLight();
 
@@ -108,7 +110,5 @@ void GameScene::DebugUpdate()
 	if (player_) {
 		player_->DebugGui();
 	}
-	
-	//enemy_->DebugGui();
 }
 #endif // _DEBUG
