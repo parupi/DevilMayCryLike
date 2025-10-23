@@ -14,7 +14,9 @@ PointLight::PointLight(const std::string& name) : BaseLight(name)
 
 void PointLight::Update()
 {
+#ifdef _DEBUG
     DrawLightEditor();
+#endif // DEBUG
 
     lightData_.enabled = global_->GetValueRef<bool>(name_, "Enabled");
     lightData_.color = global_->GetValueRef<Vector4>(name_, "Color");

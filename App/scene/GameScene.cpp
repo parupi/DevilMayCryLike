@@ -16,6 +16,7 @@
 #include <GameObject/Event/EventManager.h>
 #include <scene/Transition/TransitionManager.h>
 #include <scene/Transition/SceneTransitionController.h>
+#include <2d/SpriteManager.h>
 
 
 void GameScene::Initialize()
