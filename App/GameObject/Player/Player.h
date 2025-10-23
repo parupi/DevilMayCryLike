@@ -6,7 +6,6 @@
 #include <3d/WorldTransform.h>
 #include "3d/Object/Renderer/ModelRenderer.h"
 #include <input/Input.h>
-#include "PlayerAttackEffect.h"
 #include "State/PlayerStateBase.h"
 #include "State/Attack/PlayerStateAttackBase.h"
 #include "PlayerWeapon.h"

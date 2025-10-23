@@ -11,14 +11,8 @@ Enemy::Enemy(std::string objectName) : Object3d(objectName)
 {
 	Object3d::Initialize();
 
-
-
 	slashEmitter_ = std::make_unique<ParticleEmitter>();
 	slashEmitter_->Initialize("test");
-
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>(name_ + "portal", PrimitiveType::Plane, "portal.png"));
-
-	//AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "portal"));
 }
 
 void Enemy::Initialize()
@@ -39,16 +33,6 @@ void Enemy::Update()
 		Object3d::Update();
 		return;
 	}
-
-	//if (!isAlive_) {
-	//	deathTimer_++;
-	//	if (deathTimer_ >= 3) {
-	//		//Object3dManager::GetInstance()->DeleteObject(name_);
-	//	}
-	//	return;
-	//}
-
-
 
 	if (!isActive_)return;
 
@@ -84,7 +68,6 @@ void Enemy::Draw()
 
 void Enemy::DrawEffect()
 {
-	//effect_->Draw();
 }
 
 #ifdef _DEBUG
@@ -94,10 +77,6 @@ void Enemy::DebugGui()
 	ImGui::Begin("Enemy");
 	Object3d::DebugGui();
 	ImGui::End();
-
-	//ImGui::Begin("EnemyEffect");
-	//effect_->DebugGui();
-	//ImGui::End();
 }
 #endif // _DEBUG
 

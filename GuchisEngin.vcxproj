@@ -115,7 +115,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
     <ClInclude Include="App\GameObject\Enemy\Enemy.h" />
-    <ClInclude Include="App\GameObject\Enemy\EnemyDamageEffect.h" />
     <ClInclude Include="App\GameObject\Enemy\EnemyStateBase.h" />
     <ClInclude Include="App\GameObject\Enemy\Hellkaina\Hellkaina.h" />
     <ClInclude Include="App\GameObject\Enemy\Hellkaina\State\EnemyStateAir.h" />
@@ -129,7 +128,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Event\EventManager.h" />
     <ClInclude Include="App\GameObject\Ground\Ground.h" />
     <ClInclude Include="App\GameObject\Player\Player.h" />
-    <ClInclude Include="App\GameObject\Player\PlayerAttackEffect.h" />
     <ClInclude Include="App\GameObject\Player\PlayerWeapon.h" />
     <ClInclude Include="App\GameObject\Player\State\Attack\PlayerStateAttackBase.h" />
     <ClInclude Include="App\GameObject\Player\State\PlayerStateAir.h" />
@@ -142,7 +140,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\Object3dFactory.h" />
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
-    <ClInclude Include="App\scene\fade\Fade.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\3d\Camera\Camera.h" />
@@ -244,7 +241,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
     <ClCompile Include="App\GameObject\Enemy\Enemy.cpp" />
-    <ClCompile Include="App\GameObject\Enemy\EnemyDamageEffect.cpp" />
     <ClCompile Include="App\GameObject\Enemy\Hellkaina\Hellkaina.cpp" />
     <ClCompile Include="App\GameObject\Enemy\Hellkaina\State\EnemyStateAir.cpp" />
     <ClCompile Include="App\GameObject\Enemy\Hellkaina\State\EnemyStateIdle.cpp" />
@@ -257,7 +253,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
     <ClCompile Include="App\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="App\GameObject\Player\Player.cpp" />
-    <ClCompile Include="App\GameObject\Player\PlayerAttackEffect.cpp" />
     <ClCompile Include="App\GameObject\Player\PlayerWeapon.cpp" />
     <ClCompile Include="App\GameObject\Player\State\Attack\PlayerStateAttackBase.cpp" />
     <ClCompile Include="App\GameObject\Player\State\PlayerStateAir.cpp" />
@@ -269,7 +264,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
-    <ClCompile Include="App\scene\fade\Fade.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\Camera.cpp" />

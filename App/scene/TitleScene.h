@@ -4,11 +4,11 @@
 #include "scene/SceneManager.h"
 #include <memory>
 #include <3d/Camera/CameraManager.h>
-#include "fade/Fade.h"
 #include <3d/Light/LightManager.h>
 #include <scene/Transition/SceneTransitionController.h>
 #include <GameObject/Camera/TitleCamera.h>
 #include <GameObject/UI/TitleUI/TitleUI.h>
+#include <base/Particle/ParticleEmitter.h>
 
 /// <summary>
 /// タイトルシーンを管理するクラス  
