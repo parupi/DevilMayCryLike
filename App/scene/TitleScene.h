@@ -4,87 +4,85 @@
 #include "scene/SceneManager.h"
 #include <memory>
 #include <3d/Camera/CameraManager.h>
-#include "fade/Fade.h"
 #include <3d/Light/LightManager.h>
 #include <scene/Transition/SceneTransitionController.h>
 #include <GameObject/Camera/TitleCamera.h>
+#include <GameObject/UI/TitleUI/TitleUI.h>
+#include <base/Particle/ParticleEmitter.h>
 
+/// <summary>
+/// タイトルシーンを管理するクラス  
+/// 
+/// ゲーム起動時に最初に表示されるタイトル画面の制御を行う。  
+/// カメラ、UI、ライト、パーティクル、フェード、シーン遷移など、  
+/// シーン全体に関わる初期化・更新・描画処理をまとめて管理する。
+/// </summary>
 class TitleScene : public BaseScene
 {
 public:
 	TitleScene() = default;
 	~TitleScene() = default;
 
-	// 初期化
+	/// <summary>
+	/// シーンの初期化処理  
+	/// 各種ゲームオブジェクト、UI、カメラ、パーティクル、ライトなどを生成・初期化する。
+	/// </summary>
 	void Initialize() override;
-	// 終了
+
+	/// <summary>
+	/// シーンの終了処理  
+	/// 保持しているリソースやオブジェクトを解放する。
+	/// </summary>
 	void Finalize() override;
-	// 更新
+
+	/// <summary>
+	/// シーンの更新処理  
+	/// 入力やUI状態を確認し、タイトル画面の遷移処理を制御する。
+	/// </summary>
 	void Update() override;
-	// 描画
+
+	/// <summary>
+	/// シーンの描画処理  
+	/// モデル・UI・エフェクトなどのレンダリングを行う。
+	/// </summary>
 	void Draw() override;
+
+	/// <summary>
+	/// RTVへの描画処理  
+	/// シーンレンダリング結果をRender Target Viewに出力する。
+	/// </summary>
 	void DrawRTV() override;
-	// シーン切り替え時のアニメーション起動
-	void Exit();
-	// シーン切り替え時のアニメーション更新
-	void ExitUpdate();
 
 #ifdef _DEBUG
+	/// <summary>
+	/// デバッグ用更新処理  
+	/// ImGuiを利用したパラメータ調整や内部情報の可視化を行う。
+	/// </summary>
 	void DebugUpdate() override;
 #endif // _DEBUG
 
 private:
-
+	/// <summary>
+	/// シーンの状態を変更する  
+	/// フェーズごとの制御（例：タイトル表示 → フェードアウト → 次シーン遷移）を管理する。
+	/// </summary>
 	void ChangePhase();
 
 private:
-	enum class TitlePhase {
-		kFadeIn,
-		kTitle,
-		kUIAnimation,
-		kFadeOut
-	};
-private:
-	TitleCamera* camera_ = nullptr;
-	CameraManager* cameraManager_ = CameraManager::GetInstance();
-	//std::unique_ptr<Fade> fade_;
+	TitleCamera* camera_ = nullptr; ///< タイトルシーン専用カメラ
+	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
 
-	// パーティクルのエミッター生成
-	std::unique_ptr<ParticleEmitter> smokeEmitter_;
-	std::unique_ptr<ParticleEmitter> smokeEmitter2_;
-	std::unique_ptr<ParticleEmitter> sphereEmitter_;
+	// ==========================
+	// パーティクルエフェクト
+	// ==========================
+	std::unique_ptr<ParticleEmitter> smokeEmitter_;  ///< 煙パーティクルエミッター①
+	std::unique_ptr<ParticleEmitter> smokeEmitter2_; ///< 煙パーティクルエミッター②
+	std::unique_ptr<ParticleEmitter> sphereEmitter_; ///< 球状パーティクルエミッター
 
-	TitlePhase phase_ = TitlePhase::kFadeIn;
-
-	// タイトルのUI群
-	std::unique_ptr<Sprite> titleWord_;
-	std::unique_ptr<Sprite> titleUnder_;
-	std::unique_ptr<Sprite> titleUp_;
-
-	// セレクトのUI群
-	std::array<std::unique_ptr<Sprite>, 2> selectArrows_;
-	std::unique_ptr<Sprite> gameStart_;
-	std::unique_ptr<Sprite> selectMask_;
-
-	bool isExit_ = false;
-	float exitTime_ = 0.5f;
-	float exitTimer_ = 0.0f;
-
-	std::array<Vector2, 2> targetArrowSizes_;
-	float targetSpriteAlpha_ = 1.0f;
-	float targetSelectMaskAlpha = 0.0f;
-
-	std::array<Vector2, 2> startArrowSizes_;
-	float startSpriteAlpha_ = 1.0f;
-	float startSelectMaskAlpha = 0.0f;
-
-	LightManager* lightManager_ = LightManager::GetInstance();
-
-	Object3d* weaponObject_;
-
-	float uiAnimationTimer_ = 0.0f;
-	const float uiAnimationDuration_ = 0.3f; // 1秒間アニメーション
-
-	SceneTransitionController* controller = SceneTransitionController::GetInstance();
+	// ==========================
+	// ライト・遷移・UI
+	// ==========================
+	LightManager* lightManager_ = LightManager::GetInstance(); ///< ライト管理クラス
+	SceneTransitionController* controller = SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
+	std::unique_ptr<TitleUI> titleUI_; ///< タイトル画面のUI要素管理
 };
-

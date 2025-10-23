@@ -156,9 +156,6 @@
     <ClInclude Include="App\GameObject\Enemy\Enemy.h">
       <Filter>App\GameObject\Enemy</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Enemy\EnemyDamageEffect.h">
-      <Filter>App\GameObject\Enemy</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Enemy\EnemyStateBase.h">
       <Filter>App\GameObject\Enemy</Filter>
     </ClInclude>
@@ -198,9 +195,6 @@
     <ClInclude Include="App\GameObject\Player\Player.h">
       <Filter>App\GameObject\Player</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Player\PlayerAttackEffect.h">
-      <Filter>App\GameObject\Player</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Player\PlayerWeapon.h">
       <Filter>App\GameObject\Player</Filter>
     </ClInclude>
@@ -236,9 +230,6 @@
     </ClInclude>
     <ClInclude Include="App\scene\TitleScene.h">
       <Filter>App\scene</Filter>
-    </ClInclude>
-    <ClInclude Include="App\scene\fade\Fade.h">
-      <Filter>App\scene\fade</Filter>
     </ClInclude>
     <ClInclude Include="Engine\2d\Sprite.h">
       <Filter>Engine\2d</Filter>
@@ -516,6 +507,8 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
+    <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -531,9 +524,6 @@
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Enemy\Enemy.cpp">
-      <Filter>App\GameObject\Enemy</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Enemy\EnemyDamageEffect.cpp">
       <Filter>App\GameObject\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Enemy\Hellkaina\Hellkaina.cpp">
@@ -572,9 +562,6 @@
     <ClCompile Include="App\GameObject\Player\Player.cpp">
       <Filter>App\GameObject\Player</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Player\PlayerAttackEffect.cpp">
-      <Filter>App\GameObject\Player</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Player\PlayerWeapon.cpp">
       <Filter>App\GameObject\Player</Filter>
     </ClCompile>
@@ -607,9 +594,6 @@
     </ClCompile>
     <ClCompile Include="App\scene\TitleScene.cpp">
       <Filter>App\scene</Filter>
-    </ClCompile>
-    <ClCompile Include="App\scene\fade\Fade.cpp">
-      <Filter>App\scene\fade</Filter>
     </ClCompile>
     <ClCompile Include="Engine\2d\Sprite.cpp">
       <Filter>Engine\2d</Filter>
@@ -852,5 +836,7 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
+    <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
   </ItemGroup>
 </Project>
