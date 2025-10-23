@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <cassert>
 #include "math/Vector3.h"
+#include "math/Vector4.h"
 
 #ifdef _DEBUG
 #include <imgui/imgui.h>
@@ -18,7 +19,7 @@ public:
 	using json = nlohmann::json;
 
 	// 値の型
-	using Value = std::variant<int32_t, float, Vector3, bool, std::string>;
+	using Value = std::variant<int32_t, float, Vector3, Vector4, bool, std::string>;
 
 	// 項目構造体
 	struct Item {
