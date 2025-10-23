@@ -1,10 +1,11 @@
 #pragma once
 #include "BaseLight.h"
 #include "LightStructs.h"
+#include <debuger/GlobalVariables.h>
 class DirectionalLight : public BaseLight
 {
 public:
-	DirectionalLight(std::string lightName);
+	DirectionalLight(const std::string& name);
 
 	// 更新処理
 	void Update() override;
@@ -18,9 +19,9 @@ public:
 	size_t GetDataSize() const override { return sizeof(DirectionalLightData); }
 	// シリアライズ
 	void SerializeTo(void* dest) const override;
-
-	//DirectionalLightData& GetLightData() { return lightData_; }
 private:
 
 	DirectionalLightData lightData_;
+
+	GlobalVariables* global_ = GlobalVariables::GetInstance();
 };

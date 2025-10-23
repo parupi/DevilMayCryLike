@@ -1,10 +1,11 @@
 #pragma once
 #include "BaseLight.h"
 #include "LightStructs.h"
+#include <debuger/GlobalVariables.h>
 class SpotLight : public BaseLight
 {
 public:
-	SpotLight(std::string lightName);
+	SpotLight(const std::string& name);
 	~SpotLight() override = default;
 
 	// 更新処理
@@ -24,5 +25,7 @@ public:
 
 private:
 	SpotLightData lightData_;
+
+	GlobalVariables* global_ = GlobalVariables::GetInstance();
 };
 

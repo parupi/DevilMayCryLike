@@ -73,7 +73,7 @@ void PointLight::CreateLightResource()
 void PointLight::UpdateLightResource()
 {
     // 更新されていなければ早期リターン
-    //if (!isDirty_) return;
+    if (!isDirty_) return;
 
     auto data = lightData_;
     void* mapped = nullptr;

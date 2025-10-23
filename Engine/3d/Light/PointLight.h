@@ -27,8 +27,6 @@ public:
 	void SetColor(const Vector4& c) { lightData_.color = c; MarkDirty(); }
 	void SetRadius(float r) { lightData_.radius = r; MarkDirty(); }
 	void SetIntensity(float i) { lightData_.intensity = i; MarkDirty(); }
-
-	//PointLightData& GetLightData() { return lightData_; }
 private:
 	PointLightData lightData_{};
 

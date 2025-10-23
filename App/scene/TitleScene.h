@@ -79,8 +79,6 @@ private:
 	float startSelectMaskAlpha = 0.0f;
 
 	LightManager* lightManager_ = LightManager::GetInstance();
-	PointLight* pointLight_ = nullptr;
-	DirectionalLight* directionLight_ = nullptr;
 
 	Object3d* weaponObject_;
 

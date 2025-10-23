@@ -69,9 +69,18 @@ void LightManager::BindLightsToShader()
 void LightManager::UpdateAllLight()
 {
 	// 各種ライトの更新
-	for (auto& dir : dirLights_) dir->UpdateLightResource();
-	for (auto& point : pointLights_) point->UpdateLightResource();
-	for (auto& spot : spotLights_) spot->UpdateLightResource();
+	for (auto& dir : dirLights_) { 
+		dir->UpdateLightResource(); 
+		dir->Update();
+	}
+	for (auto& point : pointLights_) { 
+		point->UpdateLightResource(); 
+		point->Update();
+	}
+	for (auto& spot : spotLights_){
+		spot->UpdateLightResource();
+		spot->Update();
+	}
 
 	// シェーダに渡す配列を作る
 	UpdateAggregatedBuffers();
