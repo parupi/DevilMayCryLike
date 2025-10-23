@@ -1,0 +1,68 @@
+{
+    "test": {
+        "Count": 2,
+        "EmitAll": false,
+        "EmitPosition": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Frequency": 5.0,
+        "IsActive": false,
+        "IsBillboard": false,
+        "maxAlpha": 1.0,
+        "maxColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "maxLifeTime": 0.4000000059604645,
+        "maxRotate": [
+            3.0,
+            3.0,
+            3.0
+        ],
+        "maxScale": [
+            0.5,
+            5.0,
+            0.5
+        ],
+        "maxTranslate": [
+            0.30000001192092896,
+            1.2000000476837158,
+            0.30000001192092896
+        ],
+        "maxVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minAlpha": 1.0,
+        "minColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "minLifeTime": 0.25,
+        "minRotate": [
+            -3.0,
+            -3.0,
+            -3.0
+        ],
+        "minScale": [
+            0.25,
+            3.0,
+            0.25
+        ],
+        "minTranslate": [
+            -0.30000001192092896,
+            0.8999999761581421,
+            -0.30000001192092896
+        ],
+        "minVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}

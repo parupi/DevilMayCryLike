@@ -1,0 +1,62 @@
+{
+    "AttackAerialRave1": {
+        "AttackDuration": 0.14000000059604645,
+        "AttackPosture": 1,
+        "ControlPoint_0": [
+            1.0,
+            -0.5,
+            0.0
+        ],
+        "ControlPoint_1": [
+            1.0,
+            -0.5,
+            0.0
+        ],
+        "ControlPoint_2": [
+            0.800000011920929,
+            -0.20000000298023224,
+            0.5
+        ],
+        "ControlPoint_3": [
+            0.0,
+            0.0,
+            1.100000023841858
+        ],
+        "ControlPoint_4": [
+            -0.800000011920929,
+            0.30000001192092896,
+            0.5
+        ],
+        "ControlPoint_5": [
+            -1.0,
+            0.5,
+            -0.15000000596046448
+        ],
+        "Damage": 0.0,
+        "DrawDebugControlPoints": false,
+        "HitStopIntensity": 0.10000000149011612,
+        "HitStopTime": 0.10000000149011612,
+        "KnockBackSpeed": [
+            0.0,
+            0.550000011920929,
+            0.0
+        ],
+        "MoveSpeed": [
+            0.0,
+            0.6000000238418579,
+            0.0
+        ],
+        "NextAttackCount": 1,
+        "NextAttackDelay": 0.49000000953674316,
+        "NextAttackIndex_0": 7,
+        "NextAttackIndex_1": 0,
+        "NextAttackIndex_2": -1,
+        "NextAttackIndex_3": -1,
+        "NextAttackIndex_4": -1,
+        "PointCount": 6,
+        "PostDelay": 0.03999999910593033,
+        "Posture": 0,
+        "PreDelay": 0.029999999329447746,
+        "TotalDuration": 0.699999988079071
+    }
+}

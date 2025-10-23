@@ -1,0 +1,68 @@
+{
+    "fire": {
+        "Count": 100,
+        "EmitAll": false,
+        "EmitPosition": [
+            0.0,
+            0.0,
+            5.0
+        ],
+        "Frequency": 2.0399999618530273,
+        "IsActive": false,
+        "IsBillboard": false,
+        "maxAlpha": 0.019999999552965164,
+        "maxColor": [
+            0.4000000059604645,
+            0.5,
+            0.28999999165534973
+        ],
+        "maxLifeTime": 0.5,
+        "maxRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "maxScale": [
+            2.0,
+            2.0,
+            2.0
+        ],
+        "maxTranslate": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "maxVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minAlpha": 0.0,
+        "minColor": [
+            0.0,
+            0.0,
+            0.3199999928474426
+        ],
+        "minLifeTime": 0.30000001192092896,
+        "minRotate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minScale": [
+            1.7899999618530273,
+            1.850000023841858,
+            1.7899999618530273
+        ],
+        "minTranslate": [
+            -1.0,
+            -1.0,
+            -1.0
+        ],
+        "minVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}
