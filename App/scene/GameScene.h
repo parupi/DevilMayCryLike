@@ -1,21 +1,10 @@
 #pragma once
-#include <3d/Object/Object3d.h>
-#include <2d/Sprite.h>
-#include <3d/Object/Model/Model.h>
-#include <vector>
-#include <3d/Camera/Camera.h>
 #include <scene/BaseScene.h>
 #include <memory>
-#include <audio/Audio.h>
-#include <3d/Camera/CameraManager.h>
-#include <3d/WorldTransform.h>
-#include <3d/Light/LightManager.h>
-#include <base/Particle/ParticleEmitter.h>
-#include <GameObject/Player/Player.h>
-#include <GameObject/Enemy/Enemy.h>
-#include <GameObject/Ground/Ground.h>
 #include <GameObject/Camera/GameCamera.h>
+#include <3d/Light/LightManager.h>
 #include <GameObject/UI/StageStart/StageStart.h>
+#include <GameObject/Player/Player.h>
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
