@@ -126,13 +126,7 @@ void TitleScene::DrawRTV()
 #ifdef _DEBUG
 void TitleScene::DebugUpdate()
 {
-	//ImGui::Begin("weapon");
-	//weaponObject_->DebugGui();
-	//ImGui::End();
 
-	ImGui::Begin("title");
-	Object3dManager::GetInstance()->FindObject("Title")->DebugGui();
-	ImGui::End();
 }
 #endif // _DEBUG
 

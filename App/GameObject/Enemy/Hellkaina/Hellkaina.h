@@ -10,14 +10,10 @@ public:
     void Initialize() override;
     // 更新
     void Update() override;
-    // 
 
         // 衝突系
     void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
     void OnCollisionStay([[maybe_unused]] BaseCollider* other) override;
     void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
-private:
-
-    
 };
 
