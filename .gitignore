@@ -361,9 +361,9 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# --- Allow external libraries ---
-!Externals/
-!Externals/**/
-!Externals/**/*.lib
-!Externals/**/Debug/
-!Externals/**/Release/
+# --- Custom additions ---
+# DirectX Shader Compiler
+dxcompiler.dll
+
+# ImGui settings file
+imgui.ini
