@@ -135,6 +135,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Player\State\PlayerStateIdle.h" />
     <ClInclude Include="App\GameObject\Player\State\PlayerStateJump.h" />
     <ClInclude Include="App\GameObject\Player\State\PlayerStateMove.h" />
+    <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
+    <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="App\scene\ClearScene.h" />
     <ClInclude Include="App\scene\GameScene.h" />
     <ClInclude Include="App\scene\Object3dFactory.h" />
@@ -232,8 +234,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
-    <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -259,6 +259,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Player\State\PlayerStateIdle.cpp" />
     <ClCompile Include="App\GameObject\Player\State\PlayerStateJump.cpp" />
     <ClCompile Include="App\GameObject\Player\State\PlayerStateMove.cpp" />
+    <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
+    <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
     <ClCompile Include="App\scene\GameScene.cpp" />
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
@@ -345,8 +347,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
-    <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
