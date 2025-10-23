@@ -43,11 +43,17 @@
     <Filter Include="App\GameObject\Player\State\Attack">
       <UniqueIdentifier>{79446E5C-6580-71C6-CE92-89BDBAED19E1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI">
+      <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\UI\StageStart">
+      <UniqueIdentifier>{A4ED4E8D-90A8-3E39-3960-B78325FA88C9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\UI\TitleUI">
+      <UniqueIdentifier>{62540C37-CE16-40C1-17C7-CE4D83C8189F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\scene">
       <UniqueIdentifier>{0370F805-6FDA-AC7C-B818-5E2224C28AD1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="App\scene\fade">
-      <UniqueIdentifier>{22024ACD-0ED0-3DD3-F763-AEF9E3D01938}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</UniqueIdentifier>
@@ -215,6 +221,12 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Player\State\PlayerStateMove.h">
       <Filter>App\GameObject\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h">
+      <Filter>App\GameObject\UI\StageStart</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
+      <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
     <ClInclude Include="App\scene\ClearScene.h">
       <Filter>App\scene</Filter>
@@ -507,8 +519,6 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
-    <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -579,6 +589,12 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Player\State\PlayerStateMove.cpp">
       <Filter>App\GameObject\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp">
+      <Filter>App\GameObject\UI\StageStart</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
+      <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
     <ClCompile Include="App\scene\ClearScene.cpp">
       <Filter>App\scene</Filter>
@@ -836,7 +852,5 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
-    <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
   </ItemGroup>
 </Project>
