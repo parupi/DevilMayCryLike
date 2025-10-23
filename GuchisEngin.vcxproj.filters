@@ -516,7 +516,8 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\StageStart\StageStart.h" />
+    <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
+    <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -853,6 +854,7 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\StageStart\StageStart.cpp" />
+    <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
+    <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
   </ItemGroup>
 </Project>

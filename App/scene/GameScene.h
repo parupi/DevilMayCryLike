@@ -15,7 +15,7 @@
 #include <GameObject/Enemy/Enemy.h>
 #include <GameObject/Ground/Ground.h>
 #include <GameObject/Camera/GameCamera.h>
-#include <GameObject/StageStart/StageStart.h>
+#include <GameObject/UI/StageStart/StageStart.h>
 
 class GameScene : public BaseScene
 {
