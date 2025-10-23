@@ -55,12 +55,7 @@ void GameScene::Initialize()
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
 	// ============ライト=================//
-	std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("Dir1");
-	dirLight->GetLightData().enabled = true;
-	dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
-	dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f , 1.0f};
-	dirLight->GetLightData().intensity = 1.0f;
-	lightManager_->AddDirectionalLight(std::move(dirLight));
+	lightManager_->CreateDirectionalLight("gameDir");
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 }
