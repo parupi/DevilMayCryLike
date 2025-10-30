@@ -12,6 +12,7 @@
 #include <3d/Primitive/PrimitiveLineDrawer.h>
 #include "State/Attack/PlayerStateAttackBase.h"
 #include <scene/Transition/TransitionManager.h>
+#include "State/PlayerStateDeath.h"
 
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
@@ -27,6 +28,7 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	states_["Move"] = std::make_unique<PlayerStateMove>();
 	states_["Jump"] = std::make_unique<PlayerStateJump>();
 	states_["Air"] = std::make_unique<PlayerStateAir>();
+	states_["Death"] = std::make_unique<PlayerStateDeath>();
 	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
 	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
 	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
@@ -85,6 +87,7 @@ void Player::Update()
 {
 	// カメラ合切り替え中とフェード中は動かさない
 	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) {
+		// 最初から更新しておきたいものはここに入れておく
 		hitStop_->Update();
 		scoreManager->Update();
 		weapon_->Update();
@@ -92,9 +95,14 @@ void Player::Update()
 		return;
 	}
 	
-
+	// 現在のステートを更新
 	if (currentState_) {
 		currentState_->Update(*this);
+	}
+
+	// Rキーを押したら死亡演出が流れる
+	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+		ChangeState("Death");
 	}
 
 	hitStop_->Update();

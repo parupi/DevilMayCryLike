@@ -105,7 +105,7 @@ void Model::DebugGui(ModelRenderer* render)
 			}
 		}
 
-		if (!modelNames.empty()) {
+		if (!modelNames.empty()) { 
 			const char* currentItem = modelNames[selectedIndex].c_str();
 
 			if (ImGui::BeginCombo("Model List", currentItem)) {

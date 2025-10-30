@@ -124,6 +124,17 @@ void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect)
 	effects_.emplace_back(std::move(effect));
 }
 
+BaseOffScreen* OffScreenManager::FindEffect(const std::string& name)
+{
+	for (auto& effect : effects_) {
+		if (!effect) continue;
+
+		if (effect->GetName() == name) {
+			return effect.get();
+		}
+	}
+}
+
 void OffScreenManager::BeginDrawToPingPong()
 {
 	dxManager_->GetCommandContext()->TransitionResource(

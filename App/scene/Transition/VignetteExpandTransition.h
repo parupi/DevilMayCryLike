@@ -1,13 +1,15 @@
 #pragma once
 #include <scene/Transition/BaseTransition.h>
 #include <memory>
-#include <2d/Sprite.h>
-class FadeTransition : public BaseTransition
+#include <offscreen/VignetteEffect.h>
+class VignetteExpandTransition : public BaseTransition
 {
 public:
-	FadeTransition(const std::string& transitionName);
-	~FadeTransition() = default;
+	VignetteExpandTransition(const std::string& transitionName);
+	~VignetteExpandTransition() = default;
 
+	// 初期化
+	void Initialize();
 	// 開始
 	void Start(bool isFadeOut) override;
 	// 更新
@@ -18,11 +20,8 @@ public:
 	bool IsFinished() const override { return finished_; };
 
 private:
-	float alpha_ = 0.0f;
-	bool isOut_ = false;
-	bool finished_ = false;
 	bool isFadeOut_ = true;
-
-	std::unique_ptr<Sprite> sprite_;
+	bool finished_ = false;
+	float currentSoftness_ = 2.0f;
 };
 

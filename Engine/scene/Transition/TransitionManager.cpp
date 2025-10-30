@@ -20,25 +20,35 @@ void TransitionManager::Finalize()
 	instance = nullptr;
 }
 
-void TransitionManager::AddTransition(std::unique_ptr<BaseTransition> transition)
+bool TransitionManager::AddTransition(std::unique_ptr<BaseTransition> transition)
 {
 	const std::string& name = transition->name;
 
 	// すでに同じ名前のトランジションが登録されているか確認
 	if (transitions_.find(name) != transitions_.end()) {
 		// 既に存在している場合は追加しない
-		return;
+		return false;
 	}
 
 	// 新規登録
 	transitions_[name] = std::move(transition);
-	// 現在のトランジションにセット
-	SetTransition(name);
+	// 登録できたらTrue
+	return true;
 }
 
 void TransitionManager::SetTransition(const std::string& transitionName)
 {
 	current_ = transitions_[transitionName].get();
+}
+
+BaseTransition* TransitionManager::GetTransition(const std::string& transitionName)
+{
+	return transitions_[transitionName].get();
+}
+
+void TransitionManager::DeleteAllTransition()
+{
+	transitions_.clear();
 }
 
 void TransitionManager::Play(bool isFadeOut)

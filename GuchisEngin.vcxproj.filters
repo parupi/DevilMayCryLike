@@ -519,6 +519,9 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Player\State\PlayerStateDeath.h" />
+    <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
+    <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -852,5 +855,8 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\Player\State\PlayerStateDeath.cpp" />
+    <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
+    <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
   </ItemGroup>
 </Project>

@@ -68,8 +68,9 @@ void TitleScene::Initialize()
 	titleUI_ = std::make_unique<TitleUI>();
 	titleUI_->Initialize();
 
-	// 新しいトランジションの追加 // 追加したら勝手に設定してくれる
+	// 新しいトランジションの追加
 	TransitionManager::GetInstance()->AddTransition(std::make_unique<FadeTransition>("Fade"));
+	TransitionManager::GetInstance()->SetTransition("Fade");
 }
 
 void TitleScene::Finalize()

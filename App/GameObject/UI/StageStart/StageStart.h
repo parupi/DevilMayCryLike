@@ -10,6 +10,7 @@ public:
 	void Update();
 
 	bool IsComplete() const { return isComplete_; }
+
 private:
 	bool isComplete_ = false;
 };
