@@ -39,6 +39,7 @@ public:
 	// 今ある全てのカメラを消す
 	void DeleteAllCamera();
 
+
 	// 今カメラ切り替えをしているかどうかの判定
 	bool IsTransition() const { return isTransitioning_; }
 private:

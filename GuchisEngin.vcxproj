@@ -142,6 +142,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\Object3dFactory.h" />
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
+    <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\3d\Camera\Camera.h" />
@@ -234,6 +235,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
+    <ClInclude Include="App\GameObject\Player\State\PlayerStateDeath.h" />
+    <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -266,6 +269,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
+    <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\Camera.cpp" />
@@ -347,6 +351,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\Player\State\PlayerStateDeath.cpp" />
+    <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

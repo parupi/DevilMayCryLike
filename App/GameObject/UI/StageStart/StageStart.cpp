@@ -3,6 +3,7 @@
 #include <3d/Camera/CameraManager.h>
 #include <3d/Camera/Camera.h>
 #include <scene/Transition/TransitionManager.h>
+#include <input/Input.h>
 
 void StageStart::Initialize()
 {
@@ -39,19 +40,39 @@ void StageStart::Initialize()
 
 void StageStart::Update()
 {
-	if (TransitionManager::GetInstance()->IsFinished() && !CameraManager::GetInstance()->IsTransition()) {
-		if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera1") {
-			CameraManager::GetInstance()->SetActiveCamera("StartCamera2", 2.0f);
-		} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera2") {
-			CameraManager::GetInstance()->SetActiveCamera("StartCamera3", 1.0f);
-		} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera3") {
-			CameraManager::GetInstance()->SetActiveCamera("StartCamera4", 1.5f);
-		} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera4") {
-			CameraManager::GetInstance()->SetActiveCamera("StartCamera5", 1.5f);
-		} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera5") {
-			CameraManager::GetInstance()->SetActiveCamera("StartCamera6");
-		} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera6") {
-			CameraManager::GetInstance()->SetActiveCamera("GameCamera", 2.0f);
-		}
+	// スタート処理が終わってたら何もせずにreturn
+	if (isComplete_) return;
+
+	// スペースを押したらスキップ
+	if (Input::GetInstance()->TriggerKey(DIK_SPACE) || Input::GetInstance()->TriggerKey(DIK_R)) {
+		CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
+		isComplete_ = true;
+		return;
 	}
+
+	// 「シーン遷移が終わっていないか」「カメラの移動が行われているか」で早期リターン
+	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) return;
+
+	if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera1") {
+		CameraManager::GetInstance()->SetActiveCamera("StartCamera2", 2.0f);
+		return;
+	} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera2") {
+		CameraManager::GetInstance()->SetActiveCamera("StartCamera3", 1.0f);
+		return;
+	} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera3") {
+		CameraManager::GetInstance()->SetActiveCamera("StartCamera4", 1.5f);
+		return;
+	} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera4") {
+		CameraManager::GetInstance()->SetActiveCamera("StartCamera5", 1.5f);
+		return;
+	} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera5") {
+		CameraManager::GetInstance()->SetActiveCamera("StartCamera6");
+		return;
+	} else if (CameraManager::GetInstance()->GetActiveCamera()->name_ == "StartCamera6") {
+		CameraManager::GetInstance()->SetActiveCamera("GameCamera", 2.0f);
+		return;
+	}
+
+	// ここまで来たら完了
+	isComplete_ = true;
 }

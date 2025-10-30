@@ -65,5 +65,7 @@ private:
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
 
-	StageStart stageStart_; ///< ステージ開始時のUI演出（「STAGE START」など）
+	std::unique_ptr<Sprite> deathUI_ = nullptr;
+
+	StageStart stageStart_; ///< ステージ開始時のカメラ演出（「STAGE START」など）
 };

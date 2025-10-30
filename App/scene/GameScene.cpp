@@ -18,7 +18,6 @@
 #include <scene/Transition/SceneTransitionController.h>
 #include <2d/SpriteManager.h>
 
-
 void GameScene::Initialize()
 {
 	// カメラの生成
@@ -44,6 +43,7 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("gradationLine_brightened.png");
 	TextureManager::GetInstance()->LoadTexture("MagicEffect.png");
 	TextureManager::GetInstance()->LoadTexture("portal.png");
+	TextureManager::GetInstance()->LoadTexture("DeathText.png");
 
 	// ステージの情報を読み込んで生成
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
@@ -59,6 +59,11 @@ void GameScene::Initialize()
 	lightManager_->CreateDirectionalLight("gameDir");
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+
+	deathUI_ = std::make_unique<Sprite>();
+	deathUI_->Initialize("DeathText.png");
+	deathUI_->SetAnchorPoint({ 0.5f, 0.5f });
+	deathUI_->SetPosition({ 640.0f, 160.0f });
 }
 
 void GameScene::Finalize()
@@ -76,6 +81,8 @@ void GameScene::Update()
 
 	lightManager_->UpdateAllLight();
 
+	deathUI_->Update();
+
 #ifdef _DEBUG
 	DebugUpdate();
 #endif
@@ -91,6 +98,8 @@ void GameScene::Draw()
 	if (player_) {
 		player_->DrawEffect();
 	}
+
+	deathUI_->Draw();
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
