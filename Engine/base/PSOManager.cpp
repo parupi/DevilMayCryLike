@@ -120,6 +120,15 @@ ID3D12PipelineState* PSOManager::GetSkinningPSO()
 	return skinningComputePipelineState_.Get();
 }
 
+ID3D12PipelineState* PSOManager::GetDeferredPSO()
+{
+	if (!deferredPipelineState_) {
+		CreateDeferredPSO();
+	}
+
+	return deferredPipelineState_.Get();
+}
+
 void PSOManager::CreateSpriteSignature()
 {
 	HRESULT hr;
@@ -1367,4 +1376,110 @@ void PSOManager::CreateSkinningPSO()
 	// 実際に生成
 	HRESULT hr = dxManager_->GetDevice()->CreateComputePipelineState(&computePipelineStateDesc, IID_PPV_ARGS(&skinningComputePipelineState_));
 	assert(SUCCEEDED(hr));
+}
+
+void PSOManager::CreateDeferredSignature()
+{
+	// Sampler は static sampler として RootSignatureに登録する
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
+	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+	staticSamplers[0].ShaderRegister = 0; // s0
+	staticSamplers[0].RegisterSpace = 0;
+	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// RootParam
+	CD3DX12_DESCRIPTOR_RANGE range[1];
+	range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // t0 1個
+
+	CD3DX12_ROOT_PARAMETER rootParams[3];
+	rootParams[0].InitAsConstantBufferView(0); // b0
+	rootParams[1].InitAsConstantBufferView(1); // b1
+	rootParams[2].InitAsDescriptorTable(1, &range[0]); // t0
+
+	// RootSignature結合
+	CD3DX12_ROOT_SIGNATURE_DESC rsDesc;
+	rsDesc.Init(_countof(rootParams), rootParams,
+		_countof(staticSamplers), staticSamplers,
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	D3D12SerializeRootSignature(&rsDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&deferredSignature_));
+
+}
+
+void PSOManager::CreateDeferredPSO()
+{
+	CreateDeferredSignature();
+
+	// -----------------------------
+	 // 2) Compile Shaders
+	 // -----------------------------
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
+	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/GBuffer.VS.hlsl", L"vs_6_0");
+	assert(vertexShaderBlob != nullptr);
+
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
+	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/GBuffer.PS.hlsl", L"ps_6_0");
+	assert(pixelShaderBlob != nullptr);
+
+	// -----------------------------
+	// 3) Input Layout (例：位置, 法線, UV)
+	// -----------------------------
+	std::array<D3D12_INPUT_ELEMENT_DESC, 3> inputElementDescs{};
+	inputElementDescs[0].SemanticName = "POSITION";
+	inputElementDescs[0].SemanticIndex = 0;
+	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs[0].InputSlot = 0;
+	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[0].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElementDescs[0].InstanceDataStepRate = 0;
+	inputElementDescs[1].SemanticName = "NORMAL";
+	inputElementDescs[1].SemanticIndex = 0;
+	inputElementDescs[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	inputElementDescs[1].InputSlot = 0;
+	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[1].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElementDescs[1].InstanceDataStepRate = 0;
+	inputElementDescs[2].SemanticName = "TEXCOORD";
+	inputElementDescs[2].SemanticIndex = 0;
+	inputElementDescs[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+	inputElementDescs[2].InputSlot = 0;
+	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[2].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElementDescs[2].InstanceDataStepRate = 0;
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	inputLayoutDesc.pInputElementDescs = inputElementDescs.data();
+	inputLayoutDesc.NumElements = static_cast<UINT>(inputElementDescs.size());
+
+	// -----------------------------
+	// 4) PSO 設定
+	// -----------------------------
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+
+	psoDesc.pRootSignature = deferredSignature_.Get();
+	psoDesc.InputLayout = inputLayoutDesc;
+
+	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
+
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = 3;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT; // base/roughness
+	psoDesc.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT; // normal/metal
+	psoDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT; // depth(dummy)
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	psoDesc.SampleDesc.Count = 1;
+
+	dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&deferredPipelineState_));
+
 }

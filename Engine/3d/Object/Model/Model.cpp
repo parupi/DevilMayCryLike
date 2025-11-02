@@ -78,6 +78,21 @@ void Model::Draw()
 	}
 }
 
+void Model::DrawGBuffer()
+{
+	for (auto& mesh : meshes_)
+	{
+		auto* mat = materials_[mesh->GetMeshData().materialIndex].get();
+		auto cmd = modelLoader_->GetDxManager()->GetCommandList();
+		// マテリアルの情報をくっつける
+		mat->Bind();
+		// メッシュの情報を紐づける
+		mesh->Bind();
+		// 描画
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
+	}
+}
+
 void Model::Bind()
 {
 	    for (const auto& mesh : meshes_) {

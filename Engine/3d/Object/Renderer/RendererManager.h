@@ -3,6 +3,11 @@
 #include <base/DirectXManager.h>
 #include "base/SrvManager.h"
 #include "BaseRenderer.h"
+#include <base/GBufferPass.h>
+#include <base/PSOManager.h>
+
+
+
 class RendererManager
 {
 private:
@@ -17,11 +22,13 @@ public:
 	// インスタンスの取得
 	static RendererManager* GetInstance();
 	// 初期化処理
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager);
 	// 終了処理
 	void Finalize();
 	// 更新処理
 	void Update();
+	// GBufferに描画する準備
+	void RenderGBufferPass();
 	// オブジェクト削除
 	void RemoveDeadObjects();
 	// レンダー追加処理
@@ -32,10 +39,11 @@ public:
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 private:
-
+	std::unique_ptr<GBufferPass> gBufferPass = nullptr;
 
 	DirectXManager* dxManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
+	PSOManager* psoManager_ = nullptr;
 
 	std::vector<std::unique_ptr<BaseRenderer>> renders_;
 };

@@ -64,6 +64,7 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	CreateDepthBuffer();
 	CreateHeap();
 
+	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	clearValue.Color[0] = 0.6f;
 	clearValue.Color[1] = 0.5f;
 	clearValue.Color[2] = 0.1f;
@@ -213,7 +214,7 @@ IDxcBlob* DirectXManager::CompileShader(const std::wstring& filePath, const wcha
 	return shaderBlob;
 }
 
-ComPtr<ID3D12Resource> DirectXManager::CreateDepthStencilTextureResource(ComPtr<ID3D12Device> device, int32_t width, int32_t height)
+ComPtr<ID3D12Resource> DirectXManager::CreateDepthStencilTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format)
 {
 	// 生成するResourceの設定
 	D3D12_RESOURCE_DESC resourceDesc{};
@@ -221,7 +222,7 @@ ComPtr<ID3D12Resource> DirectXManager::CreateDepthStencilTextureResource(ComPtr<
 	resourceDesc.Height = height;										// Textureの長さ
 	resourceDesc.MipLevels = 1;											// mipmapの数
 	resourceDesc.DepthOrArraySize = 1;									// 奥行き or 配列Textureの配列数
-	resourceDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;				// DepthStencilとして利用可能なフォーマット
+	resourceDesc.Format = format;				// DepthStencilとして利用可能なフォーマット
 	resourceDesc.SampleDesc.Count = 1;									// サンプリングカウント。1固定
 	resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;		// 2次元
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;		// DepthStencilとして使う通知
@@ -233,12 +234,12 @@ ComPtr<ID3D12Resource> DirectXManager::CreateDepthStencilTextureResource(ComPtr<
 	// 深度値のクリア設定
 	D3D12_CLEAR_VALUE depthClearValue{};
 	depthClearValue.DepthStencil.Depth = 1.0f;					// 1.0f(最大値)でクリア
-	depthClearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;		// フォーマット。Resourceと合わせる
+	depthClearValue.Format = format;		// フォーマット。Resourceと合わせる
 
 	HRESULT hr;
 	// Resourceの設定
 	ComPtr<ID3D12Resource> resource = nullptr;
-	hr = device->CreateCommittedResource(
+	hr = GetDevice()->CreateCommittedResource(
 		&heapProperties,					// Heapの設定
 		D3D12_HEAP_FLAG_NONE,				// Heapの特殊な設定
 		&resourceDesc,						// Resourceの設定
@@ -350,7 +351,7 @@ void DirectXManager::CreateBufferResource(size_t sizeInBytes, Microsoft::WRL::Co
 	}
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_CLEAR_VALUE color)
+Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format)
 {
 	D3D12_RESOURCE_DESC resourceDesc{};
 	resourceDesc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
@@ -368,13 +369,14 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResour
 	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;         // VRAM上に作成
 
 	// リソース生成
+	clearValue.Format = format;
 	ComPtr<ID3D12Resource> renderTexture;
 	HRESULT hr = GetDevice()->CreateCommittedResource(
 		&heapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		&resourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ, // 初期状態
-		&color,
+		&clearValue,
 		IID_PPV_ARGS(&renderTexture)
 	);
 
@@ -401,7 +403,9 @@ D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::CreateRTVForTexture(ID3D12Resource* 
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 	rtvDesc.Texture2D.MipSlice = 0;
 
+	//auto rtv = AllocateNextRTVHandle();
 	GetDevice()->CreateRenderTargetView(resource, &rtvDesc, handle);
+	rtvHandleMap_[resource] = handle;
 
 	return handle;
 }
@@ -416,10 +420,103 @@ void DirectXManager::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
 	commandContext_->GetCommandList()->RSSetScissorRects(1, &scissorRect_);
 }
 
+void DirectXManager::CreateGBuffer(UINT width, UINT height)
+{
+	// ---- Resource生成 ---- //
+
+	// Albedo
+	gBuffer_.albedo = CreateRenderTextureResource(width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+	// Normal
+	gBuffer_.normal = CreateRenderTextureResource(width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
+	// Depth
+	gBuffer_.depth = CreateDepthStencilTextureResource(width, height, DXGI_FORMAT_D32_FLOAT);
+
+
+	// ---- RTV作成 ---- //
+	{
+		D3D12_RENDER_TARGET_VIEW_DESC desc{};
+		desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+
+		// Albedo RTV
+		desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		D3D12_CPU_DESCRIPTOR_HANDLE albedoRTV = AllocateNextGBufferRTVHandle();
+		GetDevice()->CreateRenderTargetView(gBuffer_.albedo.Get(), &desc, albedoRTV);
+		gBuffer_.rtvHandles[0] = albedoRTV;
+		rtvHandleMap_[gBuffer_.albedo.Get()] = albedoRTV;
+
+		// Normal RTV
+		desc.Format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+		D3D12_CPU_DESCRIPTOR_HANDLE normalRTV = AllocateNextGBufferRTVHandle();
+		GetDevice()->CreateRenderTargetView(gBuffer_.normal.Get(), &desc, normalRTV);
+		gBuffer_.rtvHandles[1] = normalRTV;
+		rtvHandleMap_[gBuffer_.normal.Get()] = normalRTV;
+	}
+
+
+	// ---- DSV作成 ---- //
+	{
+		D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
+		dsvDesc.Format = DXGI_FORMAT_D32_FLOAT;
+		dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+
+		D3D12_CPU_DESCRIPTOR_HANDLE dsv = AllocateNextDSVHandle(); // RTVと同様の仕組み
+		GetDevice()->CreateDepthStencilView(gBuffer_.depth.Get(), &dsvDesc, dsv);
+		gBuffer_.dsvHandle = dsv;
+		dsvHandleMap_[gBuffer_.depth.Get()] = dsv;
+	}
+}
+
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::AllocateNextRTVHandle()
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
+
+	handle.ptr += static_cast<SIZE_T>(currentRTVIndex_) * rtvDescriptorSize_;
+	currentRTVIndex_++;
+
+	return handle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::AllocateNextGBufferRTVHandle()
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = rtvHeapGBuffer_->GetCPUDescriptorHandleForHeapStart();
+
+	handle.ptr += currentGBufferRTVIndex_ * rtvDescriptorSize_;
+	currentGBufferRTVIndex_++;
+
+	return handle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::AllocateNextDSVHandle()
+{
+	D3D12_CPU_DESCRIPTOR_HANDLE handle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
+
+	handle.ptr += static_cast<SIZE_T>(currentDSVIndex_) * dsvDescriptorSize_;
+	currentDSVIndex_++;
+
+	return handle;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::GetRTV(ID3D12Resource* resource)
+{
+	assert(resource);
+	auto it = rtvHandleMap_.find(resource);
+	assert(it != rtvHandleMap_.end());
+	return it->second;
+}
+
+D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::GetDSV(ID3D12Resource* resource)
+{
+	assert(resource);
+	auto it = dsvHandleMap_.find(resource);
+	assert(it != dsvHandleMap_.end());
+	return it->second;
+}
+
 void DirectXManager::CreateDepthBuffer()
 {
 	// DepthStencilTextureをウィンドウサイズで作成
-	depthBuffer_ = CreateDepthStencilTextureResource(GetDevice(), WindowManager::kClientWidth, WindowManager::kClientHeight);
+	depthBuffer_ = CreateDepthStencilTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	depthBuffer_->SetName(L"DepthBuffer");
 }
 
@@ -428,9 +525,13 @@ void DirectXManager::CreateHeap()
 	descriptorSizeRTV_ = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	descriptorSizeDSV_ = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
 
+	currentRTVIndex_ = 0;
+	currentDSVIndex_ = 0;
 	// DescriptorHeapを生成
 	rtvHeap_ = CreateDescriptorHeap(GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 3, false);
 	dsvHeap_ = CreateDescriptorHeap(GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
+	rtvHeapGBuffer_ = CreateDescriptorHeap(GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, 2, false);
+	currentGBufferRTVIndex_ = 0;
 
 	rtvHeap_->SetName(L"RTVHeap");
 	dsvHeap_->SetName(L"DSVHeap");
@@ -452,8 +553,10 @@ void DirectXManager::CreateRenderTargetView()
 		ID3D12Resource* backBuffer = swapChainManager_->GetBackBuffer(i);
 		rtvHandles_[i] = rtvHandle;
 
-		GetDevice()->CreateRenderTargetView(backBuffer, &rtvDesc_, rtvHandles_[i]);
-
+		auto rtv = AllocateNextRTVHandle();
+		GetDevice()->CreateRenderTargetView(backBuffer, &rtvDesc_, rtv);
+		// map登録
+		rtvHandleMap_[backBuffer] = rtv;
 		// リソースに名前をつける（デバッグ用）
 		std::wstring name = L"BackBuffer" + std::to_wstring(i);
 		backBuffer->SetName(name.c_str());
@@ -461,11 +564,6 @@ void DirectXManager::CreateRenderTargetView()
 		// 次のハンドル位置に進める
 		rtvHandle.ptr += handleIncrement;
 	}
-
-	//// オフスクリーンRTVの作成（swapchainとは別）
-	//rtvHandles_[backBufferCount] = rtvHandle;
-	//GetDevice()->CreateRenderTargetView(offScreenResource_.Get(), &rtvDesc_, rtvHandles_[backBufferCount]);
-	//offScreenResource_->SetName(L"OffScreenRenderTarget");
 
 	Logger::Log("Complete CreateRenderTargetViews!\n");
 }

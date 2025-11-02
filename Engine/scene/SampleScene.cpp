@@ -24,7 +24,7 @@ void SampleScene::Initialize()
 	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
 	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
-	cameraManager_->SetActiveCamera(0);
+	cameraManager_->SetActiveCamera("GameCamera");
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -54,7 +54,7 @@ void SampleScene::Initialize()
 	emitter_->Initialize("test");
 
 	// 天球の生成
-	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
+	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
 	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
@@ -119,16 +119,17 @@ void SampleScene::Update()
 
 void SampleScene::Draw()
 {
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawSet();
+
+	RendererManager::GetInstance()->RenderGBufferPass();
 
 	//Object3dManager::GetInstance()->DrawSetForAnimation();
 	//lightManager_->BindLightsToShader();
 	//cameraManager_->BindCameraToShader();
-	object_->Draw();
 
 
-	ParticleManager::GetInstance()->DrawSet();
-	ParticleManager::GetInstance()->Draw();
+	//ParticleManager::GetInstance()->DrawSet();
+	//ParticleManager::GetInstance()->Draw();
 }
 
 void SampleScene::DrawRTV()

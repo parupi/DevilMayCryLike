@@ -54,6 +54,14 @@ void ModelRenderer::Draw()
 	model_->Draw();
 }
 
+void ModelRenderer::DrawGBuffer()
+{
+	// (transform / material bind)
+	RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
+
+	model_->DrawGBuffer(); // Model側へ委譲
+}
+
 void ModelRenderer::SetModel(const std::string& filePath)
 {
 	// モデルを検索してセットする

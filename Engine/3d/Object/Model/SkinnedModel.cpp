@@ -49,7 +49,7 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 
 void SkinnedModel::Update()
 {
-	// アニメーションの更新を呼ぶ（ここが抜けてい
+	// アニメーションの更新を呼ぶ
 	animation_->Update();
 
 	// アニメーションの時間取得
@@ -86,7 +86,7 @@ void SkinnedModel::UpdateSkinningWithCS()
 {
 	auto* commandList = modelLoader_->GetDxManager()->GetCommandList();
 
-	// ✅ Compute用のPSOとRootSignature設定
+	// Compute用のPSOとRootSignature設定
 	commandList->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningPSO());
 	commandList->SetComputeRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningSignature());
 
@@ -97,6 +97,9 @@ void SkinnedModel::UpdateSkinningWithCS()
 }
 
 #ifdef _DEBUG
+void SkinnedModel::DrawGBuffer()
+{
+}
 void SkinnedModel::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {

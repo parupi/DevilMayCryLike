@@ -191,7 +191,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTa
 	clearValue_.Color[2] = 0.1f;
 	clearValue_.Color[3] = 1.0f;
 	
-	return dxManager_->CreateRenderTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, clearValue_.Format, clearValue_);
+	return dxManager_->CreateRenderTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE OffScreenManager::CreateRTV(Microsoft::WRL::ComPtr<ID3D12Resource> resource)

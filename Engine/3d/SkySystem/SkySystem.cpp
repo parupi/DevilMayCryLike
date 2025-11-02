@@ -76,7 +76,7 @@ void SkySystem::Draw()
 	material_->Bind();
 
 	// 描画コール
-	commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);
+	//commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);
 }
 
 void SkySystem::CreateSkyBox(const std::string& textureFilePath)

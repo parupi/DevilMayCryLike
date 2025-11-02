@@ -12,7 +12,8 @@ public:
 	void Update(WorldTransform* parentTransform) override;
 
 	void Draw() override;
-
+	// GBufferに描画
+	void DrawGBuffer();
 	void SetModel(const std::string& filePath);
 
 #ifdef _DEBUG

@@ -35,7 +35,7 @@ void MyGameTitle::Initialize()
 
 	SkySystem::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
-	RendererManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
+	RendererManager::GetInstance()->Initialize(dxManager.get(), srvManager.get(), psoManager.get());
 
 	CollisionManager::GetInstance()->Initialize();
 
@@ -47,7 +47,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("TITLE");
+	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();

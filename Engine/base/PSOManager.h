@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <wrl.h>
 #include <d3d12.h>
 #include <mutex>
@@ -55,6 +55,9 @@ public:// アクセッサ
 
 	ID3D12RootSignature* GetSkinningSignature() { return skinningSignature_.Get(); }
 	ID3D12PipelineState* GetSkinningPSO();
+	// DeferredRendering
+	ID3D12RootSignature* GetDeferredSignature() { return deferredSignature_.Get(); }
+	ID3D12PipelineState* GetDeferredPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -80,6 +83,9 @@ private:
 	// ComputeSkinning
 	void CreateSkinningSignature();
 	void CreateSkinningPSO();
+	// DeferredRendering
+	void CreateDeferredSignature();
+	void CreateDeferredPSO();
 
 private:
 	DirectXManager* dxManager_ = nullptr;
@@ -109,4 +115,7 @@ private: // データ格納用変数
 	// ComputeSkinning
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> skinningSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> skinningComputePipelineState_;
+	// DeferredRendering
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> deferredSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> deferredPipelineState_;
 };
