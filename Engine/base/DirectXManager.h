@@ -17,6 +17,7 @@
 #include "Graphics/SwapChainManager.h"
 #include <base/SrvManager.h>
 #include <base/RtvManager.h>
+#include "DsvManager.h"
 
 class SrvManager;
 class RtvManager;
@@ -52,6 +53,8 @@ public:
 	CommandContext* GetCommandContext() const { return commandContext_.get(); }
 	// RTVManagerを取得
 	RtvManager* GetRtvManager()const { return rtvManager_.get(); }
+	// DSVManagerを取得
+	DsvManager* GetDsvManager()const { return dsvManager_.get(); }
 private: // メンバ変数
 	// WindowAPI
 	WindowManager* winManager_ = nullptr;
@@ -64,11 +67,10 @@ private: // メンバ変数
 
 	std::unique_ptr<RtvManager> rtvManager_ = nullptr;
 
+	std::unique_ptr<DsvManager> dsvManager_ = nullptr;
+
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_;
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap_ = nullptr;
-
-	static inline uint32_t descriptorSizeDSV_;
 	// シザー矩形
 	D3D12_RECT scissorRect_{};
 	// ビューポート
@@ -77,12 +79,6 @@ private: // メンバ変数
 	Microsoft::WRL::ComPtr<IDxcUtils> dxcUtils_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
-
-	// RTVを2つ作るのでディスクリプタを2つ用意
-	std::unordered_map<ID3D12Resource*, D3D12_CPU_DESCRIPTOR_HANDLE> dsvHandleMap_;
-
-	UINT dsvDescriptorSize_ = 0;
-	UINT currentDSVIndex_ = 0;
 
 	GBuffer gBuffer_;
 
@@ -93,9 +89,19 @@ private: // メンバ変数
 
 
 private:
-
 	void InitializeFixFPS();
+
 	void UpdateFixFPS();
+
+	void CreateDepthBuffer();
+
+	void CreateRenderTargetView();
+
+	void SetViewPort();
+
+	void SetScissor();
+
+	void InitializeDXCCompiler();
 public:
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
@@ -111,34 +117,8 @@ public:
 	// オフスクリーン用関数
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format);
 
-	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() const { return dsvHeap_->GetCPUDescriptorHandleForHeapStart(); }
-
-	// dsvのアロケート
-	D3D12_CPU_DESCRIPTOR_HANDLE AllocateNextDSVHandle();
-
-	// ディファ―ドレンダリング用のリソースハンドルを取得
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDSV(ID3D12Resource* resource);
-
 	const GBuffer& GetGBuffer() const { return gBuffer_; }
-private:
-	void CreateDepthBuffer();
 
-	void CreateHeap();
-
-	void CreateRenderTargetView();
-
-	void InitializeDepthStencilView();
-
-	void SetViewPort();
-
-	void SetScissor();
-
-	void InitializeDXCCompiler();
-
-
-public:
 	/// <summary>
 	///	描画前処理
 	/// </summary>

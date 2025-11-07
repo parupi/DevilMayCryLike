@@ -524,6 +524,7 @@
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\base\GBufferPass.h" />
     <ClInclude Include="Engine\base\RtvManager.h" />
+    <ClInclude Include="Engine\base\DsvManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -862,6 +863,7 @@
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="Engine\base\GBufferPass.cpp" />
     <ClCompile Include="Engine\base\RtvManager.cpp" />
+    <ClCompile Include="Engine\base\DsvManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />

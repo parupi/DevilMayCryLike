@@ -60,9 +60,13 @@ void DirectXManager::Initialize(WindowManager* winManager)
 
 	rtvManager_ = std::make_unique<RtvManager>();
 	rtvManager_->Initialize(this);
+	// RTVの生成
+	CreateRenderTargetView();
 
+	// dsvManagerの生成
+	dsvManager_ = std::make_unique<DsvManager>();
+	// dsvの生成
 	CreateDepthBuffer();
-	CreateHeap();
 
 	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	clearValue.Color[0] = 0.6f;
@@ -70,9 +74,6 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	clearValue.Color[2] = 0.1f;
 	clearValue.Color[3] = 1.0f;
 
-	//CreateRTVForOffScreen();
-	CreateRenderTargetView();
-	InitializeDepthStencilView();
 	commandContext_->CreateFence();
 	SetViewPort();
 	SetScissor();
@@ -87,10 +88,9 @@ void DirectXManager::Finalize()
 	swapChainManager_.reset();
 
 	rtvManager_.reset();
+	dsvManager_.reset();
 
 	depthBuffer_.Reset();
-
-	dsvHeap_.Reset();
 
 	graphicsDevice_.reset();
 
@@ -377,51 +377,14 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResour
 	return renderTexture;
 }
 
-void DirectXManager::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle)
-{
-	// コマンドリストにレンダーターゲットのみ設定（深度ステンシルはなし）
-	commandContext_->GetCommandList()->OMSetRenderTargets(1, &rtvHandle, FALSE, nullptr);
-
-	// ビューポートとシザーも設定（画面全体描画するなら必要）
-	commandContext_->GetCommandList()->RSSetViewports(1, &viewport_);
-	commandContext_->GetCommandList()->RSSetScissorRects(1, &scissorRect_);
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::AllocateNextDSVHandle()
-{
-	D3D12_CPU_DESCRIPTOR_HANDLE handle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
-
-	handle.ptr += static_cast<SIZE_T>(currentDSVIndex_) * dsvDescriptorSize_;
-	currentDSVIndex_++;
-
-	return handle;
-}
-
-D3D12_CPU_DESCRIPTOR_HANDLE DirectXManager::GetDSV(ID3D12Resource* resource)
-{
-	assert(resource);
-	auto it = dsvHandleMap_.find(resource);
-	assert(it != dsvHandleMap_.end());
-	return it->second;
-}
-
 void DirectXManager::CreateDepthBuffer()
 {
-	// DepthStencilTextureをウィンドウサイズで作成
 	depthBuffer_ = CreateDepthStencilTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, DXGI_FORMAT_D24_UNORM_S8_UINT);
 	depthBuffer_->SetName(L"DepthBuffer");
-}
 
-void DirectXManager::CreateHeap()
-{
-	descriptorSizeDSV_ = GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_DSV);
-
-	//currentRTVIndex_ = 0;
-	currentDSVIndex_ = 0;
-	// DescriptorHeapを生成
-	dsvHeap_ = CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_DSV, 1, false);
-
-	dsvHeap_->SetName(L"DSVHeap");
+	// DSVManager側でheapを持つように変更したためここでは呼び出すだけ
+	dsvManager_->Initialize(GetDevice());
+	dsvManager_->CreateDsv(depthBuffer_.Get());
 }
 
 void DirectXManager::CreateRenderTargetView()
@@ -449,17 +412,6 @@ void DirectXManager::CreateRenderTargetView()
 	}
 
 	Logger::Log("Complete CreateRenderTargetViews!\n");
-}
-
-void DirectXManager::InitializeDepthStencilView()
-{
-	// DSVの設定
-	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
-	dsvDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;				// Format。基本的にはResourceに合わせる
-	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;		// 2dTexture
-	// DSVHeapの先頭にDSVを作る
-	GetDevice()->CreateDepthStencilView(depthBuffer_.Get(), &dsvDesc, dsvHeap_->GetCPUDescriptorHandleForHeapStart());
-	depthBuffer_->SetName(L"DepthStencilResource");
 }
 
 void DirectXManager::SetViewPort()
@@ -508,7 +460,7 @@ void DirectXManager::BeginDraw()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap_->GetCPUDescriptorHandleForHeapStart();
+	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvManager_->GetDsvHandle();
 
 	// 描画ターゲットと深度ステンシルビューの設定
 	commandContext_->SetRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), dsvHandle);

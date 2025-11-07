@@ -96,7 +96,7 @@ void OffScreenManager::DrawPostEffect()
 		);
 
 		// set render target + dsv
-		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxManager_->GetDSVHandle();
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxManager_->GetDsvManager()->GetDsvHandle();
 		dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dsvHandle);
 
 		// clear
@@ -139,7 +139,7 @@ void OffScreenManager::DrawPostEffect()
 	// バックバッファを RenderTarget として再セットする
 	UINT backBufferIndex = dxManager_->GetSwapChainManager()->GetCurrentBackBufferIndex();
 	auto backRtv = dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex);
-	auto backDsv = dxManager_->GetDSVHandle();
+	auto backDsv = dxManager_->GetDsvManager()->GetDsvHandle();
 
 	// BackBufferは BeginDraw() でRT状態になっている想定なのでBarrier不要
 	dxManager_->GetCommandContext()->SetRenderTarget(backRtv, backDsv);
@@ -180,7 +180,7 @@ void OffScreenManager::BeginDrawToPingPong()
 	);
 
 	// set RTV & DSV
-	dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dxManager_->GetDSVHandle());
+	dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dxManager_->GetDsvManager()->GetDsvHandle());
 	dxManager_->GetCommandContext()->ClearRenderTarget(rtvHandles_[ping_], clearValue_.Color);
 	dxManager_->GetCommandContext()->SetViewportAndScissor(viewport_, scissorRect_);
 }
