@@ -523,6 +523,7 @@
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\base\GBufferPass.h" />
+    <ClInclude Include="Engine\base\RtvManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -860,6 +861,7 @@
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="Engine\base\GBufferPass.cpp" />
+    <ClCompile Include="Engine\base\RtvManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />

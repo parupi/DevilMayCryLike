@@ -25,10 +25,10 @@ void TextureManager::Initialize(DirectXManager* dxManager, SrvManager* srvManage
 
 void TextureManager::Finalize()
 {
-	// テクスチャデータをクリア（ComPtrのリファレンスカウントが減り解放される）
+	// テクスチャデータをクリア
 	textureData_.clear();
 
-	// 管理しているDirectXManagerとSrvManagerのポインタをクリア（所有権はない想定）
+	// 管理しているDirectXManagerとSrvManagerのポインタをクリア
 	dxManager_ = nullptr;
 	srvManager_ = nullptr;
 
@@ -176,7 +176,7 @@ uint32_t TextureManager::CreateWhiteTexture()
 
 	DirectX::ScratchImage image{};
 
-	// ✅ ピクセルデータありで初期化
+	// ピクセルデータありで初期化
 	HRESULT hr = image.Initialize2D(
 		DXGI_FORMAT_R8G8B8A8_UNORM,
 		1, // width

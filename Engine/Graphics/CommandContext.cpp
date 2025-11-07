@@ -93,13 +93,6 @@ void CommandContext::Begin()
 
 void CommandContext::Flush()
 {
-	// 画面に描く処理はすべて終わり、画面に移すので、状態を遷移
-// RenderTargetからPresentにする
-	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	// TransitionBarrierを振る
-	commandList_->ResourceBarrier(1, &barrier_);
-
 	// コマンドリストの内容和確定させる
 	Logger::CheckHR(commandList_->Close(), "Failed to close command list");
 

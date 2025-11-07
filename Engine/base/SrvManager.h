@@ -1,5 +1,10 @@
 #pragma once
-#include <base/DirectXManager.h>
+#include <d3d12.h>
+#include <stdint.h>
+#include <wrl.h>
+
+class DirectXManager;
+
 class SrvManager
 {
 public:

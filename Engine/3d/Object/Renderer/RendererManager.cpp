@@ -18,8 +18,8 @@ void RendererManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 	srvManager_ = srvManager;
 	psoManager_ = psoManager;
 
-	gBufferPass = std::make_unique<GBufferPass>();
-	gBufferPass->Initialize(dxManager_);
+	//gBufferPass = std::make_unique<GBufferPass>();
+	//gBufferPass->Initialize(dxManager_);
 }
 
 void RendererManager::Finalize()
@@ -39,21 +39,21 @@ void RendererManager::Update()
 
 void RendererManager::RenderGBufferPass()
 {
-	auto cmd = dxManager_->GetCommandList();
+	//auto cmd = dxManager_->GetCommandList();
 
-	// GBuffer用PSO/RSをセット
-	cmd->SetPipelineState(psoManager_->GetDeferredPSO());
-	cmd->SetGraphicsRootSignature(psoManager_->GetDeferredSignature());
+	//// GBuffer用PSO/RSをセット
+	//cmd->SetPipelineState(psoManager_->GetDeferredPSO());
+	//cmd->SetGraphicsRootSignature(psoManager_->GetDeferredSignature());
 
-	// GBufferのパスをセット
-	gBufferPass->Begin();
+	//// GBufferのパスをセット
+	//gBufferPass->Begin();
 
-	// ----------- Model全体Draw（Forwardと別で管理）---------------
-	auto& models = renders_;
-	for (auto& r : models)
-	{
-		r->GetModel()->DrawGBuffer();
-	}
+	//// ----------- Model全体Draw（Forwardと別で管理）---------------
+	//auto& models = renders_;
+	//for (auto& r : models)
+	//{
+	//	r->GetModel()->DrawGBuffer();
+	//}
 }
 
 void RendererManager::RemoveDeadObjects()

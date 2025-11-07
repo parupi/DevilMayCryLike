@@ -32,8 +32,6 @@ void GrayEffect::Update()
 	ImGui::Checkbox("isActive", &isActive_);
 	ImGui::DragFloat("intensity", &effectData_->intensity, 0.01f);
 	ImGui::End();
-
-	//effectDclamp(effectData_->intensity, 0.0f, 1.0f);
 #endif // _DEBUG
 }
 

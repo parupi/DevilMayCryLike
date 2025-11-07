@@ -87,4 +87,5 @@ void PlayerStateDeath::Exit(Player& player)
 
 	// シーンを変える
 	SceneTransitionController::GetInstance()->RequestSceneChange("GAMEPLAY");
+	player;
 }

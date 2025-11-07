@@ -21,8 +21,8 @@ void SampleScene::Initialize()
 {
 	// カメラの生成
 	normalCamera_ = std::make_unique<Camera>("GameCamera");
-	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
-	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
+	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -25.0f };
+	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera("GameCamera");
 
@@ -77,17 +77,12 @@ void SampleScene::Initialize()
 		model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
 	}
 	// ゲームオブジェクトを追加
-	//Object3dManager::GetInstance()->AddObject(std::move(object_));
+	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
-	//std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
-	//dirLight->GetLightData().intensity = 1.0f;
-	//dirLight->GetLightData().enabled = true;
-	//dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
-	//lightManager_->AddDirectionalLight(std::move(dirLight));
 
+	lightManager_->CreateDirectionalLight("SampleDir");
 
 
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
@@ -108,8 +103,6 @@ void SampleScene::Update()
 
 	lightManager_->UpdateAllLight();
 
-	object_->Update();
-
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
 
 #ifdef _DEBUG
@@ -119,9 +112,9 @@ void SampleScene::Update()
 
 void SampleScene::Draw()
 {
-	//Object3dManager::GetInstance()->DrawSet();
+	Object3dManager::GetInstance()->DrawSet();
 
-	RendererManager::GetInstance()->RenderGBufferPass();
+	//RendererManager::GetInstance()->RenderGBufferPass();
 
 	//Object3dManager::GetInstance()->DrawSetForAnimation();
 	//lightManager_->BindLightsToShader();
@@ -141,9 +134,9 @@ void SampleScene::DrawRTV()
 #ifdef _DEBUG
 void SampleScene::DebugUpdate()
 {
-	ImGui::Begin("Object");
-	object_->DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Object");
+	//object_->DebugGui();
+	//ImGui::End();
 
 	//ImGui::Begin("Object2");
 	//object2_->DebugGui();

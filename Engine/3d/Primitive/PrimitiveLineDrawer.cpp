@@ -24,7 +24,6 @@ void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoM
 	transform_->Initialize();
 
 	dummyTextureIndex_ = TextureManager::GetInstance()->CreateWhiteTexture();
-
 }
 
 void PrimitiveLineDrawer::Finalize()
@@ -33,7 +32,7 @@ void PrimitiveLineDrawer::Finalize()
 	vertexResource_.Reset();
 	indexResource_.Reset();
 
-	// ビューデータ初期化（使わないが念のため）
+	// ビューデータ初期化
 	vertexBufferView_ = {};
 	indexBufferView_ = {};
 

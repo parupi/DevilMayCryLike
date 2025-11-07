@@ -38,38 +38,34 @@ public:
 	PSOManager* GetPSOManager() { return psoManager_; }
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateOffScreenRenderTarget();
-	D3D12_CPU_DESCRIPTOR_HANDLE CreateRTV(Microsoft::WRL::ComPtr<ID3D12Resource>);
-	D3D12_GPU_DESCRIPTOR_HANDLE CreateSRV(Microsoft::WRL::ComPtr<ID3D12Resource>);
+	uint32_t CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource>);
+	uint32_t CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource>);
 
 private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 
-	std::vector<std::unique_ptr<BaseOffScreen>> effects_;
-
-	// オフスクリーン描画用Ping-Pongバッファ
-	//Microsoft::WRL::ComPtr<ID3D12Resource> pingPongBufferA_;
-	//Microsoft::WRL::ComPtr<ID3D12Resource> pingPongBufferB_;
+	// Ping/Pong buffers
 	Microsoft::WRL::ComPtr<ID3D12Resource> pingPongBuffers_[2];
+	uint32_t rtvIndices_[2] = { UINT32_MAX, UINT32_MAX }; // index in rtvManager
+	uint32_t srvIndices_[2] = { UINT32_MAX, UINT32_MAX }; // index in srvManager
 
+	// GPU descriptor handles (for binding SRV to root table)
+	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles_[2]{};
+	// keep CPU handles for DirectXManager::SetRenderTarget if needed
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
+
+	// ping/pong indicators
 	int ping_ = 0;
 	int pong_ = 1;
 
-	// SRV, RTV ハンドルなども用意する必要あり
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]; // A, B
-	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles_[2];
+	// viewport / scissor for offscreen
+	D3D12_VIEWPORT viewport_{};
+	D3D12_RECT scissorRect_{};
+	D3D12_CLEAR_VALUE clearValue_{};
 
-	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap_;
-
-	uint32_t descriptorSizeRTV_;
-
-	D3D12_VIEWPORT viewport_;
-	D3D12_RECT scissorRect_;
-	D3D12_CLEAR_VALUE clearValue_;
-
-	D3D12_RESOURCE_STATES pingPongStates_[2] = {
-		D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_RESOURCE_STATE_GENERIC_READ
-	};
+	// effects
+	std::vector<std::unique_ptr<BaseOffScreen>> effects_;
 };
 

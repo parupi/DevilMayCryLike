@@ -14,33 +14,45 @@ OffScreenManager* OffScreenManager::GetInstance()
 
 void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
 {
+	assert(dxManager && srvManager);
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
 	srvManager_ = srvManager;
 
-	// CreateTexture2DResource 相当の関数を使って２つ生成
-	pingPongBuffers_[ping_] = CreateOffScreenRenderTarget();
-	pingPongBuffers_[pong_] = CreateOffScreenRenderTarget();
+	// viewport / scissor を初期化（ウィンドウサイズに合わせる）
+	viewport_.Width = WindowManager::kClientWidth;
+	viewport_.Height = WindowManager::kClientHeight;
+	viewport_.TopLeftX = 0;
+	viewport_.TopLeftY = 0;
+	viewport_.MinDepth = 0.0f;
+	viewport_.MaxDepth = 1.0f;
 
-	rtvHeap_ = dxManager_->CreateDescriptorHeap(
-		dxManager_->GetDevice(),
-		D3D12_DESCRIPTOR_HEAP_TYPE_RTV,
-		2,         // ピンポン用2つ分
-		false      // shader visible = false
-	);
+	scissorRect_.left = 0;
+	scissorRect_.top = 0;
+	scissorRect_.right = WindowManager::kClientWidth;
+	scissorRect_.bottom = WindowManager::kClientHeight;
 
-	descriptorSizeRTV_ = dxManager_->GetDescriptorSizeRTV();
+	clearValue_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	clearValue_.Color[0] = 0.6f;
+	clearValue_.Color[1] = 0.5f;
+	clearValue_.Color[2] = 0.1f;
+	clearValue_.Color[3] = 1.0f;
 
-	D3D12_CPU_DESCRIPTOR_HANDLE baseHandle = rtvHeap_->GetCPUDescriptorHandleForHeapStart();
-	for (uint32_t i = 0; i < 2; ++i) {
-		rtvHandles_[i].ptr = baseHandle.ptr + i * descriptorSizeRTV_;
+	// ping/pong を作る（リソース作成 → RTV/SRV を Manager を通して作成）
+	for (int i = 0; i < 2; ++i) {
+		pingPongBuffers_[i] = CreateOffScreenRenderTarget();
+		// create RTV index via RtvManager and create SRV index via SrvManager
+		rtvIndices_[i] = CreateRTVForResource(pingPongBuffers_[i]);
+		srvIndices_[i] = CreateSRVForResource(pingPongBuffers_[i]);
+
+		// store handles for convenience
+		rtvHandles_[i] = dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndices_[i]);
+		srvHandles_[i] = srvManager_->GetGPUDescriptorHandle(srvIndices_[i]);
 	}
 
-	// RTV, SRV をそれぞれ作成
-	for (uint32_t i = 0; i < 2; ++i) {
-		rtvHandles_[i] = CreateRTV(pingPongBuffers_[i]);
-		srvHandles_[i] = CreateSRV(pingPongBuffers_[i]);
-	}
+	// ensure ping/pong initial roles: ping is drawn into first; pong is source.
+	ping_ = 0;
+	pong_ = 1;
 }
 
 void OffScreenManager::Finalize()
@@ -64,59 +76,81 @@ void OffScreenManager::Update()
 
 void OffScreenManager::DrawPostEffect()
 {
-	bool isDraw = false;
+	bool didDraw = false;
 
-	// 今回使うSRVは直前に描画したPingバッファ（pongがそのSRVになる）
+	// 現在描画先は ping_, 入力は pong_
+	// input SRV は pong_（直前に描画されたバッファ）
 	D3D12_GPU_DESCRIPTOR_HANDLE inputSrv = srvHandles_[pong_];
 
 	for (auto& effect : effects_) {
-		if (!effect->IsActive()) continue;
+		if (!effect || !effect->IsActive()) continue;
 
-		//// 書き込み先（pingを描画先に）
-		//dxManager_->GetCommandContext()->TransitionResource(
-		//	pingPongBuffers_[ping_].Get(),
-		//	D3D12_RESOURCE_STATE_GENERIC_READ,
-		//	D3D12_RESOURCE_STATE_RENDER_TARGET
-		//);
+		// 1) Set SRV for effect (effect->Draw()は現在のコマンドリストに描画コマンドを出す想定)
+		effect->SetInputTexture(inputSrv);
 
+		// 2) Make ping_ writable (GENERIC_READ -> RENDER_TARGET), set RTV and clear
+		dxManager_->GetCommandContext()->TransitionResource(
+			pingPongBuffers_[ping_].Get(),
+			D3D12_RESOURCE_STATE_GENERIC_READ,
+			D3D12_RESOURCE_STATE_RENDER_TARGET
+		);
 
-		//dxManager_->SetRenderTarget(rtvHandles_[ping_]);
-		//dxManager_->GetCommandContext()->ClearRenderTarget(rtvHandles_[ping_], clearValue_.Color);
+		// set render target + dsv
+		D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxManager_->GetDSVHandle();
+		dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dsvHandle);
 
-		// SRVセット
-		effect->SetInputTexture(srvHandles_[ping_]);
+		// clear
+		dxManager_->GetCommandContext()->ClearRenderTarget(rtvHandles_[ping_], clearValue_.Color);
+		dxManager_->GetCommandContext()->SetViewportAndScissor(viewport_, scissorRect_);
+
+		// 3) Draw effect (effect->Draw は root signature / PSO / SRV を適切に設定するものとする)
 		effect->Draw();
 
-		//// 書き終わったPingを読み込み状態に戻す
-		//dxManager_->GetCommandContext()->TransitionResource(
-		//	pingPongBuffers_[ping_].Get(),
-		//	D3D12_RESOURCE_STATE_RENDER_TARGET,
-		//	D3D12_RESOURCE_STATE_GENERIC_READ
-		//);
+		// 4) finished -> make ping_ readable again
+		dxManager_->GetCommandContext()->TransitionResource(
+			pingPongBuffers_[ping_].Get(),
+			D3D12_RESOURCE_STATE_RENDER_TARGET,
+			D3D12_RESOURCE_STATE_GENERIC_READ
+		);
 
-		//std::swap(ping_, pong_);
+		// swap roles for next effect
+		std::swap(ping_, pong_);
 
-		isDraw = true;
+		// update inputSrv for next effect (now the most recent rendered result is at pong_)
+		inputSrv = srvHandles_[pong_];
+
+		didDraw = true;
 	}
 
-	if (isDraw) {
-		//// 書き終わったPingを読み込み状態に戻す
-		//dxManager_->GetCommandContext()->TransitionResource(
-		//	pingPongBuffers_[ping_].Get(),
-		//	D3D12_RESOURCE_STATE_GENERIC_READ,
-		//	D3D12_RESOURCE_STATE_RENDER_TARGET
-		//);
+	// if nothing drawn, draw a simple full-screen triangle that copies ping_ (or keep previous content)
+	if (!didDraw) {
+		// set PSO + root signature for a fallback draw
+		auto cmdList = dxManager_->GetCommandList();
+		cmdList->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone));
+		cmdList->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
+		cmdList->SetGraphicsRootDescriptorTable(0, srvHandles_[ping_]); // show current ping
+		cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		cmdList->DrawInstanced(3, 1, 0, 0);
 	}
 
-	// もし描画されていなければ
-	if (!isDraw) {
-		dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone));
-		dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
-		dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, srvHandles_[ping_]);
-		dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
-		Logger::Log("complet draw\n");
-	}
+	// 最終結果は pong_ 側
+	auto finalSrv = srvHandles_[pong_];
+
+	// バックバッファを RenderTarget として再セットする
+	UINT backBufferIndex = dxManager_->GetSwapChainManager()->GetCurrentBackBufferIndex();
+	auto backRtv = dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex);
+	auto backDsv = dxManager_->GetDSVHandle();
+
+	// BackBufferは BeginDraw() でRT状態になっている想定なのでBarrier不要
+	dxManager_->GetCommandContext()->SetRenderTarget(backRtv, backDsv);
+
+	// fullscreen triangleを1回だけ描画してfinalSrvをBackBufferへ表示
+	auto cmdList = dxManager_->GetCommandList();
+	cmdList->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone));
+	cmdList->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
+	cmdList->SetGraphicsRootDescriptorTable(0, finalSrv);
+	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	cmdList->DrawInstanced(3, 1, 0, 0);
 }
 
 void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect)
@@ -133,94 +167,55 @@ BaseOffScreen* OffScreenManager::FindEffect(const std::string& name)
 			return effect.get();
 		}
 	}
+	return nullptr;
 }
 
 void OffScreenManager::BeginDrawToPingPong()
 {
+	// public API kept for external use if needed:
 	dxManager_->GetCommandContext()->TransitionResource(
 		pingPongBuffers_[ping_].Get(),
 		D3D12_RESOURCE_STATE_GENERIC_READ,
-		D3D12_RESOURCE_STATE_RENDER_TARGET);
+		D3D12_RESOURCE_STATE_RENDER_TARGET
+	);
 
-	// 2. レンダーターゲット設定
-	dxManager_->SetRenderTarget(rtvHandles_[ping_]);
-
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxManager_->GetDSVHandle();
-
-	dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dsvHandle);
-	// 3. クリア
+	// set RTV & DSV
+	dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dxManager_->GetDSVHandle());
 	dxManager_->GetCommandContext()->ClearRenderTarget(rtvHandles_[ping_], clearValue_.Color);
-
-	// 4. ビューポートとシザーの設定
 	dxManager_->GetCommandContext()->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
 void OffScreenManager::EndDrawToPingPong()
 {
-	// Pingバッファの描画完了 → 読み込み可能状態に遷移
-
 	dxManager_->GetCommandContext()->TransitionResource(
 		pingPongBuffers_[ping_].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_GENERIC_READ
 	);
 
-	// PingとPongを入れ替える
 	std::swap(ping_, pong_);
 }
 
 Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget()
 {
-	// クライアント領域のサイズと一緒にして画面全体に表示
-	viewport_.Width = WindowManager::kClientWidth;
-	viewport_.Height = WindowManager::kClientHeight;
-	viewport_.TopLeftX = 0;
-	viewport_.TopLeftY = 0;
-	viewport_.MinDepth = 0.0f;
-	viewport_.MaxDepth = 1.0f;
-
-	// 基本的にビューポートと同じ矩形が構成されるようにする
-	scissorRect_.left = 0;
-	scissorRect_.right = WindowManager::kClientWidth;
-	scissorRect_.top = 0;
-	scissorRect_.bottom = WindowManager::kClientHeight;
-
-	clearValue_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue_.Color[0] = 0.6f;
-	clearValue_.Color[1] = 0.5f;
-	clearValue_.Color[2] = 0.1f;
-	clearValue_.Color[3] = 1.0f;
-	
-	return dxManager_->CreateRenderTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+	return dxManager_->CreateRenderTextureResource(
+		static_cast<uint32_t>(WindowManager::kClientWidth),
+		static_cast<uint32_t>(WindowManager::kClientHeight),
+		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 }
 
-D3D12_CPU_DESCRIPTOR_HANDLE OffScreenManager::CreateRTV(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
+uint32_t  OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
 {
-	// 静的にインデックスを持つ（実際は複数回呼ぶ用）
-	static uint32_t rtvCurrentIndex = 0;
-
-	assert(rtvCurrentIndex < _countof(rtvHandles_)); // 最大数を超えないように
-
-	D3D12_CPU_DESCRIPTOR_HANDLE handle = rtvHandles_[rtvCurrentIndex++];
-
-	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-	rtvDesc.Texture2D.MipSlice = 0;
-	rtvDesc.Texture2D.PlaneSlice = 0;
-
-	dxManager_->GetDevice()->CreateRenderTargetView(resource.Get(), &rtvDesc, handle);
-
-	return handle;
+	// allocate index from RtvManager
+	uint32_t index = dxManager_->GetRtvManager()->Allocate();
+	// create RTV at manager
+	dxManager_->GetRtvManager()->CreateRTV(index, resource.Get());
+	return index;
 }
 
-D3D12_GPU_DESCRIPTOR_HANDLE OffScreenManager::CreateSRV(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
+uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
 {
-	int32_t srvIndex = srvManager_->Allocate();
-
-	D3D12_GPU_DESCRIPTOR_HANDLE handle = srvManager_->GetGPUDescriptorHandle(srvIndex);
-
-	srvManager_->CreateSRVforTexture2D(srvIndex, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
-
-	return handle;
+	uint32_t index = srvManager_->Allocate();
+	srvManager_->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
+	return index;
 }

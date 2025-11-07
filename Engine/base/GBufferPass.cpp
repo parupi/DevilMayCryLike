@@ -3,7 +3,7 @@
 void GBufferPass::Initialize(DirectXManager* dxManager)
 {
     dxManager_ = dxManager;
-    dxManager_->CreateGBuffer(WindowManager::kClientWidth, WindowManager::kClientHeight);
+   // dxManager_->CreateGBuffer(WindowManager::kClientWidth, WindowManager::kClientHeight);
 
     const GBuffer& gBuffer = dxManager_->GetGBuffer();
     rtvHandles_[0] = gBuffer.rtvHandles[0]; // albedo
