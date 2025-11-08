@@ -21,6 +21,8 @@ public:
 	// レンダーターゲット設定
 	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv);
 	// 
+	void SetRenderTargets(const D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, UINT rtvCount, const D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle);
+	// 
 	void ClearRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, const FLOAT clearColor[4]);
 	// 深度のクリア
 	void ClearDepth(D3D12_CPU_DESCRIPTOR_HANDLE dsv);

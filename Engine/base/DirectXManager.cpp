@@ -414,6 +414,42 @@ void DirectXManager::CreateRenderTargetView()
 	Logger::Log("Complete CreateRenderTargetViews!\n");
 }
 
+ComPtr<ID3D12Resource> DirectXManager::CreateGBufferResource(UINT width, UINT height, DXGI_FORMAT format)
+{
+	D3D12_RESOURCE_DESC desc = {};
+	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+	desc.Width = width;
+	desc.Height = height;
+	desc.DepthOrArraySize = 1;
+	desc.MipLevels = 1;
+	desc.SampleDesc.Count = 1;
+	desc.Format = format;
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
+
+	//D3D12_CLEAR_VALUE clearValue = {};
+	clearValue.Format = format;
+	// カラーなら0
+	//clearValue.Color[0] = 0.0f;
+	//clearValue.Color[1] = 0.0f;
+	//clearValue.Color[2] = 0.0f;
+	//clearValue.Color[3] = 1.0f;
+
+	ComPtr<ID3D12Resource> resource;
+	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
+
+	GetDevice()->CreateCommittedResource(
+		&heapProps,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		D3D12_RESOURCE_STATE_RENDER_TARGET,
+		&clearValue,
+		IID_PPV_ARGS(&resource)
+	);
+
+	return resource;
+}
+
 void DirectXManager::SetViewPort()
 {
 	// クライアント領域のサイズと一緒にして画面全体に表示

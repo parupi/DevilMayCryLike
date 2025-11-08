@@ -31,6 +31,8 @@ void MyGameTitle::Initialize()
 
 	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
+	GBufferManager::GetInstance()->Initialize(dxManager.get());
+
 	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
 
 	SkySystem::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
@@ -48,6 +50,9 @@ void MyGameTitle::Initialize()
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->ChangeScene("SAMPLE");
+
+	gBufferPath = std::make_unique<GBufferPath>();
+	gBufferPath->Initialize(dxManager.get(), GBufferManager::GetInstance());
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -79,7 +84,8 @@ void MyGameTitle::Finalize()
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();          
-	OffScreenManager::GetInstance()->Finalize();        
+	OffScreenManager::GetInstance()->Finalize();    
+	GBufferManager::GetInstance()->Finalize();
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
@@ -110,10 +116,9 @@ void MyGameTitle::Draw()
 	srvManager->BeginDraw();
 	// プリミティブ描画前処理
 	PrimitiveLineDrawer::GetInstance()->BeginDraw();
-	// 天球やスカイボックスの描画
-	SkySystem::GetInstance()->Draw();
-	// シーン描画処理
-	SceneManager::GetInstance()->Draw();
+
+
+
 	// シーンの描画が終わった後にトランジションの描画
 	SceneTransitionController::GetInstance()->Draw();
 
@@ -122,6 +127,15 @@ void MyGameTitle::Draw()
 	dxManager->BeginDraw();
 
 	OffScreenManager::GetInstance()->DrawPostEffect();
+
+	gBufferPath->Begin();
+
+	// 天球やスカイボックスの描画
+	SkySystem::GetInstance()->Draw();
+	// シーン描画処理
+	SceneManager::GetInstance()->Draw();
+
+	gBufferPath->End();
 
 	CollisionManager::GetInstance()->Draw();
 

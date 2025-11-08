@@ -3,7 +3,7 @@
 #include <base/DirectXManager.h>
 #include "base/SrvManager.h"
 #include "BaseRenderer.h"
-#include <base/GBufferPass.h>
+#include <base/GBufferManager.h>
 #include <base/PSOManager.h>
 
 
@@ -39,7 +39,7 @@ public:
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 private:
-	std::unique_ptr<GBufferPass> gBufferPass = nullptr;
+	//std::unique_ptr<GBufferPass> gBufferPass = nullptr;
 
 	DirectXManager* dxManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;

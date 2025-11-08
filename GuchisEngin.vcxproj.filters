@@ -522,9 +522,11 @@
     <ClInclude Include="App\GameObject\Player\State\PlayerStateDeath.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
-    <ClInclude Include="Engine\base\GBufferPass.h" />
+    <ClInclude Include="Engine\base\GBufferManager.h" />
     <ClInclude Include="Engine\base\RtvManager.h" />
     <ClInclude Include="Engine\base\DsvManager.h" />
+    <ClInclude Include="Engine\base\GBufferPath.h" />
+    <ClInclude Include="LightingPath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -861,9 +863,11 @@
     <ClCompile Include="App\GameObject\Player\State\PlayerStateDeath.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
-    <ClCompile Include="Engine\base\GBufferPass.cpp" />
+    <ClCompile Include="Engine\base\GBufferManager.cpp" />
     <ClCompile Include="Engine\base\RtvManager.cpp" />
     <ClCompile Include="Engine\base\DsvManager.cpp" />
+    <ClCompile Include="Engine\base\GBufferPath.cpp" />
+    <ClCompile Include="LightingPath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />

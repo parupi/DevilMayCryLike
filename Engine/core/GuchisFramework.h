@@ -14,6 +14,7 @@
 //#include "OffScreen.h"
 #include "base/PSOManager.h"
 #include <3d/SkySystem/SkySystem.h>
+#include <base/GBufferPath.h>
 
 class GuchisFramework
 {
@@ -48,5 +49,6 @@ protected:
 	std::unique_ptr<SrvManager> srvManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
+	std::unique_ptr<GBufferPath> gBufferPath = nullptr;
 };
 

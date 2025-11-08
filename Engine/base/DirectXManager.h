@@ -22,16 +22,16 @@
 class SrvManager;
 class RtvManager;
 
-// DxManager.h
-struct GBuffer {
-	Microsoft::WRL::ComPtr<ID3D12Resource> albedo;
-	Microsoft::WRL::ComPtr<ID3D12Resource> normal;
-	Microsoft::WRL::ComPtr<ID3D12Resource> depth;
-
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2]; // Albedo, Normal
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle;
-	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles[3]; // For lighting pass later
-};
+//// DxManager.h
+//struct GBuffer {
+//	Microsoft::WRL::ComPtr<ID3D12Resource> albedo;
+//	Microsoft::WRL::ComPtr<ID3D12Resource> normal;
+//	Microsoft::WRL::ComPtr<ID3D12Resource> depth;
+//
+//	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2]; // Albedo, Normal
+//	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle;
+//	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles[3]; // For lighting pass later
+//};
 
 class DirectXManager
 {
@@ -80,7 +80,7 @@ private: // メンバ変数
 	Microsoft::WRL::ComPtr<IDxcCompiler3> dxcCompiler_ = nullptr;
 	Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_ = nullptr;
 
-	GBuffer gBuffer_;
+	//GBuffer gBuffer_;
 
 	// 記録時間(FPS固定用)
 	std::chrono::steady_clock::time_point reference_;
@@ -116,8 +116,13 @@ public:
 
 	// オフスクリーン用関数
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format);
+	// GBuffer用のリソース生成関数
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateGBufferResource(UINT width, UINT height, DXGI_FORMAT format);
 
-	const GBuffer& GetGBuffer() const { return gBuffer_; }
+	// シザー矩形
+	D3D12_RECT GetMainScissorRect() const { return scissorRect_; }
+	// ビューポート
+	D3D12_VIEWPORT GetMainViewport() const { return viewport_; }
 
 	/// <summary>
 	///	描画前処理
