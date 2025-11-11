@@ -58,6 +58,9 @@ public:// アクセッサ
 	// DeferredRendering
 	ID3D12RootSignature* GetDeferredSignature() { return deferredSignature_.Get(); }
 	ID3D12PipelineState* GetDeferredPSO();
+	// LightingPath
+	ID3D12RootSignature* GetLightingPathSignature() { return lightingPathSignature_.Get(); }
+	ID3D12PipelineState* GetLightingPathPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -86,7 +89,9 @@ private:
 	// DeferredRendering
 	void CreateDeferredSignature();
 	void CreateDeferredPSO();
-
+	// LightingPath
+	void CreateLightingPathSignature();
+	void CreateLightingPathPSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -118,4 +123,7 @@ private: // データ格納用変数
 	// DeferredRendering
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> deferredSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> deferredPipelineState_;
+	// LightingPath
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> lightingPathSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> lightingPathPipelineState_;
 };

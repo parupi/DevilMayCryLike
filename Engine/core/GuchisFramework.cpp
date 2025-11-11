@@ -9,14 +9,13 @@ void GuchisFramework::Initialize()
 	// DirectXの初期化
 	dxManager = std::make_unique<DirectXManager>();
 	dxManager->Initialize(winManager.get());
-	// SRVマネージャーの初期化
-	srvManager = std::make_unique<SrvManager>();
-	srvManager->Initialize(dxManager.get());
 	// PSOマネージャーの初期化
 	psoManager = std::make_unique<PSOManager>();
 	psoManager->Initialize(dxManager.get());
 
-	//dxManager->CreateSRVForOffScreen(srvManager.get());
+	gBufferManager = std::make_unique<GBufferManager>();
+	gBufferManager->Initialize(dxManager.get());
+
 	// 入力の初期化
 	Input::GetInstance()->Initialize();
 	// Audioの初期化
@@ -27,13 +26,13 @@ void GuchisFramework::Initialize()
 
 void GuchisFramework::Finalize()
 {
-
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
+	gBufferManager->Finalize();
 	psoManager->Finalize();
 	winManager->Finalize();
-	srvManager->Finalize();
-	dxManager->Finalize(); // デバイスが最後
+	
+	dxManager->Finalize();
 }
 
 void GuchisFramework::Update()

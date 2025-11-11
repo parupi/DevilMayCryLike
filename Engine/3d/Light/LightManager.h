@@ -33,6 +33,8 @@ public:
 	void Finalize();
 	// 描画前処理
 	void BindLightsToShader();
+	// ディファ―ド用
+	void BindLightsForDeferred();
 	// ライトの更新処理
 	void UpdateAllLight();
 	// ライトの追加

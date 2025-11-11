@@ -14,11 +14,11 @@ SkySystem* SkySystem::GetInstance()
 	return instance;
 }
 
-void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
+void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 }
 
 void SkySystem::Finalize()

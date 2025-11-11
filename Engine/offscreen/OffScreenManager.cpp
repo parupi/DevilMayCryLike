@@ -12,12 +12,12 @@ OffScreenManager* OffScreenManager::GetInstance()
 	return instance;
 }
 
-void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
+void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
-	assert(dxManager && srvManager);
+	assert(dxManager);
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 
 	// viewport / scissor を初期化（ウィンドウサイズに合わせる）
 	viewport_.Width = WindowManager::kClientWidth;
@@ -151,6 +151,12 @@ void OffScreenManager::DrawPostEffect()
 	cmdList->SetGraphicsRootDescriptorTable(0, finalSrv);
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	cmdList->DrawInstanced(3, 1, 0, 0);
+
+	//// 最終SRVをメンバーに保存しておく（Lightingで使えるように）
+	//finalPostEffectSrv_ = srvHandles_[pong_];
+
+	//// (任意) ここでフラグや状態をセットしておく
+	//didHavePostEffectResult_ = didDraw;
 }
 
 void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect)
@@ -204,7 +210,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTa
 		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 }
 
-uint32_t  OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
+uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
 {
 	// allocate index from RtvManager
 	uint32_t index = dxManager_->GetRtvManager()->Allocate();

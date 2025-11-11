@@ -526,7 +526,7 @@
     <ClInclude Include="Engine\base\RtvManager.h" />
     <ClInclude Include="Engine\base\DsvManager.h" />
     <ClInclude Include="Engine\base\GBufferPath.h" />
-    <ClInclude Include="LightingPath.h" />
+    <ClInclude Include="Engine\base\LightingPath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -867,15 +867,18 @@
     <ClCompile Include="Engine\base\RtvManager.cpp" />
     <ClCompile Include="Engine\base\DsvManager.cpp" />
     <ClCompile Include="Engine\base\GBufferPath.cpp" />
-    <ClCompile Include="LightingPath.cpp" />
+    <ClCompile Include="Engine\base\LightingPath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />
     <FxCompile Include="Resource\shaders\GBuffer.PS.hlsl" />
     <FxCompile Include="Resource\shaders\DeferredLighting.PS.hlsl" />
+    <FxCompile Include="Resource\shaders\Lighting.VS.hlsl" />
+    <FxCompile Include="Resource\shaders\Lighting.PS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resource\shaders\GBuffer.hlsli" />
     <None Include="Resource\shaders\TransformCommon.hlsli" />
+    <None Include="Resource\shaders\Lighting.hlsli" />
   </ItemGroup>
 </Project>

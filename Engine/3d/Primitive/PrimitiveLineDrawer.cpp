@@ -14,11 +14,11 @@ PrimitiveLineDrawer* PrimitiveLineDrawer::GetInstance()
 	return instance;
 }
 
-void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
+void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();

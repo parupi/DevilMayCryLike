@@ -21,7 +21,7 @@ public:
 	// シングルトンインスタンスの取得
 	static TextureManager* GetInstance();
 	// 初期化
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager);
 	// 終了
 	void Finalize();
 

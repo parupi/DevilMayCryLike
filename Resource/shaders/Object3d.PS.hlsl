@@ -99,65 +99,65 @@ PixelShaderOutput main(VertexShaderOutput input)
         [unroll]
         for (int i = 0; i < MAX_DIR_LIGHTS; ++i)
         {
-            if (gDirLights[i].enabled == 0)
-                continue;
+            //if (gDirLights[i].enabled == 0)
+            //    continue;
 
-            float3 lightDir = normalize(-gDirLights[i].direction);
-            float NdotL = dot(normal, lightDir);
-            float diff = pow(NdotL * 0.5f + 0.5f, 2.0f);
+            //float3 lightDir = normalize(-gDirLights[i].direction);
+            //float NdotL = dot(normal, lightDir);
+            //float diff = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
-            float3 halfVector = normalize(lightDir + viewDir);
-            float NdotH = dot(normal, halfVector);
-            float spec = pow(saturate(NdotH), gMaterial.shininess);
+            //float3 halfVector = normalize(lightDir + viewDir);
+            //float NdotH = dot(normal, halfVector);
+            //float spec = pow(saturate(NdotH), gMaterial.shininess);
 
-            finalDiffuse += gMaterial.color.rgb * textureColor.rgb * gDirLights[i].color.rgb * diff * gDirLights[i].intensity;
-            finalSpecular += gDirLights[i].color.rgb * gDirLights[i].intensity * spec;
+            //finalDiffuse += gMaterial.color.rgb * textureColor.rgb * gDirLights[i].color.rgb * diff * gDirLights[i].intensity;
+            //finalSpecular += gDirLights[i].color.rgb * gDirLights[i].intensity * spec;
         }
 
         // Point Lights
         [unroll]
         for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
         {
-            if (gPointLights[i].enabled == 0)
-                continue;
+            //if (gPointLights[i].enabled == 0)
+            //    continue;
 
-            float3 lightVec = input.worldPosition - gPointLights[i].position;
-            float3 lightDir = normalize(lightVec);
-            float distance = length(lightVec);
-            float factor = pow(saturate(-distance / gPointLights[i].radius + 1.0f), gPointLights[i].decay);
+            //float3 lightVec = input.worldPosition - gPointLights[i].position;
+            //float3 lightDir = normalize(lightVec);
+            //float distance = length(lightVec);
+            //float factor = pow(saturate(-distance / gPointLights[i].radius + 1.0f), gPointLights[i].decay);
 
-            float NdotL = dot(normal, -lightDir);
-            float diff = pow(NdotL * 0.5f + 0.5f, 2.0f);
+            //float NdotL = dot(normal, -lightDir);
+            //float diff = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
-            float3 halfVector = normalize(-lightDir + viewDir);
-            float NdotH = dot(normal, halfVector);
-            float spec = pow(saturate(NdotH), gMaterial.shininess);
+            //float3 halfVector = normalize(-lightDir + viewDir);
+            //float NdotH = dot(normal, halfVector);
+            //float spec = pow(saturate(NdotH), gMaterial.shininess);
 
-            finalDiffuse += gPointLights[i].color.rgb * gPointLights[i].intensity * factor * gMaterial.color.rgb * textureColor.rgb * diff;
-            finalSpecular += gPointLights[i].color.rgb * gPointLights[i].intensity * factor * spec;
+            //finalDiffuse += gPointLights[i].color.rgb * gPointLights[i].intensity * factor * gMaterial.color.rgb * textureColor.rgb * diff;
+            //finalSpecular += gPointLights[i].color.rgb * gPointLights[i].intensity * factor * spec;
         }
 
         // Spot Lights
         [unroll]
         for (int i = 0; i < MAX_SPOT_LIGHTS; ++i)
         {
-            if (gSpotLights[i].enabled == 0)
-                continue;
+            //if (gSpotLights[i].enabled == 0)
+            //    continue;
 
-            float3 toSurface = normalize(input.worldPosition - gSpotLights[i].position);
-            float cosAngle = dot(toSurface, gSpotLights[i].direction);
-            float cosFalloffStart = gSpotLights[i].cosAngle * 2.0f;
-            float falloffFactor = pow(saturate((cosAngle - gSpotLights[i].cosAngle) / (cosFalloffStart - gSpotLights[i].cosAngle)), gSpotLights[i].decay);
+            //float3 toSurface = normalize(input.worldPosition - gSpotLights[i].position);
+            //float cosAngle = dot(toSurface, gSpotLights[i].direction);
+            //float cosFalloffStart = gSpotLights[i].cosAngle * 2.0f;
+            //float falloffFactor = pow(saturate((cosAngle - gSpotLights[i].cosAngle) / (cosFalloffStart - gSpotLights[i].cosAngle)), gSpotLights[i].decay);
 
-            float NdotL = dot(normal, -toSurface);
-            float diff = pow(NdotL * 0.5f + 0.5f, 2.0f);
+            //float NdotL = dot(normal, -toSurface);
+            //float diff = pow(NdotL * 0.5f + 0.5f, 2.0f);
 
-            float3 halfVector = normalize(-toSurface + viewDir);
-            float NdotH = dot(normal, halfVector);
-            float spec = pow(saturate(NdotH), gMaterial.shininess);
+            //float3 halfVector = normalize(-toSurface + viewDir);
+            //float NdotH = dot(normal, halfVector);
+            //float spec = pow(saturate(NdotH), gMaterial.shininess);
 
-            finalDiffuse += gSpotLights[i].color.rgb * gSpotLights[i].intensity * falloffFactor * gMaterial.color.rgb * textureColor.rgb * diff;
-            finalSpecular += gSpotLights[i].color.rgb * gSpotLights[i].intensity * falloffFactor * spec;
+            //finalDiffuse += gSpotLights[i].color.rgb * gSpotLights[i].intensity * falloffFactor * gMaterial.color.rgb * textureColor.rgb * diff;
+            //finalSpecular += gSpotLights[i].color.rgb * gSpotLights[i].intensity * falloffFactor * spec;
         }
         
         

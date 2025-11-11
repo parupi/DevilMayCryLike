@@ -58,6 +58,9 @@ void DirectXManager::Initialize(WindowManager* winManager)
 		throw std::runtime_error("Failed to initialize SwapChain.");
 	}
 
+	srvManager_ = std::make_unique<SrvManager>();
+	srvManager_->Initialize(this);
+
 	rtvManager_ = std::make_unique<RtvManager>();
 	rtvManager_->Initialize(this);
 	// RTVの生成
@@ -87,6 +90,7 @@ void DirectXManager::Finalize()
 
 	swapChainManager_.reset();
 
+	srvManager_.reset();
 	rtvManager_.reset();
 	dsvManager_.reset();
 
@@ -481,6 +485,27 @@ void DirectXManager::InitializeDXCCompiler()
 	// 現時点でincludeはしないが、includeに対応するための設定を行っておく
 	hr = dxcUtils_->CreateDefaultIncludeHandler(&includeHandler_);
 	assert(SUCCEEDED(hr));
+}
+
+void DirectXManager::SetMainRTV()
+{
+	auto cmd = GetCommandList();
+	auto rtv = rtvManager_->GetCPUDescriptorHandle(0);
+	cmd->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
+}
+
+void DirectXManager::SetMainDepth(ID3D12DescriptorHeap* dsvHeap)
+{
+	auto cmd = GetCommandList();
+
+	if (dsvHeap == nullptr) {
+		// Depthなし
+		cmd->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
+		return;
+	}
+
+	auto dsv = dsvHeap->GetCPUDescriptorHandleForHeapStart();
+	cmd->OMSetRenderTargets(0, nullptr, FALSE, &dsv);
 }
 
 void DirectXManager::BeginDraw()

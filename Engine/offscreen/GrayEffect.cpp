@@ -10,8 +10,6 @@ GrayEffect::GrayEffect() : BaseOffScreen()
 	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
 
 	CreateEffectResource();
-
-	//isActive_ = true;
 }
 
 GrayEffect::~GrayEffect()

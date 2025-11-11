@@ -3,6 +3,11 @@
 
 const uint32_t SrvManager::kMaxCount = 512;
 
+SrvManager::~SrvManager()
+{
+	Finalize();
+}
+
 void SrvManager::Initialize(DirectXManager* dxManager)
 {
 	dxManager_ = dxManager;

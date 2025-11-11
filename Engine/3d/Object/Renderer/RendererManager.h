@@ -22,7 +22,7 @@ public:
 	// インスタンスの取得
 	static RendererManager* GetInstance();
 	// 初期化処理
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了処理
 	void Finalize();
 	// 更新処理

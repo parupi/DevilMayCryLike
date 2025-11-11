@@ -64,6 +64,15 @@ void LightManager::BindLightsToShader()
 	} else {
 		commandList->SetGraphicsRootConstantBufferView(6, dummySpotLight_->GetGPUVirtualAddress());
 	}
+
+	
+}
+
+void LightManager::BindLightsForDeferred()
+{
+	auto commandList = dxManager_->GetCommandList();
+
+	commandList->SetGraphicsRootConstantBufferView(1, aggregatedDirBuffer_->GetGPUVirtualAddress());
 }
 
 void LightManager::UpdateAllLight()

@@ -26,7 +26,7 @@ public:
 	// インスタンスの取得
 	static SkySystem* GetInstance();
 	// 初期化
-	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了
 	void Finalize();
 

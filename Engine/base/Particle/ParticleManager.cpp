@@ -61,10 +61,10 @@ void ParticleManager::Finalize()
 	Logger::Log("ParticleManager finalized.\n");
 }
 
-void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager)
+void ParticleManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 	psoManager_ = psoManager;
 
 	// リソースの生成と値の設定

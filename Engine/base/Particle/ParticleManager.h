@@ -33,7 +33,7 @@ public:
 	// 終了
 	void Finalize();
 	// 初期化
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 更新
 	void Update();
 	// 描画

@@ -14,13 +14,13 @@ TextureManager* TextureManager::GetInstance()
 	return instance;
 }
 
-void TextureManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
+void TextureManager::Initialize(DirectXManager* dxManager)
 {
 	// SRVの数と同数
 	textureData_.reserve(SrvManager::kMaxCount);
 
 	dxManager_ = dxManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 }
 
 void TextureManager::Finalize()

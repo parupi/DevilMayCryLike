@@ -17,7 +17,7 @@ public:
 	// シングルトンインスタンスの取得
 	static OffScreenManager* GetInstance();
 	// 初期化処理
-	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了
 	void Finalize();
 	// 更新処理
@@ -36,6 +36,9 @@ public:
 	// アクセッサ
 	DirectXManager* GetDXManager() { return dxManager_; }
 	PSOManager* GetPSOManager() { return psoManager_; }
+
+	D3D12_GPU_DESCRIPTOR_HANDLE GetFinalPostEffectSrv() const { return finalPostEffectSrv_; }
+	bool HasPostEffectResult() const { return didHavePostEffectResult_; }
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateOffScreenRenderTarget();
 	uint32_t CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource>);
@@ -55,6 +58,9 @@ private:
 	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles_[2]{};
 	// keep CPU handles for DirectXManager::SetRenderTarget if needed
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
+
+	D3D12_GPU_DESCRIPTOR_HANDLE finalPostEffectSrv_;
+	bool didHavePostEffectResult_ = false;
 
 	// ping/pong indicators
 	int ping_ = 0;

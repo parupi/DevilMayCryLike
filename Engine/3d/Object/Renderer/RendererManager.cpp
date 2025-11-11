@@ -12,14 +12,12 @@ RendererManager* RendererManager::GetInstance()
 	return instance;
 }
 
-void RendererManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager)
+void RendererManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 	psoManager_ = psoManager;
 
-	//gBufferPass = std::make_unique<GBufferPass>();
-	//gBufferPass->Initialize(dxManager_);
 }
 
 void RendererManager::Finalize()

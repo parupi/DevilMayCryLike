@@ -10,7 +10,7 @@ void GBufferPath::Initialize(DirectXManager* dxManager, GBufferManager* gBuffer)
 
 void GBufferPath::Begin()
 {
-	auto commandList = dxManager_->GetCommandContext();
+	auto commandContext = dxManager_->GetCommandContext();
 
 	D3D12_CPU_DESCRIPTOR_HANDLE rtvs[] = {
 		gBuffer_->GetRTVHandle(GBufferManager::GBufferType::Albedo),
@@ -20,19 +20,21 @@ void GBufferPath::Begin()
 	// Depth
 	auto dsv = gBuffer_->GetDSVHandle();
 
-	commandList->SetRenderTargets(rtvs, _countof(rtvs), &dsv);
+	commandContext->SetRenderTargets(rtvs, _countof(rtvs), &dsv);
 
 	// クリア
 	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
-	commandList->ClearRenderTarget(rtvs[0], clearColor);
-	commandList->ClearRenderTarget(rtvs[1], clearColor);
+	commandContext->ClearRenderTarget(rtvs[0], clearColor);
+	commandContext->ClearRenderTarget(rtvs[1], clearColor);
 
-	commandList->ClearDepth(dsv);
+	commandContext->ClearDepth(dsv);
 
-	// ViewPort / Scissor は Backbuffer と同じでよい
-	commandList->SetViewportAndScissor(dxManager_->GetMainViewport(), dxManager_->GetMainScissorRect());
+	// ViewPort / Scissor は BackBuffer と同じでよい
+	commandContext->SetViewportAndScissor(dxManager_->GetMainViewport(), dxManager_->GetMainScissorRect());
 }
 
 void GBufferPath::End()
 {
+	// GeometryPassでGBufferに書き込み終わったので、SRVへ遷移
+	gBuffer_->TransitionAllToReadable();
 }

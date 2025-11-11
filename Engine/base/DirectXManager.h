@@ -19,20 +19,6 @@
 #include <base/RtvManager.h>
 #include "DsvManager.h"
 
-class SrvManager;
-class RtvManager;
-
-//// DxManager.h
-//struct GBuffer {
-//	Microsoft::WRL::ComPtr<ID3D12Resource> albedo;
-//	Microsoft::WRL::ComPtr<ID3D12Resource> normal;
-//	Microsoft::WRL::ComPtr<ID3D12Resource> depth;
-//
-//	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles[2]; // Albedo, Normal
-//	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle;
-//	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles[3]; // For lighting pass later
-//};
-
 class DirectXManager
 {
 public:
@@ -55,6 +41,8 @@ public:
 	RtvManager* GetRtvManager()const { return rtvManager_.get(); }
 	// DSVManagerを取得
 	DsvManager* GetDsvManager()const { return dsvManager_.get(); }
+	// SRVManagerを取得
+	SrvManager* GetSrvManager()const { return srvManager_.get(); }
 private: // メンバ変数
 	// WindowAPI
 	WindowManager* winManager_ = nullptr;
@@ -64,6 +52,8 @@ private: // メンバ変数
 	std::unique_ptr<CommandContext> commandContext_ = nullptr;
 
 	std::unique_ptr<SwapChainManager> swapChainManager_ = nullptr;
+
+	std::unique_ptr<SrvManager> srvManager_ = nullptr;
 
 	std::unique_ptr<RtvManager> rtvManager_ = nullptr;
 
@@ -103,6 +93,10 @@ private:
 
 	void InitializeDXCCompiler();
 public:
+	void SetMainRTV();
+
+	void SetMainDepth(ID3D12DescriptorHeap* dsvHeap);
+
 
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible);
 

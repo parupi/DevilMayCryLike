@@ -23,7 +23,7 @@ private:
 public:
 	static PrimitiveLineDrawer* GetInstance();
 
-	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	void Finalize();
 
 	void BeginDraw();
