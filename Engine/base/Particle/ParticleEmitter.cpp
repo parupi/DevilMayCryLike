@@ -63,6 +63,7 @@ void ParticleEmitter::Emit() const
 
 void ParticleEmitter::UpdateParam() const
 {
+#ifdef USE_IMGUI
 	ImGui::Begin(emitter.name.c_str());
 	if (ImGui::TreeNode("Emitter")) {
 		// Emit Position
@@ -106,4 +107,5 @@ void ParticleEmitter::UpdateParam() const
 	}
 
 	ImGui::End();
+#endif // IMGUI
 }

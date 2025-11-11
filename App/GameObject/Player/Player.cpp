@@ -95,6 +95,14 @@ void Player::Update()
 		return;
 	}
 	
+	// 全攻撃を更新
+	for (auto& state : states_) {
+		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
+		if (attackState) {
+			attackState->UpdateAttackData();
+		}
+	}
+
 	// 現在のステートを更新
 	if (currentState_) {
 		currentState_->Update(*this);
@@ -154,6 +162,7 @@ void Player::DrawEffect()
 
 void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 {
+#ifdef USE_IMGUI
 	const char* attackName = attack->name_.c_str();
 
 	int32_t& pointCount = gv->GetValueRef<int32_t>(attackName, "PointCount");
@@ -244,11 +253,12 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 		std::string message = std::format("{}.json saved.", attackName);
 		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 	}
-
+#endif // IMGUI
 }
 
 void Player::DrawAttackDataEditorUI()
 {
+#ifdef USE_IMGUI
 	// 攻撃ステートを収集
 	std::vector<PlayerStateAttackBase*> attackStates;
 	std::vector<std::string> attackNames;
@@ -284,6 +294,7 @@ void Player::DrawAttackDataEditorUI()
 	}
 
 	ImGui::End();
+#endif // IMGUI
 }
 
 #ifdef _DEBUG

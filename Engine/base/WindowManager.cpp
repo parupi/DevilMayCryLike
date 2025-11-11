@@ -1,16 +1,23 @@
 #include "WindowManager.h"
-#include <imgui/imgui.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 #include "Logger.h"
 #pragma comment(lib, "winmm.lib")
 
+#ifdef USE_IMGUI
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPatam);
+#endif // IMGUI
 
 // ウィンドウプロシ―ジャ
 LRESULT CALLBACK WindowManager::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+#ifdef USE_IMGUI
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
 	}
+#endif // IMGUI
+
 	// メッセージに応じてゲーム固有の処理を行う
 	switch (msg) {
 		// ウィンドウが作成された

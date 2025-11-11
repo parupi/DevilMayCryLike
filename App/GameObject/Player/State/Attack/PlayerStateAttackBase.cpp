@@ -82,9 +82,9 @@ void PlayerStateAttackBase::Update(Player& player)
 	// 攻撃の時間によってフェーズを管理
 	if (time < attackData_.preDelay) {
 		attackPhase_ = AttackPhase::Startup;
-	} else if (time < attackData_.preDelay + attackData_.attackDuration) {
+	} else if (time < (attackData_.preDelay + attackData_.attackDuration)) {
 		attackPhase_ = AttackPhase::Active;
-	} else if (time < attackData_.preDelay + attackData_.attackDuration + attackData_.postDelay) {
+	} else if (time < (attackData_.preDelay + attackData_.attackDuration + attackData_.postDelay)) {
 		attackPhase_ = AttackPhase::Recovery;
 	} else if (time < attackData_.totalDuration) {
 		attackPhase_ = AttackPhase::Cancel;

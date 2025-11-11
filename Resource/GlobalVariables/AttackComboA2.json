@@ -47,8 +47,8 @@
             2.0
         ],
         "NextAttackCount": 1,
-        "NextAttackDelay": 0.3400000035762787,
-        "NextAttackIndex_0": 3,
+        "NextAttackDelay": 0.4000000059604645,
+        "NextAttackIndex_0": 2,
         "NextAttackIndex_1": 0,
         "NextAttackIndex_2": 0,
         "NextAttackIndex_3": -1,
@@ -57,6 +57,6 @@
         "PostDelay": 0.07999999821186066,
         "Posture": 0,
         "PreDelay": 0.07999999821186066,
-        "TotalDuration": 0.699999988079071
+        "TotalDuration": 0.7599999904632568
     }
 }

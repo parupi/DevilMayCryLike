@@ -1,5 +1,7 @@
 #include "SpotLight.h"
+#ifdef USE_IMGUI
 #include <imgui.h>
+#endif // IMGUI
 
 SpotLight::SpotLight(const std::string& name) : BaseLight(name)
 {
@@ -32,6 +34,7 @@ void SpotLight::Update()
 
 void SpotLight::DrawLightEditor()
 {
+#ifdef USE_IMGUI
     ImGui::Begin(name_.c_str());
 
     if (ImGui::TreeNode("Spot Light Settings")) {
@@ -68,6 +71,7 @@ void SpotLight::DrawLightEditor()
     }
 
     ImGui::End();
+#endif // IMGUI
 }
 
 void SpotLight::CreateLightResource()

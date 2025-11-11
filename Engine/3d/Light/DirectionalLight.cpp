@@ -1,5 +1,7 @@
 #include "DirectionalLight.h"
+#ifdef USE_IMGUI
 #include <imgui.h>
+#endif // IMGUI
 
 DirectionalLight::DirectionalLight(const std::string& name) : BaseLight(name)
 {
@@ -24,6 +26,7 @@ void DirectionalLight::Update()
 
 void DirectionalLight::DrawLightEditor()
 {
+#ifdef USE_IMGUI
     ImGui::Begin(name_.c_str());
 
     if (ImGui::TreeNode("Directional Light Settings")) {
@@ -48,6 +51,7 @@ void DirectionalLight::DrawLightEditor()
     }
 
     ImGui::End();
+#endif // IMGUI
 }
 
 void DirectionalLight::CreateLightResource()

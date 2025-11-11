@@ -477,6 +477,7 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 
 void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
 {
+#ifdef USE_IMGUI
 	ImGui::Begin(groupName.c_str());
 
 	if (ImGui::TreeNode("Particle")) {
@@ -586,6 +587,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 	}
 
 	ImGui::End();
+#endif // IMGUI
 }
 
 std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)

@@ -4,7 +4,6 @@
 #include "cmath"
 #include <math/Matrix4x4.h>
 #include <math/Quaternion.h>
-#include <imgui/imgui.h>
 #include <vector>
 
 static const int kColumnWidth = 60;

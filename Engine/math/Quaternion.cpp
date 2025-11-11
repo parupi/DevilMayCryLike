@@ -1,7 +1,9 @@
 #include "Quaternion.h"
 #include <cmath>    // sqrtf
 #include <stdexcept>
-#include <imgui/imgui.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 #include <math/Matrix4x4.h>
 #include <math/Vector3.h>
 #include <numbers>
@@ -224,7 +226,9 @@ Quaternion QuaternionFromMatrix(const Matrix4x4& m)
 
 // ImGuiを使ったクォータニオンの描画
 void PrintOnImGui(const Quaternion& q, const char* label) {
+#ifdef USE_IMGUI
     ImGui::Begin(label);
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f, w: %.2f)", "Quaternion", q.x, q.y, q.z, q.w);
     ImGui::End();
+#endif // IMGUI
 }

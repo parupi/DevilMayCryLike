@@ -1,5 +1,7 @@
 #include "Matrix4x4.h"
-#include <imgui/imgui.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 #include <math/Quaternion.h>
 #include <math/Vector3.h>
 
@@ -89,37 +91,6 @@ Matrix4x4& Matrix4x4::operator*=(float scalar) {
             m[i][j] *= scalar;
     return *this;
 }
-
-//Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion) {
-//    Matrix4x4 rotationMatrix;
-//
-//    float x = quaternion.x;
-//    float y = quaternion.y;
-//    float z = quaternion.z;
-//    float w = quaternion.w;
-//
-//    rotationMatrix.m[0][0] = w * w + x * x - y * y -z * z;
-//    rotationMatrix.m[0][1] = 2.0f * (x * y + w * z);
-//    rotationMatrix.m[0][2] = 2.0f * (x * z - w * y);
-//    rotationMatrix.m[0][3] = 0.0f;
-//
-//    rotationMatrix.m[1][0] = 2.0f * (x * y - w * z);
-//    rotationMatrix.m[1][1] = w * w - x * x + y * y - z * z;
-//    rotationMatrix.m[1][2] = 2.0f * (y * z + w * x);
-//    rotationMatrix.m[1][3] = 0.0f;
-//
-//    rotationMatrix.m[2][0] = 2.0f * (x * z + w * y);
-//    rotationMatrix.m[2][1] = 2.0f * (y * z - w * x);
-//    rotationMatrix.m[2][2] = w * w - x * x - y * y + z * z;
-//    rotationMatrix.m[2][3] = 0.0f;
-//
-//    rotationMatrix.m[3][0] = 0.0f;
-//    rotationMatrix.m[3][1] = 0.0f;
-//    rotationMatrix.m[3][2] = 0.0f;
-//    rotationMatrix.m[3][3] = 1.0f;
-//
-//    return rotationMatrix;
-//}
 
 Matrix4x4 MakeRotateMatrix(const Quaternion& quaternion) {
     Matrix4x4 rotationMatrix;
@@ -337,6 +308,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const
 }
 
 void PrintOnImGui(const Matrix4x4& matrix, const char* label) {
+#ifdef USE_IMGUI
     ImGui::Begin("Matrix4x4");
     ImGui::Text("%s:", label);
     for (int row = 0; row < 4; ++row) {
@@ -344,6 +316,7 @@ void PrintOnImGui(const Matrix4x4& matrix, const char* label) {
             matrix.m[row][0], matrix.m[row][1], matrix.m[row][2], matrix.m[row][3]);
     }
     ImGui::End();
+#endif // IMGUI
 }
 
 Vector3 GetTranslation(const Matrix4x4& matrix)

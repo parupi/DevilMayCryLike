@@ -14,10 +14,10 @@
 void MyGameTitle::Initialize()
 {
 	GuchisFramework::Initialize();
-#ifdef _DEBUG
+#ifdef USE_IMGUI
 	// ImGui初期化
 	ImGuiManager::GetInstance()->Initialize(winManager.get(), dxManager.get());
-#endif // DEBUG
+#endif // IMGUI
 	// 2Dテクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
 	// 3Dテクスチャマネージャーの初期化

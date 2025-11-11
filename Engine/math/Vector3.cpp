@@ -1,5 +1,7 @@
 #include "Vector3.h"
-#include <imgui/imgui.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 #include <math/Quaternion.h>
 
 Vector3 Vector3::operator-() const
@@ -105,7 +107,9 @@ Vector3 Lerp(const Vector3& start, const Vector3& end, float t) {
 
 void PrintOnImGui(const Vector3& v, const char* label)
 {
+#ifdef USE_IMGUI
     ImGui::Begin(label);
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f)", "Vector3", v.x, v.y, v.z);
     ImGui::End();
+#endif // IMGUI
 }
