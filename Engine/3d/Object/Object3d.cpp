@@ -4,6 +4,9 @@
 #include <3d/WorldTransform.h>
 #include <numbers>
 #include "Model/ModelManager.h"
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 
 Object3d::Object3d(std::string objectName)
 {

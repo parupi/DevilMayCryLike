@@ -34,7 +34,17 @@ void Enemy::Update()
 		return;
 	}
 
-	if (!isActive_)return;
+	// 起動する前だったら動かない
+	if (!isActive_) return;
+
+	// 死んだときに関連する全コンポーネントを削除
+	if (!isAlive_) {
+		isAlive = false;
+		GetCollider(name_)->isAlive = false;
+		GetRenderer(name_)->isAlive = false;
+
+		return;
+	}
 
 	slashEmitter_->Update(GetWorldTransform()->GetTranslation());
 

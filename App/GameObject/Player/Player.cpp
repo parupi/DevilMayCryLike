@@ -67,7 +67,7 @@ void Player::Initialize()
 	hitStop_ = std::make_unique<HitStop>();
 
 	titleWord_ = std::make_unique<Sprite>();
-	titleWord_->Initialize("uvChecker.png");
+	titleWord_->Initialize("reticle.png");
 	titleWord_->SetSize({ 32.0f, 32.0f });
 	titleWord_->SetAnchorPoint({ 0.5f, 0.5f });
 
@@ -124,7 +124,7 @@ void Player::Update()
 	// 毎フレーム切っておく
 	onGround_ = false;
 
-	weapon_->Update();
+ 	weapon_->Update();
 	Object3d::Update();
 
 
@@ -460,7 +460,7 @@ int32_t Player::GetAttackStateCount() const
 
 void Player::OnCollisionEnter(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::Ground) {
+	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
 
@@ -501,7 +501,7 @@ void Player::OnCollisionEnter(BaseCollider* other)
 
 void Player::OnCollisionStay(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::Ground) {
+	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
 

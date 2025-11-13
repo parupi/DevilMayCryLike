@@ -4,6 +4,9 @@
 #include <3d/SkySystem/SkySystem.h>
 #include <base/TextureManager.h>
 
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 PrimitiveRenderer::PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName) {
     name_ = renderName;
     localTransform_ = std::make_unique<WorldTransform>();

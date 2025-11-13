@@ -4,6 +4,9 @@
 #include <3d/SkySystem/SkySystem.h>
 #include "3d/Object/Model/ModelStructs.h"
 
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 ModelRenderer::ModelRenderer(const std::string& renderName, const std::string& filePath)
 {
 	localTransform_ = std::make_unique<WorldTransform>();

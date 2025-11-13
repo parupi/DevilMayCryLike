@@ -32,6 +32,13 @@ void RendererManager::Update()
 	
 }
 
+void RendererManager::DeleteAllRenderer()
+{
+	for (auto& renderer : renders_) {
+		renderer->isAlive = false;
+	}
+}
+
 void RendererManager::RemoveDeadObjects()
 {
 	size_t before = renders_.size();

@@ -52,25 +52,35 @@ void Hellkaina::OnCollisionEnter(BaseCollider* other)
 		if (currentState_ != states_["KnockBack"].get()) {
 			ChangeState("KnockBack");
 			hp_ -= player_->GetAttackData().damage;
-			velocity_ = player_->GetAttackData().knockBackSpeed;
+			// プレイヤーの位置に応じて速度を設定
+			Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+			Vector3 direction = Normalize(GetWorldTransform()->GetTranslation() - playerPos);
+			Vector3 newVelocity = direction * player_->GetAttackData().knockBackSpeed.z;
+			velocity_ = newVelocity;
+			// y軸はプレイヤーの位置にかかわらず一定
+			velocity_.y = player_->GetAttackData().knockBackSpeed.y;
 		}
 		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-		slashEmitter_->Emit();
+		//slashEmitter_->Emit();
 	}
 }
 
 void Hellkaina::OnCollisionStay(BaseCollider* other)
 {
+	//RotateVector(player_->GetAttackData().knockBackSpeed, player_->GetWorldTransform()->GetRotation());
 	Enemy::OnCollisionStay(other);
 
-	if (other->category_ == CollisionCategory::PlayerWeapon) {
-		if (currentState_ != states_["KnockBack"].get()) {
-			ChangeState("KnockBack");
-			hp_ -= player_->GetAttackData().damage;
-			// 速度を設定
-			velocity_ = RotateVector(player_->GetAttackData().knockBackSpeed, player_->GetWorldTransform()->GetRotation());
-		}
-	}
+	//if (other->category_ == CollisionCategory::PlayerWeapon) {
+	//	if (currentState_ != states_["KnockBack"].get()) {
+	//		ChangeState("KnockBack");
+	//		hp_ -= player_->GetAttackData().damage;
+	//		// 速度を設定
+	//		Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+	//		Vector3 direction = Normalize(GetWorldTransform()->GetTranslation() - playerPos);
+	//		Vector3 newVelocity = direction * player_->GetAttackData().knockBackSpeed;
+	//		velocity_ = newVelocity;
+	//	}
+	//}
 }
 
 void Hellkaina::OnCollisionExit(BaseCollider* other)

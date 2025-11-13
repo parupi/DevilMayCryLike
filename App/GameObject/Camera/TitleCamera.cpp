@@ -75,4 +75,5 @@ void TitleCamera::Exit()
 	stateTimer_ = 0.0f;
 	stateTime_ = 1.5f;
 	titleState_ = TitleState::Exit;
+	isExit_ = true;
 }

@@ -34,15 +34,15 @@ void TitleUI::Initialize()
 		selectArrows_[i]->SetAnchorPoint({ 0.5f, 0.5f });
 
 		if (i == 0) {
-			selectArrows_[i]->SetPosition({ 530.0f, 520.0f });
+			selectArrows_[i]->SetPosition({ 500.0f, 520.0f });
 		} else {
 			selectArrows_[i]->SetSize({ -32.0f, 32.0f });
-			selectArrows_[i]->SetPosition({ 750.0f, 520.0f });
+			selectArrows_[i]->SetPosition({ 780.0f, 520.0f });
 		}
 	}
 
 	gameStart_ = std::make_unique<Sprite>();
-	gameStart_->Initialize("GameStart.png");
+	gameStart_->Initialize("TitleUI.png");
 	gameStart_->SetPosition({ 640.0f, 520.0f });
 	gameStart_->SetAnchorPoint({ 0.5f, 0.5f });
 

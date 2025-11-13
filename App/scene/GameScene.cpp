@@ -44,6 +44,8 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("MagicEffect.png");
 	TextureManager::GetInstance()->LoadTexture("portal.png");
 	TextureManager::GetInstance()->LoadTexture("DeathText.png");
+	TextureManager::GetInstance()->LoadTexture("GameUI.png");
+	TextureManager::GetInstance()->LoadTexture("reticle.png");
 
 	// ステージの情報を読み込んで生成
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
@@ -61,14 +63,17 @@ void GameScene::Initialize()
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 
 	deathUI_ = std::make_unique<Sprite>();
-	deathUI_->Initialize("DeathText.png");
+	deathUI_->Initialize("GameUI.png");
 	deathUI_->SetAnchorPoint({ 0.5f, 0.5f });
-	deathUI_->SetPosition({ 640.0f, 160.0f });
+	deathUI_->SetSize({ 256.0f, 256.0f });
+	deathUI_->SetPosition({ 128.0f, 592.0f });
 }
 
 void GameScene::Finalize()
 {
 	Object3dManager::GetInstance()->DeleteAllObject();
+	CollisionManager::GetInstance()->DeleteAllCollider();
+	RendererManager::GetInstance()->DeleteAllRenderer();
 	CameraManager::GetInstance()->DeleteAllCamera();
 	LightManager::GetInstance()->DeleteAllLight();
 

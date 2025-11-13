@@ -59,7 +59,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other)
 	}
 
 	if (other->category_ == CollisionCategory::Ground) {
-		smokeEmitter_->Emit();
+		//smokeEmitter_->Emit();
 	}
 }
 

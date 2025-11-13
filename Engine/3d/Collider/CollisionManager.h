@@ -24,6 +24,8 @@ public:
 	void Finalize();
 	void Update();
 
+	void DeleteAllCollider();
+
 	void Draw();
 
 	void AddCollider(std::unique_ptr<BaseCollider> collider);
