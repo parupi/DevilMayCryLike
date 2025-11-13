@@ -5,6 +5,9 @@
 #include <cstring>
 #include <3d/SkySystem/SkySystem.h>
 #include <base/TextureManager.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 
 InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveType type, const std::string& texturePath)
 {

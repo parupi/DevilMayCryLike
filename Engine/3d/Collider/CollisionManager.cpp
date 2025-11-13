@@ -39,6 +39,13 @@ void CollisionManager::Update()
     CheckAllCollisions();
 }
 
+void CollisionManager::DeleteAllCollider()
+{
+    for (auto& collider : colliders_) {
+        collider->isAlive = false;
+    }
+}
+
 void CollisionManager::Draw()
 {
 #ifdef _DEBUG

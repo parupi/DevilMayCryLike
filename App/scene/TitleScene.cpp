@@ -29,12 +29,15 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("TitleUnder.png");
 	TextureManager::GetInstance()->LoadTexture("TitleUp.png");
 	TextureManager::GetInstance()->LoadTexture("SelectArrow.png");
-	TextureManager::GetInstance()->LoadTexture("GameStart.png");
+
 	TextureManager::GetInstance()->LoadTexture("black.png");
 	TextureManager::GetInstance()->LoadTexture("SelectMask.png");
 
+	//TextureManager::GetInstance()->LoadTexture("GameStart.png");
+	TextureManager::GetInstance()->LoadTexture("TitleUI.png");
+
 	// カメラの生成
-	
+
 	cameraManager_->AddCamera(std::make_unique<TitleCamera>("TitleCamera"));
 	cameraManager_->SetActiveCamera("TitleCamera");
 
@@ -122,7 +125,12 @@ void TitleScene::DebugUpdate()
 void TitleScene::ChangePhase()
 {
 	if (!camera_->IsExit()) {
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->IsConnected()) {
+			if (Input::GetInstance()->PushButton(PadNumber::ButtonA)) {
+				camera_->Exit();
+				titleUI_->Exit();
+			}
+		} else if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			camera_->Exit();
 			titleUI_->Exit();
 		}

@@ -44,7 +44,13 @@ void StageStart::Update()
 	if (isComplete_) return;
 
 	// スペースを押したらスキップ
-	if (Input::GetInstance()->TriggerKey(DIK_SPACE) || Input::GetInstance()->TriggerKey(DIK_R)) {
+	if (Input::GetInstance()->IsConnected()) {
+		if (Input::GetInstance()->PushButton(PadNumber::ButtonA)) {
+			CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
+			isComplete_ = true;
+			return;
+		}
+	}else if (Input::GetInstance()->TriggerKey(DIK_SPACE) || Input::GetInstance()->TriggerKey(DIK_R)) {
 		CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
 		isComplete_ = true;
 		return;

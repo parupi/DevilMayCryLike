@@ -49,9 +49,9 @@ public:
 
 private:
 	// ヒットストップの強度
-	float intensity_;
+	float intensity_ = 0.0f;
 	// ヒットストップの最大時間
-	float maxTime_;
+	float maxTime_ = 0.0f;
 	// 現在の経過時間
-	float currentTimer_;
+	float currentTimer_ = 0.0f;
 };

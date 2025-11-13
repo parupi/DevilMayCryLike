@@ -1,5 +1,8 @@
 #include "Material.h"
 #include <base/TextureManager.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 
 Material::Material()
 {
@@ -37,9 +40,10 @@ void Material::Bind()
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
 }
 
-#ifdef _DEBUG
+#ifdef USE_IMGUI
 void Material::DebugGui(uint32_t index)
 {
+
 	std::string label = "Material" + std::to_string(index);
 	if (ImGui::TreeNode(label.c_str())) {
 		if (ImGui::Button("ResetUVRotate")) {

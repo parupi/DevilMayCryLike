@@ -60,7 +60,7 @@ void MyGameTitle::Finalize()
 	ImGuiManager::GetInstance()->Finalize();
 #endif // DEBUG
 	PrimitiveLineDrawer::GetInstance()->Finalize();
-	RendererManager::GetInstance()->Finalize();
+
 	SkySystem::GetInstance()->Finalize();
 
 	// シーン
@@ -75,6 +75,7 @@ void MyGameTitle::Finalize()
 	ModelManager::GetInstance()->Finalize();            
 
 	// 基盤系
+	RendererManager::GetInstance()->Finalize();
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();

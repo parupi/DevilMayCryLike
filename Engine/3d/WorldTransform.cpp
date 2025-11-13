@@ -2,6 +2,9 @@
 #include <math/function.h>
 #include <base/DirectXManager.h>
 #include <3d/Object/Object3dManager.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 
 WorldTransform::~WorldTransform()
 {
