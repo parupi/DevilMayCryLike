@@ -85,7 +85,7 @@ void Model::DrawGBuffer()
 		auto* mat = materials_[mesh->GetMeshData().materialIndex].get();
 		auto cmd = modelLoader_->GetDxManager()->GetCommandList();
 		// マテリアルの情報をくっつける
-		mat->Bind();
+		mat->BindForGBuffer();
 		// メッシュの情報を紐づける
 		mesh->Bind();
 		// 描画

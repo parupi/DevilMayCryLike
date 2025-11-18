@@ -64,6 +64,11 @@ void Mesh::Bind()
 	directXManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
+void Mesh::BindForGBuffer()
+{
+
+}
+
 void Mesh::CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData)
 {
 	skinCluster_ = std::make_unique<SkinCluster>();

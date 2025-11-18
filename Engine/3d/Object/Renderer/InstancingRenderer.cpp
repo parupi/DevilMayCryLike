@@ -60,6 +60,10 @@ void InstancingRenderer::Draw()
     commandList->DrawInstanced(6, static_cast<UINT>(instances_.size()), 0, 0);
 }
 
+void InstancingRenderer::DrawGBuffer()
+{
+}
+
 #ifdef _DEBUG
 void InstancingRenderer::DebugGui(size_t index)
 {

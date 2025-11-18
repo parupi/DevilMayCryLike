@@ -13,6 +13,7 @@ void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager
 	materialData_ = materialData;
 
 	CreateMaterialResource();
+	CreateGBufferMaterialResource();
 }
 
 void Material::Update()
@@ -33,6 +34,14 @@ void Material::Bind()
 {
 	// マテリアルCBufferの場所を指定
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+
+	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
+}
+
+void Material::BindForGBuffer()
+{
+	// マテリアルCBufferの場所を指定
+	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialGBufferResource_->GetGPUVirtualAddress());
 
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
 }
@@ -88,4 +97,14 @@ void Material::CreateMaterialResource()
 
 		// ログ出力
 	Logger::LogBufferCreation("Material", materialResource_.Get(), sizeof(MaterialForGPU));
+}
+
+void Material::CreateGBufferMaterialResource()
+{
+	directXManager_->CreateBufferResource(sizeof(GBufferMaterialParam), materialGBufferResource_);
+	// 書き込むためのアドレスを取得
+	materialGBufferResource_->Map(0, nullptr, reinterpret_cast<void**>(&gBufferMaterialParam_));
+
+	gBufferMaterialParam_->metal = 0.0f;
+	gBufferMaterialParam_->roughness = 1.0f;
 }

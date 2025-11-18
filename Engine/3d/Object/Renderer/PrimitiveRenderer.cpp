@@ -50,6 +50,10 @@ void PrimitiveRenderer::Draw() {
     model_->Draw();
 }
 
+void PrimitiveRenderer::DrawGBuffer()
+{
+}
+
 #ifdef _DEBUG
 void PrimitiveRenderer::DebugGui(size_t index)
 {

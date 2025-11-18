@@ -3,6 +3,7 @@
 #include <base/PSOManager.h>
 #include <base/DirectXManager.h>
 #include "BaseOffScreen.h"
+#include "PostEffectPath.h"
 class OffScreenManager
 {
 private:
@@ -24,13 +25,17 @@ public:
 	void Update();
 	// 描画
 	void DrawPostEffect();
+	// すべてのポストエフェクトを順番に適用
+	void ExecutePostEffects(); 
 	// オフスクリーンの追加
 	void AddEffect(std::unique_ptr<BaseOffScreen> effect);
 	// エフェクトを探す
 	BaseOffScreen* FindEffect(const std::string& name);
-
+	// 全エフェクトを取得
+	std::vector<BaseOffScreen*> GetEffects();
+	// 描画前処理
 	void BeginDrawToPingPong();
-
+	// 描画終了処理
 	void EndDrawToPingPong();
 
 	// アクセッサ
@@ -39,6 +44,16 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetFinalPostEffectSrv() const { return finalPostEffectSrv_; }
 	bool HasPostEffectResult() const { return didHavePostEffectResult_; }
+
+	ID3D12Resource* GetPingBuffer() const { return pingPongBuffers_[ping_].Get(); }
+	D3D12_CPU_DESCRIPTOR_HANDLE GetRtvHandlePing() const { return rtvHandles_[ping_]; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandlePing() const { return srvHandles_[ping_]; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandlePong() const { return srvHandles_[pong_]; }
+	UINT& GetPingIndexRef() { return ping_; }
+	UINT& GetPongIndexRef() { return pong_; }
+	const float* GetClearColor() const { return clearValue_.Color; }
+	const D3D12_VIEWPORT& GetViewport() const { return viewport_; }
+	const D3D12_RECT& GetScissorRect() const { return scissorRect_; }
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateOffScreenRenderTarget();
 	uint32_t CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource>);
@@ -47,31 +62,29 @@ private:
 private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
-	SrvManager* srvManager_ = nullptr;
+	//SrvManager* srvManager_ = nullptr;
 
 	// Ping/Pong buffers
-	Microsoft::WRL::ComPtr<ID3D12Resource> pingPongBuffers_[2];
+	static constexpr UINT kPingPongCount = 2;
+	Microsoft::WRL::ComPtr<ID3D12Resource> pingPongBuffers_[kPingPongCount];
 	uint32_t rtvIndices_[2] = { UINT32_MAX, UINT32_MAX }; // index in rtvManager
 	uint32_t srvIndices_[2] = { UINT32_MAX, UINT32_MAX }; // index in srvManager
 
-	// GPU descriptor handles (for binding SRV to root table)
-	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles_[2]{};
-	// keep CPU handles for DirectXManager::SetRenderTarget if needed
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[2]{};
+	D3D12_CPU_DESCRIPTOR_HANDLE rtvHandles_[kPingPongCount]{};
+	D3D12_GPU_DESCRIPTOR_HANDLE srvHandles_[kPingPongCount]{};
+	UINT ping_ = 0;
+	UINT pong_ = 1;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE finalPostEffectSrv_;
 	bool didHavePostEffectResult_ = false;
 
-	// ping/pong indicators
-	int ping_ = 0;
-	int pong_ = 1;
-
-	// viewport / scissor for offscreen
+	
 	D3D12_VIEWPORT viewport_{};
 	D3D12_RECT scissorRect_{};
 	D3D12_CLEAR_VALUE clearValue_{};
 
 	// effects
 	std::vector<std::unique_ptr<BaseOffScreen>> effects_;
+	std::vector<PostEffectPath*> paths_;
 };
 

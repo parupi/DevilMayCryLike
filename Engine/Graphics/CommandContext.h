@@ -20,6 +20,8 @@ public:
 	void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
 	// レンダーターゲット設定
 	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv);
+	// レンダーターゲット設定
+	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv);
 	// 
 	void SetRenderTargets(const D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, UINT rtvCount, const D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle);
 	// 

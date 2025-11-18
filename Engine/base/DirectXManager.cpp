@@ -72,9 +72,9 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	CreateDepthBuffer();
 
 	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue.Color[0] = 0.6f;
-	clearValue.Color[1] = 0.5f;
-	clearValue.Color[2] = 0.1f;
+	clearValue.Color[0] = powf(0.6f, 2.2f);
+	clearValue.Color[1] = powf(0.5f, 2.2f);
+	clearValue.Color[2] = powf(0.1f, 2.2f);
 	clearValue.Color[3] = 1.0f;
 
 	commandContext_->CreateFence();
@@ -510,29 +510,29 @@ void DirectXManager::SetMainDepth(ID3D12DescriptorHeap* dsvHeap)
 
 void DirectXManager::BeginDraw()
 {
-	// バックバッファのインデックスを取得
-	UINT backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
-	ID3D12Resource* backBuffer = swapChainManager_->GetBackBuffer(backBufferIndex);
+	//// バックバッファのインデックスを取得
+	//UINT backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
+	//ID3D12Resource* backBuffer = swapChainManager_->GetBackBuffer(backBufferIndex);
 
-	// バックバッファのリソースバリアを設定
-	commandContext_->TransitionResource(
-		backBuffer,
-		D3D12_RESOURCE_STATE_PRESENT,
-		D3D12_RESOURCE_STATE_RENDER_TARGET
-	);
+	//// バックバッファのリソースバリアを設定
+	//commandContext_->TransitionResource(
+	//	backBuffer,
+	//	D3D12_RESOURCE_STATE_PRESENT,
+	//	D3D12_RESOURCE_STATE_RENDER_TARGET
+	//);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvManager_->GetDsvHandle();
+	//D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvManager_->GetDsvHandle();
 
-	// 描画ターゲットと深度ステンシルビューの設定
-	commandContext_->SetRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), dsvHandle);
+	//// 描画ターゲットと深度ステンシルビューの設定
+	//commandContext_->SetRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), dsvHandle);
 
-	// レンダーターゲットのクリア
-	commandContext_->ClearRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), clearValue.Color);
+	//// レンダーターゲットのクリア
+	//commandContext_->ClearRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), clearValue.Color);
 
-	// 深度ビューのクリア
-	commandContext_->ClearDepth(dsvHandle);
+	//// 深度ビューのクリア
+	//commandContext_->ClearDepth(dsvHandle);
 
-	// ビューポートとシザーレクトの設定
+	//// ビューポートとシザーレクトの設定
 	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
@@ -550,6 +550,9 @@ void DirectXManager::EndDraw()
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
 		D3D12_RESOURCE_STATE_PRESENT
 	);
+
+		// FPS固定
+	UpdateFixFPS();
 
 	commandContext_->Flush();
 

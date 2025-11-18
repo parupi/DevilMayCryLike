@@ -96,10 +96,12 @@ void SkinnedModel::UpdateSkinningWithCS()
 	}
 }
 
-#ifdef _DEBUG
+
 void SkinnedModel::DrawGBuffer()
 {
 }
+
+#ifdef _DEBUG
 void SkinnedModel::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {

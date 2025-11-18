@@ -64,6 +64,13 @@ void Object3d::Draw()
 	}
 }
 
+void Object3d::DrawForGBuffer()
+{
+	for (size_t i = 0; i < renders_.size(); i++) {
+		renders_[i]->DrawGBuffer();
+	}
+}
+
 void Object3d::ResetObject()
 {
 	for (auto& collider : colliders_) {

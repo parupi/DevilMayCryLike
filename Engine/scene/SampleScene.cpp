@@ -21,8 +21,8 @@ void SampleScene::Initialize()
 {
 	// カメラの生成
 	normalCamera_ = std::make_unique<Camera>("GameCamera");
-	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -25.0f };
-	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
+	normalCamera_->GetTranslate() = { 0.0f, 15.0f, -30.0f };
+	normalCamera_->GetRotate() = { 0.4f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera("GameCamera");
 
@@ -59,11 +59,10 @@ void SampleScene::Initialize()
 	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
-	object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
 
 	// レンダラーの追加
 	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "Terrain"));
 
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
@@ -112,7 +111,8 @@ void SampleScene::Update()
 
 void SampleScene::Draw()
 {
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawSet();
+	Object3dManager::GetInstance()->DrawForGBuffer();
 
 	//RendererManager::GetInstance()->RenderGBufferPass();
 

@@ -242,6 +242,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\base\RtvManager.h" />
     <ClInclude Include="Engine\base\GBufferPath.h" />
     <ClInclude Include="Engine\base\LightingPath.h" />
+    <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -363,6 +364,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Player\State\PlayerStateDeath.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="Engine\base\RtvManager.cpp" />
+    <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

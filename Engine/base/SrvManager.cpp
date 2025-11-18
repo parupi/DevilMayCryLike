@@ -119,3 +119,27 @@ void SrvManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_
 {
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
 }
+
+uint32_t SrvManager::CreateSRVFromResource(ID3D12Resource* pResource, DXGI_FORMAT format, UINT mipLevels)
+{
+	assert(pResource);
+
+	uint32_t index = Allocate();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = mipLevels;
+	srvDesc.Texture2D.PlaneSlice = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	dxManager_->GetDevice()->CreateShaderResourceView(
+		pResource,
+		&srvDesc,
+		GetCPUDescriptorHandle(index)
+	);
+
+	return index;
+}

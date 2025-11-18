@@ -34,7 +34,7 @@ public:
 
 	void SetGraphicsRootDescriptorTable(UINT PootParameterIndex, uint32_t srvIndex);
 
-
+	uint32_t CreateSRVFromResource(ID3D12Resource* pResource, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM, UINT mipLevels = 1);
 public:
 	// 最大SRV数 (最大テクスチャ枚数)
 	static const uint32_t kMaxCount;

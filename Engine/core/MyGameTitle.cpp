@@ -50,7 +50,7 @@ void MyGameTitle::Initialize()
 	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 
 	gBufferPath = std::make_unique<GBufferPath>();
-	gBufferPath->Initialize(dxManager.get(), gBufferManager.get());
+	gBufferPath->Initialize(dxManager.get(), gBufferManager.get(), psoManager.get());
 
 	lightingPath = std::make_unique<LightingPath>();
 	lightingPath->Initialize(dxManager.get(), gBufferManager.get(), psoManager.get());
@@ -111,36 +111,48 @@ void MyGameTitle::Update()
 
 void MyGameTitle::Draw()
 {
+	///---------------------------------------------------------
+	/// OffScreen（ポストエフェクト前の下準備 or 前景エフェクト）
+	///---------------------------------------------------------
 	OffScreenManager::GetInstance()->BeginDrawToPingPong();
 
 	dxManager->GetSrvManager()->BeginDraw();
 	// プリミティブ描画前処理
-	//PrimitiveLineDrawer::GetInstance()->BeginDraw();
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 
+	CollisionManager::GetInstance()->Draw();
+
+	PrimitiveLineDrawer::GetInstance()->EndDraw();
 
 	OffScreenManager::GetInstance()->EndDrawToPingPong();
 
+	///---------------------------------------------------------
+	/// PostEffectPath（Ping-Pong結果から最終1枚に統合）
+	///---------------------------------------------------------
 	dxManager->BeginDraw();
 
-	OffScreenManager::GetInstance()->DrawPostEffect();
+	OffScreenManager::GetInstance()->ExecutePostEffects();
 
-
-
+	///---------------------------------------------------------
+	/// GBufferPath（Deferredの各バッファ生成）
+	///---------------------------------------------------------
+	
+	gBufferPath->SetInputTexture(OffScreenManager::GetInstance()->GetFinalPostEffectSrv());
 	gBufferPath->Begin();
+	gBufferPath->Draw();
 
-
-	// 天球やスカイボックスの描画
-	SkySystem::GetInstance()->Draw();
-	// シーン描画処理
-	SceneManager::GetInstance()->Draw();
-	// シーンの描画が終わった後にトランジションの描画
-	SceneTransitionController::GetInstance()->Draw();
-	//CollisionManager::GetInstance()->Draw();
-
-	//PrimitiveLineDrawer::GetInstance()->EndDraw();
+	//// 天球やスカイボックスの描画
+	//SkySystem::GetInstance()->Draw();
+	//// シーン描画処理
+	//SceneManager::GetInstance()->Draw();
+	//// シーンの描画が終わった後にトランジションの描画
+	//SceneTransitionController::GetInstance()->Draw();
 
 	gBufferPath->End();
 
+	///---------------------------------------------------------
+	/// LightingPath（GBuffer + OffScreen結果を使って最終描画）
+	///---------------------------------------------------------
 	lightingPath->Begin();
 
 	LightManager::GetInstance()->BindLightsForDeferred();
@@ -148,10 +160,16 @@ void MyGameTitle::Draw()
 	lightingPath->DrawDirectionalLight();
 	lightingPath->End();
 
+	///---------------------------------------------------------
+	/// UI, ImGui描画（バックバッファ上で最終）
+	///---------------------------------------------------------
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Draw();
 #endif // DEBUG
 
+	///---------------------------------------------------------
+	/// フレーム終了
+	///---------------------------------------------------------
 	dxManager->EndDraw();
 }
 

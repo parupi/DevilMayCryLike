@@ -27,6 +27,8 @@ public:
 	void Update();
 	// 描画前処理
 	void DrawSet();
+	void DrawForGBuffer();
+
 	// アニメーション用描画前処理
 	void DrawSetForAnimation();
 

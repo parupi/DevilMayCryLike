@@ -13,7 +13,7 @@ public:
 
 	void Draw() override;
 	// GBufferに描画
-	void DrawGBuffer();
+	void DrawGBuffer() override;
 	void SetModel(const std::string& filePath);
 
 #ifdef _DEBUG

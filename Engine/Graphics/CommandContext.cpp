@@ -147,6 +147,11 @@ void CommandContext::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_
 	commandList_->OMSetRenderTargets(1, &rtv, false, &dsv);
 }
 
+void CommandContext::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv)
+{
+	commandList_->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
+}
+
 void CommandContext::SetRenderTargets(const D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, UINT rtvCount, const D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle)
 {
 	if (dsvHandle) {

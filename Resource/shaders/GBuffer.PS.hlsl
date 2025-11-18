@@ -7,9 +7,10 @@ SamplerState samLinear : register(s0);
 // Material param: Roughness / Metal
 cbuffer MaterialParam : register(b0)
 {
-    float roughness;
-    float metal;
-}
+    float roughness; // 4
+    float metal; // 4
+    float2 padding; // 8 → 合計 16 bytes
+};
 
 GBufferOutput main(VSOutput input)
 {

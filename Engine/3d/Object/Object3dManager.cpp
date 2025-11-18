@@ -69,6 +69,13 @@ void Object3dManager::DrawSet()
 	blendMode_ = BlendMode::kNone;
 }
 
+void Object3dManager::DrawForGBuffer()
+{
+	for (auto& object : objects_) {
+		object->DrawForGBuffer();
+	}
+}
+
 void Object3dManager::DrawSetForAnimation()
 {
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetAnimationPSO());			// PSOを設定

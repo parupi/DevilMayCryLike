@@ -527,6 +527,7 @@
     <ClInclude Include="Engine\base\DsvManager.h" />
     <ClInclude Include="Engine\base\GBufferPath.h" />
     <ClInclude Include="Engine\base\LightingPath.h" />
+    <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -868,6 +869,7 @@
     <ClCompile Include="Engine\base\DsvManager.cpp" />
     <ClCompile Include="Engine\base\GBufferPath.cpp" />
     <ClCompile Include="Engine\base\LightingPath.cpp" />
+    <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />

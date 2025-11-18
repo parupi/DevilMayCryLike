@@ -18,6 +18,8 @@ public:
 	void Update();
 
 	void Bind();
+	// GBufferへのバインド
+	void BindForGBuffer();
 
 	void CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
 

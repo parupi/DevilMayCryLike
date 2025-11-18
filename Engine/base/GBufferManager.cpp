@@ -16,6 +16,8 @@ void GBufferManager::Initialize(DirectXManager* dxManager)
 	CreateRTVs();
 	CreateSRVs();
 	CreateDSV();
+
+    TransitionAllToReadable();
 }
 
 void GBufferManager::Finalize()
@@ -65,7 +67,17 @@ void GBufferManager::TransitionAllToRT()
 
     for (size_t i = 0; i < (size_t)GBufferType::Count; ++i) {
         if (!gBufferResources_[i]) continue;
-        // Depthは RenderTarget フラグ付けで作っているものなら遷移する
+
+        DXGI_FORMAT format = gBufferResources_[i]->GetDesc().Format;
+
+        // 深度フォーマットは RenderTarget として扱えないのでスキップ
+        if (format == DXGI_FORMAT_D24_UNORM_S8_UINT ||
+            format == DXGI_FORMAT_D32_FLOAT ||
+            format == DXGI_FORMAT_D32_FLOAT_S8X24_UINT)
+        {
+            continue;
+        }
+
         commandContext->TransitionResource(
             gBufferResources_[i].Get(),
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,

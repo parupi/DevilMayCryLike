@@ -18,6 +18,8 @@ public:
 
 	// 描画
 	void Bind();
+	// GBufferへの描画
+	void BindForGBuffer();
 
 #ifdef _DEBUG
 	void DebugGui(uint32_t index);
@@ -25,11 +27,14 @@ public:
 
 private:
 	void CreateMaterialResource();
+	void CreateGBufferMaterialResource();
 
 private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	Microsoft::WRL::ComPtr<ID3D12Resource> materialGBufferResource_ = nullptr;
 
 	MaterialForGPU* materialForGPU_ = nullptr;
+	GBufferMaterialParam* gBufferMaterialParam_ = nullptr;
 	MaterialData materialData_;
 
 	DirectXManager* directXManager_ = nullptr;
