@@ -1400,13 +1400,16 @@ void PSOManager::CreateDeferredSignature()
 	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// RootParam
-	CD3DX12_DESCRIPTOR_RANGE range[1];
-	range[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // t0 1個
+	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
+	descriptorRange[0].BaseShaderRegister = 0;														// 0から始まる
+	descriptorRange[0].NumDescriptors = 1;															// 数は1つ
+	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;									// SRVを使う
+	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	// Offsetを自動計算
 
 	CD3DX12_ROOT_PARAMETER rootParams[3];
 	rootParams[0].InitAsConstantBufferView(0); // b0
 	rootParams[1].InitAsConstantBufferView(1); // b1
-	rootParams[2].InitAsDescriptorTable(1, &range[0]); // t0
+	rootParams[2].InitAsDescriptorTable(1, &descriptorRange[0]); // t0
 
 	// RootSignature結合
 	CD3DX12_ROOT_SIGNATURE_DESC rsDesc;
@@ -1441,25 +1444,16 @@ void PSOManager::CreateDeferredPSO()
 	std::array<D3D12_INPUT_ELEMENT_DESC, 3> inputElementDescs{};
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
-	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[0].InputSlot = 0;
+	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[0].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	inputElementDescs[0].InstanceDataStepRate = 0;
-	inputElementDescs[1].SemanticName = "NORMAL";
+	inputElementDescs[1].SemanticName = "TEXCOORD";
 	inputElementDescs[1].SemanticIndex = 0;
-	inputElementDescs[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[1].InputSlot = 0;
+	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
 	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[1].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	inputElementDescs[1].InstanceDataStepRate = 0;
-	inputElementDescs[2].SemanticName = "TEXCOORD";
+	inputElementDescs[2].SemanticName = "NORMAL";
 	inputElementDescs[2].SemanticIndex = 0;
-	inputElementDescs[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[2].InputSlot = 0;
+	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
-	inputElementDescs[2].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-	inputElementDescs[2].InstanceDataStepRate = 0;
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs.data();
 	inputLayoutDesc.NumElements = static_cast<UINT>(inputElementDescs.size());
@@ -1482,7 +1476,7 @@ void PSOManager::CreateDeferredPSO()
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 3;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // base/roughness
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // base/roughness
 	psoDesc.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT; // normal/metal
 	psoDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT; // depth(dummy)
 	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;

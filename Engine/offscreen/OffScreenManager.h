@@ -23,8 +23,6 @@ public:
 	void Finalize();
 	// 更新処理
 	void Update();
-	// 描画
-	void DrawPostEffect();
 	// すべてのポストエフェクトを順番に適用
 	void ExecutePostEffects(); 
 	// オフスクリーンの追加

@@ -76,10 +76,6 @@ void LightingPath::Begin()
 
 	// レンダーターゲットのクリア
 	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
-	clearColor[0] = powf(0.6f, 2.2f);
-	clearColor[1] = powf(0.5f, 2.2f);
-	clearColor[2] = powf(0.1f, 2.2f);
-
 	commandContext->ClearRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex), clearColor);
 
 	// 深度ビューのクリア
@@ -131,7 +127,7 @@ void LightingPath::CreateGBufferSRVs()
 	srvManager->CreateSRVforTexture2D(
 		gBufferSrvStartIndex_,
 		gBufferManager_->GetResource(GBufferManager::GBufferType::Albedo),
-		DXGI_FORMAT_R8G8B8A8_UNORM_SRGB,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
 		1
 	);
 

@@ -71,10 +71,10 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	// dsvの生成
 	CreateDepthBuffer();
 
-	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue.Color[0] = powf(0.6f, 2.2f);
-	clearValue.Color[1] = powf(0.5f, 2.2f);
-	clearValue.Color[2] = powf(0.1f, 2.2f);
+	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	clearValue.Color[0] = 0.6;
+	clearValue.Color[1] = 0.5;
+	clearValue.Color[2] = 0.1;
 	clearValue.Color[3] = 1.0f;
 
 	commandContext_->CreateFence();

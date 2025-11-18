@@ -66,7 +66,15 @@ void Mesh::Bind()
 
 void Mesh::BindForGBuffer()
 {
+	if (skinnedMeshData_.skinClusterData.size() == 0) {
+		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	} else {
+		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &skinCluster_->GetSkinCluster().mappedOutputVertex);
+	}
 
+	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
+
+	directXManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Mesh::CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData)

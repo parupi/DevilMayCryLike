@@ -5,16 +5,16 @@
 
 struct VertexInput
 {
-    float3 position : POSITION;
-    float3 normal : NORMAL;
+    float4 position : POSITION;
     float2 uv : TEXCOORD0;
+    float3 normal : NORMAL;
 };
 
 struct VSOutput
 {
     float4 positionCS : SV_POSITION;
-    float3 normalVS : NORMAL0;
     float2 uv : TEXCOORD0;
+    float3 normalVS : NORMAL0;
 };
 
 struct GBufferOutput

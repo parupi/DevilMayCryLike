@@ -65,7 +65,7 @@ bool SwapChainManager::CreateSwapChain()
     swapChainDesc_.Stereo = FALSE;
 
     HRESULT hr = graphicsDevice_->GetFactory()->CreateSwapChainForHwnd(
-        reinterpret_cast<IUnknown*>(commandContext_->GetCommandQueue()), // ✅ 明示的にIUnknownにキャスト
+        reinterpret_cast<IUnknown*>(commandContext_->GetCommandQueue()),
         windowManager_->GetHwnd(),
         &swapChainDesc_,
         nullptr,

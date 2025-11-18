@@ -23,9 +23,9 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 	scissorRect_ = { 0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight };
 
 	clearValue_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue_.Color[0] = powf(0.6f, 2.2f);
-	clearValue_.Color[1] = powf(0.5f, 2.2f);
-	clearValue_.Color[2] = powf(0.1f, 2.2f);
+	clearValue_.Color[0] = 0.6;
+	clearValue_.Color[1] = 0.5;
+	clearValue_.Color[2] = 0.1;
 	clearValue_.Color[3] = 1.0f;
 
 	// ping/pong を作る（リソース作成 → RTV/SRV を Manager を通して作成）
@@ -67,91 +67,6 @@ void OffScreenManager::Update()
 	}
 }
 
-void OffScreenManager::DrawPostEffect()
-{
-	//bool didDraw = false;
-
-	//// 現在描画先は ping_, 入力は pong_
-	//// input SRV は pong_（直前に描画されたバッファ）
-	//D3D12_GPU_DESCRIPTOR_HANDLE inputSrv = srvHandles_[pong_];
-
-	//for (auto& effect : effects_) {
-	//	if (!effect || !effect->IsActive()) continue;
-
-	//	// 1) Set SRV for effect (effect->Draw()は現在のコマンドリストに描画コマンドを出す想定)
-	//	effect->SetInputTexture(inputSrv);
-
-	//	// 2) Make ping_ writable (GENERIC_READ -> RENDER_TARGET), set RTV and clear
-	//	dxManager_->GetCommandContext()->TransitionResource(
-	//		pingPongBuffers_[ping_].Get(),
-	//		D3D12_RESOURCE_STATE_GENERIC_READ,
-	//		D3D12_RESOURCE_STATE_RENDER_TARGET
-	//	);
-
-	//	// set render target + dsv
-	//	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxManager_->GetDsvManager()->GetDsvHandle();
-	//	dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dsvHandle);
-
-	//	// clear
-	//	dxManager_->GetCommandContext()->ClearRenderTarget(rtvHandles_[ping_], clearValue_.Color);
-	//	dxManager_->GetCommandContext()->SetViewportAndScissor(viewport_, scissorRect_);
-
-	//	// 3) Draw effect (effect->Draw は root signature / PSO / SRV を適切に設定するものとする)
-	//	effect->Draw();
-
-	//	// 4) finished -> make ping_ readable again
-	//	dxManager_->GetCommandContext()->TransitionResource(
-	//		pingPongBuffers_[ping_].Get(),
-	//		D3D12_RESOURCE_STATE_RENDER_TARGET,
-	//		D3D12_RESOURCE_STATE_GENERIC_READ
-	//	);
-
-	//	// swap roles for next effect
-	//	std::swap(ping_, pong_);
-
-	//	// update inputSrv for next effect (now the most recent rendered result is at pong_)
-	//	inputSrv = srvHandles_[pong_];
-
-	//	didDraw = true;
-	//}
-
-	//// if nothing drawn, draw a simple full-screen triangle that copies ping_ (or keep previous content)
-	//if (!didDraw) {
-	//	// set PSO + root signature for a fallback draw
-	//	auto cmdList = dxManager_->GetCommandList();
-	//	cmdList->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone));
-	//	cmdList->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
-	//	cmdList->SetGraphicsRootDescriptorTable(0, srvHandles_[ping_]); // show current ping
-	//	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	//	cmdList->DrawInstanced(3, 1, 0, 0);
-	//}
-
-	//// 最終結果は pong_ 側
-	//auto finalSrv = srvHandles_[pong_];
-
-	////// バックバッファを RenderTarget として再セットする
-	////UINT backBufferIndex = dxManager_->GetSwapChainManager()->GetCurrentBackBufferIndex();
-	////auto backRtv = dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex);
-	////auto backDsv = dxManager_->GetDsvManager()->GetDsvHandle();
-
-	////// BackBufferは BeginDraw() でRT状態になっている想定なのでBarrier不要
-	////dxManager_->GetCommandContext()->SetRenderTarget(backRtv, backDsv);
-
-	////// fullscreen triangleを1回だけ描画してfinalSrvをBackBufferへ表示
-	////auto cmdList = dxManager_->GetCommandList();
-	////cmdList->SetPipelineState(psoManager_->GetOffScreenPSO(OffScreenEffectType::kNone));
-	////cmdList->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
-	////cmdList->SetGraphicsRootDescriptorTable(0, finalSrv);
-	////cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	////cmdList->DrawInstanced(3, 1, 0, 0);
-
-	//// 最終SRVをメンバーに保存しておく（Lightingで使えるように）
-	//finalPostEffectSrv_ = srvHandles_[pong_];
-
-	//// (任意) ここでフラグや状態をセットしておく
-	//didHavePostEffectResult_ = didDraw;
-}
-
 void OffScreenManager::ExecutePostEffects()
 {
 	auto* context = dxManager_->GetCommandContext();
@@ -169,12 +84,6 @@ void OffScreenManager::ExecutePostEffects()
 		path->SetViewport(viewport_, scissorRect_);
 
 		path->Execute();
-
-		context->TransitionResource(
-			pingPongBuffers_[ping_].Get(),
-			D3D12_RESOURCE_STATE_RENDER_TARGET,
-			D3D12_RESOURCE_STATE_GENERIC_READ
-		);
 
 		std::swap(ping_, pong_);
 		inputSrv = srvHandles_[pong_];

@@ -24,8 +24,6 @@ public:
 
 	void Finalize();
 
-	void SetGBufferSRVs();
-
 	void TransitionAllToReadable();
 	void TransitionAllToRT();
 
@@ -35,7 +33,6 @@ public:
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandle(GBufferType type) const;
 
 	ID3D12Resource* GetResource(GBufferType type) const;
-	//ID3D12DescriptorHeap* GetSRVHeap() const { return srvHeap_.Get(); }
 
 private:
 	void CreateResources(UINT width, UINT height);
@@ -51,11 +48,9 @@ private:
 
 	// RTV Heap / SRV Heap / DSV Heap
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> rtvHeap_;
-	//Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> srvHeap_;
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> dsvHeap_;
 
 	UINT rtvIncrement_ = 0;
-	//UINT srvIncrement_ = 0;
 	
 };
 

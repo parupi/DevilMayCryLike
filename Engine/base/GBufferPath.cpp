@@ -29,9 +29,7 @@ void GBufferPath::Begin()
 
 	// クリア
 	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
-	clearColor[0] = powf(0.6f, 2.2f);
-	clearColor[1] = powf(0.5f, 2.2f);
-	clearColor[2] = powf(0.1f, 2.2f);
+
 	commandContext->ClearRenderTarget(rtvs[0], clearColor);
 	commandContext->ClearRenderTarget(rtvs[1], clearColor);
 

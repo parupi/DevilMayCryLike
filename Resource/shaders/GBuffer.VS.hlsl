@@ -6,7 +6,7 @@ VSOutput main(VertexInput input)
 {
     VSOutput output;
 
-    float4 worldPos = mul(float4(input.position, 1.0f), World);
+    float4 worldPos = mul(float4(input.position.xyz, 1.0f), World);
     float4 viewPos = mul(worldPos, View);
     output.positionCS = mul(viewPos, Proj);
 

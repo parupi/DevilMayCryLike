@@ -28,18 +28,6 @@ void GBufferManager::Finalize()
     dxManager_ = nullptr;
 }
 
-void GBufferManager::SetGBufferSRVs()
-{
-    auto* commandList = dxManager_->GetCommandList();
-    //ID3D12DescriptorHeap* heaps[] = { srvHeap_.Get() };
-    //commandList->SetDescriptorHeaps(1, heaps);
-    
-
-    ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
-    commandList->SetDescriptorHeaps(1, heaps);
-    commandList->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvManager()->GetGPUDescriptorHandle(0));
-}
-
 void GBufferManager::TransitionAllToReadable()
 {
     auto* commandContext = dxManager_->GetCommandContext();
@@ -88,7 +76,7 @@ void GBufferManager::TransitionAllToRT()
 
 void GBufferManager::CreateResources(UINT width, UINT height)
 {
-	gBufferResources_[(size_t)GBufferType::Albedo] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+	gBufferResources_[(size_t)GBufferType::Albedo] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
 	gBufferResources_[(size_t)GBufferType::Normal] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
     gBufferResources_[(size_t)GBufferType::WorldPos] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
     gBufferResources_[(size_t)GBufferType::Material] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R8G8B8A8_UNORM);

@@ -62,7 +62,7 @@ void SampleScene::Initialize()
 
 	// レンダラーの追加
 	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "Terrain"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "axis"));
 
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
@@ -102,7 +102,7 @@ void SampleScene::Update()
 
 	lightManager_->UpdateAllLight();
 
-	dirLight_ = lightManager_->GetDirectionalLight("dir1");
+	//dirLight_ = lightManager_->GetDirectionalLight("dir1");
 
 #ifdef _DEBUG
 	DebugUpdate();
