@@ -1,6 +1,7 @@
 #include "ClearEvent.h"
 #include <scene/SceneManager.h>
 #include <scene/Transition/SceneTransitionController.h>
+#include <scene/Transition/TransitionManager.h>
 
 ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear)
 {
@@ -15,6 +16,17 @@ void ClearEvent::Update()
 
 	if (currentFrame_ < skipFrames_) {
 		return; // 最初の数フレームは処理しない
+	}
+
+	if (requested_) {
+		waitTime_ += DeltaTime::GetDeltaTime();
+
+		if (waitTime_ >= waitDuration_) {
+			// 一度だけ実行
+			requested_ = false;
+
+			SceneTransitionController::GetInstance()->RequestSceneChange("CLEAR", true);
+		}
 	}
 
 	if (isClear_) return;
@@ -35,7 +47,20 @@ void ClearEvent::Execute()
 {
 	isClear_ = true;
 
-	SceneTransitionController::GetInstance()->RequestSceneChange("TITLE", true);
+	CameraManager::GetInstance()->SetActiveCamera("ClearCamera");
+
+	if (!player_) {
+		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+		if (!player_) return;
+	}
+	player_->Clear();
+
+	// ここでは即遷移せず「遷移予約」だけする
+	requested_ = true;
+	waitTime_ = 0.0f;
+
+	// 最初のフェード開始などは即実行するなら残してOK
+	TransitionManager::GetInstance()->SetTransition("Fade");
 }
 
 void ClearEvent::AddTargetEnemy(Enemy* enemy)

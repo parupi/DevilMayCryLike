@@ -5,6 +5,7 @@
 #include <3d/Light/LightManager.h>
 #include <GameObject/UI/StageStart/StageStart.h>
 #include <GameObject/Player/Player.h>
+#include <GameObject/Camera/ClearCamera.h>
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -60,6 +61,7 @@ public:
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
+	ClearCamera* clearCamera_ = nullptr;
 
 	LightManager* lightManager_ = LightManager::GetInstance(); ///< ライト管理クラス
 

@@ -73,8 +73,14 @@ void PlayerStateAttackBase::Update(Player& player)
 
 		return;
 	}
+
+	// ===== スロー演出のための速度係数 =====
+	float slowFactor = 1.0f;
+	if (player.IsClear()) {
+		slowFactor = 0.2f;   // 20% の速度で動く（お好みで調整）
+	}
 	
-	stateTime_.current += DeltaTime::GetDeltaTime();
+	stateTime_.current += DeltaTime::GetDeltaTime() * slowFactor;
 
 	// 攻撃フェーズの更新処理
 	float time = stateTime_.current;
@@ -103,7 +109,7 @@ void PlayerStateAttackBase::Update(Player& player)
 		// プレイヤーの回転を取得
 		Quaternion rotation = player.GetWorldTransform()->GetRotation();
 		// ローカル速度をワールド座標に変換
-		Vector3 worldVelocity = RotateVector(localVelocity, rotation);
+		Vector3 worldVelocity = RotateVector(localVelocity, rotation) * slowFactor;
 		// 速度を設定
 		player.GetVelocity() = worldVelocity;
 

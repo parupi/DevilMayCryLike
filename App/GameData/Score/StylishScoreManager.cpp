@@ -1,6 +1,7 @@
 #include "StylishScoreManager.h"
 #include <base/utility/DeltaTime.h>
 #include <imgui.h>
+#include <GameData/GameData.h>
 
 void StylishScoreManager::Update()
 {
@@ -11,6 +12,9 @@ void StylishScoreManager::Update()
         currentScore_ = std::max(0, currentScore_ - static_cast<int32_t>(100 * DeltaTime::GetDeltaTime()));
         UpdateRank();
     }
+
+    GameData::GetInstance()->SetClearScore(currentScore_);
+    GameData::GetInstance()->SetClearRank(currentRank_);
 
 #ifdef _DEBUG
     ImGui::Begin("Stylish");

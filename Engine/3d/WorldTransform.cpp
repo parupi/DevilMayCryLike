@@ -95,3 +95,16 @@ Vector3 WorldTransform::GetWorldPos()
 
 	return worldPos_;
 }
+
+Vector3 WorldTransform::GetForward() const
+{
+	// ワールド行列の3列目（Z軸方向）
+	Vector3 forward{
+		matWorld_.m[0][2],
+		matWorld_.m[1][2],
+		matWorld_.m[2][2]
+	};
+
+	// 正規化して返す
+	return Normalize(forward);
+}

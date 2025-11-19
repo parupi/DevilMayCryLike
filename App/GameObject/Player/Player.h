@@ -128,6 +128,8 @@ public:
 	/// </summary>
 	void LockOn();
 
+	void Clear();
+
 	// ======================
 	// アクセッサ
 	// ======================
@@ -148,6 +150,8 @@ public:
 	/// 現在ロックオンしているかどうかを取得する。
 	/// </summary>
 	bool IsLockOn() const { return isLockOn_; }
+
+	bool IsClear() const { return isClear_; }
 
 	/// <summary>
 	/// ヒットストップクラスを取得する。
@@ -178,4 +182,6 @@ private:
 	bool onGround_ = false; ///< 接地判定フラグ
 
 	std::unique_ptr<Sprite> titleWord_; ///< テスト用スプライト（デバッグ表示など）
+
+	bool isClear_ = false;
 };

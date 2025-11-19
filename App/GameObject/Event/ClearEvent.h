@@ -1,6 +1,7 @@
 #pragma once
 #include "BaseEvent.h"
 #include <GameObject/Enemy/Enemy.h>
+#include <GameObject/Player/Player.h>
 
 /// <summary>
 /// 全ての敵を撃破した際に発動するクリアイベント
@@ -36,8 +37,14 @@ public:
 
 private:
 	std::vector<Enemy*> targetEnemies_;
+	Player* player_ = nullptr;
+
 	bool isClear_ = false;
 
 	int skipFrames_ = 30;
 	int currentFrame_ = 0;
+
+	bool requested_ = false;
+	float waitTime_ = 0.0f;
+	float waitDuration_ = 0.5f;
 };
