@@ -18,6 +18,7 @@
 #include <scene/Transition/SceneTransitionController.h>
 #include <2d/SpriteManager.h>
 
+
 void GameScene::Initialize()
 {
 	// カメラの生成
@@ -26,6 +27,11 @@ void GameScene::Initialize()
 	gameCamera->GetRotate() = { 0.5f, -0.005f, 0.0f };
 	gameCamera_ = gameCamera.get();
 	cameraManager_->AddCamera(std::move(gameCamera));
+
+	// カメラの生成
+	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
+	clearCamera_ = clearCamera.get();
+	cameraManager_->AddCamera(std::move(clearCamera));
 
 	stageStart_.Initialize();
 
@@ -87,6 +93,8 @@ void GameScene::Update()
 	lightManager_->UpdateAllLight();
 
 	deathUI_->Update();
+
+	//clearCamera_->Update();
 
 #ifdef _DEBUG
 	DebugUpdate();

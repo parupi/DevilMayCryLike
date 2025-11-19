@@ -522,6 +522,12 @@
     <ClInclude Include="App\GameObject\Player\State\PlayerStateDeath.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
+    <ClInclude Include="App\GameData\GameData.h" />
+    <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
+    <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
+    <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
+    <ClInclude Include="App\GameObject\Camera\ClearCamera.h" />
+    <ClInclude Include="App\GameObject\Player\State\PlayerStateClear.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -858,5 +864,11 @@
     <ClCompile Include="App\GameObject\Player\State\PlayerStateDeath.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
+    <ClCompile Include="App\GameData\GameData.cpp" />
+    <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
+    <ClCompile Include="App\GameObject\Camera\ClearCamera.cpp" />
+    <ClCompile Include="App\GameObject\Player\State\PlayerStateClear.cpp" />
   </ItemGroup>
 </Project>

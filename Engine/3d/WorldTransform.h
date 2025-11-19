@@ -62,6 +62,8 @@ public:
 	void DetachParent() { parent_ = nullptr; }
 
 	Vector3 GetWorldPos();
+
+	Vector3 GetForward() const;
 private:
 	// 定数バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer_;

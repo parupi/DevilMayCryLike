@@ -13,6 +13,7 @@
 #include "State/Attack/PlayerStateAttackBase.h"
 #include <scene/Transition/TransitionManager.h>
 #include "State/PlayerStateDeath.h"
+#include "State/PlayerStateClear.h"
 
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
@@ -29,6 +30,7 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	states_["Jump"] = std::make_unique<PlayerStateJump>();
 	states_["Air"] = std::make_unique<PlayerStateAir>();
 	states_["Death"] = std::make_unique<PlayerStateDeath>();
+	states_["Clear"] = std::make_unique<PlayerStateClear>();
 	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
 	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
 	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
@@ -433,6 +435,11 @@ void Player::LockOn()
 			lockOnEnemy_ = nullptr;
 		}
 	}
+}
+
+void Player::Clear()
+{
+	isClear_ = true;
 }
 
 std::string Player::GetAttackStateNameByIndex(int32_t index) const

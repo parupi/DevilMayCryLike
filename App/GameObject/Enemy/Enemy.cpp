@@ -130,6 +130,15 @@ void Enemy::OnCollisionEnter(BaseCollider* other)
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - enemyOffset;
 		}
 	}
+
+	if (other->category_ == CollisionCategory::PlayerWeapon) {
+
+		hp_--;
+
+		if (hp_ <= 0) {
+			OnDeath();
+		}
+	}
 }
 
 void Enemy::OnCollisionStay(BaseCollider* other)
@@ -175,14 +184,7 @@ void Enemy::OnCollisionStay(BaseCollider* other)
 
 void Enemy::OnCollisionExit(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::PlayerWeapon) {
 
-		hp_--;
-
-		if (hp_ <= 0) {
-			OnDeath();
-		}
-	}
 }
 
 void Enemy::ChangeState(const std::string& stateName)

@@ -1,5 +1,9 @@
 #pragma once
 #include "scene/BaseScene.h"
+#include <2d/Sprite.h>
+#include <vector>
+#include <memory>
+#include <GameObject/UI/ClearUI/ClearUI.h>
 class ClearScene : public BaseScene
 {
 public:
@@ -19,5 +23,9 @@ public:
 #ifdef _DEBUG
 	void DebugUpdate() override;
 #endif // _DEBUG
+
+private:
+	std::unique_ptr<ClearUI> clearUI_;
+
 };
 
