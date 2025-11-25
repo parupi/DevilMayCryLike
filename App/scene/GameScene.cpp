@@ -56,7 +56,7 @@ void GameScene::Initialize()
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
 	// ============ライト=================//
-	lightManager_->CreateDirectionalLight("gameDir");
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("gameDir"));
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 
@@ -79,7 +79,7 @@ void GameScene::Update()
 {
 	stageStart_.Update();
 
-	lightManager_->UpdateAllLight();
+	lightManager_->Update();
 
 	deathUI_->Update();
 

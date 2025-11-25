@@ -641,9 +641,6 @@
     <ClCompile Include="Engine\3d\Collider\SphereCollider.cpp">
       <Filter>Engine\3d\Collider</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3d\Light\BaseLight.cpp">
-      <Filter>Engine\3d\Light</Filter>
-    </ClCompile>
     <ClCompile Include="Engine\3d\Light\DirectionalLight.cpp">
       <Filter>Engine\3d\Light</Filter>
     </ClCompile>

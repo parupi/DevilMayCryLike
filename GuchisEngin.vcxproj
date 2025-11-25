@@ -284,7 +284,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\Collider\AABBCollider.cpp" />
     <ClCompile Include="Engine\3d\Collider\CollisionManager.cpp" />
     <ClCompile Include="Engine\3d\Collider\SphereCollider.cpp" />
-    <ClCompile Include="Engine\3d\Light\BaseLight.cpp" />
     <ClCompile Include="Engine\3d\Light\DirectionalLight.cpp" />
     <ClCompile Include="Engine\3d\Light\LightManager.cpp" />
     <ClCompile Include="Engine\3d\Light\PointLight.cpp" />

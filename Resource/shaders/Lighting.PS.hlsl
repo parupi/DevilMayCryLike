@@ -1,10 +1,72 @@
+// Lighting.PS.hlsl
 #include "Lighting.hlsli"
 
-static const float3 BACKBUFFER_CLEAR_COLOR = float3(0.6f, 0.5f, 0.1f);
+// -------------------------------
+// 各ライトの計算
+// -------------------------------
 
-float3 DecodeNormal(float3 packed)
+// Directional Light
+float3 CalcDirectionalLight(LightData light, float3 N, float3 V, float3 albedo)
 {
-    return normalize(packed * 2.0f - 1.0f);
+    float3 L = normalize(-light.direction);
+    float NdotL = saturate(dot(N, L));
+
+    float3 diffuse = albedo * light.color.rgb * NdotL * light.intensity;
+
+    float3 H = normalize(L + V);
+    float spec = pow(saturate(dot(N, H)), 32.0);
+    float3 specular = spec * light.color.rgb * 0.2;
+
+    return diffuse + specular;
+}
+
+// Point Light
+float3 CalcPointLight(LightData light, float3 P, float3 N, float3 V, float3 albedo)
+{
+    float3 L = light.position - P;
+    float dist = length(L);
+    if (dist > light.radius)
+        return 0;
+
+    L /= dist;
+
+    float atten = 1.0 / (1.0 + light.decay * dist * dist);
+
+    float NdotL = saturate(dot(N, L));
+    float3 diffuse = albedo * light.color.rgb * NdotL * light.intensity * atten;
+
+    float3 H = normalize(L + V);
+    float spec = pow(saturate(dot(N, H)), 32.0);
+    float3 specular = spec * light.color.rgb * atten * 0.2;
+
+    return diffuse + specular;
+}
+
+// Spot Light
+float3 CalcSpotLight(LightData light, float3 P, float3 N, float3 V, float3 albedo)
+{
+    float3 L = light.position - P;
+    float dist = length(L);
+    if (dist > light.distance)
+        return 0;
+
+    L /= dist;
+
+    float spot = dot(normalize(-light.direction), L);
+    if (spot < light.cosAngle)
+        return 0;
+
+    float atten = 1.0 / (1.0 + light.decay * dist * dist);
+    float spotFactor = smoothstep(light.cosAngle, 1.0, spot);
+
+    float NdotL = saturate(dot(N, L));
+    float3 diffuse = albedo * light.color.rgb * NdotL * light.intensity * atten * spotFactor;
+
+    float3 H = normalize(L + V);
+    float spec = pow(saturate(dot(N, H)), 32.0);
+    float3 specular = spec * light.color.rgb * atten * spotFactor * 0.2;
+
+    return diffuse + specular;
 }
 
 // ---------------------------------------------
@@ -14,18 +76,14 @@ float4 main(PSInput input) : SV_Target
 {
     float2 uv = input.uv;
 
-    // worldPos をサンプル（通常は Sample で OK）
     float4 posS = gWorldPos.Sample(sampler_Linear, uv);
-    
-    float3 worldPos = posS.xyz;
+    float3 P = posS.xyz;
 
-    // worldPos がほぼゼロなら "ジオメトリが無い" と判断してクリア色を返す
-    if (length(worldPos) < 1e-4f)
+    if (length(P) < 1e-4f)
     {
         return float4(BACKBUFFER_CLEAR_COLOR, 1.0f);
     }
 
-    // GBuffer 読み出し
     float4 albedoRough = gAlbedo.Sample(sampler_Linear, uv);
     float3 albedo = albedoRough.rgb;
     float roughness = albedoRough.a;
@@ -34,21 +92,24 @@ float4 main(PSInput input) : SV_Target
     float3 N = DecodeNormal(normalMetal.rgb);
     float metal = normalMetal.a;
 
-    float3 L = normalize(-lightDir.xyz);
-    float3 V = normalize(CameraPosWS.xyz - worldPos);
+    float3 V = normalize(CameraPosWS.xyz - P);
 
-    float NdotL = saturate(dot(N, L));
-    float3 diffuse = albedo * lightColor.rgb * NdotL * intensity;
+    float3 finalColor = float3(0.06, 0.06, 0.06); // ambient
 
-    float3 H = normalize(L + V);
-    float specPower = lerp(16.0f, 64.0f, 1.0f - roughness);
-    float spec = pow(saturate(dot(N, H)), specPower);
-    float3 specular = spec * lightColor.rgb * (1.0f - metal) * 0.2f;
+    for (uint i = 0; i < LightCount; i++)
+    {
+        LightData light = Lights[i];
+        if (!light.enabled) continue;
 
-    float3 ambient = float3(0.06f, 0.06f, 0.06f);
+        if (light.type == 0)
+            finalColor += CalcDirectionalLight(light, N, V, albedo);
 
-    float3 color = ambient + diffuse + specular;
-    color = color * albedo;
+        else if (light.type == 1)
+            finalColor += CalcPointLight(light, P, N, V, albedo);
 
-    return float4(color, 1.0f);
+        else if (light.type == 2)
+            finalColor += CalcSpotLight(light, P, N, V, albedo);
+    }
+
+    return float4(finalColor, 1.0f);
 }

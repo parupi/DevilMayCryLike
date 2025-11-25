@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include <memory>
 #include <math/Vector4.h>
 #include <math/Vector3.h>
 #include <wrl.h>
@@ -11,8 +11,7 @@
 #include "PointLight.h"
 #include "SpotLight.h"
 #include <base/DirectXManager.h>
-
-static inline size_t Align256(size_t s);
+#include <vector>
 
 class LightManager
 {
@@ -31,45 +30,34 @@ public:
 	void Initialize(DirectXManager* dxManager);
 	// 終了処理
 	void Finalize();
-	// 描画前処理
-	void BindLightsToShader();
-	// ディファ―ド用
-	void BindLightsForDeferred();
-	// ライトの更新処理
-	void UpdateAllLight();
+	// 更新処理
+	void Update();
 	// ライトの追加
-	// ライト作成
-	DirectionalLight* CreateDirectionalLight(const std::string& name);
-	PointLight* CreatePointLight(const std::string& name);
-	SpotLight* CreateSpotLight(const std::string& name);
-	void CreateDummyLightResources();
-
-	// 取得
-	DirectionalLight* GetDirectionalLight(const std::string& name);
-	PointLight* GetPointLight(const std::string& name);
-	SpotLight* GetSpotLight(const std::string& name);
-
+	void AddLight(std::unique_ptr<BaseLight> light);
+	// 全ライトの削除
 	void DeleteAllLight();
+	// GPU 転送
+	void UploadToGPU();
+	// DescriptorHeap に SRV を作成（構造化バッファ版）
+	void CreateLightBuffer();
+	// ライトデータをGPUにバインド
+	void BindLightsToShader();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
-	// 集約された GPU バッファ（各フレームの描画用）
-	Microsoft::WRL::ComPtr<ID3D12Resource> aggregatedDirBuffer_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> aggregatedPointBuffer_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> aggregatedSpotBuffer_;
+	// すべてのライト
+	std::vector<std::unique_ptr<BaseLight>> lights_;
 
-	std::vector<std::unique_ptr<DirectionalLight>> dirLights_;
-	std::vector< std::unique_ptr<PointLight>> pointLights_;
-	std::vector<std::unique_ptr<SpotLight>> spotLights_;
+	// GPU 用のバッファ（StructuredBuffer）
+	Microsoft::WRL::ComPtr<ID3D12Resource> lightBuffer_;   // LightData 配列
+	Microsoft::WRL::ComPtr<ID3D12Resource> lightCountBuffer_; // ライト数（定数バッファ用）
 
-	// 各ライトのダミーリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> dummyDirLight_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> dummyPointLight_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> dummySpotLight_;
+	// CPU-side temporary buffer
+	std::vector<LightData> gpuLightCache_;
 
-	// 内部ユーティリティ
-	void CreateAggregatedBuffers();
-	void UpdateAggregatedBuffers();
-	void UpdateBuffer(ID3D12Resource* resource, const void* data, size_t size);
+	// ライトの最大数
+	const UINT MaxLights = 256;
+	// srvIndex
+	uint32_t srvIndex_ = 0;
 };
 

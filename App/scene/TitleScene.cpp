@@ -50,9 +50,9 @@ void TitleScene::Initialize()
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
-	lightManager_->CreatePointLight("TitlePoint");
-	lightManager_->CreateDirectionalLight("TitleDir");
-	lightManager_->CreateSpotLight("TitleSpot");
+	lightManager_->AddLight(std::make_unique<PointLight>("TitlePoint"));
+	lightManager_->AddLight(std::make_unique<SpotLight>("TitleSpot"));
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("TitleDir"));
 
 	smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter_->Initialize("TitleSmoke");
@@ -87,7 +87,7 @@ void TitleScene::Update()
 
 	sphereEmitter_->Update();
 
-	lightManager_->UpdateAllLight();
+	lightManager_->Update();
 
 	titleUI_->Update();
 

@@ -1108,14 +1108,19 @@ void PSOManager::CreatePrimitivePSO()
 	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
-	IDxcBlob* vsBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.VS.hlsl", L"vs_6_0");
-	IDxcBlob* psBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.PS.hlsl", L"ps_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
+	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.VS.VS.hlsl", L"vs_6_0");
+	assert(vertexShaderBlob != nullptr);
+
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
+	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.VS.PS.hlsl", L"ps_6_0");
+	assert(pixelShaderBlob != nullptr);
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 	psoDesc.pRootSignature = primitiveSignature_.Get();
 	psoDesc.InputLayout = inputLayoutDesc;
-	psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
-	psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
+	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
 	psoDesc.BlendState = blendDesc;
 	psoDesc.RasterizerState = rasterizerDesc;
 	psoDesc.DepthStencilState = depthStencilDesc;
@@ -1514,30 +1519,52 @@ void PSOManager::CreateLightingPathSignature()
 	samplerDesc.RegisterSpace = 0;
 	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	D3D12_DESCRIPTOR_RANGE ranges[1] = {};
-	ranges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	ranges[0].NumDescriptors = 4;
-	ranges[0].BaseShaderRegister = 0; // t0
-	ranges[0].RegisterSpace = 0;
-	ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	// Descriptor ranges:
+	//  - t0..t3 : GBuffer textures (Albedo, Normal, WorldPos, Material)
+	//  - t4     : Lights StructuredBuffer
+	D3D12_DESCRIPTOR_RANGE descriptorRanges[1] = {};
 
-	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
-	// descriptor table param
+	// range 0: GBuffer SRVs (t0..t3)
+	descriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRanges[0].NumDescriptors = 4;            // t0, t1, t2, t3
+	descriptorRanges[0].BaseShaderRegister = 0;        // start at t0
+	descriptorRanges[0].RegisterSpace = 0;
+	descriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_DESCRIPTOR_RANGE descriptorRanges2[1] = {};
+	// range 1: Lights SRV (t4)
+	descriptorRanges2[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRanges2[0].NumDescriptors = 1;            // t4
+	descriptorRanges2[0].BaseShaderRegister = 4;        // t4
+	descriptorRanges2[0].RegisterSpace = 0;
+	descriptorRanges2[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// RootParameter 作成
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
+
+	// [0] DescriptorTable (GBuffer)
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
-	rootParameters[0].DescriptorTable.pDescriptorRanges = &ranges[0];
+	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(descriptorRanges);
+	rootParameters[0].DescriptorTable.pDescriptorRanges = descriptorRanges;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	// CBV param (b1)
+
+	// [1] Camera CBV (b2)
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[1].Descriptor.ShaderRegister = 1; // b1
+	rootParameters[1].Descriptor.ShaderRegister = 2; // b2
 	rootParameters[1].Descriptor.RegisterSpace = 0;
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	// カメラ
+	// [2] LightCount CBV (b3)
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[2].Descriptor.ShaderRegister = 3; // b3
+	rootParameters[2].Descriptor.RegisterSpace = 0;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[2].Descriptor.ShaderRegister = 2;
+
+	// [4] DescriptorTable (Lights)
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRanges2);
+	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRanges2;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// Root Signature Desc
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
@@ -1547,15 +1574,15 @@ void PSOManager::CreateLightingPathSignature()
 	rootSignatureDesc.NumStaticSamplers = 1;
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
-	ID3DBlob* sigBlob;
-	ID3DBlob* errBlob;
-	HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &sigBlob, &errBlob);
+	// シリアライズしてバイナリにする
+	ID3DBlob* signatureBlob = nullptr;
+	ID3DBlob* errorBlob = nullptr;
+	HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
 	if (FAILED(hr)) {
-		if (errBlob) OutputDebugStringA((char*)errBlob->GetBufferPointer());
+		Logger::Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
-
-	hr = dxManager_->GetDevice()->CreateRootSignature(0, sigBlob->GetBufferPointer(), sigBlob->GetBufferSize(), IID_PPV_ARGS(&lightingPathSignature_));
+	hr = dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),signatureBlob->GetBufferSize(), IID_PPV_ARGS(&lightingPathSignature_));
 	assert(SUCCEEDED(hr));
 }
 
@@ -1563,10 +1590,14 @@ void PSOManager::CreateLightingPathPSO()
 {
 	CreateLightingPathSignature();
 
-	// シェーダコンパイル（DirectXManager::CompileShader を使う）
-	// ファイル "Lighting.hlsl" をプロジェクトに入れておくこと
-	IDxcBlob* vsBlob = dxManager_->CompileShader(L"resource/shaders/Lighting.VS.hlsl", L"vs_6_0");
-	IDxcBlob* psBlob = dxManager_->CompileShader(L"resource/shaders/Lighting.PS.hlsl", L"ps_6_0");
+	// Shaderをコンパイルする
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
+	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Lighting.VS.hlsl", L"vs_6_0");
+	assert(vertexShaderBlob != nullptr);
+
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
+	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Lighting.PS.hlsl", L"ps_6_0");
+	assert(pixelShaderBlob != nullptr);
 
 	// 入力レイアウト（FullScreenVertex）
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
@@ -1576,7 +1607,9 @@ void PSOManager::CreateLightingPathPSO()
 
 	// DepthStencilStateの設定
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable = false;
+	depthStencilDesc.DepthEnable = FALSE;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.StencilEnable = FALSE;
 
 	D3D12_BLEND_DESC blendDesc{};
 	blendDesc.AlphaToCoverageEnable = FALSE;
@@ -1596,17 +1629,15 @@ void PSOManager::CreateLightingPathPSO()
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 	ZeroMemory(&psoDesc, sizeof(psoDesc));
 	psoDesc.pRootSignature = lightingPathSignature_.Get();
-	psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
-	psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
+	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
 	psoDesc.BlendState = blendDesc;
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState = depthStencilDesc;
-	// Lighting pass usually doesn't write depth
-	psoDesc.DepthStencilState.DepthEnable = FALSE;
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 既存と同様
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 	psoDesc.SampleDesc.Count = 1;
 	psoDesc.InputLayout = { inputLayout, _countof(inputLayout) };

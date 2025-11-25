@@ -83,8 +83,9 @@ void SampleScene::Initialize()
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
 
-	lightManager_->CreateDirectionalLight("SampleDir");
-
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
+	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
+	lightManager_->AddLight(std::make_unique<SpotLight>("SampleSpot"));
 
 	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
 	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
@@ -102,7 +103,7 @@ void SampleScene::Update()
 	emitter_->Update();
 
 
-	lightManager_->UpdateAllLight();
+	lightManager_->Update();
 
 	//dirLight_ = lightManager_->GetDirectionalLight("dir1");
 

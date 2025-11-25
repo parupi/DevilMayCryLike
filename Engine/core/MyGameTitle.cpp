@@ -148,7 +148,7 @@ void MyGameTitle::Draw()
 	///---------------------------------------------------------
 	lightingPath->Begin();
 
-	LightManager::GetInstance()->BindLightsForDeferred();
+	LightManager::GetInstance()->BindLightsToShader();
 	CameraManager::GetInstance()->BindCameraToShader();
 
 	lightingPath->DrawDirectionalLight();
