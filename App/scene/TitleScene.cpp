@@ -59,12 +59,15 @@ void TitleScene::Initialize()
 
 	smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter_->Initialize("TitleSmoke");
+	smokeEmitter_->SetParticle("TitleSmoke");
 
 	smokeEmitter2_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter2_->Initialize("TitleSmoke2");
+	smokeEmitter2_->SetParticle("TitleSmoke2");
 
 	sphereEmitter_ = std::make_unique<ParticleEmitter>();
 	sphereEmitter_->Initialize("TitleSphere");
+	sphereEmitter_->SetParticle("TitleSphere");
 
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
 

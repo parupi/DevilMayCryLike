@@ -1,71 +1,62 @@
 {
-    "test": {
+    "hitSmoke": {
         "BlendMode": 2,
-        "Count": 2,
-        "EmitAll": false,
-        "EmitPosition": [
-            0.0,
-            0.0,
-            0.0
-        ],
-        "FadeType": 2,
-        "Frequency": 5.0,
-        "IsActive": false,
-        "IsBillboard": false,
-        "ShrinkStartRatio": 0.29899999499320984,
-        "maxAlpha": 1.0,
+        "FadeType": 1,
+        "IsBillboard": true,
+        "ShrinkStartRatio": 0.0,
+        "maxAlpha": 0.0,
         "maxColor": [
             1.0,
             1.0,
             1.0
         ],
-        "maxLifeTime": 0.4000000059604645,
+        "maxLifeTime": 0.20000000298023224,
         "maxRotate": [
             3.0,
             3.0,
             3.0
         ],
         "maxScale": [
-            0.5,
-            3.0,
-            0.5
+            1.0,
+            1.0,
+            1.0
         ],
         "maxTranslate": [
             0.30000001192092896,
-            3.0,
+            2.700000047683716,
             0.30000001192092896
         ],
         "maxVelocity": [
-            0.0,
-            0.0,
-            0.0
+            0.30000001192092896,
+            0.30000001192092896,
+            0.30000001192092896
         ],
-        "minAlpha": 1.0,
+        "minAlpha": 0.0,
         "minColor": [
             1.0,
             1.0,
             1.0
         ],
-        "minLifeTime": 0.25,
+        "minLifeTime": 0.30000001192092896,
         "minRotate": [
             -3.0,
             -3.0,
             -3.0
         ],
         "minScale": [
-            0.25,
-            2.5,
-            0.25
+            1.0,
+            1.0,
+            1.0
         ],
         "minTranslate": [
             -0.30000001192092896,
-            2.0,
+            3.200000047683716,
             -0.30000001192092896
         ],
         "minVelocity": [
-            0.0,
-            0.0,
-            0.0
+            -0.30000001192092896,
+            -0.30000001192092896,
+            -0.30000001192092896
         ]
     }
 }

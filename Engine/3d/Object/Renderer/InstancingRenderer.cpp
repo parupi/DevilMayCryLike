@@ -26,9 +26,20 @@ void InstancingRenderer::CreateInstanceBuffer()
 {
     auto* dxManager = RendererManager::GetInstance()->GetDxManager();
     size_t bufferSize = sizeof(InstanceData) * 1024; // 1024 instance max
-
     dxManager->CreateBufferResource(bufferSize, instanceBuffer_);
-    instanceBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&mappedInstanceData_));
+   
+    // CreateBufferResource が HRESULT 返さないなら、instanceBuffer_ の有無を確認
+    if (!instanceBuffer_) {
+        assert(false && "instanceBuffer_ is null after CreateBufferResource");
+    }
+
+    // Map の結果をチェック
+    void* mapped = nullptr;
+    HRESULT hr = instanceBuffer_->Map(0, nullptr, &mapped);
+    if (FAILED(hr) || mapped == nullptr) {
+        assert(false && "instanceBuffer_->Map failed");
+    }
+    mappedInstanceData_ = reinterpret_cast<InstanceData*>(mapped);
 
     vbView_.BufferLocation = instanceBuffer_->GetGPUVirtualAddress();
     vbView_.StrideInBytes = sizeof(InstanceData);

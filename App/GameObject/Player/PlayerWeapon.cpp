@@ -19,6 +19,7 @@ void PlayerWeapon::Initialize()
 
 	smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter_->Initialize("smoke");
+	smokeEmitter_->SetParticle("smoke");
 
 	Object3d::Update();
 }
@@ -33,7 +34,7 @@ void PlayerWeapon::Update()
 	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) return;
 
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
-	smokeEmitter_->Update(GetWorldTransform()->GetWorldPos());
+	smokeEmitter_->Update();
 
 	
 	Object3d::Update();
@@ -59,7 +60,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other)
 	}
 
 	if (other->category_ == CollisionCategory::Ground) {
-		//smokeEmitter_->Emit();
+		smokeEmitter_->Emit();
 	}
 }
 

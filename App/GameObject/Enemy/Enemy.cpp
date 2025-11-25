@@ -11,13 +11,12 @@ Enemy::Enemy(std::string objectName) : Object3d(objectName)
 {
 	Object3d::Initialize();
 
-	slashEmitter_ = std::make_unique<ParticleEmitter>();
-	slashEmitter_->Initialize("test");
+
 }
 
 void Enemy::Initialize()
 {
-
+	currentState_ = states_["Air"].get();
 
 }
 
@@ -35,23 +34,26 @@ void Enemy::Update()
 	}
 
 	// 起動する前だったら動かない
-	if (!isActive_) return;
+	if (!isActive_) {
+		return;
+	}
 
 	// 死んだときに関連する全コンポーネントを削除
 	if (!isAlive_) {
 		isAlive = false;
 		GetCollider(name_)->isAlive = false;
 		GetRenderer(name_)->isAlive = false;
-
 		return;
 	}
 
-	slashEmitter_->Update(GetWorldTransform()->GetTranslation());
+	slashEmitter_->Update();
+	smokeEmitter_->Update();
 
 	hitStop_->Update();
 	if (hitStop_->GetHitStopData().isActive) {
 		GetRenderer(name_)->GetWorldTransform()->GetTranslation() = hitStop_->GetHitStopData().translate;
 		Object3d::Update();
+		smokeEmitter_->Emit();
 		return;
 	}
 

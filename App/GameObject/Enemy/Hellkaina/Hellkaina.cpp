@@ -22,9 +22,19 @@ Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 	states_["Move"] = std::make_unique<EnemyStateMove>();
 	states_["Air"] = std::make_unique<EnemyStateAir>();
 	states_["KnockBack"] = std::make_unique<HellkainaStateKnockBack>();
-	currentState_ = states_["Move"].get();
+	currentState_ = states_["Air"].get();
 
 	hp_ = 10.0f;
+
+	slashEmitter_ = std::make_unique<ParticleEmitter>();
+	slashEmitter_->Initialize(name_ + "slash");
+	slashEmitter_->SetParticle("test");
+	slashEmitter_->SetParent(GetWorldTransform());
+
+	smokeEmitter_ = std::make_unique<ParticleEmitter>();
+	smokeEmitter_->Initialize(name_ + "HitSmoke");
+	smokeEmitter_->SetParticle("hitSmoke");
+	smokeEmitter_->SetParent(GetWorldTransform());
 }
 
 void Hellkaina::Initialize()
@@ -35,6 +45,8 @@ void Hellkaina::Initialize()
 	//GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
 	hitStop_ = std::make_unique<HitStop>();
+
+	Enemy::Initialize();
 }
 
 void Hellkaina::Update()
@@ -61,7 +73,7 @@ void Hellkaina::OnCollisionEnter(BaseCollider* other)
 			velocity_.y = player_->GetAttackData().knockBackSpeed.y;
 		}
 		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-		//slashEmitter_->Emit();
+		slashEmitter_->Emit();
 	}
 }
 

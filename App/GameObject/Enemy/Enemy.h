@@ -153,11 +153,15 @@ public:
     /// </summary>
     void SetActive(bool flag) { isActive_ = flag; }
 
+    // 煙を出す
+    void EmitSmoke() { smokeEmitter_->Emit(); }
+
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_; ///< ステート名と対応するステートオブジェクト
     EnemyStateBase* currentState_ = nullptr; ///< 現在のステート
 
     std::unique_ptr<ParticleEmitter> slashEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
+    std::unique_ptr<ParticleEmitter> smokeEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
 
     Player* player_ = nullptr; ///< プレイヤー参照ポインタ
 
