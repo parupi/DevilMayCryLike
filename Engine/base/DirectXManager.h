@@ -75,8 +75,9 @@ private: // メンバ変数
 	// 記録時間(FPS固定用)
 	std::chrono::steady_clock::time_point reference_;
 
-	D3D12_CLEAR_VALUE clearValue{};
-
+	// クリアカラーを設定
+	float r = 0.6f, g = 0.5f, b = 0.1f, a = 1.0f;
+	
 
 private:
 	void InitializeFixFPS();
@@ -111,7 +112,7 @@ public:
 	// オフスクリーン用関数
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateRenderTextureResource(uint32_t width, uint32_t height, DXGI_FORMAT format);
 	// GBuffer用のリソース生成関数
-	Microsoft::WRL::ComPtr<ID3D12Resource> CreateGBufferResource(UINT width, UINT height, DXGI_FORMAT format);
+	Microsoft::WRL::ComPtr<ID3D12Resource> CreateGBufferResource(UINT width, UINT height, D3D12_CLEAR_VALUE clear);
 
 	// シザー矩形
 	D3D12_RECT GetMainScissorRect() const { return scissorRect_; }

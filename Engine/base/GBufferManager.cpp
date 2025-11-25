@@ -22,6 +22,10 @@ void GBufferManager::Initialize(DirectXManager* dxManager)
 
 void GBufferManager::Finalize()
 {
+    for (auto& resource : gBufferResources_) {
+        resource.Reset();
+    }
+
     rtvHeap_.Reset();
     dsvHeap_.Reset();
 
@@ -76,11 +80,42 @@ void GBufferManager::TransitionAllToRT()
 
 void GBufferManager::CreateResources(UINT width, UINT height)
 {
-	gBufferResources_[(size_t)GBufferType::Albedo] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
-	gBufferResources_[(size_t)GBufferType::Normal] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R16G16B16A16_FLOAT);
-    gBufferResources_[(size_t)GBufferType::WorldPos] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
-    gBufferResources_[(size_t)GBufferType::Material] = dxManager_->CreateGBufferResource(width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
-	gBufferResources_[(size_t)GBufferType::Depth] = dxManager_->CreateDepthStencilTextureResource(width, height, DXGI_FORMAT_D24_UNORM_S8_UINT);
+    // Albedo
+    D3D12_CLEAR_VALUE albedoClear{};
+    albedoClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    albedoClear.Color[0] = 0.0f;
+    albedoClear.Color[1] = 0.0f;
+    albedoClear.Color[2] = 0.0f;
+    albedoClear.Color[3] = 1.0f;
+    gBufferResources_[(size_t)GBufferType::Albedo] = dxManager_->CreateGBufferResource(width, height, albedoClear);
+
+    // Normal
+    D3D12_CLEAR_VALUE normalClear{};
+    normalClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    normalClear.Color[0] = 0.5f; // デコード前に0.5固定
+    normalClear.Color[1] = 0.5f;
+    normalClear.Color[2] = 1.0f; // +Z向き
+    normalClear.Color[3] = 1.0f;
+    gBufferResources_[(size_t)GBufferType::Normal] = dxManager_->CreateGBufferResource(width, height, normalClear);
+
+    // WorldPos
+    D3D12_CLEAR_VALUE worldPosClear{};
+    worldPosClear.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    worldPosClear.Color[0] = 0.0f;
+    worldPosClear.Color[1] = 0.0f;
+    worldPosClear.Color[2] = 0.0f;
+    worldPosClear.Color[3] = 1.0f; // alpha は 1.0
+    gBufferResources_[(size_t)GBufferType::WorldPos] = dxManager_->CreateGBufferResource(width, height, worldPosClear);
+
+    // Material
+    D3D12_CLEAR_VALUE materialClear{};
+    materialClear.Format = DXGI_FORMAT_R8G8_UNORM;
+    materialClear.Color[0] = 0.0f;
+    materialClear.Color[1] = 0.0f;
+    gBufferResources_[(size_t)GBufferType::Material] = dxManager_->CreateGBufferResource(width, height, materialClear);
+
+    // Depth
+    gBufferResources_[(size_t)GBufferType::Depth] = dxManager_->CreateDepthStencilTextureResource(width, height, DXGI_FORMAT_D24_UNORM_S8_UINT);
 }
 
 void GBufferManager::CreateRTVs()
@@ -91,6 +126,8 @@ void GBufferManager::CreateRTVs()
     handle.ptr += rtvIncrement_;
 
     dxManager_->GetDevice()->CreateRenderTargetView(gBufferResources_[(size_t)GBufferType::Normal].Get(), nullptr, handle);
+    handle.ptr += rtvIncrement_;
+    dxManager_->GetDevice()->CreateRenderTargetView(gBufferResources_[(size_t)GBufferType::WorldPos].Get(), nullptr, handle);
 }
 
 void GBufferManager::CreateSRVs()

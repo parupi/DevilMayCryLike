@@ -1,15 +1,11 @@
-// TransformCommon.hlsli
-
 #ifndef TRANSFORM_COMMON
 #define TRANSFORM_COMMON
 
-cbuffer TransformCB : register(b1) // b1 = World/Camera用(自分のengineルールで変更してOK)
+cbuffer TransformCB : register(b1)
 {
-    float4x4 World; // local -> world
-    float4x4 View; // world -> view
-    float4x4 Proj; // view  -> clip
-    float4x4 ViewProj; // view * proj (最適化で用意してもいい)
-    float4 CameraPosWS; // camera position WorldSpace (ライティングで使う)
+    float4x4 WVP; // World * View * Proj
+    float4x4 World; // World space transform
+    float4x4 WorldInverseTranspose; // For normals
 };
 
 #endif

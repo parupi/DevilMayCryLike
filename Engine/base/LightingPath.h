@@ -17,7 +17,7 @@ class LightingPath
 {
 public:
 	LightingPath() = default;
-	~LightingPath() = default;
+	~LightingPath();
 
 	void Initialize(DirectXManager* dx, GBufferManager* gBuffer, PSOManager* psoManager);
 

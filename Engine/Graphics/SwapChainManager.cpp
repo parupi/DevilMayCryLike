@@ -55,7 +55,7 @@ bool SwapChainManager::CreateSwapChain()
 {
     swapChainDesc_.Width = WindowManager::kClientWidth;
     swapChainDesc_.Height = WindowManager::kClientHeight;
-    swapChainDesc_.Format = format_;
+    swapChainDesc_.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
     swapChainDesc_.SampleDesc.Count = 1;
     swapChainDesc_.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swapChainDesc_.BufferCount = 2;

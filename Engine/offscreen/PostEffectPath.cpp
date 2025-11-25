@@ -39,10 +39,7 @@ void PostEffectPath::Execute()
     );
 
     // 最終的なSRVハンドルを保持
-    // ---- 最終的なSRV作成 ----
     auto* srvManager = dxManager_->GetSrvManager();
-    outputSrvIndex_ = srvManager->CreateSRVFromResource(outputResource_);
-
     // GPUハンドルを保持しておく（後でLightingPath等が参照）
     outputSrv_ = srvManager->GetGPUDescriptorHandle(outputSrvIndex_);
 }
@@ -62,8 +59,17 @@ void PostEffectPath::SetInputSRV(D3D12_GPU_DESCRIPTOR_HANDLE srv)
 
 void PostEffectPath::SetOutput(ID3D12Resource* target, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
 {
-    outputResource_ = target;
-    rtvHandle_ = rtv;
+    if (outputResource_) {
+        outputResource_ = target;
+        rtvHandle_ = rtv;
+    } else {
+        outputResource_ = target;
+        rtvHandle_ = rtv;
+
+        // ---- 最終的なSRV作成 ----
+        auto* srvManager = dxManager_->GetSrvManager();
+        outputSrvIndex_ = srvManager->CreateSRVFromResource(outputResource_);
+    }
 }
 
 void PostEffectPath::SetViewport(const D3D12_VIEWPORT& vp, const D3D12_RECT& rect)

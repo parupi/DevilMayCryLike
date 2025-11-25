@@ -2,6 +2,16 @@
 #include "GBufferManager.h"
 #include "base/DirectXManager.h"
 #include <offscreen/OffScreenManager.h>
+#include <math/function.h>
+
+LightingPath::~LightingPath()
+{
+	dxManager_ = nullptr;
+	gBufferManager_ = nullptr;
+	psoManager_ = nullptr;
+
+	fullScreenVB_.Reset();
+}
 
 void LightingPath::Initialize(DirectXManager* dx, GBufferManager* gBuffer, PSOManager* psoManager)
 {
@@ -69,17 +79,12 @@ void LightingPath::Begin()
 		D3D12_RESOURCE_STATE_RENDER_TARGET
 	);
 
-	D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dxManager_->GetDsvManager()->GetDsvHandle();
+	// 描画ターゲットの設定（バックバッファへ）
+	commandContext->SetRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex));
 
-	// 描画ターゲットと深度ステンシルビューの設定
-	commandContext->SetRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex), dsvHandle);
-
-	// レンダーターゲットのクリア
+	// バックバッファのクリア（UI等で参照する場合は残す）
 	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
 	commandContext->ClearRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(backBufferIndex), clearColor);
-
-	// 深度ビューのクリア
-	commandContext->ClearDepth(dsvHandle);
 
 	cmd->SetPipelineState(psoManager_->GetLightingPathPSO());
 	cmd->SetGraphicsRootSignature(psoManager_->GetLightingPathSignature());
@@ -100,17 +105,7 @@ void LightingPath::DrawDirectionalLight()
 
 void LightingPath::End()
 {
-	//UINT backBufferIndex = dxManager_->GetSwapChainManager()->GetCurrentBackBufferIndex();
-	//ID3D12Resource* backBuffer = dxManager_->GetSwapChainManager()->GetBackBuffer(backBufferIndex);
 
-	//auto* commandContext = dxManager_->GetCommandContext();
-
-	//// RenderTarget → Present
-	//commandContext->TransitionResource(
-	//	backBuffer,
-	//	D3D12_RESOURCE_STATE_RENDER_TARGET,
-	//	D3D12_RESOURCE_STATE_PRESENT
-	//);
 }
 
 void LightingPath::CreateGBufferSRVs()
@@ -134,7 +129,7 @@ void LightingPath::CreateGBufferSRVs()
 	srvManager->CreateSRVforTexture2D(
 		index1,
 		gBufferManager_->GetResource(GBufferManager::GBufferType::Normal),
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		DXGI_FORMAT_R8G8B8A8_UNORM,
 		1
 	);
 
@@ -148,7 +143,7 @@ void LightingPath::CreateGBufferSRVs()
 	srvManager->CreateSRVforTexture2D(
 		index3,
 		gBufferManager_->GetResource(GBufferManager::GBufferType::Material),
-		DXGI_FORMAT_R8G8B8A8_UNORM,
+		DXGI_FORMAT_R8G8_UNORM,
 		1
 	);
 

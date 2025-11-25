@@ -9,6 +9,9 @@ class PSOManager;
 class GBufferPath
 {
 public:
+	GBufferPath() = default;
+	~GBufferPath();
+
 	void Initialize(DirectXManager* dxManager, GBufferManager* gBuffer, PSOManager* psoManager);
 
 	void Begin();

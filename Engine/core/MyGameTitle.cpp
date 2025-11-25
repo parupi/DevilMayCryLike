@@ -141,13 +141,6 @@ void MyGameTitle::Draw()
 	gBufferPath->Begin();
 	gBufferPath->Draw();
 
-	//// 天球やスカイボックスの描画
-	//SkySystem::GetInstance()->Draw();
-	//// シーン描画処理
-	//SceneManager::GetInstance()->Draw();
-	//// シーンの描画が終わった後にトランジションの描画
-	//SceneTransitionController::GetInstance()->Draw();
-
 	gBufferPath->End();
 
 	///---------------------------------------------------------
@@ -156,6 +149,7 @@ void MyGameTitle::Draw()
 	lightingPath->Begin();
 
 	LightManager::GetInstance()->BindLightsForDeferred();
+	CameraManager::GetInstance()->BindCameraToShader();
 
 	lightingPath->DrawDirectionalLight();
 	lightingPath->End();

@@ -1,28 +1,31 @@
-// GBufferPS.hlsl
 #include "GBuffer.hlsli"
 
 Texture2D baseColorMap : register(t0);
 SamplerState samLinear : register(s0);
 
-// Material param: Roughness / Metal
 cbuffer MaterialParam : register(b0)
 {
-    float roughness; // 4
-    float metal; // 4
-    float2 padding; // 8 → 合計 16 bytes
+    float roughness;
+    float metal;
+    float2 padding;
 };
 
 GBufferOutput main(VSOutput input)
 {
-    GBufferOutput o;
+    GBufferOutput output;
 
-    float4 baseColor = baseColorMap.Sample(samLinear, input.uv);
+    // ------- Albedo -------
+    float4 baseColor = baseColorMap.Sample(samLinear, input.uv_and_pad.xy);
 
-    o.baseColor_Roughness = float4(baseColor.rgb, roughness);
-    o.normal_Metal = float4(normalize(input.normalVS) * 0.5f + 0.5f, metal);
+    output.baseColor_Roughness = float4(baseColor.rgb, roughness);
 
-    // depth (or linear depth)　好きなパターン
-    o.depthDummy = float4(input.positionCS.z / input.positionCS.w, 0, 0, 0);
+    // ------- Normal -------
+    float3 normalWS = normalize(input.normalWS.xyz);
+    float3 packedNormal = normalWS * 0.5f + 0.5f;
+    output.normal_Metal = float4(packedNormal, metal);
 
-    return o;
+    // ------- World Pos -------
+    output.worldPos_Padding = input.worldPosWS;
+
+    return output;
 }

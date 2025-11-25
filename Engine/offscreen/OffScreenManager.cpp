@@ -1,5 +1,6 @@
 #include "OffScreenManager.h"
 #include "base/SrvManager.h"
+#include <math/function.h>
 
 OffScreenManager* OffScreenManager::instance = nullptr;
 std::once_flag OffScreenManager::initInstanceFlag;
@@ -23,9 +24,9 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 	scissorRect_ = { 0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight };
 
 	clearValue_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue_.Color[0] = 0.6;
-	clearValue_.Color[1] = 0.5;
-	clearValue_.Color[2] = 0.1;
+	clearValue_.Color[0] = 0.6f;
+	clearValue_.Color[1] = 0.5f;
+	clearValue_.Color[2] = 0.1f;
 	clearValue_.Color[3] = 1.0f;
 
 	// ping/pong を作る（リソース作成 → RTV/SRV を Manager を通して作成）

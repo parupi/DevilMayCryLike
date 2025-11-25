@@ -113,7 +113,7 @@ Camera* CameraManager::GetActiveCamera() const
 void CameraManager::BindCameraToShader()
 {
 	// cameraの場所を指定
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(3, cameraResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(2, cameraResource_->GetGPUVirtualAddress());
 }
 
 void CameraManager::DeleteAllCamera()

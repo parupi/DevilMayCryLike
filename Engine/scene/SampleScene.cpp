@@ -57,17 +57,17 @@ void SampleScene::Initialize()
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
 	// オブジェクトを生成
-	object_ = std::make_unique<Object3d>("obj1");
-	object_->Initialize();
+	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("obj1");
+	object->Initialize();
 
 	// レンダラーの追加
 	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "axis"));
 
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
 	// モデルとアニメーション取得
-	SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
+	SkinnedModel* model = static_cast<SkinnedModel*>(object->GetRenderer("render")->GetModel());
 	Animation* anim = model->GetAnimation();
 
 	anim->Play("Falling", true, 0.5f);
@@ -75,8 +75,10 @@ void SampleScene::Initialize()
 	for (int32_t i = 0; i < 1; i++) {
 		model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
 	}
+
+	object_ = object.get();
 	// ゲームオブジェクトを追加
-	Object3dManager::GetInstance()->AddObject(std::move(object_));
+	Object3dManager::GetInstance()->AddObject(std::move(object));
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
@@ -134,9 +136,9 @@ void SampleScene::DrawRTV()
 #ifdef _DEBUG
 void SampleScene::DebugUpdate()
 {
-	//ImGui::Begin("Object");
-	//object_->DebugGui();
-	//ImGui::End();
+	ImGui::Begin("Object");
+	object_->DebugGui();
+	ImGui::End();
 
 	//ImGui::Begin("Object2");
 	//object2_->DebugGui();

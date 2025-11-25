@@ -874,7 +874,6 @@
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />
     <FxCompile Include="Resource\shaders\GBuffer.PS.hlsl" />
-    <FxCompile Include="Resource\shaders\DeferredLighting.PS.hlsl" />
     <FxCompile Include="Resource\shaders\Lighting.VS.hlsl" />
     <FxCompile Include="Resource\shaders\Lighting.PS.hlsl" />
   </ItemGroup>

@@ -42,7 +42,7 @@ private:
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 
-	std::unique_ptr<Object3d> object_;
+	Object3d* object_;
 
 	DirectionalLight* dirLight_;
 

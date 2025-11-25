@@ -29,6 +29,8 @@ void GuchisFramework::Finalize()
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
 	gBufferManager->Finalize();
+	gBufferPath.reset();
+	lightingPath.reset();
 	psoManager->Finalize();
 	winManager->Finalize();
 	

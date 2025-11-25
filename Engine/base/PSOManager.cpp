@@ -1218,7 +1218,7 @@ void PSOManager::CreateSkyboxPSO()
 	D3D12_BLEND_DESC blendDesc{};
 	// すべての色要素を書き込む
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].BlendEnable = true;
 	// ノーマルブレンド
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
@@ -1442,21 +1442,35 @@ void PSOManager::CreateDeferredPSO()
 	// 3) Input Layout (例：位置, 法線, UV)
 	// -----------------------------
 	std::array<D3D12_INPUT_ELEMENT_DESC, 3> inputElementDescs{};
+
+	// POSITION
 	inputElementDescs[0].SemanticName = "POSITION";
 	inputElementDescs[0].SemanticIndex = 0;
 	inputElementDescs[0].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	inputElementDescs[0].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[0].AlignedByteOffset = 0;
+	inputElementDescs[0].InputSlot = 0;
+	inputElementDescs[0].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElementDescs[0].InstanceDataStepRate = 0;
+	// TEXCOORD0
 	inputElementDescs[1].SemanticName = "TEXCOORD";
 	inputElementDescs[1].SemanticIndex = 0;
 	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[1].AlignedByteOffset = 16;
+	inputElementDescs[1].InputSlot = 0;
+	inputElementDescs[1].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElementDescs[1].InstanceDataStepRate = 0;
+	// NORMAL
 	inputElementDescs[2].SemanticName = "NORMAL";
 	inputElementDescs[2].SemanticIndex = 0;
 	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
+	inputElementDescs[2].AlignedByteOffset = 24;
+	inputElementDescs[2].InputSlot = 0;
+	inputElementDescs[2].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+	inputElementDescs[2].InstanceDataStepRate = 0;
+
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs.data();
-	inputLayoutDesc.NumElements = static_cast<UINT>(inputElementDescs.size());
+	inputLayoutDesc.NumElements = (UINT)inputElementDescs.size();
 
 	// -----------------------------
 	// 4) PSO 設定
@@ -1476,9 +1490,9 @@ void PSOManager::CreateDeferredPSO()
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 3;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // base/roughness
-	psoDesc.RTVFormats[1] = DXGI_FORMAT_R16G16B16A16_FLOAT; // normal/metal
-	psoDesc.RTVFormats[2] = DXGI_FORMAT_R16G16B16A16_FLOAT; // depth(dummy)
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM; // Albedo
+	psoDesc.RTVFormats[1] = DXGI_FORMAT_R8G8B8A8_UNORM; // Normal 
+	psoDesc.RTVFormats[2] = DXGI_FORMAT_R32G32B32A32_FLOAT; // WorldPos  
 	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	psoDesc.SampleDesc.Count = 1;
 
@@ -1508,7 +1522,7 @@ void PSOManager::CreateLightingPathSignature()
 	ranges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameter作成。複数設定できるので配列。
-	D3D12_ROOT_PARAMETER rootParameters[2] = {};
+	D3D12_ROOT_PARAMETER rootParameters[3] = {};
 	// descriptor table param
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -1519,6 +1533,11 @@ void PSOManager::CreateLightingPathSignature()
 	rootParameters[1].Descriptor.ShaderRegister = 1; // b1
 	rootParameters[1].Descriptor.RegisterSpace = 0;
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// カメラ
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[2].Descriptor.ShaderRegister = 2;
 
 	// Root Signature Desc
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
@@ -1555,14 +1574,33 @@ void PSOManager::CreateLightingPathPSO()
 		{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
 	};
 
+	// DepthStencilStateの設定
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	depthStencilDesc.DepthEnable = false;
+
+	D3D12_BLEND_DESC blendDesc{};
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.IndependentBlendEnable = FALSE;
+	for (int i = 0; i < D3D12_SIMULTANEOUS_RENDER_TARGET_COUNT; ++i) {
+		blendDesc.RenderTarget[i].BlendEnable = FALSE;
+		blendDesc.RenderTarget[i].LogicOpEnable = FALSE;
+		blendDesc.RenderTarget[i].SrcBlend = D3D12_BLEND_ONE;
+		blendDesc.RenderTarget[i].DestBlend = D3D12_BLEND_ZERO;
+		blendDesc.RenderTarget[i].BlendOp = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[i].SrcBlendAlpha = D3D12_BLEND_ONE;
+		blendDesc.RenderTarget[i].DestBlendAlpha = D3D12_BLEND_ZERO;
+		blendDesc.RenderTarget[i].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		blendDesc.RenderTarget[i].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+	}
+
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
 	ZeroMemory(&psoDesc, sizeof(psoDesc));
 	psoDesc.pRootSignature = lightingPathSignature_.Get();
 	psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
 	psoDesc.PS = { psBlob->GetBufferPointer(), psBlob->GetBufferSize() };
-	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = blendDesc;
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState = depthStencilDesc;
 	// Lighting pass usually doesn't write depth
 	psoDesc.DepthStencilState.DepthEnable = FALSE;
 	psoDesc.SampleMask = UINT_MAX;

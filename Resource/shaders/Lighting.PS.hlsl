@@ -1,52 +1,54 @@
 #include "Lighting.hlsli"
 
-SamplerState sampler_Linear : register(s0);
+static const float3 BACKBUFFER_CLEAR_COLOR = float3(0.6f, 0.5f, 0.1f);
 
-Texture2D<float4> gAlbedo : register(t0);
-Texture2D<float4> gNormal : register(t1);
-Texture2D<float4> gWorldPos : register(t2);
-Texture2D<float4> gMaterial : register(t3);
-
-cbuffer DirectionalLightCB : register(b1)
+float3 DecodeNormal(float3 packed)
 {
-    float4 lightColor;
-    float4 lightDir;
-    float intensity;
-    int enabled;
-    float2 padding;
-};
+    return normalize(packed * 2.0f - 1.0f);
+}
 
-static const float3 ambientColor = float3(0.06f, 0.06f, 0.06f);
-
+// ---------------------------------------------
+// メインパス
+// ---------------------------------------------
 float4 main(PSInput input) : SV_Target
 {
     float2 uv = input.uv;
-    
-    float4 albedo = gAlbedo.Sample(sampler_Linear, uv);
-    float4 nrmS = gNormal.Sample(sampler_Linear, uv);
+
+    // worldPos をサンプル（通常は Sample で OK）
     float4 posS = gWorldPos.Sample(sampler_Linear, uv);
-    float4 mat = gMaterial.Sample(sampler_Linear, uv);
+    
+    float3 worldPos = posS.xyz;
 
-     // reconstruct normal (assume stored in xyz)
-    float3 N = normalize(nrmS.xyz);
+    // worldPos がほぼゼロなら "ジオメトリが無い" と判断してクリア色を返す
+    if (length(worldPos) < 1e-4f)
+    {
+        return float4(BACKBUFFER_CLEAR_COLOR, 1.0f);
+    }
 
-    // directional light vector (assume lightDir is direction TO light). For Lambert, use L = normalize(lightDir)
-    float3 L = normalize(lightDir.xyz);
+    // GBuffer 読み出し
+    float4 albedoRough = gAlbedo.Sample(sampler_Linear, uv);
+    float3 albedo = albedoRough.rgb;
+    float roughness = albedoRough.a;
+
+    float4 normalMetal = gNormal.Sample(sampler_Linear, uv);
+    float3 N = DecodeNormal(normalMetal.rgb);
+    float metal = normalMetal.a;
+
+    float3 L = normalize(-lightDir.xyz);
+    float3 V = normalize(CameraPosWS.xyz - worldPos);
 
     float NdotL = saturate(dot(N, L));
-    float3 diffuse = albedo.rgb * lightColor.rgb * NdotL * intensity;
+    float3 diffuse = albedo * lightColor.rgb * NdotL * intensity;
 
-    // simple specular (Blinn-Phong) using view direction approx from worldpos towards camera at origin (if camera not at origin, pass camera pos later)
-    float3 V = normalize(-posS.xyz); // NOTE: assumes camera at origin; for accurate result pass camera pos uniform
     float3 H = normalize(L + V);
-    float specPower = lerp(16.0f, 64.0f, mat.r); // example use of material.r as gloss
+    float specPower = lerp(16.0f, 64.0f, 1.0f - roughness);
     float spec = pow(saturate(dot(N, H)), specPower);
-    float3 specular = spec * lightColor.rgb * 0.2f;
+    float3 specular = spec * lightColor.rgb * (1.0f - metal) * 0.2f;
 
-    float3 color = ambientColor + diffuse + specular;
+    float3 ambient = float3(0.06f, 0.06f, 0.06f);
 
-    // apply albedo and material emission (material.a used as emissive)
-    color = color * albedo.rgb + mat.a * albedo.rgb * 0.0f;
+    float3 color = ambient + diffuse + specular;
+    color = color * albedo;
 
     return float4(color, 1.0f);
 }

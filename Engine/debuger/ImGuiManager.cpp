@@ -57,6 +57,17 @@ void ImGuiManager::Begin()
 	ImGui_ImplDX12_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
+
+	if (ImGui::Begin("Debug Log"))
+	{
+		ImGui::TextUnformatted(Logger::GetImGuiLog().c_str());
+
+		if (ImGui::Button("Clear"))
+		{
+			Logger::ClearImGuiLog();
+		}
+	}
+	ImGui::End();
 }
 
 void ImGuiManager::End()

@@ -130,13 +130,13 @@ void CommandContext::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE
 	barrier_.Transition.StateAfter = after;
 	barrier_.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	// デバッグ出力用ログ作成
-	std::wstringstream ss;
-	ss << L"[Transition] Resource: " << resource
-		<< L" | From: " << std::hex << before
-		<< L" | To: " << std::hex << after << std::endl;
+	//// デバッグ出力用ログ作成
+	//std::wstringstream ss;
+	//ss << L"[Transition] Resource: " << resource
+	//	<< L" | From: " << std::hex << before
+	//	<< L" | To: " << std::hex << after << std::endl;
 
-	OutputDebugStringW(ss.str().c_str());
+	//OutputDebugStringW(ss.str().c_str());
 
 
 	commandList_->ResourceBarrier(1, &barrier_);

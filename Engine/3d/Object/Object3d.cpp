@@ -4,6 +4,7 @@
 #include <3d/WorldTransform.h>
 #include <numbers>
 #include "Model/ModelManager.h"
+#include <3d/Camera/CameraManager.h>
 
 Object3d::Object3d(std::string objectName)
 {
@@ -69,6 +70,7 @@ void Object3d::DrawForGBuffer()
 	for (size_t i = 0; i < renders_.size(); i++) {
 		renders_[i]->DrawGBuffer();
 	}
+
 }
 
 void Object3d::ResetObject()

@@ -6,6 +6,7 @@
 #include "imgui/imgui_impl_dx12.h"
 #include "imgui/imgui_impl_win32.h"
 #include <DirectXTex/d3dx12.h>
+#include <math/function.h>
 
 #pragma comment(lib, "d3d12.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -70,12 +71,6 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	dsvManager_ = std::make_unique<DsvManager>();
 	// dsvの生成
 	CreateDepthBuffer();
-
-	clearValue.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	clearValue.Color[0] = 0.6;
-	clearValue.Color[1] = 0.5;
-	clearValue.Color[2] = 0.1;
-	clearValue.Color[3] = 1.0f;
 
 	commandContext_->CreateFence();
 	SetViewPort();
@@ -360,15 +355,21 @@ Microsoft::WRL::ComPtr<ID3D12Resource> DirectXManager::CreateRenderTextureResour
 	D3D12_HEAP_PROPERTIES heapProperties{};
 	heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;         // VRAM上に作成
 
+	// クリアバリューを生成
+	D3D12_CLEAR_VALUE clear = {};
+	clear.Format = format;
+	clear.Color[0] = r;
+	clear.Color[1] = g;
+	clear.Color[2] = b;
+	clear.Color[3] = a;
 	// リソース生成
-	clearValue.Format = format;
 	ComPtr<ID3D12Resource> renderTexture;
 	HRESULT hr = GetDevice()->CreateCommittedResource(
 		&heapProperties,
 		D3D12_HEAP_FLAG_NONE,
 		&resourceDesc,
 		D3D12_RESOURCE_STATE_GENERIC_READ, // 初期状態
-		&clearValue,
+		&clear,
 		IID_PPV_ARGS(&renderTexture)
 	);
 
@@ -418,7 +419,7 @@ void DirectXManager::CreateRenderTargetView()
 	Logger::Log("Complete CreateRenderTargetViews!\n");
 }
 
-ComPtr<ID3D12Resource> DirectXManager::CreateGBufferResource(UINT width, UINT height, DXGI_FORMAT format)
+ComPtr<ID3D12Resource> DirectXManager::CreateGBufferResource(UINT width, UINT height, D3D12_CLEAR_VALUE clear)
 {
 	D3D12_RESOURCE_DESC desc = {};
 	desc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -427,17 +428,9 @@ ComPtr<ID3D12Resource> DirectXManager::CreateGBufferResource(UINT width, UINT he
 	desc.DepthOrArraySize = 1;
 	desc.MipLevels = 1;
 	desc.SampleDesc.Count = 1;
-	desc.Format = format;
+	desc.Format = clear.Format;
 	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
 	desc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
-
-	//D3D12_CLEAR_VALUE clearValue = {};
-	clearValue.Format = format;
-	// カラーなら0
-	//clearValue.Color[0] = 0.0f;
-	//clearValue.Color[1] = 0.0f;
-	//clearValue.Color[2] = 0.0f;
-	//clearValue.Color[3] = 1.0f;
 
 	ComPtr<ID3D12Resource> resource;
 	CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
@@ -447,7 +440,7 @@ ComPtr<ID3D12Resource> DirectXManager::CreateGBufferResource(UINT width, UINT he
 		D3D12_HEAP_FLAG_NONE,
 		&desc,
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		&clearValue,
+		&clear,
 		IID_PPV_ARGS(&resource)
 	);
 
@@ -510,30 +503,8 @@ void DirectXManager::SetMainDepth(ID3D12DescriptorHeap* dsvHeap)
 
 void DirectXManager::BeginDraw()
 {
-	//// バックバッファのインデックスを取得
-	//UINT backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
-	//ID3D12Resource* backBuffer = swapChainManager_->GetBackBuffer(backBufferIndex);
-
-	//// バックバッファのリソースバリアを設定
-	//commandContext_->TransitionResource(
-	//	backBuffer,
-	//	D3D12_RESOURCE_STATE_PRESENT,
-	//	D3D12_RESOURCE_STATE_RENDER_TARGET
-	//);
-
-	//D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvManager_->GetDsvHandle();
-
-	//// 描画ターゲットと深度ステンシルビューの設定
-	//commandContext_->SetRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), dsvHandle);
-
-	//// レンダーターゲットのクリア
-	//commandContext_->ClearRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), clearValue.Color);
-
-	//// 深度ビューのクリア
-	//commandContext_->ClearDepth(dsvHandle);
-
 	//// ビューポートとシザーレクトの設定
-	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
+	//commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
 void DirectXManager::EndDraw()

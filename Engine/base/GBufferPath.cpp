@@ -3,6 +3,14 @@
 #include "GBufferManager.h"
 #include "base/PSOManager.h"
 #include <scene/SceneManager.h>
+#include <math/function.h>
+
+GBufferPath::~GBufferPath()
+{
+    dxManager_ = nullptr;
+    gBuffer_ = nullptr;
+    psoManager_ = nullptr;
+}
 
 void GBufferPath::Initialize(DirectXManager* dxManager, GBufferManager* gBuffer, PSOManager* psoManager)
 {
@@ -13,28 +21,51 @@ void GBufferPath::Initialize(DirectXManager* dxManager, GBufferManager* gBuffer,
 
 void GBufferPath::Begin()
 {
-	gBuffer_->TransitionAllToRT();
+    gBuffer_->TransitionAllToRT();
 
-	auto commandContext = dxManager_->GetCommandContext();
+    auto commandContext = dxManager_->GetCommandContext();
 
-	D3D12_CPU_DESCRIPTOR_HANDLE rtvs[] = {
-		gBuffer_->GetRTVHandle(GBufferManager::GBufferType::Albedo),
-		gBuffer_->GetRTVHandle(GBufferManager::GBufferType::Normal)
-	};
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvs[] = {
+        gBuffer_->GetRTVHandle(GBufferManager::GBufferType::Albedo),
+        gBuffer_->GetRTVHandle(GBufferManager::GBufferType::Normal),
+        gBuffer_->GetRTVHandle(GBufferManager::GBufferType::WorldPos)
+    };
 
-	// Depth
-	auto dsv = gBuffer_->GetDSVHandle();
+    // Depth
+    auto dsv = gBuffer_->GetDSVHandle();
 
-	commandContext->SetRenderTargets(rtvs, _countof(rtvs), &dsv);
+    commandContext->SetRenderTargets(rtvs, _countof(rtvs), &dsv);
 
-	// クリア
-	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
+    // --- 各リソースのクリア値を取得 ---
+    D3D12_CLEAR_VALUE albedoClear{};
+    albedoClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    albedoClear.Color[0] = 0.0f;
+    albedoClear.Color[1] = 0.0f;
+    albedoClear.Color[2] = 0.0f;
+    albedoClear.Color[3] = 1.0f;
 
-	commandContext->ClearRenderTarget(rtvs[0], clearColor);
-	commandContext->ClearRenderTarget(rtvs[1], clearColor);
+    D3D12_CLEAR_VALUE normalClear{};
+    normalClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    normalClear.Color[0] = 0.5f;
+    normalClear.Color[1] = 0.5f;
+    normalClear.Color[2] = 1.0f;
+    normalClear.Color[3] = 1.0f;
 
-	commandContext->ClearDepth(dsv);
+    D3D12_CLEAR_VALUE worldPosClear{};
+    worldPosClear.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    worldPosClear.Color[0] = 0.0f;
+    worldPosClear.Color[1] = 0.0f;
+    worldPosClear.Color[2] = 0.0f;
+    worldPosClear.Color[3] = 1.0f;
+
+    // --- クリア ---
+    commandContext->ClearRenderTarget(rtvs[0], albedoClear.Color);
+    commandContext->ClearRenderTarget(rtvs[1], normalClear.Color);
+    commandContext->ClearRenderTarget(rtvs[2], worldPosClear.Color);
+
+    commandContext->ClearDepth(dsv);
 }
+
 
 void GBufferPath::Draw()
 {
