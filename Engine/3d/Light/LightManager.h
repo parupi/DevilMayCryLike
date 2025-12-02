@@ -24,39 +24,36 @@ private:
 	LightManager(LightManager&) = default;
 	LightManager& operator=(LightManager&) = default;
 public:
-	// シングルトンインスタンスの取得
 	static LightManager* GetInstance();
-	// 初期化処理
+
 	void Initialize(DirectXManager* dxManager);
-	// 終了処理
 	void Finalize();
-	// 更新処理
+
 	void Update();
-	// ライトの追加
 	void AddLight(std::unique_ptr<BaseLight> light);
-	// 全ライトの削除
 	void DeleteAllLight();
-	// GPU 転送
-	void UploadToGPU();
-	// DescriptorHeap に SRV を作成（構造化バッファ版）
-	void CreateLightBuffer();
-	// ライトデータをGPUにバインド
+
 	void BindLightsToShader();
+
 private:
+	// 各バッファの生成
+	void CreateLightBuffers();
+
 	DirectXManager* dxManager_ = nullptr;
+
+	uint32_t lightBufferHandle_ = 0;
+	uint32_t lightCountHandle_ = 0;
+
+	// 永続 Map されたポインタ
+	LightData* mappedLightPtr_ = nullptr;
+	UINT* mappedCountPtr_ = nullptr;
 
 	// すべてのライト
 	std::vector<std::unique_ptr<BaseLight>> lights_;
-
-	// GPU 用のバッファ（StructuredBuffer）
-	Microsoft::WRL::ComPtr<ID3D12Resource> lightBuffer_;   // LightData 配列
-	Microsoft::WRL::ComPtr<ID3D12Resource> lightCountBuffer_; // ライト数（定数バッファ用）
-
-	// CPU-side temporary buffer
 	std::vector<LightData> gpuLightCache_;
 
 	// ライトの最大数
-	const UINT MaxLights = 256;
+	const UINT MaxLights = 128;
 	// srvIndex
 	uint32_t srvIndex_ = 0;
 };

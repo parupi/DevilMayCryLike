@@ -140,7 +140,7 @@ void PrimitiveLineDrawer::DrawWireSphere(const Vector3& center, float radius, co
 
 void PrimitiveLineDrawer::UpdateVertexResource()
 {
-	dxManager_->CreateBufferResource(sizeof(Vertex) * vertices_.size(), vertexResource_);
+	vertexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(vertices_.data(), sizeof(Vertex) * vertices_.size());
 
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	vertexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(Vertex) * vertices_.size());
@@ -154,7 +154,7 @@ void PrimitiveLineDrawer::UpdateVertexResource()
 
 void PrimitiveLineDrawer::UpdateIndexResource()
 {
-	dxManager_->CreateBufferResource(sizeof(uint32_t) * indices_.size(), indexResource_);
+	indexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(indices_.data(), sizeof(uint32_t) * indices_.size());
 
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
 	indexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(uint32_t) * indices_.size());
@@ -177,7 +177,8 @@ void PrimitiveLineDrawer::Draw()
 	ID3D12GraphicsCommandList* cmdList = dxManager_->GetCommandList();
 	cmdList->SetPipelineState(psoManager_->GetPrimitivePSO());
 	cmdList->SetGraphicsRootSignature(psoManager_->GetPrimitiveSignature());
-	cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	//cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	transform_->BindToShader(cmdList);
 
 	srvManager_->SetGraphicsRootDescriptorTable(1, dummyTextureIndex_);
 	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);

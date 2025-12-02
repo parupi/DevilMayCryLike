@@ -10,7 +10,7 @@ class Material
 {
 public:
 	Material();
-	~Material() = default;
+	~Material();
 	// 初期化
 	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData);
 	// 更新処理
@@ -30,8 +30,11 @@ private:
 	void CreateGBufferMaterialResource();
 
 private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialGBufferResource_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialGBufferResource_ = nullptr;
+
+	uint32_t materialHandle_ = 0;
+	uint32_t materialGBufferHandle_ = 0;
 
 	MaterialForGPU* materialForGPU_ = nullptr;
 	GBufferMaterialParam* gBufferMaterialParam_ = nullptr;

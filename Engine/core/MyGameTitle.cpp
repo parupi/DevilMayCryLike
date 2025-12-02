@@ -114,30 +114,33 @@ void MyGameTitle::Draw()
 	///---------------------------------------------------------
 	/// OffScreen（ポストエフェクト前の下準備 or 前景エフェクト）
 	///---------------------------------------------------------
-	OffScreenManager::GetInstance()->BeginDrawToPingPong();
+	//OffScreenManager::GetInstance()->BeginDrawToPingPong();
 
-	dxManager->GetSrvManager()->BeginDraw();
-	// プリミティブ描画前処理
-	PrimitiveLineDrawer::GetInstance()->BeginDraw();
+	//dxManager->GetSrvManager()->BeginDraw();
+	//// プリミティブ描画前処理
+	//PrimitiveLineDrawer::GetInstance()->BeginDraw();
 
-	CollisionManager::GetInstance()->Draw();
+	//CollisionManager::GetInstance()->Draw();
 
-	PrimitiveLineDrawer::GetInstance()->EndDraw();
+	//PrimitiveLineDrawer::GetInstance()->EndDraw();
 
-	OffScreenManager::GetInstance()->EndDrawToPingPong();
+	//SkySystem::GetInstance()->Draw();
+
+	//OffScreenManager::GetInstance()->EndDrawToPingPong();
 
 	///---------------------------------------------------------
 	/// PostEffectPath（Ping-Pong結果から最終1枚に統合）
 	///---------------------------------------------------------
-	dxManager->BeginDraw();
+	
 
-	OffScreenManager::GetInstance()->ExecutePostEffects();
+	//OffScreenManager::GetInstance()->ExecutePostEffects();
 
 	///---------------------------------------------------------
 	/// GBufferPath（Deferredの各バッファ生成）
 	///---------------------------------------------------------
-	
-	gBufferPath->SetInputTexture(OffScreenManager::GetInstance()->GetFinalPostEffectSrv());
+
+
+
 	gBufferPath->Begin();
 	gBufferPath->Draw();
 
@@ -151,19 +154,23 @@ void MyGameTitle::Draw()
 	LightManager::GetInstance()->BindLightsToShader();
 	CameraManager::GetInstance()->BindCameraToShader();
 
-	lightingPath->DrawDirectionalLight();
 	lightingPath->End();
 
 	///---------------------------------------------------------
 	/// UI, ImGui描画（バックバッファ上で最終）
 	///---------------------------------------------------------
-#ifdef _DEBUG
-	ImGuiManager::GetInstance()->Draw();
-#endif // DEBUG
+
+	dxManager->BeginDraw();
+
+	dxManager->Render(psoManager.get(), lightingPath->GetOutputSrvIndex());
 
 	///---------------------------------------------------------
 	/// フレーム終了
 	///---------------------------------------------------------
+#ifdef _DEBUG
+	ImGuiManager::GetInstance()->Draw();
+#endif // DEBUG
+
 	dxManager->EndDraw();
 }
 

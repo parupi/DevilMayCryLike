@@ -528,6 +528,8 @@
     <ClInclude Include="Engine\base\GBufferPath.h" />
     <ClInclude Include="Engine\base\LightingPath.h" />
     <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
+    <ClInclude Include="Engine\base\GpuResourceFactory.h" />
+    <ClInclude Include="Engine\base\ResourceManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -867,6 +869,8 @@
     <ClCompile Include="Engine\base\GBufferPath.cpp" />
     <ClCompile Include="Engine\base\LightingPath.cpp" />
     <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
+    <ClCompile Include="Engine\base\GpuResourceFactory.cpp" />
+    <ClCompile Include="Engine\base\ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />

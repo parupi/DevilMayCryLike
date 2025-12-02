@@ -38,7 +38,9 @@ public:
 	/// 定数バッファの取得
 	/// </summary>
 	/// <returns>定数バッファ</returns>
-	const Microsoft::WRL::ComPtr<ID3D12Resource>& GetConstBuffer() const { return constBuffer_; }
+	//const Microsoft::WRL::ComPtr<ID3D12Resource>& GetConstBuffer() const;
+
+	void BindToShader(ID3D12GraphicsCommandList* cmd) const;
 
 #ifdef _DEBUG
 	/// デバッグ用の関数
@@ -64,7 +66,8 @@ public:
 	Vector3 GetWorldPos();
 private:
 	// 定数バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer_;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer_;
+	uint32_t bufferHandle_ = 0;
 	// マッピング済みアドレス
 	TransformationMatrix* constMap = nullptr;
 

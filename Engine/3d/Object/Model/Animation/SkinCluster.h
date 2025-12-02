@@ -1,48 +1,64 @@
 #pragma once
 #include <3d/Object/Model/ModelStructs.h>
 
-class SkinnedModel;
-class Skeleton;
 class DirectXManager;
 class SrvManager;
 
 class SkinCluster
 {
 public:
-	SkinCluster() = default;
-	~SkinCluster();
+    SkinCluster() = default;
+    ~SkinCluster();
 
-	void Initialize(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData, DirectXManager* dxManager, SrvManager* srvManager);
+    void Initialize(
+        const SkeletonData& skeleton,
+        const SkinnedMeshData& meshData,
+        const std::map<std::string, JointWeightData>& skinClusterData,
+        DirectXManager* dxManager,
+        SrvManager* srvManager);
 
-	// SkinClusterを生成する関数
-	void CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
+    void CreateSkinCluster(
+        const SkeletonData& skeleton,
+        const SkinnedMeshData& meshData,
+        const std::map<std::string, JointWeightData>& skinClusterData);
 
-	void UpdateSkinning();
+    void UpdateSkinning();
+    void UpdateInputVertex(const SkinnedMeshData& meshData);
+    void UpdateSkinCluster(const SkeletonData& skeleton);
 
-	void UpdateInputVertex(const SkinnedMeshData& modelData);
+    const D3D12_VERTEX_BUFFER_VIEW& GetOutputVBV() const { return outputVBV_; }
 
-	void UpdateSkinCluster(const SkeletonData& skeleton);
-
-	// paletteの生成
-	void CreatePaletteResource(const SkeletonData& skeleton);
-	// influenceの生成
-	void CreateInfluenceResource(const SkinnedMeshData& meshData);
-	// inputVertexの生成
-	void CreateInputVertexResource();
-	// outputVertexの生成
-	void CreateOutputVertexResource();
-	// skinningInfoの生成
-	void CreateSkinningInfoResource();
-
-	SkinClusterData& GetSkinCluster() { return skinCluster_; }
 private:
-	DirectXManager* dxManager_ = nullptr;
-	SrvManager* srvManager_ = nullptr;
+    void CreatePalette(const SkeletonData& skeleton);
+    void CreateInfluence(const SkinnedMeshData& meshData);
+    void CreateInputVertex();
+    void CreateOutputVertex();
+    void CreateSkinningInfo();
 
-	// スキンクラスター
-	SkinClusterData skinCluster_;
-	// 頂点数
-	uint32_t vertexCount_;
-	size_t vertexOffset = 0;
+private:
+    DirectXManager* dxManager_ = nullptr;
+    SrvManager* srvManager_ = nullptr;
+
+    uint32_t vertexCount_ = 0;
+
+    // ---- Handles ----
+    uint32_t paletteHandle_;
+    uint32_t influenceHandle_;
+    uint32_t inputVertexHandle_;
+    uint32_t outputVertexHandle_;
+    uint32_t skinningInfoHandle_;
+
+    // ---- CPU-side mapped pointers ----
+    WellForGPU* mappedPalette_ = nullptr;
+    VertexInfluence* mappedInfluence_ = nullptr;
+    VertexData* mappedInputVertex_ = nullptr;
+    SkinningInformation* skinningInfoData_ = nullptr;
+
+    // ---- Views / Handles ----
+    std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> paletteSRV_;
+    std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> influenceSRV_;
+    std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> inputVertexSRV_;
+    std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> outputVertexUAV_;
+
+    D3D12_VERTEX_BUFFER_VIEW outputVBV_{};
 };
-

@@ -5,11 +5,11 @@
 
 WorldTransform::~WorldTransform()
 {
-	// GPUリソースの解放
-	if (constBuffer_) {
-		constBuffer_->Unmap(0, nullptr);
-		constBuffer_.Reset();
-	}
+	//// GPUリソースの解放
+	//if (constBuffer_) {
+	//	constBuffer_->Unmap(0, nullptr);
+	//	constBuffer_.Reset();
+	//}
 
 #ifdef _DEBUG
 	Logger::Log("WorldTransform resources released.\n");
@@ -30,17 +30,16 @@ void WorldTransform::Initialize()
 
 void WorldTransform::CreateConstBuffer()
 {
+	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
 	// MVP用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	Object3dManager::GetInstance()->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix), constBuffer_);
+	bufferHandle_ = resourceManager->CreateUploadBuffer(sizeof(TransformationMatrix), L"WorldTransformBuffer");
 	// 書き込むためのアドレスを取得
-	constBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&constMap));
+	constMap = reinterpret_cast<TransformationMatrix*>(resourceManager->Map(bufferHandle_));
 	// 単位行列を書き込んでおく
 	constMap->WVP = MakeIdentity4x4();
 	constMap->World = MakeIdentity4x4();
 	constMap->WorldInverseTranspose = MakeIdentity4x4();
-
-	// ログ出力
-	Logger::LogBufferCreation("WorldTransform", constBuffer_.Get(), sizeof(TransformationMatrix));
+	
 }
 
 void WorldTransform::TransferMatrix()
@@ -61,7 +60,21 @@ void WorldTransform::TransferMatrix()
 	}
 }
 
+void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd) const
+{
+	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
+
+	cmd->SetGraphicsRootConstantBufferView(1, resourceManager->GetGPUVirtualAddress(bufferHandle_));
+}
+
 #ifdef _DEBUG
+//const Microsoft::WRL::ComPtr<ID3D12Resource>& WorldTransform::GetConstBuffer() const
+//{
+//	return Object3dManager::GetInstance()->GetDxManager()->GetResourceManager()->GetResource(bufferHandle_);
+//}
+
+
+
 void WorldTransform::DebugGui()
 {
 	if (ImGui::Button("ResetRotate")) {

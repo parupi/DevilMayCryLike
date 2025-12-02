@@ -70,8 +70,8 @@ void SkySystem::Draw()
   
 	commandList->IASetIndexBuffer(&indexBufferView_);
 
-	commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+	//commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	transform_->BindToShader(commandList);
 	// SRV（キューブマップ）バインド
 	material_->Bind();
 
@@ -155,7 +155,7 @@ void SkySystem::CreateVertexResource()
 	// バッファサイズの計算
 	UINT sizeVB = static_cast<UINT>(sizeof(VertexDataForSkybox) * vertexData_.size());
 
-	dxManager_->CreateBufferResource(sizeVB, vertexResource_);
+	vertexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(vertexData_.data(), sizeVB);
 
 	// 頂点データの書き込み
 	VertexDataForSkybox* vertexMap = nullptr;
@@ -175,7 +175,7 @@ void SkySystem::CreateIndexResource()
 	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * indexData_.size());
 
 	// リソース生成
-	dxManager_->CreateBufferResource(sizeIB, indexResource_);
+	indexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(indexData_.data(), sizeIB);
 
 	// インデックスデータの書き込み
 	uint16_t* indexMap = nullptr;

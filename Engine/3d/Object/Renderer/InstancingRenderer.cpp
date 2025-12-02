@@ -24,12 +24,13 @@ void InstancingRenderer::CreateInstanceBuffer()
     auto* dxManager = RendererManager::GetInstance()->GetDxManager();
     size_t bufferSize = sizeof(InstanceData) * 1024; // 1024 instance max
 
-    dxManager->CreateBufferResource(bufferSize, instanceBuffer_);
-    instanceBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&mappedInstanceData_));
-
-    vbView_.BufferLocation = instanceBuffer_->GetGPUVirtualAddress();
-    vbView_.StrideInBytes = sizeof(InstanceData);
-    vbView_.SizeInBytes = static_cast<UINT>(bufferSize);
+    dxManager->GetResourceManager()->CreateUploadBuffer(bufferSize, L"InstancingRenderer");
+    void* ptr = dxManager->GetResourceManager()->Map(instanceHandle_);
+    assert(ptr);
+    mappedInstanceData_ = reinterpret_cast<InstanceData*>(ptr);
+    //vbView_.BufferLocation = instanceBuffer_->GetGPUVirtualAddress();
+    //vbView_.StrideInBytes = sizeof(InstanceData);
+    //vbView_.SizeInBytes = static_cast<UINT>(bufferSize);
 }
 
 void InstancingRenderer::SetInstanceList(const std::vector<InstanceData>& instances)

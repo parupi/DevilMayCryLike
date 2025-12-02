@@ -11,6 +11,8 @@ void Sprite::Initialize(std::string textureFilePath)
 	// 単位行列を書き込んでおく
 	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 	textureFilePath_ = textureFilePath;
+
+	
 	// 各種リソースを作る
 	CreateVertexResource();
 	CreateIndexResource();
@@ -50,75 +52,84 @@ void Sprite::Update()
 
 void Sprite::Draw()
 {
-	spriteManager_->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, transformationMatrixResource_->GetGPUVirtualAddress());
-	// Spriteの描画。変更が必要な物だけ変更する
-	spriteManager_->GetDxManager()->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	spriteManager_->GetDxManager()->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
-	// TransformationMatrixCBufferの場所を設定
-	spriteManager_->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	auto* resourceManager = spriteManager_->GetDxManager()->GetResourceManager();
+	auto* commandList = spriteManager_->GetDxManager()->GetCommandList();
 
-	spriteManager_->GetDxManager()->GetCommandList()->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureFilePath_));
+	commandList->SetGraphicsRootConstantBufferView(1, resourceManager->GetGPUVirtualAddress(transformHandle_));
+	// Spriteの描画
+	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
+	commandList->IASetIndexBuffer(&indexBufferView_);
+	// TransformationMatrixCBufferの場所を設定
+	commandList->SetGraphicsRootConstantBufferView(0, resourceManager->GetGPUVirtualAddress(materialHandle_));
+
+	commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureFilePath_));
 
 	//// 描画!（DrawCall/ドローコール）。3頂点で1つのインスタンス。インスタンスについては今後
-	spriteManager_->GetDxManager()->GetCommandList()->DrawIndexedInstanced(6, 1, 0, 0, 0);
+	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 
 void Sprite::CreateVertexResource()
 {
-	// Sprite用の頂点リソースを作る
-	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(VertexData) * 6, vertexResource_);
-	// リソースの先頭アドレスから使う
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	// 使用するリソースのサイズは頂点6つ分のサイズ
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6;
-	// 1頂点当たりのサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);
+	auto* rm = spriteManager_->GetDxManager()->GetResourceManager();
 
-	// ログ出力
-	Logger::LogBufferCreation("Sprite:Vertex", vertexResource_.Get(), vertexBufferView_.SizeInBytes);
+	// ハンドル版 UploadBuffer を作成（CPUアクセス可能）
+	vertexHandle_ = rm->CreateUploadBuffer(sizeof(VertexData) * 6, L"SpriteVertex");
+
+	// CPU書き込み用アドレスを取得
+	void* ptr = rm->Map(vertexHandle_);
+	assert(ptr);
+
+	vertexData_ = reinterpret_cast<VertexData*>(ptr);
+
+	// GPU バッファビュー設定
+	auto* res = rm->GetResource(vertexHandle_);
+	vertexBufferView_.BufferLocation = res->GetGPUVirtualAddress();
+	vertexBufferView_.SizeInBytes = sizeof(VertexData) * 6;
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 }
 
 void Sprite::CreateIndexResource()
 {
-	// Sprite用のリソースインデックスの作成
-	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(uint32_t) * 6, indexResource_);
-	// リソースの先頭のアドレスから使う
-	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
-	// 使用するリソースのサイズはインデックス6つ分のサイズ
-	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
-	// インデックスはuint32_tとする
-	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+	auto* rm = spriteManager_->GetDxManager()->GetResourceManager();
 
-	// ログ出力
-	Logger::LogBufferCreation("Sprite:Index", indexResource_.Get(), indexBufferView_.SizeInBytes);
+	indexHandle_ = rm->CreateUploadBuffer(sizeof(uint32_t) * 6, L"SpriteIndex");
+
+	void* ptr = rm->Map(indexHandle_);
+	assert(ptr);
+
+	indexData_ = reinterpret_cast<uint32_t*>(ptr);
+
+	auto* res = rm->GetResource(indexHandle_);
+	indexBufferView_.BufferLocation = res->GetGPUVirtualAddress();
+	indexBufferView_.SizeInBytes = sizeof(uint32_t) * 6;
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 }
 
 void Sprite::CreateMaterialResource()
 {
 	// Sprite用のマテリアルリソースを作る
-	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(Material), materialResource_);
+	materialHandle_ = spriteManager_->GetDxManager()->GetResourceManager()->CreateUploadBuffer(sizeof(Material), L"SpriteMaterial");
 	// 書き込むためのアドレスを取得
-	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
+	void* ptr = spriteManager_->GetDxManager()->GetResourceManager()->Map(materialHandle_);
+	assert(ptr);
+	materialData_ = reinterpret_cast<Material*>(ptr);
 	// 今回は白を書き込んで置く
 	materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	materialData_->uvTransform = MakeIdentity4x4();
-
-	// ログ出力
-	Logger::LogBufferCreation("Sprite:Material", materialResource_.Get(), sizeof(Material));
 }
 
 void Sprite::CreateTransformationResource()
 {
+	auto* resourceManager = spriteManager_->GetDxManager()->GetResourceManager();
 	// Sprite用のTransformationMatrix用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	spriteManager_->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix), transformationMatrixResource_);
+	transformHandle_ = resourceManager->CreateUploadBuffer(sizeof(TransformationMatrix), L"SpriteTransform");
 	// 書き込むためのアドレスを取得
-	transformationMatrixResource_->Map(0, nullptr, reinterpret_cast<void**>(&transformationMatrixData_));
+	void* ptr = resourceManager->Map(transformHandle_);
+	assert(ptr);
+	transformationMatrixData_ = reinterpret_cast<TransformationMatrix*>(ptr);
 	// 単位行列を書き込んでおく
 	transformationMatrixData_->World = MakeIdentity4x4();
 	transformationMatrixData_->WVP = MakeIdentity4x4();
-
-	// ログ出力
-	Logger::LogBufferCreation("Sprite:Transform", transformationMatrixResource_.Get(), sizeof(TransformationMatrix));
 }
 
 void Sprite::SetSpriteData()
@@ -145,8 +156,6 @@ void Sprite::SetSpriteData()
 	float tex_top = textureLeftTop_.y / metadata.height;
 	float tex_bottom = (textureLeftTop_.y + textureSize_.y) / metadata.height;
 
-	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));
-	// スプライトの描画
 	// 左下
 	vertexData_[0].position = { left, bottom, 0.0f, 1.0f };
 	vertexData_[0].texcoord = { tex_left, tex_bottom };
@@ -160,8 +169,6 @@ void Sprite::SetSpriteData()
 	vertexData_[3].position = { right, top, 0.0f, 1.0f };
 	vertexData_[3].texcoord = { tex_right, tex_top };
 
-	// 書き込むためのアドレスを取得
-	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
 	indexData_[0] = 0;
 	indexData_[1] = 1;
 	indexData_[2] = 2;

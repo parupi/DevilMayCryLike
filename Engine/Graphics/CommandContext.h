@@ -30,10 +30,11 @@ public:
 	void ClearDepth(D3D12_CPU_DESCRIPTOR_HANDLE dsv);
 	// ビューポートとシザーの設定
 	void SetViewportAndScissor(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect);
-
-	// 移動予定
 	// フェンス生成
 	void CreateFence();
+
+	ID3D12Fence* GetFence() { return fence_.Get(); }
+	uint64_t GetFenceValue() const { return fenceValue_; }
 
 	// コマンドリスト取得
 	ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }

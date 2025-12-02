@@ -41,87 +41,110 @@ void TextureManager::Finalize()
 
 void TextureManager::LoadTexture(const std::string& fileName)
 {
-	const std::string filePath = "Resource/Images/" + fileName;
+    const std::string filePath = "Resource/Images/" + fileName;
 
-	if (textureData_.contains(filePath)) {
-		// 読み込み済みなら早期return
-		return;
-	}
+    // 既に読み込み済みなら終了
+    if (textureData_.contains(filePath)) {
+        return;
+    }
 
-	// テクスチャ枚数上限チェック
-	ASSERT_MSG(srvManager_->CanAllocate(), "[TextureManager] Maximum number of textures reached. Cannot register new texture.");
+    ASSERT_MSG(srvManager_->CanAllocate(),
+        "[TextureManager] Maximum number of textures reached.");
 
-	// テクスチャファイルを呼んでプログラムで扱えるようにする
-	DirectX::ScratchImage image{};
-	std::wstring filePathW = StringUtility::ConvertString(filePath);
-	// DDSファイルかどうか識別して適したほうで読み込み
-	HRESULT hr = 0;
-	if (filePathW.ends_with(L".dds")) {
-		hr = DirectX::LoadFromDDSFile(filePathW.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
-	} else {
-		hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
-	}
+    // ---------------------------
+    // 1. 画像ファイル読み込み
+    // ---------------------------
+    DirectX::ScratchImage image{};
+    std::wstring filePathW = StringUtility::ConvertString(filePath);
+    HRESULT hr = 0;
 
-	ASSERT_MSG(SUCCEEDED(hr), ("[TextureManager] Failed to find texture"));
+    if (filePathW.ends_with(L".dds")) {
+        hr = DirectX::LoadFromDDSFile(filePathW.c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image);
+    } else {
+        hr = DirectX::LoadFromWICFile(filePathW.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image);
+    }
+    ASSERT_MSG(SUCCEEDED(hr), "[TextureManager] Failed to load texture file.");
 
-	// ミニマップの作成
-	DirectX::ScratchImage mipImages{};
-	// 圧縮フォーマットかどうか調べる
-	if (DirectX::IsCompressed(image.GetMetadata().format)) {
-		// 圧縮フォーマットならそのままmoveして使う
-		mipImages = std::move(image);
-	} else {
-		const auto& meta = image.GetMetadata();
-		// 1x1などミップマップ生成できない場合はスキップ
-		if (meta.width == 1 && meta.height == 1) {
-			mipImages = std::move(image);
-		} else {
-			hr = DirectX::GenerateMipMaps(
-				image.GetImages(),
-				image.GetImageCount(),
-				image.GetMetadata(),
-				DirectX::TEX_FILTER_SRGB,
-				0,
-				mipImages
-			);
-			ASSERT_MSG(SUCCEEDED(hr), "[TextureManager] Failed to generate mipmaps");
-		}
-	}
+    // ---------------------------
+    // 2. ミップマップ生成
+    // ---------------------------
+    DirectX::ScratchImage mipImages;
 
-	// テクスチャデータを追加
-	textureData_[filePath] = TextureData();
-	// 追加したテクスチャデータの参照を取得する
-	TextureData& textureData = textureData_[filePath];
+    if (DirectX::IsCompressed(image.GetMetadata().format)) {
+        mipImages = std::move(image);
+    } else {
+        const auto& meta = image.GetMetadata();
+        if (meta.width == 1 && meta.height == 1) {
+            mipImages = std::move(image);
+        } else {
+            hr = DirectX::GenerateMipMaps(
+                image.GetImages(),
+                image.GetImageCount(),
+                meta,
+                DirectX::TEX_FILTER_SRGB,
+                0,
+                mipImages
+            );
+            ASSERT_MSG(SUCCEEDED(hr), "[TextureManager] MipMap generation failed.");
+        }
+    }
 
-	textureData.srvIndex = srvManager_->Allocate();
-	textureData.metadata = mipImages.GetMetadata();
-	textureData.resource = dxManager_->CreateTextureResource(textureData.metadata);
-	auto intermediate = dxManager_->UploadTextureData(textureData.resource.Get(), mipImages, dxManager_->GetDevice(), dxManager_->GetCommandList());
-	dxManager_->FlushUpload();
+    const auto& meta = mipImages.GetMetadata();
 
-	textureData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(textureData.srvIndex);
-	textureData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(textureData.srvIndex);
+    // ---------------------------
+    // 3. ResourceFactory による GPU リソース作成
+    // ---------------------------
+    TextureData tex{};
+    tex.srvIndex = srvManager_->Allocate();
+    tex.metadata = meta;
 
-	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    // GPUテクスチャ生成（初期状態 COPY_DEST）
+    tex.resource = dxManager_->GetResourceFactory()->CreateTexture2D(meta);
 
-	// SRVの設定を行う
-	srvDesc.Format = textureData.metadata.format;
-	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-	// metaDataからCCubeMapかどうかを取得して分岐
-	if (textureData.metadata.IsCubemap()) {
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
-		srvDesc.TextureCube.MostDetailedMip = 0;
-		srvDesc.TextureCube.MipLevels = UINT_MAX;
-		srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
-	} else {
-		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-		srvDesc.Texture2D.MostDetailedMip = 0;
-		srvDesc.Texture2D.MipLevels = static_cast<UINT>(textureData.metadata.mipLevels);
-	}
+    // ---------------------------
+    // 4. テクスチャデータアップロード
+    // ---------------------------
+    dxManager_->UploadTextureData(tex.resource.Get(), mipImages);
 
-	 //設定をもとにSRVの生成
-	dxManager_->GetDevice()->CreateShaderResourceView(textureData.resource.Get(), &srvDesc, textureData.srvHandleCPU);
+    //// レンダー用に SHADER_RESOURCE 状態へ遷移
+    //dxManager_->GetCommandContext()->TransitionResource(
+    //    tex.resource.Get(),
+    //    D3D12_RESOURCE_STATE_COPY_DEST,
+    //    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
+    //);
+
+    // ---------------------------
+    // 5. SRV 生成
+    // ---------------------------
+    tex.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(tex.srvIndex);
+    tex.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(tex.srvIndex);
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    srvDesc.Format = meta.format;
+    srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+
+    if (meta.IsCubemap()) {
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+        srvDesc.TextureCube.MostDetailedMip = 0;
+        srvDesc.TextureCube.MipLevels = static_cast<UINT>(meta.mipLevels);
+        srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+    } else {
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = static_cast<UINT>(meta.mipLevels);
+        srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+    }
+
+    dxManager_->GetDevice()->CreateShaderResourceView(
+        tex.resource.Get(),
+        &srvDesc,
+        tex.srvHandleCPU
+    );
+
+    // 最終登録
+    textureData_[filePath] = std::move(tex);
 }
+
 
 uint32_t TextureManager::GetTextureIndexByFilePath(const std::string& fileName)
 {
@@ -197,9 +220,9 @@ uint32_t TextureManager::CreateWhiteTexture()
 	TextureData texData{};
 	texData.srvIndex = srvManager_->Allocate();
 	texData.metadata = metadata;
-	texData.resource = dxManager_->CreateTextureResource(texData.metadata);
+	texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
 
-	auto intermediate = dxManager_->UploadTextureData(texData.resource.Get(), image, dxManager_->GetDevice(), dxManager_->GetCommandList());
+	auto intermediate = dxManager_->UploadTextureData(texData.resource.Get(), image);
 	dxManager_->FlushUpload();
 
 	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);

@@ -6,7 +6,6 @@ void GBufferManager::Initialize(DirectXManager* dxManager)
 	dxManager_ = dxManager;
 
 	rtvIncrement_ = dxManager_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	//srvIncrement_ = dxManager_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 
 	// 各種ヒープの生成
 	rtvHeap_ = dxManager_->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_RTV, (UINT)GBufferType::Count, false);
@@ -63,10 +62,7 @@ void GBufferManager::TransitionAllToRT()
         DXGI_FORMAT format = gBufferResources_[i]->GetDesc().Format;
 
         // 深度フォーマットは RenderTarget として扱えないのでスキップ
-        if (format == DXGI_FORMAT_D24_UNORM_S8_UINT ||
-            format == DXGI_FORMAT_D32_FLOAT ||
-            format == DXGI_FORMAT_D32_FLOAT_S8X24_UINT)
-        {
+        if (format == DXGI_FORMAT_D24_UNORM_S8_UINT) {
             continue;
         }
 
@@ -80,43 +76,73 @@ void GBufferManager::TransitionAllToRT()
 
 void GBufferManager::CreateResources(UINT width, UINT height)
 {
+    GpuResourceFactory* resourceFactory = dxManager_->GetResourceFactory();
+
+    GpuResourceFactory::TextureDesc desc{};
+    desc.width = width;
+    desc.height = height;
+
+    //===========================
     // Albedo
-    D3D12_CLEAR_VALUE albedoClear{};
-    albedoClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    albedoClear.Color[0] = 0.0f;
-    albedoClear.Color[1] = 0.0f;
-    albedoClear.Color[2] = 0.0f;
-    albedoClear.Color[3] = 1.0f;
-    gBufferResources_[(size_t)GBufferType::Albedo] = dxManager_->CreateGBufferResource(width, height, albedoClear);
+    //===========================
+    desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.usage = GpuResourceFactory::Usage::RenderTarget;
+    desc.clearColor[0] = 0.0f;
+    desc.clearColor[1] = 0.0f;
+    desc.clearColor[2] = 0.0f;
+    desc.clearColor[3] = 1.0f;
+    gBufferResources_[(size_t)GBufferType::Albedo] =
+        resourceFactory->CreateTexture2D(desc);
 
+    //===========================
     // Normal
-    D3D12_CLEAR_VALUE normalClear{};
-    normalClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    normalClear.Color[0] = 0.5f; // デコード前に0.5固定
-    normalClear.Color[1] = 0.5f;
-    normalClear.Color[2] = 1.0f; // +Z向き
-    normalClear.Color[3] = 1.0f;
-    gBufferResources_[(size_t)GBufferType::Normal] = dxManager_->CreateGBufferResource(width, height, normalClear);
+    //===========================
+    desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.clearColor[0] = 0.0f;
+    desc.clearColor[1] = 0.5f;
+    desc.clearColor[2] = 0.0f;
+    desc.clearColor[3] = 1.0f;
+    gBufferResources_[(size_t)GBufferType::Normal] =
+        resourceFactory->CreateTexture2D(desc);
 
+    //===========================
     // WorldPos
-    D3D12_CLEAR_VALUE worldPosClear{};
-    worldPosClear.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-    worldPosClear.Color[0] = 0.0f;
-    worldPosClear.Color[1] = 0.0f;
-    worldPosClear.Color[2] = 0.0f;
-    worldPosClear.Color[3] = 1.0f; // alpha は 1.0
-    gBufferResources_[(size_t)GBufferType::WorldPos] = dxManager_->CreateGBufferResource(width, height, worldPosClear);
+    //===========================
+    desc.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    desc.clearColor[0] = 0.0f;
+    desc.clearColor[1] = 0.0f;
+    desc.clearColor[2] = 0.1f;
+    desc.clearColor[3] = 1.0f;
+    gBufferResources_[(size_t)GBufferType::WorldPos] =
+        resourceFactory->CreateTexture2D(desc);
 
+    //===========================
     // Material
-    D3D12_CLEAR_VALUE materialClear{};
-    materialClear.Format = DXGI_FORMAT_R8G8_UNORM;
-    materialClear.Color[0] = 0.0f;
-    materialClear.Color[1] = 0.0f;
-    gBufferResources_[(size_t)GBufferType::Material] = dxManager_->CreateGBufferResource(width, height, materialClear);
+    //===========================
+    desc.format = DXGI_FORMAT_R8G8_UNORM;
+    desc.clearColor[0] = 0.0f;
+    desc.clearColor[1] = 0.0f;
+    desc.clearColor[2] = 0.0f;
+    desc.clearColor[3] = 0.0f; // Material は不要なので0
+    gBufferResources_[(size_t)GBufferType::Material] =
+        resourceFactory->CreateTexture2D(desc);
 
+    //===========================
     // Depth
-    gBufferResources_[(size_t)GBufferType::Depth] = dxManager_->CreateDepthStencilTextureResource(width, height, DXGI_FORMAT_D24_UNORM_S8_UINT);
+    //===========================
+    {
+        GpuResourceFactory::TextureDesc depthDesc{};
+        depthDesc.width = width;
+        depthDesc.height = height;
+        depthDesc.format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+        depthDesc.usage = GpuResourceFactory::Usage::DepthStencil;
+        depthDesc.clearDepth = 1.0f;
+
+        gBufferResources_[(size_t)GBufferType::Depth] =
+            resourceFactory->CreateTexture2D(depthDesc);
+    }
 }
+
 
 void GBufferManager::CreateRTVs()
 {

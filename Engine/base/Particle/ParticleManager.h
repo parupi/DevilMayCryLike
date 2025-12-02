@@ -89,7 +89,8 @@ private: // 構造体
 		std::list<Particle> particleList;  // パーティクルのリスト
 		std::unique_ptr<InstancingRenderer> renderer;
 		uint32_t srvIndex;  // インスタンシング用SRVインデックス
-		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
+		//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
+		uint32_t instancingHandle = 0;
 		uint32_t instanceCount;  // インスタンス数
 		ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
 		// レンダラーへ渡すためのCPUキャッシュ
@@ -151,8 +152,12 @@ public:
 private:
 	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
 	// パーティクル用リソースの宣言
-	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	uint32_t instancingHandle_ = 0;
+	uint32_t materialHandle_ = 0;
+	uint32_t vertexHandle_ = 0;
+
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	ParticleForGPU* instancingData_ = nullptr;

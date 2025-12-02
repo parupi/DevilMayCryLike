@@ -38,8 +38,8 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 
 void ModelRenderer::Draw()
 {
-	RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+	//RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
+	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList());
 	// 環境マップバインド
 	int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
 
@@ -57,8 +57,8 @@ void ModelRenderer::Draw()
 void ModelRenderer::DrawGBuffer()
 {
 	// (transform / material bind)
-	RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+	//RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
+	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList());
 	model_->DrawGBuffer(); // Model側へ委譲
 }
 

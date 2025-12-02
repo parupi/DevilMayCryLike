@@ -24,9 +24,9 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 	scissorRect_ = { 0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight };
 
 	clearValue_.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	clearValue_.Color[0] = 0.6f;
-	clearValue_.Color[1] = 0.5f;
-	clearValue_.Color[2] = 0.1f;
+	clearValue_.Color[0] = 0.0f;
+	clearValue_.Color[1] = 0.0f;
+	clearValue_.Color[2] = 0.0f;
 	clearValue_.Color[3] = 1.0f;
 
 	// ping/pong を作る（リソース作成 → RTV/SRV を Manager を通して作成）
@@ -154,7 +154,11 @@ void OffScreenManager::EndDrawToPingPong()
 
 Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget()
 {
-	return dxManager_->CreateRenderTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+	GpuResourceFactory::TextureDesc desc;
+	desc.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	desc.usage = GpuResourceFactory::Usage::RenderTarget;
+	return dxManager_->GetResourceFactory()->CreateTexture2D(desc);
+	//return dxManager_->CreateRenderTextureResource(WindowManager::kClientWidth, WindowManager::kClientHeight, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
 }
 
 uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)

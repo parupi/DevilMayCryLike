@@ -24,15 +24,15 @@ void ParticleManager::Finalize()
 {
 	// パーティクルグループのインスタンシングリソースを解放
 	for (auto& [name_, group] : particleGroups_) {
-		group.instancingResource.Reset();
+		//group.instancingResource.Reset();
 		group.instancingDataPtr = nullptr;
 		group.particleList.clear();
 	}
 	particleGroups_.clear();
 
 	// パーティクル用のリソース
-	instancingResource_.Reset();
-	materialResource_.Reset();
+	//instancingResource_.Reset();
+	//materialResource_.Reset();
 	vertexResource.Reset();
 
 	instancingData_ = nullptr;
@@ -224,7 +224,7 @@ void ParticleManager::Draw()
 		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
 
 		// === 定数バッファ設定 ===
-		commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+		commandList->SetGraphicsRootConstantBufferView(0, dxManager_->GetResourceManager()->GetGPUVirtualAddress(materialHandle_));
 
 		// === SRV設定 ===
 		srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.srvIndex);
@@ -257,17 +257,18 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	// レンダラーを生成
 	particleGroup.renderer = std::make_unique<InstancingRenderer>(name, PrimitiveType::Plane, textureFilePath);
 
-	// インスタンシング用リソースの生成
-	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, particleGroup.instancingResource);
+	auto* rm = dxManager_->GetResourceManager();
 
-	// インスタンシングデータを書き込むためのポインタを取得
-	particleGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instancingDataPtr));
+	particleGroup.instancingHandle = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleInstancing");
+
+	particleGroup.instancingDataPtr = reinterpret_cast<ParticleForGPU*>(rm->Map(particleGroup.instancingHandle));
+
 
 	// SRVを作成するDescriptorの場所を決める
 	particleGroup.srvIndex = srvManager_->Allocate();
 
 	// SRVの生成
-	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.instancingResource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
+	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, rm->GetResource(particleGroup.instancingHandle), kNumMaxInstance, sizeof(ParticleForGPU));
 
 	// インスタンス数を初期化
 	particleGroup.instanceCount = 0;
@@ -320,50 +321,60 @@ void ParticleManager::DebugGui()
 
 void ParticleManager::CreateParticleResource()
 {
-	// インスタンス用のTransformationMatrixリソースを作る
-	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, instancingResource_);
-	// 書き込むためのアドレスを取得
-	instancingResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_));
-	// 単位行列を書き込んでおく
-	for (uint32_t index = 0; index < kNumMaxInstance; ++index) {
+	auto* rm = dxManager_->GetResourceManager();
 
-		instancingData_[index].WVP = MakeIdentity4x4();
+	// -----------------------------
+	// インスタンス用バッファ
+	// -----------------------------
+	instancingHandle_ =
+		rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleGlobalInstancing");
 
-		instancingData_[index].World = MakeIdentity4x4();
-		instancingData_[index].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	instancingData_ = reinterpret_cast<ParticleForGPU*>(rm->Map(instancingHandle_));
+
+	// 初期値
+	for (uint32_t i = 0; i < kNumMaxInstance; ++i) {
+		instancingData_[i].WVP = MakeIdentity4x4();
+		instancingData_[i].World = MakeIdentity4x4();
+		instancingData_[i].color = { 1, 1, 1, 1 };
 	}
 
-	// モデルの読み込み
+	// -----------------------------
+	// モデルデータ(Plane)
+	// -----------------------------
 	ModelData modelData;
-	modelData.vertices.push_back({ .position = {1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {-1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {-1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {-1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	//modelData.material.textureFilePath = "resource/uvChecker.png";
-	// 頂点リソースを作る
-	dxManager_->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size(), vertexResource);
-	// 頂点バッファビューを作成する
-	vertexBufferView_.BufferLocation = vertexResource->GetGPUVirtualAddress();	// リソースの先頭アドレスから使う
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());		// 使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);	// 1頂点当たりのサイズ
+	modelData.vertices = {
+		{{1, 1, 0, 1}, {0,0}, {0,0,1}},
+		{{-1, 1, 0, 1}, {1,0}, {0,0,1}},
+		{{1, -1, 0, 1}, {0,1}, {0,0,1}},
+		{{1, -1, 0, 1}, {0,1}, {0,0,1}},
+		{{-1, 1, 0, 1}, {1,0}, {0,0,1}},
+		{{-1, -1, 0, 1}, {1,1}, {0,0,1}},
+	};
 
-	// 頂点リソースにデータを書き込む
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));		// 書き込むためのアドレスを取得
-	std::memcpy(vertexData_, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+	// -----------------------------
+	// VertexBuffer → DefaultBuffer
+	// -----------------------------
+	size_t vbSize = sizeof(VertexData) * modelData.vertices.size();
+
+	vertexResource = rm->CreateUploadBufferWithData(modelData.vertices.data(), vbSize);
+
+
+	vertexBufferView_.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	vertexBufferView_.SizeInBytes = UINT(vbSize);
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 }
+
 
 void ParticleManager::CreateMaterialResource()
 {
-	// マテリアル用のリソースを作る。
-	dxManager_->CreateBufferResource(sizeof(Material), materialResource_);
-	// マテリアルにデータを書き込む
-	materialData_ = nullptr;
-	// 書き込むためのアドレスを取得
-	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
-	// 白を入れる
-	materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	auto* rm = dxManager_->GetResourceManager();
+
+	materialHandle_ = rm->CreateUploadBuffer(sizeof(Material), L"ParticleMaterial");
+
+	materialData_ = reinterpret_cast<Material*>(rm->Map(materialHandle_));
+
+	// 初期値
+	materialData_->color = { 1, 1, 1, 1 };
 	materialData_->enableLighting = true;
 	materialData_->uvTransform = MakeIdentity4x4();
 }

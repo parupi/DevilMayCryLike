@@ -1,105 +1,113 @@
 #include "LightManager.h"
-#include <3d/Object/Object3dManager.h>
+#include <cassert>
+#include <mutex>
 
 LightManager* LightManager::instance = nullptr;
 std::once_flag LightManager::initInstanceFlag;
 
 LightManager* LightManager::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance = new LightManager();
-		});
-	return instance;
+    std::call_once(initInstanceFlag, []() {
+        instance = new LightManager();
+        });
+    return instance;
 }
 
 void LightManager::Initialize(DirectXManager* dxManager)
 {
-	dxManager_ = dxManager;
-
-	CreateLightBuffer();
+    dxManager_ = dxManager;
+    CreateLightBuffers();
 }
 
 void LightManager::Finalize()
 {
-	gpuLightCache_.clear();
-	lights_.clear();
+    lights_.clear();
+    gpuLightCache_.clear();
 
-	if (lightCountBuffer_) lightCountBuffer_.Reset();
-	if (lightBuffer_) lightBuffer_.Reset();
+    // ResourceManager に破棄任せる
+    lightBufferHandle_ = 0;
+    lightCountHandle_ = 0;
 
-	dxManager_ = nullptr;
+    mappedLightPtr_ = nullptr;
+    mappedCountPtr_ = nullptr;
 
-	if (instance) {
-		delete instance;
-		instance = nullptr;
-	}
+    dxManager_ = nullptr;
+
+    delete instance;
+    instance = nullptr;
+}
+
+void LightManager::CreateLightBuffers()
+{
+    auto* rm = dxManager_->GetResourceManager();
+
+    // --- 1. Light StructuredBuffer (UPLOAD) ---
+    lightBufferHandle_ = rm->CreateUploadBuffer(sizeof(LightData) * MaxLights, L"LightData");
+
+    // 永続 Map
+    mappedLightPtr_ = reinterpret_cast<LightData*>(rm->Map(lightBufferHandle_));
+
+    // --- 2. LightCount ConstantBuffer (UPLOAD) ---
+    UINT cbSize = (sizeof(UINT) + 255) & ~255;
+
+    lightCountHandle_ = rm->CreateUploadBuffer(cbSize, L"LightCount");
+
+    mappedCountPtr_ = reinterpret_cast<UINT*>(rm->Map(lightCountHandle_));
+
+    // --- 3. SRV 作成 ---
+    auto* srv = dxManager_->GetSrvManager();
+    srvIndex_ = srv->Allocate();
+
+    srv->CreateSRVforStructuredBuffer(srvIndex_, rm->GetResource(lightBufferHandle_), MaxLights, sizeof(LightData));
 }
 
 void LightManager::Update()
 {
-	gpuLightCache_.clear();
-	gpuLightCache_.reserve(lights_.size());
+    gpuLightCache_.clear();
+    gpuLightCache_.reserve(lights_.size());
 
-	// GPUに送る構造体を取得
-	for (auto& light : lights_)
-	{
-		light->Update();
-		LightData data = light->GetLightData();
-		gpuLightCache_.push_back(data);
-	}
+    for (auto& light : lights_) {
+        light->Update();
+        gpuLightCache_.push_back(light->GetLightData());
+    }
 
-	UploadToGPU();
+    // --- GPU バッファ更新（永続 Map なので memcpy だけ） ---
+    assert(gpuLightCache_.size() <= MaxLights);
+
+    memcpy(
+        mappedLightPtr_,
+        gpuLightCache_.data(),
+        sizeof(LightData) * gpuLightCache_.size()
+    );
+
+    *mappedCountPtr_ = static_cast<UINT>(gpuLightCache_.size());
 }
 
 void LightManager::AddLight(std::unique_ptr<BaseLight> light)
 {
-	lights_.push_back(std::move(light));
+    lights_.push_back(std::move(light));
 }
 
 void LightManager::DeleteAllLight()
 {
-	lights_.clear();
-}
-
-void LightManager::UploadToGPU()
-{
-	// LightBuffer にコピー
-	void* mapped = nullptr;
-	lightBuffer_->Map(0, nullptr, &mapped);
-	assert(gpuLightCache_.size() <= MaxLights);
-	memcpy(mapped, gpuLightCache_.data(), sizeof(LightData) * gpuLightCache_.size());
-	lightBuffer_->Unmap(0, nullptr);
-
-	// LightCount ConstantBuffer も更新
-	UINT* countMapped = nullptr;
-	lightCountBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&countMapped));
-	*countMapped = static_cast<UINT>(gpuLightCache_.size());
-	lightCountBuffer_->Unmap(0, nullptr);
-}
-
-void LightManager::CreateLightBuffer()
-{
-	// Light buffer (StructuredBuffer)
-	dxManager_->CreateBufferResource(sizeof(LightData) * MaxLights, lightBuffer_);
-
-	// LightCount (CBV)
-	UINT cbSize = (sizeof(UINT) + 255) & ~255;
-	dxManager_->CreateBufferResource(cbSize, lightCountBuffer_);
-
-	// SRV 作成
-	auto* srvManager = dxManager_->GetSrvManager();
-	srvIndex_ = srvManager->Allocate();
-	srvManager->CreateSRVforStructuredBuffer(srvIndex_, lightBuffer_.Get(), MaxLights, sizeof(LightData));
+    lights_.clear();
 }
 
 void LightManager::BindLightsToShader()
 {
-	auto commandList = dxManager_->GetCommandList();
-	auto* srvManager = dxManager_->GetSrvManager();
+    auto* cmd = dxManager_->GetCommandList();
+    auto* srv = dxManager_->GetSrvManager();
+    auto* rm = dxManager_->GetResourceManager();
 
-	// LightCount
-	commandList->SetGraphicsRootConstantBufferView(2, lightCountBuffer_->GetGPUVirtualAddress());
+    // Count CBV
+    cmd->SetGraphicsRootConstantBufferView(
+        2,
+        rm->GetGPUVirtualAddress(lightCountHandle_)
+    );
 
-	// Lights SRV table
-	commandList->SetGraphicsRootDescriptorTable(3, srvManager->GetGPUDescriptorHandle(srvIndex_));
+    // SRV (StructuredBuffer)
+    cmd->SetGraphicsRootDescriptorTable(
+        3,
+        srv->GetGPUDescriptorHandle(srvIndex_)
+    );
 }

@@ -19,7 +19,7 @@ GaussianEffect::~GaussianEffect()
 	psoManager_ = nullptr;
 	// 生成したリソースの削除
 	effectData_ = nullptr;
-	effectResource_.Reset();
+	effectHandle_ = 0;
 }
 
 void GaussianEffect::Update()
@@ -44,17 +44,18 @@ void GaussianEffect::Draw()
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, dxManager_->GetResourceManager()->GetGPUVirtualAddress(effectHandle_));
 
 	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void GaussianEffect::CreateEffectResource()
 {
+	auto* resourceManager = dxManager_->GetResourceManager();
 	// ヴィネット用のリソースを作る
-	dxManager_->CreateBufferResource(sizeof(GaussianEffectData), effectResource_);
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(GaussianEffectData), L"GaussianEffect");
 	// 書き込むためのアドレスを取得
-	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
+	effectData_ = reinterpret_cast<GaussianEffectData*>(resourceManager->Map(effectHandle_));
 	// 初期値を設定
 	effectData_->sigma = 10.0f;
 	effectData_->blurStrength = 1.0f;

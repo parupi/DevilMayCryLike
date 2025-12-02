@@ -6,6 +6,18 @@ Material::Material()
 
 }
 
+Material::~Material()
+{
+	//if (materialGBufferHandle_ != kInvalidBufferHandle) {
+	//	resourceManager_->ReleaseBuffer(materialGBufferHandle_);
+	//	materialGBufferHandle_ = kInvalidBufferHandle;
+	//}
+	//if (materialBufferHandle_ != kInvalidBufferHandle) {
+	//	resourceManager_->ReleaseBuffer(materialBufferHandle_);
+	//	materialBufferHandle_ = kInvalidBufferHandle;
+	//}
+}
+
 void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData)
 {
 	directXManager_ = directXManager;
@@ -32,17 +44,17 @@ void Material::Update()
 
 void Material::Bind()
 {
+	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialHandle_);
 	// マテリアルCBufferの場所を指定
-	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
 }
 
 void Material::BindForGBuffer()
 {
-	// マテリアルCBufferの場所を指定
-	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, materialGBufferResource_->GetGPUVirtualAddress());
-
+	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialGBufferHandle_);
+	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
 }
 
@@ -76,11 +88,12 @@ void Material::DebugGui(uint32_t index)
 
 void Material::CreateMaterialResource()
 {
+	auto* resourceManager = directXManager_->GetResourceManager();
 	// マテリアル用のリソースを作る。今回はFcolor1つ分のサイズを用意する
-	directXManager_->CreateBufferResource(sizeof(MaterialForGPU), materialResource_);
-	// 書き込むためのアドレスを取得
-	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialForGPU_));
-	// 白を入れる
+	materialHandle_ = resourceManager->CreateUploadBuffer(sizeof(MaterialForGPU), L"Material");
+	void* ptr = resourceManager->Map(materialHandle_);
+	assert(ptr);
+	materialForGPU_ = reinterpret_cast<MaterialForGPU*>(ptr);
 	materialForGPU_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	materialForGPU_->enableLighting = true;
 	materialForGPU_->uvTransform = MakeIdentity4x4();
@@ -94,17 +107,16 @@ void Material::CreateMaterialResource()
 	//materialForGPU_->enableLighting = true;
 	//materialForGPU_->uvTransform = MakeIdentity4x4();
 	//materialForGPU_->shininess = materialData_.Ns;             // 鏡面反射強度を反映
-
-		// ログ出力
-	Logger::LogBufferCreation("Material", materialResource_.Get(), sizeof(MaterialForGPU));
 }
 
 void Material::CreateGBufferMaterialResource()
 {
-	directXManager_->CreateBufferResource(sizeof(GBufferMaterialParam), materialGBufferResource_);
-	// 書き込むためのアドレスを取得
-	materialGBufferResource_->Map(0, nullptr, reinterpret_cast<void**>(&gBufferMaterialParam_));
+	auto* resourceManager = directXManager_->GetResourceManager();
 
+	materialGBufferHandle_ = resourceManager->CreateUploadBuffer(sizeof(GBufferMaterialParam), L"MaterialGBuffer");
+	void* ptr = resourceManager->Map(materialGBufferHandle_);
+	assert(ptr);
+	gBufferMaterialParam_ = reinterpret_cast<GBufferMaterialParam*>(ptr);
 	gBufferMaterialParam_->metal = 0.0f;
 	gBufferMaterialParam_->roughness = 1.0f;
 }

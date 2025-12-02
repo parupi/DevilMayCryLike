@@ -22,14 +22,15 @@ public:
 	void Initialize(DirectXManager* dx, GBufferManager* gBuffer, PSOManager* psoManager);
 
 	void CreateFullScreenVB();
-	// 描画の実行
-	void Execute();
 
 	void Begin();
-	void DrawDirectionalLight();
 	void End();
 
 	void CreateGBufferSRVs();
+	void CreateOutputResource();
+
+	D3D12_GPU_DESCRIPTOR_HANDLE GetOutputSRV() const { return outputSrvTable_; }
+	uint32_t GetOutputSrvIndex() const { return outputSrvIndex_; }
 private:
 	DirectXManager* dxManager_ = nullptr;
 	GBufferManager* gBufferManager_ = nullptr;
@@ -40,5 +41,15 @@ private:
 
 	uint32_t gBufferSrvStartIndex_;  // 先頭のSRV番号
 	D3D12_GPU_DESCRIPTOR_HANDLE gBufferSrvTable_; // GPUハンドル保持
+
+	// 出力用のRtv
+	Microsoft::WRL::ComPtr<ID3D12Resource> outputRtvResource_;
+	uint32_t outputRtvIndex_;  // 先頭のRtv番号
+	//D3D12_GPU_DESCRIPTOR_HANDLE outputRtvTable_; // GPUハンドル保持
+
+	// 計算結果を読み込ませるためのsrv
+	Microsoft::WRL::ComPtr<ID3D12Resource> outputSrvResource_;
+	uint32_t outputSrvIndex_;  // 先頭のRtv番号
+	D3D12_GPU_DESCRIPTOR_HANDLE outputSrvTable_; // GPUハンドル保持
 };
 

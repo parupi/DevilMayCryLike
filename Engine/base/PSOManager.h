@@ -61,6 +61,9 @@ public:// アクセッサ
 	// LightingPath
 	ID3D12RootSignature* GetLightingPathSignature() { return lightingPathSignature_.Get(); }
 	ID3D12PipelineState* GetLightingPathPSO();
+	// FinalComposite
+	ID3D12RootSignature* GetFinalCompositeRootSignature() { return finalCompositeRootSignature_.Get(); }
+	ID3D12PipelineState* GetFinalCompositePSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -92,6 +95,9 @@ private:
 	// LightingPath
 	void CreateLightingPathSignature();
 	void CreateLightingPathPSO();
+	// FinalComposite
+	void CreateFinalCompositeRootSignature();
+	void CreateFinalCompositePSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -126,4 +132,7 @@ private: // データ格納用変数
 	// LightingPath
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> lightingPathSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> lightingPathPipelineState_;
+	// 最終描画用
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> finalCompositeRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> finalCompositePSO_;
 };

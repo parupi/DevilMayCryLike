@@ -138,6 +138,15 @@ ID3D12PipelineState* PSOManager::GetLightingPathPSO()
 	return lightingPathPipelineState_.Get();
 }
 
+ID3D12PipelineState* PSOManager::GetFinalCompositePSO()
+{
+	if (!finalCompositePSO_) {
+		CreateFinalCompositePSO();
+	}
+
+	return finalCompositePSO_.Get();
+}
+
 void PSOManager::CreateSpriteSignature()
 {
 	HRESULT hr;
@@ -1109,11 +1118,11 @@ void PSOManager::CreatePrimitivePSO()
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_ALWAYS;
 
 	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
-	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.VS.VS.hlsl", L"vs_6_0");
+	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.VS.hlsl", L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
-	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.VS.PS.hlsl", L"ps_6_0");
+	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/PrimitiveDrawer.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
@@ -1637,11 +1646,95 @@ void PSOManager::CreateLightingPathPSO()
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // 既存と同様
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 	psoDesc.SampleDesc.Count = 1;
 	psoDesc.InputLayout = { inputLayout, _countof(inputLayout) };
 
 	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&lightingPathPipelineState_));
+	assert(SUCCEEDED(hr));
+}
+
+void PSOManager::CreateFinalCompositeRootSignature()
+{
+	CD3DX12_DESCRIPTOR_RANGE rangeSRV;
+	rangeSRV.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // t0
+
+	CD3DX12_ROOT_PARAMETER params[1];
+	params[0].InitAsDescriptorTable(1, &rangeSRV, D3D12_SHADER_VISIBILITY_PIXEL);
+
+	// ---- Static Sampler を定義（s0 に固定される） ----
+	CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc(
+		0,                              // shaderRegister = s0
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
+	);
+
+	// RootSignature の構築
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc;
+	rootSigDesc.Init(
+		_countof(params),
+		params,
+		1,                               // StaticSampler は1つ
+		&staticSamplerDesc,
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+	);
+
+	ID3DBlob* signatureBlob;
+	ID3DBlob* errorBlob;
+
+	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	assert(SUCCEEDED(hr));
+
+	hr = dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&finalCompositeRootSignature_));
+	assert(SUCCEEDED(hr));
+}
+
+
+void PSOManager::CreateFinalCompositePSO()
+{
+	CreateFinalCompositeRootSignature();
+
+	// Shaderをコンパイルする
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
+	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+	assert(vertexShaderBlob != nullptr);
+
+	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
+	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/FinalComposite.PS.hlsl", L"ps_6_0");
+	assert(pixelShaderBlob != nullptr);
+
+	// 入力レイアウトなし（SV_VertexID を使うため）
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	inputLayoutDesc.pInputElementDescs = nullptr;
+	inputLayoutDesc.NumElements = 0;
+
+	// PSO 設定
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
+	psoDesc.InputLayout = inputLayoutDesc;
+	psoDesc.pRootSignature = finalCompositeRootSignature_.Get();
+
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+
+	// 深度いらないので depth test を無効化
+	psoDesc.DepthStencilState.DepthEnable = FALSE;
+
+	psoDesc.SampleMask = UINT_MAX;
+
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = 1;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // backbuffer と一致させる
+	psoDesc.SampleDesc.Count = 1;
+
+	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(
+		&psoDesc,
+		IID_PPV_ARGS(&finalCompositePSO_)
+	);
 	assert(SUCCEEDED(hr));
 }

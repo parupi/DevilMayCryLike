@@ -45,7 +45,7 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 
-	TextureManager::GetInstance()->LoadTexture("Cube.png");
+	//TextureManager::GetInstance()->LoadTexture("Cube.png");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");

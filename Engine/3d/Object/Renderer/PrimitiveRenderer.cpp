@@ -36,8 +36,8 @@ void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
 }
 
 void PrimitiveRenderer::Draw() {
-    RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+    //RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
+    localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList());
     // 環境マップバインド
     int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
    
