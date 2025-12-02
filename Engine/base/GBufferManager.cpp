@@ -87,9 +87,9 @@ void GBufferManager::CreateResources(UINT width, UINT height)
     //===========================
     desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
     desc.usage = GpuResourceFactory::Usage::RenderTarget;
-    desc.clearColor[0] = 0.0f;
-    desc.clearColor[1] = 0.0f;
-    desc.clearColor[2] = 0.0f;
+    desc.clearColor[0] = 0.6f;
+    desc.clearColor[1] = 0.5f;
+    desc.clearColor[2] = 0.1f;
     desc.clearColor[3] = 1.0f;
     gBufferResources_[(size_t)GBufferType::Albedo] =
         resourceFactory->CreateTexture2D(desc);
@@ -111,7 +111,7 @@ void GBufferManager::CreateResources(UINT width, UINT height)
     desc.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
     desc.clearColor[0] = 0.0f;
     desc.clearColor[1] = 0.0f;
-    desc.clearColor[2] = 0.1f;
+    desc.clearColor[2] = 0.0f;
     desc.clearColor[3] = 1.0f;
     gBufferResources_[(size_t)GBufferType::WorldPos] =
         resourceFactory->CreateTexture2D(desc);

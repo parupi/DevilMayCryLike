@@ -44,9 +44,9 @@ void GBufferPath::Begin()
 	// --- 各リソースのクリア値を取得 ---
 	D3D12_CLEAR_VALUE albedoClear{};
 	albedoClear.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-	albedoClear.Color[0] = 0.0f;
-	albedoClear.Color[1] = 0.0f;
-	albedoClear.Color[2] = 0.0f;
+	albedoClear.Color[0] = 0.6f;
+	albedoClear.Color[1] = 0.5f;
+	albedoClear.Color[2] = 0.1f;
 	albedoClear.Color[3] = 1.0f;
 
 	D3D12_CLEAR_VALUE normalClear{};
@@ -60,7 +60,7 @@ void GBufferPath::Begin()
 	worldPosClear.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	worldPosClear.Color[0] = 0.0f;
 	worldPosClear.Color[1] = 0.0f;
-	worldPosClear.Color[2] = 0.1f;
+	worldPosClear.Color[2] = 0.0f;
 	worldPosClear.Color[3] = 1.0f;
 
 	// --- クリア ---

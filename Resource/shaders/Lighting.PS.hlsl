@@ -87,11 +87,6 @@ float4 main(PSInput input) : SV_Target
     float4 albedoRough = gAlbedo.Sample(sampler_Linear, uv);
     float3 albedo = albedoRough.rgb;
     float roughness = albedoRough.a;
-
-    if (all(albedo == float3(0.0, 0.0, 0.0)))
-    {
-        return float4(BACKBUFFER_CLEAR_COLOR, 1.0f);
-    }
     
     float4 normalMetal = gNormal.Sample(sampler_Linear, uv);
     float3 N = DecodeNormal(normalMetal.rgb);
