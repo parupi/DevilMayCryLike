@@ -1,5 +1,5 @@
 #include "Material.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 Material::Material()
 {
@@ -48,7 +48,7 @@ void Material::Bind()
 	// マテリアルCBufferの場所を指定
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 
-	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
+	srvManager_->SetGraphicsRootDescriptorTable(5, materialData_.textureIndex);
 }
 
 void Material::BindForGBuffer()

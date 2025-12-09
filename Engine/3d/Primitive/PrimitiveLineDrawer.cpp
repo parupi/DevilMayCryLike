@@ -1,7 +1,7 @@
 #include "PrimitiveLineDrawer.h"
 #include <3d/Camera/CameraManager.h>
 #include <numbers>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 PrimitiveLineDrawer* PrimitiveLineDrawer::instance = nullptr;
 std::once_flag PrimitiveLineDrawer::initInstanceFlag;
@@ -178,7 +178,7 @@ void PrimitiveLineDrawer::Draw()
 	cmdList->SetPipelineState(psoManager_->GetPrimitivePSO());
 	cmdList->SetGraphicsRootSignature(psoManager_->GetPrimitiveSignature());
 	//cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
-	transform_->BindToShader(cmdList);
+	transform_->BindToShader(cmdList, 1);
 
 	srvManager_->SetGraphicsRootDescriptorTable(1, dummyTextureIndex_);
 	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);

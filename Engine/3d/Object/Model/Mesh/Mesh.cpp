@@ -1,6 +1,5 @@
 #include "Mesh.h"
-#include "base/DirectXManager.h"
-#include "base/SrvManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 Mesh::~Mesh() {
 	if (vertexResource_) {
@@ -91,12 +90,6 @@ void Mesh::CreateVertexResource()
 	vertexBufferView_.SizeInBytes = sizeof(VertexData) * meshData_.vertices.size();
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
-	//// 頂点リソースを作る
-	//directXManager_->GetResourceFactory()->CreateBuffer(sizeof(VertexData) * meshData_.vertices.size(), vertexResource_);
-	//// 頂点バッファビューを作成する
-	//vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();	// リソースの先頭アドレスから使う
-	//vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * meshData_.vertices.size()); // 使用するリソースのサイズは頂点のサイズ
-	//vertexBufferView_.StrideInBytes = sizeof(VertexData); // 1頂点当たりのサイズ
 	//// 頂点リソースにデータを書き込む
 	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_)); // 書き込むためのアドレスを取得
 	std::memcpy(vertexData_, meshData_.vertices.data(), sizeof(VertexData) * meshData_.vertices.size());

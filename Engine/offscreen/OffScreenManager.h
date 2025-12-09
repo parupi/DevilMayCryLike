@@ -1,7 +1,7 @@
 #pragma once
 #include <mutex>
-#include <base/PSOManager.h>
-#include <base/DirectXManager.h>
+#include "Graphics/Rendering/PSO/PSOManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include "BaseOffScreen.h"
 #include "PostEffectPath.h"
 class OffScreenManager
@@ -35,12 +35,15 @@ public:
 	void BeginDrawToPingPong();
 	// 描画終了処理
 	void EndDrawToPingPong();
+	// pingにライティング情報をコピー
+	void CopyLightingToPing(uint32_t lightingSrv);
 
 	// アクセッサ
 	DirectXManager* GetDXManager() { return dxManager_; }
 	PSOManager* GetPSOManager() { return psoManager_; }
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetFinalPostEffectSrv() const { return finalPostEffectSrv_; }
+	uint32_t GetFinalSrvIndex() const { return outputSrvIndex_; }
 	bool HasPostEffectResult() const { return didHavePostEffectResult_; }
 
 	ID3D12Resource* GetPingBuffer() const { return pingPongBuffers_[ping_].Get(); }
@@ -74,6 +77,7 @@ private:
 	UINT pong_ = 1;
 
 	D3D12_GPU_DESCRIPTOR_HANDLE finalPostEffectSrv_;
+	uint32_t outputSrvIndex_ = 0;
 	bool didHavePostEffectResult_ = false;
 
 	

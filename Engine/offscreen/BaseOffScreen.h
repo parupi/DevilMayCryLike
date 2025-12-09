@@ -1,6 +1,6 @@
 #pragma once
-#include <base/DirectXManager.h>
-#include <base/PSOManager.h>
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 class BaseOffScreen
 {
 public:

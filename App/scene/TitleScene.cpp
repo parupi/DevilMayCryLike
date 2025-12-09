@@ -1,5 +1,5 @@
 #include "TitleScene.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <2d/SpriteManager.h>
 #include <input/Input.h>
 #include <Include/SceneLoader.h>
@@ -102,7 +102,7 @@ void TitleScene::Update()
 void TitleScene::Draw()
 {
 	//Object3dManager::GetInstance()->DrawSet();
-	Object3dManager::GetInstance()->DrawForGBuffer();
+	//Object3dManager::GetInstance()->DrawForGBuffer();
 
 	//ParticleManager::GetInstance()->Draw();
 

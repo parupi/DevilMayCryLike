@@ -1,6 +1,6 @@
 #include "SkySystem.h"
 #include <3d/Object/Object3dManager.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <3d/Camera/CameraManager.h>
 
 SkySystem* SkySystem::instance = nullptr;
@@ -71,7 +71,7 @@ void SkySystem::Draw()
 	commandList->IASetIndexBuffer(&indexBufferView_);
 
 	//commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
-	transform_->BindToShader(commandList);
+	transform_->BindToShader(commandList, 1);
 	// SRV（キューブマップ）バインド
 	material_->Bind();
 

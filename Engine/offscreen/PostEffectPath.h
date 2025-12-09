@@ -26,6 +26,7 @@ public:
 	void SetViewport(const D3D12_VIEWPORT& vp, const D3D12_RECT& rect);
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetOutputSRV() const { return outputSrv_; }
+	uint32_t GetOutputSRVIndex() const { return outputSrvIndex_; }
 private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
@@ -42,5 +43,6 @@ private:
 	D3D12_RECT scissorRect_{};
 	ID3D12Resource* outputResource_ = nullptr;
 
+	bool outputInitialized_ = false;
 };
 

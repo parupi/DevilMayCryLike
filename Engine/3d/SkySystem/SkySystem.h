@@ -1,9 +1,9 @@
 #pragma once
 #include "3d/Object/Model/ModelStructs.h"
 #include <memory>
-#include "base/PSOManager.h"
-#include "base/DirectXManager.h"
-#include "base/SrvManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 #include "3d/Object/Model/Material/Material.h"
 #include <3d/WorldTransform.h>
 

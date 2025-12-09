@@ -3,7 +3,7 @@
 #include <dxgidebug.h>
 #include <d3d12sdklayers.h>
 #include <sstream>
-#include <base/DirectXManager.h>
+#include "Graphics/Device/DirectXManager.h"
 
 class D3DResourceLeakChecker {
 public:

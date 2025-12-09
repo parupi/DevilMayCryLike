@@ -1,5 +1,5 @@
 #pragma once
-#include <base/DirectXManager.h>
+#include "Graphics/Device/DirectXManager.h"
 #include <math/Vector3.h>
 #include <math/Vector4.h>
 #include <3d/WorldTransform.h>
@@ -7,7 +7,7 @@
 #include <memory>
 #include <mutex>
 #include <math/Vector2.h>
-#include <base/PSOManager.h>
+#include "Graphics/Rendering/PSO/PSOManager.h"
 
 class PrimitiveLineDrawer
 {

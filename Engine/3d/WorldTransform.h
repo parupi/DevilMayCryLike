@@ -40,7 +40,7 @@ public:
 	/// <returns>定数バッファ</returns>
 	//const Microsoft::WRL::ComPtr<ID3D12Resource>& GetConstBuffer() const;
 
-	void BindToShader(ID3D12GraphicsCommandList* cmd) const;
+	void BindToShader(ID3D12GraphicsCommandList* cmd, int32_t index) const;
 
 #ifdef _DEBUG
 	/// デバッグ用の関数

@@ -1,14 +1,14 @@
 #pragma once
 #pragma once
-#include <base/DirectXManager.h>
-#include <base/SrvManager.h>
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 #include <random>
 #include <math/Vector4.h>
 #include <math/Matrix4x4.h>
 #include <3d/Camera/Camera.h>
 #include <math/Vector2.h>
 #include "debuger/GlobalVariables.h"
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 #include "ParticleStruct.h"
 #include <3d/Object/Renderer/InstancingRenderer.h>
 

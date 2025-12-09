@@ -4,22 +4,22 @@
 #include <dxgi1_6.h>
 #include <wrl.h>
 #include <dxcapi.h>
-#include "WindowManager.h"
-#include "Logger.h"
-#include "StringUtility.h"
+#include "base/WindowManager.h"
+#include "base/Logger.h"
+#include "base/StringUtility.h"
 #include "DirectXTex/DirectXTex.h"
 #include <chrono>
 #include <thread>
 #include <vector>
 #include <math/Vector4.h>
-#include "Graphics/GraphicsDevice.h"
-#include "Graphics/CommandContext.h"
-#include "Graphics/SwapChainManager.h"
-#include <base/SrvManager.h>
-#include <base/RtvManager.h>
-#include "DsvManager.h"
-#include "GpuResourceFactory.h"
-#include "ResourceManager.h"
+#include "Graphics/Device/GraphicsDevice.h"
+#include "Graphics/Device/CommandContext.h"
+#include "Graphics/Device/SwapChainManager.h"
+#include "Graphics/Resource/SrvManager.h"
+#include "Graphics/Resource/RtvManager.h"
+#include "Graphics/Resource/DsvManager.h"
+#include "Graphics/Resource/GpuResourceFactory.h"
+#include "Graphics/Resource/ResourceManager.h"
 
 class PSOManager;
 
@@ -72,6 +72,7 @@ private: // メンバ変数
 	std::unique_ptr<ResourceManager> resourceManager_ = nullptr;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_;
+	uint32_t dsvIndex_ = 0;
 
 	// シザー矩形
 	D3D12_RECT scissorRect_{};

@@ -2,14 +2,14 @@
 #include "3d/Object/Model/Animation/Skeleton.h"
 #include "3d/Object/Model/Animation/SkinCluster.h"
 #include "3d/Object/Model/Animation/Animation.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include "3d/Object/Model/ModelManager.h"
 #include <3d/Object/Object3d.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include <DirectXTex/d3dx12.h>
 #include <3d/Light/LightManager.h>
 #include "3d/Object/Object3dManager.h"
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 
 void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileName)
 {

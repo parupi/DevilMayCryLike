@@ -1,5 +1,5 @@
 #include "SampleScene.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <3d/Object/Model/ModelManager.h>
 #include <base/Particle/ParticleManager.h>
 #include <imgui/imgui.h>
@@ -61,28 +61,58 @@ void SampleScene::Initialize()
 	object->Initialize();
 
 	// レンダラーの追加
-	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "axis"));
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
-	// モデルとアニメーション取得
-	SkinnedModel* model = static_cast<SkinnedModel*>(object->GetRenderer("render")->GetModel());
-	Animation* anim = model->GetAnimation();
+	//// モデルとアニメーション取得
+	//SkinnedModel* model = static_cast<SkinnedModel*>(object->GetRenderer("render")->GetModel());
+	//Animation* anim = model->GetAnimation();
 
-	anim->Play("Falling", true, 0.5f);
+	//anim->Play("Falling", true, 0.5f);
 
-	for (int32_t i = 0; i < 1; i++) {
-		model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
-	}
+	//for (int32_t i = 0; i < 1; i++) {
+	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
+	//}
 
 	object_ = object.get();
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
-	// ============ライト=================//
-	//lightManager_ = std::make_unique<LightManager>();
+	// オブジェクトを生成
+	object = std::make_unique<Object3d>("obj2");
+	object->Initialize();
 
+	// レンダラーの追加
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+
+	//object->GetOption().drawPath = DrawPath::Forward;
+
+	object2_ = object.get();
+
+	Object3dManager::GetInstance()->AddObject(std::move(object));
+
+
+	//// オブジェクトを生成
+	//object = std::make_unique<Object3d>("obj3");
+	//object->Initialize();
+
+	//// レンダラーの追加
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render3", "weapon"));
+
+	//object->AddRenderer(RendererManager::GetInstance()->FindRender("render3"));
+
+	//object->GetOption().drawPath = DrawPath::Deferred;
+
+	//Object3dManager::GetInstance()->AddObject(std::move(object));
+
+
+	sprite_ = std::make_unique<Sprite>();
+	sprite_->Initialize("uvChecker.png");
+
+	// ============ライト=================//
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
 	lightManager_->AddLight(std::make_unique<SpotLight>("SampleSpot"));
@@ -100,6 +130,7 @@ void SampleScene::Finalize()
 void SampleScene::Update()
 {
 
+	sprite_->Update();
 	emitter_->Update();
 
 
@@ -115,7 +146,7 @@ void SampleScene::Update()
 void SampleScene::Draw()
 {
 	//Object3dManager::GetInstance()->DrawSet();
-	Object3dManager::GetInstance()->DrawForGBuffer();
+	//Object3dManager::GetInstance()->DrawForGBuffer();
 
 	//RendererManager::GetInstance()->RenderGBufferPass();
 
@@ -126,6 +157,8 @@ void SampleScene::Draw()
 
 	//ParticleManager::GetInstance()->DrawSet();
 	//ParticleManager::GetInstance()->Draw();
+	//SpriteManager::GetInstance()->DrawSet();
+	//sprite_->Draw();
 }
 
 void SampleScene::DrawRTV()
@@ -141,8 +174,8 @@ void SampleScene::DebugUpdate()
 	object_->DebugGui();
 	ImGui::End();
 
-	//ImGui::Begin("Object2");
-	//object2_->DebugGui();
-	//ImGui::End();
+	ImGui::Begin("Object2");
+	object2_->DebugGui();
+	ImGui::End();
 }
 #endif

@@ -2,7 +2,7 @@
 #include "PrimitiveFactory.h"
 #include "RendererManager.h"
 #include <3d/SkySystem/SkySystem.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 PrimitiveRenderer::PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName) {
     name_ = renderName;
@@ -37,7 +37,7 @@ void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
 
 void PrimitiveRenderer::Draw() {
     //RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-    localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList());
+    localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 1);
     // 環境マップバインド
     int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
    

@@ -1,6 +1,6 @@
 #pragma once
 #include "base/WindowManager.h"
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include "input/Input.h"
 #ifdef _DEBUG
 #include "debuger/LeakChecker.h"
@@ -10,11 +10,13 @@
 #include <scene/SceneFactory.h>
 #include <scene/AbstractSceneFactory.h>
 #include <audio/Audio.h>
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 #include <3d/SkySystem/SkySystem.h>
 #include <base/GBufferManager.h>
 #include <base/GBufferPath.h>
 #include <base/LightingPath.h>
+#include <Graphics/Rendering/RenderPath/ForwardRenderPath.h>
+#include <Graphics/Rendering/RenderPath/CompositePath.h>
 
 class GuchisFramework
 {
@@ -51,5 +53,7 @@ protected:
 	std::unique_ptr<GBufferManager> gBufferManager = nullptr;
 	std::unique_ptr<GBufferPath> gBufferPath = nullptr;
 	std::unique_ptr<LightingPath> lightingPath = nullptr;
+	std::unique_ptr<ForwardRenderPath> forwardPath = nullptr;
+	std::unique_ptr<CompositePath> compositePath = nullptr;
 };
 

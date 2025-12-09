@@ -2,7 +2,7 @@
 #include <wrl.h>
 #include <d3d12.h>
 #include <mutex>
-#include "DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 enum class BlendMode {
 	kNone,
@@ -63,7 +63,10 @@ public:// アクセッサ
 	ID3D12PipelineState* GetLightingPathPSO();
 	// FinalComposite
 	ID3D12RootSignature* GetFinalCompositeRootSignature() { return finalCompositeRootSignature_.Get(); }
-	ID3D12PipelineState* GetFinalCompositePSO();
+	ID3D12PipelineState* GetFinalCompositePSO(bool isPostCopy = false);
+	// Composite
+	ID3D12RootSignature* GetCompositeRootSignature() { return compositeRootSignature_.Get(); }
+	ID3D12PipelineState* GetCompositePSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -97,7 +100,10 @@ private:
 	void CreateLightingPathPSO();
 	// FinalComposite
 	void CreateFinalCompositeRootSignature();
-	void CreateFinalCompositePSO();
+	void CreateFinalCompositePSO(bool isPostCopy);
+	// Composite
+	void CreateCompositeRootSignature();
+	void CreateCompositePSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -134,5 +140,8 @@ private: // データ格納用変数
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> lightingPathPipelineState_;
 	// 最終描画用
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> finalCompositeRootSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> finalCompositePSO_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 2> finalCompositePSO_;
+	// Forward Deferred 合成用
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> compositeRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> compositePSO_;
 };

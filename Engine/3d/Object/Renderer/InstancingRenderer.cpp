@@ -4,7 +4,7 @@
 #include <cassert>
 #include <cstring>
 #include <3d/SkySystem/SkySystem.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveType type, const std::string& texturePath)
 {

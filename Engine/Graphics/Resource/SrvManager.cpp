@@ -1,5 +1,5 @@
 #include "SrvManager.h"
-#include <base/DirectXManager.h>
+#include "Graphics/Device/DirectXManager.h"
 
 const uint32_t SrvManager::kMaxCount = 512;
 

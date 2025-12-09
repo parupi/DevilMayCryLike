@@ -1,5 +1,5 @@
 #include "DsvManager.h"
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 DsvManager::~DsvManager()
 {
@@ -40,11 +40,23 @@ void DsvManager::Finalize()
 	descriptorSize_ = 0;
 }
 
-void DsvManager::CreateDsv(ID3D12Resource* resource, int index)
+void DsvManager::CreateDsv(uint32_t index, ID3D12Resource* resource, DXGI_FORMAT format)
 {
 	D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc{};
 	dsvDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
-	dsvDesc.Format = resource->GetDesc().Format;
+	dsvDesc.Format = format;
 
 	device_->CreateDepthStencilView(resource, &dsvDesc, dsvHandles_[index]);
+}
+
+uint32_t DsvManager::Allocate()
+{
+	assert(useIndex < kMaxCount);
+
+	// returnする番号を一旦記録しておく
+	int index = useIndex;
+	// 次回のために番号を1進める
+	useIndex++;
+	// 上で記録した番号を返す
+	return index;
 }

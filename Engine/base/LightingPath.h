@@ -1,6 +1,6 @@
 #pragma once
-#include <base/DirectXManager.h>
-#include <base/PSOManager.h>
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 #include <base/GBufferManager.h>
 #include <math/Vector2.h>
 #include <math/Vector3.h>
@@ -31,6 +31,7 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetOutputSRV() const { return outputSrvTable_; }
 	uint32_t GetOutputSrvIndex() const { return outputSrvIndex_; }
+	//uint32_t GetDsvIndex() const { return dsvIndex_; }
 private:
 	DirectXManager* dxManager_ = nullptr;
 	GBufferManager* gBufferManager_ = nullptr;
@@ -51,5 +52,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> outputSrvResource_;
 	uint32_t outputSrvIndex_;  // 先頭のRtv番号
 	D3D12_GPU_DESCRIPTOR_HANDLE outputSrvTable_; // GPUハンドル保持
+
+	//Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_;
+	//uint32_t dsvIndex_ = 0;
 };
 

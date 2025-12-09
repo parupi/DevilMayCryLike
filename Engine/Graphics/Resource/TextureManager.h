@@ -1,8 +1,8 @@
 #pragma once
-#include "DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include "DirectXTex/DirectXTex.h"
 #include <d3d12.h>
-#include <base/SrvManager.h>
+#include "Graphics/Resource/SrvManager.h"
 #include <string>
 #include <unordered_map>
 #include <wrl.h>

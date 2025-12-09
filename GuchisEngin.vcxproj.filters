@@ -357,13 +357,13 @@
     <ClInclude Include="Engine\3d\WorldTransform.h">
       <Filter>Engine\3d</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Graphics\CommandContext.h">
+    <ClInclude Include="Engine\Graphics\Device\CommandContext.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Graphics\GraphicsDevice.h">
+    <ClInclude Include="Engine\Graphics\Device\GraphicsDevice.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Graphics\SwapChainManager.h">
+    <ClInclude Include="Engine\Graphics\Device\SwapChainManager.h">
       <Filter>Engine\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Include\SceneBuilder.h">
@@ -375,13 +375,13 @@
     <ClInclude Include="Engine\audio\Audio.h">
       <Filter>Engine\audio</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\base\DirectXManager.h">
+    <ClInclude Include="Engine\Graphics\Device\DirectXManager.h">
       <Filter>Engine\base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\Logger.h">
       <Filter>Engine\base</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\base\PSOManager.h">
+    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h">
       <Filter>Engine\base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\Particle\ParticleEmitter.h">
@@ -393,13 +393,13 @@
     <ClInclude Include="Engine\base\Particle\ParticleStruct.h">
       <Filter>Engine\base\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\base\SrvManager.h">
+    <ClInclude Include="Engine\Graphics\Resource\SrvManager.h">
       <Filter>Engine\base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\StringUtility.h">
       <Filter>Engine\base</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\base\TextureManager.h">
+    <ClInclude Include="Engine\Graphics\Resource\TextureManager.h">
       <Filter>Engine\base</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\WindowManager.h">
@@ -523,13 +523,16 @@
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\base\GBufferManager.h" />
-    <ClInclude Include="Engine\base\RtvManager.h" />
-    <ClInclude Include="Engine\base\DsvManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\DsvManager.h" />
     <ClInclude Include="Engine\base\GBufferPath.h" />
     <ClInclude Include="Engine\base\LightingPath.h" />
     <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
-    <ClInclude Include="Engine\base\GpuResourceFactory.h" />
-    <ClInclude Include="Engine\base\ResourceManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h" />
+    <ClInclude Include="Engine\Graphics\Resource\ResourceManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.h" />
+    <ClInclude Include="Engine\3d\Object\ObjectData.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\CompositePath.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -715,13 +718,13 @@
     <ClCompile Include="Engine\3d\WorldTransform.cpp">
       <Filter>Engine\3d</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Graphics\CommandContext.cpp">
+    <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Graphics\GraphicsDevice.cpp">
+    <ClCompile Include="Engine\Graphics\Device\GraphicsDevice.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Graphics\SwapChainManager.cpp">
+    <ClCompile Include="Engine\Graphics\Device\SwapChainManager.cpp">
       <Filter>Engine\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Include\SceneBuilder.cpp">
@@ -733,13 +736,13 @@
     <ClCompile Include="Engine\audio\Audio.cpp">
       <Filter>Engine\audio</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\base\DirectXManager.cpp">
+    <ClCompile Include="Engine\Graphics\Device\DirectXManager.cpp">
       <Filter>Engine\base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\Logger.cpp">
       <Filter>Engine\base</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\base\PSOManager.cpp">
+    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp">
       <Filter>Engine\base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\Particle\ParticleEmitter.cpp">
@@ -748,13 +751,13 @@
     <ClCompile Include="Engine\base\Particle\ParticleManager.cpp">
       <Filter>Engine\base\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\base\SrvManager.cpp">
+    <ClCompile Include="Engine\Graphics\Resource\SrvManager.cpp">
       <Filter>Engine\base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\StringUtility.cpp">
       <Filter>Engine\base</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\base\TextureManager.cpp">
+    <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp">
       <Filter>Engine\base</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\WindowManager.cpp">
@@ -864,13 +867,15 @@
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="Engine\base\GBufferManager.cpp" />
-    <ClCompile Include="Engine\base\RtvManager.cpp" />
-    <ClCompile Include="Engine\base\DsvManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\RtvManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
     <ClCompile Include="Engine\base\GBufferPath.cpp" />
     <ClCompile Include="Engine\base\LightingPath.cpp" />
     <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
-    <ClCompile Include="Engine\base\GpuResourceFactory.cpp" />
-    <ClCompile Include="Engine\base\ResourceManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\CompositePath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />

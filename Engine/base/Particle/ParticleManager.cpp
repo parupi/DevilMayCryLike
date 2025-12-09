@@ -5,7 +5,7 @@
 #include <debuger/ImGuiManager.h>
 #include <algorithm> 
 #include <base/utility/DeltaTime.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());

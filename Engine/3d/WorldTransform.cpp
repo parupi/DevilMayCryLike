@@ -1,7 +1,8 @@
 #include <3d/WorldTransform.h>
 #include <math/function.h>
-#include <base/DirectXManager.h>
+#include "Graphics/Device/DirectXManager.h"
 #include <3d/Object/Object3dManager.h>
+#include "Camera/CameraManager.h"
 
 WorldTransform::~WorldTransform()
 {
@@ -49,32 +50,31 @@ void WorldTransform::TransferMatrix()
 
 	// 親が存在する場合、親のワールド行列を掛け合わせる
 	if (parent_) {
-		Matrix4x4 parentMatrix = parent_->matWorld_;
-		matWorld_ *= parentMatrix; // 親の行列と自身の行列を合成
+		matWorld_ *= parent_->matWorld_;
 	}
 
 	// ワールド行列を定数バッファに転送
 	if (constMap != nullptr) {
 		constMap->World = matWorld_; // 定数バッファに行列をコピー
-		constMap->WorldInverseTranspose = Inverse(matWorld_);
+		//constMap->WorldInverseTranspose = Inverse(matWorld_);
+		constMap->WorldInverseTranspose = Transpose(Inverse(matWorld_));
+
+		auto* camera = CameraManager::GetInstance()->GetActiveCamera();
+		if (camera) {
+			Matrix4x4 viewProj = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix(); // あなたの実装に合わせて
+			constMap->WVP = matWorld_ * viewProj; // row-vector版: W * V * P
+		}
 	}
 }
 
-void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd) const
+void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd, int32_t index) const
 {
 	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
 
-	cmd->SetGraphicsRootConstantBufferView(1, resourceManager->GetGPUVirtualAddress(bufferHandle_));
+	cmd->SetGraphicsRootConstantBufferView(index, resourceManager->GetGPUVirtualAddress(bufferHandle_));
 }
 
 #ifdef _DEBUG
-//const Microsoft::WRL::ComPtr<ID3D12Resource>& WorldTransform::GetConstBuffer() const
-//{
-//	return Object3dManager::GetInstance()->GetDxManager()->GetResourceManager()->GetResource(bufferHandle_);
-//}
-
-
-
 void WorldTransform::DebugGui()
 {
 	if (ImGui::Button("ResetRotate")) {

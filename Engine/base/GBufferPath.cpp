@@ -1,7 +1,7 @@
 #include "GBufferPath.h"
-#include "DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include "GBufferManager.h"
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 #include <scene/SceneManager.h>
 #include <math/function.h>
 
@@ -69,11 +69,7 @@ void GBufferPath::Begin()
 	commandContext->ClearRenderTarget(rtvs[2], worldPosClear.Color);
 
 	commandContext->ClearDepth(dsv);
-}
 
-
-void GBufferPath::Draw()
-{
 	auto* cmd = dxManager_->GetCommandList();
 
 	cmd->SetPipelineState(psoManager_->GetDeferredPSO());
@@ -82,9 +78,6 @@ void GBufferPath::Draw()
 	//srvHeapをセット
 	ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
 	cmd->SetDescriptorHeaps(1, heaps);
-
-	// GBufferに対する実際の描画処理
-	SceneManager::GetInstance()->Draw();
 }
 
 void GBufferPath::End()

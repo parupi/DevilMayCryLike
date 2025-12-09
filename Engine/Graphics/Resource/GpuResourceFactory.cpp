@@ -36,7 +36,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const
         memcpy(clearValue.Color, desc.clearColor, sizeof(float) * 4);
         useClearValue = true;
     } else if (desc.usage == Usage::DepthStencil) {
-        clearValue.Format = desc.format;
+        clearValue.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
         clearValue.DepthStencil.Depth = desc.clearDepth;
         clearValue.DepthStencil.Stencil = 0;
         useClearValue = true;

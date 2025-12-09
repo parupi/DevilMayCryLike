@@ -1,10 +1,10 @@
 #pragma once
 #include <mutex>
-#include <base/DirectXManager.h>
-#include "base/SrvManager.h"
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 #include "BaseRenderer.h"
 #include <base/GBufferManager.h>
-#include <base/PSOManager.h>
+#include "Graphics/Rendering/PSO/PSOManager.h"
 
 
 

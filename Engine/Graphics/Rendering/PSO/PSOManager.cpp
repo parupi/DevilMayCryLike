@@ -1,5 +1,5 @@
 #include "PsoManager.h"
-#include "Logger.h"
+#include "base/Logger.h"
 #include <cassert>
 #include <DirectXTex/d3dx12.h>
 
@@ -43,6 +43,18 @@ void PSOManager::Finalize()
 	// スカイボックス
 	skinningSignature_.Reset();
 	skinningComputePipelineState_.Reset();
+
+	deferredSignature_.Reset();
+	deferredPipelineState_.Reset();
+
+	lightingPathSignature_.Reset();
+	lightingPathPipelineState_.Reset();
+
+	finalCompositeRootSignature_.Reset();
+
+	for (auto& pso : finalCompositePSO_) {
+		pso.Reset();
+	}
 
 	dxManager_ = nullptr;
 }
@@ -138,13 +150,22 @@ ID3D12PipelineState* PSOManager::GetLightingPathPSO()
 	return lightingPathPipelineState_.Get();
 }
 
-ID3D12PipelineState* PSOManager::GetFinalCompositePSO()
+ID3D12PipelineState* PSOManager::GetFinalCompositePSO(bool isPostCopy)
 {
-	if (!finalCompositePSO_) {
-		CreateFinalCompositePSO();
+	const uint32_t idx = isPostCopy ? 0u : 1u; // 0 = postCopy(=SRGB) , 1 = normal(=UNORM)
+	if (!finalCompositePSO_[idx]) {
+		CreateFinalCompositePSO(isPostCopy);
+	}
+	return finalCompositePSO_[idx].Get();
+}
+
+ID3D12PipelineState* PSOManager::GetCompositePSO()
+{
+	if (!compositePSO_) {
+		CreateCompositePSO();
 	}
 
-	return finalCompositePSO_.Get();
+	return compositePSO_.Get();
 }
 
 void PSOManager::CreateSpriteSignature()
@@ -298,7 +319,7 @@ void PSOManager::CreateSpritePSO(BlendMode blendMode)
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;			// RasterizerState
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// 利用するトポロジ(形状)のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	// どのように画面を打ち込むかの設定
@@ -497,56 +518,63 @@ void PSOManager::CreateParticlePSO(BlendMode blendMode)
 
 void PSOManager::CreateObjectSignature()
 {
+	// Texture
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	descriptorRange[0].BaseShaderRegister = 0;														// 0から始まる
-	descriptorRange[0].NumDescriptors = 1;															// 数は1つ
-	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;									// SRVを使う
-	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;	// Offsetを自動計算
+	descriptorRange[0].BaseShaderRegister = 0; // t0
+	descriptorRange[0].NumDescriptors = 1; // 数は1つ
+	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV; // SRVを使う
+	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND; // Offsetを自動計算
 	// 環境マップ用SRV
 	D3D12_DESCRIPTOR_RANGE descriptorRangeEnvMap[1] = {};
-	descriptorRangeEnvMap[0].BaseShaderRegister = 1;	// t1バインド (gEnvironmentTexture)
+	descriptorRangeEnvMap[0].BaseShaderRegister = 1; // t1
 	descriptorRangeEnvMap[0].NumDescriptors = 1;
 	descriptorRangeEnvMap[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRangeEnvMap[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	// Light
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForLight[1] = {};
+	descriptorRangesForLight[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForLight[0].BaseShaderRegister = 4; // t4
+	descriptorRangesForLight[0].NumDescriptors = 1;
+	descriptorRangesForLight[0].RegisterSpace = 0;
+	descriptorRangesForLight[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 	// RootSignature作成
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	// RootParameter作成。PixelShaderのMaterialとVertezShaderのTransform
-	D3D12_ROOT_PARAMETER rootParameters[8] = {};
-	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;			// CBVを使う
-	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;			// PixelShaderで使う
-	rootParameters[0].Descriptor.ShaderRegister = 0;			// レジスタ番号0とバインド
-	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;			// CBVを使う
-	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;		// VertexShaderで使う
-	rootParameters[1].Descriptor.ShaderRegister = 0;							// レジスタ番号0を使う
-
-	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;			// DescriptorTableで使う
-	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
-	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;					// Tableの中身の配列を指定
-	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);		// Tableで利用する数
+	D3D12_ROOT_PARAMETER rootParameters[7] = {};
+	// MaterialData
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[0].Descriptor.ShaderRegister = 0; // b0
+	// WorldTransform
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV; // CBVを使う
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX; // VertexShaderで使う
+	rootParameters[4].Descriptor.ShaderRegister = 1; // b1
 
 	// カメラ
-	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;						// DescriptorTableで使う
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
-	rootParameters[3].Descriptor.ShaderRegister = 1;
-	// 平行光源
-	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;						// DescriptorTableで使う
-	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
-	rootParameters[4].Descriptor.ShaderRegister = 2;	// レジスタ番号2を使う
-	// 点光源
-	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;						// DescriptorTableで使う
-	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
-	rootParameters[5].Descriptor.ShaderRegister = 3;	// レジスタ番号2を使う
-	// スポットライト
-	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;						// DescriptorTableで使う
-	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
-	rootParameters[6].Descriptor.ShaderRegister = 4;	// レジスタ番号2を使う
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;						// DescriptorTableで使う
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
+	rootParameters[1].Descriptor.ShaderRegister = 2; // b2
+	// LightNum
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;						// DescriptorTableで使う
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;						// PixelShaderで使う
+	rootParameters[2].Descriptor.ShaderRegister = 3; // b3
+	// [4] DescriptorTable (Lights)
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForLight);
+	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRangesForLight;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// Texture
+	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE; // DescriptorTableで使う
+	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL; // PixelShaderで使う
+	rootParameters[5].DescriptorTable.pDescriptorRanges = descriptorRange; // Tableの中身の配列を指定
+	rootParameters[5].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange); // Tableで利用する数
 	// 環境マップ
-	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRangeEnvMap;
-	rootParameters[7].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeEnvMap);
+	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[6].DescriptorTable.pDescriptorRanges = descriptorRangeEnvMap;
+	rootParameters[6].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeEnvMap);
 
 	descriptionRootSignature.pParameters = rootParameters;						// ルートパラメータ配列へのポインタ
 	descriptionRootSignature.NumParameters = _countof(rootParameters);			// 配列の長さ
@@ -675,7 +703,7 @@ void PSOManager::CreateObjectPSO(BlendMode blendMode)
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;	// RasterizerState
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// 利用するトポロジ(形状)のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	// どのように画面を打ち込むかの設定
@@ -994,7 +1022,7 @@ void PSOManager::CreateOffScreenPSO(OffScreenEffectType effectType)
 	graphicsPipelineStateDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);			// RasterizerState
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	// 利用するトポロジ(形状)のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	// どのように画面を打ち込むかの設定
@@ -1469,7 +1497,7 @@ void PSOManager::CreateDeferredPSO()
 	inputElementDescs[1].SemanticName = "TEXCOORD";
 	inputElementDescs[1].SemanticIndex = 0;
 	inputElementDescs[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-	inputElementDescs[1].AlignedByteOffset = 16;
+	inputElementDescs[1].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElementDescs[1].InputSlot = 0;
 	inputElementDescs[1].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 	inputElementDescs[1].InstanceDataStepRate = 0;
@@ -1477,7 +1505,7 @@ void PSOManager::CreateDeferredPSO()
 	inputElementDescs[2].SemanticName = "NORMAL";
 	inputElementDescs[2].SemanticIndex = 0;
 	inputElementDescs[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-	inputElementDescs[2].AlignedByteOffset = 24;
+	inputElementDescs[2].AlignedByteOffset = D3D12_APPEND_ALIGNED_ELEMENT;
 	inputElementDescs[2].InputSlot = 0;
 	inputElementDescs[2].InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
 	inputElementDescs[2].InstanceDataStepRate = 0;
@@ -1485,6 +1513,15 @@ void PSOManager::CreateDeferredPSO()
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
 	inputLayoutDesc.pInputElementDescs = inputElementDescs.data();
 	inputLayoutDesc.NumElements = (UINT)inputElementDescs.size();
+
+	// DepthStencilStateの設定
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	// Depthの機能を有効化する
+	depthStencilDesc.DepthEnable = true;
+	// 書き込みします
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	// 近ければ描画される
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
 	// -----------------------------
 	// 4) PSO 設定
@@ -1499,7 +1536,7 @@ void PSOManager::CreateDeferredPSO()
 
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState = depthStencilDesc;
 
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -1511,7 +1548,6 @@ void PSOManager::CreateDeferredPSO()
 	psoDesc.SampleDesc.Count = 1;
 
 	dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&deferredPipelineState_));
-
 }
 
 void PSOManager::CreateLightingPathSignature()
@@ -1540,13 +1576,13 @@ void PSOManager::CreateLightingPathSignature()
 	descriptorRanges[0].RegisterSpace = 0;
 	descriptorRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_DESCRIPTOR_RANGE descriptorRanges2[1] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForLight[1] = {};
 	// range 1: Lights SRV (t4)
-	descriptorRanges2[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRanges2[0].NumDescriptors = 1;            // t4
-	descriptorRanges2[0].BaseShaderRegister = 4;        // t4
-	descriptorRanges2[0].RegisterSpace = 0;
-	descriptorRanges2[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	descriptorRangesForLight[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForLight[0].NumDescriptors = 1;            // t4
+	descriptorRangesForLight[0].BaseShaderRegister = 4;        // t4
+	descriptorRangesForLight[0].RegisterSpace = 0;
+	descriptorRangesForLight[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	// RootParameter 作成
 	D3D12_ROOT_PARAMETER rootParameters[4] = {};
@@ -1571,8 +1607,8 @@ void PSOManager::CreateLightingPathSignature()
 
 	// [4] DescriptorTable (Lights)
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRanges2);
-	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRanges2;
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForLight);
+	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRangesForLight;
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// Root Signature Desc
@@ -1591,7 +1627,7 @@ void PSOManager::CreateLightingPathSignature()
 		Logger::Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
 		assert(false);
 	}
-	hr = dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(),signatureBlob->GetBufferSize(), IID_PPV_ARGS(&lightingPathSignature_));
+	hr = dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&lightingPathSignature_));
 	assert(SUCCEEDED(hr));
 }
 
@@ -1693,48 +1729,160 @@ void PSOManager::CreateFinalCompositeRootSignature()
 }
 
 
-void PSOManager::CreateFinalCompositePSO()
+void PSOManager::CreateFinalCompositePSO(bool isPostCopy)
 {
-	CreateFinalCompositeRootSignature();
+	// ルートシグネチャは一度だけ作成する
+	if (!finalCompositeRootSignature_) {
+		CreateFinalCompositeRootSignature();
+	}
 
-	// Shaderをコンパイルする
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = nullptr;
-	vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
-	assert(vertexShaderBlob != nullptr);
-
-	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = nullptr;
-	pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/FinalComposite.PS.hlsl", L"ps_6_0");
-	assert(pixelShaderBlob != nullptr);
-
-	// 入力レイアウトなし（SV_VertexID を使うため）
-	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
-	inputLayoutDesc.pInputElementDescs = nullptr;
-	inputLayoutDesc.NumElements = 0;
+	// シェーダーのコンパイル（既存コードと同じ）
+	auto vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+	auto pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/FinalComposite.PS.hlsl", L"ps_6_0");
+	assert(vertexShaderBlob && pixelShaderBlob);
 
 	// PSO 設定
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
 	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
 	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
-	psoDesc.InputLayout = inputLayoutDesc;
+	psoDesc.InputLayout = { nullptr, 0 };
 	psoDesc.pRootSignature = finalCompositeRootSignature_.Get();
 
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-
-	// 深度いらないので depth test を無効化
 	psoDesc.DepthStencilState.DepthEnable = FALSE;
-
 	psoDesc.SampleMask = UINT_MAX;
-
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB; // backbuffer と一致させる
+	psoDesc.RTVFormats[0] = isPostCopy ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.SampleDesc.Count = 1;
 
-	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(
-		&psoDesc,
-		IID_PPV_ARGS(&finalCompositePSO_)
+	const uint32_t idx = isPostCopy ? 0u : 1u;
+	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&finalCompositePSO_[idx]));
+	assert(SUCCEEDED(hr));
+}
+
+void PSOManager::CreateCompositeRootSignature()
+{
+	// Static sampler (s0)
+	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
+	samplerDesc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerDesc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	samplerDesc.MinLOD = 0.0f;
+	samplerDesc.MaxLOD = D3D12_FLOAT32_MAX;
+	samplerDesc.ShaderRegister = 0;      // s0
+	samplerDesc.RegisterSpace = 0;
+	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// DeferredSrv
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForDeferredSrv[1] = {};
+	descriptorRangesForDeferredSrv[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForDeferredSrv[0].NumDescriptors = 1;
+	descriptorRangesForDeferredSrv[0].BaseShaderRegister = 0; // t0
+	descriptorRangesForDeferredSrv[0].RegisterSpace = 0;
+	descriptorRangesForDeferredSrv[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	// DeferredDsv
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForDeferredDsv[1] = {};
+	descriptorRangesForDeferredDsv[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForDeferredDsv[0].NumDescriptors = 1;
+	descriptorRangesForDeferredDsv[0].BaseShaderRegister = 1; // t1
+	descriptorRangesForDeferredDsv[0].RegisterSpace = 0;
+	descriptorRangesForDeferredDsv[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	// ForwardSrv
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForForwardSrv[1] = {};
+	descriptorRangesForForwardSrv[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForForwardSrv[0].NumDescriptors = 1;
+	descriptorRangesForForwardSrv[0].BaseShaderRegister = 2; // t2
+	descriptorRangesForForwardSrv[0].RegisterSpace = 0;
+	descriptorRangesForForwardSrv[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	// ForwardDsv
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForForwardDsv[1] = {};
+	descriptorRangesForForwardDsv[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForForwardDsv[0].NumDescriptors = 1;
+	descriptorRangesForForwardDsv[0].BaseShaderRegister = 3; // t3
+	descriptorRangesForForwardDsv[0].RegisterSpace = 0;
+	descriptorRangesForForwardDsv[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// RootParameter 作成
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
+	// Deferred結果
+	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForDeferredSrv);
+	rootParameters[0].DescriptorTable.pDescriptorRanges = descriptorRangesForDeferredSrv;
+	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// Deferred深度
+	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[1].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForDeferredDsv);
+	rootParameters[1].DescriptorTable.pDescriptorRanges = descriptorRangesForDeferredDsv;
+	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// Forward結果
+	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForForwardSrv);
+	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRangesForForwardSrv;
+	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// Forward深度
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForForwardDsv);
+	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRangesForForwardDsv;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// ---- Static Sampler を定義（s0 に固定される） ----
+	CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc(
+		0,                              // shaderRegister = s0
+		D3D12_FILTER_MIN_MAG_MIP_LINEAR,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP,
+		D3D12_TEXTURE_ADDRESS_MODE_CLAMP
 	);
+
+	// Root Signature Desc
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+	rootSignatureDesc.pParameters = rootParameters;
+	rootSignatureDesc.NumParameters = _countof(rootParameters);
+	rootSignatureDesc.pStaticSamplers = &samplerDesc;
+	rootSignatureDesc.NumStaticSamplers = 1;
+	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+	ID3DBlob* signatureBlob;
+	ID3DBlob* errorBlob;
+
+	HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+	assert(SUCCEEDED(hr));
+
+	hr = dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&compositeRootSignature_));
+	assert(SUCCEEDED(hr));
+}
+
+void PSOManager::CreateCompositePSO()
+{
+	// ルートシグネチャは一度だけ作成する
+	CreateCompositeRootSignature();
+
+	// シェーダーのコンパイル（既存コードと同じ）
+	auto vertexShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+	auto pixelShaderBlob = dxManager_->CompileShader(L"./resource/shaders/Composite.PS.hlsl", L"ps_6_0");
+	assert(vertexShaderBlob && pixelShaderBlob);
+
+	// PSO 設定
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
+	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
+	psoDesc.InputLayout = { nullptr, 0 };
+	psoDesc.pRootSignature = compositeRootSignature_.Get();
+
+	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	psoDesc.DepthStencilState.DepthEnable = FALSE;
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = 1;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	psoDesc.SampleDesc.Count = 1;
+
+	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&compositePSO_));
 	assert(SUCCEEDED(hr));
 }

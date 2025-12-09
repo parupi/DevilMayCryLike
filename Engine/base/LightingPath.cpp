@@ -1,6 +1,6 @@
 #include "LightingPath.h"
 #include "GBufferManager.h"
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include <offscreen/OffScreenManager.h>
 #include <math/function.h>
 
@@ -107,6 +107,7 @@ void LightingPath::CreateGBufferSRVs()
 	uint32_t index1 = srvManager->Allocate();         // t1
 	uint32_t index2 = srvManager->Allocate();         // t2
 	uint32_t index3 = srvManager->Allocate();         // t3
+	//dsvIndex_ = srvManager->Allocate();
 
 	// ---- ② SRV生成（キャッシュ） ----
 	srvManager->CreateSRVforTexture2D(
@@ -136,6 +137,14 @@ void LightingPath::CreateGBufferSRVs()
 		DXGI_FORMAT_R8G8_UNORM,
 		1
 	);
+
+	//srvManager->CreateSRVforTexture2D(
+	//	dsvIndex_,
+	//	gBufferManager_->GetResource(GBufferManager::GBufferType::Depth),
+	//	DXGI_FORMAT_R24_UNORM_X8_TYPELESS,
+	//	1
+	//);
+
 
 	// ---- ③ GPUハンドルをキャッシュ ----
 	gBufferSrvTable_ = srvManager->GetGPUDescriptorHandle(gBufferSrvStartIndex_);

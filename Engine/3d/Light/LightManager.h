@@ -10,7 +10,7 @@
 #include "DirectionalLight.h"
 #include "PointLight.h"
 #include "SpotLight.h"
-#include <base/DirectXManager.h>
+#include "Graphics/Device/DirectXManager.h"
 #include <vector>
 
 class LightManager

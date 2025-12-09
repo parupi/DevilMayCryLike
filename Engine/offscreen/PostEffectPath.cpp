@@ -20,13 +20,18 @@ void PostEffectPath::Execute()
     auto* context = dxManager_->GetCommandContext();
 
     // 書き込み可能状態に
-    context->TransitionResource(outputResource_,
+    context->TransitionResource(
+        outputResource_,
         D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
+        D3D12_RESOURCE_STATE_RENDER_TARGET
+   );
+
+    ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
+    dxManager_->GetCommandList()->SetDescriptorHeaps(_countof(heaps), heaps);
 
     // RTVセット
     context->SetRenderTarget(rtvHandle_);
-    context->ClearRenderTarget(rtvHandle_, offscreen_->GetClearColor());
+    //context->ClearRenderTarget(rtvHandle_, offscreen_->GetClearColor());
     context->SetViewportAndScissor(viewport_, scissorRect_);
 
     // 実際の描画
@@ -59,16 +64,13 @@ void PostEffectPath::SetInputSRV(D3D12_GPU_DESCRIPTOR_HANDLE srv)
 
 void PostEffectPath::SetOutput(ID3D12Resource* target, D3D12_CPU_DESCRIPTOR_HANDLE rtv)
 {
-    if (outputResource_) {
-        outputResource_ = target;
-        rtvHandle_ = rtv;
-    } else {
-        outputResource_ = target;
-        rtvHandle_ = rtv;
+    outputResource_ = target;
+    rtvHandle_ = rtv;
 
-        // ---- 最終的なSRV作成 ----
+    if (!outputInitialized_) {
         auto* srvManager = dxManager_->GetSrvManager();
         outputSrvIndex_ = srvManager->CreateSRVFromResource(outputResource_);
+        outputInitialized_ = true;
     }
 }
 

@@ -1,6 +1,6 @@
 #include "Model.h"
 #include "math/function.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include <math/Vector4.h>
 #include <math/Vector2.h>
 #include <3d/Object/Model/ModelManager.h>

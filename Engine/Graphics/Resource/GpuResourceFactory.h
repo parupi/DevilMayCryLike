@@ -1,5 +1,5 @@
 #pragma once
-#include "WindowManager.h"
+#include "base/WindowManager.h"
 #include <d3d12.h>
 #include <wrl.h>
 #include <DirectXTex/DirectXTex.h>
@@ -31,10 +31,6 @@ public:
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTexture2D(const TextureDesc& desc);
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> CreateTexture2D(const DirectX::TexMetadata& meta, D3D12_RESOURCE_STATES initialState = D3D12_RESOURCE_STATE_COPY_DEST);
-
-	// バッファの生成
-	//void CreateBuffer(size_t sizeInBytes, Microsoft::WRL::ComPtr<ID3D12Resource>& outResource, bool isUAV = false);
-
 private:
 	ID3D12Device* device_;
 

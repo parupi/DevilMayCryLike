@@ -1,5 +1,5 @@
 #include <scene/GameScene.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <base/Particle/ParticleManager.h>
 #include "debuger/ImGuiManager.h"
 #include <math/Quaternion.h>
@@ -56,7 +56,10 @@ void GameScene::Initialize()
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
 	// ============ライト=================//
-	lightManager_->AddLight(std::make_unique<DirectionalLight>("gameDir"));
+	for (int32_t i = 0; i < 120; i++) {
+		lightManager_->AddLight(std::make_unique<DirectionalLight>("gameDir" + std::to_string(i)));
+	}
+
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 
@@ -91,18 +94,19 @@ void GameScene::Update()
 void GameScene::Draw()
 {
 	// 全オブジェクトの描画
-	Object3dManager::GetInstance()->DrawSet();
-	// スプライトの描画前処理
-	SpriteManager::GetInstance()->DrawSet();
-	// プレイヤーのスプライト描画
-	if (player_) {
-		player_->DrawEffect();
-	}
+	//Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawForGBuffer();
+	//// スプライトの描画前処理
+	//SpriteManager::GetInstance()->DrawSet();
+	//// プレイヤーのスプライト描画
+	//if (player_) {
+	//	player_->DrawEffect();
+	//}
 
-	deathUI_->Draw();
+	//deathUI_->Draw();
 
-	// 全パーティクルの描画
-	ParticleManager::GetInstance()->Draw();
+	//// 全パーティクルの描画
+	//ParticleManager::GetInstance()->Draw();
 }
 
 void GameScene::DrawRTV()

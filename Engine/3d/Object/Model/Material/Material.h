@@ -1,7 +1,7 @@
 #pragma once
 #include <3d/Object/Model/ModelStructs.h>
-#include "base/DirectXManager.h"
-#include "base/SrvManager.h"
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 
 class SrvManager;
 class DirectXManager;

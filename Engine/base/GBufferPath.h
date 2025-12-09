@@ -16,8 +16,6 @@ public:
 
 	void Begin();
 
-	void Draw();
-
 	void End();
 private:
 	DirectXManager* dxManager_ = nullptr;

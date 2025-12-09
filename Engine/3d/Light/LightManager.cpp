@@ -100,14 +100,8 @@ void LightManager::BindLightsToShader()
     auto* rm = dxManager_->GetResourceManager();
 
     // Count CBV
-    cmd->SetGraphicsRootConstantBufferView(
-        2,
-        rm->GetGPUVirtualAddress(lightCountHandle_)
-    );
+    cmd->SetGraphicsRootConstantBufferView(2, rm->GetGPUVirtualAddress(lightCountHandle_));
 
     // SRV (StructuredBuffer)
-    cmd->SetGraphicsRootDescriptorTable(
-        3,
-        srv->GetGPUDescriptorHandle(srvIndex_)
-    );
+    cmd->SetGraphicsRootDescriptorTable(3, srv->GetGPUDescriptorHandle(srvIndex_));
 }

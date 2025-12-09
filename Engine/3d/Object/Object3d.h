@@ -11,6 +11,7 @@
 #include <3d/Camera/Camera.h>
 #include <3d/Object/Renderer/BaseRenderer.h>
 #include <3d/Collider/BaseCollider.h>
+#include "ObjectData.h"
 class Object3dManager;
 class WorldTransform;
 
@@ -28,9 +29,8 @@ public: // メンバ関数
 	virtual void Initialize();
 	// 更新処理
 	virtual void Update();
-	virtual void Draw();
 
-	void DrawForGBuffer();
+	virtual void Draw();
 
 	void ResetObject();
 
@@ -54,9 +54,7 @@ private: // メンバ変数
 	std::vector<BaseCollider*> colliders_;
 
 	// どうやって描画するかの設定
-	struct DrawOption {
-		BlendMode blendMode = BlendMode::kNormal;
-	}drawOption_;
+	DrawOption drawOption_;
 
 public: // ゲッター // セッター // 
 	// レンダー追加処理
@@ -68,7 +66,7 @@ public: // ゲッター // セッター //
 	// カメラ
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
-	DrawOption GetOption() const { return drawOption_; }
+	DrawOption& GetOption() { return drawOption_; }
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }

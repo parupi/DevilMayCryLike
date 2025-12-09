@@ -24,31 +24,31 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 	localTransform_->TransferMatrix();
 	
 
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_) {
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = localTransform_->GetMatWorld() * viewProjectionMatrix;
-	} else {
-		worldViewProjectionMatrix = localTransform_->GetMatWorld();
-	}
+	//Matrix4x4 worldViewProjectionMatrix;
+	//if (camera_) {
+	//	const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
+	//	worldViewProjectionMatrix = localTransform_->GetMatWorld() * viewProjectionMatrix;
+	//} else {
+	//	worldViewProjectionMatrix = localTransform_->GetMatWorld();
+	//}
 
-	localTransform_->SetMapWVP(worldViewProjectionMatrix);
-	localTransform_->SetMapWorld(localTransform_->GetMatWorld());
+	//localTransform_->SetMapWVP(worldViewProjectionMatrix);
+	//localTransform_->SetMapWorld(localTransform_->GetMatWorld());
 }
 
 void ModelRenderer::Draw()
 {
 	//RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList());
+	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 4);
 	// 環境マップバインド
 	int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
 
 	if (envMapIndex >= 0) {
-		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(6, envMapIndex);
 	} else {
 		TextureManager::GetInstance()->LoadTexture("skybox_cube.dds");
 		envMapIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
-		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(6, envMapIndex);
 	}
 
 	model_->Draw();
@@ -58,7 +58,7 @@ void ModelRenderer::DrawGBuffer()
 {
 	// (transform / material bind)
 	//RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList());
+	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 1);
 	model_->DrawGBuffer(); // Model側へ委譲
 }
 

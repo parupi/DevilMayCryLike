@@ -3,7 +3,7 @@
 #include <memory>
 #include "Camera.h"
 #include <mutex>
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 class CameraManager
 {
