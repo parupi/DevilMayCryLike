@@ -13,7 +13,7 @@ public:
 	// 更新
 	void Update(Vector3 position = {0.0f, 0.0f, 0.0f});
 	// 発生
-	void Emit() const;
+	void Emit();
 
 	void UpdateParam() const;
 private:
@@ -26,14 +26,17 @@ private:
 		float frequencyTime; //!< 頻度用時刻
 		bool isActive;
 	};
+	std::string particleName_;
 
 private:
 	//ParticleManager* particleManager_;
 	bool emitAll_ = false;
 	Emitter emitter{};
 
+	std::unique_ptr<WorldTransform> transform_;
 public:
 	void SetFrequency(float time) { emitter.frequency = time; }
 	void SetActiveFlag(bool flag) { emitter.isActive = flag; }
-
+	void SetParent(WorldTransform* transform) { transform_->SetParent(transform); }
+	void SetParticle(const std::string& particleName) { particleName_ = particleName; }
 };

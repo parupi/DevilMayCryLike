@@ -1,5 +1,5 @@
 #include "DeathCamera.h"
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 #include <random>
 #include <math/Easing.h>
 

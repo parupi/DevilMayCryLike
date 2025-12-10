@@ -1,0 +1,13 @@
+{
+    "GroundSmoke": {
+        "Count": 4,
+        "EmitAll": false,
+        "EmitPosition": [
+            0.0,
+            12.5,
+            0.0
+        ],
+        "Frequency": 0.10000000149011612,
+        "IsActive": true
+    }
+}

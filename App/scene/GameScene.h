@@ -4,7 +4,7 @@
 #include <GameObject/Camera/GameCamera.h>
 #include <3d/Light/LightManager.h>
 #include <GameObject/UI/StageStart/StageStart.h>
-#include <GameObject/Player/Player.h>
+#include <GameObject/Character/Player/Player.h>
 #include <GameObject/Camera/ClearCamera.h>
 
 /// <summary>

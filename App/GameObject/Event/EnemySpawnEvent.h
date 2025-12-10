@@ -1,6 +1,6 @@
 #pragma once
 #include "BaseEvent.h"
-#include <GameObject/Enemy/Enemy.h>
+#include <GameObject/Character/Enemy/Enemy.h>
 
 /// <summary>
 /// 敵を出現させるイベントクラス  

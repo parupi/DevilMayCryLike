@@ -1,6 +1,6 @@
 #pragma once
 #include <3d/Camera/Camera.h>
-#include <GameObject/Player/Player.h>
+#include <GameObject/Character/Player/Player.h>
 class ClearCamera : public Camera
 {
 public:

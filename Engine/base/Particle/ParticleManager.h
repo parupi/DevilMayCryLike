@@ -180,8 +180,8 @@ private:
 
 	bool isBillboard_ = true;
 
-	Matrix4x4 scaleMatrix;
-	Matrix4x4 translateMatrix;
+	Matrix4x4 scaleMatrix_;
+	Matrix4x4 translateMatrix_;
 
 
 	std::list<Particle> particles;
