@@ -1,7 +1,6 @@
 #pragma once
-#include "GameObject/Player/State/PlayerStateBase.h"
-#include "debuger/GlobalVariables.h"
-#include "3d/Object/Object3d.h"
+#include <math/Vector3.h>
+#include <vector>
 
 enum class AttackType {
 	Thrust, // 刺突
@@ -11,6 +10,12 @@ enum class AttackType {
 enum class AttackPosture {
 	Stand, // 立ち状態
 	Air, // 空中状態
+};
+
+enum class ReactionType {
+	HitStun,   // のけぞり
+	Knockback, // 吹っ飛び
+	Launch     // 打ち上げ
 };
 
 // 攻撃の情報
@@ -42,40 +47,41 @@ struct AttackData {
 	// HitStop
 	float hitStopTime;
 	float hitStopIntensity;
+
+	// 攻撃を受けた側に送る情報
+	ReactionType type = ReactionType::HitStun;
+
+	// ノックバック＆打ち上げ共通
+	float impulseForce = 0.0f;
+	float upwardRatio = 0.0f;    // Launchはここを高めに
+
+	// 吹っ飛び用
+	float torqueForce = 0.0f;
+
+	// のけぞり用
+	float stunTime = 0.0f;
 };
 
-class PlayerStateAttackBase : public PlayerStateBase
-{
-public:
-	PlayerStateAttackBase(std::string attackName);
-	virtual ~PlayerStateAttackBase() = default;
-	virtual void Enter(Player& player);
-	virtual void Update(Player& player);
-	virtual void Exit(Player& player);
 
-	AttackData GetAttackData() { return attackData_; }
 
-	// 制御点の更新
-	void UpdateAttackData();
-	// 制御点描画
-	void DrawControlPoints(Player& player);
-	// 攻撃の名前
-	std::string name_;
-protected:
-	
-	TimeData stateTime_;
+struct DamageInfo {
+    float damage = 0.0f;
 
-	enum class AttackPhase {
-		Startup, // 予備動作
-		Active, // 攻撃中
-		Recovery, // 硬直
-		Cancel, // 入力待ち時間
-	}attackPhase_;
+    Vector3 hitPosition;
+    Vector3 hitNormal;
+    Vector3 attackerPosition;
+    // ノックバックの方向
+    Vector3 direction;
 
-	GlobalVariables* gv = GlobalVariables::GetInstance();
+    ReactionType type = ReactionType::HitStun;
 
-	AttackData attackData_;
-	// 派生先を管理するためのタイマー
-	TimeData attackChangeTimer_;
+    // ノックバック＆打ち上げ共通
+    float impulseForce = 0.0f;
+    float upwardRatio = 0.0f;    // Launchはここを高めに
+
+    // 吹っ飛び用
+    float torqueForce = 0.0f;
+
+    // のけぞり用
+    float stunTime = 0.0f;
 };
-

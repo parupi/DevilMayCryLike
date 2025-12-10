@@ -3,8 +3,9 @@
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/Collider/CollisionManager.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 #include <scene/Transition/TransitionManager.h>
+#include "BaseState/EnemyStateKnockBack.h"
 
 
 Enemy::Enemy(std::string objectName) : Object3d(objectName)
@@ -50,20 +51,21 @@ void Enemy::Update()
 	smokeEmitter_->Update();
 
 	hitStop_->Update();
-	if (hitStop_->GetHitStopData().isActive) {
-		GetRenderer(name_)->GetWorldTransform()->GetTranslation() = hitStop_->GetHitStopData().translate;
-		Object3d::Update();
-		smokeEmitter_->Emit();
-		return;
-	}
+
 
 	if (currentState_) {
 		currentState_->Update(*this);
 	}
 
+	if (!hitStop_->GetHitStopData().isActive) {
+		//GetRenderer(name_)->GetWorldTransform()->GetTranslation() = hitStop_->GetHitStopData().translate;
+		//Object3d::Update();
+		//smokeEmitter_->Emit();
+		//return;
+		GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
+		velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
+	}
 
-	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
-	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 
 
 	Object3d::Update();
@@ -134,12 +136,12 @@ void Enemy::OnCollisionEnter(BaseCollider* other)
 	}
 
 	if (other->category_ == CollisionCategory::PlayerWeapon) {
+		HitDamage();
+		//hp_--;
 
-		hp_--;
-
-		if (hp_ <= 0) {
-			OnDeath();
-		}
+		//if (hp_ <= 0) {
+		//	OnDeath();
+		//}
 	}
 }
 
@@ -186,16 +188,25 @@ void Enemy::OnCollisionStay(BaseCollider* other)
 
 void Enemy::OnCollisionExit(BaseCollider* other)
 {
-
+	other;
 }
 
-void Enemy::ChangeState(const std::string& stateName)
+void Enemy::ChangeState(const std::string& stateName, const DamageInfo* info)
 {
-	currentState_->Exit(*this);
+	if (currentState_) currentState_->Exit(*this);
+
 	auto it = states_.find(stateName);
 	if (it != states_.end()) {
 		currentState_ = it->second.get();
-		currentState_->Enter(*this);
+
+		// KnockBack系ならDamageInfoを渡す
+		if (info) {
+			if (EnemyStateKnockBack* s = dynamic_cast<EnemyStateKnockBack*>(currentState_)) {
+				s->Enter(*info, *this);
+			}
+		} else {
+			currentState_->Enter(*this);
+		}
 	}
 }
 
@@ -203,4 +214,26 @@ void Enemy::OnDeath()
 {
 	isAlive_ = false;
 
+}
+
+void Enemy::HitDamage()
+{
+	if (!player_) return;
+
+	// ノックバックに使うパラメータを全てプレイヤーの攻撃から取得
+	damageInfo_.damage = player_->GetAttackData().damage;
+	damageInfo_.hitPosition = GetWorldTransform()->GetTranslation();
+	damageInfo_.hitNormal = { 0.0f, 0.0f, 0.0f };
+	damageInfo_.attackerPosition = player_->GetWorldTransform()->GetTranslation();
+	damageInfo_.direction = Normalize(damageInfo_.hitPosition - damageInfo_.attackerPosition);
+
+	damageInfo_.type = player_->GetAttackData().type;
+
+	damageInfo_.impulseForce = player_->GetAttackData().impulseForce;
+	damageInfo_.upwardRatio = player_->GetAttackData().upwardRatio;
+	damageInfo_.torqueForce = player_->GetAttackData().torqueForce;
+	damageInfo_.stunTime = player_->GetAttackData().stunTime;
+
+	// TODO : 敵ごとにノックバックステートを用意する
+	ChangeState("KnockBack", &damageInfo_);
 }

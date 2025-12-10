@@ -2,7 +2,7 @@
 #include <debuger/GlobalVariables.h>
 #include <3d/Primitive/PrimitiveLineDrawer.h>
 #include <math/function.h>
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 #include <3d/Collider/AABBCollider.h>
 #include <base/utility/DeltaTime.h>
 
@@ -46,6 +46,16 @@ PlayerStateAttackBase::PlayerStateAttackBase(std::string attackName)
 	gv->AddItem(name_, "HitStopTime", float());
 
 	gv->AddItem(name_, "HitStopIntensity", float());
+
+	// 攻撃を受けた側に送る情報
+	gv->AddItem(name_, "ReactionType", int32_t(0));
+	// ノックバック＆打ち上げ共通
+	gv->AddItem(name_, "ImpulseForce", float());
+	gv->AddItem(name_, "UpwardRatio", float());
+	// 吹っ飛び用
+	gv->AddItem(name_, "TorqueForce", float());
+	// のけぞり用
+	gv->AddItem(name_, "StunTime", float());
 }
 
 void PlayerStateAttackBase::Enter(Player& player)
@@ -240,6 +250,15 @@ void PlayerStateAttackBase::UpdateAttackData()
 	attackData_.hitStopTime = gv->GetInstance()->GetValueRef<float>(name_, "HitStopTime");
 
 	attackData_.hitStopIntensity = gv->GetInstance()->GetValueRef<float>(name_, "HitStopIntensity");
+	// 攻撃を受けた側に送る情報
+	attackData_.type = static_cast<ReactionType>(gv->GetInstance()->GetValueRef<int32_t>(name_, "ReactionType"));
+	// ノックバック＆打ち上げ共通
+	attackData_.impulseForce = gv->GetInstance()->GetValueRef<float>(name_, "ImpulseForce");
+	attackData_.upwardRatio = gv->GetValueRef<float>(name_, "UpwardRatio");
+	// 吹っ飛び用
+	attackData_.torqueForce = gv->GetValueRef<float>(name_, "TorqueForce");
+	// のけぞり用
+	attackData_.stunTime = gv->GetValueRef<float>(name_, "StunTime");
 }
 
 void PlayerStateAttackBase::DrawControlPoints(Player& player)

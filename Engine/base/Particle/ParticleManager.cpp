@@ -180,7 +180,8 @@ void ParticleManager::Update()
 			particleGroup.renderer->SetInstanceList(instanceList);
 		} else {
 			// 無効な renderer のログ（Release では落とさないようにするなら条件付き）
-			assert(false && "particleGroup.renderer is null!");
+			//assert(false && "particleGroup.renderer is null!");
+			return;
 		}
 
 		// インスタンス数の更新

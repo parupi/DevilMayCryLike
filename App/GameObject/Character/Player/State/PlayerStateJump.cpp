@@ -1,5 +1,5 @@
 #include "PlayerStateJump.h"
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 
 void PlayerStateJump::Enter(Player& player)
 {

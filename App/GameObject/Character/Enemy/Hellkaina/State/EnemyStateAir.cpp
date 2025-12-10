@@ -1,5 +1,5 @@
 #include "EnemyStateAir.h"
-#include "GameObject/Enemy/Enemy.h"
+#include "GameObject/Character/Enemy/Enemy.h"
 void EnemyStateAir::Enter(Enemy& enemy)
 {
 	enemy.SetAcceleration({ 0.0f, -9.8f, 0.0f });

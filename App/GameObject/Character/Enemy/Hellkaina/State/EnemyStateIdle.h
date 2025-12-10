@@ -1,5 +1,5 @@
 #pragma once
-#include "GameObject/Enemy/EnemyStateBase.h"
+#include "GameObject/Character/Enemy/BaseState/EnemyStateBase.h"
 #include <cstdlib> 
 #include <ctime>   
 

@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseEvent.h"
-#include <GameObject/Enemy/Enemy.h>
-#include <GameObject/Player/Player.h>
+#include <GameObject/Character/Enemy/Enemy.h>
+#include <GameObject/Character/Player/Player.h>
 
 /// <summary>
 /// 全ての敵を撃破した際に発動するクリアイベント

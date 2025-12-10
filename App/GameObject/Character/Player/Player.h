@@ -13,7 +13,7 @@
 #include "math/function.h"
 #include <debuger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
-#include <GameObject/Enemy/Enemy.h>
+#include <GameObject/Character/Enemy/Enemy.h>
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
 

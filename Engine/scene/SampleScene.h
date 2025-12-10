@@ -15,7 +15,7 @@
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/Collider/AABBCollider.h>
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 #include "GameObject/Camera/GameCamera.h"
 class SampleScene : public BaseScene
 {

@@ -208,6 +208,23 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 	ImGui::DragFloat("HitStopTime", &gv->GetValueRef<float>(attackName, "HitStopTime"), 0.01f);
 	ImGui::DragFloat("HitStopIntensity", &gv->GetValueRef<float>(attackName, "HitStopIntensity"), 0.01f);
 
+	// 攻撃を受けた側に送る情報
+	ImGui::Text("ReactionType:");
+	ImGui::SameLine();
+	ImGui::RadioButton("HitStun", &gv->GetValueRef<int32_t>(attackName, "ReactionType"), 0);
+	ImGui::SameLine();
+	ImGui::RadioButton("Knockback", &gv->GetValueRef<int32_t>(attackName, "ReactionType"), 1);
+	ImGui::SameLine();
+	ImGui::RadioButton("Launch", &gv->GetValueRef<int32_t>(attackName, "ReactionType"), 2);
+
+	// ノックバック＆打ち上げ共通
+	ImGui::DragFloat("ImpulseForce", &gv->GetValueRef<float>(attackName, "ImpulseForce"), 0.01f);
+	ImGui::DragFloat("UpwardRatio", &gv->GetValueRef<float>(attackName, "UpwardRatio"), 0.01f);
+	// 吹っ飛び用
+	ImGui::DragFloat("TorqueForce", &gv->GetValueRef<float>(attackName, "TorqueForce"), 0.01f);
+	// のけぞり用
+	ImGui::DragFloat("StunTime", &gv->GetValueRef<float>(attackName, "StunTime"), 0.01f);
+
 	// 攻撃時に地上にいるかの判定
 	ImGui::Separator();
 

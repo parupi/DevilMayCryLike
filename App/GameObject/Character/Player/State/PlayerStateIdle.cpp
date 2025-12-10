@@ -1,5 +1,5 @@
 #include "PlayerStateIdle.h"
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 
 void PlayerStateIdle::Enter(Player& player)
 {

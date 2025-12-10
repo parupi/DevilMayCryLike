@@ -1,6 +1,6 @@
 #include "EnemyStateMove.h"
-#include "GameObject/Enemy/Enemy.h"
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Enemy/Enemy.h"
+#include "GameObject/Character/Player/Player.h"
 void EnemyStateMove::Enter(Enemy& enemy)
 {
     stateTime_.max = 2.0f;
@@ -9,6 +9,11 @@ void EnemyStateMove::Enter(Enemy& enemy)
 
 void EnemyStateMove::Update(Enemy& enemy)
 {
+    if (!enemy.GetOnGround()) {
+        enemy.ChangeState("Air");
+        return;
+    }
+
     stateTime_.current += (1.0f / stateTime_.max) * DeltaTime::GetDeltaTime();
 
     // 敵の現在の速度を取得
@@ -43,12 +48,8 @@ void EnemyStateMove::Update(Enemy& enemy)
 
     if (stateTime_.current >= 1.0f) {
         enemy.ChangeState("Idle");
-    }
-
-	if (!enemy.GetOnGround()) {
-		enemy.ChangeState("Air");
         return;
-	}
+    }
 }
 
 void EnemyStateMove::Exit(Enemy& enemy)

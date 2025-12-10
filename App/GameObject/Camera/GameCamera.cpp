@@ -1,6 +1,6 @@
 #include "GameCamera.h"
 #include <3d/Object/Object3dManager.h>
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 
 GameCamera::GameCamera(std::string cameraName) : Camera(cameraName)
 {

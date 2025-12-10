@@ -1,7 +1,7 @@
 #include "PlayerStateDeath.h"
 #include <base/utility/DeltaTime.h>
 #include <algorithm>
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 #include <scene/Transition/SceneTransitionController.h>
 #include <scene/Transition/TransitionManager.h>
 #include <scene/Transition/VignetteExpandTransition.h>

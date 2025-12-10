@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include "GameObject/Enemy/Enemy.h"
+#include "GameObject/Character/Enemy/Enemy.h"
 
 class Hellkaina : public Enemy
 {
@@ -13,7 +13,7 @@ public:
 
 
 
-        // 衝突系
+     // 衝突系
     void OnCollisionEnter([[maybe_unused]] BaseCollider* other) override;
     void OnCollisionStay([[maybe_unused]] BaseCollider* other) override;
     void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;

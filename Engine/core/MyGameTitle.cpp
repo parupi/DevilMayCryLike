@@ -98,6 +98,7 @@ void MyGameTitle::Update()
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
+
 	OffScreenManager::GetInstance()->Update();
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->End();

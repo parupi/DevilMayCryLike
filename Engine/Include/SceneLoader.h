@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp> 
 #include <3d/Collider/ColliderStructs.h>
 #include <math/function.h>
-#include <GameObject/Enemy/Enemy.h>
+#include <GameObject/Character/Enemy/Enemy.h>
 
 using json = nlohmann::json;
 

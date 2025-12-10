@@ -1,5 +1,5 @@
 #include "Hellkaina.h"
-#include "GameObject/Player/Player.h"
+#include "GameObject/Character/Player/Player.h"
 #include <3d/Object/Renderer/RendererManager.h>
 #include <3d/Collider/AABBCollider.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
@@ -58,6 +58,8 @@ void Hellkaina::Update()
 
 void Hellkaina::OnCollisionEnter(BaseCollider* other)
 {
+	if (!player_) return;
+
 	Enemy::OnCollisionEnter(other);
 
 	if (other->category_ == CollisionCategory::PlayerWeapon) {

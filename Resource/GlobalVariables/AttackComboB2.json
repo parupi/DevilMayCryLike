@@ -69,8 +69,9 @@
         ],
         "Damage": 1.0,
         "DrawDebugControlPoints": false,
-        "HitStopIntensity": 0.15000000596046448,
-        "HitStopTime": 0.15000000596046448,
+        "HitStopIntensity": 0.03999999910593033,
+        "HitStopTime": 0.029999999329447746,
+        "ImpulseForce": 18.0,
         "KnockBackSpeed": [
             0.0,
             0.0,
@@ -92,6 +93,10 @@
         "PostDelay": 0.07999999821186066,
         "Posture": 0,
         "PreDelay": 0.07999999821186066,
-        "TotalDuration": 0.75
+        "ReactionType": 0,
+        "StunTime": 0.11999999731779099,
+        "TorqueForce": 0.0,
+        "TotalDuration": 0.75,
+        "UpwardRatio": 0.0
     }
 }

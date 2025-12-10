@@ -1,8 +1,9 @@
 #pragma once
 #include "3d/Object/Object3d.h"
 #include "base/Particle/ParticleEmitter.h"
-#include "EnemyStateBase.h"
+#include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
+#include "GameObject/Character/CharacterStructs.h"
 
 class Player;
 
@@ -81,7 +82,7 @@ public:
     /// 例：待機 → 攻撃、攻撃 → 被弾、など。
     /// </summary>
     /// <param name="stateName">遷移先ステート名</param>
-    void ChangeState(const std::string& stateName);
+    void ChangeState(const std::string& stateName, const DamageInfo* info = nullptr);
 
     /// <summary>
     /// 敵の死亡処理  
@@ -94,6 +95,9 @@ public:
     /// </summary>
     bool IsAlive() const { return isAlive_; }
 
+    // 食らった攻撃のパラメータを保存
+    void HitDamage();
+
     // ======================
     // Getter / Setter
     // ======================
@@ -102,6 +106,7 @@ public:
     /// 地面に接地しているかどうかを取得する。
     /// </summary>
     bool GetOnGround() const { return onGround_; }
+    void SetOnGround(bool flag) { onGround_ = flag; }
 
     /// <summary>
     /// プレイヤーのポインタを取得する。
@@ -173,6 +178,8 @@ protected:
     bool isActive_ = true; ///< アクティブ状態（処理対象か）
     bool isAlive_ = true; ///< 生存状態フラグ
     int deathTimer_ = 0; ///< 死亡後の待機タイマー
+
+    DamageInfo damageInfo_;
 
     std::unique_ptr<HitStop> hitStop_; ///< ヒットストップ管理クラス
 };
