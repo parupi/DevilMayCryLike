@@ -12,7 +12,7 @@ cbuffer MaterialParam : register(b0)
 
 float Linear01Depth(float4 posCS)
 {
-    return posCS.z / posCS.w;
+    return 1.0f - (posCS.z / posCS.w);
 }
 
 GBufferOutput main(VSOutput input)

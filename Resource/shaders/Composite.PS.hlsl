@@ -40,16 +40,27 @@ PixelShaderOutput main(VertexShaderOutput input)
     if (forwardIsInFront)
     {
         // Forward が前にある → Forward優先
-        output.color = forwardCol;
+        float4 color = forwardCol;
+        
+        // 前にあるForwardが半透明 → 裏にあるオブジェを描画
+        if (forwardCol.a < 1.0f)
+        {
+            color.rgb = lerp(deferredCol.rgb, forwardCol.rgb, forwardCol.a);
+        }
+        
+        output.color = color;
     }
     else
     {
-        // Deferred が前にある → Deferred優先
-        // Forward のアルファだけ反映 (半透明物体対応)
-        float3 blended = lerp(deferredCol.rgb, forwardCol.rgb, forwardCol.a);
-        output.color = float4(blended, 1.0f);
+        // Deferredが前にある → Deferred優先
+        float4 color = deferredCol;
+        // deferredに描画がない → SkyCubeの描画
+        if (deferredDepth >= 1.0f)
+        {
+            color = forwardCol;
+        }
         
-        output.color = deferredCol;
+        output.color = color;
     }
     
     return output;
