@@ -28,9 +28,6 @@ void InstancingRenderer::CreateInstanceBuffer()
     void* ptr = dxManager->GetResourceManager()->Map(instanceHandle_);
     assert(ptr);
     mappedInstanceData_ = reinterpret_cast<InstanceData*>(ptr);
-    //vbView_.BufferLocation = instanceBuffer_->GetGPUVirtualAddress();
-    //vbView_.StrideInBytes = sizeof(InstanceData);
-    //vbView_.SizeInBytes = static_cast<UINT>(bufferSize);
 }
 
 void InstancingRenderer::SetInstanceList(const std::vector<InstanceData>& instances)
@@ -62,6 +59,10 @@ void InstancingRenderer::Draw()
 }
 
 void InstancingRenderer::DrawGBuffer()
+{
+}
+
+void InstancingRenderer::DrawShadow()
 {
 }
 

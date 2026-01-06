@@ -73,7 +73,7 @@ void SkySystem::Draw()
 	//commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
 	transform_->BindToShader(commandList, 1);
 	// SRV（キューブマップ）バインド
-	material_->Bind();
+	material_->Bind(2);
 
 	// 描画コール
 	commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);

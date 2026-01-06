@@ -2,6 +2,7 @@
 #include <imgui/imgui.h>
 #include <math/Quaternion.h>
 #include <math/Vector3.h>
+#include "function.h"
 
 // デフォルトコンストラクタ
 Matrix4x4::Matrix4x4() : m{ {0.0f} } {}
@@ -379,4 +380,51 @@ void DecomposeMatrix(const Matrix4x4& m, Vector3& outScale, Quaternion& outRot, 
     rotMat.m[0][2] = zAxis.x; rotMat.m[1][2] = zAxis.y; rotMat.m[2][2] = zAxis.z;
 
     outRot = QuaternionFromMatrix(rotMat);
+}
+
+Matrix4x4 CreateLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up)
+{
+    Vector3 zaxis = {target.x - eye.x, target.y - eye.y, target.z - eye.z};
+    zaxis = Normalize(zaxis);
+
+    Vector3 xaxis = Normalize(Cross(up, zaxis));
+    Vector3 yaxis = Cross(zaxis, xaxis);
+
+    Matrix4x4 m{};
+
+    m.m[0][0] = xaxis.x;
+    m.m[0][1] = yaxis.x;
+    m.m[0][2] = zaxis.x;
+    m.m[0][3] = 0.0f;
+
+    m.m[1][0] = xaxis.y;
+    m.m[1][1] = yaxis.y;
+    m.m[1][2] = zaxis.y;
+    m.m[1][3] = 0.0f;
+
+    m.m[2][0] = xaxis.z;
+    m.m[2][1] = yaxis.z;
+    m.m[2][2] = zaxis.z;
+    m.m[2][3] = 0.0f;
+
+    m.m[3][0] = -Dot(xaxis, eye);
+    m.m[3][1] = -Dot(yaxis, eye);
+    m.m[3][2] = -Dot(zaxis, eye);
+    m.m[3][3] = 1.0f;
+
+    return m;
+}
+
+Matrix4x4 CreateOrthographic(float width, float height, float nearZ, float farZ)
+{
+    Matrix4x4 m{};
+
+    m.m[0][0] = 2.0f / width;
+    m.m[1][1] = 2.0f / height;
+    m.m[2][2] = 1.0f / (farZ - nearZ);
+
+    m.m[3][2] = -nearZ / (farZ - nearZ);
+    m.m[3][3] = 1.0f;
+
+    return m;
 }

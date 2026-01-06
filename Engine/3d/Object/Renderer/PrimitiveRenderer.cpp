@@ -54,6 +54,10 @@ void PrimitiveRenderer::DrawGBuffer()
 {
 }
 
+void PrimitiveRenderer::DrawShadow()
+{
+}
+
 #ifdef _DEBUG
 void PrimitiveRenderer::DebugGui(size_t index)
 {

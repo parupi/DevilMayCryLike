@@ -80,6 +80,16 @@ void Object3dManager::DrawDeferred()
 	}
 }
 
+void Object3dManager::DrawShadow()
+{
+	// 全オブジェクトの描画
+	for (auto& object : objects_) {
+		// 描画方式がDeferredでなければ次
+		if (object->GetOption().drawPath != DrawPath::Deferred) continue;
+		object->DrawShadow();
+	}
+}
+
 void Object3dManager::DrawSetForAnimation()
 {
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetAnimationPSO());			// PSOを設定

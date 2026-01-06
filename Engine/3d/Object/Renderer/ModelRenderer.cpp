@@ -22,18 +22,6 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 	}
 	
 	localTransform_->TransferMatrix();
-	
-
-	//Matrix4x4 worldViewProjectionMatrix;
-	//if (camera_) {
-	//	const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-	//	worldViewProjectionMatrix = localTransform_->GetMatWorld() * viewProjectionMatrix;
-	//} else {
-	//	worldViewProjectionMatrix = localTransform_->GetMatWorld();
-	//}
-
-	//localTransform_->SetMapWVP(worldViewProjectionMatrix);
-	//localTransform_->SetMapWorld(localTransform_->GetMatWorld());
 }
 
 void ModelRenderer::Draw()
@@ -56,10 +44,19 @@ void ModelRenderer::Draw()
 
 void ModelRenderer::DrawGBuffer()
 {
-	// (transform / material bind)
-	//RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
 	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 1);
 	model_->DrawGBuffer(); // Model側へ委譲
+}
+
+void ModelRenderer::DrawShadow()
+{
+	auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
+
+	localTransform_->BindToShader(commandList, 0);
+
+	model_->DrawShadow();
+
+	commandList->DrawInstanced(3, 1, 0, 0);
 }
 
 void ModelRenderer::SetModel(const std::string& filePath)

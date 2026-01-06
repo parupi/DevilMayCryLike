@@ -42,13 +42,13 @@ void Material::Update()
 	materialForGPU_->uvTransform = uvTransformMatrix;
 }
 
-void Material::Bind()
+void Material::Bind(UINT RootParameterIndex)
 {
 	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialHandle_);
 	// マテリアルCBufferの場所を指定
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 
-	srvManager_->SetGraphicsRootDescriptorTable(5, materialData_.textureIndex);
+	srvManager_->SetGraphicsRootDescriptorTable(RootParameterIndex, materialData_.textureIndex);
 }
 
 void Material::BindForGBuffer()

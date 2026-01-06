@@ -49,7 +49,7 @@ void Object3d::Update()
 
 void Object3d::Draw()
 {
-	// Deferred描画なら終了
+	// 
 	switch (drawOption_.drawPath) {
 	case DrawPath::Forward:
 		for (size_t i = 0; i < renders_.size(); i++) {
@@ -69,6 +69,17 @@ void Object3d::Draw()
 	case DrawPath::Deferred:
 		for (size_t i = 0; i < renders_.size(); i++) {
 			renders_[i]->DrawGBuffer();
+		}
+		break;
+	}
+}
+
+void Object3d::DrawShadow()
+{
+	switch (drawOption_.drawPath) {
+	case DrawPath::Deferred:
+		for (size_t i = 0; i < renders_.size(); i++) {
+			renders_[i]->DrawShadow();
 		}
 		break;
 	}

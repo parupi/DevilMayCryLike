@@ -25,6 +25,8 @@ public: // メンバ関数
 
 	// GBufferに描画
 	void DrawGBuffer() override;
+
+	void DrawShadow() override;
 #ifdef _DEBUG
 	void DebugGui(ModelRenderer* render) override;
 #endif // _DEBUG

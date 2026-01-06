@@ -73,7 +73,7 @@ void SkinnedModel::Draw()
 
 		// マテリアル設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
-		materials_[mesh->GetMeshData().materialIndex]->Bind();
+		materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
 		// 描画
 		mesh->Bind();
@@ -98,6 +98,10 @@ void SkinnedModel::UpdateSkinningWithCS()
 
 
 void SkinnedModel::DrawGBuffer()
+{
+}
+
+void SkinnedModel::DrawShadow()
 {
 }
 

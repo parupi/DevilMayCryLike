@@ -65,6 +65,8 @@ void SampleScene::Initialize()
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
+	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
+
 	//// モデルとアニメーション取得
 	//SkinnedModel* model = static_cast<SkinnedModel*>(object->GetRenderer("render")->GetModel());
 	//Animation* anim = model->GetAnimation();
@@ -74,6 +76,8 @@ void SampleScene::Initialize()
 	//for (int32_t i = 0; i < 1; i++) {
 	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
 	//}
+
+	object->GetOption().drawPath = DrawPath::Forward;
 
 	object_ = object.get();
 	// ゲームオブジェクトを追加
@@ -88,7 +92,7 @@ void SampleScene::Initialize()
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	//object->GetOption().drawPath = DrawPath::Forward;
+	object->GetOption().drawPath = DrawPath::Forward;
 
 	object2_ = object.get();
 

@@ -60,6 +60,13 @@ void MyGameTitle::Initialize()
 
 	compositePath = std::make_unique<CompositePath>();
 	compositePath->Initialize(dxManager.get(), psoManager.get());
+
+	csm = std::make_unique<CascadedShadowMap>();
+	csm->Initialize(dxManager.get(), 1280);
+
+	shadowPath = std::make_unique<ShadowPass>();
+	shadowPath->Initialize(dxManager.get(), psoManager.get(), csm.get());
+
 	// インスタンス生成
 	GlobalVariables::GetInstance();
 }
@@ -109,6 +116,7 @@ void MyGameTitle::Update()
 	CollisionManager::GetInstance()->Update();
 
 	OffScreenManager::GetInstance()->Update();
+	csm->Update();
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->End();
 #endif // DEBUG
@@ -116,6 +124,10 @@ void MyGameTitle::Update()
 
 void MyGameTitle::Draw()
 {
+	shadowPath->BeginDraw();
+	shadowPath->Execute();
+	shadowPath->EndDraw();
+
 	///---------------------------------------------------------
 	/// GBufferPath（Deferredの各バッファ生成）
 	///---------------------------------------------------------
@@ -141,10 +153,14 @@ void MyGameTitle::Draw()
 
 	// 描画前処理
 	forwardPath->BeginDraw();
+	// スカイボックスの描画
+	SkySystem::GetInstance()->Draw();
 	// Forward描画で設定されているオブジェクトの描画
 	Object3dManager::GetInstance()->DrawForward();
 	// シーンの描画
 	SceneManager::GetInstance()->Draw();
+	// トランジションの描画
+	TransitionManager::GetInstance()->Draw();
 	// 描画後処理
 	forwardPath->EndDraw();
 

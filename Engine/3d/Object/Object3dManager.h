@@ -28,6 +28,8 @@ public:
 	// 描画前処理
 	void DrawForward();
 	void DrawDeferred();
+	// 影を描画
+	void DrawShadow();
 
 	// アニメーション用描画前処理
 	void DrawSetForAnimation();

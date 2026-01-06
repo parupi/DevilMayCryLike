@@ -11,6 +11,7 @@ public:
 
 	virtual void Draw() = 0;
 	virtual void DrawGBuffer() = 0;
+	virtual void DrawShadow() = 0;
 #ifdef _DEBUG
 	virtual void DebugGui(size_t index) = 0;
 #endif // DEBUG

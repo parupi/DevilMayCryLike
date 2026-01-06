@@ -32,6 +32,8 @@ public: // メンバ関数
 
 	virtual void Draw();
 
+	void DrawShadow();
+
 	void ResetObject();
 
 #ifdef _DEBUG

@@ -7,7 +7,7 @@ using Microsoft::WRL::ComPtr;
 //------------------------------------------
 // 2D テクスチャ生成
 //------------------------------------------
-Microsoft::WRL::ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const TextureDesc& desc)
+ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const TextureDesc& desc)
 {
     D3D12_RESOURCE_DESC texture{};
     texture.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -60,7 +60,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const
     return resource;
 }
 
-Microsoft::WRL::ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const DirectX::TexMetadata& meta, D3D12_RESOURCE_STATES initialState)
+ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const DirectX::TexMetadata& meta, D3D12_RESOURCE_STATES initialState)
 {
     D3D12_RESOURCE_DESC desc = {};
     desc.Dimension = static_cast<D3D12_RESOURCE_DIMENSION>(meta.dimension);
@@ -77,7 +77,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const
 
     CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
 
-    Microsoft::WRL::ComPtr<ID3D12Resource> tex;
+    ComPtr<ID3D12Resource> tex;
 
     HRESULT hr = device_->CreateCommittedResource(
         &heapProps,
@@ -92,49 +92,6 @@ Microsoft::WRL::ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const
 
     return tex;
 }
-
-//void GpuResourceFactory::CreateBuffer(size_t sizeInBytes, Microsoft::WRL::ComPtr<ID3D12Resource>& outResource, bool isUAV)
-//{
-//    static uint64_t bufferCounter = 0; // リソース識別用カウンタ
-//
-//    D3D12_HEAP_PROPERTIES heapProps{};
-//    heapProps.Type = isUAV ? D3D12_HEAP_TYPE_DEFAULT : D3D12_HEAP_TYPE_UPLOAD;
-//
-//    D3D12_RESOURCE_DESC desc{};
-//    desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-//    desc.Width = sizeInBytes;
-//    desc.Height = 1;
-//    desc.DepthOrArraySize = 1;
-//    desc.MipLevels = 1;
-//    desc.SampleDesc.Count = 1;
-//    desc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-//    desc.Flags = isUAV ? D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS : D3D12_RESOURCE_FLAG_NONE;
-//
-//    D3D12_RESOURCE_STATES initState =
-//        isUAV ? D3D12_RESOURCE_STATE_COMMON : D3D12_RESOURCE_STATE_GENERIC_READ;
-//
-//    HRESULT hr = device_->CreateCommittedResource(
-//        &heapProps,
-//        D3D12_HEAP_FLAG_NONE,
-//        &desc,
-//        initState,
-//        nullptr,
-//        IID_PPV_ARGS(&outResource)
-//    );
-//    assert(SUCCEEDED(hr));
-//    
-//#ifdef _DEBUG
-//    // --- デバッグ用に詳細な名前を付ける ---
-//    std::wstring name =
-//        L"Buffer[" + std::to_wstring(bufferCounter++) +
-//        L"] Size=" + std::to_wstring(sizeInBytes) +
-//        L" Heap=" + (heapProps.Type == D3D12_HEAP_TYPE_UPLOAD ? L"UPLOAD" : L"DEFAULT") +
-//        L" UAV=" + (isUAV ? L"true" : L"false");
-//
-//    outResource->SetName(name.c_str());
-//#endif
-//
-//}
 
 //------------------------------------------
 // 初期ステート

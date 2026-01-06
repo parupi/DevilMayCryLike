@@ -17,6 +17,8 @@
 #include <base/LightingPath.h>
 #include <Graphics/Rendering/RenderPath/ForwardRenderPath.h>
 #include <Graphics/Rendering/RenderPath/CompositePath.h>
+#include <Graphics/Rendering/Shadow/CascadedShadowMap.h>
+#include <Graphics/Rendering/RenderPath/Shadow/ShadowPass.h>
 
 class GuchisFramework
 {
@@ -55,5 +57,7 @@ protected:
 	std::unique_ptr<LightingPath> lightingPath = nullptr;
 	std::unique_ptr<ForwardRenderPath> forwardPath = nullptr;
 	std::unique_ptr<CompositePath> compositePath = nullptr;
+	std::unique_ptr<CascadedShadowMap> csm = nullptr;
+	std::unique_ptr<ShadowPass> shadowPath = nullptr;
 };
 

@@ -104,9 +104,9 @@ void TitleScene::Draw()
 	//Object3dManager::GetInstance()->DrawSet();
 	//Object3dManager::GetInstance()->DrawForGBuffer();
 
-	//ParticleManager::GetInstance()->Draw();
+	ParticleManager::GetInstance()->Draw();
 
-	//titleUI_->Draw();
+	titleUI_->Draw();
 }
 
 void TitleScene::DrawRTV()

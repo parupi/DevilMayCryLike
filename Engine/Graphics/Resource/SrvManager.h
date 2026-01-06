@@ -32,7 +32,7 @@ public:
 
 	void CreateUAVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
 
-	void SetGraphicsRootDescriptorTable(UINT PootParameterIndex, uint32_t srvIndex);
+	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);
 
 	uint32_t CreateSRVFromResource(ID3D12Resource* pResource, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM, UINT mipLevels = 1);
 public:

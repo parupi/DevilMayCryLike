@@ -533,6 +533,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.h" />
     <ClInclude Include="Engine\3d\Object\ObjectData.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\CompositePath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -876,12 +879,15 @@
     <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\CompositePath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />
     <FxCompile Include="Resource\shaders\GBuffer.PS.hlsl" />
     <FxCompile Include="Resource\shaders\Lighting.VS.hlsl" />
     <FxCompile Include="Resource\shaders\Lighting.PS.hlsl" />
+    <FxCompile Include="Resource\shaders\Shadow\CSM\CascadedShadowMap.VS.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resource\shaders\GBuffer.hlsli" />

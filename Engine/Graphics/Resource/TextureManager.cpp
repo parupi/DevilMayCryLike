@@ -106,13 +106,6 @@ void TextureManager::LoadTexture(const std::string& fileName)
     // ---------------------------
     dxManager_->UploadTextureData(tex.resource.Get(), mipImages);
 
-    //// レンダー用に SHADER_RESOURCE 状態へ遷移
-    //dxManager_->GetCommandContext()->TransitionResource(
-    //    tex.resource.Get(),
-    //    D3D12_RESOURCE_STATE_COPY_DEST,
-    //    D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-    //);
-
     // ---------------------------
     // 5. SRV 生成
     // ---------------------------

@@ -53,6 +53,12 @@ public: // ゲッター // セッター //
 	// カメラの右方向（X+が右）
 	Vector3 GetRight() const;
 
+	// カメラのnearとfarを取得
+	float GetNearClip() const { return nearClip_; }
+	float GetFarClip() const { return farClip_; }
+
+	float GetFovY() const { return horizontalFOV_; }
+	float GetAspect() const { return aspectRatio_; }
 
 	void SetFovY(const float& horizontalFOV) { horizontalFOV_ = horizontalFOV; }
 	void SetAspectRate(const float& aspectRatio) { aspectRatio_ = aspectRatio; }

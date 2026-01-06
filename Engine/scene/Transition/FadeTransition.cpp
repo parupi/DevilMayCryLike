@@ -40,5 +40,6 @@ void FadeTransition::Update()
 
 void FadeTransition::Draw()
 {
+	SpriteManager::GetInstance()->DrawSet();
 	sprite_->Draw();
 }

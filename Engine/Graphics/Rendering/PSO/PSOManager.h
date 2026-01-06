@@ -67,6 +67,9 @@ public:// アクセッサ
 	// Composite
 	ID3D12RootSignature* GetCompositeRootSignature() { return compositeRootSignature_.Get(); }
 	ID3D12PipelineState* GetCompositePSO();
+	// CascadedShadowMap
+	ID3D12RootSignature* GetCSMRootSignature() { return csmRootSignature_.Get(); }
+	ID3D12PipelineState* GetCSMPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -104,6 +107,9 @@ private:
 	// Composite
 	void CreateCompositeRootSignature();
 	void CreateCompositePSO();
+	// CascadedShadowMap
+	void CreateCSMRootSignature();
+	void CreateCSMPSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -144,4 +150,7 @@ private: // データ格納用変数
 	// Forward Deferred 合成用
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> compositeRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> compositePSO_;
+	// CascadedShadowMap
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> csmRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmPSO_;
 };

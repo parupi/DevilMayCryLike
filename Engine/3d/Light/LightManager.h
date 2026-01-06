@@ -34,7 +34,8 @@ public:
 	void DeleteAllLight();
 
 	void BindLightsToShader();
-
+	// 全ライトの情報を取得
+	std::vector<LightData> GetAllLightData() { return gpuLightCache_; }
 private:
 	// 各バッファの生成
 	void CreateLightBuffers();

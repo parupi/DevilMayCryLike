@@ -14,6 +14,9 @@ public:
 	void Draw() override;
 	// GBufferに描画
 	void DrawGBuffer() override;
+
+	void DrawShadow() override;
+
 	void SetModel(const std::string& filePath);
 
 #ifdef _DEBUG

@@ -168,6 +168,15 @@ ID3D12PipelineState* PSOManager::GetCompositePSO()
 	return compositePSO_.Get();
 }
 
+ID3D12PipelineState* PSOManager::GetCSMPSO()
+{
+	if (!csmPSO_) {
+		CreateCSMPSO();
+	}
+
+	return csmPSO_.Get();
+}
+
 void PSOManager::CreateSpriteSignature()
 {
 	HRESULT hr;
@@ -501,7 +510,7 @@ void PSOManager::CreateParticlePSO(BlendMode blendMode)
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;			// RasterizerState
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// 利用するトポロジ(形状)のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	// どのように画面を打ち込むかの設定
@@ -1303,7 +1312,7 @@ void PSOManager::CreateSkyboxPSO()
 	graphicsPipelineStateDesc.RasterizerState = rasterizerDesc;	// RasterizerState
 	// 書き込むRTVの情報
 	graphicsPipelineStateDesc.NumRenderTargets = 1;
-	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	graphicsPipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	// 利用するトポロジ(形状)のタイプ。三角形
 	graphicsPipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	// どのように画面を打ち込むかの設定
@@ -1884,5 +1893,109 @@ void PSOManager::CreateCompositePSO()
 	psoDesc.SampleDesc.Count = 1;
 
 	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&compositePSO_));
+	assert(SUCCEEDED(hr));
+}
+
+void PSOManager::CreateCSMRootSignature()
+{
+	CD3DX12_ROOT_PARAMETER rootParams[2]{};
+
+	// b0 : World Matrix
+	rootParams[0].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+	// b1 : Light View Projection
+	rootParams[1].InitAsConstantBufferView(1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
+	rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr, D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+
+	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
+	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
+
+	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
+
+	if (FAILED(hr))
+	{
+		if (errorBlob)
+		{
+			Logger::Log(reinterpret_cast<char*>(errorBlob->GetBufferPointer()));
+		}
+		assert(false);
+	}
+
+	hr = dxManager_->GetDevice()->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&csmRootSignature_));
+	assert(SUCCEEDED(hr));
+}
+
+
+void PSOManager::CreateCSMPSO()
+{
+	CreateCSMRootSignature();
+
+	// -------------------------
+	// Input Layout
+	// -------------------------
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] =
+	{
+		{
+			"POSITION",
+			0,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0,
+			0,
+			D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA,
+			0
+		}
+	};
+
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
+	inputLayoutDesc.pInputElementDescs = inputLayout;
+	inputLayoutDesc.NumElements = _countof(inputLayout);
+
+	// -------------------------
+	// Rasterizer
+	// -------------------------
+	D3D12_RASTERIZER_DESC rasterizerDesc{};
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FrontCounterClockwise = FALSE;
+	rasterizerDesc.DepthBias = 1000;
+	rasterizerDesc.DepthBiasClamp = 0.0f;
+	rasterizerDesc.SlopeScaledDepthBias = 1.0f;
+	rasterizerDesc.DepthClipEnable = TRUE;
+
+	// -------------------------
+	// Depth Stencil
+	// -------------------------
+	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	depthStencilDesc.StencilEnable = FALSE;
+
+	// -------------------------
+	// Shader
+	// -------------------------
+	Microsoft::WRL::ComPtr<IDxcBlob> vsBlob = dxManager_->CompileShader(L"./resource/shaders/Shadow/CSM/CascadedShadowMap.VS.hlsl", L"vs_6_0");
+	assert(vsBlob);
+
+	// -------------------------
+	// PSO
+	// -------------------------
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
+	psoDesc.pRootSignature = csmRootSignature_.Get();
+	psoDesc.InputLayout = inputLayoutDesc;
+	psoDesc.VS = { vsBlob->GetBufferPointer(), vsBlob->GetBufferSize() };
+	psoDesc.PS = { nullptr, 0 }; // Depth Only
+	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	psoDesc.RasterizerState = rasterizerDesc;
+	psoDesc.DepthStencilState = depthStencilDesc;
+	psoDesc.SampleMask = UINT_MAX;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.NumRenderTargets = 0;
+	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	psoDesc.SampleDesc.Count = 1;
+
+	HRESULT hr = dxManager_->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&csmPSO_));
 	assert(SUCCEEDED(hr));
 }

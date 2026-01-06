@@ -17,7 +17,7 @@ public:
 	void Update();
 
 	// 描画
-	void Bind();
+	void Bind(UINT RootParameterIndex);
 	// GBufferへの描画
 	void BindForGBuffer();
 

@@ -67,7 +67,7 @@ void Model::Draw()
 	for (const auto& mesh : meshes_) {
 		// このメッシュに対応するマテリアルを設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
-		materials_[mesh->GetMeshData().materialIndex]->Bind();
+		materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
 		CameraManager::GetInstance()->BindCameraToShader();
 		LightManager::GetInstance()->BindLightsToShader();
@@ -93,12 +93,24 @@ void Model::DrawGBuffer()
 	}
 }
 
+void Model::DrawShadow()
+{
+	for (auto& mesh : meshes_)
+	{
+		auto cmd = modelLoader_->GetDxManager()->GetCommandList();
+		// メッシュをバインド（頂点バッファなど）
+		mesh->Bind();
+		// 描画
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
+	}
+}
+
 void Model::Bind()
 {
 	    for (const auto& mesh : meshes_) {
         // メッシュに対応するマテリアルをバインド
         assert(mesh->GetMeshData().materialIndex < materials_.size());
-        materials_[mesh->GetMeshData().materialIndex]->Bind();
+        materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
         // メッシュをバインド（頂点バッファなど）
         mesh->Bind();

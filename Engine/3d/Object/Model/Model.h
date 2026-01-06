@@ -36,6 +36,8 @@ public: // メンバ関数
 	void Draw() override;
 	// GBufferに描画
 	void DrawGBuffer() override;
+
+	void DrawShadow() override;
 	// 
 	void Bind();
 
