@@ -132,5 +132,7 @@ void GameScene::DebugUpdate()
 	if (player_) {
 		player_->DebugGui();
 	}
+
+	//Object3dManager::GetInstance()->FindObject("HellKaina")->DebugGui();
 }
 #endif // _DEBUG

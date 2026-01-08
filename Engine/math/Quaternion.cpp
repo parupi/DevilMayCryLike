@@ -223,6 +223,44 @@ Quaternion QuaternionFromMatrix(const Matrix4x4& m)
     return q;
 }
 
+Quaternion FromToRotation(const Vector3& from, const Vector3& to)
+{
+    Vector3 f = from;
+    Vector3 t = to;
+    Normalize(f);
+    Normalize(t);
+
+    float dot = Dot(f, t);
+
+    // ほぼ同じ方向
+    if (dot > 0.9999f) {
+        return Identity();
+    }
+
+    // ほぼ逆方向（180度回転）
+    if (dot < -0.9999f) {
+        // from と直交する軸を探す
+        Vector3 axis = Cross(Vector3(1.0f, 0.0f, 0.0f), f);
+        if (Length(axis) < 0.0001f) {
+            axis = Cross(Vector3(0.0f, 1.0f, 0.0f), f);
+        }
+        Normalize(axis);
+        return MakeRotateAxisAngleQuaternion(axis, std::numbers::pi);
+    }
+
+    // 通常ケース
+    Vector3 axis = Cross(f, t);
+    float s = std::sqrt((1.0f + dot) * 2.0f);
+    float invS = 1.0f / s;
+
+    return Quaternion(
+        axis.x * invS,
+        axis.y * invS,
+        axis.z * invS,
+        s * 0.5f
+    );
+}
+
 
 // ImGuiを使ったクォータニオンの描画
 void PrintOnImGui(const Quaternion& q, const char* label) {

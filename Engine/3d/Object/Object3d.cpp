@@ -51,6 +51,8 @@ void Object3d::Update()
 
 void Object3d::Draw()
 {
+	if (!isDraw) return;
+
 	for (size_t i = 0; i < renders_.size(); i++) {
 		// ComputeSkinningを前処理として呼ぶ（SkinnedModelなら）
 		if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {

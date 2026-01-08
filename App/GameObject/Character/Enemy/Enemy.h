@@ -161,6 +161,8 @@ public:
     // 煙を出す
     void EmitSmoke() { smokeEmitter_->Emit(); }
 
+    void SetIsAttack(bool flag) { isAttack_ = flag; }
+
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_; ///< ステート名と対応するステートオブジェクト
     EnemyStateBase* currentState_ = nullptr; ///< 現在のステート
@@ -178,6 +180,8 @@ protected:
     bool isActive_ = true; ///< アクティブ状態（処理対象か）
     bool isAlive_ = true; ///< 生存状態フラグ
     int deathTimer_ = 0; ///< 死亡後の待機タイマー
+
+    bool isAttack_ = false;
 
     DamageInfo damageInfo_;
 

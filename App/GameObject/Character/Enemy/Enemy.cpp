@@ -58,15 +58,31 @@ void Enemy::Update()
 	}
 
 	if (!hitStop_->GetHitStopData().isActive) {
-		//GetRenderer(name_)->GetWorldTransform()->GetTranslation() = hitStop_->GetHitStopData().translate;
-		//Object3d::Update();
-		//smokeEmitter_->Emit();
-		//return;
 		GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
 		velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 	}
 
+	if (!player_) {
+		return;
+	}
 
+	// 座標取得
+	Vector3 enemyPos = GetWorldTransform()->GetTranslation();
+	Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+
+	// 敵 → プレイヤー方向
+	Vector3 dir = enemyPos - playerPos;
+	dir.y = 0.0f; // 上下は無視
+	Normalize(dir);
+
+	// 前方向（モデルの前が +Z 前提）
+	Vector3 forward(0.0f, 0.0f, 1.0f);
+
+	// 回転Quaternionを計算
+	Quaternion rot = FromToRotation(forward, dir);
+
+	// 回転をセット
+	GetWorldTransform()->GetRotation() = rot;
 
 	Object3d::Update();
 
@@ -137,11 +153,7 @@ void Enemy::OnCollisionEnter(BaseCollider* other)
 
 	if (other->category_ == CollisionCategory::PlayerWeapon) {
 		HitDamage();
-		//hp_--;
 
-		//if (hp_ <= 0) {
-		//	OnDeath();
-		//}
 	}
 }
 
@@ -234,6 +246,11 @@ void Enemy::HitDamage()
 	damageInfo_.torqueForce = player_->GetAttackData().torqueForce;
 	damageInfo_.stunTime = player_->GetAttackData().stunTime;
 
+	//hp_ -= damageInfo_.damage;
+
+	//if (hp_ <= 0) {
+	//	OnDeath();
+	//}
 	// TODO : 敵ごとにノックバックステートを用意する
 	ChangeState("KnockBack", &damageInfo_);
 }

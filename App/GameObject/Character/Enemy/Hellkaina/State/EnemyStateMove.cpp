@@ -3,7 +3,9 @@
 #include "GameObject/Character/Player/Player.h"
 void EnemyStateMove::Enter(Enemy& enemy)
 {
-    stateTime_.max = 2.0f;
+    stateTime_.max = 0.2f;
+
+    stateTime_.current = 0.0f;
     enemy;
 }
 

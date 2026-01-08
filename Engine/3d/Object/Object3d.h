@@ -55,6 +55,8 @@ private: // メンバ変数
 	struct DrawOption {
 		BlendMode blendMode = BlendMode::kNormal;
 	}drawOption_;
+	// 描画するかどうかの設定
+	bool isDraw = true;
 
 public: // ゲッター // セッター // 
 	// レンダー追加処理
@@ -67,6 +69,8 @@ public: // ゲッター // セッター //
 	void SetCamera(Camera* camera) { camera_ = camera; }
 
 	DrawOption GetOption() const { return drawOption_; }
+
+	void SetIsDraw(bool flag) { isDraw = flag; }
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }

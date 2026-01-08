@@ -245,6 +245,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateClear.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackA.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -375,6 +379,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="App\GameData\GameData.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackA.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDeath.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />

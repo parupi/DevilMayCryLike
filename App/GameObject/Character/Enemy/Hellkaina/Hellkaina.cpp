@@ -8,20 +8,26 @@
 #include "State/EnemyStateMove.h"
 #include "State/HellkainaStateKnockBack.h"
 #include <scene/Transition/TransitionManager.h>
+#include <3d/Collider/CollisionManager.h>
+#include "State/HellkainaStateAttackA.h"
+#include "State/HellkainaStateAttackB.h"
+#include "State/HellkainaStateSideMove.h"
 
 Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 {
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
 
-	//CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("EnemyCollider"));
-
 	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
-	//AddCollider(CollisionManager::GetInstance()->FindCollider("EnemyCollider"));
+
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
 	states_["Idle"] = std::make_unique<EnemyStateIdle>();
 	states_["Move"] = std::make_unique<EnemyStateMove>();
+	states_["SideMove"] = std::make_unique<HellkainaStateSideMove>();
 	states_["Air"] = std::make_unique<EnemyStateAir>();
 	states_["KnockBack"] = std::make_unique<HellkainaStateKnockBack>();
+	states_["AttackA"] = std::make_unique<HellkainaStateAttackA>();
+	states_["AttackB"] = std::make_unique<HellkainaStateAttackB>();
 	currentState_ = states_["Air"].get();
 
 	hp_ = 10.0f;
@@ -42,7 +48,24 @@ void Hellkaina::Initialize()
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
 
-	//GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
+	// 武器のレンダラー生成
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "HellkainaWeapon", "Sword"));
+	// 武器用のコライダー生成
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "HellkainaWeapon"));
+	// 武器を生成
+	std::unique_ptr<HellkainaWeapon> weapon = std::make_unique<HellkainaWeapon>(name_ + "HellkainaWeapon");
+
+	weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "HellkainaWeapon"));
+
+	weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "HellkainaWeapon"));
+
+	weapon->Initialize();
+
+	weapon->GetWorldTransform()->SetParent(GetWorldTransform());
+
+	weapon_ = weapon.get();
+
+	Object3dManager::GetInstance()->AddObject(std::move(weapon));
 
 	hitStop_ = std::make_unique<HitStop>();
 
@@ -52,9 +75,24 @@ void Hellkaina::Initialize()
 void Hellkaina::Update()
 {
 
-
+	//weapon_->Update();
+	weapon_->SetIsDraw(isAttack_);
 	Enemy::Update();
 }
+
+#ifdef _DEBUG
+void Hellkaina::DebugGui()
+{
+	ImGui::Begin(name_.c_str());
+	Object3d::DebugGui();
+	ImGui::End();
+	//std::string weaponName = name_ + "weapon";
+	//ImGui::Begin(weaponName.c_str());
+	//weapon_->DebugGui();
+	//ImGui::End();
+	
+}
+#endif // DEBUG
 
 void Hellkaina::OnCollisionEnter(BaseCollider* other)
 {

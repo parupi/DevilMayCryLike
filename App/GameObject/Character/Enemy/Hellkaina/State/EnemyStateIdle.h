@@ -3,6 +3,16 @@
 #include <cstdlib> 
 #include <ctime>   
 
+namespace
+{
+    enum class LastAttack
+    {
+        None,
+        AttackA,
+        AttackB
+    };
+}
+
 class EnemyStateIdle : public EnemyStateBase
 {
 public:
@@ -12,7 +22,6 @@ public:
 	void Update(Enemy& enemy) override;
 	void Exit(Enemy& enemy) override;
 private:
-
 
 };
 

@@ -1,0 +1,20 @@
+#pragma once
+#include "GameObject/Character/Enemy/BaseState/EnemyStateBase.h"
+#include "3d/Object/Object3d.h"
+class HellkainaStateAttackB : public EnemyStateBase
+{
+public:
+	HellkainaStateAttackB() = default;
+	~HellkainaStateAttackB() override = default;
+	void Enter(Enemy& enemy) override;
+	void Update(Enemy& enemy) override;
+	void Exit(Enemy& enemy) override;
+
+private:
+	float timer_ = 0.0f;
+	float time_ = 0.4f;
+
+	std::vector<Vector3> translate_;
+	std::vector<Vector3> rotate_;
+};
+
