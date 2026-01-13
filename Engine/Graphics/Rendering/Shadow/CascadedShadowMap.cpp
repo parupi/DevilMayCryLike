@@ -18,6 +18,10 @@ void CascadedShadowMap::Initialize(DirectXManager* dxManager, uint32_t shadowMap
 
 		mappedLightVP_[i] = reinterpret_cast<LightVPConstants*>(resourceManager->Map(lightVPIndex_[i]));
 	}
+
+	shadowMapSrvIndex_ = srvIndices_[0];
+	cascadeCBHandle_ = 
+	lightVPCBHandle_ = lightVPIndex_[0];
 }
 
 void CascadedShadowMap::Update()

@@ -140,7 +140,7 @@ void MyGameTitle::Draw()
 	///---------------------------------------------------------
 	/// LightingPath（GBuffer結果を使って描画）
 	///---------------------------------------------------------
-	lightingPath->Begin();
+	lightingPath->Begin(csm.get());
 
 	LightManager::GetInstance()->BindLightsToShader();
 	CameraManager::GetInstance()->BindCameraToShader();

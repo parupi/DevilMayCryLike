@@ -6,6 +6,6 @@ static constexpr uint32_t kCascadeCount = 3;
 
 struct CascadeData
 {
+    float splitDepth; // View空間Z
     Matrix4x4 lightViewProj;
-    float splitDepth;   // View空間Z
 };

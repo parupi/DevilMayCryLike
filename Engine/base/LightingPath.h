@@ -7,6 +7,7 @@
 
 class DirectXManager;
 class GBufferManager;
+class CascadedShadowMap;
 
 struct FullScreenVertex {
 	Vector3 pos;
@@ -23,7 +24,7 @@ public:
 
 	void CreateFullScreenVB();
 
-	void Begin();
+	void Begin(CascadedShadowMap* csm);
 	void End();
 
 	void CreateGBufferSRVs();
@@ -31,8 +32,9 @@ public:
 
 	D3D12_GPU_DESCRIPTOR_HANDLE GetOutputSRV() const { return outputSrvTable_; }
 	uint32_t GetOutputSrvIndex() const { return outputSrvIndex_; }
-	//uint32_t GetDsvIndex() const { return dsvIndex_; }
 private:
+	void BindShadowMap(CascadedShadowMap* csm);
+
 	DirectXManager* dxManager_ = nullptr;
 	GBufferManager* gBufferManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
@@ -46,14 +48,10 @@ private:
 	// 出力用のRtv
 	Microsoft::WRL::ComPtr<ID3D12Resource> outputRtvResource_;
 	uint32_t outputRtvIndex_;  // 先頭のRtv番号
-	//D3D12_GPU_DESCRIPTOR_HANDLE outputRtvTable_; // GPUハンドル保持
 
 	// 計算結果を読み込ませるためのsrv
 	Microsoft::WRL::ComPtr<ID3D12Resource> outputSrvResource_;
 	uint32_t outputSrvIndex_;  // 先頭のRtv番号
 	D3D12_GPU_DESCRIPTOR_HANDLE outputSrvTable_; // GPUハンドル保持
-
-	//Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_;
-	//uint32_t dsvIndex_ = 0;
 };
 
