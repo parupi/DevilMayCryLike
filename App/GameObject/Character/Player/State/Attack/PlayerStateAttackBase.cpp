@@ -74,6 +74,36 @@ void PlayerStateAttackBase::Enter(Player& player)
 	}
 	// 今回の攻撃のパラメータを送っておく
 	player.SetAttackData(attackData_);
+
+	// --- 派生UI設定 ---
+	std::vector<AttackBranch> branches;
+
+	int count = gv->GetValueRef<int32_t>(name_, "NextAttackCount");
+	for (int i = 0; i < count; ++i) {
+		AttackBranch b{};
+		b.nextAttack = gv->GetValueRef<int32_t>(
+			name_, "NextAttackIndex_" + std::to_string(i));
+
+		// 今の仕様
+		b.input = InputType::Y;
+		b.dir = StickDir::Neutral;
+		b.requireLockOn = false;
+
+		// 特例：ロックオン＋下
+		if (name_ == "AttackComboA1") {
+			b.dir = StickDir::Down;
+			b.requireLockOn = true;
+		}
+
+		//b.iconFile = "ui/attack_icon.png"; // 仮
+
+		branches.push_back(b);
+	}
+
+	if (player.GetAttackBranchUI()) {
+		player.GetAttackBranchUI()->SetBranches(branches);
+		player.GetAttackBranchUI()->SetVisible(true);
+	}
 }
 
 void PlayerStateAttackBase::Update(Player& player)
@@ -89,7 +119,7 @@ void PlayerStateAttackBase::Update(Player& player)
 	if (player.IsClear()) {
 		slowFactor = 0.2f;   // 20% の速度で動く（お好みで調整）
 	}
-	
+
 	stateTime_.current += DeltaTime::GetDeltaTime() * slowFactor;
 
 	// 攻撃フェーズの更新処理
@@ -171,7 +201,7 @@ void PlayerStateAttackBase::Update(Player& player)
 				player.ChangeState("Jump");
 				return;
 			}
-		
+
 			if (player.IsLockOn()) {
 				if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() < 0.0f) {
 					player.ChangeState("AttackHighTime");
@@ -205,6 +235,32 @@ void PlayerStateAttackBase::Update(Player& player)
 			}
 		}
 		break;
+
+		//attackChangeTimer_.current += DeltaTime::GetDeltaTime();
+
+		//// UI表示ON
+		//player.GetAttackBranchUI()->SetVisible(true);
+
+		//// 入力状態取得
+		//InputType input;
+		//StickDir dir;
+
+		//if (!GetCurrentInput(input, dir)) {
+		//	break;
+		//}
+
+		//// UIに表示されている派生だけを見る
+		//for (const auto& branch : branches_)
+		//{
+		//	if (branch.input == input && branch.dir == dir)
+		//	{
+		//		std::string nextAttackName = player.GetAttackStateNameByIndex(branch.nextAttack);
+
+		//		player.ChangeState(nextAttackName);
+		//		return;
+		//	}
+		//}
+		//break;
 	}
 
 	// 状態遷移
@@ -221,6 +277,11 @@ void PlayerStateAttackBase::Exit(Player& player)
 	stateTime_.max = attackData_.totalDuration;
 
 	attackChangeTimer_.current = 0.0f;
+
+	if (player.GetAttackBranchUI()) {
+		player.GetAttackBranchUI()->Clear();
+		player.GetAttackBranchUI()->SetVisible(false);
+	}
 }
 
 void PlayerStateAttackBase::UpdateAttackData()
@@ -283,4 +344,24 @@ void PlayerStateAttackBase::DrawControlPoints(Player& player)
 	for (size_t i = 0; i < curvePoints.size() - 1; i++) {
 		PrimitiveLineDrawer::GetInstance()->DrawLine(player.GetWorldTransform()->GetTranslation() + curvePoints[i], player.GetWorldTransform()->GetTranslation() + curvePoints[i + 1], { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
+}
+
+bool PlayerStateAttackBase::GetCurrentInput(InputType& outInput, StickDir& outDir)
+{
+	if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) || Input::GetInstance()->TriggerKey(DIK_J)) {
+		outInput = InputType::Y;
+	} else {
+		return false;
+	}
+
+	float y = Input::GetInstance()->GetLeftStickY();
+	float x = Input::GetInstance()->GetLeftStickX();
+
+	if (y > 0.5f) outDir = StickDir::Up;
+	else if (y < -0.5f) outDir = StickDir::Down;
+	else if (x > 0.5f) outDir = StickDir::Right;
+	else if (x < -0.5f) outDir = StickDir::Left;
+	else outDir = StickDir::Neutral;
+
+	return true;
 }

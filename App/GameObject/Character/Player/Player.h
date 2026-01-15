@@ -16,6 +16,7 @@
 #include <GameObject/Character/Enemy/Enemy.h>
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
+#include "State/Attack/AttackBranchUI.h"
 
 /// <summary>
 /// プレイヤーキャラクターを制御するクラス  
@@ -158,6 +159,11 @@ public:
 	/// </summary>
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 
+	// 攻撃派生UI
+	AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
+
+
+	AttackInputState GetAttackInputState() const;
 private:
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_; ///< ステート名とステートインスタンスのマップ
 	PlayerStateBase* currentState_ = nullptr; ///< 現在のステート
@@ -184,4 +190,6 @@ private:
 	std::unique_ptr<Sprite> titleWord_; ///< テスト用スプライト（デバッグ表示など）
 
 	bool isClear_ = false;
+
+	std::unique_ptr<AttackBranchUI> attackBranchUI_;
 };

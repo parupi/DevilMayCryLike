@@ -83,6 +83,10 @@ void Player::Initialize()
 
 	// プレイヤーをカメラ側を向かせる
 	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
+
+	attackBranchUI_ = std::make_unique<AttackBranchUI>();
+	attackBranchUI_->Initialize();
+	attackBranchUI_->SetVisible(false);
 }
 
 void Player::Update()
@@ -140,6 +144,20 @@ void Player::Update()
 		titleWord_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
 		titleWord_->Update();
 	}
+
+	// 攻撃派生UIの更新
+	if (attackBranchUI_) {
+		auto inputState = GetAttackInputState();
+
+		attackBranchUI_->SetCurrentInput(
+			inputState.y ? InputType::Y
+			: InputType::Y, // 今はYのみ
+			inputState.dir,
+			inputState.isLockOn
+		);
+
+		attackBranchUI_->Update();
+	}
 }
 
 void Player::Draw()
@@ -153,6 +171,9 @@ void Player::Draw()
 			attackState->DrawControlPoints(*this);
 		}
 	}
+
+	SpriteManager::GetInstance()->DrawSet();
+	attackBranchUI_->Draw();
 }
 
 void Player::DrawEffect()
@@ -457,6 +478,31 @@ void Player::LockOn()
 void Player::Clear()
 {
 	isClear_ = true;
+}
+
+AttackInputState Player::GetAttackInputState() const
+{
+	AttackInputState state{};
+
+	// ボタン
+	state.y = input->TriggerButton(PadNumber::ButtonY) || input->TriggerKey(DIK_J);
+	state.rb = input->PushButton(PadNumber::ButtonR);
+
+	// スティック方向（しきい値あり）
+	float lx = input->GetLeftStickX();
+	float ly = input->GetLeftStickY();
+
+	constexpr float threshold = 0.5f;
+
+	if (ly > threshold)       state.dir = StickDir::Up;
+	else if (ly < -threshold) state.dir = StickDir::Down;
+	else if (lx > threshold)  state.dir = StickDir::Right;
+	else if (lx < -threshold) state.dir = StickDir::Left;
+	else                      state.dir = StickDir::Neutral;
+
+	state.isLockOn = isLockOn_;
+
+	return state;
 }
 
 std::string Player::GetAttackStateNameByIndex(int32_t index) const

@@ -3,9 +3,12 @@
 #include "debuger/GlobalVariables.h"
 #include "3d/Object/Object3d.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "AttackStructs.h"
 
 class PlayerStateAttackBase : public PlayerStateBase
 {
+private:
+
 public:
 	PlayerStateAttackBase(std::string attackName);
 	virtual ~PlayerStateAttackBase() = default;
@@ -21,9 +24,13 @@ public:
 	void DrawControlPoints(Player& player);
 	// 攻撃の名前
 	std::string name_;
+
+	bool GetCurrentInput(InputType& outInput, StickDir& outDir);
 protected:
 	
 	TimeData stateTime_;
+
+
 
 	enum class AttackPhase {
 		Startup, // 予備動作
@@ -37,5 +44,7 @@ protected:
 	AttackData attackData_;
 	// 派生先を管理するためのタイマー
 	TimeData attackChangeTimer_;
+
+	std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
 };
 

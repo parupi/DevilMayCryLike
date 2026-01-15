@@ -246,11 +246,11 @@ void Enemy::HitDamage()
 	damageInfo_.torqueForce = player_->GetAttackData().torqueForce;
 	damageInfo_.stunTime = player_->GetAttackData().stunTime;
 
-	//hp_ -= damageInfo_.damage;
+	hp_ -= damageInfo_.damage;
 
-	//if (hp_ <= 0) {
-	//	OnDeath();
-	//}
+	if (hp_ <= 0) {
+		OnDeath();
+	}
 	// TODO : 敵ごとにノックバックステートを用意する
 	ChangeState("KnockBack", &damageInfo_);
 }

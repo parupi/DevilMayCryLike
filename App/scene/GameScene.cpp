@@ -53,6 +53,11 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("GameUI.png");
 	TextureManager::GetInstance()->LoadTexture("reticle.png");
 	TextureManager::GetInstance()->LoadTexture("hitSmoke.png");
+	TextureManager::GetInstance()->LoadTexture("UI/Arrow.png");
+	TextureManager::GetInstance()->LoadTexture("UI/plus.png");
+	TextureManager::GetInstance()->LoadTexture("UI/RBButton.png");
+	TextureManager::GetInstance()->LoadTexture("UI/SticDown.png");
+	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
 
 	// ステージの情報を読み込んで生成
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
@@ -77,6 +82,9 @@ void GameScene::Initialize()
 	deathUI_->SetAnchorPoint({ 0.5f, 0.5f });
 	deathUI_->SetSize({ 256.0f, 256.0f });
 	deathUI_->SetPosition({ 128.0f, 592.0f });
+
+	gameUI_ = std::make_unique<GameUI>();
+	gameUI_->Initialize();
 }
 
 void GameScene::Finalize()
@@ -97,6 +105,7 @@ void GameScene::Update()
 	lightManager_->UpdateAllLight();
 
 	deathUI_->Update();
+	gameUI_->Update();
 
 	//clearCamera_->Update();
 
@@ -116,7 +125,9 @@ void GameScene::Draw()
 		player_->DrawEffect();
 	}
 
-	deathUI_->Draw();
+	//deathUI_->Draw();
+
+	gameUI_->Draw();
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();

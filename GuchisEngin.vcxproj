@@ -114,6 +114,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Camera\GameCamera.h" />
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
     <ClInclude Include="App\GameObject\Character\CharacterStructs.h" />
+    <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackStructs.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
@@ -147,6 +148,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
     <ClInclude Include="App\GameObject\Camera\ClearCamera.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateKnockBack.h" />
+    <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\3d\Camera\Camera.h" />
@@ -249,6 +251,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.h" />
+    <ClInclude Include="App\GameObject\UI\GameUI\GameUI.h" />
+    <ClInclude Include="PlayerStateMachine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -284,6 +288,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
     <ClCompile Include="App\GameObject\Camera\ClearCamera.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\Camera.cpp" />
@@ -383,12 +388,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.cpp" />
+    <ClCompile Include="App\GameObject\UI\GameUI\GameUI.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDeath.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateClear.cpp" />
+    <ClCompile Include="PlayerStateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

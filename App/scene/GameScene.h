@@ -6,6 +6,7 @@
 #include <GameObject/UI/StageStart/StageStart.h>
 #include <GameObject/Character/Player/Player.h>
 #include <GameObject/Camera/ClearCamera.h>
+#include <GameObject/UI/GameUI/GameUI.h>
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -70,4 +71,6 @@ private:
 	std::unique_ptr<Sprite> deathUI_ = nullptr;
 
 	StageStart stageStart_; ///< ステージ開始時のカメラ演出（「STAGE START」など）
+
+	std::unique_ptr<GameUI> gameUI_;
 };
