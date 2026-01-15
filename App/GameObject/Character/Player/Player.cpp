@@ -25,21 +25,40 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
 
-	states_["Idle"] = std::make_unique<PlayerStateIdle>();
-	states_["Move"] = std::make_unique<PlayerStateMove>();
-	states_["Jump"] = std::make_unique<PlayerStateJump>();
-	states_["Air"] = std::make_unique<PlayerStateAir>();
-	states_["Death"] = std::make_unique<PlayerStateDeath>();
-	states_["Clear"] = std::make_unique<PlayerStateClear>();
-	states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
-	states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
-	states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
-	states_["AttackComboB2"] = std::make_unique<PlayerStateAttackBase>("AttackComboB2");
-	states_["AttackComboB3"] = std::make_unique<PlayerStateAttackBase>("AttackComboB3");
-	states_["AttackHighTime"] = std::make_unique<PlayerStateAttackBase>("AttackHighTime");
-	states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave1");
-	states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave2");
-	currentState_ = states_["Idle"].get();
+	//states_["Idle"] = std::make_unique<PlayerStateIdle>();
+	//states_["Move"] = std::make_unique<PlayerStateMove>();
+	//states_["Jump"] = std::make_unique<PlayerStateJump>();
+	//states_["Air"] = std::make_unique<PlayerStateAir>();
+	//states_["Death"] = std::make_unique<PlayerStateDeath>();
+	//states_["Clear"] = std::make_unique<PlayerStateClear>();
+	//states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
+	//states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
+	//states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
+	//states_["AttackComboB2"] = std::make_unique<PlayerStateAttackBase>("AttackComboB2");
+	//states_["AttackComboB3"] = std::make_unique<PlayerStateAttackBase>("AttackComboB3");
+	//states_["AttackHighTime"] = std::make_unique<PlayerStateAttackBase>("AttackHighTime");
+	//states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave1");
+	//states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave2");
+	//currentState_ = states_["Idle"].get();
+
+	// StateMachine生成
+	stateMachine_ = std::make_unique<PlayerStateMachine>();
+	// ステートをセットしてcurrentに登録
+	stateMachine_->SetFirstState("Idle", std::make_unique<PlayerStateIdle>());
+	// 各ステートを登録
+	stateMachine_->AddState("Move", std::make_unique<PlayerStateMove>());
+	stateMachine_->AddState("Jump", std::make_unique<PlayerStateJump>());
+	stateMachine_->AddState("Air", std::make_unique<PlayerStateAir>());
+	stateMachine_->AddState("Death", std::make_unique<PlayerStateDeath>());
+	stateMachine_->AddState("Clear", std::make_unique<PlayerStateClear>());
+	stateMachine_->AddState("AttackComboA1", std::make_unique<PlayerStateAttackBase>("AttackComboA1"));
+	stateMachine_->AddState("AttackComboA2", std::make_unique<PlayerStateAttackBase>("AttackComboA2"));
+	stateMachine_->AddState("AttackComboA3", std::make_unique<PlayerStateAttackBase>("AttackComboA3"));
+	stateMachine_->AddState("AttackComboB2", std::make_unique<PlayerStateAttackBase>("AttackComboB2"));
+	stateMachine_->AddState("AttackComboB3", std::make_unique<PlayerStateAttackBase>("AttackComboB3"));
+	stateMachine_->AddState("AttackHighTime", std::make_unique<PlayerStateAttackBase>("AttackHighTime"));
+	stateMachine_->AddState("AttackAerialRave1", std::make_unique<PlayerStateAttackBase>("AttackAerialRave1"));
+	stateMachine_->AddState("AttackAerialRave2", std::make_unique<PlayerStateAttackBase>("AttackAerialRave2"));
 }
 
 void Player::Initialize()
@@ -73,13 +92,13 @@ void Player::Initialize()
 	titleWord_->SetSize({ 32.0f, 32.0f });
 	titleWord_->SetAnchorPoint({ 0.5f, 0.5f });
 
-	// 全攻撃を一度更新しておく
-	for (auto& state : states_) {
-		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
-		if (attackState) {
-			attackState->UpdateAttackData();
-		}
-	}
+	//// 全攻撃を一度更新しておく
+	//for (auto& state : states_) {
+	//	PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
+	//	if (attackState) {
+	//		attackState->UpdateAttackData();
+	//	}
+	//}
 
 	// プレイヤーをカメラ側を向かせる
 	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
@@ -101,18 +120,20 @@ void Player::Update()
 		return;
 	}
 	
-	// 全攻撃を更新
-	for (auto& state : states_) {
-		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
-		if (attackState) {
-			attackState->UpdateAttackData();
-		}
-	}
+	//// 全攻撃を更新
+	//for (auto& state : states_) {
+	//	PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
+	//	if (attackState) {
+	//		attackState->UpdateAttackData();
+	//	}
+	//}
 
-	// 現在のステートを更新
-	if (currentState_) {
-		currentState_->Update(*this);
-	}
+	//// 現在のステートを更新
+	//if (currentState_) {
+	//	currentState_->Update(*this);
+	//}
+
+	stateMachine_->UpdateCurrentState(*this);
 
 	// Rキーを押したら死亡演出が流れる
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
@@ -165,12 +186,12 @@ void Player::Draw()
 	weapon_->Draw();
 	Object3d::Draw();
 
-	for (auto& [name, state] : states_) {
-		PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
-		if (attackState) {
-			attackState->DrawControlPoints(*this);
-		}
-	}
+	//for (auto& [name, state] : states_) {
+	//	PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
+	//	if (attackState) {
+	//		attackState->DrawControlPoints(*this);
+	//	}
+	//}
 
 	SpriteManager::GetInstance()->DrawSet();
 	attackBranchUI_->Draw();
@@ -263,30 +284,30 @@ void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
 	ImGui::DragInt("Next Attack Count", &nextAttackCount, 1, 0, 5);
 	nextAttackCount = std::clamp(nextAttackCount, 0, 3);
 
-	// 全攻撃名リストの取得
-	std::vector<std::string> attackNames;
-	for (auto& [name, state] : states_) {
-		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-			attackNames.push_back(name);
-		}
-	}
-	std::vector<const char*> cstrs;
-	for (const auto& name : attackNames) {
-		cstrs.push_back(name.c_str());
-	}
+	//// 全攻撃名リストの取得
+	//std::vector<std::string> attackNames;
+	//for (auto& [name, state] : states_) {
+	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+	//		attackNames.push_back(name);
+	//	}
+	//}
+	//std::vector<const char*> cstrs;
+	//for (const auto& name : attackNames) {
+	//	cstrs.push_back(name.c_str());
+	//}
 
-	// 複数の派生攻撃を選択
-	for (int i = 0; i < nextAttackCount; ++i) {
-		std::string key = "NextAttackIndex_" + std::to_string(i);
-		int32_t& index = gv->GetValueRef<int32_t>(attack->name_, key);
-		if (index < 0 || index >= (int32_t)attackNames.size()) {
-			index = 0; // 範囲外防止
-		}
-		std::string label = "Next Attack " + std::to_string(i);
-		ImGui::Combo(label.c_str(), &index, cstrs.data(), static_cast<int>(cstrs.size()));
-	}
+	//// 複数の派生攻撃を選択
+	//for (int i = 0; i < nextAttackCount; ++i) {
+	//	std::string key = "NextAttackIndex_" + std::to_string(i);
+	//	int32_t& index = gv->GetValueRef<int32_t>(attack->name_, key);
+	//	if (index < 0 || index >= (int32_t)attackNames.size()) {
+	//		index = 0; // 範囲外防止
+	//	}
+	//	std::string label = "Next Attack " + std::to_string(i);
+	//	ImGui::Combo(label.c_str(), &index, cstrs.data(), static_cast<int>(cstrs.size()));
+	//}
 
-	ImGui::Separator();
+	//ImGui::Separator();
 
 	if (ImGui::Button("Save")) {
 		gv->SaveFile(attackName);
@@ -302,12 +323,12 @@ void Player::DrawAttackDataEditorUI()
 	// 攻撃ステートを収集
 	std::vector<PlayerStateAttackBase*> attackStates;
 	std::vector<std::string> attackNames;
-	for (auto& [name, state] : states_) {
-		if (auto* attack = dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-			attackStates.push_back(attack);
-			attackNames.push_back(attack->name_);
-		}
-	}
+	//for (auto& [name, state] : states_) {
+	//	if (auto* attack = dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+	//		attackStates.push_back(attack);
+	//		attackNames.push_back(attack->name_);
+	//	}
+	//}
 
 	// 攻撃ステートが存在しない場合は処理しない
 	if (attackStates.empty()) return;
@@ -340,23 +361,23 @@ void Player::DrawAttackDataEditorUI()
 #ifdef _DEBUG
 void Player::DebugGui()
 {
-	// 現在のステート名を取得
-	const char* currentStateName = "Unknown";
-	for (const auto& [named, state] : states_) {
-		if (state.get() == currentState_) {
-			currentStateName = named.c_str();
-			break;
-		}
-	}
+	//// 現在のステート名を取得
+	//const char* currentStateName = "Unknown";
+	//for (const auto& [named, state] : states_) {
+	//	if (state.get() == currentState_) {
+	//		currentStateName = named.c_str();
+	//		break;
+	//	}
+	//}
 
-	ImGui::Begin("Player");
-	ImGui::Text("Current State: %s", currentStateName);
-	Object3d::DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Player");
+	//ImGui::Text("Current State: %s", currentStateName);
+	//Object3d::DebugGui();
+	//ImGui::End();
 
-	ImGui::Begin("Weapon");
-	weapon_->DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Weapon");
+	//weapon_->DebugGui();
+	//ImGui::End();
 
 }
 
@@ -364,12 +385,7 @@ void Player::DebugGui()
 
 void Player::ChangeState(const std::string& stateName)
 {
-	currentState_->Exit(*this);
-	auto it = states_.find(stateName);
-	if (it != states_.end()) {
-		currentState_ = it->second.get();
-		currentState_->Enter(*this);
-	}
+	stateMachine_->ChangeState(*this, stateName);
 }
 
 void Player::Move()
@@ -507,25 +523,26 @@ AttackInputState Player::GetAttackInputState() const
 
 std::string Player::GetAttackStateNameByIndex(int32_t index) const
 {
-	int i = 0;
-	for (const auto& [name, state] : states_) {
-		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-			if (i == index) return name;
-			++i;
-		}
-	}
+	//int i = 0;
+	//for (const auto& [name, state] : states_) {
+	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+	//		if (i == index) return name;
+	//		++i;
+	//	}
+	//}
 	return "";
 }
 
 int32_t Player::GetAttackStateCount() const
 {
-	int32_t count = 0;
-	for (const auto& [_, state] : states_) {
-		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-			++count;
-		}
-	}
-	return count;
+	//int32_t count = 0;
+	//for (const auto& [_, state] : states_) {
+	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+	//		++count;
+	//	}
+	//}
+	//return count;
+	return 0;
 }
 
 void Player::OnCollisionEnter(BaseCollider* other)

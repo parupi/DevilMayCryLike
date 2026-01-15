@@ -252,7 +252,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.h" />
     <ClInclude Include="App\GameObject\UI\GameUI\GameUI.h" />
-    <ClInclude Include="PlayerStateMachine.h" />
+    <ClInclude Include="App\GameObject\Character\Player\PlayerStateMachine.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
@@ -395,7 +395,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateClear.cpp" />
-    <ClCompile Include="PlayerStateMachine.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\PlayerStateMachine.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
