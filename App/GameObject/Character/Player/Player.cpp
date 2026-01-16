@@ -63,6 +63,9 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 
 void Player::Initialize()
 {
+	movement_ = std::make_unique<PlayerMovement>();
+	movement_->Initialize();
+
 	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
@@ -119,6 +122,8 @@ void Player::Update()
 		Object3d::Update();
 		return;
 	}
+
+
 	
 	//// 全攻撃を更新
 	//for (auto& state : states_) {
@@ -145,16 +150,22 @@ void Player::Update()
 
 	LockOn();
 
-	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
-	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
+	
+	//velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
+
+
+
+ 	weapon_->Update();
+
+
+	// 物理挙動の後進
+	movement_->Update(DeltaTime::GetDeltaTime());
+	GetWorldTransform()->GetTranslation() += movement_->GetVelocity() * DeltaTime::GetDeltaTime();
+
+	Object3d::Update();
 
 	// 毎フレーム切っておく
 	onGround_ = false;
-
- 	weapon_->Update();
-	Object3d::Update();
-
-
 
 #ifdef _DEBUG
 	// エディターの描画
@@ -494,6 +505,11 @@ void Player::LockOn()
 void Player::Clear()
 {
 	isClear_ = true;
+}
+
+void Player::SetIntent(const MoveIntent& intent)
+{
+	movement_->SetIntent(intent);
 }
 
 AttackInputState Player::GetAttackInputState() const

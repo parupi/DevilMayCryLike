@@ -42,6 +42,7 @@ inline Vector3 operator*(float scalar, const Vector3& vec) {
 // ヘルパー関数
 float Dot(const Vector3& v1, const Vector3& v2);
 float Length(const Vector3& v);
+Vector3 ClampLength(const Vector3& v, float maxLength);
 Vector3 Normalize(const Vector3& v);
 Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
 Vector3 Lerp(const Vector3& start, const Vector3& end, float t);

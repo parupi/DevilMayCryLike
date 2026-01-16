@@ -17,7 +17,8 @@
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
 #include "State/Attack/AttackBranchUI.h"
-#include "PlayerStateMachine.h"
+#include "StateMachine/PlayerStateMachine.h"
+#include "Movement/PlayerMovement.h"
 
 /// <summary>
 /// プレイヤーキャラクターを制御するクラス  
@@ -132,6 +133,8 @@ public:
 
 	void Clear();
 
+	void SetIntent(const MoveIntent& intent);
+
 	// ======================
 	// アクセッサ
 	// ======================
@@ -166,9 +169,9 @@ public:
 
 	AttackInputState GetAttackInputState() const;
 private:
-	//std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_; ///< ステート名とステートインスタンスのマップ
-	//PlayerStateBase* currentState_ = nullptr; ///< 現在のステート
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
+
+	std::unique_ptr<PlayerMovement> movement_ = nullptr;
 
 	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
 	Input* input = Input::GetInstance(); ///< 入力管理クラス

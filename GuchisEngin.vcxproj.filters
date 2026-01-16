@@ -537,7 +537,8 @@
     <ClInclude Include="App\GameObject\UI\GameUI\GameUI.h" />
     <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.h" />
     <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackStructs.h" />
-    <ClInclude Include="App\GameObject\Character\Player\PlayerStateMachine.h" />
+    <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
+    <ClInclude Include="App\GameObject\Character\Player\Movement\PlayerMovement.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -886,6 +887,7 @@
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.cpp" />
     <ClCompile Include="App\GameObject\UI\GameUI\GameUI.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.cpp" />
-    <ClCompile Include="App\GameObject\Character\Player\PlayerStateMachine.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\Movement\PlayerMovement.cpp" />
   </ItemGroup>
 </Project>
