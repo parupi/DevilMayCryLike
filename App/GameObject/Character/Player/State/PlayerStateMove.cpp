@@ -4,15 +4,16 @@
 
 void PlayerStateMove::Enter(Player& player)
 {
-	//player.GetAcceleration().y = 0.0f;
+	player.GetAcceleration().y = 0.0f;
 }
 
 void PlayerStateMove::Update(Player& player)
 {
 	Input* input = Input::GetInstance();
-	Move(player);
+	//Move(player);
 
-
+	player.Move();
+	player.GetVelocity().y = 0.0f;
 
 	// 地面についていなければ空中状態へ
 	if (!player.GetOnGround()) {
@@ -71,8 +72,8 @@ void PlayerStateMove::Update(Player& player)
 
 void PlayerStateMove::Exit(Player& player)
 {
-	//player.GetVelocity().x = 0.0f;
-	//player.GetVelocity().z = 0.0f;
+	player.GetVelocity().x = 0.0f;
+	player.GetVelocity().z = 0.0f;
 }
 
 void PlayerStateMove::Move(Player& player)
@@ -134,6 +135,7 @@ void PlayerStateMove::Move(Player& player)
 		MoveIntent intent;
 		intent.moveDir = moveDir;
 		intent.moveScale = 10.0f;
+		//intent.
 		player.SetIntent(intent);
 	}
 }

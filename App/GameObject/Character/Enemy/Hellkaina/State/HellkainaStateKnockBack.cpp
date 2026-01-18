@@ -81,5 +81,5 @@ void HellkainaStateKnockBack::OnLand(Enemy& enemy)
 
 void HellkainaStateKnockBack::Exit(Enemy& enemy)
 {
-
+    enemy;
 }

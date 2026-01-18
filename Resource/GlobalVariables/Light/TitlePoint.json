@@ -1,0 +1,13 @@
+{
+    "TitlePoint": {
+        "Decay": 1.0,
+        "Enabled": true,
+        "Intensity": 1.0,
+        "Position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Radius": 10.0
+    }
+}

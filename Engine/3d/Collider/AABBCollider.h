@@ -21,6 +21,7 @@ public:
 
 	const Vector3& GetMax() { return max_; }
 	const Vector3& GetMin() { return min_; }
+	const Vector3& GetSize() { return size_; }
 
 	AABBData& GetColliderData() { return aabbData_; }
 
@@ -29,5 +30,7 @@ private:
 
 	Vector3 max_;
 	Vector3 min_;
+
+	Vector3 size_;
 };
 

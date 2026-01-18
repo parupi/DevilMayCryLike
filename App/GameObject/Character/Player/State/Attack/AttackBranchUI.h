@@ -3,7 +3,7 @@
 #include <vector>
 #include "2D/Sprite.h"
 #include "GameObject/Character/CharacterStructs.h"
-#include "PlayerStateAttackBase.h"
+#include "PlayerStateAttack.h"
 #include "AttackStructs.h"
 
 class AttackBranchUI

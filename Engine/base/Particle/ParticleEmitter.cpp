@@ -72,7 +72,7 @@ void ParticleEmitter::Emit()
 
 void ParticleEmitter::UpdateParam() const
 {
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 	ImGui::Begin(emitter.name.c_str());
 	if (ImGui::TreeNode("Emitter")) {
 		// Emit Position
@@ -110,7 +110,7 @@ void ParticleEmitter::UpdateParam() const
 
 	// ====== Save ======
 	if (ImGui::Button("Save")) {
-		GlobalVariables::GetInstance()->SaveFile(emitter.name);
+		GlobalVariables::GetInstance()->SaveFile("Particle", emitter.name);
 		std::string message = std::format("{}.json saved.", emitter.name);
 		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 	}

@@ -36,3 +36,15 @@ struct AttackInputState {
 	StickDir dir = StickDir::Neutral;
 	bool isLockOn = false;
 };
+
+enum class AttackRequest {
+	None,
+	Air,
+	Jump,
+	ChangeAttack,
+};
+
+struct AttackRequestData {
+	AttackRequest type = AttackRequest::None;
+	std::string nextAttack;
+};

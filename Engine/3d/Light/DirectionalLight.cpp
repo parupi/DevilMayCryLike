@@ -1,10 +1,13 @@
 #include "DirectionalLight.h"
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 
 DirectionalLight::DirectionalLight(const std::string& name) : BaseLight(name)
 {
+    global_->CreateGroup(name);
+
+    global_->LoadFile("Light", name);
     // エディター項目登録
     global_->AddItem(name, "Color", Vector4{ 1, 1, 1, 1 });
     global_->AddItem(name, "Direction", Vector3{ 0, -1, 0 });
@@ -26,7 +29,7 @@ void DirectionalLight::Update()
 
 void DirectionalLight::DrawLightEditor()
 {
-#ifdef USE_IMGUI
+#ifdef _DEBUG
     ImGui::Begin(name_.c_str());
 
     if (ImGui::TreeNode("Directional Light Settings")) {
@@ -47,7 +50,7 @@ void DirectionalLight::DrawLightEditor()
     }
 
     if (ImGui::Button("Save##DirectionalLight")) {
-        global_->SaveFile(name_);
+        global_->SaveFile("Light", name_);
     }
 
     ImGui::End();

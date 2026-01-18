@@ -2,10 +2,10 @@
 #include <math/Vector3.h>
 #include <vector>
 
-enum class AttackType {
-	Thrust, // 刺突
-	Slash, // 斬撃
-};
+//enum class AttackType {
+//	Thrust, // 刺突
+//	Slash, // 斬撃
+//};
 
 enum class AttackPosture {
 	Stand, // 立ち状態

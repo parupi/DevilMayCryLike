@@ -5,7 +5,7 @@
 #include <cstring>
 #include <3d/SkySystem/SkySystem.h>
 #include <base/TextureManager.h>
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 

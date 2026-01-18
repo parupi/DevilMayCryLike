@@ -10,7 +10,7 @@
 #include "State/PlayerStateAir.h"
 #include <numbers>
 #include <3d/Primitive/PrimitiveLineDrawer.h>
-#include "State/Attack/PlayerStateAttackBase.h"
+#include "State/Attack/PlayerStateAttack.h"
 #include <scene/Transition/TransitionManager.h>
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
@@ -25,22 +25,6 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
 
-	//states_["Idle"] = std::make_unique<PlayerStateIdle>();
-	//states_["Move"] = std::make_unique<PlayerStateMove>();
-	//states_["Jump"] = std::make_unique<PlayerStateJump>();
-	//states_["Air"] = std::make_unique<PlayerStateAir>();
-	//states_["Death"] = std::make_unique<PlayerStateDeath>();
-	//states_["Clear"] = std::make_unique<PlayerStateClear>();
-	//states_["AttackComboA1"] = std::make_unique<PlayerStateAttackBase>("AttackComboA1");
-	//states_["AttackComboA2"] = std::make_unique<PlayerStateAttackBase>("AttackComboA2");
-	//states_["AttackComboA3"] = std::make_unique<PlayerStateAttackBase>("AttackComboA3");
-	//states_["AttackComboB2"] = std::make_unique<PlayerStateAttackBase>("AttackComboB2");
-	//states_["AttackComboB3"] = std::make_unique<PlayerStateAttackBase>("AttackComboB3");
-	//states_["AttackHighTime"] = std::make_unique<PlayerStateAttackBase>("AttackHighTime");
-	//states_["AttackAerialRave1"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave1");
-	//states_["AttackAerialRave2"] = std::make_unique<PlayerStateAttackBase>("AttackAerialRave2");
-	//currentState_ = states_["Idle"].get();
-
 	// StateMachine生成
 	stateMachine_ = std::make_unique<PlayerStateMachine>();
 	// ステートをセットしてcurrentに登録
@@ -51,20 +35,20 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	stateMachine_->AddState("Air", std::make_unique<PlayerStateAir>());
 	stateMachine_->AddState("Death", std::make_unique<PlayerStateDeath>());
 	stateMachine_->AddState("Clear", std::make_unique<PlayerStateClear>());
-	stateMachine_->AddState("AttackComboA1", std::make_unique<PlayerStateAttackBase>("AttackComboA1"));
-	stateMachine_->AddState("AttackComboA2", std::make_unique<PlayerStateAttackBase>("AttackComboA2"));
-	stateMachine_->AddState("AttackComboA3", std::make_unique<PlayerStateAttackBase>("AttackComboA3"));
-	stateMachine_->AddState("AttackComboB2", std::make_unique<PlayerStateAttackBase>("AttackComboB2"));
-	stateMachine_->AddState("AttackComboB3", std::make_unique<PlayerStateAttackBase>("AttackComboB3"));
-	stateMachine_->AddState("AttackHighTime", std::make_unique<PlayerStateAttackBase>("AttackHighTime"));
-	stateMachine_->AddState("AttackAerialRave1", std::make_unique<PlayerStateAttackBase>("AttackAerialRave1"));
-	stateMachine_->AddState("AttackAerialRave2", std::make_unique<PlayerStateAttackBase>("AttackAerialRave2"));
 }
 
 void Player::Initialize()
 {
-	movement_ = std::make_unique<PlayerMovement>();
-	movement_->Initialize();
+	combat_ = std::make_unique<PlayerCombat>();
+	combat_->Initialize(this);
+
+	//movement_ = std::make_unique<PlayerMovement>();
+	//movement_->Initialize();
+
+	//collider_ = std::make_unique<PlayerCollider>();
+	//collider_->Initialize(GetCollider(name_));
+
+	//collisionResolver_ = std::make_unique<PlayerCollisionResolver>();
 
 	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
@@ -138,7 +122,7 @@ void Player::Update()
 	//	currentState_->Update(*this);
 	//}
 
-	stateMachine_->UpdateCurrentState(*this);
+	//stateMachine_->UpdateCurrentState(*this);
 
 	// Rキーを押したら死亡演出が流れる
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
@@ -156,40 +140,53 @@ void Player::Update()
 
 
  	weapon_->Update();
+	//movement_->SetIsGrounded(onGround_);
+	//// 物理挙動の後進
+	//movement_->Update(DeltaTime::GetDeltaTime());
+	//GetWorldTransform()->GetTranslation() += movement_->GetVelocity() * DeltaTime::GetDeltaTime();
 
 
-	// 物理挙動の後進
-	movement_->Update(DeltaTime::GetDeltaTime());
-	GetWorldTransform()->GetTranslation() += movement_->GetVelocity() * DeltaTime::GetDeltaTime();
+
+//#ifdef _DEBUG
+//	// エディターの描画
+//	DrawAttackDataEditorUI();
+//#endif // DEBUG
+	
+
+	if (!combat_->IsAttacking()) {
+		stateMachine_->UpdateCurrentState(*this);
+	} /*else {
+		moveState_->UpdateDuringAttack(*this);
+	}*/
+	combat_->Update();
+
+	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
+	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
 
 	Object3d::Update();
-
 	// 毎フレーム切っておく
 	onGround_ = false;
-
-#ifdef _DEBUG
-	// エディターの描画
-	DrawAttackDataEditorUI();
-#endif // DEBUG
 
 	if (lockOnEnemy_) {
 		titleWord_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
 		titleWord_->Update();
 	}
 
-	// 攻撃派生UIの更新
-	if (attackBranchUI_) {
-		auto inputState = GetAttackInputState();
+	//// 攻撃派生UIの更新
+	//if (attackBranchUI_) {
+	//	auto inputState = GetAttackInputState();
 
-		attackBranchUI_->SetCurrentInput(
-			inputState.y ? InputType::Y
-			: InputType::Y, // 今はYのみ
-			inputState.dir,
-			inputState.isLockOn
-		);
+	//	attackBranchUI_->SetCurrentInput(
+	//		inputState.y ? InputType::Y
+	//		: InputType::Y, // 今はYのみ
+	//		inputState.dir,
+	//		inputState.isLockOn
+	//	);
 
-		attackBranchUI_->Update();
-	}
+	//	attackBranchUI_->Update();
+	//}
+
+
 }
 
 void Player::Draw()
@@ -213,160 +210,6 @@ void Player::DrawEffect()
 	if (isLockOn_) {
 		titleWord_->Draw();
 	}
-}
-
-void Player::DrawAttackDataEditor(PlayerStateAttackBase* attack)
-{
-#ifdef USE_IMGUI
-	const char* attackName = attack->name_.c_str();
-
-	int32_t& pointCount = gv->GetValueRef<int32_t>(attackName, "PointCount");
-
-	for (int32_t i = 0; i < pointCount; ++i) {
-		Vector3& point = gv->GetValueRef<Vector3>(attackName, "ControlPoint_" + std::to_string(i));
-		ImGui::DragFloat3(("P" + std::to_string(i)).c_str(), &point.x, 0.01f);
-	}
-
-	if (ImGui::Button("Add Point")) {
-		gv->AddItem(attackName, "ControlPoint_" + std::to_string(pointCount), Vector3{});
-		++pointCount;
-	}
-
-	if (ImGui::Button("Remove Last") && pointCount > 0) {
-		--pointCount;
-		gv->RemoveItem(attackName, "ControlPoint_" + std::to_string(pointCount));
-	}
-	ImGui::Separator();
-
-	// 移動系
-	ImGui::DragFloat3("Move Speed", &gv->GetValueRef<Vector3>(attackName, "MoveSpeed").x, 0.01f);
-	ImGui::DragFloat3("KnockBack Speed", &gv->GetValueRef<Vector3>(attackName, "KnockBackSpeed").x, 0.01f);
-
-	ImGui::Separator();
-
-	// タイマー系
-	ImGui::DragFloat("Total Duration", &gv->GetValueRef<float>(attackName, "TotalDuration"), 0.01f);
-	ImGui::DragFloat("Pre Delay", &gv->GetValueRef<float>(attackName, "PreDelay"), 0.01f);
-	ImGui::DragFloat("Attack Duration", &gv->GetValueRef<float>(attackName, "AttackDuration"), 0.01f);
-	ImGui::DragFloat("Post Delay", &gv->GetValueRef<float>(attackName, "PostDelay"), 0.01f);
-	ImGui::DragFloat("Next Attack Delay", &gv->GetValueRef<float>(attackName, "NextAttackDelay"), 0.01f);
-
-	ImGui::Separator();
-
-	// その他
-	ImGui::Checkbox("Draw Debug Control Points", &gv->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
-
-	ImGui::DragFloat("Damage", &gv->GetValueRef<float>(attackName, "Damage"), 0.01f);
-
-	ImGui::DragFloat("HitStopTime", &gv->GetValueRef<float>(attackName, "HitStopTime"), 0.01f);
-	ImGui::DragFloat("HitStopIntensity", &gv->GetValueRef<float>(attackName, "HitStopIntensity"), 0.01f);
-
-	// 攻撃を受けた側に送る情報
-	ImGui::Text("ReactionType:");
-	ImGui::SameLine();
-	ImGui::RadioButton("HitStun", &gv->GetValueRef<int32_t>(attackName, "ReactionType"), 0);
-	ImGui::SameLine();
-	ImGui::RadioButton("Knockback", &gv->GetValueRef<int32_t>(attackName, "ReactionType"), 1);
-	ImGui::SameLine();
-	ImGui::RadioButton("Launch", &gv->GetValueRef<int32_t>(attackName, "ReactionType"), 2);
-
-	// ノックバック＆打ち上げ共通
-	ImGui::DragFloat("ImpulseForce", &gv->GetValueRef<float>(attackName, "ImpulseForce"), 0.01f);
-	ImGui::DragFloat("UpwardRatio", &gv->GetValueRef<float>(attackName, "UpwardRatio"), 0.01f);
-	// 吹っ飛び用
-	ImGui::DragFloat("TorqueForce", &gv->GetValueRef<float>(attackName, "TorqueForce"), 0.01f);
-	// のけぞり用
-	ImGui::DragFloat("StunTime", &gv->GetValueRef<float>(attackName, "StunTime"), 0.01f);
-
-	// 攻撃時に地上にいるかの判定
-	ImGui::Separator();
-
-	ImGui::Text("Posture:");
-	ImGui::SameLine();
-	ImGui::RadioButton("Stand", &gv->GetValueRef<int32_t>(attackName, "AttackPosture"), 0);
-	ImGui::SameLine();
-	ImGui::RadioButton("Air", &gv->GetValueRef<int32_t>(attackName, "AttackPosture"), 1);
-
-	// === 派生攻撃インデックス ===
-	ImGui::Separator();
-	ImGui::Text("Next Attacks");
-
-	int32_t& nextAttackCount = gv->GetValueRef<int32_t>(attack->name_, "NextAttackCount");
-	ImGui::DragInt("Next Attack Count", &nextAttackCount, 1, 0, 5);
-	nextAttackCount = std::clamp(nextAttackCount, 0, 3);
-
-	//// 全攻撃名リストの取得
-	//std::vector<std::string> attackNames;
-	//for (auto& [name, state] : states_) {
-	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-	//		attackNames.push_back(name);
-	//	}
-	//}
-	//std::vector<const char*> cstrs;
-	//for (const auto& name : attackNames) {
-	//	cstrs.push_back(name.c_str());
-	//}
-
-	//// 複数の派生攻撃を選択
-	//for (int i = 0; i < nextAttackCount; ++i) {
-	//	std::string key = "NextAttackIndex_" + std::to_string(i);
-	//	int32_t& index = gv->GetValueRef<int32_t>(attack->name_, key);
-	//	if (index < 0 || index >= (int32_t)attackNames.size()) {
-	//		index = 0; // 範囲外防止
-	//	}
-	//	std::string label = "Next Attack " + std::to_string(i);
-	//	ImGui::Combo(label.c_str(), &index, cstrs.data(), static_cast<int>(cstrs.size()));
-	//}
-
-	//ImGui::Separator();
-
-	if (ImGui::Button("Save")) {
-		gv->SaveFile(attackName);
-		std::string message = std::format("{}.json saved.", attackName);
-		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
-	}
-#endif // IMGUI
-}
-
-void Player::DrawAttackDataEditorUI()
-{
-#ifdef USE_IMGUI
-	// 攻撃ステートを収集
-	std::vector<PlayerStateAttackBase*> attackStates;
-	std::vector<std::string> attackNames;
-	//for (auto& [name, state] : states_) {
-	//	if (auto* attack = dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-	//		attackStates.push_back(attack);
-	//		attackNames.push_back(attack->name_);
-	//	}
-	//}
-
-	// 攻撃ステートが存在しない場合は処理しない
-	if (attackStates.empty()) return;
-
-	// コンボによる選択 UI
-	static int currentIndex = 0;
-	if (currentIndex >= attackStates.size()) currentIndex = 0;
-
-	std::vector<const char*> nameCStrs;
-	for (const auto& name : attackNames) {
-		nameCStrs.push_back(name.c_str());
-	}
-
-	ImGui::Begin("Attack Editor");
-
-	if (ImGui::Combo("Select Attack", &currentIndex, nameCStrs.data(), static_cast<int>(nameCStrs.size()))) {
-		// 選択が変わったら必要に応じて処理
-	}
-
-	// 選択中の攻撃ステートのエディタを表示
-	PlayerStateAttackBase* selectedAttack = attackStates[currentIndex];
-	if (selectedAttack) {
-		DrawAttackDataEditor(selectedAttack);
-	}
-
-	ImGui::End();
-#endif // IMGUI
 }
 
 #ifdef _DEBUG
@@ -509,7 +352,12 @@ void Player::Clear()
 
 void Player::SetIntent(const MoveIntent& intent)
 {
-	movement_->SetIntent(intent);
+	//movement_->SetIntent(intent);
+}
+
+void Player::RequestAttack(AttackType id)
+{
+	combat_->RequestAttack(id);
 }
 
 AttackInputState Player::GetAttackInputState() const
@@ -537,69 +385,69 @@ AttackInputState Player::GetAttackInputState() const
 	return state;
 }
 
-std::string Player::GetAttackStateNameByIndex(int32_t index) const
-{
-	//int i = 0;
-	//for (const auto& [name, state] : states_) {
-	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-	//		if (i == index) return name;
-	//		++i;
-	//	}
-	//}
-	return "";
-}
-
-int32_t Player::GetAttackStateCount() const
-{
-	//int32_t count = 0;
-	//for (const auto& [_, state] : states_) {
-	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-	//		++count;
-	//	}
-	//}
-	//return count;
-	return 0;
-}
+//std::string Player::GetAttackStateNameByIndex(int32_t index) const
+//{
+//	int i = 0;
+//	for (const auto& [name, state] : states_) {
+//		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+//			if (i == index) return name;
+//			++i;
+//		}
+//	}
+//	return "";
+//}
+//
+//int32_t Player::GetAttackStateCount() const
+//{
+//	//int32_t count = 0;
+//	//for (const auto& [_, state] : states_) {
+//	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
+//	//		++count;
+//	//	}
+//	//}
+//	//return count;
+//	return 0;
+//}
 
 void Player::OnCollisionEnter(BaseCollider* other)
 {
-	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
+	//if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
-		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
+	//	AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
 
-		AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
+	//	AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
 
-		Vector3 outNormal = AABBCollider::CalculateCollisionNormal(playerCollider, blockCollider);
+	//	Vector3 outNormal = AABBCollider::CalculateCollisionNormal(playerCollider, blockCollider);
 
-		Vector3 playerMin = playerCollider->GetMin();
-		Vector3 playerMax = playerCollider->GetMax();
+	//	Vector3 playerMin = playerCollider->GetMin();
+	//	Vector3 playerMax = playerCollider->GetMax();
 
-		float playerOffset = (playerMax.x - playerMin.x) * 0.5f;
+	//	float playerOffset = (playerMax.x - playerMin.x) * 0.5f;
 
-		if (outNormal.x == 1.0f) {
-			// 右に当たってる
-			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
-			// 左に当たってる
-			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
-			// 上に当たってる
-			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
-			GetWorldTransform()->GetTranslation().y -= 0.1f;
-			//velocity_.y = 0.0f;
-			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
-			// 下に当たってる
-			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
-			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
-			// 奥に当たってる
-			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
-			// 手前に当たってる
-			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
-		}
-	}
+	//	if (outNormal.x == 1.0f) {
+	//		// 右に当たってる
+	//		GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
+	//	} else if (outNormal.x == -1.0f) {
+	//		// 左に当たってる
+	//		GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
+	//	} else if (outNormal.y == 1.0f) {
+	//		// 上に当たってる
+	//		GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
+	//		GetWorldTransform()->GetTranslation().y -= 0.1f;
+	//		//velocity_.y = 0.0f;
+	//		onGround_ = true;
+	//	} else if (outNormal.y == -1.0f) {
+	//		// 下に当たってる
+	//		GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
+	//		//velocity_ *= -1.0f;
+	//	} else if (outNormal.z == 1.0f) {
+	//		// 奥に当たってる
+	//		GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
+	//	} else if (outNormal.z == -1.0f) {
+	//		// 手前に当たってる
+	//		GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
+	//	}
+	//}
 }
 
 void Player::OnCollisionStay(BaseCollider* other)
@@ -641,6 +489,15 @@ void Player::OnCollisionStay(BaseCollider* other)
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
 	}
+
+	//auto hits = collider_->GetHits();
+
+	//auto resolveResult = collisionResolver_->Resolve(hits, velocity_);
+
+	//GetWorldTransform()->GetTranslation() += resolveResult.positionOffset;
+	//velocity_ += resolveResult.velocityOffset;
+
+	//onGround_ = resolveResult.onGround;
 }
 
 void Player::OnCollisionExit(BaseCollider* other)

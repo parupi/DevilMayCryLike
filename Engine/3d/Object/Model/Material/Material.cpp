@@ -1,6 +1,6 @@
 #include "Material.h"
 #include <base/TextureManager.h>
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 
@@ -40,7 +40,7 @@ void Material::Bind()
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
 }
 
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 void Material::DebugGui(uint32_t index)
 {
 

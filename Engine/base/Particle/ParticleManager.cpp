@@ -72,7 +72,7 @@ void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 	CreateMaterialResource();
 
 	// jsonファイルの読み込み
-	global_->LoadFiles();
+	global_->LoadFiles("Particle");
 }
 
 
@@ -599,7 +599,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 
 		// ====== Save ======
 		if (ImGui::Button("Save")) {
-			GlobalVariables::GetInstance()->SaveFile(groupName);
+			GlobalVariables::GetInstance()->SaveFile("Particle", groupName);
 			std::string message = std::format("{}.json saved.", groupName);
 			MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 		}

@@ -17,6 +17,7 @@ public:
 
     // 状態を取得
     bool IsGrounded() const { return isGrounded_; }
+    void SetIsGrounded(bool flag) { isGrounded_ = flag; }
     const Vector3& GetVelocity() const { return velocity_; }
 
 private:

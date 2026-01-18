@@ -121,7 +121,9 @@ void TitleScene::DrawRTV()
 #ifdef _DEBUG
 void TitleScene::DebugUpdate()
 {
-
+	ImGui::Begin("test");
+	ImGui::ShowDemoWindow();
+	ImGui::End();
 }
 #endif // _DEBUG
 

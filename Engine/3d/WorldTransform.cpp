@@ -2,7 +2,7 @@
 #include <math/function.h>
 #include <base/DirectXManager.h>
 #include <3d/Object/Object3dManager.h>
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 

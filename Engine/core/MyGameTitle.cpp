@@ -14,7 +14,7 @@
 void MyGameTitle::Initialize()
 {
 	GuchisFramework::Initialize();
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 	// ImGui初期化
 	ImGuiManager::GetInstance()->Initialize(winManager.get(), dxManager.get());
 #endif // IMGUI
