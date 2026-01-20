@@ -26,8 +26,6 @@ void PlayerStateAir::Update(Player& player)
 		}
 	}
 
-
-
 	// 地面についたら待機状態にする
 	if (player.GetOnGround()) {
  		player.ChangeState("Idle");

@@ -2,10 +2,10 @@
 #include <math/Vector3.h>
 #include <vector>
 
-enum class AttackType {
-	Thrust, // 刺突
-	Slash, // 斬撃
-};
+//enum class AttackType {
+//	Thrust, // 刺突
+//	Slash, // 斬撃
+//};
 
 enum class AttackPosture {
 	Stand, // 立ち状態
@@ -84,4 +84,11 @@ struct DamageInfo {
 
     // のけぞり用
     float stunTime = 0.0f;
+};
+
+struct MoveIntent {
+	Vector3 moveDir; // 入力方向
+	float moveScale; // 0.0f〜1.0f
+	bool jump; // このフレームでジャンプしたい
+	bool dash; // ダッシュしたい
 };

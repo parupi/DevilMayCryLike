@@ -4,7 +4,7 @@
 #include <3d/WorldTransform.h>
 #include <numbers>
 #include "Model/ModelManager.h"
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 

@@ -5,7 +5,6 @@
 #include <imgui/imgui.h>
 #endif 
 
-
 using namespace std;
 
 GlobalVariables* GlobalVariables::GetInstance() {
@@ -26,7 +25,7 @@ void GlobalVariables::RemoveItem(const std::string& groupName, const std::string
 	itGroup->second.items.erase(key);
 }
 
-void GlobalVariables::SaveFile(const string& groupName) {
+void GlobalVariables::SaveFile(const std::string& directoryName, const string& groupName) {
 	// グループを検索
 	map<string, Group>::iterator itGroup = datas_.find(groupName);
 
@@ -73,12 +72,12 @@ void GlobalVariables::SaveFile(const string& groupName) {
 		}
 	}
 	// ディレクトリが無ければ作成する
-	filesystem::path dir(kDirectoryPath);
-	if (!filesystem::exists(kDirectoryPath)) {
-		filesystem::create_directory(kDirectoryPath);
+	filesystem::path dir = std::filesystem::path(kDirectoryPath) / directoryName;
+	if (!filesystem::exists(dir)) {
+		filesystem::create_directory(dir);
 	}
 	// 書き込むJSONファイルのフルパスを合成する
-	string filePath = kDirectoryPath + groupName + ".json";
+	string filePath = kDirectoryPath + directoryName + "/" + groupName + ".json";
 	// 書き込み用ファイナルストリーム
 	ofstream ofs;
 	// ファイルを書き込み用に開く
@@ -96,35 +95,55 @@ void GlobalVariables::SaveFile(const string& groupName) {
 	ofs.close();
 }
 
-void GlobalVariables::LoadFiles() {
-	// ローカル変数の保存先ファイルパス
-	const string directoryPath = kDirectoryPath;
+void GlobalVariables::LoadFiles(const std::string& directoryName) {
+	std::filesystem::path dir = std::filesystem::path(kDirectoryPath) / directoryName;
 
-	// ディレクトリがなければスキップする
-	if (!std::filesystem::exists(directoryPath)) {
+	if (!std::filesystem::exists(dir)) {
 		return;
 	}
 
-	filesystem::directory_iterator dir_it(directoryPath);
-	for (const filesystem::directory_entry& entry : dir_it) {
-		// ファイルパスを取得
-		const filesystem::path& filePath = entry.path();
-
-		// ファイル拡張子を取得
-		string extension = filePath.extension().string();
-		// .jsonファイル以外はスキップ
-		if (extension.compare(".json") != 0) {
+	for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+		if (entry.path().extension() != ".json") {
 			continue;
 		}
-		// ファイル読み込み
-		LoadFile(filePath.stem().string());
+
+		std::string groupName = entry.path().stem().string();
+		LoadFile(directoryName, groupName);
 	}
 }
 
+std::vector<std::string> GlobalVariables::GetGroupNames(const std::string& directoryName) const
+{
+	std::vector<std::string> result;
 
-void GlobalVariables::LoadFile(const std::string& groupName) {
+	std::filesystem::path dir =
+		std::filesystem::path(kDirectoryPath) / directoryName;
+
+	if (!std::filesystem::exists(dir)) {
+		return result;
+	}
+
+	for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+		if (!entry.is_regular_file()) {
+			continue;
+		}
+
+		const auto& path = entry.path();
+		if (path.extension() != ".json") {
+			continue;
+		}
+
+		// 拡張子を除いたファイル名
+		result.push_back(path.stem().string());
+	}
+
+	return result;
+}
+
+
+void GlobalVariables::LoadFile(const std::string& directoryName, const std::string& groupName) {
 	// 読み込むJSONファイルのフルパスを合成する
-	string filePath = kDirectoryPath + groupName + ".json";
+	string filePath = kDirectoryPath + directoryName + "/" + groupName + ".json";
 	// 読み込む用ファイルストリーム
 	ifstream ifs;
 	// ファイルを読み込むように開く
@@ -133,7 +152,7 @@ void GlobalVariables::LoadFile(const std::string& groupName) {
 	if (ifs.fail()) {
 		string message = "Failed open data file for write";
 		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
-		assert(0);
+		//assert(0);
 		return;
 	}
 

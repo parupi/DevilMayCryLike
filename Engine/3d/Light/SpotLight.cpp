@@ -67,7 +67,7 @@ void SpotLight::DrawLightEditor()
     }
 
     if (ImGui::Button("Save##SpotLight")) {
-        global_->SaveFile(name_);
+        global_->SaveFile("Light", name_);
     }
 
     ImGui::End();

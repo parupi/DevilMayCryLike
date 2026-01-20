@@ -121,7 +121,6 @@ void TitleScene::DrawRTV()
 #ifdef _DEBUG
 void TitleScene::DebugUpdate()
 {
-
 }
 #endif // _DEBUG
 

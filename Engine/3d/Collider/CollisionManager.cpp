@@ -115,6 +115,21 @@ void CollisionManager::RemoveDeadObjects()
     }
 }
 
+const std::vector<BaseCollider*>& CollisionManager::GetCurrentHits(BaseCollider* collider) const
+{
+    static std::vector<BaseCollider*> results;
+    results.clear();
+
+    for (const auto& pair : currentCollisions_) {
+        if (pair.first == collider) {
+            results.push_back(pair.second);
+        } else if (pair.second == collider) {
+            results.push_back(pair.first);
+        }
+    }
+    return results;
+}
+
 void CollisionManager::CheckAllCollisions()
 {
     currentCollisions_.clear();

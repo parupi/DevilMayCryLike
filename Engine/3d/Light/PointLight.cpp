@@ -64,7 +64,7 @@ void PointLight::DrawLightEditor()
 
     // ====== セーブ & ロード ======
     if (ImGui::Button("Save##Light")) {
-        global_->SaveFile(name_);
+        global_->SaveFile("Light", name_);
     }
 
     ImGui::End();

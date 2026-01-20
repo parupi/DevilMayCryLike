@@ -27,9 +27,7 @@ void PlayerStateDeath::Enter(Player& player)
 	Camera* current = cameraManager->GetActiveCamera();
 
 	// デスカメラ生成
-	std::unique_ptr<DeathCamera> deathCam = std::make_unique<DeathCamera>(
-		"DeathCamera", current, &player
-	);
+	std::unique_ptr<DeathCamera> deathCam = std::make_unique<DeathCamera>("DeathCamera", current, &player);
 
 	// 差し替え
 	cameraManager->AddCamera(std::move(deathCam));

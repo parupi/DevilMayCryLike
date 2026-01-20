@@ -4,7 +4,7 @@
 #include <3d/SkySystem/SkySystem.h>
 #include <base/TextureManager.h>
 
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 PrimitiveRenderer::PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName) {

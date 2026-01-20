@@ -33,6 +33,8 @@ public:
 	BaseCollider* FindCollider(std::string colliderName);
 
 	void RemoveDeadObjects();
+
+	const std::vector<BaseCollider*>& GetCurrentHits(BaseCollider* collider) const;
 private:
 	using ColliderPair = std::pair<BaseCollider*, BaseCollider*>;
 
@@ -46,7 +48,6 @@ private:
 	std::set<ColliderPair, ColliderPairCompare> currentCollisions_;
 	std::set<ColliderPair, ColliderPairCompare> previousCollisions_;
 	
-	//void RemoveCollider(BaseCollider* collider);
 	void CheckAllCollisions();
 	bool CheckCollision(BaseCollider* a, BaseCollider* b);
 

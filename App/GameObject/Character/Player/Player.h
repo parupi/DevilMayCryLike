@@ -7,7 +7,7 @@
 #include "3d/Object/Renderer/ModelRenderer.h"
 #include <input/Input.h>
 #include "State/PlayerStateBase.h"
-#include "State/Attack/PlayerStateAttackBase.h"
+
 #include "PlayerWeapon.h"
 #include "math/Vector3.h"
 #include "math/function.h"
@@ -17,6 +17,11 @@
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
 #include "State/Attack/AttackBranchUI.h"
+#include "StateMachine/PlayerStateMachine.h"
+#include "Movement/PlayerMovement.h"
+#include "Collision/PlayerCollider.h"
+#include "Collision/PlayerCollisionResolver.h"
+#include "Combat/PlayerCombat.h"
 
 /// <summary>
 /// プレイヤーキャラクターを制御するクラス  
@@ -54,30 +59,25 @@ public:
 	/// </summary>
 	void DrawEffect();
 
-	/// <summary>
-	/// 攻撃データの編集UIを表示する（ImGui用）  
-	/// 攻撃ステートごとのパラメータを可視化・編集する。
-	/// </summary>
-	/// <param name="attack">編集対象の攻撃ステート</param>
-	void DrawAttackDataEditor(PlayerStateAttackBase* attack);
+	///// <summary>
+	///// 攻撃データの編集UIを表示する（ImGui用）  
+	///// 攻撃ステートごとのパラメータを可視化・編集する。
+	///// </summary>
+	///// <param name="attack">編集対象の攻撃ステート</param>
+	////void DrawAttackDataEditor(PlayerStateAttack* attack);
 
-	/// <summary>
-	/// 攻撃データ編集用の全体UIを表示する（ImGui用）
-	/// </summary>
-	void DrawAttackDataEditorUI();
+	///// <summary>
+	///// インデックスから攻撃ステート名を取得する。
+	///// </summary>
+	///// <param name="index">攻撃ステートのインデックス</param>
+	///// <returns>攻撃ステート名</returns>
+	//std::string GetAttackStateNameByIndex(int32_t index) const;
 
-	/// <summary>
-	/// インデックスから攻撃ステート名を取得する。
-	/// </summary>
-	/// <param name="index">攻撃ステートのインデックス</param>
-	/// <returns>攻撃ステート名</returns>
-	std::string GetAttackStateNameByIndex(int32_t index) const;
-
-	/// <summary>
-	/// 登録されている攻撃ステートの総数を取得する。
-	/// </summary>
-	/// <returns>攻撃ステート数</returns>
-	int32_t GetAttackStateCount() const;
+	///// <summary>
+	///// 登録されている攻撃ステートの総数を取得する。
+	///// </summary>
+	///// <returns>攻撃ステート数</returns>
+	//int32_t GetAttackStateCount() const;
 
 	/// <summary>
 	/// 衝突開始時の処理  
@@ -131,6 +131,12 @@ public:
 
 	void Clear();
 
+	void SetIntent(const MoveIntent& intent);
+
+	void RequestAttack(AttackType id);
+
+	PlayerCombat* GetCombat() { return combat_.get(); }
+
 	// ======================
 	// アクセッサ
 	// ======================
@@ -165,8 +171,15 @@ public:
 
 	AttackInputState GetAttackInputState() const;
 private:
-	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_; ///< ステート名とステートインスタンスのマップ
-	PlayerStateBase* currentState_ = nullptr; ///< 現在のステート
+	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
+
+	std::unique_ptr<PlayerCombat> combat_ = nullptr;
+
+	std::unique_ptr<PlayerMovement> movement_ = nullptr;
+
+	std::unique_ptr<PlayerCollider> collider_ = nullptr;
+	
+	std::unique_ptr<PlayerCollisionResolver> collisionResolver_ = nullptr;
 
 	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
 	Input* input = Input::GetInstance(); ///< 入力管理クラス

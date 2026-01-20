@@ -57,10 +57,12 @@ public:
 	void RemoveItem(const std::string& groupName, const std::string& key);
 
 	// ファイル入出力
-	void SaveFile(const std::string& groupName);
-	void LoadFile(const std::string& groupName);
-	void LoadFiles();
+	void SaveFile(const std::string& directoryName, const std::string& groupName);
+	void LoadFile(const std::string& directoryName, const std::string& groupName);
+	void LoadFiles(const std::string& directoryName);
 
+	// ディレクトリ内のグループ名一覧取得
+	std::vector<std::string> GetGroupNames(const std::string& directoryName) const;
 private:
 	GlobalVariables() = default;
 	~GlobalVariables() = default;
@@ -68,7 +70,7 @@ private:
 	GlobalVariables& operator=(const GlobalVariables&) = delete;
 
 	std::map<std::string, Group> datas_;
-	const std::string kDirectoryPath = "resource/GlobalVariables/";
+	const std::string kDirectoryPath = "Resource/GlobalVariables/";
 };
 
 // テンプレート関数実装
@@ -86,7 +88,7 @@ template<typename T>
 void GlobalVariables::SetValue(const std::string& groupName, const std::string& key, const T& value) {
 	using NormalizedT = typename NormalizeType<T>::Type;
 	Group& group = datas_[groupName];
-	group.items[key] = Item{ Value(static_cast<NormalizedT>(value)) };
+	group.items[key] = Item{ Value(NormalizedT(value)) };
 }
 
 template <typename T>

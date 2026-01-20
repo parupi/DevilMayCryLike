@@ -88,6 +88,24 @@ float Length(const Vector3& v) {
     return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+Vector3 ClampLength(const Vector3& v, float maxLength)
+{
+    float lenSq = v.x * v.x + v.y * v.y + v.z * v.z;
+    float maxLenSq = maxLength * maxLength;
+
+    if (lenSq > maxLenSq && lenSq > 0.0f) {
+        float len = std::sqrt(lenSq);
+        float scale = maxLength / len;
+        return Vector3{
+            v.x * scale,
+            v.y * scale,
+            v.z * scale
+        };
+    }
+
+    return v;
+}
+
 Vector3 Normalize(const Vector3& v) {
     float len = Length(v);
     return { v.x / len, v.y / len, v.z / len };

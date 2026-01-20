@@ -1,62 +1,62 @@
 {
     "GameSmoke": {
-        "BlendMode": 3,
-        "FadeType": 2,
-        "IsBillboard": true,
-        "ShrinkStartRatio": 0.8949999809265137,
+        "BlendMode": 2,
+        "FadeType": 0,
+        "IsBillboard": false,
+        "ShrinkStartRatio": 0.0,
         "maxAlpha": 0.0,
         "maxColor": [
-            1.0,
-            1.0,
-            1.0
+            0.0,
+            0.0,
+            0.0
         ],
-        "maxLifeTime": 3.0,
+        "maxLifeTime": 0.0,
         "maxRotate": [
             0.0,
             0.0,
             0.0
         ],
         "maxScale": [
-            0.5,
-            0.5,
-            0.5
+            0.0,
+            0.0,
+            0.0
         ],
         "maxTranslate": [
-            10.0,
-            3.0,
-            10.0
+            0.0,
+            0.0,
+            0.0
         ],
         "maxVelocity": [
-            0.10000000149011612,
-            0.800000011920929,
-            0.10000000149011612
+            0.0,
+            0.0,
+            0.0
         ],
         "minAlpha": 0.0,
         "minColor": [
-            1.0,
-            1.0,
-            1.0
+            0.0,
+            0.0,
+            0.0
         ],
-        "minLifeTime": 2.0,
+        "minLifeTime": 0.0,
         "minRotate": [
             0.0,
             0.0,
             0.0
         ],
         "minScale": [
-            0.4000000059604645,
-            0.4000000059604645,
-            0.4000000059604645
+            0.0,
+            0.0,
+            0.0
         ],
         "minTranslate": [
-            -10.0,
-            2.0,
-            -10.0
+            0.0,
+            0.0,
+            0.0
         ],
         "minVelocity": [
-            -0.10000000149011612,
-            0.4000000059604645,
-            -0.10000000149011612
+            0.0,
+            0.0,
+            0.0
         ]
     }
 }

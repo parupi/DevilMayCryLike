@@ -1,18 +1,18 @@
 #include "WindowManager.h"
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 #include "Logger.h"
 #pragma comment(lib, "winmm.lib")
 
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPatam);
 #endif // IMGUI
 
 // ウィンドウプロシ―ジャ
 LRESULT CALLBACK WindowManager::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) {
 		return true;
 	}
@@ -59,7 +59,7 @@ void WindowManager::Initialize()
 	// ウィンドウの生成
 	hwnd_ = CreateWindow(
 		wndClass_.lpszClassName,			//利用するクラス名
-		L"ゲームタイトル with GuchisEngin",						//タイトルバーの文字(なんでもいい)
+		L"Eclipser with GuchisEngine",						//タイトルバーの文字(なんでもいい)
 		WS_OVERLAPPEDWINDOW,		//よく見るウィンドウスタイル
 		CW_USEDEFAULT,				//表示X座標(WindowsOSに任せる)
 		CW_USEDEFAULT,				//表示Y座標(WindowsOSに任せる)
