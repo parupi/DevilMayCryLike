@@ -24,7 +24,7 @@ void SampleScene::Initialize()
 	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
 	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
-	cameraManager_->SetActiveCamera(0);
+	cameraManager_->SetActiveCamera("GameCamera");
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
