@@ -20,11 +20,18 @@
 void SampleScene::Initialize()
 {
 	// カメラの生成
-	normalCamera_ = std::make_unique<Camera>("GameCamera");
+	normalCamera_ = std::make_unique<BaseCamera>("GameCamera");
 	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
 	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera("GameCamera");
+
+	// カメラの生成
+	normalCamera_ = std::make_unique<BaseCamera>("KnockCamera");
+	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -10.0f };
+	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
+	cameraManager_->AddCamera(std::move(normalCamera_));
+	cameraManager_->SetActiveCamera("KnockCamera");
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -102,6 +109,17 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
+	ImGui::Begin("Camera");
+	auto& cameraName = cameraManager_->GetActiveCamera()->name_;
+	ImGui::Text("CameraName : %s", cameraName.c_str());
+	if (ImGui::Button("ChangeCamera")) {
+		if (cameraName == "GameCamera") {
+			cameraManager_->SetActiveCamera("KnockCamera", 2.0f);
+		} else {
+			cameraManager_->SetActiveCamera("GameCamera", 2.0f);
+		}
+	}
+	ImGui::End();
 
 	emitter_->Update();
 

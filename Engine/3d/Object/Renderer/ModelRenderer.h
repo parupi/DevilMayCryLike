@@ -1,7 +1,7 @@
 #pragma once
 #include "BaseRenderer.h"
 #include <3d/Object/Model/Model.h>
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <3d/Camera/CameraManager.h>
 class ModelRenderer : public BaseRenderer
 {
@@ -27,6 +27,6 @@ private:
 	BaseModel* model_;
 
 
-	Camera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
 };
 

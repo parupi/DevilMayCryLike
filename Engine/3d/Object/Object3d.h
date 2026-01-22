@@ -8,7 +8,7 @@
 #include <fstream>
 #include "Model/Model.h"
 #include "Model/BaseModel.h"
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <3d/Object/Renderer/BaseRenderer.h>
 #include <3d/Collider/BaseCollider.h>
 class Object3dManager;
@@ -45,7 +45,7 @@ public: // メンバ関数
 
 private: // メンバ変数
 	Object3dManager* objectManager_ = nullptr;
-	Camera* camera_ = nullptr;
+	BaseCamera* camera_ = nullptr;
 	std::unique_ptr<WorldTransform> transform_;
 
 	std::vector<BaseRenderer*> renders_;
@@ -66,7 +66,7 @@ public: // ゲッター // セッター //
 	BaseRenderer* GetRenderer(std::string name_);
 	BaseCollider* GetCollider(std::string name_);
 	// カメラ
-	void SetCamera(Camera* camera) { camera_ = camera; }
+	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 
 	DrawOption GetOption() const { return drawOption_; }
 

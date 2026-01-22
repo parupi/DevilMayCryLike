@@ -3,7 +3,7 @@
 #include <2d/Sprite.h>
 #include <3d/Object/Model/Model.h>
 #include <vector>
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <scene/BaseScene.h>
 #include <memory>
 #include <audio/Audio.h>
@@ -38,7 +38,7 @@ public:
 private:
 	CameraManager* cameraManager_ = CameraManager::GetInstance();
 
-	std::unique_ptr<Camera> normalCamera_;
+	std::unique_ptr<BaseCamera> normalCamera_;
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 

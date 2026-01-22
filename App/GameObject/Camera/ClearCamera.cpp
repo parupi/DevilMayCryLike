@@ -1,6 +1,6 @@
 #include "ClearCamera.h"
 
-ClearCamera::ClearCamera(std::string cameraName) : Camera(cameraName)
+ClearCamera::ClearCamera(std::string cameraName) : BaseCamera(cameraName)
 {
     
 }
@@ -39,5 +39,5 @@ void ClearCamera::Update()
     GetTranslate() = cameraPos;
     LookAt(lookTarget);
 
-    Camera::Update();
+    BaseCamera::Update();
 }

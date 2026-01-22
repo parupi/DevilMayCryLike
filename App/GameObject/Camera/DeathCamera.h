@@ -1,14 +1,14 @@
 #pragma once
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <math/Vector3.h>
 #include <random>
 
 class Player;
 
-class DeathCamera : public Camera
+class DeathCamera : public BaseCamera
 {
 public:
-	DeathCamera(const std::string& cameraName, Camera* sourceCamera, Player* player);
+	DeathCamera(const std::string& cameraName, BaseCamera* sourceCamera, Player* player);
 	~DeathCamera() override = default;
 
 	/// <summary>

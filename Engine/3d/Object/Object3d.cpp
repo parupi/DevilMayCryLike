@@ -7,6 +7,7 @@
 #ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
+#include <3d/Camera/CameraManager.h>
 
 Object3d::Object3d(std::string objectName)
 {
@@ -33,7 +34,7 @@ void Object3d::Update()
 
 	transform_->TransferMatrix();
 
-	camera_ = objectManager_->GetDefaultCamera();
+	camera_ = CameraManager::GetInstance()->GetCurrentCamera();
 
 	Matrix4x4 worldViewProjectionMatrix;
 	if (camera_) {
@@ -45,8 +46,6 @@ void Object3d::Update()
 
 	transform_->SetMapWVP(worldViewProjectionMatrix);
 	transform_->SetMapWorld(transform_->GetMatWorld());
-
-
 }
 
 void Object3d::Draw()

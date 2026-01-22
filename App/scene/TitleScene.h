@@ -1,5 +1,5 @@
 #pragma once
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <scene/BaseScene.h>
 #include "scene/SceneManager.h"
 #include <memory>

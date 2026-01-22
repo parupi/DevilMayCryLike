@@ -8,7 +8,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <span>
 #include <map>
 #include "Animation/SkinCluster.h"

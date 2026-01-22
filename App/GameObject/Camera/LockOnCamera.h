@@ -1,26 +1,22 @@
 #pragma once
 #include "3d/Camera/BaseCamera.h"
-#include "input/Input.h"
+#include <input/Input.h>
 
 class Player;
 
-/// <summary>
-/// ゲーム中のプレイヤーを追従するカメラを管理するクラス
-/// プレイヤーの位置と入力に基づいてカメラを制御する
-/// </summary>
-class GameCamera : public BaseCamera
+class LockOnCamera : public BaseCamera
 {
 public:
 	/// <summary>
 	/// コンストラクタ
 	/// </summary>
 	/// <param name="cameraName">カメラの名前</param>
-	GameCamera(std::string cameraName);
+	LockOnCamera(std::string cameraName);
 
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	~GameCamera() override = default;
+	~LockOnCamera() override = default;
 
 	/// <summary>
 	/// プレイヤーを追従するカメラの更新処理
@@ -28,7 +24,6 @@ public:
 	/// </summary>
 	void Update() override;
 
-	void SetHorizontalAngle(float angle) { horizontalAngle_ = angle; }
 private:
 	/// <summary>
 	/// 追従対象のプレイヤー
@@ -45,3 +40,4 @@ private:
 	/// </summary>
 	float horizontalAngle_ = 0.0f;
 };
+
