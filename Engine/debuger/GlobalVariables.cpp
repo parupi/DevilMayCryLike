@@ -150,8 +150,8 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 	ifs.open(filePath);
 	// ファイルオープン失敗
 	if (ifs.fail()) {
-		string message = "Failed open data file for write";
-		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+		//string message = "Failed open data file for write";
+		//MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 		//assert(0);
 		return;
 	}

@@ -1,6 +1,6 @@
 #pragma once
 #include "base/DirectXManager.h"
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <memory>
 #include <mutex>
 #include <base/PSOManager.h>
@@ -46,7 +46,7 @@ private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
 	// カメラのポインタ
-	Camera* defaultCamera_ = nullptr;
+	BaseCamera* defaultCamera_ = nullptr;
 
 	BlendMode blendMode_ = BlendMode::kNone;
 
@@ -56,7 +56,7 @@ public: // ゲッター // セッター //
 	DirectXManager* GetDxManager() const { return dxManager_; }
 	PSOManager* GetPsoManager() const { return psoManager_; }
 	// デフォルトカメラ
-	void SetDefaultCamera(Camera* camera) { defaultCamera_ = camera; }
-	Camera* GetDefaultCamera() const { return defaultCamera_; }
+	void SetDefaultCamera(BaseCamera* camera) { defaultCamera_ = camera; }
+	BaseCamera* GetDefaultCamera() const { return defaultCamera_; }
 };
 

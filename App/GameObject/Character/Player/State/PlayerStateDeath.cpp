@@ -24,7 +24,7 @@ void PlayerStateDeath::Enter(Player& player)
 	auto cameraManager = CameraManager::GetInstance();
 
 	// 現在のゲームカメラを取得
-	Camera* current = cameraManager->GetActiveCamera();
+	BaseCamera* current = cameraManager->GetActiveCamera();
 
 	// デスカメラ生成
 	std::unique_ptr<DeathCamera> deathCam = std::make_unique<DeathCamera>("DeathCamera", current, &player);

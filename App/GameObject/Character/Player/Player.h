@@ -151,7 +151,7 @@ public:
 	/// <summary>
 	/// ロックオン中の敵のワールド座標を取得する。
 	/// </summary>
-	const Vector3& GetLockOnPos() { return lockOnEnemy_->GetWorldTransform()->GetTranslation(); }
+	const Vector3& GetLockOnPos();
 
 	/// <summary>
 	/// 現在ロックオンしているかどうかを取得する。

@@ -46,7 +46,7 @@ void SkySystem::Draw()
 	auto* commandList = dxManager_->GetCommandList();
 
 	// カメラ取得
-	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
 
 	if (!camera) return;
 	Matrix4x4 view = camera->GetViewMatrix();

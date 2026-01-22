@@ -1,7 +1,7 @@
 #pragma once
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <GameObject/Character/Player/Player.h>
-class ClearCamera : public Camera
+class ClearCamera : public BaseCamera
 {
 public:
 	ClearCamera(std::string cameraName);

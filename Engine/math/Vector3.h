@@ -47,5 +47,7 @@ Vector3 Normalize(const Vector3& v);
 Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
 Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
 
+bool IsValidVector3(const Vector3& v);
+
 // ImGuiを使ったVector3の描画
 void PrintOnImGui(const Vector3& v, const char* label = "Vector3");

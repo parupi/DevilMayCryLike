@@ -13,6 +13,6 @@ private:
 	float sideDir_;
 	float timer_;
 	float time_ = 1.0f;
-	float moveSpeed_ = 0.3f;
+	float moveSpeed_ = 0.03f;
 };
 

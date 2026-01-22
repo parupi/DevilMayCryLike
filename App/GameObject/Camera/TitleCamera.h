@@ -1,11 +1,11 @@
 #pragma once
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 
 /// <summary>
 /// タイトル画面で使用されるカメラを管理するクラス
 /// カメラの移動・回転を状態に応じて制御する
 /// </summary>
-class TitleCamera : public Camera
+class TitleCamera : public BaseCamera
 {
 public:
 	/// <summary>

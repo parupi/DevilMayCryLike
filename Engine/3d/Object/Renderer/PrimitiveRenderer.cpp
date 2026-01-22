@@ -23,7 +23,7 @@ PrimitiveRenderer::~PrimitiveRenderer()
 }
 
 void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
-    Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+    BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
     if (!camera) return;
 
     model_->Update();
