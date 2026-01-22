@@ -47,6 +47,5 @@ private:
 	DirectionalLight* dirLight_;
 
 	std::unique_ptr<ParticleEmitter> emitter_;
-
 };
 

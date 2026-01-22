@@ -169,6 +169,9 @@
     <Filter Include="Externals\imgui">
       <UniqueIdentifier>{25FC09A1-9187-7765-9A98-FA5906A3D365}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Externals\imgui-node-editor">
+      <UniqueIdentifier>{EC8D4A57-589B-783D-E181-74284D8E44F4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App\GameData\CollisionCategory.h">
@@ -591,6 +594,24 @@
     <ClInclude Include="Engine\scene\Transition\TransitionManager.h">
       <Filter>Engine\scene\Transition</Filter>
     </ClInclude>
+    <ClInclude Include="Externals\imgui-node-editor\crude_json.h">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Externals\imgui-node-editor\imgui_bezier_math.h">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Externals\imgui-node-editor\imgui_canvas.h">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Externals\imgui-node-editor\imgui_extra_math.h">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Externals\imgui-node-editor\imgui_node_editor.h">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClInclude>
+    <ClInclude Include="Externals\imgui-node-editor\imgui_node_editor_internal.h">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClInclude>
     <ClInclude Include="Externals\imgui\imconfig.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
@@ -985,6 +1006,18 @@
     </ClCompile>
     <ClCompile Include="Engine\scene\Transition\TransitionManager.cpp">
       <Filter>Engine\scene\Transition</Filter>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\crude_json.cpp">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\imgui_canvas.cpp">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\imgui_node_editor.cpp">
+      <Filter>Externals\imgui-node-editor</Filter>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\imgui_node_editor_api.cpp">
+      <Filter>Externals\imgui-node-editor</Filter>
     </ClCompile>
     <ClCompile Include="Externals\imgui\imgui.cpp">
       <Filter>Externals\imgui</Filter>
