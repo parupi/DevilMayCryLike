@@ -1,7 +1,8 @@
 #include "ImGuiManager.h"
 #ifdef _DEBUG
-#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
+//#define IMGUI_DISABLE_OBSOLETE_FUNCTIONS
 #include <imgui/imgui.h>
+//#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui/imgui_impl_win32.h>
 #include <imgui/imgui_impl_dx12.h>
 #include <dxgi.h>
@@ -26,8 +27,8 @@ void ImGuiManager::Initialize(WindowManager* winManager, DirectXManager* directX
 	// ImGuiのコンテキストを生成
 	ImGui::CreateContext();
 
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//ImGuiIO& io = ImGui::GetIO();
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// ImGuiのスタイルを設定
 	ImGui::StyleColorsDark();
