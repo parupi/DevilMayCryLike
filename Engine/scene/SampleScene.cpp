@@ -102,7 +102,6 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
-
 	emitter_->Update();
 
 
