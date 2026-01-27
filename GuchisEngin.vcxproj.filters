@@ -354,7 +354,7 @@
     <ClInclude Include="Engine\2d\SpriteManager.h">
       <Filter>Engine\2d</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\3d\Camera\Camera.h">
+    <ClInclude Include="Engine\3d\Camera\BaseCamera.h">
       <Filter>Engine\3d\Camera</Filter>
     </ClInclude>
     <ClInclude Include="Engine\3d\Camera\CameraManager.h">
@@ -642,6 +642,7 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Camera\LockOnCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -806,7 +807,7 @@
     <ClCompile Include="Engine\2d\SpriteManager.cpp">
       <Filter>Engine\2d</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\3d\Camera\Camera.cpp">
+    <ClCompile Include="Engine\3d\Camera\BaseCamera.cpp">
       <Filter>Engine\3d\Camera</Filter>
     </ClCompile>
     <ClCompile Include="Engine\3d\Camera\CameraManager.cpp">
@@ -1053,5 +1054,6 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp" />
   </ItemGroup>
 </Project>

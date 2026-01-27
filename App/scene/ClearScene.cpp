@@ -1,5 +1,5 @@
 #include "ClearScene.h"
-#include <3d/Camera/Camera.h>
+#include <3d/Camera/BaseCamera.h>
 #include <3d/Camera/CameraManager.h>
 #include <3d/SkySystem/SkySystem.h>
 #include <3d/Light/LightManager.h>
@@ -21,7 +21,7 @@ void ClearScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("Score.png");
 
 	// カメラの生成
-	std::unique_ptr<Camera> clearCamera = std::make_unique<Camera>("ClearCamera");
+	std::unique_ptr<BaseCamera> clearCamera = std::make_unique<BaseCamera>("ClearCamera");
 	clearCamera->GetTranslate() = { 0.0f, 10.0f, -20.0f };
 	clearCamera->GetRotate() = { -1.0f, 5.0f, -0.5f };
 	CameraManager::GetInstance()->AddCamera(std::move(clearCamera));

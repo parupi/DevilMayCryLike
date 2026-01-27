@@ -5,7 +5,7 @@
 #include <random>
 #include <math/Vector4.h>
 #include <math/Matrix4x4.h>
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <math/Vector2.h>
 #include "debuger/GlobalVariables.h"
 #include "base/PSOManager.h"
@@ -162,7 +162,7 @@ private:
 	DirectXManager* dxManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
-	Camera* camera_ = nullptr;
+	BaseCamera* camera_ = nullptr;
 
 	// グローバルバリアース
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
@@ -193,6 +193,6 @@ public:
 	void SetAlpha(const std::string name_, float alpha) { alpha_[name_] = alpha; }
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
-	Camera* GetCamera() { return camera_; }
-	void SetCamera(Camera* camera) { camera_ = camera; }
+	BaseCamera* GetCamera() { return camera_; }
+	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 };

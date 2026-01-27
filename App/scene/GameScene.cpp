@@ -17,16 +17,20 @@
 #include <scene/Transition/TransitionManager.h>
 #include <scene/Transition/SceneTransitionController.h>
 #include <2d/SpriteManager.h>
+#include <GameObject/Camera/LockOnCamera.h>
 
 
 void GameScene::Initialize()
 {
 	// カメラの生成
-	std::unique_ptr<GameCamera> gameCamera = std::make_unique<GameCamera>("GameCamera");
-	gameCamera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
-	gameCamera->GetRotate() = { 0.5f, -0.005f, 0.0f };
-	gameCamera_ = gameCamera.get();
-	cameraManager_->AddCamera(std::move(gameCamera));
+	std::unique_ptr<GameCamera> camera = std::make_unique<GameCamera>("GameCamera");
+	camera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
+	camera->GetRotate() = { 0.5f, -0.005f, 0.0f };
+	gameCamera_ = camera.get();
+	cameraManager_->AddCamera(std::move(camera));
+
+	std::unique_ptr<LockOnCamera> lockOnCamera = std::make_unique<LockOnCamera>("LockOnCamera");
+	cameraManager_->AddCamera(std::move(lockOnCamera));
 
 	// カメラの生成
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");

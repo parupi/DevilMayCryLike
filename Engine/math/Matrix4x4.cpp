@@ -1,5 +1,5 @@
 #include "Matrix4x4.h"
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 #include <math/Quaternion.h>
@@ -308,7 +308,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const
 }
 
 void PrintOnImGui(const Matrix4x4& matrix, const char* label) {
-#ifdef USE_IMGUI
+#ifdef _DEBUG
     ImGui::Begin("Matrix4x4");
     ImGui::Text("%s:", label);
     for (int row = 0; row < 4; ++row) {
@@ -316,7 +316,7 @@ void PrintOnImGui(const Matrix4x4& matrix, const char* label) {
             matrix.m[row][0], matrix.m[row][1], matrix.m[row][2], matrix.m[row][3]);
     }
     ImGui::End();
-#endif // IMGUI
+#endif // DEBUG
 }
 
 Vector3 GetTranslation(const Matrix4x4& matrix)

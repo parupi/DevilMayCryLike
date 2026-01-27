@@ -6,11 +6,11 @@
 #include <math/Vector3.h>
 #include <math/Quaternion.h>
 #include <math/Vector2.h>
-class Camera
+class BaseCamera
 {
 public: // メンバ関数
-	Camera(std::string objectName);
-	virtual ~Camera() = default;
+	BaseCamera(std::string objectName);
+	virtual ~BaseCamera() = default;
 
 	// 更新
 	virtual void Update();
@@ -58,6 +58,11 @@ public: // ゲッター // セッター //
 	void SetAspectRate(const float& aspectRatio) { aspectRatio_ = aspectRatio; }
 	void SetNearClip(const float& nearClip) { nearClip_ = nearClip; }
 	void SetFarClip(const float& farClip) { farClip_ = farClip; }
+
+	float GetFovY() const { return horizontalFOV_; }
+	float GetAspectRate() const { return aspectRatio_; }
+	float GetNearClip() const { return nearClip_; }
+	float GetFarClip() const { return farClip_; }
 
 	const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
 	const Matrix4x4& GetViewMatrix() const { return viewMatrix_; }

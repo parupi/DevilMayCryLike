@@ -3,8 +3,8 @@
 #include <random>
 #include <math/Easing.h>
 
-DeathCamera::DeathCamera(const std::string& cameraName, Camera* sourceCamera, Player* player)
-    : Camera(cameraName), player_(player)
+DeathCamera::DeathCamera(const std::string& cameraName, BaseCamera* sourceCamera, Player* player)
+    : BaseCamera(cameraName), player_(player)
 {
     // ゲームカメラの位置と回転を引き継ぎ
     GetTranslate() = sourceCamera->GetTranslate();
@@ -16,7 +16,7 @@ DeathCamera::DeathCamera(const std::string& cameraName, Camera* sourceCamera, Pl
     // 乱数エンジン初期化
     randomEngine_ = std::mt19937(seedGenerator_());
 
-    Camera::Update();
+    BaseCamera::Update();
 }
 
 void DeathCamera::Update()
@@ -55,5 +55,5 @@ void DeathCamera::Update()
     GetTranslate() = cameraPos;
     LookAt(playerPos);
 
-    Camera::Update();
+    BaseCamera::Update();
 }

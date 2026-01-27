@@ -79,7 +79,7 @@ void PlayerStateMove::Exit(Player& player)
 void PlayerStateMove::Move(Player& player)
 {
 	auto* input = Input::GetInstance();
-	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
 	if (!camera) return;
 
 	// 各フレームでまず速度をゼロに初期化

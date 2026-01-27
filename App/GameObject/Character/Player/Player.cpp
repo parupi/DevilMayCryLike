@@ -42,14 +42,6 @@ void Player::Initialize()
 	combat_ = std::make_unique<PlayerCombat>();
 	combat_->Initialize(this);
 
-	//movement_ = std::make_unique<PlayerMovement>();
-	//movement_->Initialize();
-
-	//collider_ = std::make_unique<PlayerCollider>();
-	//collider_->Initialize(GetCollider(name_));
-
-	//collisionResolver_ = std::make_unique<PlayerCollisionResolver>();
-
 	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
@@ -79,14 +71,6 @@ void Player::Initialize()
 	titleWord_->SetSize({ 32.0f, 32.0f });
 	titleWord_->SetAnchorPoint({ 0.5f, 0.5f });
 
-	//// 全攻撃を一度更新しておく
-	//for (auto& state : states_) {
-	//	PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
-	//	if (attackState) {
-	//		attackState->UpdateAttackData();
-	//	}
-	//}
-
 	// プレイヤーをカメラ側を向かせる
 	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
 
@@ -98,7 +82,7 @@ void Player::Initialize()
 void Player::Update()
 {
 	// カメラ合切り替え中とフェード中は動かさない
-	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) {
+	if (!TransitionManager::GetInstance()->IsFinished()/* || CameraManager::GetInstance()->IsTransition()*/) {
 		// 最初から更新しておきたいものはここに入れておく
 		hitStop_->Update();
 		scoreManager->Update();
@@ -106,23 +90,6 @@ void Player::Update()
 		Object3d::Update();
 		return;
 	}
-
-
-	
-	//// 全攻撃を更新
-	//for (auto& state : states_) {
-	//	PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.second.get());
-	//	if (attackState) {
-	//		attackState->UpdateAttackData();
-	//	}
-	//}
-
-	//// 現在のステートを更新
-	//if (currentState_) {
-	//	currentState_->Update(*this);
-	//}
-
-	//stateMachine_->UpdateCurrentState(*this);
 
 	// Rキーを押したら死亡演出が流れる
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
@@ -134,30 +101,13 @@ void Player::Update()
 
 	LockOn();
 
-	
-	//velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
-
-
 
  	weapon_->Update();
-	//movement_->SetIsGrounded(onGround_);
-	//// 物理挙動の後進
-	//movement_->Update(DeltaTime::GetDeltaTime());
-	//GetWorldTransform()->GetTranslation() += movement_->GetVelocity() * DeltaTime::GetDeltaTime();
 
-
-
-//#ifdef _DEBUG
-//	// エディターの描画
-//	DrawAttackDataEditorUI();
-//#endif // DEBUG
-	
 
 	if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this);
-	} /*else {
-		moveState_->UpdateDuringAttack(*this);
-	}*/
+	}
 	combat_->Update();
 
 	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
@@ -171,22 +121,6 @@ void Player::Update()
 		titleWord_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
 		titleWord_->Update();
 	}
-
-	//// 攻撃派生UIの更新
-	//if (attackBranchUI_) {
-	//	auto inputState = GetAttackInputState();
-
-	//	attackBranchUI_->SetCurrentInput(
-	//		inputState.y ? InputType::Y
-	//		: InputType::Y, // 今はYのみ
-	//		inputState.dir,
-	//		inputState.isLockOn
-	//	);
-
-	//	attackBranchUI_->Update();
-	//}
-
-
 }
 
 void Player::Draw()
@@ -194,14 +128,7 @@ void Player::Draw()
 	weapon_->Draw();
 	Object3d::Draw();
 
-	//for (auto& [name, state] : states_) {
-	//	PlayerStateAttackBase* attackState = dynamic_cast<PlayerStateAttackBase*>(state.get());
-	//	if (attackState) {
-	//		attackState->DrawControlPoints(*this);
-	//	}
-	//}
 	combat_->Draw();
-
 	SpriteManager::GetInstance()->DrawSet();
 	attackBranchUI_->Draw();
 }
@@ -216,15 +143,6 @@ void Player::DrawEffect()
 #ifdef _DEBUG
 void Player::DebugGui()
 {
-	//// 現在のステート名を取得
-	//const char* currentStateName = "Unknown";
-	//for (const auto& [named, state] : states_) {
-	//	if (state.get() == currentState_) {
-	//		currentStateName = named.c_str();
-	//		break;
-	//	}
-	//}
-
 	//ImGui::Begin("Player");
 	//ImGui::Text("Current State: %s", currentStateName);
 	//Object3d::DebugGui();
@@ -233,7 +151,6 @@ void Player::DebugGui()
 	//ImGui::Begin("Weapon");
 	//weapon_->DebugGui();
 	//ImGui::End();
-
 }
 
 #endif // _DEBUG
@@ -246,7 +163,7 @@ void Player::ChangeState(const std::string& stateName)
 void Player::Move()
 {
 	input = Input::GetInstance();
-	Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
 	if (!camera) return;
 
 	// 各フレームでまず速度をゼロに初期化
@@ -344,6 +261,12 @@ void Player::LockOn()
 			lockOnEnemy_ = nullptr;
 		}
 	}
+	if (isLockOn_) {
+		if (GetLockOnPos().x == 0.0f && GetLockOnPos().y == 0.0f && GetLockOnPos().z == 0.0f) {
+			isLockOn_ = false;
+			lockOnEnemy_ = nullptr;
+		}
+	}
 }
 
 void Player::Clear()
@@ -359,6 +282,14 @@ void Player::SetIntent(const MoveIntent& intent)
 void Player::RequestAttack(AttackType id)
 {
 	combat_->RequestAttack(id);
+}
+
+const Vector3& Player::GetLockOnPos()
+{
+	if (lockOnEnemy_) {
+		return lockOnEnemy_->GetWorldTransform()->GetTranslation();
+	}
+	return {0.0f, 0.0f, 0.0f};
 }
 
 AttackInputState Player::GetAttackInputState() const
@@ -385,30 +316,6 @@ AttackInputState Player::GetAttackInputState() const
 
 	return state;
 }
-
-//std::string Player::GetAttackStateNameByIndex(int32_t index) const
-//{
-//	int i = 0;
-//	for (const auto& [name, state] : states_) {
-//		if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-//			if (i == index) return name;
-//			++i;
-//		}
-//	}
-//	return "";
-//}
-//
-//int32_t Player::GetAttackStateCount() const
-//{
-//	//int32_t count = 0;
-//	//for (const auto& [_, state] : states_) {
-//	//	if (dynamic_cast<PlayerStateAttackBase*>(state.get())) {
-//	//		++count;
-//	//	}
-//	//}
-//	//return count;
-//	return 0;
-//}
 
 void Player::OnCollisionEnter(BaseCollider* other)
 {

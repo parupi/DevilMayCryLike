@@ -21,6 +21,8 @@ void CameraManager::Initialize(DirectXManager* dxManager)
 	CreateCameraResource();
 
 	activeCameraName_.clear();
+	// カメラ切り替え用のカメラを追加しておく
+	transitionCamera_ = std::make_unique<BaseCamera>("TransitionCamera");
 }
 
 void CameraManager::Finalize()
@@ -42,7 +44,7 @@ void CameraManager::Finalize()
 	Logger::Log("CameraManager finalized.\n");
 }
 
-void CameraManager::AddCamera(std::unique_ptr<Camera> camera)
+void CameraManager::AddCamera(std::unique_ptr<BaseCamera> camera)
 {
 	if (cameras_.contains(camera->name_)) {
 		Logger::Log("[CameraManager] Warning: Camera \"" + camera->name_ + "\" already exists. Replacing it.\n");
@@ -52,16 +54,25 @@ void CameraManager::AddCamera(std::unique_ptr<Camera> camera)
 
 void CameraManager::Update()
 {
-	if (isTransitioning_)
-	{
+	//for (auto& cam : cameras_) {
+	//	cam.second->Update();
+	//}
+
+	BaseCamera* camera = nullptr;
+
+	if (isTransitioning_) {
 		TransitionUpdate();
+		camera = transitionCamera_.get();
+	} else {
+		camera = GetActiveCamera();
+		if (camera) {
+			camera->Update();
+		}
 	}
 
-	if (auto it = cameras_.find(activeCameraName_); it != cameras_.end())
-	{
-		Camera* activeCamera = it->second.get();
-		activeCamera->Update();
-		cameraData_->worldPosition = activeCamera->GetTranslate();
+	if (camera) {
+		cameraData_->worldPosition = camera->GetTranslate();
+		Object3dManager::GetInstance()->SetDefaultCamera(camera);
 	}
 }
 
@@ -96,11 +107,29 @@ void CameraManager::SetActiveCamera(const std::string& cameraName, float transit
 	endPos_ = nextCam->GetTranslate();
 	endRot_ = nextCam->GetRotate();
 
+	// トランジションカメラをセット
+	Object3dManager::GetInstance()->SetDefaultCamera(transitionCamera_.get());
+	ParticleManager::GetInstance()->SetCamera(transitionCamera_.get());
+
+	transitionCamera_->SetFovY(cameras_[activeCameraName_]->GetFovY());
+	transitionCamera_->SetAspectRate(cameras_[activeCameraName_]->GetAspectRate());
+	transitionCamera_->SetNearClip(cameras_[activeCameraName_]->GetNearClip());
+	transitionCamera_->SetFarClip(cameras_[activeCameraName_]->GetFarClip());
+
+	// 現在の位置と回転をセット
+	transitionCamera_->GetTranslate() = startPos_;
+	transitionCamera_->GetRotate() = startRot_;
+	transitionCamera_->Update();
+
 	Logger::Log("[CameraManager] Transition started from \"" + activeCameraName_ + "\" to \"" + nextCameraName_ + "\" (" + std::to_string(transitionTime) + "s)\n");
 }
 
-Camera* CameraManager::GetActiveCamera() const
+BaseCamera* CameraManager::GetActiveCamera() const
 {
+	if (isTransitioning_) {
+		return transitionCamera_.get();
+	}
+
 	if (activeCameraName_.empty()) return nullptr;
 
 	auto it = cameras_.find(activeCameraName_);
@@ -108,6 +137,14 @@ Camera* CameraManager::GetActiveCamera() const
 		return it->second.get();
 	}
 	return nullptr;
+}
+
+BaseCamera* CameraManager::GetCurrentCamera() const
+{
+	if (isTransitioning_) {
+		return transitionCamera_.get();
+	}
+	return GetActiveCamera();
 }
 
 void CameraManager::BindCameraToShader()
@@ -132,24 +169,38 @@ void CameraManager::TransitionUpdate()
 
 	t = t * t * (3.0f - 2.0f * t);
 
+	auto currentCam = cameras_[activeCameraName_].get();
+	auto it = cameras_.find(nextCameraName_);
+	auto nextCam = it->second.get();
+
+	startPos_ = currentCam->GetTranslate();
+	startRot_ = currentCam->GetRotate(); // Quaternion型想定
+	endPos_ = nextCam->GetTranslate();
+	endRot_ = nextCam->GetRotate();
+
 	// 補間
 	Vector3 interpPos = Lerp(startPos_, endPos_, t);
 	Vector3 interpRot = Lerp(startRot_, endRot_, t);
 
-	// 一時的なカメラに適用（アクティブカメラを動かす）
-	auto activeCam = cameras_[activeCameraName_].get();
-	activeCam->GetTranslate() = interpPos;
-	activeCam->GetRotate() = interpRot;
+	// 一時的なカメラに適用
+	transitionCamera_->GetTranslate() = interpPos;
+	transitionCamera_->GetRotate() = interpRot;
+
+	transitionCamera_->Update();
 
 	cameraData_->worldPosition = interpPos;
 
 	// 終了判定
-	if (t >= 1.0f)
-	{
+	if (t >= 1.0f) {
 		isTransitioning_ = false;
 		activeCameraName_ = nextCameraName_;
 		nextCameraName_.clear();
+		Object3dManager::GetInstance()->SetDefaultCamera(cameras_[activeCameraName_].get());
+		ParticleManager::GetInstance()->SetCamera(cameras_[activeCameraName_].get());
+		return;
 	}
+	// 次に設定するカメラも更新しておく
+	cameras_[nextCameraName_]->Update();
 }
 
 void CameraManager::CreateCameraResource()

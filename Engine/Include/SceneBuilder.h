@@ -4,7 +4,7 @@
 #include <Include/SceneLoader.h>
 
 class Object3d;
-class Camera;
+class BaseCamera;
 
 class SceneBuilder {
 public:
