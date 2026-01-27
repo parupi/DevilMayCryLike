@@ -15,13 +15,13 @@ void PlayerStateAir::Update(Player& player)
 	if (Input::GetInstance()->IsConnected()) {
 		// 空中攻撃
 		if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
-			player.ChangeState("AttackAerialRave1");
+			player.RequestAttack(AttackType::Air);
 			return;
 		}
 	} else {
 		// 空中攻撃
 		if (Input::GetInstance()->TriggerKey(DIK_J)) {
-			player.ChangeState("AttackAerialRave1");
+			player.RequestAttack(AttackType::Air);
 			return;
 		}
 	}

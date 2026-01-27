@@ -1,16 +1,36 @@
 #pragma once
 #include <unordered_map>
 #include <GameObject/Character/Player/State/Attack/PlayerStateAttack.h>
+#include "AttackPlayer.h"
 #include <memory>
 #include <string>
 #include <imgui.h>
-//#include <imgui_node_editor.h>
-//#include <imgui_internal.h>
 
 enum class AttackType {
 	Normal,
 	RoundUp,
 	LungeThrust,
+	Air,
+};
+
+enum class InputButton {
+	X,
+	Y,
+	None
+};
+
+enum class StickDirection {
+	None,
+	ToEnemy,
+	AwayFromEnemy,
+	Any
+};
+
+struct AttackInputCondition
+{
+	InputButton button;          // X / Y
+	bool requireLockOn;    // ロックオン必須か
+	StickDirection stick;            // 敵基準のスティック方向
 };
 
 struct AttackNode
@@ -20,35 +40,17 @@ struct AttackNode
 	std::vector<std::string> nextAttacks;
 };
 
-using NodeID = uint32_t;
-using PinID = uint32_t;
-
-struct AttackNodeEditorData
-{
-	NodeID nodeId;
-	PinID  inputPin;
-	std::vector<PinID> outputPins;
-
-	ImVec2 position;
-};
-
-//namespace ed = ax::NodeEditor;
-
 class PlayerCombat
 {
 public:
 	PlayerCombat() = default;
-	~PlayerCombat();
+	~PlayerCombat() = default;
 	// 初期化
 	void Initialize(Player* player);
-
-	//void InitializeNodeEditor();
-
-	//void FinalizeNodeEditor();
 	// 更新
 	void Update();
-	// 描画前のセットアップ
-	void DrawAttackGraphEditor();
+	// 描画
+	void Draw();
 	// 外部から攻撃をリクエストする
 	void RequestAttack(AttackType type);
 	// 攻撃を変更する TODO : FSMじゃなくてStateStackを使う
@@ -59,9 +61,6 @@ public:
 	int32_t GetAttackStateCount() const;
 
 	bool IsAttacking() const { return !currentState_.empty(); }
-
-	std::unordered_map<std::string, AttackNode> attackGraph_;
-	std::unordered_map<std::string, AttackNodeEditorData> editorData_;
 
 	const AttackNode& GetAttackNode(const std::string& name) const{ return attackGraph_.at(name); }
 private:
@@ -77,13 +76,11 @@ private:
 	AttackNode LoadAttackNode(const std::string& attackName);
 
 	void DrawAttackNodeEditor(AttackNode& node);
-	//// ノード生成
-	//void CreateEditorNode(const std::string& attackName);
-	//// ノードの表示
-	//void DrawAttackNode(const std::string& name);
+
+	void DrawAttackDerivativeEditorUI();
 
 private:
-	//ed::EditorContext* editorContext_ = nullptr;
+	std::unordered_map<std::string, AttackNode> attackGraph_;
 	// ステート名とステートインスタンスのマップ
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateAttack>> states_;
 	// 現在のステート
@@ -92,5 +89,7 @@ private:
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
 	// プレイヤーのポインターを取得 TODO : なんか良い感じの受け渡し方法にしたい
 	Player* player_ = nullptr;
+
+	std::unique_ptr<AttackPlayer> attackPlayer_ = nullptr;
 };
 

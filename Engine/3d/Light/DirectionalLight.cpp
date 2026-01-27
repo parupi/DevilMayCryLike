@@ -8,6 +8,7 @@ DirectionalLight::DirectionalLight(const std::string& name) : BaseLight(name)
     global_->CreateGroup(name);
 
     global_->LoadFile("Light", name);
+
     // エディター項目登録
     global_->AddItem(name, "Color", Vector4{ 1, 1, 1, 1 });
     global_->AddItem(name, "Direction", Vector3{ 0, -1, 0 });

@@ -2,7 +2,6 @@
 #include <string>
 #include <memory>
 #include <3d/WorldTransform.h>
-
 #include <GameData/CollisionCategory.h>
 enum class CollisionShapeType {
 	AABB,
@@ -10,6 +9,7 @@ enum class CollisionShapeType {
 };
 
 class Object3d;
+
 class BaseCollider
 {
 public:

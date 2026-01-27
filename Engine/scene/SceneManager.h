@@ -30,6 +30,10 @@ public:
 	// シーンの変更
 	void ChangeScene(const std::string& sceneName);
 
+#ifdef _DEBUG
+	void DebugUpdate();
+#endif
+
 private:
 	// 実行中のシーン
 	BaseScene* scene_ = nullptr;

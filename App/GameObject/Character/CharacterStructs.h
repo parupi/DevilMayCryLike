@@ -1,6 +1,7 @@
 #pragma once
 #include <math/Vector3.h>
 #include <vector>
+#include <string>
 
 //enum class AttackType {
 //	Thrust, // 刺突
@@ -20,6 +21,7 @@ enum class ReactionType {
 
 // 攻撃の情報
 struct AttackData {
+	std::string name; // 名前
 	// 挙動系
 	int32_t pointCount;                      // 制御点の数
 	std::vector<Vector3> controlPoints;      // 制御点（Vector3）
@@ -29,6 +31,7 @@ struct AttackData {
 	Vector3 knockBackSpeed{};             // 敵のノックバック速度
 
 	// タイマー系
+
 	float totalDuration = 0.0f;              // 攻撃全体にかかる時間
 	float preDelay = 0.0f;                   // 予備動作の時間
 	float attackDuration = 0.0f;             // 攻撃中の時間

@@ -56,6 +56,12 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName)
 	gv->AddItem(name_, "TorqueForce", float());
 	// のけぞり用
 	gv->AddItem(name_, "StunTime", float());
+
+	gv->AddItem(name_, "ButtonIndex", int32_t(0));
+	gv->AddItem(name_, "LockOnFlag", bool(false));
+	gv->AddItem(name_, "RootAttackFlag", bool(false));
+	gv->AddItem(name_, "IsAir", bool(false));
+	gv->AddItem(name_, "DirIndex", int32_t(0));
 }
 
 void PlayerStateAttack::Enter(Player& player)
@@ -108,8 +114,12 @@ void PlayerStateAttack::Enter(Player& player)
 	isFinish_ = false;
 }
 
-AttackRequestData PlayerStateAttack::Update(Player& player)
+AttackRequestData PlayerStateAttack::Update(Player& player, float currentTime)
 {
+	if (currentTime != 0.0f) {
+		stateTime_.current = currentTime;
+	}
+
 	AttackRequestData req{};
 	req.nextAttack = "";
 	req.type = AttackRequest::None;
@@ -159,6 +169,11 @@ AttackRequestData PlayerStateAttack::Update(Player& player)
 				if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() < 0.0f) {
 					req.type = AttackRequest::ChangeAttack;
 					req.nextAttack = "AttackHighTime";
+					return req;
+				}
+				if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() > 0.0f) {
+					req.type = AttackRequest::ChangeAttack;
+					req.nextAttack = "Stinger";
 					return req;
 				}
 			}

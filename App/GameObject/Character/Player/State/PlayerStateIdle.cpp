@@ -46,7 +46,6 @@ void PlayerStateIdle::Update(Player& player)
 		}
 		// 攻撃のトリガー
 		if (Input::GetInstance()->TriggerKey(DIK_H)) {
-			//player.ChangeState("AttackHighTime");
 			player.RequestAttack(AttackType::RoundUp);
 			return;
 		}

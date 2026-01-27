@@ -6,6 +6,7 @@
 //#include <Result.h>
 //#include <TutorialScene.h>
 #include "scene/SampleScene.h"
+#include "scene/EditScene.h"
 
 BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 {
@@ -21,8 +22,8 @@ BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
     else if (sceneName == "CLEAR") {
         newScene = new ClearScene();
     }
-    else if (sceneName == "TUTORIAL") {
-        //newScene = new TutorialScene();
+    else if (sceneName == "Edit") {
+        newScene = new EditScene();
     } else if (sceneName == "SAMPLE") {
         newScene = new SampleScene();
     }

@@ -128,6 +128,7 @@ void Player::Draw()
 	weapon_->Draw();
 	Object3d::Draw();
 
+	combat_->Draw();
 	SpriteManager::GetInstance()->DrawSet();
 	attackBranchUI_->Draw();
 }
