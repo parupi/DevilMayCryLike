@@ -240,6 +240,9 @@
     <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.h">
       <Filter>App\GameObject\Character\Player\Collision</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
+      <Filter>App\GameObject\Character\Player\Combat</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
     </ClInclude>
@@ -325,6 +328,9 @@
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
     <ClInclude Include="App\scene\ClearScene.h">
+      <Filter>App\scene</Filter>
+    </ClInclude>
+    <ClInclude Include="App\scene\EditScene.h">
       <Filter>App\scene</Filter>
     </ClInclude>
     <ClInclude Include="App\scene\GameScene.h">
@@ -692,6 +698,9 @@
     <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.cpp">
       <Filter>App\GameObject\Character\Player\Collision</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
+      <Filter>App\GameObject\Character\Player\Combat</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
     </ClCompile>
@@ -771,6 +780,9 @@
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
     <ClCompile Include="App\scene\ClearScene.cpp">
+      <Filter>App\scene</Filter>
+    </ClCompile>
+    <ClCompile Include="App\scene\EditScene.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
     <ClCompile Include="App\scene\GameScene.cpp">

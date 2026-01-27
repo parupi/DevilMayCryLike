@@ -73,3 +73,11 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
 }
 
+#ifdef _DEBUG
+void SceneManager::DebugUpdate()
+{
+	scene_->DebugUpdate();
+}
+#endif
+
+

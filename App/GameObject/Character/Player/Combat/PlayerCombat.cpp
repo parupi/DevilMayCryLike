@@ -1,63 +1,36 @@
 #include "PlayerCombat.h"
 #include "GameObject/Character/Player/Player.h"
 
-
-//namespace ed = ax::NodeEditor;
-
-PlayerCombat::~PlayerCombat()
-{
-	//FinalizeNodeEditor();
-}
-
 void PlayerCombat::Initialize(Player* player)
 {
 	player_ = player;
 
 	CreateState();
-	//InitializeNodeEditor();
-}
 
-//void PlayerCombat::InitializeNodeEditor()
-//{
-//	//ed::Config config;
-//	//config.SettingsFile = "AttackGraphEditor.json"; // 自動保存用（任意）
-//
-//	//editorContext_ = ed::CreateEditor(&config);
-//}
-//
-//void PlayerCombat::FinalizeNodeEditor()
-//{
-//	//if (editorContext_) {
-//	//	ed::DestroyEditor(editorContext_);
-//	//	editorContext_ = nullptr;
-//	//}
-//}
+	attackPlayer_ = std::make_unique<AttackPlayer>();
+	attackPlayer_->SetPlayer(player);
+
+	std::vector<PlayerStateAttack*> list;
+	for (auto& [name, state] : states_) {
+		list.push_back(state.get());
+	}
+	attackPlayer_->SetAttacks(list);
+}
 
 void PlayerCombat::Update()
 {
-	//static ed::NodeId nodeId = 1;
-	//static ed::PinId  inPin = 2;
-	//static ed::PinId  outPin = 3;
-	//ed::Begin("TestEditor");
-	//ed::BeginNode(nodeId);
-	//ImGui::Text("Test Node");
+	// 毎フレーム
+	attackPlayer_->Update(DeltaTime::GetDeltaTime());
+	attackPlayer_->DrawImGui();
 
-	//ed::BeginPin(inPin, ed::PinKind::Input);
-	//ImGui::Text("In");
-	//ed::EndPin();
-
-	//ed::BeginPin(outPin, ed::PinKind::Output);
-	//ImGui::Text("Out");
-	//ed::EndPin();
-
-	//ed::EndNode();
-	//ed::End();
+	DrawAttackDerivativeEditorUI();
 
 	DrawAttackDataEditorUI();
 	for (auto& state : states_) {
 		state.second->UpdateAttackData();
+		//state.second->DrawControlPoints(*player_);
 	}
-	
+
 	if (currentState_.empty()) return;
 
 	auto& top = currentState_.back();
@@ -82,15 +55,11 @@ void PlayerCombat::Update()
 	}
 }
 
-void PlayerCombat::DrawAttackGraphEditor()
+void PlayerCombat::Draw()
 {
-	//ed::SetCurrentEditor(editorContext_);
-
-	//ed::Begin("Attack Graph");
-	//// ノード描画
-	//ed::End();
-
-	//ed::SetCurrentEditor(nullptr);
+	for (auto& state : states_) {
+		state.second->DrawControlPoints(*player_);
+	}
 }
 
 void PlayerCombat::RequestAttack(AttackType type)
@@ -105,6 +74,8 @@ void PlayerCombat::RequestAttack(AttackType type)
 	case AttackType::LungeThrust:
 
 		break;
+	case AttackType::Air:
+		ChangeState("AttackAerialRave1");
 	}
 }
 
@@ -266,6 +237,30 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
 
 	ImGui::Separator();
 
+	// 入力系
+	ImGui::Checkbox("IsRootAttack", &global_->GetValueRef<bool>(attackName, "RootAttackFlag"));
+	ImGui::Checkbox("IsAir", &global_->GetValueRef<bool>(attackName, "IsAir"));
+
+	ImGui::Separator();
+
+	const char* buttonLabels[] = { "None", "X", "Y" };
+	ImGui::Combo("Button", &global_->GetValueRef<int32_t>(attackName, "ButtonIndex"), buttonLabels, IM_ARRAYSIZE(buttonLabels));
+
+	ImGui::Checkbox("RequireLockOn", &global_->GetValueRef<bool>(attackName, "LockOnFlag"));
+
+	if (global_->GetValueRef<bool>(attackName, "LockOnFlag"))
+	{
+		const char* dirLabels[] = {
+			"None",
+			"To Enemy",
+			"Away From Enemy",
+			"Any"
+		};
+		ImGui::Combo("Stick Direction", &global_->GetValueRef<int32_t>(attackName, "DirIndex"), dirLabels, IM_ARRAYSIZE(dirLabels));
+	}
+
+	ImGui::Separator();
+
 	// その他
 	ImGui::Checkbox("Draw Debug Control Points", &global_->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
 
@@ -300,37 +295,6 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
 	ImGui::SameLine();
 	ImGui::RadioButton("Air", &global_->GetValueRef<int32_t>(attackName, "AttackPosture"), 1);
 
-	//// === 派生攻撃インデックス ===
-	//ImGui::Separator();
-	//ImGui::Text("Next Attacks");
-
-	//int32_t& nextAttackCount = global_->GetValueRef<int32_t>(attack->name_, "NextAttackCount");
-	//ImGui::DragInt("Next Attack Count", &nextAttackCount, 1, 0, 5);
-	//nextAttackCount = std::clamp(nextAttackCount, 0, 3);
-
-	//// 全攻撃名リストの取得
-	//std::vector<std::string> attackNames;
-	//for (auto& [name, state] : states_) {
-	//	if (dynamic_cast<PlayerStateAttack*>(state.get())) {
-	//		attackNames.push_back(name);
-	//	}
-	//}
-	//std::vector<const char*> cstrs;
-	//for (const auto& name : attackNames) {
-	//	cstrs.push_back(name.c_str());
-	//}
-
-	//// 複数の派生攻撃を選択
-	//for (int i = 0; i < nextAttackCount; ++i) {
-	//	std::string key = "NextAttackIndex_" + std::to_string(i);
-	//	int32_t& index = global_->GetValueRef<int32_t>(attack->name_, key);
-	//	if (index < 0 || index >= (int32_t)attackNames.size()) {
-	//		index = 0; // 範囲外防止
-	//	}
-	//	std::string label = "Next Attack " + std::to_string(i);
-	//	ImGui::Combo(label.c_str(), &index, cstrs.data(), static_cast<int>(cstrs.size()));
-	//}
-
 	DrawAttackNodeEditor(attackGraph_[attackName]);
 
 	ImGui::Separator();
@@ -363,94 +327,60 @@ void PlayerCombat::DrawAttackNodeEditor(AttackNode& node)
 	ImGui::Text("Attack : %s", node.name.c_str());
 	ImGui::Separator();
 
-	// 派生先一覧
-	for (size_t i = 0; i < node.nextAttacks.size(); ++i) {
-		ImGui::BulletText("-> %s", node.nextAttacks[i].c_str());
-	}
-
-	ImGui::Separator();
-
-	static int selectedNextIndex = 0;
-
-	if (ImGui::BeginCombo("Add Next Attack", "Select")) {
-		for (auto& [name, _] : attackGraph_) {
-			bool selected = false;
-			if (ImGui::Selectable(name.c_str(), selected)) {
-				node.nextAttacks.push_back(name);
-			}
-		}
-		ImGui::EndCombo();
-	}
-
-	for (size_t i = 0; i < node.nextAttacks.size(); ++i) {
-		ImGui::PushID((int)i);
-		ImGui::Text("%s", node.nextAttacks[i].c_str());
-		ImGui::SameLine();
-		if (ImGui::Button("X")) {
-			node.nextAttacks.erase(node.nextAttacks.begin() + i);
-			ImGui::PopID();
-			break;
-		}
-		ImGui::PopID();
-	}
-
-
-	for (auto& [name, node] : attackGraph_) {
-
-		// 派生数
-		global_->SetValue(name, "NextAttackCount", static_cast<int32_t>(node.nextAttacks.size()));
-
-		// 派生先
-		for (size_t i = 0; i < node.nextAttacks.size(); ++i) {
-			std::string key = "NextAttack_" + std::to_string(i);
-			global_->SetValue(name, key, node.nextAttacks[i]);
-		}
-
-		// 余分な古いデータ削除（重要）
-		global_->RemoveItem(name, "NextAttack_");
+	for (auto& next : node.nextAttacks) {
+		ImGui::BulletText("-> %s", next.c_str());
 	}
 }
 
-//void PlayerCombat::CreateEditorNode(const std::string& attackName)
-//{
-//	static NodeID nodeIdGen = 1;
-//	static PinID  pinIdGen = 100;
-//
-//	AttackNodeEditorData data{};
-//	data.nodeId = nodeIdGen++;
-//	data.inputPin = pinIdGen++;
-//
-//	// 出力ピンは派生数分
-//	for (size_t i = 0; i < attackGraph_[attackName].nextAttacks.size(); ++i) {
-//		data.outputPins.push_back(pinIdGen++);
-//	}
-//
-//	data.position = ImVec2(100, 100);
-//
-//	editorData_[attackName] = data;
-//}
-//
-//void PlayerCombat::DrawAttackNode(const std::string& name)
-//{
-//	//auto& node = attackGraph_[name];
-//	//auto& ed = editorData_[name];
-//
-//	//ax::NodeEditor::BeginNode(ed.nodeId);
-//
-//	//ImGui::Text("%s", name.c_str());
-//	//ImGui::Separator();
-//
-//	//// Input
-//	//ax::NodeEditor::BeginPin(ed.inputPin, ax::NodeEditor::PinKind::Input);
-//	//ImGui::Text("In");
-//	//ax::NodeEditor::EndPin();
-//
-//	//// Outputs
-//	//for (size_t i = 0; i < ed.outputPins.size(); ++i) {
-//	//	ax::NodeEditor::BeginPin(ed.outputPins[i], ax::NodeEditor::PinKind::Output);
-//	//	ImGui::Text("Next %zu", i);
-//	//	ax::NodeEditor::EndPin();
-//	//}
-//
-//	//ax::NodeEditor::EndNode();
-//}
+void PlayerCombat::DrawAttackDerivativeEditorUI()
+{
+#ifdef _DEBUG
+	static std::string selectedAttack;
+
+	ImGui::Begin("Attack Derivative Editor");
+
+	// --- 左：攻撃一覧 ---
+	ImGui::BeginChild("AttackList", ImVec2(200, 0), true);
+	for (auto& [name, node] : attackGraph_)
+	{
+		if (ImGui::Selectable(name.c_str(), selectedAttack == name))
+		{
+			selectedAttack = name;
+		}
+	}
+	ImGui::EndChild();
+
+	ImGui::SameLine();
+
+	// --- 右：派生先設定 ---
+	ImGui::BeginChild("DerivativeSetting", ImVec2(0, 0), true);
+
+	if (!selectedAttack.empty())
+	{
+		AttackNode& node = attackGraph_[selectedAttack];
+
+		ImGui::Text("Selected Attack: %s", selectedAttack.c_str());
+		ImGui::Separator();
+
+		for (auto& [targetName, targetNode] : attackGraph_)
+		{
+			if (targetName == selectedAttack)
+				continue;
+
+			bool hasLink = std::find(node.nextAttacks.begin(), node.nextAttacks.end(), targetName) != node.nextAttacks.end();
+
+			if (ImGui::Checkbox(targetName.c_str(), &hasLink)) {
+				if (hasLink) {
+					node.nextAttacks.push_back(targetName);
+				} else {
+					std::erase(node.nextAttacks, targetName);
+				}
+			}
+		}
+	}
+
+	ImGui::EndChild();
+
+	ImGui::End();
+#endif // DEBUG
+}

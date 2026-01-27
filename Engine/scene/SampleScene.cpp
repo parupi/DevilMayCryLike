@@ -17,8 +17,15 @@
 #include <3d/SkySystem/SkySystem.h>
 #include <offscreen/GaussianEffect.h>
 
+namespace ed = ax::NodeEditor;
+
 void SampleScene::Initialize()
 {
+	ed::Config config;
+	config.SettingsFile = "NodeTest.json"; // 自動保存用（任意）
+
+	context_ = ed::CreateEditor(&config);
+
 	// カメラの生成
 	normalCamera_ = std::make_unique<Camera>("GameCamera");
 	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
@@ -50,32 +57,34 @@ void SampleScene::Initialize()
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
-	emitter_ = std::make_unique<ParticleEmitter>();
-	emitter_->Initialize("test");
 
-	// 天球の生成
-	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
-	// オブジェクトを生成
-	object_ = std::make_unique<Object3d>("obj1");
-	object_->Initialize();
-	object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
+	//emitter_ = std::make_unique<ParticleEmitter>();
+	//emitter_->Initialize("test");
 
-	// レンダラーの追加
-	//RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
+	//// 天球の生成
+	//SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
-	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
+	//// オブジェクトを生成
+	//object_ = std::make_unique<Object3d>("obj1");
+	//object_->Initialize();
+	//object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
 
-	// モデルとアニメーション取得
-	SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
-	Animation* anim = model->GetAnimation();
+	//// レンダラーの追加
+	////RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
 
-	anim->Play("Falling", true, 0.5f);
+	//object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
-	for (int32_t i = 0; i < 1; i++) {
-		model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
-	}
+	//// モデルとアニメーション取得
+	//SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
+	//Animation* anim = model->GetAnimation();
+
+	//anim->Play("Falling", true, 0.5f);
+
+	//for (int32_t i = 0; i < 1; i++) {
+	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
+	//}
 	// ゲームオブジェクトを追加
 	//Object3dManager::GetInstance()->AddObject(std::move(object_));
 
@@ -88,20 +97,119 @@ void SampleScene::Initialize()
 	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
 	//lightManager_->AddDirectionalLight(std::move(dirLight));
 
-
-
-	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
-	OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
-	OffScreenManager::GetInstance()->AddEffect(std::make_unique<GaussianEffect>());
+	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
+	////OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
+	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
+	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GaussianEffect>());
 }
 
 void SampleScene::Finalize()
 {
+	if (context_) {
+		ed::DestroyEditor(context_);
+		context_ = nullptr;
+	}
 }
 
 void SampleScene::Update()
 {
+
+	ed::SetCurrentEditor(context_);
+
+	static bool initialized = false;
+	if (!initialized)
+	{
+		ed::SetNodePosition(1, ImVec2(100, 100));
+		ed::SetNodePosition(2, ImVec2(400, 100));
+		ed::SetNodePosition(3, ImVec2(700, 100));
+		initialized = true;
+	}
+
+	ed::Begin("NodeTest");
+
+	// -------------------------
+	 // ノード描画
+	 // -------------------------
+	for (const auto& node : nodes)
+	{
+		ed::BeginNode(node.id);
+
+		// タイトル
+		//ed::BeginNodeTitleBar();
+		//ImGui::TextUnformatted(node.name);
+		//ed::EndNodeTitleBar();
+
+		// Input Pin
+		ed::BeginPin(node.inputPin, ed::PinKind::Input);
+		ImGui::Text("In");
+		ed::EndPin();
+
+		ImGui::SameLine();
+
+		// Output Pin
+		ed::BeginPin(node.outputPin, ed::PinKind::Output);
+		ImGui::Text("Out");
+		ed::EndPin();
+
+		ed::EndNode();
+	}
+
+	// -------------------------
+	// 既存リンク描画
+	// -------------------------
+	for (const auto& link : links)
+	{
+		ed::Link(link.id, link.from, link.to);
+	}
+
+	// -------------------------
+	// リンク作成
+	// -------------------------
+	if (ed::BeginCreate())
+	{
+		ed::PinId startPin, endPin;
+		if (ed::QueryNewLink(&startPin, &endPin))
+		{
+			//// Input ← Output になるように補正
+			//if (ed::GetPinKind(startPin) == ed::PinKind::Input) {
+			//	std::swap(startPin, endPin);
+			//}
+
+			if (ed::AcceptNewItem()) {
+				links.push_back({
+					nextLinkId++,
+					(PinID)startPin.Get(),
+					(PinID)endPin.Get()
+					});
+			}
+		}
+	}
+	ed::EndCreate();
+
+	// -------------------------
+	// リンク削除
+	// -------------------------
+	if (ed::BeginDelete())
+	{
+		ed::LinkId linkId;
+		while (ed::QueryDeletedLink(&linkId))
+		{
+			if (ed::AcceptDeletedItem())
+			{
+				links.erase(
+					std::remove_if(
+						links.begin(),
+						links.end(),
+						[&](const Link& l) { return l.id == linkId.Get(); }
+					),
+					links.end()
+				);
+			}
+		}
+	}
+	ed::EndDelete();
+	ed::End();
+
 	emitter_->Update();
 
 

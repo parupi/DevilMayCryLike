@@ -131,6 +131,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollider.h" />
     <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.h" />
+    <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
     <ClInclude Include="App\GameObject\Character\Player\Movement\PlayerMovement.h" />
     <ClInclude Include="App\GameObject\Character\Player\Player.h" />
@@ -160,6 +161,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="App\scene\ClearScene.h" />
+    <ClInclude Include="App\scene\EditScene.h" />
     <ClInclude Include="App\scene\GameScene.h" />
     <ClInclude Include="App\scene\Object3dFactory.h" />
     <ClInclude Include="App\scene\SceneFactory.h" />
@@ -283,6 +285,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollider.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Movement\PlayerMovement.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp" />
@@ -310,6 +313,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
+    <ClCompile Include="App\scene\EditScene.cpp" />
     <ClCompile Include="App\scene\GameScene.cpp" />
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
     <ClCompile Include="App\scene\SceneFactory.cpp" />

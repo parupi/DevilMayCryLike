@@ -2,6 +2,7 @@
 #include <3d/Object/Renderer/RendererManager.h>
 #include <memory>
 #include "3d/Object/Renderer/ModelRenderer.h"
+#include <3d/Collider/CollisionManager.h>
 
 Ground::Ground(std::string objectName) : Object3d(objectName)
 {
@@ -16,22 +17,23 @@ void Ground::Initialize()
 	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
 
 	GetCollider(name_)->category_ = CollisionCategory::Ground;
+	//GetCollider(name_)->transform_->GetScale() = GetWorldTransform()->GetScale();
+	//CollisionManager::GetInstance()->FindCollider(name_);
+	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
+	//smokeEmitter_->Initialize(name_ + "Smoke");
+	//smokeEmitter_->SetParent(GetWorldTransform());
+	//smokeEmitter_->SetParticle("GameSmoke");
 
-	smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter_->Initialize(name_ + "Smoke");
-	smokeEmitter_->SetParent(GetWorldTransform());
-	smokeEmitter_->SetParticle("GameSmoke");
-
-	circleEmitter_ = std::make_unique<ParticleEmitter>();
-	circleEmitter_->Initialize(name_ + "Circle");
-	circleEmitter_->SetParent(GetWorldTransform());
-	circleEmitter_->SetParticle("GameCircle");
+	//circleEmitter_ = std::make_unique<ParticleEmitter>();
+	//circleEmitter_->Initialize(name_ + "Circle");
+	//circleEmitter_->SetParent(GetWorldTransform());
+	//circleEmitter_->SetParticle("GameCircle");
 }
 
 void Ground::Update()
 {
-	smokeEmitter_->Update();
-	circleEmitter_->Update();
+	//smokeEmitter_->Update();
+	//circleEmitter_->Update();
 
 	Object3d::Update();
 }
@@ -45,9 +47,9 @@ void Ground::Draw()
 #ifdef _DEBUG
 void Ground::DebugGui()
 {
-	//ImGui::Begin("Ground");
-	//Object3d::DebugGui();
-	//ImGui::End();
+	ImGui::Begin("Ground");
+	Object3d::DebugGui();
+	ImGui::End();
 }
 #endif // _DEBUG
 

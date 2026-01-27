@@ -17,14 +17,14 @@ void PlayerStateIdle::Update(Player& player)
 
 		if (player.IsLockOn()) {
 			if (input->TriggerButton(PadNumber::ButtonY) && input->GetLeftStickY() < 0.0f) {
-				player.ChangeState("AttackHighTime");
+				player.RequestAttack(AttackType::RoundUp);
 				return;
 			}
 		}
 
 		// 攻撃のトリガー
 		if (input->TriggerButton(PadNumber::ButtonY)) {
-			player.ChangeState("AttackComboA1");
+			player.RequestAttack(AttackType::Normal);
 			return;
 		}
 
@@ -41,13 +41,11 @@ void PlayerStateIdle::Update(Player& player)
 
 		// 攻撃のトリガー
 		if (Input::GetInstance()->TriggerKey(DIK_J)) {
-			//player.ChangeState("AttackComboA1");
 			player.RequestAttack(AttackType::Normal);
 			return;
 		}
 		// 攻撃のトリガー
 		if (Input::GetInstance()->TriggerKey(DIK_H)) {
-			//player.ChangeState("AttackHighTime");
 			player.RequestAttack(AttackType::RoundUp);
 			return;
 		}

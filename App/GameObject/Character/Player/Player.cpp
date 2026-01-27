@@ -200,6 +200,7 @@ void Player::Draw()
 	//		attackState->DrawControlPoints(*this);
 	//	}
 	//}
+	combat_->Draw();
 
 	SpriteManager::GetInstance()->DrawSet();
 	attackBranchUI_->Draw();
