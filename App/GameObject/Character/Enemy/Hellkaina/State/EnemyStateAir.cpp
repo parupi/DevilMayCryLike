@@ -5,7 +5,7 @@ void EnemyStateAir::Enter(Enemy& enemy)
 	enemy.SetAcceleration({ 0.0f, -9.8f, 0.0f });
 }
 
-void EnemyStateAir::Update(Enemy& enemy)
+void EnemyStateAir::Update(Enemy& enemy, float deltaTime)
 {
 	if (enemy.GetOnGround()) {
 		enemy.ChangeState("Move");

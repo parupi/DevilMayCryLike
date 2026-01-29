@@ -7,7 +7,7 @@ void PlayerStateMove::Enter(Player& player)
 	player.GetAcceleration().y = 0.0f;
 }
 
-void PlayerStateMove::Update(Player& player)
+void PlayerStateMove::Update(Player& player, float deltaTime)
 {
 	Input* input = Input::GetInstance();
 	//Move(player);

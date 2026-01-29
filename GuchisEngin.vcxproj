@@ -162,7 +162,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="App\scene\ClearScene.h" />
     <ClInclude Include="App\scene\EditScene.h" />
-    <ClInclude Include="App\scene\GameScene.h" />
+    <ClInclude Include="App\scene\GameScene\GameScene.h" />
     <ClInclude Include="App\scene\Object3dFactory.h" />
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
@@ -266,6 +266,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="App\GameObject\Camera\LockOnCamera.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateBase.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStatePlay.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateMenu.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -315,7 +322,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
     <ClCompile Include="App\scene\EditScene.cpp" />
-    <ClCompile Include="App\scene\GameScene.cpp" />
+    <ClCompile Include="App\scene\GameScene\GameScene.cpp" />
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
@@ -405,7 +412,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateBase.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStatePlay.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateMenu.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

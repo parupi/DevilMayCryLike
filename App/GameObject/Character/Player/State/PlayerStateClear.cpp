@@ -4,7 +4,7 @@ void PlayerStateClear::Enter(Player& player)
 {
 }
 
-void PlayerStateClear::Update(Player& player)
+void PlayerStateClear::Update(Player& player, float deltaTime)
 {
 }
 

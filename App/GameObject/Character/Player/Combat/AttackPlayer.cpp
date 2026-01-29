@@ -21,7 +21,7 @@ void AttackPlayer::Update(float deltaTime)
 		float dt = DeltaTime::GetDeltaTime();
 		debugTime_ += dt;
 
-		AttackRequestData req = currentAttack_->Update(*player_);
+		AttackRequestData req = currentAttack_->Update(*player_, deltaTime);
 
 		if (currentAttack_->IsFinished()) {
 			Stop();

@@ -41,6 +41,8 @@ public:
 	Object3d* FindObject(std::string objectName);
 
 	std::vector<Object3d*> GetAllObject();
+	// 時間を設定する
+	void SetDeltaTime(float deltaTime) { deltaTime_ = deltaTime; }
 private:
 	// DirectXのポインタ
 	DirectXManager* dxManager_ = nullptr;
@@ -51,6 +53,8 @@ private:
 	BlendMode blendMode_ = BlendMode::kNone;
 
 	std::vector<std::unique_ptr<Object3d>> objects_;
+
+	float deltaTime_ = 0.0f;
 
 public: // ゲッター // セッター //
 	DirectXManager* GetDxManager() const { return dxManager_; }

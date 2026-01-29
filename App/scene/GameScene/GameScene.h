@@ -1,12 +1,15 @@
 #pragma once
-#include <scene/BaseScene.h>
+#include "scene/BaseScene.h"
+
+#include "GameObject/Camera/GameCamera.h"
+#include "3d/Light/LightManager.h"
+#include "GameObject/UI/StageStart/StageStart.h"
+#include "GameObject/Character/Player/Player.h"
+#include "GameObject/Camera/ClearCamera.h"
+#include "GameObject/UI/GameUI/GameUI.h"
+#include "scene/GameScene/State/GameSceneStateBase.h"
+#include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
-#include <GameObject/Camera/GameCamera.h>
-#include <3d/Light/LightManager.h>
-#include <GameObject/UI/StageStart/StageStart.h>
-#include <GameObject/Character/Player/Player.h>
-#include <GameObject/Camera/ClearCamera.h>
-#include <GameObject/UI/GameUI/GameUI.h>
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -59,7 +62,21 @@ public:
 	void DebugUpdate() override;
 #endif // _DEBUG
 
+	// ステートを切り替える
+	void ChangeState(const std::string& stateName);
+
+	void SetSceneTime(float time) { sceneTime_ = time; }
+
+	Sprite* GetMuskSprite() { return musk_.get(); }
+	float GetMuskAlpha() const { return muskAlpha_; }
+	void SetMuskAlpha(float alpha) { muskAlpha_ = alpha; }
+
+	MenuUI* GetMenuUI() { return menuUI_.get(); }
+
 private:
+	std::unordered_map<std::string, std::unique_ptr<GameSceneStateBase>> states_;
+	GameSceneStateBase* currentState_ = nullptr;
+
 	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
 	ClearCamera* clearCamera_ = nullptr;
@@ -68,9 +85,16 @@ private:
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
 
-	std::unique_ptr<Sprite> deathUI_ = nullptr;
-
 	StageStart stageStart_; ///< ステージ開始時のカメラ演出（「STAGE START」など）
 
 	std::unique_ptr<GameUI> gameUI_;
+
+	// マスクを掛けるためのスプライト
+	std::unique_ptr<Sprite> musk_ = nullptr;
+	float muskAlpha_ = 0.0f;
+
+	// メニューのスプライト
+	std::unique_ptr<MenuUI> menuUI_ = nullptr;
+
+	float sceneTime_ = 0.0f;
 };

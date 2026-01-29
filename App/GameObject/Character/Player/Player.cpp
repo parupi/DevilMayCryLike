@@ -79,15 +79,15 @@ void Player::Initialize()
 	attackBranchUI_->SetVisible(false);
 }
 
-void Player::Update()
+void Player::Update(float deltaTime)
 {
 	// カメラ合切り替え中とフェード中は動かさない
-	if (!TransitionManager::GetInstance()->IsFinished()/* || CameraManager::GetInstance()->IsTransition()*/) {
+	if (!TransitionManager::GetInstance()->IsFinished()/* || CameraManager::GetInstance()->IsTransition()*/ || isMenu_) {
 		// 最初から更新しておきたいものはここに入れておく
 		hitStop_->Update();
 		scoreManager->Update();
-		weapon_->Update();
-		Object3d::Update();
+		weapon_->Update(deltaTime);
+		Object3d::Update(deltaTime);
 		return;
 	}
 
@@ -102,18 +102,18 @@ void Player::Update()
 	LockOn();
 
 
- 	weapon_->Update();
+ 	weapon_->Update(deltaTime);
 
 
 	if (!combat_->IsAttacking()) {
-		stateMachine_->UpdateCurrentState(*this);
+		stateMachine_->UpdateCurrentState(*this, deltaTime);
 	}
-	combat_->Update();
+	combat_->Update(deltaTime);
 
-	GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
-	velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
+	GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
+	velocity_ += acceleration_ * deltaTime;
 
-	Object3d::Update();
+	Object3d::Update(deltaTime);
 	// 毎フレーム切っておく
 	onGround_ = false;
 

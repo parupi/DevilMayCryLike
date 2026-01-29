@@ -7,7 +7,7 @@ public:
 	HellkainaStateAttackB() = default;
 	~HellkainaStateAttackB() override = default;
 	void Enter(Enemy& enemy) override;
-	void Update(Enemy& enemy) override;
+	void Update(Enemy& enemy, float deltaTime) override;
 	void Exit(Enemy& enemy) override;
 
 private:

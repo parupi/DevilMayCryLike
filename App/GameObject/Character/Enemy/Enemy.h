@@ -29,7 +29,7 @@ public:
     /// 敵の更新処理  
     /// 現在の状態（ステート）に応じた行動・移動・攻撃を行う。
     /// </summary>
-    virtual void Update() override;
+    virtual void Update(float deltaTime) override;
 
     /// <summary>
     /// 敵の描画処理  

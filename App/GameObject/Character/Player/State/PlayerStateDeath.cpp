@@ -47,7 +47,7 @@ void PlayerStateDeath::Enter(Player& player)
 	currentTime_ = 0.0f;
 }
 
-void PlayerStateDeath::Update(Player& player)
+void PlayerStateDeath::Update(Player& player, float deltaTime)
 {
 	if (currentTime_ <= 0.0f) {
 		CameraManager::GetInstance()->SetActiveCamera("DeathCamera");

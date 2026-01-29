@@ -233,7 +233,7 @@ void SampleScene::Update()
 
 	lightManager_->UpdateAllLight();
 
-	object_->Update();
+	object_->Update(DeltaTime::GetDeltaTime());
 
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
 

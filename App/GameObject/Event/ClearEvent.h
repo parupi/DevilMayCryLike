@@ -23,7 +23,7 @@ public:
 	/// 更新処理  
 	/// 対象の敵が全滅したかどうかを監視する
 	/// </summary>
-	void Update() override;
+	void Update(float deltaTime) override;
 
 	/// <summary>
 	/// イベントを発動する処理

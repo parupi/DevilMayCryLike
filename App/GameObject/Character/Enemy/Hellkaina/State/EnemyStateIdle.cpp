@@ -9,7 +9,7 @@ void EnemyStateIdle::Enter(Enemy& enemy)
     enemy;
 }
 
-void EnemyStateIdle::Update(Enemy& enemy)
+void EnemyStateIdle::Update(Enemy& enemy, float deltaTime)
 {
     if (!enemy.GetOnGround()) {
         enemy.ChangeState("Air");
@@ -38,7 +38,7 @@ void EnemyStateIdle::Update(Enemy& enemy)
     constexpr float kAttackCooldownTime = 1.0f;
 
     if (isAttackCooldown) {
-        cooldownTimer += DeltaTime::GetDeltaTime();
+        cooldownTimer += deltaTime;
         if (cooldownTimer >= kAttackCooldownTime) {
             cooldownTimer = 0.0f;
             isAttackCooldown = false;

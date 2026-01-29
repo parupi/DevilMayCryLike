@@ -26,7 +26,7 @@ void HellkainaStateAttackB::Enter(Enemy& enemy)
 	};
 }
 
-void HellkainaStateAttackB::Update(Enemy& enemy)
+void HellkainaStateAttackB::Update(Enemy& enemy, float deltaTime)
 {
 	timer_ += DeltaTime::GetDeltaTime();
 	float t = timer_ / time_;
@@ -40,7 +40,7 @@ void HellkainaStateAttackB::Update(Enemy& enemy)
 	Vector3 dir = Normalize(enemy.GetPlayer()->GetWorldTransform()->GetTranslation() - enemy.GetWorldTransform()->GetTranslation());
 	dir.y = 0.0f;
 	Vector3 velocity = dir * 16.0f;
-	enemy.GetWorldTransform()->GetTranslation() += velocity * DeltaTime::GetDeltaTime();
+	enemy.GetWorldTransform()->GetTranslation() += velocity * deltaTime;
 
 	if (timer_ >= time_) {
 		enemy.ChangeState("Idle");

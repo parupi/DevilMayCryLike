@@ -25,11 +25,11 @@ void PlayerStateMachine::AddState(string stateName, unique_ptr<PlayerStateBase> 
 	states_[stateName] = move(state);
 }
 
-void PlayerStateMachine::UpdateCurrentState(Player& player)
+void PlayerStateMachine::UpdateCurrentState(Player& player, float deltaTime)
 {
 	// 現在のステートを更新
 	if (currentState_) {
-		currentState_->Update(player);
+		currentState_->Update(player, deltaTime);
 	}
 }
 

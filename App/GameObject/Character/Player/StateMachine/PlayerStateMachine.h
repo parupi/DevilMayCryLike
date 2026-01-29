@@ -15,7 +15,7 @@ public:
 	// ステートの追加
 	void AddState(std::string stateName, std::unique_ptr<PlayerStateBase> state);
 	// 現在のステートの更新
-	void UpdateCurrentState(Player& player);
+	void UpdateCurrentState(Player& player, float deltaTime);
 	// ステートの変更
 	void ChangeState(Player& player, std::string stateName);
 	// 現在のステートを取得

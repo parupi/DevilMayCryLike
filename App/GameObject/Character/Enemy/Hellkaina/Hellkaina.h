@@ -10,7 +10,7 @@ public:
     // 初期化
     void Initialize() override;
     // 更新
-    void Update() override;
+    void Update(float deltaTime) override;
 
 #ifdef _DEBUG
     void DebugGui() override;

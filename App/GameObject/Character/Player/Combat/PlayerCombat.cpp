@@ -17,7 +17,7 @@ void PlayerCombat::Initialize(Player* player)
 	attackPlayer_->SetAttacks(list);
 }
 
-void PlayerCombat::Update()
+void PlayerCombat::Update(float deltaTime)
 {
 	// 毎フレーム
 	attackPlayer_->Update(DeltaTime::GetDeltaTime());
@@ -28,14 +28,13 @@ void PlayerCombat::Update()
 	DrawAttackDataEditorUI();
 	for (auto& state : states_) {
 		state.second->UpdateAttackData();
-		//state.second->DrawControlPoints(*player_);
 	}
 
 	if (currentState_.empty()) return;
 
 	auto& top = currentState_.back();
 
-	auto req = top->Update(*player_);
+	auto req = top->Update(*player_, deltaTime);
 
 	if (top->IsFinished()) {
 		top->Exit(*player_);

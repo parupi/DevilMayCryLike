@@ -7,7 +7,7 @@ void PlayerStateAir::Enter(Player& player)
 
 }
 
-void PlayerStateAir::Update(Player& player)
+void PlayerStateAir::Update(Player& player, float deltaTime)
 {
 	// 空中でも移動可
 	player.Move();

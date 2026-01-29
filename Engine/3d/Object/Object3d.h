@@ -27,7 +27,7 @@ public: // メンバ関数
 	// 初期化処理
 	virtual void Initialize();
 	// 更新処理
-	virtual void Update();
+	virtual void Update(float deltaTime);
 	virtual void Draw();
 
 	void ResetObject();

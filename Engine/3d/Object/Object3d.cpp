@@ -26,7 +26,7 @@ void Object3d::Initialize()
 	camera_ = objectManager_->GetDefaultCamera();
 }
 
-void Object3d::Update()
+void Object3d::Update(float deltaTime)
 {
 	for (size_t i = 0; i < renders_.size(); i++) {
 		renders_[i]->Update(transform_.get());

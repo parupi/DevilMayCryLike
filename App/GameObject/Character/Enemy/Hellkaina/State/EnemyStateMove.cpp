@@ -9,14 +9,14 @@ void EnemyStateMove::Enter(Enemy& enemy)
     enemy;
 }
 
-void EnemyStateMove::Update(Enemy& enemy)
+void EnemyStateMove::Update(Enemy& enemy, float deltaTime)
 {
     if (!enemy.GetOnGround()) {
         enemy.ChangeState("Air");
         return;
     }
 
-    stateTime_.current += (1.0f / stateTime_.max) * DeltaTime::GetDeltaTime();
+    stateTime_.current += (1.0f / stateTime_.max) * deltaTime;
 
     // 敵の現在の速度を取得
     Vector3 currentVelocity = enemy.GetVelocity();

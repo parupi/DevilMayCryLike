@@ -8,7 +8,7 @@ public:
 	// 初期
 	void Initialize() override;
 	// 更新
-	void Update() override;
+	void Update(float deltaTime) override;
 	// 描画
 	void Draw() override;
 
