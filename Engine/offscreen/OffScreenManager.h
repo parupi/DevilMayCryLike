@@ -26,6 +26,8 @@ public:
 	void DrawPostEffect();
 	// オフスクリーンの追加
 	void AddEffect(std::unique_ptr<BaseOffScreen> effect);
+	// エフェクトを探す
+	BaseOffScreen* FindEffect(const std::string& name);
 
 	void BeginDrawToPingPong();
 

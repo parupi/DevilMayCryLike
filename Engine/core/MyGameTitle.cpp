@@ -17,7 +17,7 @@ void MyGameTitle::Initialize()
 #ifdef _DEBUG
 	// ImGui初期化
 	ImGuiManager::GetInstance()->Initialize(winManager.get(), dxManager.get());
-#endif // DEBUG
+#endif // IMGUI
 	// 2Dテクスチャマネージャーの初期化
 	TextureManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
 	// 3Dテクスチャマネージャーの初期化
@@ -60,7 +60,7 @@ void MyGameTitle::Finalize()
 	ImGuiManager::GetInstance()->Finalize();
 #endif // DEBUG
 	PrimitiveLineDrawer::GetInstance()->Finalize();
-	RendererManager::GetInstance()->Finalize();
+
 	SkySystem::GetInstance()->Finalize();
 
 	// シーン
@@ -75,6 +75,7 @@ void MyGameTitle::Finalize()
 	ModelManager::GetInstance()->Finalize();            
 
 	// 基盤系
+	RendererManager::GetInstance()->Finalize();
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
@@ -97,8 +98,10 @@ void MyGameTitle::Update()
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
+
 	OffScreenManager::GetInstance()->Update();
 #ifdef _DEBUG
+	SceneManager::GetInstance()->DebugUpdate();
 	ImGuiManager::GetInstance()->End();
 #endif // DEBUG
 }

@@ -2,7 +2,7 @@
 #include "BaseRenderer.h"
 #include <3d/Object/Model/Model.h>
 #include <3d/Camera/CameraManager.h>
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 
 enum class PrimitiveType {
     Plane,

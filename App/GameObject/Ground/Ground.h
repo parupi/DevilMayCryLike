@@ -1,5 +1,6 @@
 #pragma once
 #include "3d/Object/Object3d.h"
+#include <base/Particle/ParticleEmitter.h>
 class Ground : public Object3d
 {
 public:
@@ -8,7 +9,7 @@ public:
 	// 初期
 	void Initialize() override;
 	// 更新
-	void Update() override;
+	void Update(float deltaTime) override;
 	// 描画
 	void Draw() override;
 
@@ -16,5 +17,8 @@ public:
 	void DebugGui() override;
 #endif // _DEBUG
 
+private:
+	std::unique_ptr<ParticleEmitter> smokeEmitter_;
+	std::unique_ptr<ParticleEmitter> circleEmitter_;
 };
 

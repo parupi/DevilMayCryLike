@@ -1,6 +1,5 @@
 #include "ImGuiManager.h"
 #ifdef _DEBUG
-
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_win32.h>
 #include <imgui/imgui_impl_dx12.h>
@@ -26,8 +25,8 @@ void ImGuiManager::Initialize(WindowManager* winManager, DirectXManager* directX
 	// ImGuiのコンテキストを生成
 	ImGui::CreateContext();
 
-	ImGuiIO& io = ImGui::GetIO();
-	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	//ImGuiIO& io = ImGui::GetIO();
+	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// ImGuiのスタイルを設定
 	ImGui::StyleColorsDark();

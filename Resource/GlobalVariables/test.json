@@ -1,5 +1,6 @@
 {
     "test": {
+        "BlendMode": 2,
         "Count": 2,
         "EmitAll": false,
         "EmitPosition": [
@@ -7,9 +8,11 @@
             0.0,
             0.0
         ],
+        "FadeType": 2,
         "Frequency": 5.0,
         "IsActive": false,
         "IsBillboard": false,
+        "ShrinkStartRatio": 0.29899999499320984,
         "maxAlpha": 1.0,
         "maxColor": [
             1.0,
@@ -24,12 +27,12 @@
         ],
         "maxScale": [
             0.5,
-            5.0,
+            3.0,
             0.5
         ],
         "maxTranslate": [
             0.30000001192092896,
-            1.2000000476837158,
+            3.0,
             0.30000001192092896
         ],
         "maxVelocity": [
@@ -51,12 +54,12 @@
         ],
         "minScale": [
             0.25,
-            3.0,
+            2.5,
             0.25
         ],
         "minTranslate": [
             -0.30000001192092896,
-            0.8999999761581421,
+            2.0,
             -0.30000001192092896
         ],
         "minVelocity": [

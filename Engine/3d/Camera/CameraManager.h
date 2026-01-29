@@ -1,7 +1,7 @@
 #pragma once
 #include <map>
 #include <memory>
-#include "Camera.h"
+#include "3d/Camera/BaseCamera.h"
 #include <mutex>
 #include "base/DirectXManager.h"
 
@@ -23,7 +23,7 @@ public:
 	// 終了
 	void Finalize();
 	// カメラを追加する
-	void AddCamera(std::unique_ptr<Camera> camera);
+	void AddCamera(std::unique_ptr<BaseCamera> camera);
 
 	// アクティブなカメラを更新する
 	void Update();
@@ -32,7 +32,10 @@ public:
 	void SetActiveCamera(const std::string& cameraName, float transitionTime = 0.0f);
 
 	// アクティブなカメラを取得する
-	Camera* GetActiveCamera() const;
+	BaseCamera* GetActiveCamera() const;
+
+	// 現在のカメラを取得する
+	BaseCamera* GetCurrentCamera() const;
 
 	// アクティブなカメラをシェーダーに送る
 	void BindCameraToShader();
@@ -41,6 +44,9 @@ public:
 
 	// 今カメラ切り替えをしているかどうかの判定
 	bool IsTransition() const { return isTransitioning_; }
+
+	// 名前からカメラを探す
+	BaseCamera* FindCamera(const std::string& name) { return cameras_[name].get(); }
 private:
 	// 補間の更新
 	void TransitionUpdate();
@@ -52,7 +58,7 @@ private:
 	};
 private:
 	// カメラを名前で管理
-	std::unordered_map<std::string, std::unique_ptr<Camera>> cameras_;
+	std::unordered_map<std::string, std::unique_ptr<BaseCamera>> cameras_;
 	// 現在のアクティブカメラ名
 	std::string activeCameraName_;
 	// 切り替わる先のカメラ名
@@ -63,6 +69,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
 
 	CameraForGPU* cameraData_ = nullptr;
+
+	// 切り替え保管用のカメラ
+	std::unique_ptr<BaseCamera> transitionCamera_ = nullptr;
 
 	// 補間関連
 	bool isTransitioning_ = false;

@@ -8,7 +8,7 @@
 #include <fstream>
 #include "Model/Model.h"
 #include "Model/BaseModel.h"
-#include <3d/Camera/Camera.h>
+#include "3d/Camera/BaseCamera.h"
 #include <3d/Object/Renderer/BaseRenderer.h>
 #include <3d/Collider/BaseCollider.h>
 class Object3dManager;
@@ -27,7 +27,7 @@ public: // メンバ関数
 	// 初期化処理
 	virtual void Initialize();
 	// 更新処理
-	virtual void Update();
+	virtual void Update(float deltaTime);
 	virtual void Draw();
 
 	void ResetObject();
@@ -45,7 +45,7 @@ public: // メンバ関数
 
 private: // メンバ変数
 	Object3dManager* objectManager_ = nullptr;
-	Camera* camera_ = nullptr;
+	BaseCamera* camera_ = nullptr;
 	std::unique_ptr<WorldTransform> transform_;
 
 	std::vector<BaseRenderer*> renders_;
@@ -55,6 +55,8 @@ private: // メンバ変数
 	struct DrawOption {
 		BlendMode blendMode = BlendMode::kNormal;
 	}drawOption_;
+	// 描画するかどうかの設定
+	bool isDraw = true;
 
 public: // ゲッター // セッター // 
 	// レンダー追加処理
@@ -64,9 +66,11 @@ public: // ゲッター // セッター //
 	BaseRenderer* GetRenderer(std::string name_);
 	BaseCollider* GetCollider(std::string name_);
 	// カメラ
-	void SetCamera(Camera* camera) { camera_ = camera; }
+	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 
 	DrawOption GetOption() const { return drawOption_; }
+
+	void SetIsDraw(bool flag) { isDraw = flag; }
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }

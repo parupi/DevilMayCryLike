@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <scene/Transition/SceneTransitionController.h>
 
-TitleCamera::TitleCamera(std::string objectName) : Camera(objectName)
+TitleCamera::TitleCamera(std::string objectName) : BaseCamera(objectName)
 {
 }
 
@@ -52,7 +52,7 @@ void TitleCamera::Update()
 		break;
 	}
 
-	Camera::Update();
+	BaseCamera::Update();
 }
 
 void TitleCamera::Enter()
@@ -75,4 +75,5 @@ void TitleCamera::Exit()
 	stateTimer_ = 0.0f;
 	stateTime_ = 1.5f;
 	titleState_ = TitleState::Exit;
+	isExit_ = true;
 }

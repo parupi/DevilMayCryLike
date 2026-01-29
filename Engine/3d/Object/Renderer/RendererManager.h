@@ -22,6 +22,8 @@ public:
 	void Finalize();
 	// 更新処理
 	void Update();
+	//
+	void DeleteAllRenderer();
 	// オブジェクト削除
 	void RemoveDeadObjects();
 	// レンダー追加処理

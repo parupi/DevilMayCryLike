@@ -1,5 +1,7 @@
 #include "PointLight.h"
+#ifdef USE_IMGUI
 #include <imgui.h>
+#endif // IMGUI
 
 PointLight::PointLight(const std::string& name) : BaseLight(name)
 {
@@ -28,6 +30,7 @@ void PointLight::Update()
 
 void PointLight::DrawLightEditor()
 {
+#ifdef USE_IMGUI
     ImGui::Begin(name_.c_str());
 
     if (ImGui::TreeNode("Point Light Settings")) {
@@ -61,10 +64,11 @@ void PointLight::DrawLightEditor()
 
     // ====== セーブ & ロード ======
     if (ImGui::Button("Save##Light")) {
-        global_->SaveFile(name_);
+        global_->SaveFile("Light", name_);
     }
 
     ImGui::End();
+#endif // IMGUI
 }
 
 void PointLight::CreateLightResource()

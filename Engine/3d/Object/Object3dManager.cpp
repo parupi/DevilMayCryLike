@@ -38,7 +38,7 @@ void Object3dManager::Update()
 {
 	for (auto& object : objects_) {
 		if (!object) continue;
-		object->Update();
+		object->Update(deltaTime_);
 	}
 }
 

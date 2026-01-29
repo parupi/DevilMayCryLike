@@ -4,6 +4,10 @@
 #include <3d/WorldTransform.h>
 #include <numbers>
 #include "Model/ModelManager.h"
+#ifdef _DEBUG
+#include <imgui.h>
+#endif // IMGUI
+#include <3d/Camera/CameraManager.h>
 
 Object3d::Object3d(std::string objectName)
 {
@@ -22,7 +26,7 @@ void Object3d::Initialize()
 	camera_ = objectManager_->GetDefaultCamera();
 }
 
-void Object3d::Update()
+void Object3d::Update(float deltaTime)
 {
 	for (size_t i = 0; i < renders_.size(); i++) {
 		renders_[i]->Update(transform_.get());
@@ -30,7 +34,7 @@ void Object3d::Update()
 
 	transform_->TransferMatrix();
 
-	camera_ = objectManager_->GetDefaultCamera();
+	camera_ = CameraManager::GetInstance()->GetCurrentCamera();
 
 	Matrix4x4 worldViewProjectionMatrix;
 	if (camera_) {
@@ -42,12 +46,12 @@ void Object3d::Update()
 
 	transform_->SetMapWVP(worldViewProjectionMatrix);
 	transform_->SetMapWorld(transform_->GetMatWorld());
-
-
 }
 
 void Object3d::Draw()
 {
+	if (!isDraw) return;
+
 	for (size_t i = 0; i < renders_.size(); i++) {
 		// ComputeSkinningを前処理として呼ぶ（SkinnedModelなら）
 		if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {

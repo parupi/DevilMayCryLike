@@ -29,12 +29,15 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("TitleUnder.png");
 	TextureManager::GetInstance()->LoadTexture("TitleUp.png");
 	TextureManager::GetInstance()->LoadTexture("SelectArrow.png");
-	TextureManager::GetInstance()->LoadTexture("GameStart.png");
+
 	TextureManager::GetInstance()->LoadTexture("black.png");
 	TextureManager::GetInstance()->LoadTexture("SelectMask.png");
 
+	//TextureManager::GetInstance()->LoadTexture("GameStart.png");
+	TextureManager::GetInstance()->LoadTexture("TitleUI.png");
+
 	// カメラの生成
-	
+
 	cameraManager_->AddCamera(std::make_unique<TitleCamera>("TitleCamera"));
 	cameraManager_->SetActiveCamera("TitleCamera");
 
@@ -56,20 +59,24 @@ void TitleScene::Initialize()
 
 	smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter_->Initialize("TitleSmoke");
+	smokeEmitter_->SetParticle("TitleSmoke");
 
 	smokeEmitter2_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter2_->Initialize("TitleSmoke2");
+	smokeEmitter2_->SetParticle("TitleSmoke2");
 
 	sphereEmitter_ = std::make_unique<ParticleEmitter>();
 	sphereEmitter_->Initialize("TitleSphere");
+	sphereEmitter_->SetParticle("TitleSphere");
 
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
 
 	titleUI_ = std::make_unique<TitleUI>();
 	titleUI_->Initialize();
 
-	// 新しいトランジションの追加 // 追加したら勝手に設定してくれる
+	// 新しいトランジションの追加
 	TransitionManager::GetInstance()->AddTransition(std::make_unique<FadeTransition>("Fade"));
+	TransitionManager::GetInstance()->SetTransition("Fade");
 }
 
 void TitleScene::Finalize()
@@ -114,14 +121,18 @@ void TitleScene::DrawRTV()
 #ifdef _DEBUG
 void TitleScene::DebugUpdate()
 {
-
 }
 #endif // _DEBUG
 
 void TitleScene::ChangePhase()
 {
 	if (!camera_->IsExit()) {
-		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		if (Input::GetInstance()->IsConnected()) {
+			if (Input::GetInstance()->PushButton(PadNumber::ButtonA)) {
+				camera_->Exit();
+				titleUI_->Exit();
+			}
+		} else if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
 			camera_->Exit();
 			titleUI_->Exit();
 		}

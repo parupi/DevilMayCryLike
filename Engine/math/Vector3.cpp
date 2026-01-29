@@ -1,5 +1,7 @@
 #include "Vector3.h"
-#include <imgui/imgui.h>
+#ifdef USE_IMGUI
+#include <imgui.h>
+#endif // IMGUI
 #include <math/Quaternion.h>
 
 Vector3 Vector3::operator-() const
@@ -86,6 +88,24 @@ float Length(const Vector3& v) {
     return sqrtf(v.x * v.x + v.y * v.y + v.z * v.z);
 }
 
+Vector3 ClampLength(const Vector3& v, float maxLength)
+{
+    float lenSq = v.x * v.x + v.y * v.y + v.z * v.z;
+    float maxLenSq = maxLength * maxLength;
+
+    if (lenSq > maxLenSq && lenSq > 0.0f) {
+        float len = std::sqrt(lenSq);
+        float scale = maxLength / len;
+        return Vector3{
+            v.x * scale,
+            v.y * scale,
+            v.z * scale
+        };
+    }
+
+    return v;
+}
+
 Vector3 Normalize(const Vector3& v) {
     float len = Length(v);
     return { v.x / len, v.y / len, v.z / len };
@@ -103,9 +123,19 @@ Vector3 Lerp(const Vector3& start, const Vector3& end, float t) {
     return start * (1.0f - t) + end * t;
 }
 
+bool IsValidVector3(const Vector3& v)
+{
+    return
+        std::isfinite(v.x) &&
+        std::isfinite(v.y) &&
+        std::isfinite(v.z);
+}
+
 void PrintOnImGui(const Vector3& v, const char* label)
 {
+#ifdef USE_IMGUI
     ImGui::Begin(label);
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f)", "Vector3", v.x, v.y, v.z);
     ImGui::End();
+#endif // IMGUI
 }

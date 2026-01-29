@@ -7,6 +7,9 @@ void ParticleEmitter::Initialize(std::string name)
 	emitter.frequency = 0.5f;
 	emitter.isActive = true;
 
+	transform_ = std::make_unique<WorldTransform>();
+	transform_->Initialize();
+
 	GlobalVariables::GetInstance()->AddItem(emitter.name, "EmitPosition", Vector3{});
 	GlobalVariables::GetInstance()->AddItem(emitter.name, "Frequency", float{});
 	GlobalVariables::GetInstance()->AddItem(emitter.name, "IsActive", bool{});
@@ -22,10 +25,10 @@ void ParticleEmitter::Update(Vector3 position)
 
 	emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
 
-	if (position == Vector3(0.0f, 0.0f, 0.0f)) {
+	if (!transform_->GetParent()) {
 		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
 	} else {
-		emitter.transform.translate = position;
+		emitter.transform.translate = transform_->GetWorldPos();
 	}
 
 	if (emitter.isActive) {
@@ -56,13 +59,20 @@ void ParticleEmitter::Update(Vector3 position)
 #endif // _DEBUG
 }
 
-void ParticleEmitter::Emit() const
+void ParticleEmitter::Emit()
 {
-	ParticleManager::GetInstance()->Emit(emitter.name, emitter.transform.translate, emitter.count);
+	if (!transform_->GetParent()) {
+		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+	} else {
+		emitter.transform.translate = transform_->GetWorldPos();
+	}
+
+	ParticleManager::GetInstance()->Emit(particleName_, emitter.transform.translate, emitter.count);
 }
 
 void ParticleEmitter::UpdateParam() const
 {
+#ifdef _DEBUG
 	ImGui::Begin(emitter.name.c_str());
 	if (ImGui::TreeNode("Emitter")) {
 		// Emit Position
@@ -100,10 +110,11 @@ void ParticleEmitter::UpdateParam() const
 
 	// ====== Save ======
 	if (ImGui::Button("Save")) {
-		GlobalVariables::GetInstance()->SaveFile(emitter.name);
+		GlobalVariables::GetInstance()->SaveFile("Particle", emitter.name);
 		std::string message = std::format("{}.json saved.", emitter.name);
 		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 	}
 
 	ImGui::End();
+#endif // IMGUI
 }

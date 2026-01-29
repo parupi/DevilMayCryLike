@@ -1,0 +1,35 @@
+{
+    "Stinger": {
+        "AttackDuration": 0.0,
+        "AttackPosture": 0,
+        "Damage": 0.0,
+        "DrawDebugControlPoints": false,
+        "HitStopIntensity": 0.0,
+        "HitStopTime": 0.0,
+        "ImpulseForce": 0.0,
+        "KnockBackSpeed": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "MoveSpeed": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "NextAttackCount": 0,
+        "NextAttackDelay": 0.0,
+        "NextAttackIndex_0": -1,
+        "NextAttackIndex_1": -1,
+        "NextAttackIndex_2": -1,
+        "PointCount": 0,
+        "PostDelay": 0.0,
+        "Posture": 0,
+        "PreDelay": 0.0,
+        "ReactionType": 0,
+        "StunTime": 0.0,
+        "TorqueForce": 0.0,
+        "TotalDuration": 0.0,
+        "UpwardRatio": 0.0
+    }
+}

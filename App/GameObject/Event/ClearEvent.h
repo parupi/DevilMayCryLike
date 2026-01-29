@@ -1,6 +1,7 @@
 #pragma once
 #include "BaseEvent.h"
-#include <GameObject/Enemy/Enemy.h>
+#include <GameObject/Character/Enemy/Enemy.h>
+#include <GameObject/Character/Player/Player.h>
 
 /// <summary>
 /// 全ての敵を撃破した際に発動するクリアイベント
@@ -22,7 +23,7 @@ public:
 	/// 更新処理  
 	/// 対象の敵が全滅したかどうかを監視する
 	/// </summary>
-	void Update() override;
+	void Update(float deltaTime) override;
 
 	/// <summary>
 	/// イベントを発動する処理
@@ -36,8 +37,14 @@ public:
 
 private:
 	std::vector<Enemy*> targetEnemies_;
+	Player* player_ = nullptr;
+
 	bool isClear_ = false;
 
 	int skipFrames_ = 30;
 	int currentFrame_ = 0;
+
+	bool requested_ = false;
+	float waitTime_ = 0.0f;
+	float waitDuration_ = 0.5f;
 };

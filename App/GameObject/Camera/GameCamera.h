@@ -1,5 +1,5 @@
 #pragma once
-#include "3d/Camera/Camera.h"
+#include "3d/Camera/BaseCamera.h"
 #include "input/Input.h"
 
 class Player;
@@ -8,7 +8,7 @@ class Player;
 /// ゲーム中のプレイヤーを追従するカメラを管理するクラス
 /// プレイヤーの位置と入力に基づいてカメラを制御する
 /// </summary>
-class GameCamera : public Camera
+class GameCamera : public BaseCamera
 {
 public:
 	/// <summary>
@@ -28,6 +28,7 @@ public:
 	/// </summary>
 	void Update() override;
 
+	void SetHorizontalAngle(float angle) { horizontalAngle_ = angle; }
 private:
 	/// <summary>
 	/// 追従対象のプレイヤー

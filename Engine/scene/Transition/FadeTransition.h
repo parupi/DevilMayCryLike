@@ -1,5 +1,4 @@
 #pragma once
-
 #include <scene/Transition/BaseTransition.h>
 #include <memory>
 #include <2d/Sprite.h>

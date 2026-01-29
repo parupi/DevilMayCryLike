@@ -4,6 +4,9 @@
 #include <3d/SkySystem/SkySystem.h>
 #include <base/TextureManager.h>
 
+#ifdef _DEBUG
+#include <imgui.h>
+#endif // IMGUI
 PrimitiveRenderer::PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName) {
     name_ = renderName;
     localTransform_ = std::make_unique<WorldTransform>();
@@ -20,7 +23,7 @@ PrimitiveRenderer::~PrimitiveRenderer()
 }
 
 void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
-    Camera* camera = CameraManager::GetInstance()->GetActiveCamera();
+    BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
     if (!camera) return;
 
     model_->Update();

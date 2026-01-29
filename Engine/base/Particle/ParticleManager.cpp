@@ -72,7 +72,7 @@ void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 	CreateMaterialResource();
 
 	// jsonファイルの読み込み
-	global_->LoadFiles();
+	global_->LoadFiles("Particle");
 }
 
 
@@ -96,96 +96,92 @@ void ParticleManager::Update()
 		particleGroup.instanceCache.clear();
 		particleGroup.instanceCache.reserve(particleGroup.particleList.size());
 
+		std::vector<InstanceData> instanceList;
+		instanceList.reserve(particleGroup.particleList.size());
+
 		for (auto particleIterator = particleGroup.particleList.begin(); particleIterator != particleGroup.particleList.end();) {
-			if ((*particleIterator).lifeTime <= (*particleIterator).currentTime) {
-				// パーティクルが生存時間を超えたら削除
+			auto& particle = *particleIterator;
+
+			if (particle.lifeTime <= particle.currentTime) {
 				particleIterator = particleGroup.particleList.erase(particleIterator);
 				continue;
 			}
 
 			if (numInstance >= kNumMaxInstance) {
-				break;
+				// 超過したら残りはスキップしてループを進める（削除はしない）
+				++particleIterator;
+				continue;
 			}
 
-			// エディターで変更したBlendModeを設定しておく
+			// エディターで変更したBlendModeやフラグ取得（必要ならループ外で一回取得してもよい）
 			particleGroup.blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
-
-			// パーティクルの更新処理
-			float alpha = 1.0f;
-			float t = (*particleIterator).currentTime / (*particleIterator).lifeTime;
-
 			isBillboard_ = global_->GetValueRef<bool>(groupName, "IsBillboard");
+			particle.fadeType = static_cast<FadeType>(global_->GetValueRef<int>(groupName, "FadeType"));
 
-			(*particleIterator).fadeType = static_cast<FadeType>(global_->GetValueRef<int>(groupName, "FadeType"));
+			// 更新
+			float delta = DeltaTime::GetDeltaTime();
+			particle.transform.translate += particle.velocity * delta;
+			particle.currentTime += delta;
 
-			(*particleIterator).transform.translate += (*particleIterator).velocity * DeltaTime::GetDeltaTime();
-			(*particleIterator).currentTime += DeltaTime::GetDeltaTime();
+			float t = particle.currentTime / particle.lifeTime;
+			float alpha = 1.0f;
 
-			switch ((*particleIterator).fadeType) {
-			case FadeType::Alpha: {
-				// 透明度でフェードアウト
+			switch (particle.fadeType) {
+			case FadeType::Alpha:
 				alpha = 1.0f - t;
 				break;
-			}
 			case FadeType::ScaleShrink: {
-				// 寿命の90%を過ぎたら急速に縮む
 				const float shrinkStart = global_->GetValueRef<float>(groupName, "ShrinkStartRatio");
 				if (t > shrinkStart) {
 					float progress = (t - shrinkStart) / (1.0f - shrinkStart);
-					float scaleFactor = std::max(0.0f, 1.0f - progress * 1.0f); // 線形縮小
-					(*particleIterator).transform.scale = (*particleIterator).initialScale * scaleFactor;
+					float scaleFactor = std::max(0.0f, 1.0f - progress);
+					particle.transform.scale = particle.initialScale * scaleFactor;
 				} else {
-					(*particleIterator).initialScale = (*particleIterator).transform.scale;
+					particle.initialScale = particle.transform.scale;
 				}
 				break;
 			}
-			case FadeType::None:
-			default:
-				// 何もしない（そのまま表示）
-				break;
+			default: break;
 			}
 
-			// ワールド行列の計算
-			scaleMatrix = MakeScaleMatrix((*particleIterator).transform.scale);
-			translateMatrix = MakeTranslateMatrix((*particleIterator).transform.translate);
+			// world / wvp 計算
+			Matrix4x4 scaleMatrix = MakeScaleMatrix(particle.transform.scale);
+			Matrix4x4 translateMatrix = MakeTranslateMatrix(particle.transform.translate);
 			Matrix4x4 worldMatrix{};
 			if (isBillboard_) {
 				worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
 			} else {
-				worldMatrix = MakeAffineMatrix((*particleIterator).transform.scale, (*particleIterator).transform.rotate, (*particleIterator).transform.translate);
+				worldMatrix = MakeAffineMatrix(particle.transform.scale, particle.transform.rotate, particle.transform.translate);
 			}
 			Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
 
-			// ★ CPUキャッシュへ詰める
-			if (numInstance < kNumMaxInstance) {
-				InstanceData id{};
-				id.world = worldMatrix;
-				id.wvp = worldViewProjectionMatrix;
-				id.color = (*particleIterator).color;
-				id.color.w = alpha;
-				particleGroup.instanceCache.push_back(id);
+			// CPU キャッシュと instanceList へ追加
+			InstanceData id{};
+			id.world = worldMatrix;
+			id.wvp = worldViewProjectionMatrix;
+			id.color = particle.color;
+			id.color.w = alpha;
+			particleGroup.instanceCache.push_back(id);
 
-				// 既存のGPU配列も今は維持（後で削除予定）
-				instancingData_[numInstance].WVP = worldViewProjectionMatrix;
-				instancingData_[numInstance].World = worldMatrix;
-				instancingData_[numInstance].color = (*particleIterator).color;
-				instancingData_[numInstance].color.w = alpha;
+			// GPU 側の一次配列 (instancingData_) にも保存
+			instancingData_[numInstance].WVP = worldViewProjectionMatrix;
+			instancingData_[numInstance].World = worldMatrix;
+			instancingData_[numInstance].color = particle.color;
+			instancingData_[numInstance].color.w = alpha;
 
-				++numInstance;
-			}
+			instanceList.push_back(id);
 
-			std::vector<InstanceData> instanceList;
-			for (auto& particle : particleGroup.particleList) {
-				InstanceData data{};
-				data.world = worldMatrix;
-				data.wvp = worldViewProjectionMatrix;
-				data.color = particle.color;
-				data.color.w = alpha;
-				instanceList.push_back(data);
-			}
-			particleGroup.renderer->SetInstanceList(instanceList);
-
+			++numInstance;
 			++particleIterator;
+		}
+
+		// SetInstanceList はループ外で一度だけ呼ぶ
+		if (particleGroup.renderer) {
+			particleGroup.renderer->SetInstanceList(instanceList);
+		} else {
+			// 無効な renderer のログ（Release では落とさないようにするなら条件付き）
+			//assert(false && "particleGroup.renderer is null!");
+			return;
 		}
 
 		// インスタンス数の更新
@@ -200,13 +196,16 @@ void ParticleManager::Update()
 
 #ifdef _DEBUG
 		DrawEditor(global_, groupName);
-#endif // _DEBUG
+#endif
 	}
+
 }
 
 void ParticleManager::Draw()
 {
+	if (!dxManager_) { printf("Draw: dxManager_ is null\n"); return; }
 	auto commandList = dxManager_->GetCommandList();
+	if (!commandList) { printf("Draw: commandList is null\n"); return; }
 
 	// プリミティブ形状設定
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -218,21 +217,37 @@ void ParticleManager::Draw()
 			continue;
 		}
 
-		// === 各グループ専用ブレンドモードに切り替え ===
-		commandList->SetPipelineState(psoManager_->GetParticlePSO(particleGroup.blendMode));
-		
-		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
+		if (!psoManager_) { printf("Draw: psoManager_ is null\n"); return; }
 
+		// === 各グループ専用ブレンドモードに切り替え ===
+		auto pso = psoManager_->GetParticlePSO(particleGroup.blendMode);
+		if (!pso) { printf("Draw: PSO is null for group %s\n", groupName.c_str()); continue; }
+		commandList->SetPipelineState(pso);
+
+		auto signature = psoManager_->GetParticleSignature();
+		if (!signature) { printf("Draw: RootSignature is null for group %s\n", groupName.c_str()); continue; }
+		commandList->SetGraphicsRootSignature(signature);
+
+		if (!materialResource_) { printf("Draw: materialResource_ is null\n"); continue; }
 		// === 定数バッファ設定 ===
 		commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
+
+		if (!srvManager_) { printf("Draw: srvManager_ is null\n"); continue; }
 
 		// === SRV設定 ===
 		srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.srvIndex);
 
 		// === テクスチャ設定 ===
-		srvManager_->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.materialData.textureFilePath));
+		UINT texIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.materialData.textureFilePath);
+		srvManager_->SetGraphicsRootDescriptorTable(2, texIndex);
 
-		// === 描画 ===
+		// === renderer の存在チェック ===
+		if (!particleGroup.renderer) {
+			printf("Draw: particleGroup.renderer is null for group %s\n", groupName.c_str());
+			continue;
+		}
+
+		// ここで描画呼び出し
 		particleGroup.renderer->Draw();
 	}
 }
@@ -477,6 +492,7 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 
 void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
 {
+#ifdef USE_IMGUI
 	ImGui::Begin(groupName.c_str());
 
 	if (ImGui::TreeNode("Particle")) {
@@ -581,11 +597,18 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			ImGui::TreePop();
 		}
 
+		// ====== Save ======
+		if (ImGui::Button("Save")) {
+			GlobalVariables::GetInstance()->SaveFile("Particle", groupName);
+			std::string message = std::format("{}.json saved.", groupName);
+			MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
+		}
 
 		ImGui::TreePop();
 	}
 
 	ImGui::End();
+#endif // IMGUI
 }
 
 std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)

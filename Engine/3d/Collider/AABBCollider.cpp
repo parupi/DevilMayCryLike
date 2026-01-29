@@ -18,6 +18,8 @@ void AABBCollider::Update()
     max_ = transform_->GetWorldPos() + aabbData_.offsetMax;
     min_ = transform_->GetWorldPos() + aabbData_.offsetMin;
 
+    size_ = max_ - min_;
+
 	if (owner_ && transform_->GetParent() == nullptr) {
 		transform_->SetParent(owner_->GetWorldTransform());
 	}

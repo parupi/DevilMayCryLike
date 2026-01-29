@@ -1,5 +1,7 @@
 #include "Vector4.h"
+#ifdef USE_IMGUI
 #include <imgui.h>
+#endif // IMGUI
 #include "math/Matrix4x4.h" // 必要なMatrix4x4の定義を含むヘッダーをインクルード
 
 // ベクトルの加算
@@ -97,7 +99,9 @@ Vector4 Lerp(const Vector4& start, const Vector4& end, float t) {
 }
 
 void PrintOnImGui(const Vector4& v, const char* label) {
+#ifdef USE_IMGUI
     ImGui::Begin(label);
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f, w: %.2f)", "Vector4", v.x, v.y, v.z, v.w);
     ImGui::End();
+#endif // IMGUI
 }

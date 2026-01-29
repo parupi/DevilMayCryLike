@@ -1,0 +1,70 @@
+{
+    "AttackComboA1": {
+        "AttackDuration": 0.15000000596046448,
+        "AttackPosture": 0,
+        "ControlPoint_0": [
+            -0.75,
+            1.0,
+            0.10000000149011612
+        ],
+        "ControlPoint_1": [
+            -0.25,
+            1.5,
+            0.0
+        ],
+        "ControlPoint_2": [
+            0.0,
+            1.600000023841858,
+            1.0
+        ],
+        "ControlPoint_3": [
+            0.25,
+            0.5600000023841858,
+            1.5
+        ],
+        "ControlPoint_4": [
+            0.5,
+            -1.5700000524520874,
+            1.0
+        ],
+        "ControlPoint_5": [
+            0.75,
+            -3.0,
+            0.0
+        ],
+        "Damage": 1.0,
+        "DrawDebugControlPoints": false,
+        "HitStopIntensity": 0.03999999910593033,
+        "HitStopTime": 0.029999999329447746,
+        "ImpulseForce": 10.0,
+        "KnockBackSpeed": [
+            0.0,
+            1.0,
+            1.5
+        ],
+        "MoveSpeed": [
+            0.0,
+            0.0,
+            1.0
+        ],
+        "NextAttackCount": 2,
+        "NextAttackDelay": 0.3499999940395355,
+        "NextAttackIndex_0": 4,
+        "NextAttackIndex_1": 5,
+        "NextAttackIndex_2": 0,
+        "NextAttackIndex_3": 0,
+        "NextAttackIndex_4": 0,
+        "NextAttack_0": "AttackComboA2",
+        "NextAttack_1": "AttackComboB2",
+        "NextAttack_2": "",
+        "PointCount": 6,
+        "PostDelay": 0.07999999821186066,
+        "Posture": 0,
+        "PreDelay": 0.07999999821186066,
+        "ReactionType": 0,
+        "StunTime": 0.10000000149011612,
+        "TorqueForce": 0.0,
+        "TotalDuration": 0.6600000262260437,
+        "UpwardRatio": 0.0
+    }
+}

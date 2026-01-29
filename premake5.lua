@@ -30,6 +30,8 @@ project "GuchisEngin"
       -- ImGui関係を自前で含める
       "Externals/imgui/*.cpp",
       "Externals/imgui/*.h",
+      "Externals/imgui-node-editor/*.cpp",
+      "Externals/imgui-node-editor/*.h",
    }
 
    includedirs { 
@@ -39,6 +41,7 @@ project "GuchisEngin"
       "Externals",
       "Externals/assimp/include",
       "Externals/imgui",
+      "Externals/imgui-node-editor",
    }
 
    dependson { "DirectXTex" }
