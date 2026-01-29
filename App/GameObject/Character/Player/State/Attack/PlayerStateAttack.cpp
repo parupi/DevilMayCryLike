@@ -114,12 +114,8 @@ void PlayerStateAttack::Enter(Player& player)
 	isFinish_ = false;
 }
 
-AttackRequestData PlayerStateAttack::Update(Player& player, float currentTime)
+AttackRequestData PlayerStateAttack::Update(Player& player, float deltaTime)
 {
-	if (currentTime != 0.0f) {
-		stateTime_.current = currentTime;
-	}
-
 	AttackRequestData req{};
 	req.nextAttack = "";
 	req.type = AttackRequest::None;
@@ -131,12 +127,12 @@ AttackRequestData PlayerStateAttack::Update(Player& player, float currentTime)
 	}
 
 	// ===== スロー演出のための速度係数 =====
-	float slowFactor = 1.0f;
-	if (player.IsClear()) {
-		slowFactor = 0.2f;   // 20% の速度で動く（お好みで調整）
-	}
+	//float slowFactor = 1.0f;
+	//if (player.IsClear()) {
+	//	slowFactor = 0.2f;   // 20% の速度で動く（お好みで調整）
+	//}
 
-	stateTime_.current += DeltaTime::GetDeltaTime() * slowFactor;
+	stateTime_.current += deltaTime/* * slowFactor*/;
 
 	// 攻撃フェーズの更新処理
 	UpdatePhase(stateTime_.current);
@@ -148,7 +144,7 @@ AttackRequestData PlayerStateAttack::Update(Player& player, float currentTime)
 		break;
 	case AttackPhase::Active:
 	{
-		UpdateActive(player, slowFactor);
+		UpdateActive(player, deltaTime);
 		break;
 	}
 	case AttackPhase::Recovery:

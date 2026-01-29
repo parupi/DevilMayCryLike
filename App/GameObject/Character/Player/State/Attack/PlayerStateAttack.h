@@ -12,7 +12,7 @@ public:
 	PlayerStateAttack(std::string attackName);
 	~PlayerStateAttack() = default;
 	void Enter(Player& player);
-	AttackRequestData  Update(Player& player, float currentTime = 0.0f);
+	AttackRequestData  Update(Player& player, float deltaTime);
 	void Exit(Player& player);
 
 	AttackData GetAttackData() { return attackData_; }

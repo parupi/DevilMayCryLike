@@ -14,14 +14,14 @@ void EnemySpawnEvent::Initialize()
 {
 }
 
-void EnemySpawnEvent::Update()
+void EnemySpawnEvent::Update(float deltaTime)
 {
 	if (currentFrame_ < skipFrames_) {
 		currentFrame_++;
 	}
 
 
-	Object3d::Update();
+	Object3d::Update(deltaTime);
 }
 
 

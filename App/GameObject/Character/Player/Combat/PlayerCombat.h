@@ -48,7 +48,7 @@ public:
 	// 初期化
 	void Initialize(Player* player);
 	// 更新
-	void Update();
+	void Update(float deltaTime);
 	// 描画
 	void Draw();
 	// 外部から攻撃をリクエストする

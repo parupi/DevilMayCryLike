@@ -35,9 +35,9 @@ void HellkainaStateKnockBack::Enter(const DamageInfo& info, Enemy& enemy)
 }
 
 
-void HellkainaStateKnockBack::Update(Enemy& enemy)
+void HellkainaStateKnockBack::Update(Enemy& enemy, float deltaTime)
 {
-    float dt = DeltaTime::GetDeltaTime();
+    float dt = deltaTime;
     stateTime_.current += dt;
 
     velocity_.y += -9.8f * dt;

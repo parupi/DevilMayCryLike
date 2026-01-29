@@ -11,7 +11,7 @@ void HellkainaStateSideMove::Enter(Enemy& enemy)
     sideDir_ = (std::rand() % 2 == 0) ? -1.0f : 1.0f;
 }
 
-void HellkainaStateSideMove::Update(Enemy& enemy)
+void HellkainaStateSideMove::Update(Enemy& enemy, float deltaTime)
 {
     timer_ += DeltaTime::GetDeltaTime();
 

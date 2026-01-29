@@ -21,7 +21,7 @@ void Enemy::Initialize()
 
 }
 
-void Enemy::Update()
+void Enemy::Update(float deltaTime)
 {
 	if (!player_) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
@@ -30,7 +30,7 @@ void Enemy::Update()
 
 	// カメラ合切り替え中とフェード中は動かさない
 	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) {
-		Object3d::Update();
+		Object3d::Update(deltaTime);
 		return;
 	}
 
@@ -54,12 +54,12 @@ void Enemy::Update()
 
 
 	if (currentState_) {
-		currentState_->Update(*this);
+		currentState_->Update(*this, deltaTime);
 	}
 
 	if (!hitStop_->GetHitStopData().isActive) {
-		GetWorldTransform()->GetTranslation() += velocity_ * DeltaTime::GetDeltaTime();
-		velocity_ += acceleration_ * DeltaTime::GetDeltaTime();
+		GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
+		velocity_ += acceleration_ * deltaTime;
 	}
 
 	if (!player_) {
@@ -84,7 +84,7 @@ void Enemy::Update()
 	// 回転をセット
 	GetWorldTransform()->GetRotation() = rot;
 
-	Object3d::Update();
+	Object3d::Update(deltaTime);
 
 	onGround_ = false;
 }

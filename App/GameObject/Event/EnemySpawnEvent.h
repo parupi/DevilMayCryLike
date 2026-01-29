@@ -37,7 +37,7 @@ public:
 	/// <summary>
 	/// 更新処理
 	/// </summary>
-	virtual void Update() override;
+	virtual void Update(float deltaTime) override;
 
 	/// <summary>
 	/// 当たり判定に入った際の処理（発動条件）

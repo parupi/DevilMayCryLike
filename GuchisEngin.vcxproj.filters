@@ -333,7 +333,7 @@
     <ClInclude Include="App\scene\EditScene.h">
       <Filter>App\scene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\GameScene.h">
+    <ClInclude Include="App\scene\GameScene\GameScene.h">
       <Filter>App\scene</Filter>
     </ClInclude>
     <ClInclude Include="App\scene\Object3dFactory.h">
@@ -643,6 +643,13 @@
       <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Camera\LockOnCamera.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateBase.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStatePlay.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateMenu.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -786,7 +793,7 @@
     <ClCompile Include="App\scene\EditScene.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\GameScene.cpp">
+    <ClCompile Include="App\scene\GameScene\GameScene.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
     <ClCompile Include="App\scene\Object3dFactory.cpp">
@@ -1055,5 +1062,12 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateBase.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStatePlay.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateMenu.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp" />
   </ItemGroup>
 </Project>

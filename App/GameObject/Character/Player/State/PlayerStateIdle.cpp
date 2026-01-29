@@ -7,7 +7,7 @@ void PlayerStateIdle::Enter(Player& player)
 	player.GetVelocity().y = 0.0f;
 }
 
-void PlayerStateIdle::Update(Player& player)
+void PlayerStateIdle::Update(Player& player, float deltaTime)
 {
 	Input* input = Input::GetInstance();
 	if (input->IsConnected()) {

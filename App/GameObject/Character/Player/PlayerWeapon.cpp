@@ -20,11 +20,9 @@ void PlayerWeapon::Initialize()
 	smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	smokeEmitter_->Initialize("smoke");
 	smokeEmitter_->SetParticle("smoke");
-
-	Object3d::Update();
 }
 
-void PlayerWeapon::Update()
+void PlayerWeapon::Update(float deltaTime)
 {
 	if (player_ == nullptr) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
@@ -37,7 +35,7 @@ void PlayerWeapon::Update()
 	smokeEmitter_->Update();
 
 	
-	Object3d::Update();
+	Object3d::Update(deltaTime);
 }
 
 void PlayerWeapon::Draw()

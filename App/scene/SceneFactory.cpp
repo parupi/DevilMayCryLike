@@ -1,10 +1,8 @@
 #include "SceneFactory.h"
 #include "scene/BaseScene.h"
-#include <scene/TitleScene.h>
-#include <scene/GameScene.h>
-#include <scene/ClearScene.h>
-//#include <Result.h>
-//#include <TutorialScene.h>
+#include "scene/TitleScene.h"
+#include "scene/GameScene/GameScene.h"
+#include "scene/ClearScene.h"
 #include "scene/SampleScene.h"
 #include "scene/EditScene.h"
 

@@ -8,13 +8,11 @@ void HellkainaWeapon::Initialize()
 {
 	Object3d::Initialize();
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.5f, 0.5f, 0.5f };
-
-	Object3d::Update();
 }
 
-void HellkainaWeapon::Update()
+void HellkainaWeapon::Update(float deltaTime)
 {
-	Object3d::Update();
+	Object3d::Update(deltaTime);
 }
 
 void HellkainaWeapon::Draw()

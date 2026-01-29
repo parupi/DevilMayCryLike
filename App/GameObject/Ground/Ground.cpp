@@ -30,12 +30,12 @@ void Ground::Initialize()
 	//circleEmitter_->SetParticle("GameCircle");
 }
 
-void Ground::Update()
+void Ground::Update(float deltaTime)
 {
 	//smokeEmitter_->Update();
 	//circleEmitter_->Update();
 
-	Object3d::Update();
+	Object3d::Update(deltaTime);
 }
 
 void Ground::Draw()

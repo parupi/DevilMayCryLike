@@ -1,27 +1,33 @@
-#include <scene/GameScene.h>
-#include <base/TextureManager.h>
-#include <base/Particle/ParticleManager.h>
+#include "GameScene.h"
+#include "base/TextureManager.h"
+#include "base/Particle/ParticleManager.h"
 #include "debuger/ImGuiManager.h"
-#include <math/Quaternion.h>
-#include <math/Vector3.h>
-#include <math/Matrix4x4.h>
-#include <3d/Object/Model/ModelManager.h>
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
-#include <3d/Collider/CollisionManager.h>
-#include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <Include/SceneLoader.h>
-#include <Include/SceneBuilder.h>
-#include <3d/SkySystem/SkySystem.h>
-#include <GameObject/Event/EventManager.h>
-#include <scene/Transition/TransitionManager.h>
-#include <scene/Transition/SceneTransitionController.h>
-#include <2d/SpriteManager.h>
-#include <GameObject/Camera/LockOnCamera.h>
-
+#include "math/Quaternion.h"
+#include "math/Vector3.h"
+#include "math/Matrix4x4.h"
+#include "3d/Object/Model/ModelManager.h"
+#include "3d/Object/Renderer/RendererManager.h"
+#include "3d/Object/Renderer/ModelRenderer.h"
+#include "3d/Collider/CollisionManager.h"
+#include "3d/Object/Renderer/PrimitiveRenderer.h"
+#include "Include/SceneLoader.h"
+#include "Include/SceneBuilder.h"
+#include "3d/SkySystem/SkySystem.h"
+#include "GameObject/Event/EventManager.h"
+#include "scene/Transition/TransitionManager.h"
+#include "scene/Transition/SceneTransitionController.h"
+#include "2d/SpriteManager.h"
+#include "GameObject/Camera/LockOnCamera.h"
+#include "scene/GameScene/State/GameSceneStatePlay.h"
+#include "State/GameSceneStateMenu.h"
 
 void GameScene::Initialize()
 {
+	// ステートの生成
+	states_["Play"] = std::make_unique<GameSceneStatePlay>();
+	states_["Menu"] = std::make_unique<GameSceneStateMenu>();
+	currentState_ = states_["Play"].get();
+
 	// カメラの生成
 	std::unique_ptr<GameCamera> camera = std::make_unique<GameCamera>("GameCamera");
 	camera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
@@ -81,14 +87,16 @@ void GameScene::Initialize()
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 
-	deathUI_ = std::make_unique<Sprite>();
-	deathUI_->Initialize("GameUI.png");
-	deathUI_->SetAnchorPoint({ 0.5f, 0.5f });
-	deathUI_->SetSize({ 256.0f, 256.0f });
-	deathUI_->SetPosition({ 128.0f, 592.0f });
-
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
+
+	musk_ = std::make_unique<Sprite>();
+	musk_->Initialize("white.png");
+	musk_->SetSize({ 1280.0f, 720.0f });
+	musk_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
+
+	menuUI_ = std::make_unique<MenuUI>();
+	menuUI_->Initialize(this);
 }
 
 void GameScene::Finalize()
@@ -107,11 +115,24 @@ void GameScene::Update()
 	stageStart_.Update();
 
 	lightManager_->UpdateAllLight();
-
-	deathUI_->Update();
 	gameUI_->Update();
 
-	//clearCamera_->Update();
+	if (currentState_) {
+		currentState_->Update(*this);
+	}
+
+	if (currentState_ == states_["Menu"].get()) {
+		player_->SetMenu(true);
+	} else {
+		player_->SetMenu(false);
+	}
+
+	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
+	musk_->Update();
+
+	menuUI_->Update();
+
+	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
 
 #ifdef _DEBUG
 	DebugUpdate();
@@ -129,9 +150,11 @@ void GameScene::Draw()
 		player_->DrawEffect();
 	}
 
-	//deathUI_->Draw();
-
 	gameUI_->Draw();
+
+	musk_->Draw();
+
+	menuUI_->Draw();
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();
@@ -151,3 +174,13 @@ void GameScene::DebugUpdate()
 	//Object3dManager::GetInstance()->FindObject("HellKaina")->DebugGui();
 }
 #endif // _DEBUG
+
+void GameScene::ChangeState(const std::string& stateName)
+{
+	currentState_->Exit(*this);
+	auto it = states_.find(stateName);
+	if (it != states_.end()) {
+		currentState_ = it->second.get();
+		currentState_->Enter(*this);
+	}
+}

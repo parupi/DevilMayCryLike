@@ -72,12 +72,12 @@ void Hellkaina::Initialize()
 	Enemy::Initialize();
 }
 
-void Hellkaina::Update()
+void Hellkaina::Update(float deltaTime)
 {
 
 	//weapon_->Update();
 	weapon_->SetIsDraw(isAttack_);
-	Enemy::Update();
+	Enemy::Update(deltaTime);
 }
 
 #ifdef _DEBUG
