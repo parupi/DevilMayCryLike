@@ -650,6 +650,8 @@
     <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuController.h" />
+    <ClInclude Include="App\Input\InputRouter.h" />
+    <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -1069,5 +1071,7 @@
     <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp" />
+    <ClCompile Include="App\Input\InputRouter.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp" />
   </ItemGroup>
 </Project>

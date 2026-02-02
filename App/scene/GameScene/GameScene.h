@@ -10,6 +10,7 @@
 #include "scene/GameScene/State/GameSceneStateBase.h"
 #include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
+#include "Input/InputRouter.h"
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -76,6 +77,8 @@ public:
 private:
 	std::unordered_map<std::string, std::unique_ptr<GameSceneStateBase>> states_;
 	GameSceneStateBase* currentState_ = nullptr;
+
+	std::unique_ptr<InputRouter> inputRouter_ = nullptr;
 
 	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ

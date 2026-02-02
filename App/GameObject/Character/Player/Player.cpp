@@ -14,7 +14,7 @@
 #include <scene/Transition/TransitionManager.h>
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
-
+#include "Controller/PlayerInput.h"
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
@@ -91,6 +91,10 @@ void Player::Update(float deltaTime)
 		return;
 	}
 
+	for (auto& cmd : input_->GetCommands()) {
+		ExecuteCommand(cmd);
+	}
+
 	// Rキーを押したら死亡演出が流れる
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
 		ChangeState("Death");
@@ -158,6 +162,18 @@ void Player::DebugGui()
 void Player::ChangeState(const std::string& stateName)
 {
 	stateMachine_->ChangeState(*this, stateName);
+}
+
+void Player::ExecuteCommand(const PlayerCommand& command)
+{
+	switch (command.action) {
+	case PlayerAction::Move:
+		ChangeState("Move");
+		break;
+	case PlayerAction::Jump:
+		ChangeState("Jump");
+		break;
+	}
 }
 
 void Player::Move()

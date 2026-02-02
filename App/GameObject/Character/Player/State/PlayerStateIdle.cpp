@@ -11,9 +11,9 @@ void PlayerStateIdle::Update(Player& player, float deltaTime)
 {
 	Input* input = Input::GetInstance();
 	if (input->IsConnected()) {
-		if (input->GetLeftStickX() != 0.0f || input->GetLeftStickY() != 0.0f) {
-			player.ChangeState("Move");
-		}
+		//if (input->GetLeftStickX() != 0.0f || input->GetLeftStickY() != 0.0f) {
+		//	player.ChangeState("Move");
+		//}
 
 		if (player.IsLockOn()) {
 			if (input->TriggerButton(PadNumber::ButtonY) && input->GetLeftStickY() < 0.0f) {
@@ -35,9 +35,9 @@ void PlayerStateIdle::Update(Player& player, float deltaTime)
 		}
 
 	} else {
-		if (Input::GetInstance()->PushKey(DIK_W) || Input::GetInstance()->PushKey(DIK_A) || Input::GetInstance()->PushKey(DIK_S) || Input::GetInstance()->PushKey(DIK_D)) {
-			player.ChangeState("Move");
-		}
+		//if (Input::GetInstance()->PushKey(DIK_W) || Input::GetInstance()->PushKey(DIK_A) || Input::GetInstance()->PushKey(DIK_S) || Input::GetInstance()->PushKey(DIK_D)) {
+		//	player.ChangeState("Move");
+		//}
 
 		// 攻撃のトリガー
 		if (Input::GetInstance()->TriggerKey(DIK_J)) {

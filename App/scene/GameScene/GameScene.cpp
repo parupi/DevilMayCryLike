@@ -85,7 +85,11 @@ void GameScene::Initialize()
 	// ============ライト=================//
 	lightManager_->CreateDirectionalLight("gameDir");
 
+	inputRouter_ = std::make_unique<InputRouter>();
+	inputRouter_->Initialize(Input::GetInstance());
+
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+	player_->SetInput(inputRouter_->GetPlayerInput());
 
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
@@ -97,6 +101,8 @@ void GameScene::Initialize()
 
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
+
+
 }
 
 void GameScene::Finalize()
@@ -131,6 +137,8 @@ void GameScene::Update()
 	musk_->Update();
 
 	menuUI_->Update();
+
+	inputRouter_->Update();
 
 	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
 

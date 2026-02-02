@@ -7,7 +7,6 @@
 #include "3d/Object/Renderer/ModelRenderer.h"
 #include <input/Input.h>
 #include "State/PlayerStateBase.h"
-
 #include "PlayerWeapon.h"
 #include "math/Vector3.h"
 #include "math/function.h"
@@ -22,6 +21,10 @@
 #include "Collision/PlayerCollider.h"
 #include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
+
+class PlayerInput;
+
+struct PlayerCommand;
 
 /// <summary>
 /// プレイヤーキャラクターを制御するクラス  
@@ -59,26 +62,6 @@ public:
 	/// </summary>
 	void DrawEffect();
 
-	///// <summary>
-	///// 攻撃データの編集UIを表示する（ImGui用）  
-	///// 攻撃ステートごとのパラメータを可視化・編集する。
-	///// </summary>
-	///// <param name="attack">編集対象の攻撃ステート</param>
-	////void DrawAttackDataEditor(PlayerStateAttack* attack);
-
-	///// <summary>
-	///// インデックスから攻撃ステート名を取得する。
-	///// </summary>
-	///// <param name="index">攻撃ステートのインデックス</param>
-	///// <returns>攻撃ステート名</returns>
-	//std::string GetAttackStateNameByIndex(int32_t index) const;
-
-	///// <summary>
-	///// 登録されている攻撃ステートの総数を取得する。
-	///// </summary>
-	///// <returns>攻撃ステート数</returns>
-	//int32_t GetAttackStateCount() const;
-
 	/// <summary>
 	/// 衝突開始時の処理  
 	/// 他オブジェクトとの初回接触時に呼ばれる。
@@ -112,6 +95,8 @@ public:
 	/// <param name="stateName">遷移先のステート名</param>
 	void ChangeState(const std::string& stateName);
 
+	void ExecuteCommand(const PlayerCommand& command);
+
 	/// <summary>
 	/// 地面に接地しているかどうかを取得する。
 	/// </summary>
@@ -143,7 +128,6 @@ public:
 
 	Vector3& GetVelocity() { return velocity_; } ///< 現在の速度ベクトルを取得
 	Vector3& GetAcceleration() { return acceleration_; } ///< 現在の加速度ベクトルを取得
-	//PlayerAttackEffect* GetPlayerAttackEffect() { return attackEffect_.get(); } ///< 攻撃エフェクト管理クラス取得
 	PlayerWeapon* GetWeapon() { return weapon_.get(); } ///< プレイヤーの武器クラス取得
 	AttackData GetAttackData() const { return attackData_; } ///< 現在の攻撃データを取得
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; } ///< 攻撃データを設定
@@ -171,6 +155,8 @@ public:
 
 
 	AttackInputState GetAttackInputState() const;
+
+	void SetInput(PlayerInput* input) { input_ = input; }
 private:
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
@@ -181,6 +167,8 @@ private:
 	std::unique_ptr<PlayerCollider> collider_ = nullptr;
 	
 	std::unique_ptr<PlayerCollisionResolver> collisionResolver_ = nullptr;
+
+	PlayerInput* input_ = nullptr;
 
 	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
 	Input* input = Input::GetInstance(); ///< 入力管理クラス
@@ -196,7 +184,6 @@ private:
 	Enemy* lockOnEnemy_ = nullptr; ///< 現在ロックオンしている敵
 	bool isLockOn_ = false; ///< ロックオン状態フラグ
 
-	//std::unique_ptr<PlayerAttackEffect> attackEffect_; ///< 攻撃エフェクトクラス
 	std::unique_ptr<PlayerWeapon> weapon_; ///< 武器クラス
 
 	bool onGround_ = false; ///< 接地判定フラグ
