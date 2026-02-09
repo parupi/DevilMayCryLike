@@ -1,10 +1,11 @@
 #include "PlayerStateAttack.h"
-#include <debuger/GlobalVariables.h>
-#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include "debuger/GlobalVariables.h"
+#include "3d/Primitive/PrimitiveLineDrawer.h"
 #include <math/function.h>
 #include "GameObject/Character/Player/Player.h"
-#include <3d/Collider/AABBCollider.h>
-#include <base/utility/DeltaTime.h>
+#include "3d/Collider/AABBCollider.h"
+#include "base/utility/DeltaTime.h"
+#include "GameObject/Character/Player/Controller/PlayerInput.h"
 
 PlayerStateAttack::PlayerStateAttack(std::string attackName)
 {
@@ -114,25 +115,13 @@ void PlayerStateAttack::Enter(Player& player)
 	isFinish_ = false;
 }
 
-AttackRequestData PlayerStateAttack::Update(Player& player, float deltaTime)
+void PlayerStateAttack::Update(Player& player, float deltaTime)
 {
-	AttackRequestData req{};
-	req.nextAttack = "";
-	req.type = AttackRequest::None;
-
 	if (player.GetHitStop()->GetHitStopData().isActive) {
 		player.GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation() = player.GetHitStop()->GetHitStopData().translate;
-
-		return req;
 	}
 
-	// ===== スロー演出のための速度係数 =====
-	//float slowFactor = 1.0f;
-	//if (player.IsClear()) {
-	//	slowFactor = 0.2f;   // 20% の速度で動く（お好みで調整）
-	//}
-
-	stateTime_.current += deltaTime/* * slowFactor*/;
+	stateTime_.current += deltaTime;
 
 	// 攻撃フェーズの更新処理
 	UpdatePhase(stateTime_.current);
@@ -144,7 +133,7 @@ AttackRequestData PlayerStateAttack::Update(Player& player, float deltaTime)
 		break;
 	case AttackPhase::Active:
 	{
-		UpdateActive(player, deltaTime);
+		UpdateActive(player);
 		break;
 	}
 	case AttackPhase::Recovery:
@@ -152,55 +141,6 @@ AttackRequestData PlayerStateAttack::Update(Player& player, float deltaTime)
 		break;
 	case AttackPhase::Cancel:
 		attackChangeTimer_.current += DeltaTime::GetDeltaTime();
-
-		int32_t attackPosture = gv->GetValueRef<int32_t>(name_, "AttackPosture");
-		// 接地状態ならば
-		if (attackPosture == 0) {
-			if (Input::GetInstance()->TriggerButton(PadNumber::ButtonA) || Input::GetInstance()->TriggerKey(DIK_SPACE)) {
-				req.type = AttackRequest::Jump;
-				return req;
-			}
-
-			if (player.IsLockOn()) {
-				if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() < 0.0f) {
-					req.type = AttackRequest::ChangeAttack;
-					req.nextAttack = "AttackHighTime";
-					return req;
-				}
-				if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) && Input::GetInstance()->GetLeftStickY() > 0.0f) {
-					req.type = AttackRequest::ChangeAttack;
-					req.nextAttack = "Stinger";
-					return req;
-				}
-			}
-		}
-
-		if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) || Input::GetInstance()->TriggerKey(DIK_J))
-		{
-			const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
-
-			int nextCount = static_cast<int>(node.nextAttacks.size());
-
-			if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
-
-				float segment = attackChangeTimer_.max / static_cast<float>(nextCount);
-				float elapsed = attackChangeTimer_.current;
-
-				// どの派生か（0 ～ nextCount-1）
-				int derivedIndex = static_cast<int>(elapsed / segment);
-
-				// 範囲外防止
-				derivedIndex = std::clamp(derivedIndex, 0, nextCount - 1);
-
-				// ★ ここが最大の変更点
-				const std::string& nextAttackName = node.nextAttacks[derivedIndex];
-
-				req.nextAttack = nextAttackName;
-				req.type = AttackRequest::ChangeAttack;
-				return req;
-			}
-		}
-
 
 		// 状態遷移
 		if (stateTime_.current >= attackData_.totalDuration) {
@@ -210,7 +150,6 @@ AttackRequestData PlayerStateAttack::Update(Player& player, float deltaTime)
 		break;
 	}
 
-	return req;
 }
 
 void PlayerStateAttack::Exit(Player& player)
@@ -226,6 +165,57 @@ void PlayerStateAttack::Exit(Player& player)
 		player.GetAttackBranchUI()->Clear();
 		player.GetAttackBranchUI()->SetVisible(false);
 	}
+}
+
+AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const PlayerCommand& command)
+{
+	AttackRequestData req{};
+	req.nextAttack = "";
+	req.type = AttackRequest::None;
+
+	if (command.action == PlayerAction::Attack) {
+		if (attackPhase_ != AttackPhase::Cancel) {
+			return req;
+		}
+
+		if (player.IsLockOn()) {
+			// スティックの状況をもとに動きを変える
+
+		} 
+		
+		const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
+
+		int nextCount = static_cast<int>(node.nextAttacks.size());
+
+		if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
+
+			float segment = attackChangeTimer_.max / static_cast<float>(nextCount);
+			float elapsed = attackChangeTimer_.current;
+
+			// どの派生か（0 ～ nextCount-1）
+			int derivedIndex = static_cast<int>(elapsed / segment);
+
+			// 範囲外防止
+			derivedIndex = std::clamp(derivedIndex, 0, nextCount - 1);
+
+			// 次の派生の名前を取得
+			const std::string& nextAttackName = node.nextAttacks[derivedIndex];
+
+			req.nextAttack = nextAttackName;
+			req.type = AttackRequest::ChangeAttack;
+			return req;
+		}
+
+	} else if (command.action == PlayerAction::Jump) {
+		if (attackPhase_ != AttackPhase::Cancel || gv->GetValueRef<int32_t>(name_, "AttackPosture") == 1) {
+			return req;
+		}
+
+		req.type = AttackRequest::Jump;
+		return req;
+	}
+
+	return req;
 }
 
 void PlayerStateAttack::UpdateAttackData()
@@ -327,7 +317,7 @@ void PlayerStateAttack::UpdateStartup(Player& player)
 {
 }
 
-void PlayerStateAttack::UpdateActive(Player& player, float slowFactor)
+void PlayerStateAttack::UpdateActive(Player& player)
 {
 	// 攻撃判定ON、移動処理
 	player.GetWeapon()->SetIsAttack(true);
@@ -336,7 +326,7 @@ void PlayerStateAttack::UpdateActive(Player& player, float slowFactor)
 	// プレイヤーの回転を取得
 	Quaternion rotation = player.GetWorldTransform()->GetRotation();
 	// ローカル速度をワールド座標に変換
-	Vector3 worldVelocity = RotateVector(localVelocity, rotation) * slowFactor;
+	Vector3 worldVelocity = RotateVector(localVelocity, rotation);
 	// 速度を設定
 	player.GetVelocity() = worldVelocity;
 

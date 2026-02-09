@@ -20,13 +20,22 @@
 #include "GameObject/Camera/LockOnCamera.h"
 #include "scene/GameScene/State/GameSceneStatePlay.h"
 #include "State/GameSceneStateMenu.h"
+#include "State/GameSceneStateStart.h"
 
 void GameScene::Initialize()
 {
 	// ステートの生成
+	states_["Start"] = std::make_unique<GameSceneStateStart>();
 	states_["Play"] = std::make_unique<GameSceneStatePlay>();
 	states_["Menu"] = std::make_unique<GameSceneStateMenu>();
-	currentState_ = states_["Play"].get();
+	currentState_ = states_["Start"].get();
+
+	// 入力の受付状態を管理するクラス生成
+	inputContext_ = std::make_unique<InputContext>();
+	inputContext_->Initialize(Input::GetInstance());
+
+	// 最初のシーンに入る処理
+	currentState_->Enter(*this);
 
 	// カメラの生成
 	std::unique_ptr<GameCamera> camera = std::make_unique<GameCamera>("GameCamera");
@@ -42,8 +51,6 @@ void GameScene::Initialize()
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
 	clearCamera_ = clearCamera.get();
 	cameraManager_->AddCamera(std::move(clearCamera));
-
-	stageStart_.Initialize();
 
 	ModelManager::GetInstance()->LoadModel("PlayerBody");
 	ModelManager::GetInstance()->LoadModel("PlayerHead");
@@ -85,11 +92,8 @@ void GameScene::Initialize()
 	// ============ライト=================//
 	lightManager_->CreateDirectionalLight("gameDir");
 
-	inputRouter_ = std::make_unique<InputRouter>();
-	inputRouter_->Initialize(Input::GetInstance());
-
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-	player_->SetInput(inputRouter_->GetPlayerInput());
+	player_->SetInput(inputContext_->GetPlayerInput());
 
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
@@ -118,8 +122,6 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-	stageStart_.Update();
-
 	lightManager_->UpdateAllLight();
 	gameUI_->Update();
 
@@ -138,12 +140,12 @@ void GameScene::Update()
 
 	menuUI_->Update();
 
-	inputRouter_->Update();
+	inputContext_->Update();
 
 	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
 
 #ifdef _DEBUG
-	DebugUpdate();
+	//DebugUpdate();
 #endif
 }
 

@@ -273,8 +273,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuController.h" />
-    <ClInclude Include="App\Input\InputRouter.h" />
+    <ClInclude Include="App\Input\InputContext.h" />
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateStart.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -417,7 +418,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\GameScene\State\GameSceneStateBase.cpp" />
     <ClCompile Include="App\scene\GameScene\State\GameSceneStatePlay.cpp" />
     <ClCompile Include="App\scene\GameScene\State\GameSceneStateMenu.cpp" />
-    <ClCompile Include="App\Input\InputRouter.cpp" />
+    <ClCompile Include="App\Input\InputContext.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateStart.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp" />

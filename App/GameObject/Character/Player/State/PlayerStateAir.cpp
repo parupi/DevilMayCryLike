@@ -1,5 +1,6 @@
 #include "PlayerStateAir.h"
-#include <GameObject/Character/Player/Player.h>
+#include "GameObject/Character/Player/Player.h"
+#include "GameObject/Character/Player/Controller/PlayerInput.h"
 
 void PlayerStateAir::Enter(Player& player)
 {
@@ -12,20 +13,6 @@ void PlayerStateAir::Update(Player& player, float deltaTime)
 	// 空中でも移動可
 	player.Move();
 
-	if (Input::GetInstance()->IsConnected()) {
-		// 空中攻撃
-		if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY)) {
-			player.RequestAttack(AttackType::Air);
-			return;
-		}
-	} else {
-		// 空中攻撃
-		if (Input::GetInstance()->TriggerKey(DIK_J)) {
-			player.RequestAttack(AttackType::Air);
-			return;
-		}
-	}
-
 	// 地面についたら待機状態にする
 	if (player.GetOnGround()) {
  		player.ChangeState("Idle");
@@ -35,5 +22,13 @@ void PlayerStateAir::Update(Player& player, float deltaTime)
 
 void PlayerStateAir::Exit(Player& player)
 {
-	player;
+	player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
+}
+
+void PlayerStateAir::ExecuteCommand(Player& player, const PlayerCommand& command)
+{
+	if (command.action == PlayerAction::Attack) {
+		player.RequestAttack(AttackType::Air);
+		return;
+	}
 }

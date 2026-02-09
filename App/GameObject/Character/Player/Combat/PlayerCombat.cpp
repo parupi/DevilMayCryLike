@@ -1,5 +1,6 @@
 #include "PlayerCombat.h"
 #include "GameObject/Character/Player/Player.h"
+#include "GameObject/Character/Player/Controller/PlayerInput.h"
 
 void PlayerCombat::Initialize(Player* player)
 {
@@ -34,23 +35,11 @@ void PlayerCombat::Update(float deltaTime)
 
 	auto& top = currentState_.back();
 
-	auto req = top->Update(*player_, deltaTime);
+	top->Update(*player_, deltaTime);
 
 	if (top->IsFinished()) {
 		top->Exit(*player_);
 		currentState_.pop_back();
-	}
-
-	switch (req.type) {
-	case AttackRequest::Jump:
-		player_->ChangeState("Jump");
-		break;
-	case AttackRequest::Air:
-		player_->ChangeState("Air");
-		break;
-	case AttackRequest::ChangeAttack:
-		ChangeState(req.nextAttack);
-		break;
 	}
 }
 
@@ -63,19 +52,19 @@ void PlayerCombat::Draw()
 
 void PlayerCombat::RequestAttack(AttackType type)
 {
-	switch (type) {
-	case AttackType::Normal:
-		ChangeState("AttackComboA1");
-		break;
-	case AttackType::RoundUp:
-		ChangeState("AttackHighTime");
-		break;
-	case AttackType::LungeThrust:
+	//switch (type) {
+	//case AttackType::Normal:
+	//	ChangeState("AttackComboA1");
+	//	break;
+	//case AttackType::RoundUp:
+	//	ChangeState("AttackHighTime");
+	//	break;
+	//case AttackType::LungeThrust:
 
-		break;
-	case AttackType::Air:
-		ChangeState("AttackAerialRave1");
-	}
+	//	break;
+	//case AttackType::Air:
+	//	ChangeState("AttackAerialRave1");
+	//}
 }
 
 void PlayerCombat::ChangeState(const std::string& stateName)
@@ -112,6 +101,46 @@ int32_t PlayerCombat::GetAttackStateCount() const
 		++count;
 	}
 	return count;
+}
+
+void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
+{
+	// 攻撃の入力か確認
+	if (command.action != PlayerAction::Attack) return;
+
+	// 攻撃がない場合一段目攻撃を設定 存在したらその攻撃を派生させる
+	if (currentState_.empty()) {
+		if (player_->IsLockOn()) {
+			if (player_->GetOnGround()) {
+				if (command.stickDir.y <= -0.7f) {
+					ChangeState("AttackHighTime");
+					return;
+				}
+			}
+		}
+
+		// ここまで来て攻撃が見つからなかったら通常
+		if (player_->GetOnGround()) {
+			ChangeState("AttackComboA1");
+		} else {
+			ChangeState("AttackAerialRave1");
+		}
+	} else {
+		auto& top = currentState_.back();
+		auto req = top->ExecuteCommand(*player_, command);
+
+		switch (req.type) {
+		case AttackRequest::Jump:
+			player_->ChangeState("Jump");
+			break;
+		case AttackRequest::Air:
+			player_->ChangeState("Air");
+			break;
+		case AttackRequest::ChangeAttack:
+			ChangeState(req.nextAttack);
+			break;
+		}
+	}
 }
 
 void PlayerCombat::CreateState()

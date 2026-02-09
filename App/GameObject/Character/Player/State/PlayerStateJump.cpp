@@ -15,3 +15,7 @@ void PlayerStateJump::Exit(Player& player)
 {
 	player;
 }
+
+void PlayerStateJump::ExecuteCommand(Player& player, const PlayerCommand& command)
+{
+}

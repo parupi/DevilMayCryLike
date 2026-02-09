@@ -24,19 +24,7 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 		localTransform_->SetParent(parentTransform);
 	}
 	
-	localTransform_->TransferMatrix();
-	
-
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_) {
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = localTransform_->GetMatWorld() * viewProjectionMatrix;
-	} else {
-		worldViewProjectionMatrix = localTransform_->GetMatWorld();
-	}
-
-	localTransform_->SetMapWVP(worldViewProjectionMatrix);
-	localTransform_->SetMapWorld(localTransform_->GetMatWorld());
+	localTransform_->TransferMatrix(camera_);
 }
 
 void ModelRenderer::Draw()

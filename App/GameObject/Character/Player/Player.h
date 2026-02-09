@@ -121,6 +121,7 @@ public:
 	void RequestAttack(AttackType id);
 
 	PlayerCombat* GetCombat() { return combat_.get(); }
+	PlayerInput* GetInput() { return input_; }
 
 	// ======================
 	// アクセッサ

@@ -7,6 +7,8 @@
 #include <type_traits>
 #include <wrl.h>
 
+class BaseCamera;
+
 struct TransformationMatrix {
 	Matrix4x4 WVP;
 	Matrix4x4 World;
@@ -33,7 +35,7 @@ public:
 	/// <summary>
 	/// 行列を転送する
 	/// </summary>
-	void TransferMatrix();
+	void TransferMatrix(BaseCamera* camera);
 	/// <summary>
 	/// 定数バッファの取得
 	/// </summary>
@@ -49,8 +51,6 @@ public:
 	/// マップのセット
 	/// </summary>
 	/// <param name="wvp">WVP行列</param>
-	void SetMapWVP(const Matrix4x4& wvp) { constMap->WVP = wvp; }
-	void SetMapWorld(const Matrix4x4& world) { constMap->World = world; }
 	const Matrix4x4& GetMatWorld() { return matWorld_; }
 
 	// アクセッサ	
@@ -64,6 +64,7 @@ public:
 	Vector3 GetWorldPos();
 
 	Vector3 GetForward() const;
+	void SetMatWVP(const Matrix4x4& mat) { constMap->WVP = mat; }
 private:
 	// 定数バッファ
 	Microsoft::WRL::ComPtr<ID3D12Resource> constBuffer_;
