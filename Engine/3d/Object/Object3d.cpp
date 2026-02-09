@@ -28,24 +28,13 @@ void Object3d::Initialize()
 
 void Object3d::Update(float deltaTime)
 {
+	camera_ = CameraManager::GetInstance()->GetCurrentCamera();
+
+	transform_->TransferMatrix(camera_);
+
 	for (size_t i = 0; i < renders_.size(); i++) {
 		renders_[i]->Update(transform_.get());
 	}
-
-	transform_->TransferMatrix();
-
-	camera_ = CameraManager::GetInstance()->GetCurrentCamera();
-
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera_) {
-		const Matrix4x4& viewProjectionMatrix = camera_->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = transform_->GetMatWorld() * viewProjectionMatrix;
-	} else {
-		worldViewProjectionMatrix = transform_->GetMatWorld();
-	}
-
-	transform_->SetMapWVP(worldViewProjectionMatrix);
-	transform_->SetMapWorld(transform_->GetMatWorld());
 }
 
 void Object3d::Draw()

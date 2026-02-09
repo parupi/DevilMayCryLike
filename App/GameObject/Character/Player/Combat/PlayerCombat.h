@@ -63,6 +63,8 @@ public:
 	bool IsAttacking() const { return !currentState_.empty(); }
 
 	const AttackNode& GetAttackNode(const std::string& name) const{ return attackGraph_.at(name); }
+
+	void ExecuteCommand(const PlayerCommand& command);
 private:
 	// Jsonの名前からステートを生成
 	void CreateState();

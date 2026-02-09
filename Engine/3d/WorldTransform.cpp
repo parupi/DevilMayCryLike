@@ -1,10 +1,12 @@
-#include <3d/WorldTransform.h>
-#include <math/function.h>
-#include <base/DirectXManager.h>
-#include <3d/Object/Object3dManager.h>
+#include "WorldTransform.h"
+#include "math/function.h"
+#include "base/DirectXManager.h"
+#include "3d/Object/Object3dManager.h"
+#include "3d/Camera/BaseCamera.h"
 #ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
+#include "Camera/CameraManager.h"
 
 WorldTransform::~WorldTransform()
 {
@@ -28,7 +30,7 @@ void WorldTransform::Initialize()
 	CreateConstBuffer();
 
 	// 定数バッファへ初期行列を転送
-	TransferMatrix();
+	TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
 }
 
 void WorldTransform::CreateConstBuffer()
@@ -46,7 +48,7 @@ void WorldTransform::CreateConstBuffer()
 	Logger::LogBufferCreation("WorldTransform", constBuffer_.Get(), sizeof(TransformationMatrix));
 }
 
-void WorldTransform::TransferMatrix()
+void WorldTransform::TransferMatrix(BaseCamera* camera)
 {
 	// スケール、回転、平行移動を合成して行列を計算する
 	matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
@@ -57,10 +59,19 @@ void WorldTransform::TransferMatrix()
 		matWorld_ *= parentMatrix; // 親の行列と自身の行列を合成
 	}
 
+	Matrix4x4 worldViewProjectionMatrix;
+	if (camera) {
+		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
+		worldViewProjectionMatrix = matWorld_ * viewProjectionMatrix;
+	} else {
+		worldViewProjectionMatrix = matWorld_;
+	}
+
 	// ワールド行列を定数バッファに転送
 	if (constMap != nullptr) {
 		constMap->World = matWorld_; // 定数バッファに行列をコピー
 		constMap->WorldInverseTranspose = Inverse(matWorld_);
+		constMap->WVP = worldViewProjectionMatrix;
 	}
 }
 
@@ -84,6 +95,10 @@ void WorldTransform::DebugGui()
 	Vector3 rotate = { 0.0f, 0.0f, 0.0f };
 	ImGui::DragFloat3("rotation", &rotate.x, 0.1f);
 	rotation_ = (rotation_ * Normalize(EulerDegree(rotate)));
+
+	PrintOnImGui(matWorld_);
+	PrintOnImGui(constMap->World);
+	PrintOnImGui(constMap->WVP);
 }
 #endif // _DEBUG
 

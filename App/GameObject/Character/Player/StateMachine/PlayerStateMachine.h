@@ -20,6 +20,10 @@ public:
 	void ChangeState(Player& player, std::string stateName);
 	// 現在のステートを取得
 	PlayerStateBase* GetCurrentState() { return currentState_; }
+	// 入力を取得
+	void ExecuteCommand(Player& player, const PlayerCommand& command);
+	// デバッグ情報を出力
+	void DebugGui();
 private:
 	// ステート名とステートインスタンスのマップ
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateBase>> states_; 

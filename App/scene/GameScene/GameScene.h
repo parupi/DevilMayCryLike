@@ -10,6 +10,7 @@
 #include "scene/GameScene/State/GameSceneStateBase.h"
 #include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
+#include "Input/InputContext.h"
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -71,11 +72,15 @@ public:
 	float GetMuskAlpha() const { return muskAlpha_; }
 	void SetMuskAlpha(float alpha) { muskAlpha_ = alpha; }
 
+	// メニューのUIをまとめたクラスを取得
 	MenuUI* GetMenuUI() { return menuUI_.get(); }
-
+	// 入力の受付状態を管理するクラスを取得
+	InputContext* GetInputContext() { return inputContext_.get(); }
 private:
 	std::unordered_map<std::string, std::unique_ptr<GameSceneStateBase>> states_;
 	GameSceneStateBase* currentState_ = nullptr;
+	// 入力をまとめたクラス
+	std::unique_ptr<InputContext> inputContext_ = nullptr;
 
 	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
@@ -85,7 +90,7 @@ private:
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
 
-	StageStart stageStart_; ///< ステージ開始時のカメラ演出（「STAGE START」など）
+
 
 	std::unique_ptr<GameUI> gameUI_;
 

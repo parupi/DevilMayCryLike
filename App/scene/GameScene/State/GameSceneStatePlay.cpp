@@ -4,6 +4,7 @@
 void GameSceneStatePlay::Enter(GameScene& scene)
 {
 	state_ = PlayState::Enter;
+	scene.GetInputContext()->SetCanPlayerMove(true);
 }
 
 void GameSceneStatePlay::Update(GameScene& scene)
