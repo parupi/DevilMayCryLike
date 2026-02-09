@@ -58,11 +58,7 @@ void InstancingRenderer::Update(WorldTransform* parentTransform)
     if (localTransform_->GetParent() == nullptr) {
         localTransform_->SetParent(parentTransform);
     }
-    localTransform_->TransferMatrix();
-
-    Matrix4x4 wvp = localTransform_->GetMatWorld() * CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
-    localTransform_->SetMapWVP(wvp);
-    localTransform_->SetMapWorld(localTransform_->GetMatWorld());
+    localTransform_->TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
 }
 
 void InstancingRenderer::Draw()

@@ -1,4 +1,6 @@
 #include "PlayerStateMachine.h"
+#include "GameObject/Character/Player/Controller/PlayerInput.h"
+#include <imgui.h>
 
 using namespace std;
 
@@ -41,4 +43,19 @@ void PlayerStateMachine::ChangeState(Player& player, string stateName)
 		currentState_ = it->second.get();
 		currentState_->Enter(player);
 	}
+}
+
+void PlayerStateMachine::ExecuteCommand(Player& player, const PlayerCommand& command)
+{
+	// 現在のステートに入力を送る
+	if (currentState_) {
+		currentState_->ExecuteCommand(player, command);
+	}
+}
+
+void PlayerStateMachine::DebugGui()
+{
+	ImGui::Begin("Player");
+	ImGui::Text("Current State: %s", currentState_->GetDebugName());
+	ImGui::End();
 }

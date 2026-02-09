@@ -14,7 +14,7 @@
 #include <scene/Transition/TransitionManager.h>
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
-
+#include "Controller/PlayerInput.h"
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
@@ -91,7 +91,7 @@ void Player::Update(float deltaTime)
 		return;
 	}
 
-	// Rキーを押したら死亡演出が流れる
+	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
 		ChangeState("Death");
 	}
@@ -101,19 +101,22 @@ void Player::Update(float deltaTime)
 
 	LockOn();
 
-
  	weapon_->Update(deltaTime);
-
 
 	if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this, deltaTime);
 	}
 	combat_->Update(deltaTime);
 
+	for (auto& cmd : input_->GetCommands()) {
+		ExecuteCommand(cmd);
+	}
+
 	GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
 	velocity_ += acceleration_ * deltaTime;
 
 	Object3d::Update(deltaTime);
+
 	// 毎フレーム切っておく
 	onGround_ = false;
 
@@ -143,10 +146,10 @@ void Player::DrawEffect()
 #ifdef _DEBUG
 void Player::DebugGui()
 {
-	//ImGui::Begin("Player");
-	//ImGui::Text("Current State: %s", currentStateName);
-	//Object3d::DebugGui();
-	//ImGui::End();
+	stateMachine_->DebugGui();
+	ImGui::Begin("Player");
+	Object3d::DebugGui();
+	ImGui::End();
 
 	//ImGui::Begin("Weapon");
 	//weapon_->DebugGui();
@@ -158,6 +161,17 @@ void Player::DebugGui()
 void Player::ChangeState(const std::string& stateName)
 {
 	stateMachine_->ChangeState(*this, stateName);
+}
+
+void Player::ExecuteCommand(const PlayerCommand& command)
+{
+	// ロックオン
+
+	// ステートの更新
+	if (!combat_->IsAttacking()) {
+		stateMachine_->ExecuteCommand(*this, command);
+	} 
+	combat_->ExecuteCommand(command);
 }
 
 void Player::Move()
@@ -319,43 +333,43 @@ AttackInputState Player::GetAttackInputState() const
 
 void Player::OnCollisionEnter(BaseCollider* other)
 {
-	//if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
+	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
-	//	AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
+		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
 
-	//	AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
+		AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
 
-	//	Vector3 outNormal = AABBCollider::CalculateCollisionNormal(playerCollider, blockCollider);
+		Vector3 outNormal = AABBCollider::CalculateCollisionNormal(playerCollider, blockCollider);
 
-	//	Vector3 playerMin = playerCollider->GetMin();
-	//	Vector3 playerMax = playerCollider->GetMax();
+		Vector3 playerMin = playerCollider->GetMin();
+		Vector3 playerMax = playerCollider->GetMax();
 
-	//	float playerOffset = (playerMax.x - playerMin.x) * 0.5f;
+		float playerOffset = (playerMax.x - playerMin.x) * 0.5f;
 
-	//	if (outNormal.x == 1.0f) {
-	//		// 右に当たってる
-	//		GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-	//	} else if (outNormal.x == -1.0f) {
-	//		// 左に当たってる
-	//		GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-	//	} else if (outNormal.y == 1.0f) {
-	//		// 上に当たってる
-	//		GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
-	//		GetWorldTransform()->GetTranslation().y -= 0.1f;
-	//		//velocity_.y = 0.0f;
-	//		onGround_ = true;
-	//	} else if (outNormal.y == -1.0f) {
-	//		// 下に当たってる
-	//		GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
-	//		//velocity_ *= -1.0f;
-	//	} else if (outNormal.z == 1.0f) {
-	//		// 奥に当たってる
-	//		GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-	//	} else if (outNormal.z == -1.0f) {
-	//		// 手前に当たってる
-	//		GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
-	//	}
-	//}
+		if (outNormal.x == 1.0f) {
+			// 右に当たってる
+			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
+		} else if (outNormal.x == -1.0f) {
+			// 左に当たってる
+			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
+		} else if (outNormal.y == 1.0f) {
+			// 上に当たってる
+			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
+			GetWorldTransform()->GetTranslation().y -= 0.1f;
+			//velocity_.y = 0.0f;
+			onGround_ = true;
+		} else if (outNormal.y == -1.0f) {
+			// 下に当たってる
+			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
+			//velocity_ *= -1.0f;
+		} else if (outNormal.z == 1.0f) {
+			// 奥に当たってる
+			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
+		} else if (outNormal.z == -1.0f) {
+			// 手前に当たってる
+			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
+		}
+	}
 }
 
 void Player::OnCollisionStay(BaseCollider* other)
@@ -397,15 +411,6 @@ void Player::OnCollisionStay(BaseCollider* other)
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
 	}
-
-	//auto hits = collider_->GetHits();
-
-	//auto resolveResult = collisionResolver_->Resolve(hits, velocity_);
-
-	//GetWorldTransform()->GetTranslation() += resolveResult.positionOffset;
-	//velocity_ += resolveResult.velocityOffset;
-
-	//onGround_ = resolveResult.onGround;
 }
 
 void Player::OnCollisionExit(BaseCollider* other)

@@ -12,8 +12,10 @@ public:
 	PlayerStateAttack(std::string attackName);
 	~PlayerStateAttack() = default;
 	void Enter(Player& player);
-	AttackRequestData  Update(Player& player, float deltaTime);
+	void  Update(Player& player, float deltaTime);
 	void Exit(Player& player);
+	// 入力に基づいて次の行動を通知
+	AttackRequestData ExecuteCommand(Player& player, const PlayerCommand& command);
 
 	AttackData GetAttackData() { return attackData_; }
 
@@ -35,7 +37,7 @@ private:
 	// 予備動作の更新
 	void UpdateStartup(Player& player);
 	// アクティブ状態の更新
-	void UpdateActive(Player& player, float slowFactor);
+	void UpdateActive(Player& player);
 	// 後隙状態の更新
 	void UpdateRecovery(Player& player);
 	// 入力受付状態の更新

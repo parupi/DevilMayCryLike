@@ -58,7 +58,7 @@ void SkySystem::Draw()
 	view.m[3][2] = 0.0f;
 
 	// 転送
-	transform_->SetMapWVP(view * proj);
+	transform_->SetMatWVP(view * proj);
 
 	// PSOとルートシグネチャを設定
 	commandList->SetPipelineState(psoManager_->GetSkyboxPSO());

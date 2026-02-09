@@ -10,7 +10,8 @@ public:
 	void Enter(Player& player) override;
 	void Update(Player& player, float deltaTime) override;
 	void Exit(Player& player) override;
-
+	void ExecuteCommand(Player& player, const PlayerCommand& command) override;
+	const char* GetDebugName() const override { return "Death"; };
 private:
 	float currentTime_ = 0.0f;
 	float maxTime_ = 1.0f;

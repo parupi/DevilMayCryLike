@@ -170,10 +170,7 @@ void PrimitiveLineDrawer::UpdateIndexResource()
 void PrimitiveLineDrawer::Draw()
 {
 	const Matrix4x4& viewProjection = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
-	Matrix4x4 worldViewProjection = transform_->GetMatWorld() * viewProjection;
-
-	transform_->SetMapWVP(worldViewProjection);
-	transform_->SetMapWorld(transform_->GetMatWorld());
+	transform_->SetMatWVP(viewProjection);
 
 	ID3D12GraphicsCommandList* cmdList = dxManager_->GetCommandList();
 	cmdList->SetPipelineState(psoManager_->GetPrimitivePSO());

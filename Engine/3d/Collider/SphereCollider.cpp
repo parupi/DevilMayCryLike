@@ -20,7 +20,7 @@ void SphereCollider::Update()
 	if (owner_ && transform_->GetParent() == nullptr) {
 		transform_->SetParent(owner_->GetWorldTransform());
 	}
-	transform_->TransferMatrix();
+	transform_->TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
 }
 
 Vector3 SphereCollider::GetCenter() const

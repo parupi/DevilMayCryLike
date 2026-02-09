@@ -86,3 +86,7 @@ void PlayerStateDeath::Exit(Player& player)
 	// シーンを変える
 	SceneTransitionController::GetInstance()->RequestSceneChange("GAMEPLAY");
 }
+
+void PlayerStateDeath::ExecuteCommand(Player& player, const PlayerCommand& command)
+{
+}
