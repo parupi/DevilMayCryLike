@@ -89,9 +89,3 @@ struct DamageInfo {
     float stunTime = 0.0f;
 };
 
-struct MoveIntent {
-	Vector3 moveDir; // 入力方向
-	float moveScale; // 0.0f〜1.0f
-	bool jump; // このフレームでジャンプしたい
-	bool dash; // ダッシュしたい
-};

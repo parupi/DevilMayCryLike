@@ -144,7 +144,6 @@ public:
 	bool IsLockOn() const { return isLockOn_; }
 
 	bool IsClear() const { return isClear_; }
-	void SetMenu(bool flag) { isMenu_ = flag; }
 
 	/// <summary>
 	/// ヒットストップクラスを取得する。
@@ -192,7 +191,6 @@ private:
 	std::unique_ptr<Sprite> titleWord_; ///< テスト用スプライト（デバッグ表示など）
 
 	bool isClear_ = false;
-	bool isMenu_ = false;
 
 	std::unique_ptr<AttackBranchUI> attackBranchUI_;
 };

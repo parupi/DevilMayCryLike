@@ -81,16 +81,6 @@ void Player::Initialize()
 
 void Player::Update(float deltaTime)
 {
-	// カメラ合切り替え中とフェード中は動かさない
-	if (!TransitionManager::GetInstance()->IsFinished()/* || CameraManager::GetInstance()->IsTransition()*/ || isMenu_) {
-		// 最初から更新しておきたいものはここに入れておく
-		hitStop_->Update();
-		scoreManager->Update();
-		weapon_->Update(deltaTime);
-		Object3d::Update(deltaTime);
-		return;
-	}
-
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
 		ChangeState("Death");

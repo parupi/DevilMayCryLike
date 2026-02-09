@@ -129,12 +129,6 @@ void GameScene::Update()
 		currentState_->Update(*this);
 	}
 
-	if (currentState_ == states_["Menu"].get()) {
-		player_->SetMenu(true);
-	} else {
-		player_->SetMenu(false);
-	}
-
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
 	musk_->Update();
 
