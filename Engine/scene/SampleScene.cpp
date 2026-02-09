@@ -20,13 +20,6 @@
 void SampleScene::Initialize()
 {
 	// カメラの生成
-	normalCamera_ = std::make_unique<BaseCamera>("GameCamera");
-	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
-	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
-	cameraManager_->AddCamera(std::move(normalCamera_));
-	cameraManager_->SetActiveCamera("GameCamera");
-
-	// カメラの生成
 	normalCamera_ = std::make_unique<BaseCamera>("KnockCamera");
 	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -10.0f };
 	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
@@ -57,47 +50,24 @@ void SampleScene::Initialize()
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
-	//emitter_ = std::make_unique<ParticleEmitter>();
-	//emitter_->Initialize("test");
-
 	// 天球の生成
 	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
-	//// オブジェクトを生成
+	// オブジェクトを生成
 	object_ = std::make_unique<Object3d>("obj1");
 	object_->Initialize();
 
-	//// レンダラーの追加
-	////RendererManager::GetInstance()->AddRenderer(std::move(render1_));
+	// レンダラーの追加
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "plane"));
 
 	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
-	//// モデルとアニメーション取得
-	//SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
-	//Animation* anim = model->GetAnimation();
 
-	//anim->Play("Falling", true, 0.5f);
-
-	//for (int32_t i = 0; i < 1; i++) {
-	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
-	//}
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
 	// ============ライト=================//
-	//lightManager_ = std::make_unique<LightManager>();
-	//std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
-	//dirLight->GetLightData().intensity = 1.0f;
-	//dirLight->GetLightData().enabled = true;
-	//dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
-	//lightManager_->AddDirectionalLight(std::move(dirLight));
 	lightManager_->CreateDirectionalLight("dir");
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
-	////OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GaussianEffect>());
 }
 
 void SampleScene::Finalize()
@@ -107,26 +77,7 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
-	ImGui::Begin("Camera");
-	auto& cameraName = cameraManager_->GetActiveCamera()->name_;
-	ImGui::Text("CameraName : %s", cameraName.c_str());
-	if (ImGui::Button("ChangeCamera")) {
-		if (cameraName == "GameCamera") {
-			cameraManager_->SetActiveCamera("KnockCamera", 2.0f);
-		} else {
-			cameraManager_->SetActiveCamera("GameCamera", 2.0f);
-		}
-	}
-	ImGui::End();
-
-	//emitter_->Update();
-
-
 	lightManager_->UpdateAllLight();
-
-	//object_->Update(DeltaTime::GetDeltaTime());
-
-	dirLight_ = lightManager_->GetDirectionalLight("dir1");
 
 #ifdef _DEBUG
 	DebugUpdate();
@@ -136,12 +87,6 @@ void SampleScene::Update()
 void SampleScene::Draw()
 {
 	Object3dManager::GetInstance()->DrawSet();
-
-	//Object3dManager::GetInstance()->DrawSetForAnimation();
-	//lightManager_->BindLightsToShader();
-	//cameraManager_->BindCameraToShader();
-	//object_->Draw();
-
 
 	ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();
@@ -156,12 +101,5 @@ void SampleScene::DrawRTV()
 #ifdef _DEBUG
 void SampleScene::DebugUpdate()
 {
-	//ImGui::Begin("Object");
-	//object_->DebugGui();
-	//ImGui::End();
-
-	//ImGui::Begin("Object2");
-	//object2_->DebugGui();
-	//ImGui::End();
 }
 #endif
