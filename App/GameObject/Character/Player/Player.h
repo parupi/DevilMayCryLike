@@ -116,7 +116,7 @@ public:
 
 	void Clear();
 
-	void SetIntent(const MoveIntent& intent);
+	//void SetIntent(const MoveIntent& intent);
 
 	void RequestAttack(AttackType id);
 

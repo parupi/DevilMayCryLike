@@ -99,10 +99,10 @@ void PlayerStateMove::Move(Player& player)
 		//	}
 		//}
 
-		MoveIntent intent;
-		intent.moveDir = moveDir;
-		intent.moveScale = 10.0f;
-		//intent.
-		player.SetIntent(intent);
+		//MoveIntent intent;
+		//intent.moveDir = moveDir;
+		//intent.moveScale = 10.0f;
+		////intent.
+		//player.SetIntent(intent);
 	}
 }

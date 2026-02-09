@@ -17,15 +17,8 @@
 #include <3d/SkySystem/SkySystem.h>
 #include <offscreen/GaussianEffect.h>
 
-namespace ed = ax::NodeEditor;
-
 void SampleScene::Initialize()
 {
-	ed::Config config;
-	config.SettingsFile = "NodeTest.json"; // 自動保存用（任意）
-
-	context_ = ed::CreateEditor(&config);
-
 	// カメラの生成
 	normalCamera_ = std::make_unique<BaseCamera>("GameCamera");
 	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
@@ -64,24 +57,21 @@ void SampleScene::Initialize()
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
-
-
 	//emitter_ = std::make_unique<ParticleEmitter>();
 	//emitter_->Initialize("test");
 
-	//// 天球の生成
-	//SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
+	// 天球の生成
+	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
 	//// オブジェクトを生成
-	//object_ = std::make_unique<Object3d>("obj1");
-	//object_->Initialize();
-	//object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
+	object_ = std::make_unique<Object3d>("obj1");
+	object_->Initialize();
 
 	//// レンダラーの追加
 	////RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "plane"));
 
-	//object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
+	object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
 	//// モデルとアニメーション取得
 	//SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
@@ -93,7 +83,7 @@ void SampleScene::Initialize()
 	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
 	//}
 	// ゲームオブジェクトを追加
-	//Object3dManager::GetInstance()->AddObject(std::move(object_));
+	Object3dManager::GetInstance()->AddObject(std::move(object_));
 
 	// ============ライト=================//
 	//lightManager_ = std::make_unique<LightManager>();
@@ -103,7 +93,7 @@ void SampleScene::Initialize()
 	//dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
 	//lightManager_->AddDirectionalLight(std::move(dirLight));
-
+	lightManager_->CreateDirectionalLight("dir");
 	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
 	////OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
 	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
@@ -112,10 +102,7 @@ void SampleScene::Initialize()
 
 void SampleScene::Finalize()
 {
-	if (context_) {
-		ed::DestroyEditor(context_);
-		context_ = nullptr;
-	}
+
 }
 
 void SampleScene::Update()
@@ -132,108 +119,12 @@ void SampleScene::Update()
 	}
 	ImGui::End();
 
-	ed::SetCurrentEditor(context_);
-
-	static bool initialized = false;
-	if (!initialized)
-	{
-		ed::SetNodePosition(1, ImVec2(100, 100));
-		ed::SetNodePosition(2, ImVec2(400, 100));
-		ed::SetNodePosition(3, ImVec2(700, 100));
-		initialized = true;
-	}
-
-	ed::Begin("NodeTest");
-
-	// -------------------------
-	 // ノード描画
-	 // -------------------------
-	for (const auto& node : nodes)
-	{
-		ed::BeginNode(node.id);
-
-		// タイトル
-		//ed::BeginNodeTitleBar();
-		//ImGui::TextUnformatted(node.name);
-		//ed::EndNodeTitleBar();
-
-		// Input Pin
-		ed::BeginPin(node.inputPin, ed::PinKind::Input);
-		ImGui::Text("In");
-		ed::EndPin();
-
-		ImGui::SameLine();
-
-		// Output Pin
-		ed::BeginPin(node.outputPin, ed::PinKind::Output);
-		ImGui::Text("Out");
-		ed::EndPin();
-
-		ed::EndNode();
-	}
-
-	// -------------------------
-	// 既存リンク描画
-	// -------------------------
-	for (const auto& link : links)
-	{
-		ed::Link(link.id, link.from, link.to);
-	}
-
-	// -------------------------
-	// リンク作成
-	// -------------------------
-	if (ed::BeginCreate())
-	{
-		ed::PinId startPin, endPin;
-		if (ed::QueryNewLink(&startPin, &endPin))
-		{
-			//// Input ← Output になるように補正
-			//if (ed::GetPinKind(startPin) == ed::PinKind::Input) {
-			//	std::swap(startPin, endPin);
-			//}
-
-			if (ed::AcceptNewItem()) {
-				links.push_back({
-					nextLinkId++,
-					(PinID)startPin.Get(),
-					(PinID)endPin.Get()
-					});
-			}
-		}
-	}
-	ed::EndCreate();
-
-	// -------------------------
-	// リンク削除
-	// -------------------------
-	if (ed::BeginDelete())
-	{
-		ed::LinkId linkId;
-		while (ed::QueryDeletedLink(&linkId))
-		{
-			if (ed::AcceptDeletedItem())
-			{
-				links.erase(
-					std::remove_if(
-						links.begin(),
-						links.end(),
-						[&](const Link& l) { return l.id == linkId.Get(); }
-					),
-					links.end()
-				);
-			}
-		}
-	}
-	ed::EndDelete();
-	ed::End();
-
-	emitter_->Update();
+	//emitter_->Update();
 
 
 	lightManager_->UpdateAllLight();
 
-	object_->Update(DeltaTime::GetDeltaTime());
+	//object_->Update(DeltaTime::GetDeltaTime());
 
 	dirLight_ = lightManager_->GetDirectionalLight("dir1");
 
@@ -249,7 +140,7 @@ void SampleScene::Draw()
 	//Object3dManager::GetInstance()->DrawSetForAnimation();
 	//lightManager_->BindLightsToShader();
 	//cameraManager_->BindCameraToShader();
-	object_->Draw();
+	//object_->Draw();
 
 
 	ParticleManager::GetInstance()->DrawSet();
@@ -265,9 +156,9 @@ void SampleScene::DrawRTV()
 #ifdef _DEBUG
 void SampleScene::DebugUpdate()
 {
-	ImGui::Begin("Object");
-	object_->DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Object");
+	//object_->DebugGui();
+	//ImGui::End();
 
 	//ImGui::Begin("Object2");
 	//object2_->DebugGui();

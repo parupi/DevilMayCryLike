@@ -5,10 +5,10 @@ void PlayerMovement::Initialize()
 {
 }
 
-void PlayerMovement::SetIntent(const MoveIntent& intent)
-{
-    intent_ = intent;
-}
+//void PlayerMovement::SetIntent(const MoveIntent& intent)
+//{
+//    //intent_ = intent;
+//}
 
 void PlayerMovement::Update(float deltaTime)
 {
@@ -32,30 +32,30 @@ void PlayerMovement::UpdateGroundState()
 
 void PlayerMovement::ApplyHorizontalMove(float deltaTime)
 {
-    Vector3 dir = intent_.moveDir;
-    if (Length(dir) <= 0.0f) return;
+    //Vector3 dir = intent_.moveDir;
+    //if (Length(dir) <= 0.0f) return;
 
-    float targetSpeed = runSpeed_ * intent_.moveScale;
+    //float targetSpeed = runSpeed_ * intent_.moveScale;
 
-    Vector3 targetVel = dir * targetSpeed;
-    Vector3 currentVel = velocity_;
-    currentVel.y = 0.0f;
+    //Vector3 targetVel = dir * targetSpeed;
+    //Vector3 currentVel = velocity_;
+    //currentVel.y = 0.0f;
 
-    float accel = isGrounded_ ? groundAccel_ : airAccel_;
+    //float accel = isGrounded_ ? groundAccel_ : airAccel_;
 
-    Vector3 delta = targetVel - currentVel;
-    Vector3 accelStep = ClampLength(delta, accel * deltaTime);
+    //Vector3 delta = targetVel - currentVel;
+    //Vector3 accelStep = ClampLength(delta, accel * deltaTime);
 
-    velocity_ += accelStep;
+    //velocity_ += accelStep;
 }
 
 void PlayerMovement::ApplyJump()
 {
-    if (!intent_.jump) return;
-    if (!isGrounded_) return;
+    //if (!intent_.jump) return;
+    //if (!isGrounded_) return;
 
-    velocity_.y = jumpPower_;
-    isGrounded_ = false;
+    //velocity_.y = jumpPower_;
+    //isGrounded_ = false;
 }
 
 void PlayerMovement::ApplyGravity(float deltaTime)
@@ -72,5 +72,5 @@ void PlayerMovement::Integrate(float deltaTime)
 
 void PlayerMovement::ClearIntent()
 {
-    intent_ = {};
+    //intent_ = {};
 }

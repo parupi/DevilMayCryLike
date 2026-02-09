@@ -1,11 +1,11 @@
 {
-    "Dir": {
+    "dir": {
         "Direction": [
             0.0,
             -1.0,
-            0.0
+            -1.0
         ],
         "Enabled": true,
-        "Intensity": 1.0
+        "Intensity": 0.49000000953674316
     }
 }

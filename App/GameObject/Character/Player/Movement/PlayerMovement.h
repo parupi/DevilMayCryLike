@@ -10,7 +10,7 @@ public:
     void Initialize();
 
     // Intent を受け取る
-    void SetIntent(const MoveIntent& intent);
+    //void SetIntent(const MoveIntent& intent);
 
     // 毎フレーム更新
     void Update(float deltaTime);
@@ -35,7 +35,7 @@ private:
     Vector3 velocity_;
     bool isGrounded_ = false;
 
-    MoveIntent intent_;
+    //MoveIntent intent_;
 
     // ---- パラメータ ----
     float walkSpeed_ = 3.0f;

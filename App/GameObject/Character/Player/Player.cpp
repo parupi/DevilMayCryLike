@@ -278,10 +278,10 @@ void Player::Clear()
 	isClear_ = true;
 }
 
-void Player::SetIntent(const MoveIntent& intent)
-{
-	//movement_->SetIntent(intent);
-}
+//void Player::SetIntent(const MoveIntent& intent)
+//{
+//	//movement_->SetIntent(intent);
+//}
 
 void Player::RequestAttack(AttackType id)
 {
