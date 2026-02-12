@@ -50,7 +50,7 @@ void LightingPath::CreateFullScreenVB()
 	fullScreenVBV_.StrideInBytes = sizeof(FullScreenVertex);
 }
 
-void LightingPath::Begin(CascadedShadowMap* csm)
+void LightingPath::Begin()
 {
 	auto cmd = dxManager_->GetCommandList();
 	auto* commandContext = dxManager_->GetCommandContext();
@@ -180,35 +180,4 @@ void LightingPath::CreateOutputResource()
 	outputSrvIndex_ = srvManager->Allocate();
 	srvManager->CreateSRVforTexture2D(outputSrvIndex_, outputRtvResource_.Get(), desc.format, 1);
 	outputSrvTable_ = srvManager->GetGPUDescriptorHandle(outputSrvIndex_);
-}
-
-void LightingPath::BindShadowMap(CascadedShadowMap* csm)
-{
-	auto* resourceManager = dxManager_->GetResourceManager();
-	auto* srvManager = dxManager_->GetSrvManager();
-	auto* commandList = dxManager_->GetCommandList();
-
-	// [4] Cascade CB (b4)
-	commandList->SetGraphicsRootConstantBufferView(
-		4,
-		resourceManager->GetGPUVirtualAddress(
-			csm->GetCascadeCBHandle()
-		)
-	);
-
-	// [5] LightVP CB (b5)
-	commandList->SetGraphicsRootConstantBufferView(
-		5,
-		resourceManager->GetGPUVirtualAddress(
-			csm->GetLightVPCBHandle()
-		)
-	);
-
-	// [6] ShadowMap SRV (t5)
-	commandList->SetGraphicsRootDescriptorTable(
-		6,
-		srvManager->GetGPUDescriptorHandle(
-			csm->GetShadowMapSrvIndex()
-		)
-	);
 }

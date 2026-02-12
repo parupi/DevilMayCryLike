@@ -1573,21 +1573,11 @@ void PSOManager::CreateLightingPathSignature()
 	samplerDesc.RegisterSpace = 0;
 	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	// ShadowMapSampler (s1)
-	D3D12_STATIC_SAMPLER_DESC shadowSampler{};
-	shadowSampler.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	shadowSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	shadowSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	shadowSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
-	shadowSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
-	shadowSampler.ShaderRegister = 1; // s1
-	shadowSampler.RegisterSpace = 0;
-	shadowSampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
 	// Descriptor ranges:
 	//  - t0..t3 : GBuffer textures (Albedo, Normal, WorldPos, Material)
 	//  - t4     : Lights StructuredBuffer
 	D3D12_DESCRIPTOR_RANGE descriptorRanges[1] = {};
+
 	// range 0: GBuffer SRVs (t0..t3)
 	descriptorRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRanges[0].NumDescriptors = 4;            // t0, t1, t2, t3
@@ -1603,16 +1593,9 @@ void PSOManager::CreateLightingPathSignature()
 	descriptorRangesForLight[0].RegisterSpace = 0;
 	descriptorRangesForLight[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	// シャドウマップ
-	D3D12_DESCRIPTOR_RANGE shadowMapRange{};
-	shadowMapRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	shadowMapRange.NumDescriptors = 1;        // Texture2DArray
-	shadowMapRange.BaseShaderRegister = 5;    // t5
-	shadowMapRange.RegisterSpace = 0;
-	shadowMapRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
 	// RootParameter 作成
-	D3D12_ROOT_PARAMETER rootParameters[7] = {};
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
+
 	// [0] DescriptorTable (GBuffer)
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(descriptorRanges);
@@ -1631,28 +1614,11 @@ void PSOManager::CreateLightingPathSignature()
 	rootParameters[2].Descriptor.RegisterSpace = 0;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	// [3] DescriptorTable (Lights)
+	// [4] DescriptorTable (Lights)
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForLight);
 	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRangesForLight;
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	// b4 : CascadeSplits + params
-	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[4].Descriptor.ShaderRegister = 4;
-	rootParameters[4].Descriptor.RegisterSpace = 0;
-	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	// b5 : LightVP array
-	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[5].Descriptor.ShaderRegister = 5;
-	rootParameters[5].Descriptor.RegisterSpace = 0;
-	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	rootParameters[6].ParameterType =D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[6].DescriptorTable.NumDescriptorRanges = 1;
-	rootParameters[6].DescriptorTable.pDescriptorRanges = &shadowMapRange;
-	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	// Root Signature Desc
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};

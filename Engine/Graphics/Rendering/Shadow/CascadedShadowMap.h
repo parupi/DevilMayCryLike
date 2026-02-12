@@ -32,9 +32,6 @@ public:
 	// シャドウマップサイズを取得
 	uint32_t GetShadowMapSize() const { return shadowMapSize_; }
 
-	uint32_t GetShadowMapSrvIndex() const { return shadowMapSrvIndex_; }
-	uint32_t GetCascadeCBHandle() const { return cascadeCBHandle_; }
-	uint32_t GetLightVPCBHandle() const { return lightVPCBHandle_; }
 private:
 	void CalculateCascadeSplits();
 	void CalculateLightMatrices();
@@ -64,9 +61,5 @@ private:
 
 	std::array<uint32_t, kCascadeCount> dsvIndices_;
 	std::array<uint32_t, kCascadeCount> srvIndices_;
-
-	uint32_t shadowMapSrvIndex_;
-	uint32_t cascadeCBHandle_;
-	uint32_t lightVPCBHandle_;
 };
 
