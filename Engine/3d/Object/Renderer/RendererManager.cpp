@@ -1,5 +1,6 @@
 #include "RendererManager.h"
 #include "3d/Object/Model/BaseModel.h"
+//#include "Graphics/Rendering/RenderPath/Deferred/GBufferManager.h"
 
 RendererManager* RendererManager::instance = nullptr;
 std::once_flag RendererManager::initInstanceFlag;

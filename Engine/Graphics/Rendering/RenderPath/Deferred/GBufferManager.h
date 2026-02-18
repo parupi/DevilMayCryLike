@@ -16,7 +16,7 @@ public:
 		Normal,
 		WorldPos,
 		Material,
-		Depth,
+		//Depth,
 		Count
 	};
 
@@ -29,10 +29,10 @@ public:
 
 	// RTV / SRV / DSV取得用
 	D3D12_CPU_DESCRIPTOR_HANDLE GetRTVHandle(GBufferType type) const;
-	D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() const; // 深度用
+	//D3D12_CPU_DESCRIPTOR_HANDLE GetDSVHandle() const; // 深度用
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSRVHandle(GBufferType type) const;
 
-	uint32_t GetDepthIndex() const { return srvIndices_[(UINT)GBufferType::Depth]; }
+	//uint32_t GetDepthIndex() const { return srvIndices_[(UINT)GBufferType::Depth]; }
 
 	ID3D12Resource* GetResource(GBufferType type) const;
 

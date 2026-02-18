@@ -10,11 +10,6 @@ cbuffer MaterialParam : register(b0)
     float2 padding;
 };
 
-float Linear01Depth(float4 posCS)
-{
-    return 1.0f - (posCS.z / posCS.w);
-}
-
 GBufferOutput main(VSOutput input)
 {
     GBufferOutput output;
@@ -32,16 +27,5 @@ GBufferOutput main(VSOutput input)
     // ------- World Pos -------
     output.worldPos_Padding = input.worldPosWS;
     
-    // ------- Depth -------
-    output.depth = Linear01Depth(input.positionCS);
-    
-
     return output;
 }
-
-//float4 main(VSOutput input) : SV_Target0
-//{
-//    // Debug PSO: 出力 color = depth (z/w) as grey
-//    float depth = input.positionCS.z / input.positionCS.w;
-//    return float4(depth, depth, depth, 1);
-//}

@@ -13,8 +13,8 @@ void GuchisFramework::Initialize()
 	psoManager = std::make_unique<PSOManager>();
 	psoManager->Initialize(dxManager.get());
 
-	gBufferManager = std::make_unique<GBufferManager>();
-	gBufferManager->Initialize(dxManager.get());
+	//gBufferManager = std::make_unique<GBufferManager>();
+	//gBufferManager->Initialize(dxManager.get());
 
 	// 入力の初期化
 	Input::GetInstance()->Initialize();
@@ -28,9 +28,9 @@ void GuchisFramework::Finalize()
 {
 	Input::GetInstance()->Finalize();
 	Audio::GetInstance()->Finalize();
-	gBufferManager->Finalize();
-	gBufferPath.reset();
-	lightingPath.reset();
+	//gBufferManager->Finalize();
+	//gBufferPath.reset();
+	//lightingPath.reset();
 	psoManager->Finalize();
 	winManager->Finalize();
 	

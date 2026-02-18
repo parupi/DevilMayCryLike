@@ -19,7 +19,7 @@ void GBufferPath::Initialize(DirectXManager* dxManager, GBufferManager* gBuffer,
 	psoManager_ = psoManager;
 }
 
-void GBufferPath::Begin()
+void GBufferPath::Begin(uint32_t dsvIndex)
 {
 	gBuffer_->TransitionAllToRT();
 
@@ -31,15 +31,13 @@ void GBufferPath::Begin()
 		gBuffer_->GetRTVHandle(GBufferManager::GBufferType::WorldPos)
 	};
 
-	// Depth
-	auto dsv = gBuffer_->GetDSVHandle();
-
 	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, WindowManager::kClientWidth, WindowManager::kClientHeight, 0.0f, 1.0f };
 	D3D12_RECT scissorRect{ 0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight };
 
 	commandContext->SetViewportAndScissor(viewport, scissorRect);
-
-	commandContext->SetRenderTargets(rtvs, _countof(rtvs), &dsv);
+	// DSVのクリア
+	auto dsvHandle = dxManager_->GetDsvManager()->GetDsvHandle(dsvIndex);
+	commandContext->SetRenderTargets(rtvs, _countof(rtvs), &dsvHandle);
 
 	// --- 各リソースのクリア値を取得 ---
 	D3D12_CLEAR_VALUE albedoClear{};
@@ -68,7 +66,7 @@ void GBufferPath::Begin()
 	commandContext->ClearRenderTarget(rtvs[1], normalClear.Color);
 	commandContext->ClearRenderTarget(rtvs[2], worldPosClear.Color);
 
-	commandContext->ClearDepth(dsv);
+	commandContext->ClearDepth(dxManager_->GetDsvManager()->GetDsvHandle(dsvIndex));
 
 	auto* cmd = dxManager_->GetCommandList();
 

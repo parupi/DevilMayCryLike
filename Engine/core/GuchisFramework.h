@@ -12,13 +12,14 @@
 #include <audio/Audio.h>
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include <3d/SkySystem/SkySystem.h>
-#include <base/GBufferManager.h>
-#include <base/GBufferPath.h>
-#include <base/LightingPath.h>
+//#include <base/GBufferManager.h>
+//#include <base/GBufferPath.h>
+//#include <base/LightingPath.h>
 #include <Graphics/Rendering/RenderPath/ForwardRenderPath.h>
 #include <Graphics/Rendering/RenderPath/CompositePath.h>
 #include <Graphics/Rendering/Shadow/CascadedShadowMap.h>
 #include <Graphics/Rendering/RenderPath/Shadow/ShadowPass.h>
+#include "Graphics/Rendering/RenderPath/RenderPipeline.h"
 
 class GuchisFramework
 {
@@ -52,11 +53,13 @@ protected:
 	std::unique_ptr<DirectXManager> dxManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
-	std::unique_ptr<GBufferManager> gBufferManager = nullptr;
-	std::unique_ptr<GBufferPath> gBufferPath = nullptr;
-	std::unique_ptr<LightingPath> lightingPath = nullptr;
-	std::unique_ptr<ForwardRenderPath> forwardPath = nullptr;
-	std::unique_ptr<CompositePath> compositePath = nullptr;
+	//std::unique_ptr<GBufferManager> gBufferManager = nullptr;
+	//std::unique_ptr<GBufferPath> gBufferPath = nullptr;
+	//std::unique_ptr<LightingPath> lightingPath = nullptr;
+	//std::unique_ptr<ForwardRenderPath> forwardPath = nullptr;
+	//std::unique_ptr<CompositePath> compositePath = nullptr;
+	std::unique_ptr<RenderPipeline> renderPipeline_;
+
 	std::unique_ptr<CascadedShadowMap> csm = nullptr;
 	std::unique_ptr<ShadowPass> shadowPath = nullptr;
 };

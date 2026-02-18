@@ -143,6 +143,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\CompositePath.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
@@ -241,10 +242,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="App\GameObject\Player\State\PlayerStateDeath.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
-    <ClInclude Include="Engine\base\GBufferManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.h" />
     <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
-    <ClInclude Include="Engine\base\GBufferPath.h" />
-    <ClInclude Include="Engine\base\LightingPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.h" />
     <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
     <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h" />
     <ClInclude Include="Engine\Graphics\Resource\ResourceManager.h" />
@@ -284,6 +285,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\CompositePath.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
@@ -366,9 +368,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="Engine\base\GBufferManager.cpp" />
-    <ClCompile Include="Engine\base\GBufferPath.cpp" />
-    <ClCompile Include="Engine\base\LightingPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.cpp" />
     <ClCompile Include="main.cpp" />
@@ -383,51 +385,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
       <Project>{A90EE592-95C6-26E0-FECD-FF3BEAA4C1D0}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Resource\shaders\GBuffer.PS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Resource\shaders\Lighting.PS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Resource\shaders\Lighting.VS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-    <FxCompile Include="Resource\shaders\Shadow\CSM\CascadedShadowMap.VS.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resource\shaders\GBuffer.hlsli">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="Resource\shaders\Lighting.hlsli">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
-    <None Include="Resource\shaders\TransformCommon.hlsli">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

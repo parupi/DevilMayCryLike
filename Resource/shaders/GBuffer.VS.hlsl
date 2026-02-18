@@ -12,11 +12,11 @@ VSOutput main(VertexInput input)
     output.worldPosWS = float4(0, 0, 0, 0);
     
     // world position (WS)
-    float4 worldPos = mul(float4(input.position.xyz, 1.0f), World);
+    float4 worldPos = mul(input.position, World);
     output.worldPosWS = worldPos;
 
     // clip space position
-    output.positionCS = mul(float4(input.position.xyz, 1.0f), WVP);
+    output.positionCS = mul(input.position, WVP);
 
     // normal (world space)
     float3 worldNormal = normalize(mul(float4(input.normal.xyz, 0.0f), WorldInverseTranspose).xyz);

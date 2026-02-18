@@ -21,7 +21,6 @@ void LightingPath::Initialize(DirectXManager* dx, GBufferManager* gBuffer, PSOMa
 
 	CreateFullScreenVB();
 	CreateGBufferSRVs();
-	CreateOutputResource();
 }
 
 void LightingPath::CreateFullScreenVB()
@@ -50,7 +49,7 @@ void LightingPath::CreateFullScreenVB()
 	fullScreenVBV_.StrideInBytes = sizeof(FullScreenVertex);
 }
 
-void LightingPath::Begin()
+void LightingPath::Begin(uint32_t rtvIndex)
 {
 	auto cmd = dxManager_->GetCommandList();
 	auto* commandContext = dxManager_->GetCommandContext();
@@ -59,19 +58,12 @@ void LightingPath::Begin()
 	cmd->SetPipelineState(psoManager_->GetLightingPathPSO());
 	cmd->SetGraphicsRootSignature(psoManager_->GetLightingPathSignature());
 
-	// 出力リソースを RT に戻す
-	commandContext->TransitionResource(
-		outputRtvResource_.Get(),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_RENDER_TARGET
-	);
-
 	// 描画ターゲットの設定
-	commandContext->SetRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(outputRtvIndex_));
+	commandContext->SetRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndex));
 
 	// rtvのクリア（UI等で参照する場合は残す）
 	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
-	commandContext->ClearRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(outputRtvIndex_), clearColor);
+	commandContext->ClearRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndex), clearColor);
 
 	ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
 	dxManager_->GetCommandList()->SetDescriptorHeaps(_countof(heaps), heaps);
@@ -89,13 +81,6 @@ void LightingPath::End()
 	cmd->IASetVertexBuffers(0, 1, &fullScreenVBV_);
 	cmd->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	cmd->DrawInstanced(3, 1, 0, 0);
-
-	// 読み込み用に変更
-	commandContext->TransitionResource(
-		outputRtvResource_.Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-	);
 }
 
 void LightingPath::CreateGBufferSRVs()
@@ -148,36 +133,4 @@ void LightingPath::CreateGBufferSRVs()
 
 	// ---- ③ GPUハンドルをキャッシュ ----
 	gBufferSrvTable_ = srvManager->GetGPUDescriptorHandle(gBufferSrvStartIndex_);
-}
-
-void LightingPath::CreateOutputResource()
-{
-	auto* rtvManager = dxManager_->GetRtvManager();
-	auto* srvManager = dxManager_->GetSrvManager();
-	auto* commandContext = dxManager_->GetCommandContext();
-
-	// リソースの生成
-	GpuResourceFactory::TextureDesc desc;
-	desc.clearColor[0] = 0.6f;
-	desc.clearColor[1] = 0.5f;
-	desc.clearColor[2] = 0.1f;
-	desc.clearColor[3] = 1.0f;
-	desc.format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	desc.usage = GpuResourceFactory::Usage::RenderTarget;
-	outputRtvResource_ = dxManager_->GetResourceFactory()->CreateTexture2D(desc);
-
-	// rtvの生成
-	outputRtvIndex_ = rtvManager->Allocate();
-	dxManager_->GetRtvManager()->CreateRTV(outputRtvIndex_, outputRtvResource_.Get());
-
-	commandContext->TransitionResource(
-		outputRtvResource_.Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-	);
-
-	// SRV の生成（DirectXManager が最終合成で使えるようにする）
-	outputSrvIndex_ = srvManager->Allocate();
-	srvManager->CreateSRVforTexture2D(outputSrvIndex_, outputRtvResource_.Get(), desc.format, 1);
-	outputSrvTable_ = srvManager->GetGPUDescriptorHandle(outputSrvIndex_);
 }

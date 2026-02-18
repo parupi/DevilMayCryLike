@@ -3,10 +3,7 @@
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Resource/SrvManager.h"
 #include "BaseRenderer.h"
-#include <base/GBufferManager.h>
 #include "Graphics/Rendering/PSO/PSOManager.h"
-
-
 
 class RendererManager
 {

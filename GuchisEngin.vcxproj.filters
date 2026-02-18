@@ -522,11 +522,11 @@
     <ClInclude Include="App\GameObject\Player\State\PlayerStateDeath.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
-    <ClInclude Include="Engine\base\GBufferManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.h" />
     <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
     <ClInclude Include="Engine\Graphics\Resource\DsvManager.h" />
-    <ClInclude Include="Engine\base\GBufferPath.h" />
-    <ClInclude Include="Engine\base\LightingPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.h" />
     <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
     <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h" />
     <ClInclude Include="Engine\Graphics\Resource\ResourceManager.h" />
@@ -536,6 +536,7 @@
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -869,11 +870,11 @@
     <ClCompile Include="App\GameObject\Player\State\PlayerStateDeath.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
-    <ClCompile Include="Engine\base\GBufferManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\RtvManager.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
-    <ClCompile Include="Engine\base\GBufferPath.cpp" />
-    <ClCompile Include="Engine\base\LightingPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.cpp" />
     <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
@@ -881,17 +882,6 @@
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\CompositePath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Resource\shaders\GBuffer.VS.hlsl" />
-    <FxCompile Include="Resource\shaders\GBuffer.PS.hlsl" />
-    <FxCompile Include="Resource\shaders\Lighting.VS.hlsl" />
-    <FxCompile Include="Resource\shaders\Lighting.PS.hlsl" />
-    <FxCompile Include="Resource\shaders\Shadow\CSM\CascadedShadowMap.VS.hlsl" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resource\shaders\GBuffer.hlsli" />
-    <None Include="Resource\shaders\TransformCommon.hlsli" />
-    <None Include="Resource\shaders\Lighting.hlsli" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
   </ItemGroup>
 </Project>

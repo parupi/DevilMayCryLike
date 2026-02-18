@@ -49,17 +49,8 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 
-	gBufferPath = std::make_unique<GBufferPath>();
-	gBufferPath->Initialize(dxManager.get(), gBufferManager.get(), psoManager.get());
-
-	lightingPath = std::make_unique<LightingPath>();
-	lightingPath->Initialize(dxManager.get(), gBufferManager.get(), psoManager.get());
-
-	forwardPath = std::make_unique<ForwardRenderPath>();
-	forwardPath->Initialize(dxManager.get(), psoManager.get());
-
-	compositePath = std::make_unique<CompositePath>();
-	compositePath->Initialize(dxManager.get(), psoManager.get());
+	renderPipeline_ = std::make_unique<RenderPipeline>();
+	renderPipeline_->Initialize(dxManager.get(), psoManager.get());
 
 	csm = std::make_unique<CascadedShadowMap>();
 	csm->Initialize(dxManager.get(), 1280);
@@ -124,82 +115,7 @@ void MyGameTitle::Update()
 
 void MyGameTitle::Draw()
 {
-	shadowPath->BeginDraw();
-	shadowPath->Execute();
-	shadowPath->EndDraw();
-
-	///---------------------------------------------------------
-	/// GBufferPath（Deferredの各バッファ生成）
-	///---------------------------------------------------------
-	gBufferPath->Begin();
-
-	Object3dManager::GetInstance()->DrawDeferred();
-
-	gBufferPath->End();
-
-	///---------------------------------------------------------
-	/// LightingPath（GBuffer結果を使って描画）
-	///---------------------------------------------------------
-	lightingPath->Begin();
-
-	LightManager::GetInstance()->BindLightsToShader();
-	CameraManager::GetInstance()->BindCameraToShader();
-
-	lightingPath->End();
-
-	///---------------------------------------------------------
-	/// ForwardRenderPath
-	///---------------------------------------------------------
-
-	// 描画前処理
-	forwardPath->BeginDraw();
-	// スカイボックスの描画
-	SkySystem::GetInstance()->Draw();
-	// Forward描画で設定されているオブジェクトの描画
-	Object3dManager::GetInstance()->DrawForward();
-	// シーンの描画
-	SceneManager::GetInstance()->Draw();
-	// トランジションの描画
-	TransitionManager::GetInstance()->Draw();
-	// 描画後処理
-	forwardPath->EndDraw();
-
-	///---------------------------------------------------------
-	/// CompositePath (deferred結果とforward結果の合成)
-	///---------------------------------------------------------
-
-	compositePath->Composite(forwardPath->GetSrvIndex(), forwardPath->GetSrvForDepthIndex(), lightingPath->GetOutputSrvIndex(), gBufferManager->GetDepthIndex());
-
-	///---------------------------------------------------------
-	/// OffScreen（ポストエフェクト前の下準備 or 前景エフェクト）
-	///---------------------------------------------------------
-	OffScreenManager::GetInstance()->CopyLightingToPing(compositePath->GetSrvIndex());
-
-	OffScreenManager::GetInstance()->BeginDrawToPingPong();
-
-	OffScreenManager::GetInstance()->EndDrawToPingPong();
-
-	///---------------------------------------------------------
-	/// PostEffectPath（Ping-Pong結果から最終1枚に統合）
-	///---------------------------------------------------------
-	OffScreenManager::GetInstance()->ExecutePostEffects();
-
-
-	dxManager->BeginDraw();
-
-	dxManager->Render(psoManager.get(), OffScreenManager::GetInstance()->GetFinalSrvIndex());
-
-	///---------------------------------------------------------
-	/// UI, ImGui描画（バックバッファ上で最終）
-	///---------------------------------------------------------
-#ifdef _DEBUG
-	ImGuiManager::GetInstance()->Draw();
-#endif // DEBUG
-
-	///---------------------------------------------------------
-	/// フレーム終了
-	///---------------------------------------------------------
-	dxManager->EndDraw();
+	renderPipeline_->Execute(psoManager.get());
 }
 
 void MyGameTitle::RemoveObjects()

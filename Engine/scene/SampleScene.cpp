@@ -54,7 +54,7 @@ void SampleScene::Initialize()
 	emitter_->Initialize("test");
 
 	// 天球の生成
-	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
+	SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
 
 	// オブジェクトを生成
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("obj1");
@@ -92,7 +92,7 @@ void SampleScene::Initialize()
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	object->GetOption().drawPath = DrawPath::Forward;
+	//object->GetOption().drawPath = DrawPath::Forward;
 
 	object2_ = object.get();
 
@@ -159,8 +159,8 @@ void SampleScene::Draw()
 	//cameraManager_->BindCameraToShader();
 
 
-	//ParticleManager::GetInstance()->DrawSet();
-	//ParticleManager::GetInstance()->Draw();
+	ParticleManager::GetInstance()->DrawSet();
+	ParticleManager::GetInstance()->Draw();
 	//SpriteManager::GetInstance()->DrawSet();
 	//sprite_->Draw();
 }

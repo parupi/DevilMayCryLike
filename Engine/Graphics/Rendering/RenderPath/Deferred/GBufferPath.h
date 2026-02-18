@@ -14,7 +14,7 @@ public:
 
 	void Initialize(DirectXManager* dxManager, GBufferManager* gBuffer, PSOManager* psoManager);
 
-	void Begin();
+	void Begin(uint32_t dsvIndex);
 
 	void End();
 private:
