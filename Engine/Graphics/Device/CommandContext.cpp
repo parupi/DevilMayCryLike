@@ -73,19 +73,16 @@ bool CommandContext::Initialize(ID3D12Device* device)
 
 void CommandContext::Begin()
 {
-	// Fenceの値を更新
-	fenceValue_++;
-	// GPUがここまでたどり着いたときに、Fenceの値を指定した値に代入するようにSignalを送る
-	commandQueue_->Signal(fence_.Get(), fenceValue_);
-
+	// --- 1) GPU が前フレームの作業を終えているか確認 ---
+	// fenceValue_ は Flush() で Signal した最後の値を保持している想定。
 	if (fence_->GetCompletedValue() < fenceValue_) {
-		// 指定したSignalにたどりつけてないので、たどり着くまで待つようにイベントを設定する
-		fence_->SetEventOnCompletion(fenceValue_, fenceEvent_);
-		// イベントを待つ
+		// GPU がまだ前フレームを処理中なので完了するまで待つ
+		Logger::CheckHR(fence_->SetEventOnCompletion(fenceValue_, fenceEvent_), "Failed to set fence event on completion");
 		WaitForSingleObject(fenceEvent_, INFINITE);
 	}
 
-	// 次のフレーム用にリセットしておく
+	// --- 2) CommandAllocator と CommandList を安全にリセット ---
+	// GPU が使い終わっているので reset して問題ない
 	Logger::CheckHR(commandAllocator_->Reset(), "Failed to reset command allocator");
 	Logger::CheckHR(commandList_->Reset(commandAllocator_.Get(), nullptr), "Failed to reset command list.");
 }
@@ -93,19 +90,16 @@ void CommandContext::Begin()
 
 void CommandContext::Flush()
 {
-	// 画面に描く処理はすべて終わり、画面に移すので、状態を遷移
-// RenderTargetからPresentにする
-	barrier_.Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
-	barrier_.Transition.StateAfter = D3D12_RESOURCE_STATE_PRESENT;
-	// TransitionBarrierを振る
-	commandList_->ResourceBarrier(1, &barrier_);
-
-	// コマンドリストの内容和確定させる
+	// --- 1) 現在のコマンドリストを確定して実行 ---
 	Logger::CheckHR(commandList_->Close(), "Failed to close command list");
 
-	// コマンドリストを実行
 	ID3D12CommandList* lists[] = { commandList_.Get() };
 	commandQueue_->ExecuteCommandLists(1, lists);
+
+	// fenceValue_ をインクリメントして、その値を Signal に使う
+	// （Begin() はこの値が完了するのを待つ）
+	fenceValue_++;
+	Logger::CheckHR(commandQueue_->Signal(fence_.Get(), fenceValue_), "Failed to signal command queue");
 }
 
 void CommandContext::FlushAndWait()
@@ -130,28 +124,34 @@ void CommandContext::FlushAndWait()
 
 void CommandContext::TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after)
 {
-	barrier_.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
-	barrier_.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
-	barrier_.Transition.pResource = resource;
-	barrier_.Transition.StateBefore = before;
-	barrier_.Transition.StateAfter = after;
-	barrier_.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+    D3D12_RESOURCE_BARRIER barrier{};
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.Transition.pResource = resource;
+    barrier.Transition.StateBefore = before;
+    barrier.Transition.StateAfter = after;
+    barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
-	// デバッグ出力用ログ作成
-	std::wstringstream ss;
-	ss << L"[Transition] Resource: " << resource
-		<< L" | From: " << std::hex << before
-		<< L" | To: " << std::hex << after << std::endl;
-
-	OutputDebugStringW(ss.str().c_str());
-
-
-	commandList_->ResourceBarrier(1, &barrier_);
+    commandList_->ResourceBarrier(1, &barrier);
 }
 
 void CommandContext::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv)
 {
 	commandList_->OMSetRenderTargets(1, &rtv, false, &dsv);
+}
+
+void CommandContext::SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv)
+{
+	commandList_->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
+}
+
+void CommandContext::SetRenderTargets(const D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, UINT rtvCount, const D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle)
+{
+	if (dsvHandle) {
+		commandList_->OMSetRenderTargets(rtvCount, rtvHandles, FALSE, dsvHandle);
+	} else {
+		commandList_->OMSetRenderTargets(rtvCount, rtvHandles, FALSE, nullptr);
+	}
 }
 
 void CommandContext::ClearRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, const FLOAT clearColor[4])

@@ -1,8 +1,8 @@
 #pragma once
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include <memory>
 #include <mutex>
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 // スプライト共通部
 class SpriteManager
 {

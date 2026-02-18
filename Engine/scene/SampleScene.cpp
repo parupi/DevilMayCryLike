@@ -1,5 +1,5 @@
 #include "SampleScene.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <3d/Object/Model/ModelManager.h>
 #include <base/Particle/ParticleManager.h>
 #include <imgui/imgui.h>
@@ -28,8 +28,8 @@ void SampleScene::Initialize()
 
 	// カメラの生成
 	normalCamera_ = std::make_unique<BaseCamera>("GameCamera");
-	normalCamera_->GetTranslate() = { 0.0f, 16.0f, -25.0f };
-	normalCamera_->GetRotate() = { 0.5f, 0.0f, 0.0f };
+	normalCamera_->GetTranslate() = { 0.0f, 15.0f, -30.0f };
+	normalCamera_->GetRotate() = { 0.4f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
 	cameraManager_->SetActiveCamera("GameCamera");
 
@@ -59,32 +59,26 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 
-	TextureManager::GetInstance()->LoadTexture("Cube.png");
+	//TextureManager::GetInstance()->LoadTexture("Cube.png");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
 
 
-	//emitter_ = std::make_unique<ParticleEmitter>();
-	//emitter_->Initialize("test");
+	// オブジェクトを生成
+	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("obj1");
+	object->Initialize();
 
-	//// 天球の生成
-	//SkySystem::GetInstance()->CreateSkyBox("skybox_cube.dds");
+	// レンダラーの追加
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "axis"));
 
-	//// オブジェクトを生成
-	//object_ = std::make_unique<Object3d>("obj1");
-	//object_->Initialize();
-	//object_->GetWorldTransform()->GetScale() = { 4.0f, 4.0f, 4.0f };
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
-	//// レンダラーの追加
-	////RendererManager::GetInstance()->AddRenderer(std::move(render1_));
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "ParentKoala"));
-
-	//object_->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
+	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
 
 	//// モデルとアニメーション取得
-	//SkinnedModel* model = static_cast<SkinnedModel*>(object_->GetRenderer("render")->GetModel());
+	//SkinnedModel* model = static_cast<SkinnedModel*>(object->GetRenderer("render")->GetModel());
 	//Animation* anim = model->GetAnimation();
 
 	//anim->Play("Falling", true, 0.5f);
@@ -92,150 +86,67 @@ void SampleScene::Initialize()
 	//for (int32_t i = 0; i < 1; i++) {
 	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
 	//}
+
+	object->GetOption().drawPath = DrawPath::Forward;
+
+	object_ = object.get();
 	// ゲームオブジェクトを追加
-	//Object3dManager::GetInstance()->AddObject(std::move(object_));
+	Object3dManager::GetInstance()->AddObject(std::move(object));
+
+	// オブジェクトを生成
+	object = std::make_unique<Object3d>("obj2");
+	object->Initialize();
+
+	// レンダラーの追加
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+
+	//object->GetOption().drawPath = DrawPath::Forward;
+
+	object2_ = object.get();
+
+	Object3dManager::GetInstance()->AddObject(std::move(object));
+
+
+	//// オブジェクトを生成
+	//object = std::make_unique<Object3d>("obj3");
+	//object->Initialize();
+
+	//// レンダラーの追加
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render3", "weapon"));
+
+	//object->AddRenderer(RendererManager::GetInstance()->FindRender("render3"));
+
+	//object->GetOption().drawPath = DrawPath::Deferred;
+
+	//Object3dManager::GetInstance()->AddObject(std::move(object));
+
+
+	sprite_ = std::make_unique<Sprite>();
+	sprite_->Initialize("uvChecker.png");
 
 	// ============ライト=================//
-	//lightManager_ = std::make_unique<LightManager>();
-	//std::unique_ptr<DirectionalLight> dirLight = std::make_unique<DirectionalLight>("dir1");
-	//dirLight->GetLightData().intensity = 1.0f;
-	//dirLight->GetLightData().enabled = true;
-	//dirLight->GetLightData().color = { 1.0f, 1.0f, 1.0f, 1.0f };
-	//dirLight->GetLightData().direction = { 0.0f, -1.0f, 0.0f };
-	//lightManager_->AddDirectionalLight(std::move(dirLight));
-
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GrayEffect>());
-	////OffScreenManager::GetInstance()->AddEffect(std::make_unique<VignetteEffect>());
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<SmoothEffect>());
-	//OffScreenManager::GetInstance()->AddEffect(std::make_unique<GaussianEffect>());
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
+	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
+	lightManager_->AddLight(std::make_unique<SpotLight>("SampleSpot"));
 }
 
 void SampleScene::Finalize()
 {
-	if (context_) {
-		ed::DestroyEditor(context_);
-		context_ = nullptr;
-	}
 }
 
 void SampleScene::Update()
 {
-	ImGui::Begin("Camera");
-	auto& cameraName = cameraManager_->GetActiveCamera()->name_;
-	ImGui::Text("CameraName : %s", cameraName.c_str());
-	if (ImGui::Button("ChangeCamera")) {
-		if (cameraName == "GameCamera") {
-			cameraManager_->SetActiveCamera("KnockCamera", 2.0f);
-		} else {
-			cameraManager_->SetActiveCamera("GameCamera", 2.0f);
-		}
-	}
-	ImGui::End();
-
-	ed::SetCurrentEditor(context_);
-
-	static bool initialized = false;
-	if (!initialized)
-	{
-		ed::SetNodePosition(1, ImVec2(100, 100));
-		ed::SetNodePosition(2, ImVec2(400, 100));
-		ed::SetNodePosition(3, ImVec2(700, 100));
-		initialized = true;
-	}
-
-	ed::Begin("NodeTest");
-
-	// -------------------------
-	 // ノード描画
-	 // -------------------------
-	for (const auto& node : nodes)
-	{
-		ed::BeginNode(node.id);
-
-		// タイトル
-		//ed::BeginNodeTitleBar();
-		//ImGui::TextUnformatted(node.name);
-		//ed::EndNodeTitleBar();
-
-		// Input Pin
-		ed::BeginPin(node.inputPin, ed::PinKind::Input);
-		ImGui::Text("In");
-		ed::EndPin();
-
-		ImGui::SameLine();
-
-		// Output Pin
-		ed::BeginPin(node.outputPin, ed::PinKind::Output);
-		ImGui::Text("Out");
-		ed::EndPin();
-
-		ed::EndNode();
-	}
-
-	// -------------------------
-	// 既存リンク描画
-	// -------------------------
-	for (const auto& link : links)
-	{
-		ed::Link(link.id, link.from, link.to);
-	}
-
-	// -------------------------
-	// リンク作成
-	// -------------------------
-	if (ed::BeginCreate())
-	{
-		ed::PinId startPin, endPin;
-		if (ed::QueryNewLink(&startPin, &endPin))
-		{
-			//// Input ← Output になるように補正
-			//if (ed::GetPinKind(startPin) == ed::PinKind::Input) {
-			//	std::swap(startPin, endPin);
-			//}
-
-			if (ed::AcceptNewItem()) {
-				links.push_back({
-					nextLinkId++,
-					(PinID)startPin.Get(),
-					(PinID)endPin.Get()
-					});
-			}
-		}
-	}
-	ed::EndCreate();
-
-	// -------------------------
-	// リンク削除
-	// -------------------------
-	if (ed::BeginDelete())
-	{
-		ed::LinkId linkId;
-		while (ed::QueryDeletedLink(&linkId))
-		{
-			if (ed::AcceptDeletedItem())
-			{
-				links.erase(
-					std::remove_if(
-						links.begin(),
-						links.end(),
-						[&](const Link& l) { return l.id == linkId.Get(); }
-					),
-					links.end()
-				);
-			}
-		}
-	}
-	ed::EndDelete();
-	ed::End();
-
-	emitter_->Update();
 
 
-	lightManager_->UpdateAllLight();
+	sprite_->Update();
+	//emitter_->Update();
 
-	object_->Update(DeltaTime::GetDeltaTime());
 
-	dirLight_ = lightManager_->GetDirectionalLight("dir1");
+	lightManager_->Update();
+
+	//dirLight_ = lightManager_->GetDirectionalLight("dir1");
 
 #ifdef _DEBUG
 	DebugUpdate();
@@ -244,16 +155,20 @@ void SampleScene::Update()
 
 void SampleScene::Draw()
 {
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawForGBuffer();
+
+	//RendererManager::GetInstance()->RenderGBufferPass();
 
 	//Object3dManager::GetInstance()->DrawSetForAnimation();
 	//lightManager_->BindLightsToShader();
 	//cameraManager_->BindCameraToShader();
-	object_->Draw();
 
 
 	ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();
+	//SpriteManager::GetInstance()->DrawSet();
+	//sprite_->Draw();
 }
 
 void SampleScene::DrawRTV()
@@ -269,8 +184,8 @@ void SampleScene::DebugUpdate()
 	object_->DebugGui();
 	ImGui::End();
 
-	//ImGui::Begin("Object2");
-	//object2_->DebugGui();
-	//ImGui::End();
+	ImGui::Begin("Object2");
+	object2_->DebugGui();
+	ImGui::End();
 }
 #endif

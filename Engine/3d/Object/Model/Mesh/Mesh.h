@@ -18,6 +18,8 @@ public:
 	void Update();
 
 	void Bind();
+	// GBufferへのバインド
+	void BindForGBuffer();
 
 	void CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
 
@@ -40,6 +42,9 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;
+
+	uint32_t vertexHandle_ = 0;
+	uint32_t indexHandle_ = 0;
 
 	VertexData* vertexData_ = nullptr;
 	uint32_t* indexData_ = nullptr;

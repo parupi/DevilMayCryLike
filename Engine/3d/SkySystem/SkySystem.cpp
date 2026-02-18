@@ -1,6 +1,6 @@
 #include "SkySystem.h"
 #include <3d/Object/Object3dManager.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <3d/Camera/CameraManager.h>
 
 SkySystem* SkySystem::instance = nullptr;
@@ -14,11 +14,11 @@ SkySystem* SkySystem::GetInstance()
 	return instance;
 }
 
-void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
+void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 }
 
 void SkySystem::Finalize()
@@ -70,10 +70,10 @@ void SkySystem::Draw()
   
 	commandList->IASetIndexBuffer(&indexBufferView_);
 
-	commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+	//commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	transform_->BindToShader(commandList, 1);
 	// SRV（キューブマップ）バインド
-	material_->Bind();
+	material_->Bind(2);
 
 	// 描画コール
 	commandList->DrawIndexedInstanced(static_cast<UINT>(indexData_.size()), 1, 0, 0, 0);
@@ -155,7 +155,7 @@ void SkySystem::CreateVertexResource()
 	// バッファサイズの計算
 	UINT sizeVB = static_cast<UINT>(sizeof(VertexDataForSkybox) * vertexData_.size());
 
-	dxManager_->CreateBufferResource(sizeVB, vertexResource_);
+	vertexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(vertexData_.data(), sizeVB);
 
 	// 頂点データの書き込み
 	VertexDataForSkybox* vertexMap = nullptr;
@@ -175,7 +175,7 @@ void SkySystem::CreateIndexResource()
 	UINT sizeIB = static_cast<UINT>(sizeof(uint16_t) * indexData_.size());
 
 	// リソース生成
-	dxManager_->CreateBufferResource(sizeIB, indexResource_);
+	indexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(indexData_.data(), sizeIB);
 
 	// インデックスデータの書き込み
 	uint16_t* indexMap = nullptr;

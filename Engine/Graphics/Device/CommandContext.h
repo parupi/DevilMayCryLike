@@ -20,16 +20,21 @@ public:
 	void TransitionResource(ID3D12Resource* resource, D3D12_RESOURCE_STATES before, D3D12_RESOURCE_STATES after);
 	// レンダーターゲット設定
 	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, D3D12_CPU_DESCRIPTOR_HANDLE dsv);
+	// レンダーターゲット設定
+	void SetRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv);
+	// 
+	void SetRenderTargets(const D3D12_CPU_DESCRIPTOR_HANDLE* rtvHandles, UINT rtvCount, const D3D12_CPU_DESCRIPTOR_HANDLE* dsvHandle);
 	// 
 	void ClearRenderTarget(D3D12_CPU_DESCRIPTOR_HANDLE rtv, const FLOAT clearColor[4]);
 	// 深度のクリア
 	void ClearDepth(D3D12_CPU_DESCRIPTOR_HANDLE dsv);
 	// ビューポートとシザーの設定
 	void SetViewportAndScissor(const D3D12_VIEWPORT& viewport, const D3D12_RECT& scissorRect);
-
-	// 移動予定
 	// フェンス生成
 	void CreateFence();
+
+	ID3D12Fence* GetFence() { return fence_.Get(); }
+	uint64_t GetFenceValue() const { return fenceValue_; }
 
 	// コマンドリスト取得
 	ID3D12GraphicsCommandList* GetCommandList() { return commandList_.Get(); }

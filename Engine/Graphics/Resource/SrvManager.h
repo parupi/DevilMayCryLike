@@ -1,8 +1,15 @@
 #pragma once
-#include <base/DirectXManager.h>
+#include <d3d12.h>
+#include <stdint.h>
+#include <wrl.h>
+
+class DirectXManager;
+
 class SrvManager
 {
 public:
+	SrvManager() = default;
+	~SrvManager();
 	// 初期化
 	void Initialize(DirectXManager* dxManager);
 	// 終了
@@ -16,6 +23,7 @@ public:
 public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);
 	D3D12_GPU_DESCRIPTOR_HANDLE GetGPUDescriptorHandle(uint32_t index);
+	ID3D12DescriptorHeap* GetHeap() const { return descriptorHeap_.Get(); }
 
 	// SRV生成 (テクスチャ用)
 	void CreateSRVforTexture2D(uint32_t srvIndex, ID3D12Resource* pResource, DXGI_FORMAT format, UINT MipLevels);
@@ -24,9 +32,9 @@ public:
 
 	void CreateUAVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource* pResource, UINT numElements, UINT structureByteStride);
 
-	void SetGraphicsRootDescriptorTable(UINT PootParameterIndex, uint32_t srvIndex);
+	void SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex);
 
-
+	uint32_t CreateSRVFromResource(ID3D12Resource* pResource, DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM, UINT mipLevels = 1);
 public:
 	// 最大SRV数 (最大テクスチャ枚数)
 	static const uint32_t kMaxCount;

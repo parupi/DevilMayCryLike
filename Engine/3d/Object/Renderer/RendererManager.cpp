@@ -1,4 +1,6 @@
 #include "RendererManager.h"
+#include "3d/Object/Model/BaseModel.h"
+//#include "Graphics/Rendering/RenderPath/Deferred/GBufferManager.h"
 
 RendererManager* RendererManager::instance = nullptr;
 std::once_flag RendererManager::initInstanceFlag;
@@ -11,10 +13,12 @@ RendererManager* RendererManager::GetInstance()
 	return instance;
 }
 
-void RendererManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
+void RendererManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
+	psoManager_ = psoManager;
+
 }
 
 void RendererManager::Finalize()
@@ -30,6 +34,25 @@ void RendererManager::Finalize()
 void RendererManager::Update()
 {
 	
+}
+
+void RendererManager::RenderGBufferPass()
+{
+	//auto cmd = dxManager_->GetCommandList();
+
+	//// GBuffer用PSO/RSをセット
+	//cmd->SetPipelineState(psoManager_->GetDeferredPSO());
+	//cmd->SetGraphicsRootSignature(psoManager_->GetDeferredSignature());
+
+	//// GBufferのパスをセット
+	//gBufferPass->Begin();
+
+	//// ----------- Model全体Draw（Forwardと別で管理）---------------
+	//auto& models = renders_;
+	//for (auto& r : models)
+	//{
+	//	r->GetModel()->DrawGBuffer();
+	//}
 }
 
 void RendererManager::DeleteAllRenderer()

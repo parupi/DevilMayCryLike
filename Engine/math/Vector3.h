@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath> // sqrtf関数を使うために必要
+#include <algorithm>
 struct Quaternion;
 
 /// <summary>
@@ -51,3 +52,7 @@ bool IsValidVector3(const Vector3& v);
 
 // ImGuiを使ったVector3の描画
 void PrintOnImGui(const Vector3& v, const char* label = "Vector3");
+
+Vector3 Min(const Vector3& a, const Vector3& b);
+
+Vector3 Max(const Vector3& a, const Vector3& b);

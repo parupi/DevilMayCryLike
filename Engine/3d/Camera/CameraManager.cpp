@@ -31,10 +31,7 @@ void CameraManager::Finalize()
 	cameras_.clear();
 	activeCameraName_.clear();
 
-	if (cameraResource_) {
-		cameraResource_.Reset();
-		cameraData_ = nullptr;
-	}
+	cameraData_ = nullptr;
 
 	dxManager_ = nullptr;
 
@@ -150,7 +147,7 @@ BaseCamera* CameraManager::GetCurrentCamera() const
 void CameraManager::BindCameraToShader()
 {
 	// cameraの場所を指定
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(3, cameraResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, dxManager_->GetResourceManager()->GetGPUVirtualAddress(cameraHandle_));
 }
 
 void CameraManager::DeleteAllCamera()
@@ -206,12 +203,11 @@ void CameraManager::TransitionUpdate()
 void CameraManager::CreateCameraResource()
 {
 	// カメラ用のリソースを作る
-	dxManager_->CreateBufferResource(sizeof(CameraForGPU), cameraResource_);
+	cameraHandle_ = dxManager_->GetResourceManager()->CreateUploadBuffer(sizeof(CameraForGPU), L"CameraPos");
 	// 書き込むためのアドレスを取得
-	cameraResource_->Map(0, nullptr, reinterpret_cast<void**>(&cameraData_));
+	void* ptr = dxManager_->GetResourceManager()->Map(cameraHandle_);
+	assert(ptr);
+	cameraData_ = reinterpret_cast<CameraForGPU*>(ptr);
 	// 初期値を入れる
 	cameraData_->worldPosition = { 1.0f, 1.0f, 1.0f };
-
-	// ログ出力
-	Logger::LogBufferCreation("Camera", cameraResource_.Get(), sizeof(CameraForGPU));
 }

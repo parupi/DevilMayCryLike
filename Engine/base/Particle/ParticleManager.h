@@ -1,14 +1,14 @@
 #pragma once
 #pragma once
-#include <base/DirectXManager.h>
-#include <base/SrvManager.h>
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 #include <random>
 #include <math/Vector4.h>
 #include <math/Matrix4x4.h>
 #include "3d/Camera/BaseCamera.h"
 #include <math/Vector2.h>
 #include "debuger/GlobalVariables.h"
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 #include "ParticleStruct.h"
 #include <3d/Object/Renderer/InstancingRenderer.h>
 
@@ -33,7 +33,7 @@ public:
 	// 終了
 	void Finalize();
 	// 初期化
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 更新
 	void Update();
 	// 描画
@@ -89,7 +89,8 @@ private: // 構造体
 		std::list<Particle> particleList;  // パーティクルのリスト
 		std::unique_ptr<InstancingRenderer> renderer;
 		uint32_t srvIndex;  // インスタンシング用SRVインデックス
-		Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
+		//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
+		uint32_t instancingHandle = 0;
 		uint32_t instanceCount;  // インスタンス数
 		ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
 		// レンダラーへ渡すためのCPUキャッシュ
@@ -151,8 +152,12 @@ public:
 private:
 	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
 	// パーティクル用リソースの宣言
-	Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
+	uint32_t instancingHandle_ = 0;
+	uint32_t materialHandle_ = 0;
+	uint32_t vertexHandle_ = 0;
+
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	ParticleForGPU* instancingData_ = nullptr;

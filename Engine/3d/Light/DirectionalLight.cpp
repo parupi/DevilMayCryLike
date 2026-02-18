@@ -3,17 +3,28 @@
 #include <imgui.h>
 #endif // IMGUI
 
-DirectionalLight::DirectionalLight(const std::string& name) : BaseLight(name)
+DirectionalLight::DirectionalLight(const std::string& name)
 {
-    global_->CreateGroup(name);
+    name_ = name;
+    // ライトの情報を初期化
+    lightData_ = {};
+    lightData_.type = static_cast<int>(LightType::Directional);
+    lightData_.enabled = 1;
+    lightData_.intensity = 1.0f;
+    lightData_.color = { 1,1,1,1 };
+    lightData_.direction = { 0,-1,0 };
 
-    global_->LoadFile("Light", name);
+    Initialize();
+}
 
+void DirectionalLight::Initialize()
+{
+    global_ = GlobalVariables::GetInstance();
     // エディター項目登録
-    global_->AddItem(name, "Color", Vector4{ 1, 1, 1, 1 });
-    global_->AddItem(name, "Direction", Vector3{ 0, -1, 0 });
-    global_->AddItem(name, "Intensity", 1.0f);
-    global_->AddItem(name, "Enabled", true);
+    global_->AddItem(name_, "Color", Vector4{ 1, 1, 1, 1 });
+    global_->AddItem(name_, "Direction", Vector3{ 0, -1, 0 });
+    global_->AddItem(name_, "Intensity", 1.0f);
+    global_->AddItem(name_, "Enabled", true);
 }
 
 void DirectionalLight::Update()
@@ -24,7 +35,8 @@ void DirectionalLight::Update()
 
     lightData_.enabled = global_->GetValueRef<bool>(name_, "Enabled");
     lightData_.color = global_->GetValueRef<Vector4>(name_, "Color");
-    lightData_.direction = global_->GetValueRef<Vector3>(name_, "Direction");
+    Vector3 dir = global_->GetValueRef<Vector3>(name_, "Direction");
+    lightData_.direction = dir;
     lightData_.intensity = global_->GetValueRef<float>(name_, "Intensity");
 }
 
@@ -42,7 +54,12 @@ void DirectionalLight::DrawLightEditor()
         ImGui::ColorEdit4("Color", &color.x);
 
         Vector3& direction = global_->GetValueRef<Vector3>(name_, "Direction");
-        ImGui::DragFloat3("Direction", &direction.x, 0.01f, -1.0f, 1.0f);
+        if (ImGui::DragFloat3("Direction", &direction.x, 0.01f, -1.0f, 1.0f)) {
+            // 変更された瞬間に正規化
+            if (Length(direction) > 0.0001f) {
+                direction = Normalize(direction);
+            }
+        }
 
         float& intensity = global_->GetValueRef<float>(name_, "Intensity");
         ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 100.0f);
@@ -56,24 +73,4 @@ void DirectionalLight::DrawLightEditor()
 
     ImGui::End();
 #endif // IMGUI
-}
-
-void DirectionalLight::CreateLightResource()
-{
-    dxManager_->CreateBufferResource(sizeof(DirectionalLightData), resource_);
-}
-
-void DirectionalLight::UpdateLightResource()
-{
-    if (!isDirty_) return;
-
-    void* mapped = nullptr;
-    resource_->Map(0, nullptr, &mapped);
-    std::memcpy(mapped, &lightData_, sizeof(DirectionalLightData));
-    resource_->Unmap(0, nullptr);
-}
-
-void DirectionalLight::SerializeTo(void* dest) const
-{
-    std::memcpy(dest, &lightData_, sizeof(DirectionalLightData));
 }

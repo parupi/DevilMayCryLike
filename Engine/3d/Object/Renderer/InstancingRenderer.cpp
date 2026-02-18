@@ -4,10 +4,7 @@
 #include <cassert>
 #include <cstring>
 #include <3d/SkySystem/SkySystem.h>
-#include <base/TextureManager.h>
-#ifdef _DEBUG
-#include <imgui.h>
-#endif // IMGUI
+#include "Graphics/Resource/TextureManager.h"
 
 InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveType type, const std::string& texturePath)
 {
@@ -24,26 +21,26 @@ InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveT
 
 void InstancingRenderer::CreateInstanceBuffer()
 {
-    auto* dxManager = RendererManager::GetInstance()->GetDxManager();
-    size_t bufferSize = sizeof(InstanceData) * 1024; // 1024 instance max
-    dxManager->CreateBufferResource(bufferSize, instanceBuffer_);
+    //auto* dxManager = RendererManager::GetInstance()->GetDxManager();
+    //size_t bufferSize = sizeof(InstanceData) * 1024; // 1024 instance max
+    //dxManager->CreateBufferResource(bufferSize, instanceBuffer_);
    
-    // CreateBufferResource が HRESULT 返さないなら、instanceBuffer_ の有無を確認
-    if (!instanceBuffer_) {
-        assert(false && "instanceBuffer_ is null after CreateBufferResource");
-    }
+    //// CreateBufferResource が HRESULT 返さないなら、instanceBuffer_ の有無を確認
+    //if (!instanceBuffer_) {
+    //    assert(false && "instanceBuffer_ is null after CreateBufferResource");
+    //}
 
-    // Map の結果をチェック
-    void* mapped = nullptr;
-    HRESULT hr = instanceBuffer_->Map(0, nullptr, &mapped);
-    if (FAILED(hr) || mapped == nullptr) {
-        assert(false && "instanceBuffer_->Map failed");
-    }
-    mappedInstanceData_ = reinterpret_cast<InstanceData*>(mapped);
+    //// Map の結果をチェック
+    //void* mapped = nullptr;
+    //HRESULT hr = instanceBuffer_->Map(0, nullptr, &mapped);
+    //if (FAILED(hr) || mapped == nullptr) {
+    //    assert(false && "instanceBuffer_->Map failed");
+    //}
+    //mappedInstanceData_ = reinterpret_cast<InstanceData*>(mapped);
 
-    vbView_.BufferLocation = instanceBuffer_->GetGPUVirtualAddress();
-    vbView_.StrideInBytes = sizeof(InstanceData);
-    vbView_.SizeInBytes = static_cast<UINT>(bufferSize);
+    //vbView_.BufferLocation = instanceBuffer_->GetGPUVirtualAddress();
+    //vbView_.StrideInBytes = sizeof(InstanceData);
+    //vbView_.SizeInBytes = static_cast<UINT>(bufferSize);
 }
 
 void InstancingRenderer::SetInstanceList(const std::vector<InstanceData>& instances)
@@ -68,6 +65,14 @@ void InstancingRenderer::Draw()
     auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
     // インスタンシング描画
     commandList->DrawInstanced(6, static_cast<UINT>(instances_.size()), 0, 0);
+}
+
+void InstancingRenderer::DrawGBuffer()
+{
+}
+
+void InstancingRenderer::DrawShadow()
+{
 }
 
 #ifdef _DEBUG

@@ -1,6 +1,6 @@
 #include "Object3d.h"
 #include "Object3dManager.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include <3d/WorldTransform.h>
 #include <numbers>
 #include "Model/ModelManager.h"
@@ -39,21 +39,39 @@ void Object3d::Update(float deltaTime)
 
 void Object3d::Draw()
 {
-	if (!isDraw) return;
+	// 
+	switch (drawOption_.drawPath) {
+	case DrawPath::Forward:
+		for (size_t i = 0; i < renders_.size(); i++) {
+			// ComputeSkinningを前処理として呼ぶ（SkinnedModelなら）
+			if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {
+				skinned->UpdateSkinningWithCS();
+			}
 
-	for (size_t i = 0; i < renders_.size(); i++) {
-		// ComputeSkinningを前処理として呼ぶ（SkinnedModelなら）
-		if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {
-			skinned->UpdateSkinningWithCS();
+			// グラフィックスパイプラインに戻す
+			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
+			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetObjectSignature());
+			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+			renders_[i]->Draw();
 		}
+		break;
+	case DrawPath::Deferred:
+		for (size_t i = 0; i < renders_.size(); i++) {
+			renders_[i]->DrawGBuffer();
+		}
+		break;
+	}
+}
 
-		
-		// グラフィックスパイプラインに戻す
-		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
-		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetObjectSignature());
-		Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-		renders_[i]->Draw();
+void Object3d::DrawShadow()
+{
+	switch (drawOption_.drawPath) {
+	case DrawPath::Deferred:
+		for (size_t i = 0; i < renders_.size(); i++) {
+			renders_[i]->DrawShadow();
+		}
+		break;
 	}
 }
 

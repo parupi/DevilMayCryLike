@@ -1,8 +1,8 @@
-﻿#pragma once
+#pragma once
 #include <wrl.h>
 #include <d3d12.h>
 #include <mutex>
-#include "DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 enum class BlendMode {
 	kNone,
@@ -55,6 +55,21 @@ public:// アクセッサ
 
 	ID3D12RootSignature* GetSkinningSignature() { return skinningSignature_.Get(); }
 	ID3D12PipelineState* GetSkinningPSO();
+	// DeferredRendering
+	ID3D12RootSignature* GetDeferredSignature() { return deferredSignature_.Get(); }
+	ID3D12PipelineState* GetDeferredPSO();
+	// LightingPath
+	ID3D12RootSignature* GetLightingPathSignature() { return lightingPathSignature_.Get(); }
+	ID3D12PipelineState* GetLightingPathPSO();
+	// FinalComposite
+	ID3D12RootSignature* GetFinalCompositeRootSignature() { return finalCompositeRootSignature_.Get(); }
+	ID3D12PipelineState* GetFinalCompositePSO(bool isPostCopy = false);
+	// Composite
+	ID3D12RootSignature* GetCompositeRootSignature() { return compositeRootSignature_.Get(); }
+	ID3D12PipelineState* GetCompositePSO();
+	// CascadedShadowMap
+	ID3D12RootSignature* GetCSMRootSignature() { return csmRootSignature_.Get(); }
+	ID3D12PipelineState* GetCSMPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -80,7 +95,21 @@ private:
 	// ComputeSkinning
 	void CreateSkinningSignature();
 	void CreateSkinningPSO();
-
+	// DeferredRendering
+	void CreateDeferredSignature();
+	void CreateDeferredPSO();
+	// LightingPath
+	void CreateLightingPathSignature();
+	void CreateLightingPathPSO();
+	// FinalComposite
+	void CreateFinalCompositeRootSignature();
+	void CreateFinalCompositePSO(bool isPostCopy);
+	// Composite
+	void CreateCompositeRootSignature();
+	void CreateCompositePSO();
+	// CascadedShadowMap
+	void CreateCSMRootSignature();
+	void CreateCSMPSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -109,4 +138,19 @@ private: // データ格納用変数
 	// ComputeSkinning
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> skinningSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> skinningComputePipelineState_;
+	// DeferredRendering
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> deferredSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> deferredPipelineState_;
+	// LightingPath
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> lightingPathSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> lightingPathPipelineState_;
+	// 最終描画用
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> finalCompositeRootSignature_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 2> finalCompositePSO_;
+	// Forward Deferred 合成用
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> compositeRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> compositePSO_;
+	// CascadedShadowMap
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> csmRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmPSO_;
 };

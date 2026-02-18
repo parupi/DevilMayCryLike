@@ -1,19 +1,38 @@
 #include "SpotLight.h"
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
-#endif // IMGUI
+#endif // DEBUG
 
-SpotLight::SpotLight(const std::string& name) : BaseLight(name)
+SpotLight::SpotLight(const std::string& name)
 {
+    name_ = name;
+    // ライトの情報を初期化
+    lightData_ = {};
+    lightData_.type = static_cast<int>(LightType::Spot);
+    lightData_.enabled = 1;
+    lightData_.intensity = 1.0f;
+    lightData_.decay = 1.0f;
+    lightData_.color = { 1,1,1,1 };
+    lightData_.position = { 0.0f, 0.0f, 0.0f };
+    lightData_.direction = { 0.0f, 1.0f, 0.0f };
+    lightData_.cosAngle = 0.9f;
+    lightData_.distance = 20.0f;
+
+    Initialize();
+}
+
+void SpotLight::Initialize()
+{
+    global_ = GlobalVariables::GetInstance();
     // エディター項目登録
-    global_->AddItem(name, "Color", Vector4{ 1, 1, 1, 1 });
-    global_->AddItem(name, "Position", Vector3{ 0, 0, 0 });
-    global_->AddItem(name, "Direction", Vector3{ 0, -1, 0 });
-    global_->AddItem(name, "Intensity", 1.0f);
-    global_->AddItem(name, "Distance", 20.0f);
-    global_->AddItem(name, "Decay", 1.0f);
-    global_->AddItem(name, "CosAngle", 0.9f); // 角度の余弦値（0.9 ≒ 約25°）
-    global_->AddItem(name, "Enabled", true);
+    global_->AddItem(name_, "Color", Vector4{ 1, 1, 1, 1 });
+    global_->AddItem(name_, "Position", Vector3{ 0, 0, 0 });
+    global_->AddItem(name_, "Direction", Vector3{ 0, -1, 0 });
+    global_->AddItem(name_, "Intensity", 1.0f);
+    global_->AddItem(name_, "Distance", 20.0f);
+    global_->AddItem(name_, "Decay", 1.0f);
+    global_->AddItem(name_, "CosAngle", 0.9f); // 角度の余弦値（0.9 ≒ 約25°）
+    global_->AddItem(name_, "Enabled", true);
 }
 
 void SpotLight::Update()
@@ -25,7 +44,8 @@ void SpotLight::Update()
     lightData_.enabled = global_->GetValueRef<bool>(name_, "Enabled");
     lightData_.color = global_->GetValueRef<Vector4>(name_, "Color");
     lightData_.position = global_->GetValueRef<Vector3>(name_, "Position");
-    lightData_.direction = global_->GetValueRef<Vector3>(name_, "Direction");
+    Vector3 dir = global_->GetValueRef<Vector3>(name_, "Direction");
+    lightData_.direction = dir;
     lightData_.intensity = global_->GetValueRef<float>(name_, "Intensity");
     lightData_.distance = global_->GetValueRef<float>(name_, "Distance");
     lightData_.decay = global_->GetValueRef<float>(name_, "Decay");
@@ -34,7 +54,6 @@ void SpotLight::Update()
 
 void SpotLight::DrawLightEditor()
 {
-#ifdef USE_IMGUI
     ImGui::Begin(name_.c_str());
 
     if (ImGui::TreeNode("Spot Light Settings")) {
@@ -49,7 +68,12 @@ void SpotLight::DrawLightEditor()
         ImGui::DragFloat3("Position", &position.x, 0.1f);
 
         Vector3& direction = global_->GetValueRef<Vector3>(name_, "Direction");
-        ImGui::DragFloat3("Direction", &direction.x, 0.01f, -1.0f, 1.0f);
+        if (ImGui::DragFloat3("Direction", &direction.x, 0.01f, -1.0f, 1.0f)) {
+            // 変更された瞬間に正規化
+            if (Length(direction) > 0.0001f) {
+                direction = Normalize(direction);
+            }
+        }
 
         float& intensity = global_->GetValueRef<float>(name_, "Intensity");
         ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 100.0f);
@@ -71,25 +95,4 @@ void SpotLight::DrawLightEditor()
     }
 
     ImGui::End();
-#endif // IMGUI
-}
-
-void SpotLight::CreateLightResource()
-{
-    dxManager_->CreateBufferResource(sizeof(SpotLightData), resource_);
-}
-
-void SpotLight::UpdateLightResource()
-{
-    if (!isDirty_) return;
-
-    void* mapped = nullptr;
-    resource_->Map(0, nullptr, &mapped);
-    std::memcpy(mapped, &lightData_, sizeof(SpotLightData));
-    resource_->Unmap(0, nullptr);
-}
-
-void SpotLight::SerializeTo(void* dest) const
-{
-    std::memcpy(dest, &lightData_, sizeof(SpotLightData));
 }

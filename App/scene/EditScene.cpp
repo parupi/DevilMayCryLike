@@ -6,6 +6,7 @@
 #include <3d/Collider/CollisionManager.h>
 #include <3d/SkySystem/SkySystem.h>
 #include <3d/Light/LightManager.h>
+#include "3d/Object/Object3dManager.h"
 
 void EditScene::Initialize()
 {
@@ -71,7 +72,7 @@ void EditScene::Initialize()
 	player->Initialize();
 	Object3dManager::GetInstance()->AddObject(std::move(player));
 
-	LightManager::GetInstance()->CreateDirectionalLight("Directional");
+	//LightManager::GetInstance()->CreateDirectionalLight("Directional");
 }
 
 void EditScene::Finalize()
@@ -80,13 +81,13 @@ void EditScene::Finalize()
 
 void EditScene::Update()
 {
-	LightManager::GetInstance()->UpdateAllLight();
+	LightManager::GetInstance()->Update();
 }
 
 void EditScene::Draw()
 {
 	// 全オブジェクトの描画
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->Draw
 }
 
 void EditScene::DrawRTV()

@@ -1,9 +1,9 @@
 #pragma once
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include "3d/Camera/BaseCamera.h"
 #include <memory>
 #include <mutex>
-#include <base/PSOManager.h>
+#include "Graphics/Rendering/PSO/PSOManager.h"
 
 class Object3d;
 class Object3dManager
@@ -26,7 +26,11 @@ public:
 	// 更新
 	void Update();
 	// 描画前処理
-	void DrawSet();
+	void DrawForward();
+	void DrawDeferred();
+	// 影を描画
+	void DrawShadow();
+
 	// アニメーション用描画前処理
 	void DrawSetForAnimation();
 

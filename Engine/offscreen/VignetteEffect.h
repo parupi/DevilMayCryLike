@@ -24,7 +24,8 @@ public:
 private:
 	void CreateEffectResource();
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> effectResource_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> effectResource_ = nullptr;
+	uint32_t effectHandle_ = 0;
 	VignetteEffectData effectData_;
 	VignetteEffectData* effectDataPtr_;
 };

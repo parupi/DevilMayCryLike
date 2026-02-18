@@ -1,8 +1,10 @@
 #pragma once
 #include <mutex>
-#include <base/DirectXManager.h>
-#include "base/SrvManager.h"
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 #include "BaseRenderer.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
+
 class RendererManager
 {
 private:
@@ -17,11 +19,13 @@ public:
 	// インスタンスの取得
 	static RendererManager* GetInstance();
 	// 初期化処理
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了処理
 	void Finalize();
 	// 更新処理
 	void Update();
+	// GBufferに描画する準備
+	void RenderGBufferPass();
 	//
 	void DeleteAllRenderer();
 	// オブジェクト削除
@@ -34,10 +38,11 @@ public:
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 private:
-
+	//std::unique_ptr<GBufferPass> gBufferPass = nullptr;
 
 	DirectXManager* dxManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
+	PSOManager* psoManager_ = nullptr;
 
 	std::vector<std::unique_ptr<BaseRenderer>> renders_;
 };

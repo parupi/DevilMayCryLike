@@ -1,6 +1,6 @@
 #pragma once
 #include "SpriteManager.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include "math/Vector2.h"
 #include "math/Vector3.h"
 #include "math/Vector4.h"
@@ -97,10 +97,15 @@ private:
 	SpriteManager* spriteManager_ = nullptr; ///< スプライト管理クラスへのポインタ
 
 	// GPUリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;             ///< 頂点バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;              ///< インデックスバッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;           ///< マテリアルバッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;///< 行列バッファ
+	//Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;             ///< 頂点バッファ
+	//Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;              ///< インデックスバッファ
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;           ///< マテリアルバッファ
+	//Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;///< 行列バッファ
+
+	uint32_t vertexHandle_ = 0;
+	uint32_t indexHandle_ = 0;
+	uint32_t materialHandle_ = 0;
+	uint32_t transformHandle_ = 0;
 
 	// GPUリソース内データへのポインタ
 	VertexData* vertexData_ = nullptr;               ///< 頂点データ

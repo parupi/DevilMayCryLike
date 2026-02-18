@@ -1,12 +1,18 @@
 #include "SrvManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 const uint32_t SrvManager::kMaxCount = 512;
+
+SrvManager::~SrvManager()
+{
+	Finalize();
+}
 
 void SrvManager::Initialize(DirectXManager* dxManager)
 {
 	dxManager_ = dxManager;
 	// デスクリプタヒープの生成
-	descriptorHeap_ = dxManager_->CreateDescriptorHeap(dxManager_->GetDevice(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxCount, true);
+	descriptorHeap_ = dxManager_->CreateDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, kMaxCount, true);
 	// デスクリプタ1個分のサイズを取得して記録
 	descriptorSize_ = dxManager_->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 }
@@ -112,4 +118,28 @@ void SrvManager::CreateUAVforStructuredBuffer(uint32_t srvIndex, ID3D12Resource*
 void SrvManager::SetGraphicsRootDescriptorTable(UINT RootParameterIndex, uint32_t srvIndex)
 {
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(RootParameterIndex, GetGPUDescriptorHandle(srvIndex));
+}
+
+uint32_t SrvManager::CreateSRVFromResource(ID3D12Resource* pResource, DXGI_FORMAT format, UINT mipLevels)
+{
+	assert(pResource);
+
+	uint32_t index = Allocate();
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Format = format;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = mipLevels;
+	srvDesc.Texture2D.PlaneSlice = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	dxManager_->GetDevice()->CreateShaderResourceView(
+		pResource,
+		&srvDesc,
+		GetCPUDescriptorHandle(index)
+	);
+
+	return index;
 }

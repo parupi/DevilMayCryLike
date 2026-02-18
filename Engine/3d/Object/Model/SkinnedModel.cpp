@@ -2,14 +2,14 @@
 #include "3d/Object/Model/Animation/Skeleton.h"
 #include "3d/Object/Model/Animation/SkinCluster.h"
 #include "3d/Object/Model/Animation/Animation.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include "3d/Object/Model/ModelManager.h"
 #include <3d/Object/Object3d.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
 #include <DirectXTex/d3dx12.h>
 #include <3d/Light/LightManager.h>
 #include "3d/Object/Object3dManager.h"
-#include "base/PSOManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
 
 void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileName)
 {
@@ -49,7 +49,7 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 
 void SkinnedModel::Update()
 {
-	// アニメーションの更新を呼ぶ（ここが抜けてい
+	// アニメーションの更新を呼ぶ
 	animation_->Update();
 
 	// アニメーションの時間取得
@@ -73,7 +73,7 @@ void SkinnedModel::Draw()
 
 		// マテリアル設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
-		materials_[mesh->GetMeshData().materialIndex]->Bind();
+		materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
 		// 描画
 		mesh->Bind();
@@ -86,7 +86,7 @@ void SkinnedModel::UpdateSkinningWithCS()
 {
 	auto* commandList = modelLoader_->GetDxManager()->GetCommandList();
 
-	// ✅ Compute用のPSOとRootSignature設定
+	// Compute用のPSOとRootSignature設定
 	commandList->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningPSO());
 	commandList->SetComputeRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningSignature());
 
@@ -94,6 +94,15 @@ void SkinnedModel::UpdateSkinningWithCS()
 	for (auto& mesh : meshes_) {
 		mesh->Update();
 	}
+}
+
+
+void SkinnedModel::DrawGBuffer()
+{
+}
+
+void SkinnedModel::DrawShadow()
+{
 }
 
 #ifdef _DEBUG

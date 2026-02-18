@@ -1,6 +1,6 @@
 #include "WorldTransform.h"
 #include "math/function.h"
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include "3d/Object/Object3dManager.h"
 #include "3d/Camera/BaseCamera.h"
 #ifdef _DEBUG
@@ -10,11 +10,11 @@
 
 WorldTransform::~WorldTransform()
 {
-	// GPUリソースの解放
-	if (constBuffer_) {
-		constBuffer_->Unmap(0, nullptr);
-		constBuffer_.Reset();
-	}
+	//// GPUリソースの解放
+	//if (constBuffer_) {
+	//	constBuffer_->Unmap(0, nullptr);
+	//	constBuffer_.Reset();
+	//}
 
 #ifdef _DEBUG
 	Logger::Log("WorldTransform resources released.\n");
@@ -35,17 +35,16 @@ void WorldTransform::Initialize()
 
 void WorldTransform::CreateConstBuffer()
 {
+	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
 	// MVP用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
-	Object3dManager::GetInstance()->GetDxManager()->CreateBufferResource(sizeof(TransformationMatrix), constBuffer_);
+	bufferHandle_ = resourceManager->CreateUploadBuffer(sizeof(TransformationMatrix), L"WorldTransformBuffer");
 	// 書き込むためのアドレスを取得
-	constBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&constMap));
+	constMap = reinterpret_cast<TransformationMatrix*>(resourceManager->Map(bufferHandle_));
 	// 単位行列を書き込んでおく
 	constMap->WVP = MakeIdentity4x4();
 	constMap->World = MakeIdentity4x4();
 	constMap->WorldInverseTranspose = MakeIdentity4x4();
-
-	// ログ出力
-	Logger::LogBufferCreation("WorldTransform", constBuffer_.Get(), sizeof(TransformationMatrix));
+	
 }
 
 void WorldTransform::TransferMatrix(BaseCamera* camera)
@@ -55,8 +54,7 @@ void WorldTransform::TransferMatrix(BaseCamera* camera)
 
 	// 親が存在する場合、親のワールド行列を掛け合わせる
 	if (parent_) {
-		Matrix4x4 parentMatrix = parent_->matWorld_;
-		matWorld_ *= parentMatrix; // 親の行列と自身の行列を合成
+		matWorld_ *= parent_->matWorld_;
 	}
 
 	Matrix4x4 worldViewProjectionMatrix;
@@ -70,9 +68,22 @@ void WorldTransform::TransferMatrix(BaseCamera* camera)
 	// ワールド行列を定数バッファに転送
 	if (constMap != nullptr) {
 		constMap->World = matWorld_; // 定数バッファに行列をコピー
-		constMap->WorldInverseTranspose = Inverse(matWorld_);
-		constMap->WVP = worldViewProjectionMatrix;
+		//constMap->WorldInverseTranspose = Inverse(matWorld_);
+		constMap->WorldInverseTranspose = Transpose(Inverse(matWorld_));
+
+		auto* camera = CameraManager::GetInstance()->GetActiveCamera();
+		if (camera) {
+			Matrix4x4 viewProj = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix(); // あなたの実装に合わせて
+			constMap->WVP = matWorld_ * viewProj; // row-vector版: W * V * P
+		}
 	}
+}
+
+void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd, int32_t index) const
+{
+	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
+
+	cmd->SetGraphicsRootConstantBufferView(index, resourceManager->GetGPUVirtualAddress(bufferHandle_));
 }
 
 #ifdef _DEBUG

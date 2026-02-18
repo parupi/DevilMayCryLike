@@ -1,9 +1,9 @@
 #pragma once
 #include "3d/Object/Model/ModelStructs.h"
 #include <memory>
-#include "base/PSOManager.h"
-#include "base/DirectXManager.h"
-#include "base/SrvManager.h"
+#include "Graphics/Rendering/PSO/PSOManager.h"
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 #include "3d/Object/Model/Material/Material.h"
 #include <3d/WorldTransform.h>
 
@@ -26,7 +26,7 @@ public:
 	// インスタンスの取得
 	static SkySystem* GetInstance();
 	// 初期化
-	void Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了
 	void Finalize();
 

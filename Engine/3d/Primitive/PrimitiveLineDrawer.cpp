@@ -1,7 +1,7 @@
 #include "PrimitiveLineDrawer.h"
 #include <3d/Camera/CameraManager.h>
 #include <numbers>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 PrimitiveLineDrawer* PrimitiveLineDrawer::instance = nullptr;
 std::once_flag PrimitiveLineDrawer::initInstanceFlag;
@@ -14,17 +14,16 @@ PrimitiveLineDrawer* PrimitiveLineDrawer::GetInstance()
 	return instance;
 }
 
-void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoManager, SrvManager* srvManager)
+void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();
 
 	dummyTextureIndex_ = TextureManager::GetInstance()->CreateWhiteTexture();
-
 }
 
 void PrimitiveLineDrawer::Finalize()
@@ -33,7 +32,7 @@ void PrimitiveLineDrawer::Finalize()
 	vertexResource_.Reset();
 	indexResource_.Reset();
 
-	// ビューデータ初期化（使わないが念のため）
+	// ビューデータ初期化
 	vertexBufferView_ = {};
 	indexBufferView_ = {};
 
@@ -141,7 +140,7 @@ void PrimitiveLineDrawer::DrawWireSphere(const Vector3& center, float radius, co
 
 void PrimitiveLineDrawer::UpdateVertexResource()
 {
-	dxManager_->CreateBufferResource(sizeof(Vertex) * vertices_.size(), vertexResource_);
+	vertexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(vertices_.data(), sizeof(Vertex) * vertices_.size());
 
 	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
 	vertexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(Vertex) * vertices_.size());
@@ -155,7 +154,7 @@ void PrimitiveLineDrawer::UpdateVertexResource()
 
 void PrimitiveLineDrawer::UpdateIndexResource()
 {
-	dxManager_->CreateBufferResource(sizeof(uint32_t) * indices_.size(), indexResource_);
+	indexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(indices_.data(), sizeof(uint32_t) * indices_.size());
 
 	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
 	indexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(uint32_t) * indices_.size());
@@ -175,7 +174,8 @@ void PrimitiveLineDrawer::Draw()
 	ID3D12GraphicsCommandList* cmdList = dxManager_->GetCommandList();
 	cmdList->SetPipelineState(psoManager_->GetPrimitivePSO());
 	cmdList->SetGraphicsRootSignature(psoManager_->GetPrimitiveSignature());
-	cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	//cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
+	transform_->BindToShader(cmdList, 1);
 
 	srvManager_->SetGraphicsRootDescriptorTable(1, dummyTextureIndex_);
 	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);

@@ -22,6 +22,11 @@ public: // メンバ関数
 	void Draw() override;
 	// CSによるSkinningの更新
 	void UpdateSkinningWithCS();
+
+	// GBufferに描画
+	void DrawGBuffer() override;
+
+	void DrawShadow() override;
 #ifdef _DEBUG
 	void DebugGui(ModelRenderer* render) override;
 #endif // _DEBUG
