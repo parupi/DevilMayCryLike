@@ -15,6 +15,8 @@ public:
 #ifdef _DEBUG
 	// エディターの描画
 	void DrawLightEditor() override;
+	// 線描画
+	void DrawDebug(PrimitiveLineDrawer* drawer) override;
 #endif // DEBUG
 private:
 	GlobalVariables* global_ = nullptr;

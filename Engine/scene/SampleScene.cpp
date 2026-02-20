@@ -90,8 +90,8 @@ void SampleScene::Initialize()
 	sprite_->Initialize("uvChecker.png");
 
 	// ============ライト=================//
-	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
 	lightManager_->AddLight(std::make_unique<SpotLight>("SampleSpot"));
 }
 

@@ -31,6 +31,7 @@ public:
 
 	void DrawLine(const Vector3& start, const Vector3& end, const Vector4& color);
 	void DrawWireSphere(const Vector3& center, float radius, const Vector4& color, int divide = 16);
+	void DrawWireCircle(const Vector3& center, float radius, const Vector3& normal, const Vector4& color, int divide);
 
 private:
 	struct Vertex {

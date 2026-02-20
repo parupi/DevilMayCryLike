@@ -1,7 +1,10 @@
 #include "DirectionalLight.h"
 #ifdef _DEBUG
 #include <imgui.h>
-#endif // IMGUI
+#include "3d/Primitive/PrimitiveLineDrawer.h"
+#endif // DEBUG
+#include "math/function.h"
+
 
 DirectionalLight::DirectionalLight(const std::string& name)
 {
@@ -62,4 +65,20 @@ void DirectionalLight::DrawLightEditor()
 		global_->SaveFile("Light", name_);
 	}
 }
-#endif // IMGUI
+
+void DirectionalLight::DrawDebug(PrimitiveLineDrawer* drawer)
+{
+	Vector3 origin = Vector3(0, 5, 0); // 仮基準
+	Vector3 dir = Normalize(lightData_.direction);
+	float length = 2.0f;
+
+	Vector3 end = origin + dir * length;
+
+	drawer->DrawLine(origin, end, lightData_.color);
+
+	// 簡易矢印
+	Vector3 right = Normalize(Cross(dir, { 0,1,0 }));
+	drawer->DrawLine(end, end - dir * 0.3f + right * 0.2f, lightData_.color);
+	drawer->DrawLine(end, end - dir * 0.3f - right * 0.2f, lightData_.color);
+}
+#endif // DEBUG

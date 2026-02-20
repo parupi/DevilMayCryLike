@@ -10,6 +10,8 @@
 #include <debuger/ImGuiManager.h>
 #include <offscreen/OffScreenManager.h>
 #include <base/Particle/ParticleManager.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <3d/Collider/CollisionManager.h>
 
 void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
@@ -111,14 +113,24 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	TransitionToRTV();
 	// 描画前処理
 	forwardPath->BeginDraw(rtvIndex_, dsvIndex_);
+
 	// スカイボックスの描画
 	SkySystem::GetInstance()->Draw();
 	// Forward描画で設定されているオブジェクトの描画
 	Object3dManager::GetInstance()->DrawForward();
+
 	// シーンの描画
 	SceneManager::GetInstance()->Draw();
 	// トランジションの描画
 	TransitionManager::GetInstance()->Draw();
+	// 線描画の受け受け開始
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
+	// コライダーのデバッグ描画
+	CollisionManager::GetInstance()->Draw();
+	// ライトのデバッグ描画
+	LightManager::GetInstance()->DrawDebug();
+	// 線描画の受付終了
+	PrimitiveLineDrawer::GetInstance()->EndDraw();
 	// 描画後処理
 	forwardPath->EndDraw();
 

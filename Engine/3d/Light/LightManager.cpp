@@ -1,6 +1,8 @@
 #include "LightManager.h"
 #include <cassert>
 #include <mutex>
+#include <math/function.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
 
 LightManager* LightManager::instance = nullptr;
 std::once_flag LightManager::initInstanceFlag;
@@ -55,6 +57,7 @@ void LightManager::Update()
     *mappedCountPtr_ = static_cast<UINT>(gpuLightCache_.size());
 
 #ifdef _DEBUG
+    // エディター描画
     DrawLightEditor();
 #endif // DEBUG
 }
@@ -81,6 +84,16 @@ void LightManager::BindLightsToShader()
     // SRV (StructuredBuffer)
     cmd->SetGraphicsRootDescriptorTable(3, srv->GetGPUDescriptorHandle(srvIndex_));
 }
+
+#ifdef _DEBUG
+void LightManager::DrawDebug()
+{
+    for (auto& light : lights_) {
+        if (!light) continue;
+        light->DrawDebug(PrimitiveLineDrawer::GetInstance());
+    }
+}
+#endif // DEBUG
 
 void LightManager::CreateLightBuffers()
 {

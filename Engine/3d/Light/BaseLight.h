@@ -8,6 +8,8 @@ enum class LightType {
     Spot,
 };
 
+class PrimitiveLineDrawer;
+
 class BaseLight {
 public:
     BaseLight() = default;
@@ -20,6 +22,8 @@ public:
 #ifdef _DEBUG
     // エディター描画
     virtual void DrawLightEditor() = 0;
+    // デバッグ描画
+    virtual void DrawDebug(PrimitiveLineDrawer* drawer) = 0;
 #endif // DEBUG
 
     // 名前を取得

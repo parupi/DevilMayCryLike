@@ -1,7 +1,10 @@
 #include "SpotLight.h"
 #ifdef _DEBUG
 #include <imgui.h>
+#include "3d/Primitive/PrimitiveLineDrawer.h"
 #endif // DEBUG
+#include <numbers>
+#include "math/function.h"
 
 SpotLight::SpotLight(const std::string& name)
 {
@@ -24,6 +27,8 @@ SpotLight::SpotLight(const std::string& name)
 void SpotLight::Initialize()
 {
 	global_ = GlobalVariables::GetInstance();
+	// 既存のライトデータを読み込み
+	global_->LoadFile("Light", name_);
 	// エディター項目登録
 	global_->CreateGroup(name_);
 	global_->AddItem(name_, "Color", Vector4{ 1, 1, 1, 1 });
@@ -83,6 +88,61 @@ void SpotLight::DrawLightEditor()
 
 	if (ImGui::Button("Save##SpotLight")) {
 		global_->SaveFile("Light", name_);
+	}
+}
+
+void SpotLight::DrawDebug(PrimitiveLineDrawer* drawer)
+{
+	if (!lightData_.enabled) return;
+
+	Vector3 apex = lightData_.position;
+
+	Vector3 dir = lightData_.direction;
+	if (Length(dir) < 0.0001f) return;
+	dir = Normalize(dir);
+
+	float distance = lightData_.distance;
+	float cosAngle = lightData_.cosAngle;
+
+	if (distance <= 0.0f || cosAngle <= 0.0f) return;
+
+	// ---- 半径計算 ----
+	float sinAngle = std::sqrt(1.0f - cosAngle * cosAngle);
+	float radius = distance * sinAngle / cosAngle;
+
+	Vector3 baseCenter = apex + dir * distance;
+
+	Vector4 color = lightData_.color;
+	color.w = 1.0f;
+
+	const int divide = 24;
+
+	// 中心線
+	drawer->DrawLine(apex, baseCenter, color);
+
+	// 底面円
+	drawer->DrawWireCircle(baseCenter, radius, dir, color, divide);
+
+	// 側面ライン
+	// 底面円の直交基底を作る
+	Vector3 tangent;
+	if (std::abs(dir.y) < 0.99f) {
+		tangent = Normalize(Cross(dir, { 0,1,0 }));
+	} else {
+		tangent = Normalize(Cross(dir, { 1,0,0 }));
+	}
+	
+	Vector3 bitangent = Cross(dir, tangent);
+
+	const float angleStep = 2.0f * std::numbers::pi_v<float> / divide;
+
+	for (int i = 0; i < divide; ++i)
+	{
+		float angle = i * angleStep;
+
+		Vector3 circlePoint = baseCenter + tangent * std::cos(angle) * radius + bitangent * std::sin(angle) * radius;
+
+		drawer->DrawLine(apex, circlePoint, color);
 	}
 }
 #endif // DEBUG

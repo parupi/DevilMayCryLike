@@ -137,6 +137,46 @@ void PrimitiveLineDrawer::DrawWireSphere(const Vector3& center, float radius, co
 	}
 }
 
+void PrimitiveLineDrawer::DrawWireCircle(const Vector3& center, float radius, const Vector3& normal, const Vector4& color, int divide)
+{
+	if (radius <= 0.0f) return;
+
+	const float angleStep = 2.0f * std::numbers::pi_v<float> / divide;
+
+	// 法線正規化
+	Vector3 n = Normalize(normal);
+
+	// 法線に直交するベクトルを作る
+	Vector3 tangent;
+
+	if (std::abs(n.y) < 0.99f)
+	{
+		tangent = Normalize(Cross(n, { 0,1,0 }));
+	} else
+	{
+		tangent = Normalize(Cross(n, { 1,0,0 }));
+	}
+
+	Vector3 bitangent = Cross(n, tangent);
+
+	for (int i = 0; i < divide; ++i)
+	{
+		float a0 = i * angleStep;
+		float a1 = (i + 1) * angleStep;
+
+		Vector3 p0 =
+			center +
+			tangent * std::cos(a0) * radius +
+			bitangent * std::sin(a0) * radius;
+
+		Vector3 p1 =
+			center +
+			tangent * std::cos(a1) * radius +
+			bitangent * std::sin(a1) * radius;
+
+		DrawLine(p0, p1, color);
+	}
+}
 
 void PrimitiveLineDrawer::UpdateVertexResource()
 {
@@ -174,10 +214,8 @@ void PrimitiveLineDrawer::Draw()
 	ID3D12GraphicsCommandList* cmdList = dxManager_->GetCommandList();
 	cmdList->SetPipelineState(psoManager_->GetPrimitivePSO());
 	cmdList->SetGraphicsRootSignature(psoManager_->GetPrimitiveSignature());
-	//cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
-	transform_->BindToShader(cmdList, 1);
+	transform_->BindToShader(cmdList, 0);
 
-	srvManager_->SetGraphicsRootDescriptorTable(1, dummyTextureIndex_);
 	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	cmdList->IASetIndexBuffer(&indexBufferView_);
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);

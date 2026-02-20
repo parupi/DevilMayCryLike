@@ -1,7 +1,8 @@
 #include "PointLight.h"
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
-#endif // IMGUI
+#include "3d/Primitive/PrimitiveLineDrawer.h"
+#endif // DEBUG
 
 PointLight::PointLight(const std::string& name)
 {
@@ -22,8 +23,10 @@ PointLight::PointLight(const std::string& name)
 void PointLight::Initialize()
 {
 	global_ = GlobalVariables::GetInstance();
+	// 既存のライトデータを読み込み
+	global_->LoadFile("Light", name_);
 	// 各種パラメータをエディターに追加
-	global_->AddItem(name_, "Color", Vector4{ 1,1,1 });
+	global_->AddItem(name_, "Color", Vector4{ 1,1,1,1 });
 	global_->AddItem(name_, "Position", Vector3{ 0,0,0 });
 	global_->AddItem(name_, "Intensity", 1.0f);
 	global_->AddItem(name_, "Radius", 10.0f);
@@ -73,4 +76,9 @@ void PointLight::DrawLightEditor()
 		global_->SaveFile("Light", name_);
 	}
 }
-#endif // IMGUI
+
+void PointLight::DrawDebug(PrimitiveLineDrawer* drawer)
+{
+	drawer->DrawWireSphere(lightData_.position, lightData_.radius, lightData_.color);
+}
+#endif // DEBUG
