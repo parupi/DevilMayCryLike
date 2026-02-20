@@ -37,6 +37,51 @@ void LightManager::Finalize()
     instance = nullptr;
 }
 
+void LightManager::Update()
+{
+    gpuLightCache_.clear();
+    gpuLightCache_.reserve(lights_.size());
+
+    for (auto& light : lights_) {
+        light->Update();
+        gpuLightCache_.push_back(light->GetLightData());
+    }
+
+    // --- GPU バッファ更新（永続 Map なので memcpy だけ） ---
+    assert(gpuLightCache_.size() <= MaxLights);
+
+    memcpy(mappedLightPtr_, gpuLightCache_.data(), sizeof(LightData) * gpuLightCache_.size());
+
+    *mappedCountPtr_ = static_cast<UINT>(gpuLightCache_.size());
+
+#ifdef _DEBUG
+    DrawLightEditor();
+#endif // DEBUG
+}
+
+void LightManager::AddLight(std::unique_ptr<BaseLight> light)
+{
+    lights_.push_back(std::move(light));
+}
+
+void LightManager::DeleteAllLight()
+{
+    lights_.clear();
+}
+
+void LightManager::BindLightsToShader()
+{
+    auto* cmd = dxManager_->GetCommandList();
+    auto* srv = dxManager_->GetSrvManager();
+    auto* rm = dxManager_->GetResourceManager();
+
+    // Count CBV
+    cmd->SetGraphicsRootConstantBufferView(2, rm->GetGPUVirtualAddress(lightCountHandle_));
+
+    // SRV (StructuredBuffer)
+    cmd->SetGraphicsRootDescriptorTable(3, srv->GetGPUDescriptorHandle(srvIndex_));
+}
+
 void LightManager::CreateLightBuffers()
 {
     auto* rm = dxManager_->GetResourceManager();
@@ -61,47 +106,29 @@ void LightManager::CreateLightBuffers()
     srv->CreateSRVforStructuredBuffer(srvIndex_, rm->GetResource(lightBufferHandle_), MaxLights, sizeof(LightData));
 }
 
-void LightManager::Update()
+void LightManager::DrawLightEditor()
 {
-    gpuLightCache_.clear();
-    gpuLightCache_.reserve(lights_.size());
+    if (lights_.empty()) return;
+
+    ImGui::Begin("Light Manager");
+
+    // ---- Combo用の名前リスト生成 ----
+    std::vector<const char*> names;
+    names.reserve(lights_.size());
 
     for (auto& light : lights_) {
-        light->Update();
-        gpuLightCache_.push_back(light->GetLightData());
+        names.push_back(light->GetName().c_str());
     }
 
-    // --- GPU バッファ更新（永続 Map なので memcpy だけ） ---
-    assert(gpuLightCache_.size() <= MaxLights);
+    ImGui::Combo("Lights", &selectedLightIndex_, names.data(), static_cast<int>(names.size()));
 
-    memcpy(
-        mappedLightPtr_,
-        gpuLightCache_.data(),
-        sizeof(LightData) * gpuLightCache_.size()
-    );
+    ImGui::Separator();
 
-    *mappedCountPtr_ = static_cast<UINT>(gpuLightCache_.size());
-}
+    // ---- 選択中ライトのInspector ----
+    if (selectedLightIndex_ < lights_.size())
+    {
+        lights_[selectedLightIndex_]->DrawLightEditor();
+    }
 
-void LightManager::AddLight(std::unique_ptr<BaseLight> light)
-{
-    lights_.push_back(std::move(light));
-}
-
-void LightManager::DeleteAllLight()
-{
-    lights_.clear();
-}
-
-void LightManager::BindLightsToShader()
-{
-    auto* cmd = dxManager_->GetCommandList();
-    auto* srv = dxManager_->GetSrvManager();
-    auto* rm = dxManager_->GetResourceManager();
-
-    // Count CBV
-    cmd->SetGraphicsRootConstantBufferView(2, rm->GetGPUVirtualAddress(lightCountHandle_));
-
-    // SRV (StructuredBuffer)
-    cmd->SetGraphicsRootDescriptorTable(3, srv->GetGPUDescriptorHandle(srvIndex_));
+    ImGui::End();
 }

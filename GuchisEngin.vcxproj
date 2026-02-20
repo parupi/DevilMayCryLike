@@ -168,7 +168,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\CompositePath.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
     <ClInclude Include="Engine\Graphics\Resource\DsvManager.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
@@ -347,7 +346,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\CompositePath.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />

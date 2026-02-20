@@ -116,8 +116,7 @@ std::vector<std::string> GlobalVariables::GetGroupNames(const std::string& direc
 {
 	std::vector<std::string> result;
 
-	std::filesystem::path dir =
-		std::filesystem::path(kDirectoryPath) / directoryName;
+	std::filesystem::path dir = std::filesystem::path(kDirectoryPath) / directoryName;
 
 	if (!std::filesystem::exists(dir)) {
 		return result;

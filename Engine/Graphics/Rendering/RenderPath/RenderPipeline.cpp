@@ -26,9 +26,6 @@ void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManage
 
 	forwardPath = std::make_unique<ForwardRenderPath>();
 	forwardPath->Initialize(dxManager_, psoManager);
-
-	compositePath = std::make_unique<CompositePath>();
-	compositePath->Initialize(dxManager_, psoManager);
 	// rtvResourceの生成
 	auto* rtvManager = dxManager_->GetRtvManager();
 	auto* srvManager = dxManager_->GetSrvManager();
@@ -62,10 +59,6 @@ void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManage
 	dsvIndex_ = dxManager_->GetDsvManager()->Allocate();
 	dxManager_->GetDsvManager()->CreateDsv(dsvIndex_, depthBuffer_.Get(), DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	// SRV の生成
-	//srvForDepthIndex_ = dxManager_->GetSrvManager()->Allocate();
-	//dxManager_->GetSrvManager()->CreateSRVforTexture2D(srvForDepthIndex_, depthBuffer_.Get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS, 1);
-
 	TransitionToSRV();
 }
 
@@ -74,6 +67,11 @@ void RenderPipeline::Finalize()
 	gBufferManager->Finalize();
 	gBufferPath.reset();
 	lightingPath.reset();
+	forwardPath.reset();
+
+	rtvResource_.Reset();
+	srvResource_.Reset();
+	depthBuffer_.Reset();
 }
 
 void RenderPipeline::Execute(PSOManager* psoManager)

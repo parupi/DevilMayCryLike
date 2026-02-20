@@ -3,7 +3,6 @@
 #include "Graphics/Rendering/RenderPath/Deferred/GBufferPath.h"
 #include "Graphics/Rendering/RenderPath/Deferred/LightingPath.h"
 #include "Graphics/Rendering/RenderPath/Deferred/GBufferManager.h"
-#include "Graphics/Rendering/RenderPath/CompositePath.h"
 
 class DirectXManager;
 class PSOManager;
@@ -31,7 +30,6 @@ private:
 	std::unique_ptr<GBufferPath> gBufferPath = nullptr;
 	std::unique_ptr<LightingPath> lightingPath = nullptr;
 	std::unique_ptr<ForwardRenderPath> forwardPath = nullptr;
-	std::unique_ptr<CompositePath> compositePath = nullptr;
 
 	// 全部のパスで書き込みをするRtv
 	Microsoft::WRL::ComPtr<ID3D12Resource> rtvResource_;

@@ -12,8 +12,12 @@ public:
 	void Initialize() override;
 	// 更新処理
 	void Update() override;
+
+#ifdef _DEBUG
 	// エディターの描画
-	void DrawLightEditor();
+	void DrawLightEditor() override;
+#endif // DEBUG
+
 private:
 	GlobalVariables* global_ = nullptr;
 };

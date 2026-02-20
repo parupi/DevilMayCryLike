@@ -89,8 +89,7 @@ void GameScene::Initialize()
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
-	// ============ライト=================//
-	//lightManager_->CreateDirectionalLight("gameDir");
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 	player_->SetInput(inputContext_->GetPlayerInput());

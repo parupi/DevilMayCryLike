@@ -38,21 +38,7 @@ void RendererManager::Update()
 
 void RendererManager::RenderGBufferPass()
 {
-	//auto cmd = dxManager_->GetCommandList();
 
-	//// GBuffer用PSO/RSをセット
-	//cmd->SetPipelineState(psoManager_->GetDeferredPSO());
-	//cmd->SetGraphicsRootSignature(psoManager_->GetDeferredSignature());
-
-	//// GBufferのパスをセット
-	//gBufferPass->Begin();
-
-	//// ----------- Model全体Draw（Forwardと別で管理）---------------
-	//auto& models = renders_;
-	//for (auto& r : models)
-	//{
-	//	r->GetModel()->DrawGBuffer();
-	//}
 }
 
 void RendererManager::DeleteAllRenderer()

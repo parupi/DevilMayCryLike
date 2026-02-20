@@ -57,5 +57,11 @@ private:
 	const UINT MaxLights = 128;
 	// srvIndex
 	uint32_t srvIndex_ = 0;
+
+	// エディタ用
+#ifdef _DEBUG
+	void DrawLightEditor();
+	int32_t selectedLightIndex_ = 0;
+#endif
 };
 
