@@ -36,6 +36,11 @@ public:
 	void BindLightsToShader();
 	// 全ライトの情報を取得
 	std::vector<LightData> GetAllLightData() { return gpuLightCache_; }
+
+#ifdef _DEBUG
+	// デバッグ描画をする
+	void DrawDebug();
+#endif
 private:
 	// 各バッファの生成
 	void CreateLightBuffers();
@@ -57,5 +62,12 @@ private:
 	const UINT MaxLights = 128;
 	// srvIndex
 	uint32_t srvIndex_ = 0;
+
+	// デバッグ用
+#ifdef _DEBUG
+	// エディターの描画
+	void DrawLightEditor();
+	int32_t selectedLightIndex_ = 0;
+#endif
 };
 

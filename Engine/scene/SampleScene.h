@@ -66,7 +66,7 @@ private:
 	Object3d* object_;
 	Object3d* object2_;
 
-	std::unique_ptr<Sprite> sprite_;
+	Sprite* sprite_;
 
 	DirectionalLight* dirLight_;
 

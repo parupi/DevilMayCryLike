@@ -91,8 +91,11 @@ void DirectXManager::Finalize()
 
 	swapChainManager_.reset();
 
+	srvManager_->Finalize();
 	srvManager_.reset();
+	rtvManager_->Finalize();
 	rtvManager_.reset();
+	dsvManager_->Finalize();
 	dsvManager_.reset();
 
 	depthBuffer_.Reset();
@@ -514,9 +517,4 @@ void DirectXManager::EndDraw()
 	resourceManager_->ReleasePendingUploads();
 
 	UpdateFixFPS();
-}
-
-void DirectXManager::FlushUpload()
-{
-	//commandContext_->FlushAndWait();
 }

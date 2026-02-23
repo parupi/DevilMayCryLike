@@ -16,16 +16,10 @@
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/SkySystem/SkySystem.h>
 #include <offscreen/GaussianEffect.h>
-
-namespace ed = ax::NodeEditor;
+#include "2d/SpriteManager.h"
 
 void SampleScene::Initialize()
 {
-	ed::Config config;
-	config.SettingsFile = "NodeTest.json"; // 自動保存用（任意）
-
-	context_ = ed::CreateEditor(&config);
-
 	// カメラの生成
 	normalCamera_ = std::make_unique<BaseCamera>("GameCamera");
 	normalCamera_->GetTranslate() = { 0.0f, 15.0f, -30.0f };
@@ -38,7 +32,6 @@ void SampleScene::Initialize()
 	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -10.0f };
 	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
-	cameraManager_->SetActiveCamera("KnockCamera");
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -64,8 +57,6 @@ void SampleScene::Initialize()
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 
-
-
 	// オブジェクトを生成
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("obj1");
 	object->Initialize();
@@ -76,16 +67,6 @@ void SampleScene::Initialize()
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
-
-	//// モデルとアニメーション取得
-	//SkinnedModel* model = static_cast<SkinnedModel*>(object->GetRenderer("render")->GetModel());
-	//Animation* anim = model->GetAnimation();
-
-	//anim->Play("Falling", true, 0.5f);
-
-	//for (int32_t i = 0; i < 1; i++) {
-	//	model->GetMaterials(i)->SetEnvironmentIntensity(1.0f);
-	//}
 
 	object->GetOption().drawPath = DrawPath::Forward;
 
@@ -102,33 +83,15 @@ void SampleScene::Initialize()
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	//object->GetOption().drawPath = DrawPath::Forward;
-
 	object2_ = object.get();
 
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
-
-	//// オブジェクトを生成
-	//object = std::make_unique<Object3d>("obj3");
-	//object->Initialize();
-
-	//// レンダラーの追加
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render3", "weapon"));
-
-	//object->AddRenderer(RendererManager::GetInstance()->FindRender("render3"));
-
-	//object->GetOption().drawPath = DrawPath::Deferred;
-
-	//Object3dManager::GetInstance()->AddObject(std::move(object));
-
-
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("uvChecker.png");
+	sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 
 	// ============ライト=================//
-	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
 	lightManager_->AddLight(std::make_unique<SpotLight>("SampleSpot"));
 }
 
@@ -138,15 +101,9 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
-
-
 	sprite_->Update();
-	//emitter_->Update();
-
 
 	lightManager_->Update();
-
-	//dirLight_ = lightManager_->GetDirectionalLight("dir1");
 
 #ifdef _DEBUG
 	DebugUpdate();
@@ -155,20 +112,8 @@ void SampleScene::Update()
 
 void SampleScene::Draw()
 {
-	//Object3dManager::GetInstance()->DrawSet();
-	//Object3dManager::GetInstance()->DrawForGBuffer();
-
-	//RendererManager::GetInstance()->RenderGBufferPass();
-
-	//Object3dManager::GetInstance()->DrawSetForAnimation();
-	//lightManager_->BindLightsToShader();
-	//cameraManager_->BindCameraToShader();
-
-
 	ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();
-	//SpriteManager::GetInstance()->DrawSet();
-	//sprite_->Draw();
 }
 
 void SampleScene::DrawRTV()

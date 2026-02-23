@@ -47,16 +47,16 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("SAMPLE");
+	SceneManager::GetInstance()->ChangeScene("TITLE");
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(dxManager.get(), psoManager.get());
 
-	csm = std::make_unique<CascadedShadowMap>();
-	csm->Initialize(dxManager.get(), 1280);
+	//csm = std::make_unique<CascadedShadowMap>();
+	//csm->Initialize(dxManager.get(), 1280);
 
-	shadowPath = std::make_unique<ShadowPass>();
-	shadowPath->Initialize(dxManager.get(), psoManager.get(), csm.get());
+	//shadowPath = std::make_unique<ShadowPass>();
+	//shadowPath->Initialize(dxManager.get(), psoManager.get(), csm.get());
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -84,12 +84,15 @@ void MyGameTitle::Finalize()
 	ModelManager::GetInstance()->Finalize();            
 
 	// 基盤系
+
 	RendererManager::GetInstance()->Finalize();
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();          
-	OffScreenManager::GetInstance()->Finalize();    
+	OffScreenManager::GetInstance()->Finalize(); 
+	// 各種描画パスの削除
+	renderPipeline_->Finalize();
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
@@ -107,9 +110,8 @@ void MyGameTitle::Update()
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
-
 	OffScreenManager::GetInstance()->Update();
-	csm->Update();
+	//csm->Update();
 #ifdef _DEBUG
 	SceneManager::GetInstance()->DebugUpdate();
 	ImGuiManager::GetInstance()->End();

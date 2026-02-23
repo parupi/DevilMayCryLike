@@ -1,19 +1,19 @@
 {
-    "TitlePoint": {
+    "SamplePoint": {
         "Color": [
-            0.0,
-            0.0,
+            1.0,
+            0.2078431397676468,
             1.0,
             1.0
         ],
         "Decay": 1.0,
         "Enabled": true,
-        "Intensity": 20.0,
+        "Intensity": 5.670000076293945,
         "Position": [
             0.0,
             0.699999988079071,
-            -7.0
+            0.0
         ],
-        "Radius": 5.800000190734863
+        "Radius": 10.0
     }
 }

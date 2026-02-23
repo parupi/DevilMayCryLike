@@ -106,10 +106,6 @@ void WorldTransform::DebugGui()
 	Vector3 rotate = { 0.0f, 0.0f, 0.0f };
 	ImGui::DragFloat3("rotation", &rotate.x, 0.1f);
 	rotation_ = (rotation_ * Normalize(EulerDegree(rotate)));
-
-	PrintOnImGui(matWorld_);
-	PrintOnImGui(constMap->World);
-	PrintOnImGui(constMap->WVP);
 }
 #endif // _DEBUG
 

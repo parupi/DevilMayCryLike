@@ -6,9 +6,9 @@ void AttackBranchUI::Initialize()
 
 static std::unique_ptr<Sprite> CreateSprite(const std::string& file)
 {
-    auto s = std::make_unique<Sprite>();
-    s->Initialize(file);
-    return s;
+    //auto s = std::make_unique<Sprite>();
+    //s->Initialize(file);
+    return nullptr;
 }
 
 void AttackBranchUI::SetBranches(const std::vector<AttackBranch>& branches)

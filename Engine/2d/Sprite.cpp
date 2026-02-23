@@ -1,18 +1,22 @@
 #include "Sprite.h"
 #include "math/function.h"
 #ifdef _DEBUG
-#include <imgui/imgui.h>
-#endif _DEBUG
+#include <imgui.h>
+#endif // DEBUG
+#include "SpriteManager.h"
 
-void Sprite::Initialize(std::string textureFilePath)
+Sprite::Sprite(const std::string& spriteName, const std::string& textureFilePath, SpriteLayer spriteLayer)
 {
-	spriteManager_ = SpriteManager::GetInstance();
+	name_ = spriteName;
 
-	// 単位行列を書き込んでおく
+	// テクスチャを設定
 	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
 	textureFilePath_ = textureFilePath;
 
-	
+	layer_ = spriteLayer;
+
+	spriteManager_ = SpriteManager::GetInstance();
+
 	// 各種リソースを作る
 	CreateVertexResource();
 	CreateIndexResource();

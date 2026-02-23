@@ -10,6 +10,7 @@
 #include <input/Input.h>
 #include <scene/Transition/SceneTransitionController.h>
 #include <GameData/GameData.h>
+#include "2d/SpriteManager.h"
 
 void ClearScene::Initialize()
 {
@@ -38,6 +39,7 @@ void ClearScene::Initialize()
 
 void ClearScene::Finalize()
 {
+	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CollisionManager::GetInstance()->DeleteAllCollider();
 	RendererManager::GetInstance()->DeleteAllRenderer();

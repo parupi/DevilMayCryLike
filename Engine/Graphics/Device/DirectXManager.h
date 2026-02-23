@@ -159,6 +159,4 @@ public:
 	/// 描画後処理
 	/// </summary>
 	void EndDraw();
-
-	void FlushUpload();
 };

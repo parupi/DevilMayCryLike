@@ -20,10 +20,11 @@ void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoM
 	psoManager_ = psoManager;
 	srvManager_ = dxManager_->GetSrvManager();
 
+	CreateVertexResource(dxManager);
+	CreateIndexResource(dxManager);
+
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();
-
-	dummyTextureIndex_ = TextureManager::GetInstance()->CreateWhiteTexture();
 }
 
 void PrimitiveLineDrawer::Finalize()
@@ -36,10 +37,6 @@ void PrimitiveLineDrawer::Finalize()
 	vertexBufferView_ = {};
 	indexBufferView_ = {};
 
-	// 頂点・インデックスのデータをクリア
-	vertices_.clear();
-	indices_.clear();
-
 	// WorldTransformの破棄（unique_ptrなのでreset）
 	transform_.reset();
 
@@ -48,38 +45,58 @@ void PrimitiveLineDrawer::Finalize()
 	psoManager_ = nullptr;
 	srvManager_ = nullptr;
 
-	// ダミーテクスチャのインデックスもリセット
-	dummyTextureIndex_ = 0;
-
 	delete instance;
 	instance = nullptr;
 
 	Logger::Log("PrimitiveLineDrawer finalized.\n");
 }
 
+void PrimitiveLineDrawer::CreateVertexResource(DirectXManager* dxManager)
+{
+	// --- Vertex buffer ---
+	vertexResource_ = dxManager->GetResourceManager()->CreateUploadResource(sizeof(Vertex) * kMaxLineVertices);
+	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedVertexPtr_));
+
+	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
+	vertexBufferView_.SizeInBytes = sizeof(Vertex) * kMaxLineVertices;
+	vertexBufferView_.StrideInBytes = sizeof(Vertex);
+}
+
+void PrimitiveLineDrawer::CreateIndexResource(DirectXManager* dxManager)
+{
+	indexResource_ = dxManager->GetResourceManager()->CreateUploadResource(sizeof(uint32_t) * kMaxLineIndices);
+	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedIndexPtr_));
+
+	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	indexBufferView_.SizeInBytes = sizeof(uint32_t) * kMaxLineIndices;
+	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+}
+
 void PrimitiveLineDrawer::BeginDraw()
 {
-	vertices_.clear();
-	indices_.clear();
+	currentVertexCount_ = 0;
+	currentIndexCount_ = 0;
 }
 
 void PrimitiveLineDrawer::EndDraw()
 {
-	if (!vertices_.empty() && !indices_.empty()) {
-		UpdateVertexResource();
-		UpdateIndexResource();
-		Draw();
-	}
+	if (currentIndexCount_ == 0) return;
+
+	Draw();
 }
 
 void PrimitiveLineDrawer::DrawLine(const Vector3& start, const Vector3& end, const Vector4& color)
 {
-	uint32_t baseIndex = static_cast<uint32_t>(vertices_.size());
-	vertices_.push_back({ start, color, Vector2{0.0f, 0.0f} });
-	vertices_.push_back({ end, color, Vector2{0.0f, 0.0f} });
+	if (currentVertexCount_ + 2 >= kMaxLineVertices) return;
+	if (currentIndexCount_ + 2 >= kMaxLineIndices) return;
 
-	indices_.push_back(baseIndex);
-	indices_.push_back(baseIndex + 1);
+	uint32_t baseIndex = currentVertexCount_;
+
+	mappedVertexPtr_[currentVertexCount_++] = { start, color, {0,0} };
+	mappedVertexPtr_[currentVertexCount_++] = { end,   color, {0,0} };
+
+	mappedIndexPtr_[currentIndexCount_++] = baseIndex;
+	mappedIndexPtr_[currentIndexCount_++] = baseIndex + 1;
 }
 
 void PrimitiveLineDrawer::DrawWireSphere(const Vector3& center, float radius, const Vector4& color, int divide) {
@@ -137,49 +154,62 @@ void PrimitiveLineDrawer::DrawWireSphere(const Vector3& center, float radius, co
 	}
 }
 
-
-void PrimitiveLineDrawer::UpdateVertexResource()
+void PrimitiveLineDrawer::DrawWireCircle(const Vector3& center, float radius, const Vector3& normal, const Vector4& color, int divide)
 {
-	vertexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(vertices_.data(), sizeof(Vertex) * vertices_.size());
+	if (radius <= 0.0f) return;
 
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(Vertex) * vertices_.size());
-	vertexBufferView_.StrideInBytes = sizeof(Vertex);
+	const float angleStep = 2.0f * std::numbers::pi_v<float> / divide;
 
-	void* mapped = nullptr;
-	vertexResource_->Map(0, nullptr, &mapped);
-	memcpy(mapped, vertices_.data(), sizeof(Vertex) * vertices_.size());
-	vertexResource_->Unmap(0, nullptr);
-}
+	// 法線正規化
+	Vector3 n = Normalize(normal);
 
-void PrimitiveLineDrawer::UpdateIndexResource()
-{
-	indexResource_ = dxManager_->GetResourceManager()->CreateUploadBufferWithData(indices_.data(), sizeof(uint32_t) * indices_.size());
+	// 法線に直交するベクトルを作る
+	Vector3 tangent;
 
-	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
-	indexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(uint32_t) * indices_.size());
-	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
+	if (std::abs(n.y) < 0.99f)
+	{
+		tangent = Normalize(Cross(n, { 0,1,0 }));
+	} else
+	{
+		tangent = Normalize(Cross(n, { 1,0,0 }));
+	}
 
-	void* mapped = nullptr;
-	indexResource_->Map(0, nullptr, &mapped);
-	memcpy(mapped, indices_.data(), sizeof(uint32_t) * indices_.size());
-	indexResource_->Unmap(0, nullptr);
+	Vector3 bitangent = Cross(n, tangent);
+
+	for (int i = 0; i < divide; ++i)
+	{
+		float a0 = i * angleStep;
+		float a1 = (i + 1) * angleStep;
+
+		Vector3 p0 =
+			center +
+			tangent * std::cos(a0) * radius +
+			bitangent * std::sin(a0) * radius;
+
+		Vector3 p1 =
+			center +
+			tangent * std::cos(a1) * radius +
+			bitangent * std::sin(a1) * radius;
+
+		DrawLine(p0, p1, color);
+	}
 }
 
 void PrimitiveLineDrawer::Draw()
 {
+	// ビュープロジェクション行列を送る準備
 	const Matrix4x4& viewProjection = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
 	transform_->SetMatWVP(viewProjection);
 
 	ID3D12GraphicsCommandList* cmdList = dxManager_->GetCommandList();
+
 	cmdList->SetPipelineState(psoManager_->GetPrimitivePSO());
 	cmdList->SetGraphicsRootSignature(psoManager_->GetPrimitiveSignature());
-	//cmdList->SetGraphicsRootConstantBufferView(0, transform_->GetConstBuffer()->GetGPUVirtualAddress());
-	transform_->BindToShader(cmdList, 1);
+	transform_->BindToShader(cmdList, 0);
 
-	srvManager_->SetGraphicsRootDescriptorTable(1, dummyTextureIndex_);
 	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	cmdList->IASetIndexBuffer(&indexBufferView_);
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
-	cmdList->DrawIndexedInstanced(static_cast<UINT>(indices_.size()), 1, 0, 0, 0);
+
+	cmdList->DrawIndexedInstanced(currentIndexCount_, 1, 0, 0, 0);
 }

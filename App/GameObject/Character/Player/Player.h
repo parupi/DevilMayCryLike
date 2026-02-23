@@ -189,7 +189,7 @@ private:
 
 	bool onGround_ = false; ///< 接地判定フラグ
 
-	std::unique_ptr<Sprite> titleWord_; ///< テスト用スプライト（デバッグ表示など）
+	Sprite* reticle_; ///< テスト用スプライト（デバッグ表示など）
 
 	bool isClear_ = false;
 	bool isMenu_ = false;

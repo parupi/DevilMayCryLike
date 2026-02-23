@@ -15,6 +15,8 @@
 Model::~Model()
 {
 	modelLoader_ = nullptr;
+	meshes_.clear();
+	materials_.clear();
 }
 
 void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)

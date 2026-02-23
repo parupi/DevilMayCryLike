@@ -2,11 +2,11 @@
 #include "RankUI.h"
 #include <base/utility/DeltaTime.h>
 #include <GameData/GameData.h>
+#include "2d/SpriteManager.h"
 
 void RankUI::Initialize()
 {
-    rank_ = std::make_unique<Sprite>();
-    rank_->Initialize("Ranks.png");
+    rank_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "rankUI", "Ranks.png");
     rank_->SetUVSize({ 0.2f, 1.0f });
     rank_->SetAnchorPoint({ 0.5f, 0.5f });
 

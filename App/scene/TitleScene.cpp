@@ -12,6 +12,7 @@
 #include <scene/Transition/FadeTransition.h>
 #include <scene/Transition/TransitionManager.h>
 #include <GameObject/Camera/TitleCamera.h>
+#include <3d/Collider/CollisionManager.h>
 
 
 void TitleScene::Initialize()
@@ -81,7 +82,10 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
+	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
+	CollisionManager::GetInstance()->DeleteAllCollider();
+	RendererManager::GetInstance()->DeleteAllRenderer();
 	CameraManager::GetInstance()->DeleteAllCamera();
 	LightManager::GetInstance()->DeleteAllLight();
 }

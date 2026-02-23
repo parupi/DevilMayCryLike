@@ -23,10 +23,10 @@ public:
 	void Update();
 	void Draw();
 private:
-	std::unique_ptr<Sprite> rightArrow_ = nullptr;
-	std::unique_ptr<Sprite> leftArrow_ = nullptr;
+	Sprite* rightArrow_ = nullptr;
+	Sprite* leftArrow_ = nullptr;
 
-	std::unique_ptr<Sprite> musk_ = nullptr;
+	Sprite* musk_ = nullptr;
 
 	MenuStates states_ = MenuStates::SetUp;
 

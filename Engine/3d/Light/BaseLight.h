@@ -8,6 +8,8 @@ enum class LightType {
     Spot,
 };
 
+class PrimitiveLineDrawer;
+
 class BaseLight {
 public:
     BaseLight() = default;
@@ -16,6 +18,14 @@ public:
     virtual void Initialize() = 0;
     // 更新処理
     virtual void Update() = 0;
+
+#ifdef _DEBUG
+    // エディター描画
+    virtual void DrawLightEditor() = 0;
+    // デバッグ描画
+    virtual void DrawDebug(PrimitiveLineDrawer* drawer) = 0;
+#endif // DEBUG
+
     // 名前を取得
     const std::string& GetName() const { return name_; }
     // ライトの情報を取得

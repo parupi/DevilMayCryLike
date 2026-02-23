@@ -1048,28 +1048,13 @@ void PSOManager::CreateOffScreenPSO(OffScreenEffectType effectType)
 
 void PSOManager::CreatePrimitiveSignature()
 {
-	// SRV テーブル (t0)
-	D3D12_DESCRIPTOR_RANGE srvRange{};
-	srvRange.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	srvRange.NumDescriptors = 1;
-	srvRange.BaseShaderRegister = 0; // t0
-	srvRange.RegisterSpace = 0;
-	srvRange.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
 	// Root Parameters
-	D3D12_ROOT_PARAMETER rootParams[2] = {};
-
+	D3D12_ROOT_PARAMETER rootParams[1] = {};
 	// b0 : 定数バッファ（行列）
 	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 	rootParams[0].Descriptor.ShaderRegister = 0;
 	rootParams[0].Descriptor.RegisterSpace = 0;
-
-	// t0 : SRV テクスチャ
-	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-	rootParams[1].DescriptorTable.NumDescriptorRanges = 1;
-	rootParams[1].DescriptorTable.pDescriptorRanges = &srvRange;
 
 	// s0 : Static Sampler
 	D3D12_STATIC_SAMPLER_DESC samplerDesc{};
@@ -1123,7 +1108,7 @@ void PSOManager::CreatePrimitivePSO()
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,     0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 		{ "COLOR",    0, DXGI_FORMAT_R32G32B32A32_FLOAT,  0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,        0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 }, // ← これが必要！
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,        0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
 	};
 
 	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc{};
@@ -1132,7 +1117,7 @@ void PSOManager::CreatePrimitivePSO()
 
 	// ブレンド設定（アルファ加算）
 	D3D12_BLEND_DESC blendDesc{};
-	blendDesc.RenderTarget[0].BlendEnable = TRUE;
+	blendDesc.RenderTarget[0].BlendEnable = FALSE;
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
@@ -1172,7 +1157,7 @@ void PSOManager::CreatePrimitivePSO()
 	psoDesc.DepthStencilState = depthStencilDesc;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	psoDesc.SampleDesc.Count = 1;
 	psoDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
 

@@ -10,6 +10,9 @@
 #include <debuger/ImGuiManager.h>
 #include <offscreen/OffScreenManager.h>
 #include <base/Particle/ParticleManager.h>
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <3d/Collider/CollisionManager.h>
+#include <2d/SpriteManager.h>
 
 void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
@@ -26,9 +29,6 @@ void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManage
 
 	forwardPath = std::make_unique<ForwardRenderPath>();
 	forwardPath->Initialize(dxManager_, psoManager);
-
-	compositePath = std::make_unique<CompositePath>();
-	compositePath->Initialize(dxManager_, psoManager);
 	// rtvResourceの生成
 	auto* rtvManager = dxManager_->GetRtvManager();
 	auto* srvManager = dxManager_->GetSrvManager();
@@ -62,10 +62,6 @@ void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManage
 	dsvIndex_ = dxManager_->GetDsvManager()->Allocate();
 	dxManager_->GetDsvManager()->CreateDsv(dsvIndex_, depthBuffer_.Get(), DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	// SRV の生成
-	//srvForDepthIndex_ = dxManager_->GetSrvManager()->Allocate();
-	//dxManager_->GetSrvManager()->CreateSRVforTexture2D(srvForDepthIndex_, depthBuffer_.Get(), DXGI_FORMAT_R24_UNORM_X8_TYPELESS, 1);
-
 	TransitionToSRV();
 }
 
@@ -74,6 +70,11 @@ void RenderPipeline::Finalize()
 	gBufferManager->Finalize();
 	gBufferPath.reset();
 	lightingPath.reset();
+	forwardPath.reset();
+
+	rtvResource_.Reset();
+	srvResource_.Reset();
+	depthBuffer_.Reset();
 }
 
 void RenderPipeline::Execute(PSOManager* psoManager)
@@ -113,14 +114,28 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	TransitionToRTV();
 	// 描画前処理
 	forwardPath->BeginDraw(rtvIndex_, dsvIndex_);
+
 	// スカイボックスの描画
 	SkySystem::GetInstance()->Draw();
 	// Forward描画で設定されているオブジェクトの描画
 	Object3dManager::GetInstance()->DrawForward();
+
 	// シーンの描画
 	SceneManager::GetInstance()->Draw();
+	// スプライトの描画
+	SpriteManager::GetInstance()->DrawAllSprite();
 	// トランジションの描画
-	TransitionManager::GetInstance()->Draw();
+	//TransitionManager::GetInstance()->Draw();
+	// 線描画の受け受け開始
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
+	// コライダーのデバッグ描画
+	CollisionManager::GetInstance()->Draw();
+#ifdef _DEBUG
+	// ライトのデバッグ描画
+	LightManager::GetInstance()->DrawDebug();
+#endif // DEBUG
+	// 線描画の受付終了
+	PrimitiveLineDrawer::GetInstance()->EndDraw();
 	// 描画後処理
 	forwardPath->EndDraw();
 

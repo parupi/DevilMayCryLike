@@ -16,6 +16,7 @@ void GBufferManager::Finalize()
 {
 	for (auto& resource : gBufferResources_) {
 		resource.Reset();
+		resource = nullptr;
 	}
 
 	dxManager_ = nullptr;
