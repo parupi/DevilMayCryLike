@@ -62,11 +62,19 @@ void GlobalVariables::SaveFile(const std::string& directoryName, const string& g
 			// float型のjson配列を登録
 			Vector3 value = get<Vector3>(item.value);
 			root[groupName][itemName] = json::array({ value.x, value.y, value.z });
-		}// bool型の値を保持していれば
+		}
+		// Vector4型の値を保持していれば
+		else if (holds_alternative<Vector4>(item.value)) {
+			// float型のjson配列を登録
+			Vector4 value = get<Vector4>(item.value);
+			root[groupName][itemName] = json::array({ value.x, value.y, value.z, value.w });
+		}
+		// bool型の値を保持していれば
 		else if (std::holds_alternative<bool>(item.value)) {
 			// bool型の値を登録
 			root[groupName][itemName] = std::get<bool>(item.value);
-		}// string型の値を保持していれば
+		}
+		// string型の値を保持していれば
 		else if (std::holds_alternative<std::string>(item.value)) {
 			root[groupName][itemName] = std::get<std::string>(item.value);
 		}
@@ -177,22 +185,32 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 			// int型の値を登録
 			int32_t value = itItem->get<int32_t>();
 			SetValue(groupName, itemName, value);
-		} // float型の値を保持していれば
+		} 
+		// float型の値を保持していれば
 		else if (itItem->is_number_float()) {
 			// int型の値を登録
 			double value = itItem->get<double>();
 			SetValue(groupName, itemName, static_cast<float>(value));
-		} // Vector3型の値を保持していれば
+		}
+		// Vector3型の値を保持していれば
 		else if (itItem->is_array() && itItem->size() == 3) {
 			// float型のjson配列登録
 			Vector3 value = { itItem->at(0), itItem->at(1), itItem->at(2) };
 			SetValue(groupName, itemName, value);
-		} // bool型の値を保持していれば
+		} 
+		// Vector4型の値を保持していれば
+		else if (itItem->is_array() && itItem->size() == 4) {
+			// float型のjson配列登録
+			Vector4 value = { itItem->at(0), itItem->at(1), itItem->at(2), itItem->at(3) };
+			SetValue(groupName, itemName, value);
+		}
+		// bool型の値を保持していれば
 		else if (itItem->is_boolean()) {
 			// bool型の値を登録
 			bool value = itItem->get<bool>();
 			SetValue(groupName, itemName, value);
-		}// string型の値を保持していれば
+		}
+		// string型の値を保持していれば
 		else if (itItem->is_string()) {
 			std::string value = itItem->get<std::string>();
 			SetValue(groupName, itemName, value);

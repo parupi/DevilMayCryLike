@@ -119,6 +119,7 @@ void LightManager::CreateLightBuffers()
     srv->CreateSRVforStructuredBuffer(srvIndex_, rm->GetResource(lightBufferHandle_), MaxLights, sizeof(LightData));
 }
 
+#ifdef _DEBUG
 void LightManager::DrawLightEditor()
 {
     if (lights_.empty()) return;
@@ -145,3 +146,4 @@ void LightManager::DrawLightEditor()
 
     ImGui::End();
 }
+#endif // DEBUG

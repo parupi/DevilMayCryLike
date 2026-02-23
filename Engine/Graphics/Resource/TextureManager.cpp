@@ -216,7 +216,6 @@ uint32_t TextureManager::CreateWhiteTexture()
 	texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
 
 	auto intermediate = dxManager_->UploadTextureData(texData.resource.Get(), image);
-	dxManager_->FlushUpload();
 
 	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);
 	texData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(texData.srvIndex);

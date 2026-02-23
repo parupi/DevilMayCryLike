@@ -16,6 +16,7 @@
 #include <3d/Object/Renderer/PrimitiveRenderer.h>
 #include <3d/SkySystem/SkySystem.h>
 #include <offscreen/GaussianEffect.h>
+#include "2d/SpriteManager.h"
 
 void SampleScene::Initialize()
 {
@@ -86,8 +87,7 @@ void SampleScene::Initialize()
 
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("uvChecker.png");
+	sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 
 	// ============ライト=================//
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));

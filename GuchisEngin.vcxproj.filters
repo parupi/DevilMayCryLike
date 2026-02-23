@@ -663,6 +663,7 @@
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
+    <ClInclude Include="Engine\2d\SpriteStruct.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">

@@ -12,6 +12,7 @@
 #include <base/Particle/ParticleManager.h>
 #include <3d/Primitive/PrimitiveLineDrawer.h>
 #include <3d/Collider/CollisionManager.h>
+#include <2d/SpriteManager.h>
 
 void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
@@ -121,14 +122,18 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 
 	// シーンの描画
 	SceneManager::GetInstance()->Draw();
+	// スプライトの描画
+	SpriteManager::GetInstance()->DrawAllSprite();
 	// トランジションの描画
-	TransitionManager::GetInstance()->Draw();
+	//TransitionManager::GetInstance()->Draw();
 	// 線描画の受け受け開始
 	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 	// コライダーのデバッグ描画
 	CollisionManager::GetInstance()->Draw();
+#ifdef _DEBUG
 	// ライトのデバッグ描画
 	LightManager::GetInstance()->DrawDebug();
+#endif // DEBUG
 	// 線描画の受付終了
 	PrimitiveLineDrawer::GetInstance()->EndDraw();
 	// 描画後処理

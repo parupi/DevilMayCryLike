@@ -1,9 +1,15 @@
 #pragma once
 #include <Graphics/Rendering/PSO/PSOManager.h>
-#include <Graphics/Rendering/RenderPath/ForwardRenderStruct.h>
 
-struct SpriteOption {
-	bool isDraw = true;
+struct SpriteRenderState {
+	bool isVisible = true;
 	BlendMode blendMode = BlendMode::kNormal;
-	BlendCategory blendCategory = BlendCategory::Transparent;
+};
+
+enum class SpriteLayer {
+	Background,
+	Game,
+	UI,
+	Debug,
+	Count,
 };

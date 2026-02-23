@@ -1,19 +1,15 @@
 #include "GameUI.h"
-//#include <imgui.h>
+#include "2d/SpriteManager.h"
 
 void GameUI::Initialize()
 {
-	attackUI_ = std::make_unique<Sprite>();
-	jumpUI_ = std::make_unique<Sprite>();
-	lockOnUI_ = std::make_unique<Sprite>();
-
 	TextureManager::GetInstance()->LoadTexture("UI/attack.png");
 	TextureManager::GetInstance()->LoadTexture("UI/Jump.png");
 	TextureManager::GetInstance()->LoadTexture("UI/LockOn.png");
 
-	attackUI_->Initialize("UI/attack.png");
-	jumpUI_->Initialize("UI/Jump.png");
-	lockOnUI_->Initialize("UI/LockOn.png");
+	attackUI_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "attack", "UI/attack.png");
+	jumpUI_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "jump", "UI/Jump.png");
+	lockOnUI_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "lockOn", "UI/LockOn.png");
 
 	attackUI_->SetSize({256.0f, 64.0f});
 	jumpUI_->SetSize({ 256.0f, 64.0f });

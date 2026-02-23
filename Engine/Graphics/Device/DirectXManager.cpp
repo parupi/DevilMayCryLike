@@ -518,8 +518,3 @@ void DirectXManager::EndDraw()
 
 	UpdateFixFPS();
 }
-
-void DirectXManager::FlushUpload()
-{
-	//commandContext_->FlushAndWait();
-}

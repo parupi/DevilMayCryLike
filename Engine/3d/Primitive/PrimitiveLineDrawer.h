@@ -26,6 +26,9 @@ public:
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	void Finalize();
 
+	void CreateVertexResource(DirectXManager* dxManager);
+	void CreateIndexResource(DirectXManager* dxManager);
+
 	void BeginDraw();
 	void EndDraw();
 
@@ -37,26 +40,30 @@ private:
 	struct Vertex {
 		Vector3 position;
 		Vector4 color;
-		Vector2 texcoord; // ← 必須
+		Vector2 texcoord;
 	};
 
-	void UpdateVertexResource();
-	void UpdateIndexResource();
 	void Draw();
-
 private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 
 	std::unique_ptr<WorldTransform> transform_;
-	std::vector<Vertex> vertices_;
-	std::vector<uint32_t> indices_;
+
+	// 最大ライン数（適当に余裕を持たせる）
+	static constexpr uint32_t kMaxLineVertices = 20000;
+	static constexpr uint32_t kMaxLineIndices = 40000;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
 	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
-	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
-	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};
 
-	uint32_t dummyTextureIndex_ = 0;
+	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
+	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
+
+	Vertex* mappedVertexPtr_ = nullptr;
+	uint32_t* mappedIndexPtr_ = nullptr;
+
+	uint32_t currentVertexCount_ = 0;
+	uint32_t currentIndexCount_ = 0;
 };

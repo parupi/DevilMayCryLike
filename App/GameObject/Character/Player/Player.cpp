@@ -15,6 +15,7 @@
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
 #include "Controller/PlayerInput.h"
+#include "2d/SpriteManager.h"
 
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
@@ -66,10 +67,9 @@ void Player::Initialize()
 
 	hitStop_ = std::make_unique<HitStop>();
 
-	titleWord_ = std::make_unique<Sprite>();
-	titleWord_->Initialize("reticle.png");
-	titleWord_->SetSize({ 32.0f, 32.0f });
-	titleWord_->SetAnchorPoint({ 0.5f, 0.5f });
+	reticle_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
+	reticle_->SetSize({ 32.0f, 32.0f });
+	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
 
 	// プレイヤーをカメラ側を向かせる
 	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
@@ -121,8 +121,8 @@ void Player::Update(float deltaTime)
 	onGround_ = false;
 
 	if (lockOnEnemy_) {
-		titleWord_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
-		titleWord_->Update();
+		reticle_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
+		reticle_->Update();
 	}
 }
 
@@ -139,7 +139,7 @@ void Player::Draw()
 void Player::DrawEffect()
 {
 	if (isLockOn_) {
-		titleWord_->Draw();
+		reticle_->Draw();
 	}
 }
 
