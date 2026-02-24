@@ -80,16 +80,7 @@ void ParticleManager::Update()
 {
 	if (camera_ == nullptr) return;
 
-	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, camera_->GetRotate(), camera_->GetTranslate());
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
-	Matrix4x4 viewProjectionMatrix = viewMatrix * projectionMatrix;
 
-	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
-	Matrix4x4 billboardMatrix = backToFrontMatrix * cameraMatrix;
-	billboardMatrix.m[3][0] = 0.0f;
-	billboardMatrix.m[3][1] = 0.0f;
-	billboardMatrix.m[3][2] = 0.0f;
 
 	for (auto& [groupName, particleGroup] : particleGroups_) {
 		numInstance = 0;
@@ -99,97 +90,39 @@ void ParticleManager::Update()
 		std::vector<InstanceData> instanceList;
 		instanceList.reserve(particleGroup.particleList.size());
 
-		for (auto particleIterator = particleGroup.particleList.begin(); particleIterator != particleGroup.particleList.end();) {
-			auto& particle = *particleIterator;
+		float delta = DeltaTime::GetDeltaTime();
 
-			if (particle.lifeTime <= particle.currentTime) {
-				particleIterator = particleGroup.particleList.erase(particleIterator);
-				continue;
-			}
+		updateSystem_.Update(particleGroup.particleList, delta);
 
-			if (numInstance >= kNumMaxInstance) {
-				// 超過したら残りはスキップしてループを進める（削除はしない）
-				++particleIterator;
-				continue;
-			}
+		renderSystem_.BuildInstances(particleGroup.particleList, camera_, instanceList);
 
-			// エディターで変更したBlendModeやフラグ取得（必要ならループ外で一回取得してもよい）
+		for (auto& particle : particleGroup.particleList) {
+
+			// エディターで変更したBlendModeやフラグ取得 TODO : ループ外でやる方法を探す
 			particleGroup.blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
-			isBillboard_ = global_->GetValueRef<bool>(groupName, "IsBillboard");
 			particle.fadeType = static_cast<FadeType>(global_->GetValueRef<int>(groupName, "FadeType"));
-
-			// 更新
-			float delta = DeltaTime::GetDeltaTime();
-			particle.transform.translate += particle.velocity * delta;
-			particle.currentTime += delta;
-
-			float t = particle.currentTime / particle.lifeTime;
-			float alpha = 1.0f;
-
-			switch (particle.fadeType) {
-			case FadeType::Alpha:
-				alpha = 1.0f - t;
-				break;
-			case FadeType::ScaleShrink: {
-				const float shrinkStart = global_->GetValueRef<float>(groupName, "ShrinkStartRatio");
-				if (t > shrinkStart) {
-					float progress = (t - shrinkStart) / (1.0f - shrinkStart);
-					float scaleFactor = std::max(0.0f, 1.0f - progress);
-					particle.transform.scale = particle.initialScale * scaleFactor;
-				} else {
-					particle.initialScale = particle.transform.scale;
-				}
-				break;
-			}
-			default: break;
-			}
-
-			// world / wvp 計算
-			Matrix4x4 scaleMatrix = MakeScaleMatrix(particle.transform.scale);
-			Matrix4x4 translateMatrix = MakeTranslateMatrix(particle.transform.translate);
-			Matrix4x4 worldMatrix{};
-			if (isBillboard_) {
-				worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
-			} else {
-				worldMatrix = MakeAffineMatrix(particle.transform.scale, particle.transform.rotate, particle.transform.translate);
-			}
-			Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
-
-			// CPU キャッシュと instanceList へ追加
-			InstanceData id{};
-			id.world = worldMatrix;
-			id.wvp = worldViewProjectionMatrix;
-			id.color = particle.color;
-			id.color.w = alpha;
-			particleGroup.instanceCache.push_back(id);
+			particle.shrinkStart = global_->GetValueRef<float>(groupName, "ShrinkStartRatio");
+			particle.isBillboard = global_->GetValueRef<bool>(groupName, "IsBillboard");
 
 			// GPU 側の一次配列 (instancingData_) にも保存
-			instancingData_[numInstance].WVP = worldViewProjectionMatrix;
-			instancingData_[numInstance].World = worldMatrix;
-			instancingData_[numInstance].color = particle.color;
-			instancingData_[numInstance].color.w = alpha;
+			//instancingData_[numInstance].WVP = worldMatrix * viewProjection;
+			//instancingData_[numInstance].World = worldMatrix;
+			//instancingData_[numInstance].color = particle.color;
+			//instancingData_[numInstance].color.w = alpha;
 
-			instanceList.push_back(id);
-
-			++numInstance;
-			++particleIterator;
 		}
 
 		// SetInstanceList はループ外で一度だけ呼ぶ
 		if (particleGroup.renderer) {
 			particleGroup.renderer->SetInstanceList(instanceList);
-		} else {
-			// 無効な renderer のログ（Release では落とさないようにするなら条件付き）
-			//assert(false && "particleGroup.renderer is null!");
-			return;
 		}
 
 		// インスタンス数の更新
-		particleGroup.instanceCount = numInstance;
+		particleGroup.instanceCount = instanceList.size();
 
 		// GPU メモリにインスタンスデータを書き込む
 		if (particleGroup.instancingDataPtr) {
-			std::memcpy(particleGroup.instancingDataPtr, instancingData_, sizeof(ParticleForGPU) * numInstance);
+			std::memcpy(particleGroup.instancingDataPtr, instancingData_, sizeof(ParticleForGPU) * instanceList.size());
 		}
 
 		particleParams_[groupName] = LoadParticleParameters(global_, groupName);
@@ -198,7 +131,6 @@ void ParticleManager::Update()
 		DrawEditor(global_, groupName);
 #endif
 	}
-
 }
 
 void ParticleManager::Draw()
@@ -316,7 +248,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	global_->AddItem(name, "ShrinkStartRatio", float{});
 
-	global_->AddItem(name, "BlendMode", int{2});
+	global_->AddItem(name, "BlendMode", int{ 2 });
 }
 
 void ParticleManager::DrawSet(BlendMode blendMode)
@@ -341,8 +273,7 @@ void ParticleManager::CreateParticleResource()
 	// -----------------------------
 	// インスタンス用バッファ
 	// -----------------------------
-	instancingHandle_ =
-		rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleGlobalInstancing");
+	instancingHandle_ = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleGlobalInstancing");
 
 	instancingData_ = reinterpret_cast<ParticleForGPU*>(rm->Map(instancingHandle_));
 
@@ -394,7 +325,7 @@ void ParticleManager::CreateMaterialResource()
 	materialData_->uvTransform = MakeIdentity4x4();
 }
 
-ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate)
+Particle ParticleManager::MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate)
 {
 	Particle particle{};
 
@@ -503,7 +434,7 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 
 void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
 {
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 	ImGui::Begin(groupName.c_str());
 
 	if (ImGui::TreeNode("Particle")) {
@@ -583,7 +514,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			// フェードタイプごとに個別パラメータを出す
 			switch (fadeType) {
 			case FadeType::Alpha:
-				
+
 				break;
 			case FadeType::ScaleShrink: {
 				// このフェードタイプ専用のパラメータ
@@ -594,7 +525,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			}
 			case FadeType::None:
 			default:
-				
+
 				break;
 			}
 			ImGui::TreePop();
@@ -603,7 +534,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 		// ===== Blend Settings =====
 		if (ImGui::TreeNode("Blend Mode")) {
 			int& blendModeInt = global->GetValueRef<int>(groupName, "BlendMode");
-			const char* blendNames[] = {"None", "Normal", "Add", "Subtract", "Multiply", "Screen"};
+			const char* blendNames[] = { "None", "Normal", "Add", "Subtract", "Multiply", "Screen" };
 			ImGui::Combo("Blend Mode", &blendModeInt, blendNames, IM_ARRAYSIZE(blendNames));
 			ImGui::TreePop();
 		}
@@ -619,17 +550,16 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 	}
 
 	ImGui::End();
-#endif // IMGUI
+#endif // DEBUG
 }
 
-std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
 {
-	ParticleGroup& particleGroup = particleGroups_[name];
-	std::list<Particle> newParticles;
-	for (uint32_t nowCount = 0; nowCount < count; ++nowCount) {
-		Particle particle = MakeNewParticle(name, position);
-		newParticles.push_back(particle);
+	auto& particles = particleGroups_[name].particleList;
+
+	particles.reserve(particles.size() + count);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		particles.emplace_back(MakeNewParticle(name, position));
 	}
-	particleGroup.particleList.splice(particleGroup.particleList.end(), newParticles);
-	return newParticles;
 }

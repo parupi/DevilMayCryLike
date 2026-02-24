@@ -9,14 +9,11 @@
 #include <math/Vector2.h>
 #include "debuger/GlobalVariables.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
-#include "ParticleStruct.h"
+#include "InstanceData.h"
+#include "Particle.h"
 #include <3d/Object/Renderer/InstancingRenderer.h>
-
-enum class FadeType {
-	None = 0,        // フェードしない
-	Alpha = 1,       // 透明度で消える
-	ScaleShrink = 2, // 寿命末期で急速に縮む
-};
+#include "ParticleUpdateSystem.h"
+#include "ParticleRenderSystem.h"
 
 class ParticleManager
 {
@@ -47,7 +44,7 @@ public:
 	void DebugGui();
 #endif // DEBUG
 
-private: // 構造体
+public: // 構造体
 
 	struct Color {
 		float r, g, b;
@@ -72,21 +69,9 @@ private: // 構造体
 		Vector4 color;
 	};
 
-	struct Particle {
-		EulerTransform transform;
-		Vector3 velocity;
-		Vector3 acc;
-		Vector4 color;
-		float lifeTime;
-		float currentTime;
-		bool isAlive;
-		Vector3 initialScale;   // 生成時のスケールを保持
-		FadeType fadeType = FadeType::Alpha; // デフォルトをAlphaに
-	};
-
 	struct ParticleGroup {
 		MaterialData materialData;  // マテリアルデータ
-		std::list<Particle> particleList;  // パーティクルのリスト
+		std::vector<Particle> particleList;  // パーティクルのリスト
 		std::unique_ptr<InstancingRenderer> renderer;
 		uint32_t srvIndex;  // インスタンシング用SRVインデックス
 		//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
@@ -147,13 +132,11 @@ private:
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
-	std::list<Particle> Emit(const std::string name_, const Vector3& position, uint32_t count);
+	void Emit(const std::string name_, const Vector3& position, uint32_t count);
 
 private:
 	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
 	// パーティクル用リソースの宣言
-	//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource_;
-	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_;
 	uint32_t instancingHandle_ = 0;
 	uint32_t materialHandle_ = 0;
 	uint32_t vertexHandle_ = 0;
@@ -168,6 +151,11 @@ private:
 	SrvManager* srvManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
 	BaseCamera* camera_ = nullptr;
+
+	// 更新用のシステム
+	ParticleUpdateSystem updateSystem_;
+	// 描画設定用のシステム
+	ParticleRenderSystem renderSystem_;
 
 	// グローバルバリアース
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
@@ -189,7 +177,7 @@ private:
 	Matrix4x4 translateMatrix_;
 
 
-	std::list<Particle> particles;
+	std::vector<Particle> particles;
 	uint32_t numInstance = 0;
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;

@@ -89,6 +89,10 @@ void SampleScene::Initialize()
 
 	sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 
+	emitter_ = std::make_unique<ParticleEmitter>();
+	emitter_->Initialize("test");
+	emitter_->SetParticle("test");
+
 	// ============ライト=================//
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
@@ -104,6 +108,8 @@ void SampleScene::Update()
 	sprite_->Update();
 
 	lightManager_->Update();
+
+	emitter_->Update();
 
 #ifdef _DEBUG
 	DebugUpdate();
