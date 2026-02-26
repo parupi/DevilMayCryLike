@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Resource/SrvManager.h"
 #include <random>
@@ -14,6 +13,28 @@
 #include <3d/Object/Renderer/InstancingRenderer.h>
 #include "ParticleUpdateSystem.h"
 #include "ParticleRenderSystem.h"
+#include "ParticleGroup.h"
+#include "ParticleRenderer.h"
+
+struct ParticleForGPU {
+	Matrix4x4 WVP;
+	Matrix4x4 World;
+	Vector4 color;
+};
+
+struct ParticleGroupGPU
+{
+	uint32_t instancingHandle;
+	ParticleForGPU* mappedPtr;
+	uint32_t srvIndex;
+};
+
+struct ParticleRenderState
+{
+	BlendMode blendMode;
+	bool isBillboard;
+	uint32_t textureIndex;
+};
 
 class ParticleManager
 {
@@ -37,6 +58,14 @@ public:
 	void Draw();
 	// パーティクルグループを登録する
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
+
+	void CreateParticleGPU(const std::string& name);
+
+	void CreateParticleRenderer(const std::string& name, const std::string& textureFilePath);
+
+	void RegisterEditorParameters(const std::string& name);
+
+	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList);
 	// 描画前処理
 	void DrawSet(BlendMode blendMode = BlendMode::kAdd);
 
@@ -63,25 +92,18 @@ public: // 構造体
 		uint32_t textureIndex = 0;
 	};
 
-	struct ParticleForGPU {
-		Matrix4x4 WVP;
-		Matrix4x4 World;
-		Vector4 color;
-	};
-
-	struct ParticleGroup {
-		MaterialData materialData;  // マテリアルデータ
-		std::vector<Particle> particleList;  // パーティクルのリスト
-		std::unique_ptr<InstancingRenderer> renderer;
-		uint32_t srvIndex;  // インスタンシング用SRVインデックス
-		//Microsoft::WRL::ComPtr<ID3D12Resource> instancingResource;  // インスタンシングリソース
-		uint32_t instancingHandle = 0;
-		uint32_t instanceCount;  // インスタンス数
-		ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
-		// レンダラーへ渡すためのCPUキャッシュ
-		std::vector<InstanceData> instanceCache;
-		BlendMode blendMode = BlendMode::kAdd;
-	};
+	//struct ParticleGroup {
+	//	MaterialData materialData;  // マテリアルデータ
+	//	std::vector<Particle> particleList;  // パーティクルのリスト
+	//	std::unique_ptr<InstancingRenderer> renderer;
+	//	uint32_t srvIndex; // インスタンシング用SRVインデックス
+	//	uint32_t instancingHandle = 0;
+	//	uint32_t instanceCount;  // インスタンス数
+	//	ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
+	//	// レンダラーへ渡すためのCPUキャッシュ
+	//	std::vector<InstanceData> instanceCache;
+	//	BlendMode blendMode = BlendMode::kAdd;
+	//};
 
 	struct VertexData {
 		Vector4 position;
@@ -101,23 +123,6 @@ public: // 構造体
 		Matrix4x4 uvTransform;
 	};
 
-	struct ParticleParameters {
-		Vector2 translateX;
-		Vector2 translateY;
-		Vector2 translateZ;
-		Vector2 rotateX;
-		Vector2 rotateY;
-		Vector2 rotateZ;
-		Vector2 scaleX;
-		Vector2 scaleY;
-		Vector2 scaleZ;
-		Vector2 velocityX;
-		Vector2 velocityY;
-		Vector2 velocityZ;
-		Vector2 lifeTime;
-		Vector3 colorMin;
-		Vector3 colorMax;
-	};
 private:
 	// パーティクル用のリソースの生成
 	void CreateParticleResource();
@@ -141,6 +146,7 @@ private:
 	uint32_t materialHandle_ = 0;
 	uint32_t vertexHandle_ = 0;
 
+	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_{};
 
 	ParticleForGPU* instancingData_ = nullptr;
@@ -156,6 +162,8 @@ private:
 	ParticleUpdateSystem updateSystem_;
 	// 描画設定用のシステム
 	ParticleRenderSystem renderSystem_;
+	// 最終的な描画クラス
+	ParticleRenderer particleRenderer_;
 
 	// グローバルバリアース
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
@@ -164,26 +172,10 @@ private:
 	std::mt19937 randomEngine;
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
-	
-	// 名前ごとにまとめて管理する1つのマップ
-	std::unordered_map<std::string, ParticleParameters> particleParams_;
-	// アルファ値だけグループごとに変えれるようにしとく
-	std::unordered_map<std::string, float> alpha_;
-
-
-	bool isBillboard_ = true;
-
-	Matrix4x4 scaleMatrix_;
-	Matrix4x4 translateMatrix_;
-
-
-	std::vector<Particle> particles;
-	uint32_t numInstance = 0;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource;
+	std::unordered_map<std::string, ParticleGroupGPU> particleGPU_;
+	std::unordered_map<std::string, ParticleRenderState> renderStates_;
 
 public:
-	void SetAlpha(const std::string name_, float alpha) { alpha_[name_] = alpha; }
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 	BaseCamera* GetCamera() { return camera_; }

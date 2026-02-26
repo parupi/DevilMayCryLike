@@ -20,7 +20,7 @@ void ParticleRenderSystem::BuildInstances(const std::vector<Particle>& particles
 
     for (const auto& p : particles)
     {
-        	// world / wvp 計算
+        // world / wvp 計算
 	    Matrix4x4 scaleMatrix = MakeScaleMatrix(p.transform.scale);
 	    Matrix4x4 translateMatrix = MakeTranslateMatrix(p.transform.translate);
 	    Matrix4x4 worldMatrix{};

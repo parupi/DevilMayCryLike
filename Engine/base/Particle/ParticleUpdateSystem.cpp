@@ -41,6 +41,7 @@ void ParticleUpdateSystem::UpdateFade(Particle& p)
     switch (p.fadeType) {
     case FadeType::Alpha:
         alpha = 1.0f - t;
+        p.color.w = alpha;
         break;
     case FadeType::ScaleShrink: {
         const float shrinkStart = p.shrinkStart;

@@ -168,6 +168,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\2d\SpriteStruct.h" />
     <ClInclude Include="Engine\base\Particle\Particle.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleGroup.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
@@ -294,6 +295,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\GameScene\State\GameSceneStateStart.h" />
     <ClInclude Include="Engine\base\Particle\ParticleUpdateSystem.h" />
     <ClInclude Include="Engine\base\Particle\ParticleRenderSystem.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -457,6 +459,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleUpdateSystem.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleRenderSystem.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
