@@ -167,6 +167,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="Engine\2d\SpriteStruct.h" />
+    <ClInclude Include="Engine\base\Particle\Particle.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleGroup.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
@@ -221,7 +223,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h" />
     <ClInclude Include="Engine\base\Particle\ParticleEmitter.h" />
     <ClInclude Include="Engine\base\Particle\ParticleManager.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleStruct.h" />
+    <ClInclude Include="Engine\base\Particle\InstanceData.h" />
     <ClInclude Include="Engine\Graphics\Resource\SrvManager.h" />
     <ClInclude Include="Engine\base\StringUtility.h" />
     <ClInclude Include="Engine\Graphics\Resource\TextureManager.h" />
@@ -291,6 +293,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Input\InputContext.h" />
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
     <ClInclude Include="App\scene\GameScene\State\GameSceneStateStart.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleUpdateSystem.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderSystem.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderer.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -452,6 +458,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleUpdateSystem.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderSystem.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderer.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">

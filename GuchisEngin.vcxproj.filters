@@ -489,7 +489,7 @@
     <ClInclude Include="Engine\base\Particle\ParticleManager.h">
       <Filter>Engine\base\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\base\Particle\ParticleStruct.h">
+    <ClInclude Include="Engine\base\Particle\InstanceData.h">
       <Filter>Engine\base\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Resource\SrvManager.h">
@@ -664,6 +664,12 @@
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="Engine\2d\SpriteStruct.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleUpdateSystem.h" />
+    <ClInclude Include="Engine\base\Particle\Particle.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderSystem.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderer.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleGroup.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -1097,5 +1103,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleUpdateSystem.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderSystem.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderer.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
   </ItemGroup>
 </Project>

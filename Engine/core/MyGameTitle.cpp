@@ -47,7 +47,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("TITLE");
+	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(dxManager.get(), psoManager.get());

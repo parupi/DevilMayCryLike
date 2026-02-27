@@ -1,8 +1,10 @@
 #include "ParticleEmitter.h"
 #include "ParticleManager.h"
 
-void ParticleEmitter::Initialize(std::string name)
+void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::string& name)
 {
+	particleManager_ = particleManager;
+
 	emitter.name = name;
 	emitter.frequency = 0.5f;
 	emitter.isActive = true;
@@ -55,7 +57,7 @@ void ParticleEmitter::Update(Vector3 position)
 	}
 
 #ifdef _DEBUG
-	UpdateParam();
+	//UpdateParam();
 #endif // _DEBUG
 }
 
@@ -67,7 +69,7 @@ void ParticleEmitter::Emit()
 		emitter.transform.translate = transform_->GetWorldPos();
 	}
 
-	ParticleManager::GetInstance()->Emit(particleName_, emitter.transform.translate, emitter.count);
+	particleManager_->Emit(particleName_, emitter.transform.translate, emitter.count);
 }
 
 void ParticleEmitter::UpdateParam() const

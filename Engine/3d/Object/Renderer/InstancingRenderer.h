@@ -7,7 +7,7 @@
 #include <math/Vector4.h>
 #include "3d/Object/Model/Model.h"
 #include "3d/Object/Renderer/PrimitiveRenderer.h"
-#include "base/Particle/ParticleStruct.h"
+#include "base/Particle/InstanceData.h"
 
 class InstancingRenderer : public BaseRenderer
 {
@@ -33,12 +33,12 @@ private:
     void CreateInstanceBuffer();
 
     std::vector<InstanceData> instances_;
-    //Microsoft::WRL::ComPtr<ID3D12Resource> instanceBuffer_;
+    Microsoft::WRL::ComPtr<ID3D12Resource> instanceBuffer_;
     InstanceData* mappedInstanceData_ = nullptr;
 
     uint32_t instanceHandle_ = 0;
 
-    //D3D12_VERTEX_BUFFER_VIEW vbView_;
+    D3D12_VERTEX_BUFFER_VIEW vbView_;
 
     std::unique_ptr<Model> model_;
     std::string texturePath_;

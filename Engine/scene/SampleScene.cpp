@@ -56,6 +56,7 @@ void SampleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
+	ParticleManager::GetInstance()->CreateEmitter("testEmitter", "test");
 
 	// オブジェクトを生成
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("obj1");
@@ -89,6 +90,10 @@ void SampleScene::Initialize()
 
 	sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 
+	//emitter_ = std::make_unique<ParticleEmitter>();
+	//emitter_->Initialize("test");
+	//emitter_->SetParticle("test");
+
 	// ============ライト=================//
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("SampleDir"));
@@ -105,6 +110,8 @@ void SampleScene::Update()
 
 	lightManager_->Update();
 
+	//emitter_->Update();
+
 #ifdef _DEBUG
 	DebugUpdate();
 #endif // _DEBUG
@@ -112,7 +119,7 @@ void SampleScene::Update()
 
 void SampleScene::Draw()
 {
-	ParticleManager::GetInstance()->DrawSet();
+	//ParticleManager::GetInstance()->DrawSet();
 	ParticleManager::GetInstance()->Draw();
 }
 

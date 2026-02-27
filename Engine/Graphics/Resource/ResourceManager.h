@@ -39,7 +39,7 @@ public:
 
     Microsoft::WRL::ComPtr<ID3D12Resource> CreateUploadResource(uint64_t size);
 
-    Microsoft::WRL::ComPtr<ID3D12Resource> CreateStaticBuffer(ID3D12GraphicsCommandList* cmdList, const void* srcData, size_t dataSize, D3D12_RESOURCE_STATES finalState, const std::wstring& debugName = L"");
+    //Microsoft::WRL::ComPtr<ID3D12Resource> CreateStaticBuffer(ID3D12GraphicsCommandList* cmdList, const void* srcData, size_t dataSize, D3D12_RESOURCE_STATES finalState, const std::wstring& debugName = L"");
 
     // マップ（Upload バッファのみを想定）。戻り値は nullptr なら失敗
     void* Map(BufferHandle handle);
