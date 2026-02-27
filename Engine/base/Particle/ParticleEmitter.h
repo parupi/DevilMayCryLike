@@ -1,7 +1,10 @@
 #pragma once
 #include <math/function.h>
-#include <base/Particle/ParticleManager.h>
 #include <base/utility/DeltaTime.h>
+#include "3d/WorldTransform.h"
+
+class ParticleManager;
+
 class ParticleEmitter
 {
 public:
@@ -9,7 +12,7 @@ public:
 	~ParticleEmitter() = default;
 
 	// 初期化
-	void Initialize(std::string name_);
+	void Initialize(ParticleManager* particleManager, const std::string& name);
 	// 更新
 	void Update(Vector3 position = {0.0f, 0.0f, 0.0f});
 	// 発生
@@ -29,7 +32,7 @@ private:
 	std::string particleName_;
 
 private:
-	//ParticleManager* particleManager_;
+	ParticleManager* particleManager_;
 	bool emitAll_ = false;
 	Emitter emitter{};
 

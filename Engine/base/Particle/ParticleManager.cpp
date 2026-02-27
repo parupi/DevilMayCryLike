@@ -64,6 +64,11 @@ void ParticleManager::Initialize(DirectXManager* dxManager, PSOManager* psoManag
 
 	// jsonファイルの読み込み
 	global_->LoadFiles("Particle");
+
+#ifdef _DEBUG
+	editor_ = std::make_unique<ParticleEditor>();
+	editor_->Initialize(this);
+#endif
 }
 
 void ParticleManager::Update()
@@ -71,6 +76,10 @@ void ParticleManager::Update()
 	if (!camera_) return;
 
 	float delta = DeltaTime::GetDeltaTime();
+
+	for (auto& [name, emitter] : emitters_) {
+		emitter->Update();
+	}
 
 	for (auto& [groupName, group] : particleGroups_) {
 
@@ -81,7 +90,7 @@ void ParticleManager::Update()
 		group.params = LoadParticleParameters(global_, groupName);
 
 #ifdef _DEBUG
-		DrawEditor(global_, groupName);
+		editor_->Draw();
 #endif
 	}
 }
@@ -145,6 +154,14 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	RegisterEditorParameters(name);
 	CreateParticleGPU(name);
 	CreateParticleRenderer(name, textureFilePath);
+}
+
+void ParticleManager::CreateEmitter(const std::string& emitterName, const std::string& particleName)
+{
+	auto emitter = std::make_unique<ParticleEmitter>();
+	emitter->Initialize(this, emitterName);
+	emitter->SetParticle(particleName);
+	emitters_.emplace(emitterName, std::move(emitter));
 }
 
 void ParticleManager::CreateParticleGPU(const std::string& name)
@@ -219,14 +236,6 @@ void ParticleManager::UploadInstanceData(const std::string& groupName, const std
 		dst[i].color = instanceList[i].color;
 	}
 }
-
-void ParticleManager::DrawSet(BlendMode blendMode)
-{
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetParticlePSO(blendMode));
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
-	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
 
 #ifdef _DEBUG
 void ParticleManager::DebugGui()

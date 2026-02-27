@@ -58,17 +58,17 @@ void TitleScene::Initialize()
 	lightManager_->AddLight(std::make_unique<SpotLight>("TitleSpot"));
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("TitleDir"));
 
-	smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter_->Initialize("TitleSmoke");
-	smokeEmitter_->SetParticle("TitleSmoke");
+	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
+	//smokeEmitter_->Initialize("TitleSmoke");
+	//smokeEmitter_->SetParticle("TitleSmoke");
 
-	smokeEmitter2_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter2_->Initialize("TitleSmoke2");
-	smokeEmitter2_->SetParticle("TitleSmoke2");
+	//smokeEmitter2_ = std::make_unique<ParticleEmitter>();
+	//smokeEmitter2_->Initialize("TitleSmoke2");
+	//smokeEmitter2_->SetParticle("TitleSmoke2");
 
-	sphereEmitter_ = std::make_unique<ParticleEmitter>();
-	sphereEmitter_->Initialize("TitleSphere");
-	sphereEmitter_->SetParticle("TitleSphere");
+	//sphereEmitter_ = std::make_unique<ParticleEmitter>();
+	//sphereEmitter_->Initialize("TitleSphere");
+	//sphereEmitter_->SetParticle("TitleSphere");
 
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
 
@@ -92,10 +92,10 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
-	smokeEmitter_->Update();
-	smokeEmitter2_->Update();
+	//smokeEmitter_->Update();
+	//smokeEmitter2_->Update();
 
-	sphereEmitter_->Update();
+	//sphereEmitter_->Update();
 
 	lightManager_->Update();
 

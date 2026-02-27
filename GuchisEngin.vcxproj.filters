@@ -669,6 +669,7 @@
     <ClInclude Include="Engine\base\Particle\ParticleRenderSystem.h" />
     <ClInclude Include="Engine\base\Particle\ParticleRenderer.h" />
     <ClInclude Include="Engine\base\Particle\ParticleGroup.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -1105,5 +1106,6 @@
     <ClCompile Include="Engine\base\Particle\ParticleUpdateSystem.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleRenderSystem.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleRenderer.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
   </ItemGroup>
 </Project>

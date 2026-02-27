@@ -15,6 +15,9 @@
 #include "ParticleRenderSystem.h"
 #include "ParticleGroup.h"
 #include "ParticleRenderer.h"
+#include "ParticleEmitter.h"
+#include <memory>
+#include "ParticleEditor.h"
 
 struct ParticleForGPU {
 	Matrix4x4 WVP;
@@ -58,16 +61,8 @@ public:
 	void Draw();
 	// パーティクルグループを登録する
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
-
-	void CreateParticleGPU(const std::string& name);
-
-	void CreateParticleRenderer(const std::string& name, const std::string& textureFilePath);
-
-	void RegisterEditorParameters(const std::string& name);
-
-	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList);
-	// 描画前処理
-	void DrawSet(BlendMode blendMode = BlendMode::kAdd);
+	// エミッターを生成する関数
+	void CreateEmitter(const std::string& emitterName, const std::string& particleName);
 
 #ifdef _DEBUG
 	void DebugGui();
@@ -91,19 +86,6 @@ public: // 構造体
 		std::string textureFilePath;
 		uint32_t textureIndex = 0;
 	};
-
-	//struct ParticleGroup {
-	//	MaterialData materialData;  // マテリアルデータ
-	//	std::vector<Particle> particleList;  // パーティクルのリスト
-	//	std::unique_ptr<InstancingRenderer> renderer;
-	//	uint32_t srvIndex; // インスタンシング用SRVインデックス
-	//	uint32_t instancingHandle = 0;
-	//	uint32_t instanceCount;  // インスタンス数
-	//	ParticleForGPU* instancingDataPtr;  // インスタンシングデータを書き込むためのポインタ
-	//	// レンダラーへ渡すためのCPUキャッシュ
-	//	std::vector<InstanceData> instanceCache;
-	//	BlendMode blendMode = BlendMode::kAdd;
-	//};
 
 	struct VertexData {
 		Vector4 position;
@@ -134,6 +116,16 @@ private:
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
 
 	void DrawEditor(GlobalVariables* global, const std::string& groupName);
+
+	void CreateParticleGPU(const std::string& name);
+
+	void CreateParticleRenderer(const std::string& name, const std::string& textureFilePath);
+
+	void RegisterEditorParameters(const std::string& name);
+
+	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList);
+	// 描画前処理
+	void DrawSet(BlendMode blendMode = BlendMode::kAdd);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
@@ -165,6 +157,11 @@ private:
 	// 最終的な描画クラス
 	ParticleRenderer particleRenderer_;
 
+#ifdef _DEBUG
+	// エディター用のクラス
+	std::unique_ptr<ParticleEditor> editor_;
+#endif
+
 	// グローバルバリアース
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
 
@@ -174,10 +171,15 @@ private:
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
 	std::unordered_map<std::string, ParticleGroupGPU> particleGPU_;
 	std::unordered_map<std::string, ParticleRenderState> renderStates_;
+	std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>> emitters_;
 
 public:
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
 	BaseCamera* GetCamera() { return camera_; }
 	void SetCamera(BaseCamera* camera) { camera_ = camera; }
+
+	const std::unordered_map<std::string, ParticleGroup>& GetParticleGroups() { return particleGroups_; }
+	const std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>>& GetEmitters() { return emitters_; }
+	
 };
