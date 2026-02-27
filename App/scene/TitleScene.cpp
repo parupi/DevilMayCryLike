@@ -30,6 +30,7 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("TitleUnder.png");
 	TextureManager::GetInstance()->LoadTexture("TitleUp.png");
 	TextureManager::GetInstance()->LoadTexture("SelectArrow.png");
+	TextureManager::GetInstance()->LoadTexture("smoke.png");
 
 	TextureManager::GetInstance()->LoadTexture("black.png");
 	TextureManager::GetInstance()->LoadTexture("SelectMask.png");
@@ -48,8 +49,11 @@ void TitleScene::Initialize()
 
 	// タイトルシーンにあるもやもやを生成
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSphere", "circle2.png");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSphere", "TitleSphere");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke", "circle.png");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke", "TitleSmoke");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke2", "smoke.png");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2", "TitleSmoke2");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
@@ -57,18 +61,6 @@ void TitleScene::Initialize()
 	lightManager_->AddLight(std::make_unique<PointLight>("TitlePoint"));
 	lightManager_->AddLight(std::make_unique<SpotLight>("TitleSpot"));
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("TitleDir"));
-
-	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	//smokeEmitter_->Initialize("TitleSmoke");
-	//smokeEmitter_->SetParticle("TitleSmoke");
-
-	//smokeEmitter2_ = std::make_unique<ParticleEmitter>();
-	//smokeEmitter2_->Initialize("TitleSmoke2");
-	//smokeEmitter2_->SetParticle("TitleSmoke2");
-
-	//sphereEmitter_ = std::make_unique<ParticleEmitter>();
-	//sphereEmitter_->Initialize("TitleSphere");
-	//sphereEmitter_->SetParticle("TitleSphere");
 
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
 

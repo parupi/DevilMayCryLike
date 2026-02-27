@@ -38,6 +38,8 @@ public: // メンバ関数
 	void DrawGBuffer() override;
 
 	void DrawShadow() override;
+
+	std::vector<Material*> GetMaterials() override;
 	// 
 	void Bind();
 

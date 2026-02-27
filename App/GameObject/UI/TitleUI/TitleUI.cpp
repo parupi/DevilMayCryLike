@@ -22,6 +22,10 @@ void TitleUI::Initialize()
 
 	object->GetOption().drawPath = DrawPath::Forward;
 
+	object->GetRenderer("Title")->GetModel()->GetMaterials()[0]->SetIsLighting(false);
+	object->GetRenderer("TitleUp")->GetModel()->GetMaterials()[0]->SetIsLighting(false);
+	object->GetRenderer("TitleUnder")->GetModel()->GetMaterials()[0]->SetIsLighting(false);
+
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 3.2f, -7.0f };
 	object->GetWorldTransform()->GetScale() = { 6.0f, 1.0f, 2.0f };
 
