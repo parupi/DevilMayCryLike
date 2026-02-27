@@ -125,7 +125,7 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	// スプライトの描画
 	SpriteManager::GetInstance()->DrawAllSprite();
 	// トランジションの描画
-	//TransitionManager::GetInstance()->Draw();
+	TransitionManager::GetInstance()->Draw();
 	// 線描画の受け受け開始
 	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 	// コライダーのデバッグ描画

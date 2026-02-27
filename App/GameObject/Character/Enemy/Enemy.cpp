@@ -47,8 +47,8 @@ void Enemy::Update(float deltaTime)
 		return;
 	}
 
-	slashEmitter_->Update();
-	smokeEmitter_->Update();
+	//slashEmitter_->Update();
+	//smokeEmitter_->Update();
 
 	hitStop_->Update();
 

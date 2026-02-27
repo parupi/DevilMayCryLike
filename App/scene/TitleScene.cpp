@@ -108,7 +108,7 @@ void TitleScene::Draw()
 
 	ParticleManager::GetInstance()->Draw();
 
-	titleUI_->Draw();
+	//titleUI_->Draw();
 }
 
 void TitleScene::DrawRTV()

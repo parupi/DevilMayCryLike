@@ -11,10 +11,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{D96BD56B-4521-4E61-CE15-48383ACA4465}</ProjectGuid>
+    <ProjectGuid>{5EE782E6-4A4A-128B-F3CF-4A41DF11DE0D}</ProjectGuid>
     <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>GuchisEngin</RootNamespace>
+    <RootNamespace>GuchisEngine</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -42,15 +42,15 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>..\generated\outputs\Debug\x64\</OutDir>
-    <IntDir>..\generated\obj\GuchisEngin\Debug\</IntDir>
-    <TargetName>GuchisEngin</TargetName>
+    <IntDir>..\generated\obj\GuchisEngine\Debug\</IntDir>
+    <TargetName>GuchisEngine</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>..\generated\outputs\Release\x64\</OutDir>
-    <IntDir>..\generated\obj\GuchisEngin\Release\</IntDir>
-    <TargetName>GuchisEngin</TargetName>
+    <IntDir>..\generated\obj\GuchisEngine\Release\</IntDir>
+    <TargetName>GuchisEngine</TargetName>
     <TargetExt>.exe</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -113,7 +113,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameData\GameData.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
     <ClInclude Include="App\GameObject\Camera\ClearCamera.h" />
+    <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="App\GameObject\Camera\GameCamera.h" />
+    <ClInclude Include="App\GameObject\Camera\LockOnCamera.h" />
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
     <ClInclude Include="App\GameObject\Character\CharacterStructs.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
@@ -132,6 +134,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
+    <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
     <ClInclude Include="App\GameObject\Character\Player\Movement\PlayerMovement.h" />
     <ClInclude Include="App\GameObject\Character\Player\Player.h" />
     <ClInclude Include="App\GameObject\Character\Player\PlayerWeapon.h" />
@@ -157,25 +160,27 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
     <ClInclude Include="App\GameObject\UI\GameUI\GameUI.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuController.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h" />
+    <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
+    <ClInclude Include="App\Input\InputContext.h" />
     <ClInclude Include="App\scene\ClearScene.h" />
     <ClInclude Include="App\scene\EditScene.h" />
     <ClInclude Include="App\scene\GameScene\GameScene.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateBase.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateMenu.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStatePlay.h" />
+    <ClInclude Include="App\scene\GameScene\State\GameSceneStateStart.h" />
     <ClInclude Include="App\scene\Object3dFactory.h" />
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
-    <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
-    <ClInclude Include="Engine\2d\SpriteStruct.h" />
-    <ClInclude Include="Engine\base\Particle\Particle.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleGroup.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
-    <ClInclude Include="Engine\Graphics\Resource\DsvManager.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
+    <ClInclude Include="Engine\2d\SpriteStruct.h" />
     <ClInclude Include="Engine\3d\Camera\BaseCamera.h" />
     <ClInclude Include="Engine\3d\Camera\CameraManager.h" />
     <ClInclude Include="Engine\3d\Collider\AABBCollider.h" />
@@ -202,6 +207,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\Object\Model\SkinnedModel.h" />
     <ClInclude Include="Engine\3d\Object\Object3d.h" />
     <ClInclude Include="Engine\3d\Object\Object3dManager.h" />
+    <ClInclude Include="Engine\3d\Object\ObjectData.h" />
     <ClInclude Include="Engine\3d\Object\Renderer\BaseRenderer.h" />
     <ClInclude Include="Engine\3d\Object\Renderer\InstancingRenderer.h" />
     <ClInclude Include="Engine\3d\Object\Renderer\MeshGenerator.h" />
@@ -213,20 +219,39 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\SkySystem\SkySystem.h" />
     <ClInclude Include="Engine\3d\WorldTransform.h" />
     <ClInclude Include="Engine\Graphics\Device\CommandContext.h" />
+    <ClInclude Include="Engine\Graphics\Device\DirectXManager.h" />
     <ClInclude Include="Engine\Graphics\Device\GraphicsDevice.h" />
     <ClInclude Include="Engine\Graphics\Device\SwapChainManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
+    <ClInclude Include="Engine\Graphics\Resource\DescriptorRange.h" />
+    <ClInclude Include="Engine\Graphics\Resource\DsvManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h" />
+    <ClInclude Include="Engine\Graphics\Resource\ResourceManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\SrvManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\TextureManager.h" />
     <ClInclude Include="Engine\Include\SceneBuilder.h" />
     <ClInclude Include="Engine\Include\SceneLoader.h" />
     <ClInclude Include="Engine\audio\Audio.h" />
-    <ClInclude Include="Engine\Graphics\Device\DirectXManager.h" />
     <ClInclude Include="Engine\base\Logger.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleEmitter.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleManager.h" />
     <ClInclude Include="Engine\base\Particle\InstanceData.h" />
-    <ClInclude Include="Engine\Graphics\Resource\SrvManager.h" />
+    <ClInclude Include="Engine\base\Particle\Particle.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleEmitter.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleGroup.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleManager.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderSystem.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleRenderer.h" />
+    <ClInclude Include="Engine\base\Particle\ParticleUpdateSystem.h" />
     <ClInclude Include="Engine\base\StringUtility.h" />
-    <ClInclude Include="Engine\Graphics\Resource\TextureManager.h" />
     <ClInclude Include="Engine\base\WindowManager.h" />
     <ClInclude Include="Engine\base\utility\DeltaTime.h" />
     <ClInclude Include="Engine\core\GuchisFramework.h" />
@@ -248,6 +273,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\offscreen\GrayEffect.h" />
     <ClInclude Include="Engine\offscreen\OffScreenManager.h" />
     <ClInclude Include="Engine\offscreen\OutlineEffect.h" />
+    <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
     <ClInclude Include="Engine\offscreen\SmoothEffect.h" />
     <ClInclude Include="Engine\offscreen\VignetteEffect.h" />
     <ClInclude Include="Engine\scene\AbstractSceneFactory.h" />
@@ -272,37 +298,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.h" />
-    <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.h" />
-    <ClInclude Include="Engine\offscreen\PostEffectPath.h" />
-    <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h" />
-    <ClInclude Include="Engine\Graphics\Resource\ResourceManager.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.h" />
-    <ClInclude Include="Engine\3d\Object\ObjectData.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.h" />
-    <ClInclude Include="App\GameObject\Camera\LockOnCamera.h" />
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStateBase.h" />
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStatePlay.h" />
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStateMenu.h" />
-    <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h" />
-    <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h" />
-    <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
-    <ClInclude Include="App\GameObject\UI\Menu\MenuController.h" />
-    <ClInclude Include="App\Input\InputContext.h" />
-    <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStateStart.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleUpdateSystem.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleRenderSystem.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleRenderer.h" />
-    <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
     <ClCompile Include="App\GameObject\Camera\ClearCamera.cpp" />
+    <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
+    <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.cpp" />
@@ -318,6 +321,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp" />
+    <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Movement\PlayerMovement.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\PlayerWeapon.cpp" />
@@ -341,19 +345,24 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
     <ClCompile Include="App\GameObject\UI\GameUI\GameUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
+    <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
+    <ClCompile Include="App\Input\InputContext.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
     <ClCompile Include="App\scene\EditScene.cpp" />
     <ClCompile Include="App\scene\GameScene\GameScene.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateBase.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateMenu.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStatePlay.cpp" />
+    <ClCompile Include="App\scene\GameScene\State\GameSceneStateStart.cpp" />
     <ClCompile Include="App\scene\Object3dFactory.cpp" />
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
-    <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
-    <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\BaseCamera.cpp" />
@@ -386,19 +395,34 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\SkySystem\SkySystem.cpp" />
     <ClCompile Include="Engine\3d\WorldTransform.cpp" />
     <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp" />
+    <ClCompile Include="Engine\Graphics\Device\DirectXManager.cpp" />
     <ClCompile Include="Engine\Graphics\Device\GraphicsDevice.cpp" />
     <ClCompile Include="Engine\Graphics\Device\SwapChainManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\RtvManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\SrvManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp" />
     <ClCompile Include="Engine\Include\SceneBuilder.cpp" />
     <ClCompile Include="Engine\Include\SceneLoader.cpp" />
     <ClCompile Include="Engine\audio\Audio.cpp" />
-    <ClCompile Include="Engine\Graphics\Device\DirectXManager.cpp" />
     <ClCompile Include="Engine\base\Logger.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleManager.cpp" />
-    <ClCompile Include="Engine\Graphics\Resource\SrvManager.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderSystem.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleRenderer.cpp" />
+    <ClCompile Include="Engine\base\Particle\ParticleUpdateSystem.cpp" />
     <ClCompile Include="Engine\base\StringUtility.cpp" />
-    <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp" />
     <ClCompile Include="Engine\base\WindowManager.cpp" />
     <ClCompile Include="Engine\base\utility\DeltaTime.cpp" />
     <ClCompile Include="Engine\core\GuchisFramework.cpp" />
@@ -418,6 +442,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\offscreen\GrayEffect.cpp" />
     <ClCompile Include="Engine\offscreen\OffScreenManager.cpp" />
     <ClCompile Include="Engine\offscreen\OutlineEffect.cpp" />
+    <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
     <ClCompile Include="Engine\offscreen\SmoothEffect.cpp" />
     <ClCompile Include="Engine\offscreen\VignetteEffect.cpp" />
     <ClCompile Include="Engine\scene\BaseScene.cpp" />
@@ -437,31 +462,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp" />
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStateBase.cpp" />
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStatePlay.cpp" />
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStateMenu.cpp" />
-    <ClCompile Include="App\Input\InputContext.cpp" />
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStateStart.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferManager.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\GBufferPath.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Deferred\LightingPath.cpp" />
-    <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\ForwardRenderPath.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
-    <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp" />
-    <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
-    <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp" />
-    <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp" />
-    <ClCompile Include="Engine\Graphics\Resource\RtvManager.cpp" />
-    <ClCompile Include="Engine\offscreen\PostEffectPath.cpp" />
-    <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Shadow\ShadowPass.cpp" />
-    <ClCompile Include="Engine\base\Particle\ParticleUpdateSystem.cpp" />
-    <ClCompile Include="Engine\base\Particle\ParticleRenderSystem.cpp" />
-    <ClCompile Include="Engine\base\Particle\ParticleRenderer.cpp" />
-    <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
