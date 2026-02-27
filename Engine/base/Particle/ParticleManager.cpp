@@ -88,11 +88,11 @@ void ParticleManager::Update()
 
 		// ② Editorパラメータ読み込み（必要なら）
 		group.params = LoadParticleParameters(global_, groupName);
+	}
 
 #ifdef _DEBUG
-		editor_->Draw();
+	editor_->Draw();
 #endif
-	}
 }
 
 void ParticleManager::Draw()
@@ -160,7 +160,6 @@ void ParticleManager::CreateEmitter(const std::string& emitterName, const std::s
 {
 	auto emitter = std::make_unique<ParticleEmitter>();
 	emitter->Initialize(this, emitterName);
-	emitter->SetParticle(particleName);
 	emitters_.emplace(emitterName, std::move(emitter));
 }
 

@@ -107,6 +107,17 @@ void Model::DrawShadow()
 	}
 }
 
+std::vector<Material*> Model::GetMaterials()
+{
+	std::vector<Material*> materials;
+
+	for (auto& material : materials_) {
+		materials.push_back(material.get());
+	}
+
+	return materials;
+}
+
 void Model::Bind()
 {
 	    for (const auto& mesh : meshes_) {

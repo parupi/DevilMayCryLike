@@ -105,6 +105,17 @@ void SkinnedModel::DrawShadow()
 {
 }
 
+std::vector<Material*> SkinnedModel::GetMaterials()
+{
+	std::vector<Material*> materials;
+
+	for (auto& material : materials_) {
+		materials.push_back(material.get());
+	}
+
+	return materials;
+}
+
 #ifdef _DEBUG
 void SkinnedModel::DebugGui(ModelRenderer* render)
 {
