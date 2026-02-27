@@ -1,3 +1,4 @@
+#define NOMINMAX
 #include "Vector3.h"
 #ifdef USE_IMGUI
 #include <imgui.h>
@@ -138,4 +139,18 @@ void PrintOnImGui(const Vector3& v, const char* label)
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f)", "Vector3", v.x, v.y, v.z);
     ImGui::End();
 #endif // IMGUI
+}
+
+Vector3 Min(const Vector3& a, const Vector3& b)
+{
+    return {
+    std::min(a.x, b.x),
+    std::min(a.y, b.y),
+    std::min(a.z, b.z)
+    };
+}
+
+Vector3 Max(const Vector3& a, const Vector3& b)
+{
+    return Vector3();
 }

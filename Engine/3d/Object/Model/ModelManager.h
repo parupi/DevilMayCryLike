@@ -8,7 +8,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 class ModelManager
 {
@@ -24,7 +24,7 @@ public:
 	// シングルトンインスタンスの取得
 	static ModelManager* GetInstance();
 	// 初期化
-	void Initialize(DirectXManager* dxManager, SrvManager* srvManager);
+	void Initialize(DirectXManager* dxManager);
 	// 終了
 	void Finalize();
 public:

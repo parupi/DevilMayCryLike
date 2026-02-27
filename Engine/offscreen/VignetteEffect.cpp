@@ -17,7 +17,7 @@ VignetteEffect::~VignetteEffect()
 	dxManager_ = nullptr;
 	psoManager_ = nullptr;
 	// 生成したリソースの削除
-	effectResource_.Reset();
+	effectHandle_ = 0;
 }
 
 void VignetteEffect::Update()
@@ -42,17 +42,18 @@ void VignetteEffect::Draw()
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, dxManager_->GetResourceManager()->GetGPUVirtualAddress(effectHandle_));
 
 	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void VignetteEffect::CreateEffectResource()
 {
+	auto* resourceManager = dxManager_->GetResourceManager();
 	// ヴィネット用のリソースを作る
-	dxManager_->CreateBufferResource(sizeof(VignetteEffectData), effectResource_);
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(VignetteEffectData), L"GaussianEffect");
 	// 書き込むためのアドレスを取得
-	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectDataPtr_));
+	effectDataPtr_ = reinterpret_cast<VignetteEffectData*>(resourceManager->Map(effectHandle_));
 	// 初期値を設定
 	effectDataPtr_->radius = 0.5f;
 	effectDataPtr_->intensity = 0.5f;

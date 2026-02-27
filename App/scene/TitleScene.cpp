@@ -1,5 +1,5 @@
 #include "TitleScene.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <2d/SpriteManager.h>
 #include <input/Input.h>
 #include <Include/SceneLoader.h>
@@ -12,6 +12,7 @@
 #include <scene/Transition/FadeTransition.h>
 #include <scene/Transition/TransitionManager.h>
 #include <GameObject/Camera/TitleCamera.h>
+#include <3d/Collider/CollisionManager.h>
 
 
 void TitleScene::Initialize()
@@ -29,6 +30,7 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("TitleUnder.png");
 	TextureManager::GetInstance()->LoadTexture("TitleUp.png");
 	TextureManager::GetInstance()->LoadTexture("SelectArrow.png");
+	TextureManager::GetInstance()->LoadTexture("smoke.png");
 
 	TextureManager::GetInstance()->LoadTexture("black.png");
 	TextureManager::GetInstance()->LoadTexture("SelectMask.png");
@@ -47,27 +49,18 @@ void TitleScene::Initialize()
 
 	// タイトルシーンにあるもやもやを生成
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSphere", "circle2.png");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSphere", "TitleSphere");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke", "circle.png");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke", "TitleSmoke");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke2", "smoke.png");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2", "TitleSmoke2");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
-	lightManager_->CreatePointLight("TitlePoint");
-	lightManager_->CreateDirectionalLight("TitleDir");
-	lightManager_->CreateSpotLight("TitleSpot");
-
-	smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter_->Initialize("TitleSmoke");
-	smokeEmitter_->SetParticle("TitleSmoke");
-
-	smokeEmitter2_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter2_->Initialize("TitleSmoke2");
-	smokeEmitter2_->SetParticle("TitleSmoke2");
-
-	sphereEmitter_ = std::make_unique<ParticleEmitter>();
-	sphereEmitter_->Initialize("TitleSphere");
-	sphereEmitter_->SetParticle("TitleSphere");
+	lightManager_->AddLight(std::make_unique<PointLight>("TitlePoint"));
+	lightManager_->AddLight(std::make_unique<SpotLight>("TitleSpot"));
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("TitleDir"));
 
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
 
@@ -81,19 +74,22 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
+	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
+	CollisionManager::GetInstance()->DeleteAllCollider();
+	RendererManager::GetInstance()->DeleteAllRenderer();
 	CameraManager::GetInstance()->DeleteAllCamera();
 	LightManager::GetInstance()->DeleteAllLight();
 }
 
 void TitleScene::Update()
 {
-	smokeEmitter_->Update();
-	smokeEmitter2_->Update();
+	//smokeEmitter_->Update();
+	//smokeEmitter2_->Update();
 
-	sphereEmitter_->Update();
+	//sphereEmitter_->Update();
 
-	lightManager_->UpdateAllLight();
+	lightManager_->Update();
 
 	titleUI_->Update();
 
@@ -107,11 +103,12 @@ void TitleScene::Update()
 
 void TitleScene::Draw()
 {
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawForGBuffer();
 
 	ParticleManager::GetInstance()->Draw();
 
-	titleUI_->Draw();
+	//titleUI_->Draw();
 }
 
 void TitleScene::DrawRTV()

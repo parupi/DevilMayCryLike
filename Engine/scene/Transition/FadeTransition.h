@@ -23,6 +23,6 @@ private:
 	bool finished_ = false;
 	bool isFadeOut_ = true;
 
-	std::unique_ptr<Sprite> sprite_;
+	Sprite* sprite_;
 };
 

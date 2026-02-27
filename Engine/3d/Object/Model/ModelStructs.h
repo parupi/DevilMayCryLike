@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <cstdint>
 #include <array>
 #include <math/Matrix4x4.h>
@@ -177,6 +177,14 @@ struct MaterialForGPU {
 	float shininess;
 	float padding2[3];  // 16バイトアラインメント確保
 };
+
+struct alignas(16) GBufferMaterialParam
+{
+	float roughness;  
+	float metal;     
+	float padding[2]; 
+};
+
 struct UVData {
 	Vector2 position = { 0.0f, 0.0f };
 	float rotation = 0.0f;

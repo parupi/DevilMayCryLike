@@ -1,6 +1,6 @@
 #include "PrimitiveFactory.h"
 #include "MeshGenerator.h"
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 // PrimitiveFactory.cpp
 std::unique_ptr<Model> PrimitiveFactory::Create(PrimitiveType type, std::string textureName) {

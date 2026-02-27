@@ -2,7 +2,7 @@
 #include "PrimitiveFactory.h"
 #include "RendererManager.h"
 #include <3d/SkySystem/SkySystem.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 #ifdef _DEBUG
 #include <imgui.h>
@@ -35,8 +35,7 @@ void PrimitiveRenderer::Update(WorldTransform* parentTransform) {
 }
 
 void PrimitiveRenderer::Draw() {
-    RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+    localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 4);
     // 環境マップバインド
     int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
    
@@ -44,9 +43,19 @@ void PrimitiveRenderer::Draw() {
         TextureManager::GetInstance()->LoadTexture("skybox_cube.dds");
         envMapIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
     }
-    RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+     RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(6, envMapIndex);
 
     model_->Draw();
+}
+
+void PrimitiveRenderer::DrawGBuffer()
+{
+    localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 1);
+    model_->DrawGBuffer(); // Model側へ委譲
+}
+
+void PrimitiveRenderer::DrawShadow()
+{
 }
 
 #ifdef _DEBUG

@@ -1,0 +1,12 @@
+{
+    "EmitterName": "TitleSmoke2",
+    "Frequency": 0.5,
+    "IsActive": true,
+    "Particles": [
+        {
+            "Count": 12,
+            "ParticleName": "TitleSmoke2",
+            "SpawnRate": 1.0
+        }
+    ]
+}

@@ -21,7 +21,7 @@ struct QuaternionTransform {
 	Vector3 translate;
 };
 
-
+float ToLinear(float srgb);
 // 正規化
 float Normalize(float value);
 

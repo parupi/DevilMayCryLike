@@ -36,9 +36,9 @@ private:
 	Vector2 stageDefaultPos_;
 	Vector2 scoreDefaultPos_;
 
-	std::unique_ptr<Sprite> resultUI_;
-	std::unique_ptr<Sprite> stageNumUI_;
-	std::unique_ptr<Sprite> score_;
+	Sprite* resultUI_;
+	Sprite* stageNumUI_;
+	Sprite* score_;
 
 
 	std::unique_ptr<ScoreUI> scoreUI_;

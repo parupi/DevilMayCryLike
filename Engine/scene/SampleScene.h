@@ -63,11 +63,14 @@ private:
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 
-	std::unique_ptr<Object3d> object_;
+	Object3d* object_;
+	Object3d* object2_;
+
+	Sprite* sprite_;
 
 	DirectionalLight* dirLight_;
 
-	std::unique_ptr<ParticleEmitter> emitter_;
+	//std::unique_ptr<ParticleEmitter> emitter_;
 
 	ax::NodeEditor::EditorContext* context_;
 	std::vector<ImGuiNode> nodes = {

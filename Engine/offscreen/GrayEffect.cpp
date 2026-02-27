@@ -1,5 +1,5 @@
 #include "GrayEffect.h"
-#include <base/PSOManager.h>
+#include "Graphics/Rendering/PSO/PSOManager.h"
 #include "OffScreenManager.h"
 #include <algorithm>
 #include <imgui/imgui.h>
@@ -10,8 +10,6 @@ GrayEffect::GrayEffect() : BaseOffScreen()
 	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
 
 	CreateEffectResource();
-
-	//isActive_ = true;
 }
 
 GrayEffect::~GrayEffect()
@@ -22,7 +20,7 @@ GrayEffect::~GrayEffect()
 
 	// 生成したリソースの削除
 	effectData_ = nullptr;
-	effectResource_.Reset();
+	effectHandle_ = 0;
 }
 
 void GrayEffect::Update()
@@ -32,8 +30,6 @@ void GrayEffect::Update()
 	ImGui::Checkbox("isActive", &isActive_);
 	ImGui::DragFloat("intensity", &effectData_->intensity, 0.01f);
 	ImGui::End();
-
-	//effectDclamp(effectData_->intensity, 0.0f, 1.0f);
 #endif // _DEBUG
 }
 
@@ -44,19 +40,18 @@ void GrayEffect::Draw()
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, dxManager_->GetResourceManager()->GetGPUVirtualAddress(effectHandle_));
 
 	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void GrayEffect::CreateEffectResource()
 {
-	// グレイスケール用のリソースを作る
-	dxManager_->CreateBufferResource(sizeof(GrayEffectData), effectResource_);
+	auto* resourceManager = dxManager_->GetResourceManager();
+	// ヴィネット用のリソースを作る
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(GrayEffectData), L"GrayEffect");
 	// 書き込むためのアドレスを取得
-	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
+	effectData_ = reinterpret_cast<GrayEffectData*>(resourceManager->Map(effectHandle_));
 	// 初期値を設定
 	effectData_->intensity = 1.0f;
-
-	effectResource_->Unmap(0, nullptr);
 }

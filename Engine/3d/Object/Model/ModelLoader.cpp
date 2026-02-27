@@ -1,6 +1,6 @@
 #include "ModelLoader.h"
 #include <cassert>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
 {

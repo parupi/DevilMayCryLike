@@ -11,10 +11,10 @@ ModelManager* ModelManager::GetInstance()
 	return instance;
 }
 
-void ModelManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
+void ModelManager::Initialize(DirectXManager* dxManager)
 {
 	modelLoader = std::make_unique<ModelLoader>();
-	modelLoader->Initialize(dxManager, srvManager);
+	modelLoader->Initialize(dxManager, dxManager->GetSrvManager());
 }
 
 void ModelManager::Finalize()

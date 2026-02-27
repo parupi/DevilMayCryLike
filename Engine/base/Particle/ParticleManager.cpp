@@ -5,7 +5,7 @@
 #include <debuger/ImGuiManager.h>
 #include <algorithm> 
 #include <base/utility/DeltaTime.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
@@ -24,27 +24,18 @@ void ParticleManager::Finalize()
 {
 	// パーティクルグループのインスタンシングリソースを解放
 	for (auto& [name_, group] : particleGroups_) {
-		group.instancingResource.Reset();
-		group.instancingDataPtr = nullptr;
-		group.particleList.clear();
+		group.particles.clear();
 	}
 	particleGroups_.clear();
 
 	// パーティクル用のリソース
-	instancingResource_.Reset();
-	materialResource_.Reset();
+	//instancingResource_.Reset();
+	//materialResource_.Reset();
 	vertexResource.Reset();
 
 	instancingData_ = nullptr;
 	materialData_ = nullptr;
 	vertexData_ = nullptr;
-
-	// パーティクルパラメータ・α値もクリア
-	particleParams_.clear();
-	alpha_.clear();
-
-	// 全体のパーティクルリストもクリア
-	particles.clear();
 
 	// カメラへの参照も解放（ただし所有権はない）
 	camera_ = nullptr;
@@ -61,10 +52,10 @@ void ParticleManager::Finalize()
 	Logger::Log("ParticleManager finalized.\n");
 }
 
-void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManager, PSOManager* psoManager)
+void ParticleManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
 {
 	dxManager_ = dxManager;
-	srvManager_ = srvManager;
+	srvManager_ = dxManager_->GetSrvManager();
 	psoManager_ = psoManager;
 
 	// リソースの生成と値の設定
@@ -73,182 +64,80 @@ void ParticleManager::Initialize(DirectXManager* dxManager, SrvManager* srvManag
 
 	// jsonファイルの読み込み
 	global_->LoadFiles("Particle");
-}
 
+#ifdef _DEBUG
+	editor_ = std::make_unique<ParticleEditor>();
+	editor_->Initialize(this);
+#endif
+}
 
 void ParticleManager::Update()
 {
-	if (camera_ == nullptr) return;
+	if (!camera_) return;
 
-	Matrix4x4 cameraMatrix = MakeAffineMatrix({ 1.0f, 1.0f, 1.0f }, camera_->GetRotate(), camera_->GetTranslate());
-	Matrix4x4 viewMatrix = Inverse(cameraMatrix);
-	Matrix4x4 projectionMatrix = MakePerspectiveFovMatrix(0.45f, float(1280) / float(720), 0.1f, 100.0f);
-	Matrix4x4 viewProjectionMatrix = viewMatrix * projectionMatrix;
+	float delta = DeltaTime::GetDeltaTime();
 
-	Matrix4x4 backToFrontMatrix = MakeRotateYMatrix(std::numbers::pi_v<float>);
-	Matrix4x4 billboardMatrix = backToFrontMatrix * cameraMatrix;
-	billboardMatrix.m[3][0] = 0.0f;
-	billboardMatrix.m[3][1] = 0.0f;
-	billboardMatrix.m[3][2] = 0.0f;
-
-	for (auto& [groupName, particleGroup] : particleGroups_) {
-		numInstance = 0;
-		particleGroup.instanceCache.clear();
-		particleGroup.instanceCache.reserve(particleGroup.particleList.size());
-
-		std::vector<InstanceData> instanceList;
-		instanceList.reserve(particleGroup.particleList.size());
-
-		for (auto particleIterator = particleGroup.particleList.begin(); particleIterator != particleGroup.particleList.end();) {
-			auto& particle = *particleIterator;
-
-			if (particle.lifeTime <= particle.currentTime) {
-				particleIterator = particleGroup.particleList.erase(particleIterator);
-				continue;
-			}
-
-			if (numInstance >= kNumMaxInstance) {
-				// 超過したら残りはスキップしてループを進める（削除はしない）
-				++particleIterator;
-				continue;
-			}
-
-			// エディターで変更したBlendModeやフラグ取得（必要ならループ外で一回取得してもよい）
-			particleGroup.blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
-			isBillboard_ = global_->GetValueRef<bool>(groupName, "IsBillboard");
-			particle.fadeType = static_cast<FadeType>(global_->GetValueRef<int>(groupName, "FadeType"));
-
-			// 更新
-			float delta = DeltaTime::GetDeltaTime();
-			particle.transform.translate += particle.velocity * delta;
-			particle.currentTime += delta;
-
-			float t = particle.currentTime / particle.lifeTime;
-			float alpha = 1.0f;
-
-			switch (particle.fadeType) {
-			case FadeType::Alpha:
-				alpha = 1.0f - t;
-				break;
-			case FadeType::ScaleShrink: {
-				const float shrinkStart = global_->GetValueRef<float>(groupName, "ShrinkStartRatio");
-				if (t > shrinkStart) {
-					float progress = (t - shrinkStart) / (1.0f - shrinkStart);
-					float scaleFactor = std::max(0.0f, 1.0f - progress);
-					particle.transform.scale = particle.initialScale * scaleFactor;
-				} else {
-					particle.initialScale = particle.transform.scale;
-				}
-				break;
-			}
-			default: break;
-			}
-
-			// world / wvp 計算
-			Matrix4x4 scaleMatrix = MakeScaleMatrix(particle.transform.scale);
-			Matrix4x4 translateMatrix = MakeTranslateMatrix(particle.transform.translate);
-			Matrix4x4 worldMatrix{};
-			if (isBillboard_) {
-				worldMatrix = scaleMatrix * billboardMatrix * translateMatrix;
-			} else {
-				worldMatrix = MakeAffineMatrix(particle.transform.scale, particle.transform.rotate, particle.transform.translate);
-			}
-			Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewProjectionMatrix;
-
-			// CPU キャッシュと instanceList へ追加
-			InstanceData id{};
-			id.world = worldMatrix;
-			id.wvp = worldViewProjectionMatrix;
-			id.color = particle.color;
-			id.color.w = alpha;
-			particleGroup.instanceCache.push_back(id);
-
-			// GPU 側の一次配列 (instancingData_) にも保存
-			instancingData_[numInstance].WVP = worldViewProjectionMatrix;
-			instancingData_[numInstance].World = worldMatrix;
-			instancingData_[numInstance].color = particle.color;
-			instancingData_[numInstance].color.w = alpha;
-
-			instanceList.push_back(id);
-
-			++numInstance;
-			++particleIterator;
-		}
-
-		// SetInstanceList はループ外で一度だけ呼ぶ
-		if (particleGroup.renderer) {
-			particleGroup.renderer->SetInstanceList(instanceList);
-		} else {
-			// 無効な renderer のログ（Release では落とさないようにするなら条件付き）
-			//assert(false && "particleGroup.renderer is null!");
-			return;
-		}
-
-		// インスタンス数の更新
-		particleGroup.instanceCount = numInstance;
-
-		// GPU メモリにインスタンスデータを書き込む
-		if (particleGroup.instancingDataPtr) {
-			std::memcpy(particleGroup.instancingDataPtr, instancingData_, sizeof(ParticleForGPU) * numInstance);
-		}
-
-		particleParams_[groupName] = LoadParticleParameters(global_, groupName);
-
-#ifdef _DEBUG
-		DrawEditor(global_, groupName);
-#endif
+	for (auto& [name, emitter] : emitters_) {
+		emitter->Update();
 	}
 
+	for (auto& [groupName, group] : particleGroups_) {
+
+		// ① シミュレーション更新
+		updateSystem_.Update(group.particles, delta);
+
+		// ② Editorパラメータ読み込み（必要なら）
+		group.params = LoadParticleParameters(global_, groupName);
+	}
+
+#ifdef _DEBUG
+	editor_->Draw();
+#endif
 }
 
 void ParticleManager::Draw()
 {
-	if (!dxManager_) { printf("Draw: dxManager_ is null\n"); return; }
-	auto commandList = dxManager_->GetCommandList();
-	if (!commandList) { printf("Draw: commandList is null\n"); return; }
+	if (!dxManager_ || !camera_) return;
 
-	// プリミティブ形状設定
+	auto* commandList = dxManager_->GetCommandList();
+	if (!commandList) return;
+
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
-	// すべてのパーティクルグループを描画
-	for (auto& [groupName, particleGroup] : particleGroups_) {
-		if (particleGroup.instanceCount == 0) {
-			continue;
-		}
+	for (auto& [groupName, group] : particleGroups_)
+	{
+		// ① Instance生成
+		std::vector<InstanceData> instanceList;
+		instanceList.reserve(group.particles.size());
 
-		if (!psoManager_) { printf("Draw: psoManager_ is null\n"); return; }
+		renderSystem_.BuildInstances(group.particles, camera_, instanceList);
 
-		// === 各グループ専用ブレンドモードに切り替え ===
-		auto pso = psoManager_->GetParticlePSO(particleGroup.blendMode);
-		if (!pso) { printf("Draw: PSO is null for group %s\n", groupName.c_str()); continue; }
+		if (instanceList.empty()) continue;
+
+		// ② PSO取得（globalから）
+		BlendMode blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
+
+		auto pso = psoManager_->GetParticlePSO(blendMode);
+		if (!pso) continue;
+
 		commandList->SetPipelineState(pso);
+		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
+		
+		// ③ GPU転送
+		UploadInstanceData(groupName, instanceList);
 
-		auto signature = psoManager_->GetParticleSignature();
-		if (!signature) { printf("Draw: RootSignature is null for group %s\n", groupName.c_str()); continue; }
-		commandList->SetGraphicsRootSignature(signature);
-
-		if (!materialResource_) { printf("Draw: materialResource_ is null\n"); continue; }
 		// === 定数バッファ設定 ===
-		commandList->SetGraphicsRootConstantBufferView(0, materialResource_->GetGPUVirtualAddress());
-
-		if (!srvManager_) { printf("Draw: srvManager_ is null\n"); continue; }
+		commandList->SetGraphicsRootConstantBufferView(0, dxManager_->GetResourceManager()->GetGPUVirtualAddress(materialHandle_));
 
 		// === SRV設定 ===
-		srvManager_->SetGraphicsRootDescriptorTable(1, particleGroup.srvIndex);
+		srvManager_->SetGraphicsRootDescriptorTable(1, particleGPU_[groupName].srvIndex);
 
 		// === テクスチャ設定 ===
-		UINT texIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(particleGroup.materialData.textureFilePath);
-		srvManager_->SetGraphicsRootDescriptorTable(2, texIndex);
+		srvManager_->SetGraphicsRootDescriptorTable(2, renderStates_[groupName].textureIndex);
 
-		// === renderer の存在チェック ===
-		if (!particleGroup.renderer) {
-			printf("Draw: particleGroup.renderer is null for group %s\n", groupName.c_str());
-			continue;
-		}
-
-		// ここで描画呼び出し
-		particleGroup.renderer->Draw();
+		// ④ 描画
+		particleRenderer_.Draw(commandList, instanceList.size());
 	}
 }
 
@@ -260,33 +149,49 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 		return;
 	}
 
-	// グループを追加
-	particleGroups_[name] = ParticleGroup();
-	ParticleGroup& particleGroup = particleGroups_[name];
+	particleGroups_.emplace(name, ParticleGroup{});
 
-	// テクスチャを読み込む（未読み込みならロードする）
-	particleGroup.materialData.textureFilePath = textureFilePath;
-	TextureManager::GetInstance()->LoadTexture(particleGroup.materialData.textureFilePath);
-	particleGroup.materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	RegisterEditorParameters(name);
+	CreateParticleGPU(name);
+	CreateParticleRenderer(name, textureFilePath);
+}
 
-	// レンダラーを生成
-	particleGroup.renderer = std::make_unique<InstancingRenderer>(name, PrimitiveType::Plane, textureFilePath);
+void ParticleManager::CreateEmitter(const std::string& emitterName, const std::string& particleName)
+{
+	auto emitter = std::make_unique<ParticleEmitter>();
+	emitter->Initialize(this, emitterName);
+	emitters_.emplace(emitterName, std::move(emitter));
+}
 
-	// インスタンシング用リソースの生成
-	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, particleGroup.instancingResource);
+void ParticleManager::CreateParticleGPU(const std::string& name)
+{
+	auto* rm = dxManager_->GetResourceManager();
 
-	// インスタンシングデータを書き込むためのポインタを取得
-	particleGroup.instancingResource->Map(0, nullptr, reinterpret_cast<void**>(&particleGroup.instancingDataPtr));
+	ParticleGroupGPU gpu{};
 
-	// SRVを作成するDescriptorの場所を決める
-	particleGroup.srvIndex = srvManager_->Allocate();
+	gpu.instancingHandle = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleInstancing");
 
-	// SRVの生成
-	srvManager_->CreateSRVforStructuredBuffer(particleGroup.srvIndex, particleGroup.instancingResource.Get(), kNumMaxInstance, sizeof(ParticleForGPU));
+	gpu.mappedPtr = reinterpret_cast<ParticleForGPU*>(rm->Map(gpu.instancingHandle));
 
-	// インスタンス数を初期化
-	particleGroup.instanceCount = 0;
+	gpu.srvIndex = srvManager_->Allocate();
 
+	srvManager_->CreateSRVforStructuredBuffer(gpu.srvIndex, rm->GetResource(gpu.instancingHandle), kNumMaxInstance, sizeof(ParticleForGPU));
+
+	particleGPU_.emplace(name, std::move(gpu));
+}
+
+void ParticleManager::CreateParticleRenderer(const std::string& name, const std::string& textureFilePath)
+{
+	ParticleRenderState state{};
+	state.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+
+	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+
+	renderStates_.emplace(name, std::move(state));
+}
+
+void ParticleManager::RegisterEditorParameters(const std::string& name)
+{
 	// パーティクルグループごとにグローバルバリアースを作る
 	global_->AddItem(name, "minTranslate", Vector3{});
 	global_->AddItem(name, "maxTranslate", Vector3{});
@@ -315,16 +220,21 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 
 	global_->AddItem(name, "ShrinkStartRatio", float{});
 
-	global_->AddItem(name, "BlendMode", int{2});
+	global_->AddItem(name, "BlendMode", int{ 2 });
 }
 
-void ParticleManager::DrawSet(BlendMode blendMode)
+void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList)
 {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetParticlePSO(blendMode));
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
-	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
+	auto& gpuBuffer = particleGPU_[groupName];
 
+	auto* dst = reinterpret_cast<ParticleForGPU*>(gpuBuffer.mappedPtr);
+
+	for (size_t i = 0; i < instanceList.size(); ++i) {
+		dst[i].WVP = instanceList[i].wvp;
+		dst[i].World = instanceList[i].world;
+		dst[i].color = instanceList[i].color;
+	}
+}
 
 #ifdef _DEBUG
 void ParticleManager::DebugGui()
@@ -335,59 +245,68 @@ void ParticleManager::DebugGui()
 
 void ParticleManager::CreateParticleResource()
 {
-	// インスタンス用のTransformationMatrixリソースを作る
-	dxManager_->CreateBufferResource(sizeof(ParticleForGPU) * kNumMaxInstance, instancingResource_);
-	// 書き込むためのアドレスを取得
-	instancingResource_->Map(0, nullptr, reinterpret_cast<void**>(&instancingData_));
-	// 単位行列を書き込んでおく
-	for (uint32_t index = 0; index < kNumMaxInstance; ++index) {
+	auto* rm = dxManager_->GetResourceManager();
 
-		instancingData_[index].WVP = MakeIdentity4x4();
+	// -----------------------------
+	// インスタンス用バッファ
+	// -----------------------------
+	instancingHandle_ = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleGlobalInstancing");
 
-		instancingData_[index].World = MakeIdentity4x4();
-		instancingData_[index].color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	instancingData_ = reinterpret_cast<ParticleForGPU*>(rm->Map(instancingHandle_));
+
+	// 初期値
+	for (uint32_t i = 0; i < kNumMaxInstance; ++i) {
+		instancingData_[i].WVP = MakeIdentity4x4();
+		instancingData_[i].World = MakeIdentity4x4();
+		instancingData_[i].color = { 1, 1, 1, 1 };
 	}
 
-	// モデルの読み込み
+	// -----------------------------
+	// モデルデータ(Plane)
+	// -----------------------------
 	ModelData modelData;
-	modelData.vertices.push_back({ .position = {1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {-1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {0.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {-1.0f, 1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 0.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	modelData.vertices.push_back({ .position = {-1.0f, -1.0f, 0.0f, 1.0f}, .texcoord = {1.0f, 1.0f}, .normal = {0.0f, 0.0f, 1.0f} });
-	//modelData.material.textureFilePath = "resource/uvChecker.png";
-	// 頂点リソースを作る
-	dxManager_->CreateBufferResource(sizeof(VertexData) * modelData.vertices.size(), vertexResource);
-	// 頂点バッファビューを作成する
-	vertexBufferView_.BufferLocation = vertexResource->GetGPUVirtualAddress();	// リソースの先頭アドレスから使う
-	vertexBufferView_.SizeInBytes = UINT(sizeof(VertexData) * modelData.vertices.size());		// 使用するリソースのサイズは頂点のサイズ
-	vertexBufferView_.StrideInBytes = sizeof(VertexData);	// 1頂点当たりのサイズ
+	modelData.vertices = {
+		{{1, 1, 0, 1}, {0,0}, {0,0,1}},
+		{{-1, 1, 0, 1}, {1,0}, {0,0,1}},
+		{{1, -1, 0, 1}, {0,1}, {0,0,1}},
+		{{1, -1, 0, 1}, {0,1}, {0,0,1}},
+		{{-1, 1, 0, 1}, {1,0}, {0,0,1}},
+		{{-1, -1, 0, 1}, {1,1}, {0,0,1}},
+	};
 
-	// 頂点リソースにデータを書き込む
-	vertexResource->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_));		// 書き込むためのアドレスを取得
-	std::memcpy(vertexData_, modelData.vertices.data(), sizeof(VertexData) * modelData.vertices.size());
+	// -----------------------------
+	// VertexBuffer → DefaultBuffer
+	// -----------------------------
+	size_t vbSize = sizeof(VertexData) * modelData.vertices.size();
+
+	vertexResource = rm->CreateUploadBufferWithData(modelData.vertices.data(), vbSize);
+
+
+	vertexBufferView_.BufferLocation = vertexResource->GetGPUVirtualAddress();
+	vertexBufferView_.SizeInBytes = UINT(vbSize);
+	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 }
+
 
 void ParticleManager::CreateMaterialResource()
 {
-	// マテリアル用のリソースを作る。
-	dxManager_->CreateBufferResource(sizeof(Material), materialResource_);
-	// マテリアルにデータを書き込む
-	materialData_ = nullptr;
-	// 書き込むためのアドレスを取得
-	materialResource_->Map(0, nullptr, reinterpret_cast<void**>(&materialData_));
-	// 白を入れる
-	materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	auto* rm = dxManager_->GetResourceManager();
+
+	materialHandle_ = rm->CreateUploadBuffer(sizeof(Material), L"ParticleMaterial");
+
+	materialData_ = reinterpret_cast<Material*>(rm->Map(materialHandle_));
+
+	// 初期値
+	materialData_->color = { 1, 1, 1, 1 };
 	materialData_->enableLighting = true;
 	materialData_->uvTransform = MakeIdentity4x4();
 }
 
-ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string name_/*, std::mt19937& randomEngine*/, const Vector3& translate)
+Particle ParticleManager::MakeNewParticle(const std::string name, const Vector3& translate)
 {
 	Particle particle{};
 
-	auto& params = particleParams_[name_];
+	auto& params = particleGroups_[name].params;
 
 	auto FixRange = [](const Vector2& range) {
 		auto [minVal, maxVal] = std::minmax(range.x, range.y);
@@ -456,7 +375,7 @@ ParticleManager::Particle ParticleManager::MakeNewParticle(const std::string nam
 	return particle;
 }
 
-ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* global, const std::string& groupName)
+ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* global, const std::string& groupName)
 {
 	ParticleParameters params{};
 
@@ -492,7 +411,7 @@ ParticleManager::ParticleParameters ParticleManager::LoadParticleParameters(Glob
 
 void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
 {
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 	ImGui::Begin(groupName.c_str());
 
 	if (ImGui::TreeNode("Particle")) {
@@ -572,7 +491,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			// フェードタイプごとに個別パラメータを出す
 			switch (fadeType) {
 			case FadeType::Alpha:
-				
+
 				break;
 			case FadeType::ScaleShrink: {
 				// このフェードタイプ専用のパラメータ
@@ -583,7 +502,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 			}
 			case FadeType::None:
 			default:
-				
+
 				break;
 			}
 			ImGui::TreePop();
@@ -592,7 +511,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 		// ===== Blend Settings =====
 		if (ImGui::TreeNode("Blend Mode")) {
 			int& blendModeInt = global->GetValueRef<int>(groupName, "BlendMode");
-			const char* blendNames[] = {"None", "Normal", "Add", "Subtract", "Multiply", "Screen"};
+			const char* blendNames[] = { "None", "Normal", "Add", "Subtract", "Multiply", "Screen" };
 			ImGui::Combo("Blend Mode", &blendModeInt, blendNames, IM_ARRAYSIZE(blendNames));
 			ImGui::TreePop();
 		}
@@ -608,17 +527,16 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 	}
 
 	ImGui::End();
-#endif // IMGUI
+#endif // DEBUG
 }
 
-std::list<ParticleManager::Particle> ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
 {
-	ParticleGroup& particleGroup = particleGroups_[name];
-	std::list<Particle> newParticles;
-	for (uint32_t nowCount = 0; nowCount < count; ++nowCount) {
-		Particle particle = MakeNewParticle(name, position);
-		newParticles.push_back(particle);
+	auto& particles = particleGroups_[name].particles;
+
+	particles.reserve(particles.size() + count);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		particles.emplace_back(MakeNewParticle(name, position));
 	}
-	particleGroup.particleList.splice(particleGroup.particleList.end(), newParticles);
-	return newParticles;
 }

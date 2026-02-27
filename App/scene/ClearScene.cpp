@@ -6,10 +6,11 @@
 #include <3d/Object/Object3dManager.h>
 #include <3d/Collider/CollisionManager.h>
 #include <3d/Object/Renderer/RendererManager.h>
-#include <base/TextureManager.h>
+#include "Graphics/Resource/TextureManager.h"
 #include <input/Input.h>
 #include <scene/Transition/SceneTransitionController.h>
 #include <GameData/GameData.h>
+#include "2d/SpriteManager.h"
 
 void ClearScene::Initialize()
 {
@@ -30,7 +31,7 @@ void ClearScene::Initialize()
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
 	// ============ライト=================//
-	LightManager::GetInstance()->CreateDirectionalLight("gameDir");
+	//LightManager::GetInstance()->CreateDirectionalLight("gameDir");
 
 	clearUI_ = std::make_unique<ClearUI>();
 	clearUI_->Initialize();
@@ -38,6 +39,7 @@ void ClearScene::Initialize()
 
 void ClearScene::Finalize()
 {
+	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CollisionManager::GetInstance()->DeleteAllCollider();
 	RendererManager::GetInstance()->DeleteAllRenderer();
@@ -65,7 +67,7 @@ void ClearScene::Update()
 void ClearScene::Draw()
 {
 	// 全オブジェクトの描画
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawSet();
 
 	SpriteManager::GetInstance()->DrawSet();
 	clearUI_->Draw();

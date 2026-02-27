@@ -1,5 +1,5 @@
 #include "GameScene.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include "base/Particle/ParticleManager.h"
 #include "debuger/ImGuiManager.h"
 #include "math/Quaternion.h"
@@ -89,8 +89,7 @@ void GameScene::Initialize()
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
-	// ============ライト=================//
-	lightManager_->CreateDirectionalLight("gameDir");
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 	player_->SetInput(inputContext_->GetPlayerInput());
@@ -98,8 +97,7 @@ void GameScene::Initialize()
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
 
-	musk_ = std::make_unique<Sprite>();
-	musk_->Initialize("white.png");
+	musk_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "menuMusk", "white.png");
 	musk_->SetSize({ 1280.0f, 720.0f });
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
 
@@ -111,6 +109,7 @@ void GameScene::Initialize()
 
 void GameScene::Finalize()
 {
+	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CollisionManager::GetInstance()->DeleteAllCollider();
 	RendererManager::GetInstance()->DeleteAllRenderer();
@@ -122,7 +121,7 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-	lightManager_->UpdateAllLight();
+	lightManager_->Update();
 	gameUI_->Update();
 
 	if (currentState_) {
@@ -152,7 +151,7 @@ void GameScene::Update()
 void GameScene::Draw()
 {
 	// 全オブジェクトの描画
-	Object3dManager::GetInstance()->DrawSet();
+	//Object3dManager::GetInstance()->DrawSet();
 	// スプライトの描画前処理
 	SpriteManager::GetInstance()->DrawSet();
 	// プレイヤーのスプライト描画

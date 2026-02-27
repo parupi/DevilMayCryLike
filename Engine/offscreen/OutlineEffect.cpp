@@ -17,7 +17,7 @@ OutlineEffect::~OutlineEffect()
 	psoManager_ = nullptr;
 	// 生成したリソースの削除
 	effectData_ = nullptr;
-	effectResource_.Reset();
+	effectHandle_ = 0;
 }
 
 void OutlineEffect::Update()
@@ -37,18 +37,16 @@ void OutlineEffect::Draw()
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, dxManager_->GetResourceManager()->GetGPUVirtualAddress(effectHandle_));
 
 	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void OutlineEffect::CreateEffectResource()
 {
+	auto* resourceManager = dxManager_->GetResourceManager();
 	// ヴィネット用のリソースを作る
-	dxManager_->CreateBufferResource(sizeof(OutlineEffectData), effectResource_);
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(OutlineEffectData), L"GaussianEffect");
 	// 書き込むためのアドレスを取得
-	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
-	// 初期値を設定
-
-	effectResource_->Unmap(0, nullptr);
+	effectData_ = reinterpret_cast<OutlineEffectData*>(resourceManager->Map(effectHandle_));
 }

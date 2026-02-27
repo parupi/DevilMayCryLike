@@ -1,11 +1,11 @@
 #include "FadeTransition.h"
+#include "2d/SpriteManager.h"
 
 FadeTransition::FadeTransition(const std::string& transitionName)
 {
 	TextureManager::GetInstance()->LoadTexture("white1x1.png");
 	name = transitionName;
-	sprite_ = std::make_unique<Sprite>();
-	sprite_->Initialize("white1x1.png");
+	sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "fadeMask", "white1x1.png");
 	sprite_->SetSize({ 1280.0f, 720.0f });
 }
 
@@ -40,5 +40,6 @@ void FadeTransition::Update()
 
 void FadeTransition::Draw()
 {
+	SpriteManager::GetInstance()->DrawSet();
 	sprite_->Draw();
 }

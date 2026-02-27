@@ -17,9 +17,9 @@ void PlayerWeapon::Initialize()
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMax = { 0.5f, 0.5f, 0.5f };
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMin = { -0.5f, -0.5f, -0.5f };
 
-	smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter_->Initialize("smoke");
-	smokeEmitter_->SetParticle("smoke");
+	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
+	//smokeEmitter_->Initialize("smoke");
+	//smokeEmitter_->SetParticle("smoke");
 }
 
 void PlayerWeapon::Update(float deltaTime)
@@ -32,7 +32,7 @@ void PlayerWeapon::Update(float deltaTime)
 	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) return;
 
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
-	smokeEmitter_->Update();
+	//smokeEmitter_->Update();
 
 	
 	Object3d::Update(deltaTime);
@@ -58,7 +58,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other)
 	}
 
 	if (other->category_ == CollisionCategory::Ground) {
-		smokeEmitter_->Emit();
+		//smokeEmitter_->Emit();
 	}
 }
 

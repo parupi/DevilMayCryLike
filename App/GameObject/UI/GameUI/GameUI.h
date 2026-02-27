@@ -15,8 +15,8 @@ public:
 
 private:
 
-	std::unique_ptr<Sprite> attackUI_;
-	std::unique_ptr<Sprite> jumpUI_;
-	std::unique_ptr<Sprite> lockOnUI_;
+	Sprite* attackUI_;
+	Sprite* jumpUI_;
+	Sprite* lockOnUI_;
 };
 

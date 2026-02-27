@@ -1,5 +1,10 @@
 #include "function.h"
 
+float ToLinear(float srgb)
+{
+	return powf(srgb, 2.2f);
+}
+
 float Normalize(float value) {
 	// 値が0でない場合、絶対値が1になるように正規化
 	if (value != 0.0f) {

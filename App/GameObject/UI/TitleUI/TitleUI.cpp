@@ -1,6 +1,6 @@
 #include "TitleUI.h"
 #include <base/utility/DeltaTime.h>
-
+#include "2d/SpriteManager.h"
 
 void TitleUI::Initialize()
 {
@@ -20,6 +20,12 @@ void TitleUI::Initialize()
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("TitleUp"));
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("TitleUnder"));
 
+	object->GetOption().drawPath = DrawPath::Forward;
+
+	object->GetRenderer("Title")->GetModel()->GetMaterials()[0]->SetIsLighting(false);
+	object->GetRenderer("TitleUp")->GetModel()->GetMaterials()[0]->SetIsLighting(false);
+	object->GetRenderer("TitleUnder")->GetModel()->GetMaterials()[0]->SetIsLighting(false);
+
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 3.2f, -7.0f };
 	object->GetWorldTransform()->GetScale() = { 6.0f, 1.0f, 2.0f };
 
@@ -29,8 +35,7 @@ void TitleUI::Initialize()
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
 	for (int32_t i = 0; i < 2; i++) {
-		selectArrows_[i] = std::make_unique<Sprite>();
-		selectArrows_[i]->Initialize("SelectArrow.png");
+		selectArrows_[i] = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "selectArrow" + std::to_string(i), "SelectArrow.png");
 		selectArrows_[i]->SetAnchorPoint({ 0.5f, 0.5f });
 
 		if (i == 0) {
@@ -41,17 +46,15 @@ void TitleUI::Initialize()
 		}
 	}
 
-	gameStart_ = std::make_unique<Sprite>();
-	gameStart_->Initialize("TitleUI.png");
+	gameStart_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "titleUI", "TitleUI.png");
 	gameStart_->SetPosition({ 640.0f, 520.0f });
 	gameStart_->SetAnchorPoint({ 0.5f, 0.5f });
 
-	selectMask_ = std::make_unique<Sprite>();
-	selectMask_->Initialize("circle.png");
-	selectMask_->SetPosition({ 640.0f, 520.0f });
-	selectMask_->SetSize({ 500.0f, 100.0f });
-	selectMask_->SetAnchorPoint({ 0.5f, 0.5f });
-	selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
+	//selectMask_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "selectMask", "circle.png");
+	//selectMask_->SetPosition({ 640.0f, 520.0f });
+	//selectMask_->SetSize({ 500.0f, 100.0f });
+	//selectMask_->SetAnchorPoint({ 0.5f, 0.5f });
+	//selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 
 	// プレイヤーの生成
 	std::unique_ptr<Object3d> playerObject = std::make_unique<Object3d>("Player");
@@ -82,7 +85,7 @@ void TitleUI::Update()
 		arrow->Update();
 	}
 
-	selectMask_->Update();
+	//selectMask_->Update();
 
 	ExitUpdate();
 }
@@ -92,12 +95,12 @@ void TitleUI::Draw()
 	SpriteManager::GetInstance()->DrawSet();
 	gameStart_->Draw();
 
-	for (auto& arrow : selectArrows_) {
-		arrow->Draw();
-	}
+	//for (auto& arrow : selectArrows_) {
+	//	arrow->Draw();
+	//}
 
-	SpriteManager::GetInstance()->DrawSet(BlendMode::kAdd);
-	selectMask_->Draw();
+	//SpriteManager::GetInstance()->DrawSet(BlendMode::kAdd);
+	//selectMask_->Draw();
 }
 
 void TitleUI::Exit()
@@ -138,7 +141,7 @@ void TitleUI::ExitUpdate()
 		float subT = (t - 0.5f) / 0.5f; // 0.0～1.0
 		maskAlpha = Lerp(0.8f, targetSelectMaskAlpha, subT);
 	}
-	selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, maskAlpha });
+	//selectMask_->SetColor({ 1.0f, 1.0f, 1.0f, maskAlpha });
 
 	// --- 矢印のサイズ補間 ---
 	for (size_t i = 0; i < selectArrows_.size(); i++) {

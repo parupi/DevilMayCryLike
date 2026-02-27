@@ -8,24 +8,17 @@ public:
 	SpotLight(const std::string& name);
 	~SpotLight() override = default;
 
+	// 初期化処理
+	void Initialize() override;
 	// 更新処理
 	void Update() override;
+#ifdef _DEBUG
 	// エディターの描画
-	void DrawLightEditor();
-	// リソースの生成
-	void CreateLightResource() override;
-	// リソースの更新
-	void UpdateLightResource() override;
-	// 構造体のサイズを取得
-	size_t GetDataSize() const override { return sizeof(PointLightData); }
-	// シリアライズ
-	void SerializeTo(void* dest) const override;
-
-	SpotLightData& GetLightData() { return lightData_; }
-
+	void DrawLightEditor() override;
+	// 線描画
+	void DrawDebug(PrimitiveLineDrawer* drawer) override;
+#endif // DEBUG
 private:
-	SpotLightData lightData_;
-
-	GlobalVariables* global_ = GlobalVariables::GetInstance();
+	GlobalVariables* global_ = nullptr;
 };
 
