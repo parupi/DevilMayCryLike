@@ -2,6 +2,7 @@
     "AttackComboA1": {
         "AttackDuration": 0.15000000596046448,
         "AttackPosture": 0,
+        "ButtonIndex": 0,
         "ControlPoint_0": [
             -0.75,
             1.0,
@@ -33,15 +34,18 @@
             0.0
         ],
         "Damage": 1.0,
+        "DirIndex": 0,
         "DrawDebugControlPoints": false,
-        "HitStopIntensity": 0.03999999910593033,
-        "HitStopTime": 0.029999999329447746,
+        "HitStopIntensity": 0.30000001192092896,
+        "HitStopTime": 0.07999999821186066,
         "ImpulseForce": 10.0,
+        "IsAir": false,
         "KnockBackSpeed": [
             0.0,
             1.0,
             1.5
         ],
+        "LockOnFlag": false,
         "MoveSpeed": [
             0.0,
             0.0,
@@ -62,6 +66,7 @@
         "Posture": 0,
         "PreDelay": 0.07999999821186066,
         "ReactionType": 0,
+        "RootAttackFlag": false,
         "StunTime": 0.10000000149011612,
         "TorqueForce": 0.0,
         "TotalDuration": 0.6600000262260437,

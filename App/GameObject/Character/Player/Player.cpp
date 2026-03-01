@@ -65,11 +65,11 @@ void Player::Initialize()
 
 	weapon_->SetScoreManager(scoreManager.get());
 
-	hitStop_ = std::make_unique<HitStop>();
-
 	reticle_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
 	reticle_->SetSize({ 32.0f, 32.0f });
 	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
+
+	hitStop_ = std::make_unique<HitStop>();
 
 	// プレイヤーをカメラ側を向かせる
 	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
@@ -81,41 +81,33 @@ void Player::Initialize()
 
 void Player::Update(float deltaTime)
 {
-	// カメラ合切り替え中とフェード中は動かさない
-	if (!TransitionManager::GetInstance()->IsFinished()/* || CameraManager::GetInstance()->IsTransition()*/ || isMenu_) {
-		// 最初から更新しておきたいものはここに入れておく
-		hitStop_->Update();
-		scoreManager->Update();
-		weapon_->Update(deltaTime);
-		Object3d::Update(deltaTime);
-		return;
-	}
+	hitStop_->Update(deltaTime);
+	float dt = deltaTime * hitStop_->GetTimeScale();
 
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
 		ChangeState("Death");
 	}
 
-	hitStop_->Update();
 	scoreManager->Update();
 
 	LockOn();
 
- 	weapon_->Update(deltaTime);
+ 	weapon_->Update(dt);
 
 	if (!combat_->IsAttacking()) {
-		stateMachine_->UpdateCurrentState(*this, deltaTime);
+		stateMachine_->UpdateCurrentState(*this, dt);
 	}
-	combat_->Update(deltaTime);
+	combat_->Update(dt);
 
 	for (auto& cmd : input_->GetCommands()) {
 		ExecuteCommand(cmd);
 	}
 
-	GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
-	velocity_ += acceleration_ * deltaTime;
+	GetWorldTransform()->GetTranslation() += velocity_ * dt;
+	velocity_ += acceleration_ * dt;
 
-	Object3d::Update(deltaTime);
+	Object3d::Update(dt);
 
 	// 毎フレーム切っておく
 	onGround_ = false;
@@ -281,21 +273,6 @@ void Player::LockOn()
 			lockOnEnemy_ = nullptr;
 		}
 	}
-}
-
-void Player::Clear()
-{
-	isClear_ = true;
-}
-
-void Player::SetIntent(const MoveIntent& intent)
-{
-	//movement_->SetIntent(intent);
-}
-
-void Player::RequestAttack(AttackType id)
-{
-	combat_->RequestAttack(id);
 }
 
 const Vector3& Player::GetLockOnPos()

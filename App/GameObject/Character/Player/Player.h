@@ -21,6 +21,7 @@
 #include "Collision/PlayerCollider.h"
 #include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
+#include "GameObject/Effect/HitStopComponent.h"
 
 class PlayerInput;
 
@@ -114,12 +115,6 @@ public:
 	/// </summary>
 	void LockOn();
 
-	void Clear();
-
-	void SetIntent(const MoveIntent& intent);
-
-	void RequestAttack(AttackType id);
-
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
 
@@ -143,17 +138,11 @@ public:
 	/// </summary>
 	bool IsLockOn() const { return isLockOn_; }
 
-	bool IsClear() const { return isClear_; }
-	void SetMenu(bool flag) { isMenu_ = flag; }
-
-	/// <summary>
-	/// ヒットストップクラスを取得する。
-	/// </summary>
-	HitStop* GetHitStop() const { return hitStop_.get(); }
-
 	// 攻撃派生UI
 	AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
 
+	HitStop* GetHitStop() const { return hitStop_.get(); }
+	bool IsAttack() const { return combat_->IsAttacking(); }
 
 	AttackInputState GetAttackInputState() const;
 
@@ -179,7 +168,8 @@ private:
 	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f }; ///< プレイヤーの加速度
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ
-	std::unique_ptr<HitStop> hitStop_; ///< ヒットストップ管理クラス
+
+	std::unique_ptr<HitStop> hitStop_;
 
 	std::vector<Enemy*> enemies_; ///< 周囲の敵リスト
 	Enemy* lockOnEnemy_ = nullptr; ///< 現在ロックオンしている敵
@@ -190,9 +180,6 @@ private:
 	bool onGround_ = false; ///< 接地判定フラグ
 
 	Sprite* reticle_; ///< テスト用スプライト（デバッグ表示など）
-
-	bool isClear_ = false;
-	bool isMenu_ = false;
 
 	std::unique_ptr<AttackBranchUI> attackBranchUI_;
 };
