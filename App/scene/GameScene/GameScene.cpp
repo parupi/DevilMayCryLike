@@ -60,6 +60,7 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("Cube");
 	ModelManager::GetInstance()->LoadModel("suzannu");
 	ModelManager::GetInstance()->LoadModel("Sword");
+ 	ModelManager::GetInstance()->LoadModel("spirit_knight");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("Terrain.png");
@@ -128,12 +129,6 @@ void GameScene::Update()
 		currentState_->Update(*this);
 	}
 
-	if (currentState_ == states_["Menu"].get()) {
-		player_->SetMenu(true);
-	} else {
-		player_->SetMenu(false);
-	}
-
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
 	musk_->Update();
 
@@ -150,20 +145,18 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
-	// 全オブジェクトの描画
-	//Object3dManager::GetInstance()->DrawSet();
 	// スプライトの描画前処理
-	SpriteManager::GetInstance()->DrawSet();
+	//SpriteManager::GetInstance()->DrawSet();
 	// プレイヤーのスプライト描画
-	if (player_) {
-		player_->DrawEffect();
-	}
+	//if (player_) {
+	//	player_->DrawEffect();
+	//}
 
-	gameUI_->Draw();
+	//gameUI_->Draw();
 
-	musk_->Draw();
+	//musk_->Draw();
 
-	menuUI_->Draw();
+	//menuUI_->Draw();
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();

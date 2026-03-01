@@ -170,6 +170,8 @@ protected:
     std::unique_ptr<ParticleEmitter> slashEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
     std::unique_ptr<ParticleEmitter> smokeEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
 
+    float timeScale = 1.0f;
+
     Player* player_ = nullptr; ///< プレイヤー参照ポインタ
 
     Vector3 velocity_{}; ///< 現在の速度

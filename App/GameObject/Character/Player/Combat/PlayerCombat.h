@@ -51,8 +51,6 @@ public:
 	void Update(float deltaTime);
 	// 描画
 	void Draw();
-	// 外部から攻撃をリクエストする
-	void RequestAttack(AttackType type);
 	// 攻撃を変更する TODO : FSMじゃなくてStateStackを使う
 	void ChangeState(const std::string& stateName);
 

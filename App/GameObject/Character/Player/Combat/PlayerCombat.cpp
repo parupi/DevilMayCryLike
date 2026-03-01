@@ -50,23 +50,6 @@ void PlayerCombat::Draw()
 	}
 }
 
-void PlayerCombat::RequestAttack(AttackType type)
-{
-	//switch (type) {
-	//case AttackType::Normal:
-	//	ChangeState("AttackComboA1");
-	//	break;
-	//case AttackType::RoundUp:
-	//	ChangeState("AttackHighTime");
-	//	break;
-	//case AttackType::LungeThrust:
-
-	//	break;
-	//case AttackType::Air:
-	//	ChangeState("AttackAerialRave1");
-	//}
-}
-
 void PlayerCombat::ChangeState(const std::string& stateName)
 {
 	if (currentState_.empty()) {

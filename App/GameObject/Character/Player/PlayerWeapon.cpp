@@ -32,8 +32,6 @@ void PlayerWeapon::Update(float deltaTime)
 	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) return;
 
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
-	//smokeEmitter_->Update();
-
 	
 	Object3d::Update(deltaTime);
 }
@@ -52,6 +50,8 @@ void PlayerWeapon::DrawEffect()
 void PlayerWeapon::OnCollisionEnter(BaseCollider* other)
 {
 	if (other->category_ == CollisionCategory::Enemy) {
+		if (!player_->IsAttack()) return;
+		
 		scoreManager_->AddScore(50);
 		// 攻撃のパラメータを参照してヒットストップ起動
 		player_->GetHitStop()->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity);

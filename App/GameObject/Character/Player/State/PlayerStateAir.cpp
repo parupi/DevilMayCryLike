@@ -27,8 +27,5 @@ void PlayerStateAir::Exit(Player& player)
 
 void PlayerStateAir::ExecuteCommand(Player& player, const PlayerCommand& command)
 {
-	if (command.action == PlayerAction::Attack) {
-		player.RequestAttack(AttackType::Air);
-		return;
-	}
+
 }
