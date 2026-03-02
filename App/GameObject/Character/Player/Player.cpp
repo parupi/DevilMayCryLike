@@ -86,7 +86,7 @@ void Player::Update(float deltaTime)
 
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
-		ChangeState("Death");
+		//ChangeState("Death");
 	}
 
 	scoreManager->Update();

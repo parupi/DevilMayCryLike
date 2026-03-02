@@ -2,6 +2,7 @@
 #include "3d/Collider/AABBCollider.h"
 #include "Player.h"
 #include "scene/Transition/TransitionManager.h"
+#include "base/Particle/ParticleManager.h"
 
 PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName)
 {
@@ -17,21 +18,25 @@ void PlayerWeapon::Initialize()
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMax = { 0.5f, 0.5f, 0.5f };
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMin = { -0.5f, -0.5f, -0.5f };
 
-	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	//smokeEmitter_->Initialize("smoke");
-	//smokeEmitter_->SetParticle("smoke");
+	ParticleManager::GetInstance()->CreateParticleGroup("WeaponTrailEffect", "circle.png");
+	ParticleManager::GetInstance()->CreateEmitter("PlayerWeaponTrailEmitter", "WeaponTrailEmitter");
+	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	emitter_ = emitters.at("PlayerWeaponTrailEmitter").get();
+	emitter_->SetParent(GetWorldTransform());
 }
 
 void PlayerWeapon::Update(float deltaTime)
 {
+	// オブジェクトマネージャからプレイヤーを探して生ポインタを受け取る
 	if (player_ == nullptr) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 	}
 
-	// カメラ合切り替え中とフェード中は動かさない
-	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) return;
-
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
+	if (player_->IsAttack()) {
+		emitter_->Emit();
+	}
+	
 	
 	Object3d::Update(deltaTime);
 }

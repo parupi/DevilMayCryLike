@@ -1,0 +1,24 @@
+{
+    "EmitterName": "HellKaina4HitEffect",
+    "Frequency": 0.0,
+    "IsActive": false,
+    "Particles": [
+        {
+            "Count": 6,
+            "ParticleName": "EnemyDamageEffect",
+            "SpawnRate": 1.0
+        }
+    ],
+    "Transform": {
+        "Position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

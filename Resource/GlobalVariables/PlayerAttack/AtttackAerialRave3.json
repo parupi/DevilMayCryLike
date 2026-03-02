@@ -1,6 +1,6 @@
 {
     "AtttackAerialRave3": {
-        "AttackDuration": 0.11999999731779099,
+        "AttackDuration": 0.18000000715255737,
         "AttackPosture": 1,
         "ButtonIndex": 1,
         "ControlPoint_0": [
@@ -46,9 +46,9 @@
         "Damage": 0.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
-        "HitStopIntensity": 0.0,
-        "HitStopTime": 0.0,
-        "ImpulseForce": 0.0,
+        "HitStopIntensity": 0.10000000149011612,
+        "HitStopTime": 0.11999999731779099,
+        "ImpulseForce": 8.0,
         "IsAir": true,
         "KnockBackSpeed": [
             0.0,
@@ -62,7 +62,7 @@
             0.0
         ],
         "NextAttackCount": 0,
-        "NextAttackDelay": 0.6000000238418579,
+        "NextAttackDelay": 0.49000000953674316,
         "NextAttack_0": "",
         "NextAttack_1": "",
         "NextAttack_2": "",
@@ -70,11 +70,11 @@
         "PostDelay": 0.05000000074505806,
         "Posture": 0,
         "PreDelay": 0.029999999329447746,
-        "ReactionType": 0,
+        "ReactionType": 1,
         "RootAttackFlag": false,
         "StunTime": 0.0,
-        "TorqueForce": 0.0,
+        "TorqueForce": 30.0,
         "TotalDuration": 0.699999988079071,
-        "UpwardRatio": 0.0
+        "UpwardRatio": 0.10000000149011612
     }
 }

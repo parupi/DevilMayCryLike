@@ -306,7 +306,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
 	ImGui::SameLine();
 	ImGui::RadioButton("Air", &global_->GetValueRef<int32_t>(attackName, "AttackPosture"), 1);
 
-	DrawAttackNodeEditor(attackGraph_[attackName]);
+	DrawAttackNodeEditor(attackName, attackGraph_[attackName]);
 
 	ImGui::Separator();
 
@@ -333,13 +333,20 @@ AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName)
 	return node;
 }
 
-void PlayerCombat::DrawAttackNodeEditor(AttackNode& node)
+void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNode& node)
 {
 	ImGui::Text("Attack : %s", node.name.c_str());
 	ImGui::Separator();
 
-	for (auto& next : node.nextAttacks) {
-		ImGui::BulletText("-> %s", next.c_str());
+	int count = attackGraph_[attackName].nextAttacks.size();
+
+	global_->GetValueRef<int>(attackName, "NextAttackCount") = count;
+
+	for (int i = 0; i < count; ++i) {
+		ImGui::BulletText("-> %s", node.nextAttacks[i].c_str());
+
+		std::string key = "NextAttack_" + std::to_string(i);
+		global_->GetValueRef<std::string>(attackName, key) = node.nextAttacks[i];
 	}
 }
 

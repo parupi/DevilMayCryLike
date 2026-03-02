@@ -51,12 +51,14 @@ void SampleScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("weapon");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
+	TextureManager::GetInstance()->LoadTexture("white.png");
+	TextureManager::GetInstance()->LoadTexture("hitSmoke.png");
 
 	//TextureManager::GetInstance()->LoadTexture("Cube.png");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
-	ParticleManager::GetInstance()->CreateEmitter("testEmitter", "test");
+	//ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
+	//ParticleManager::GetInstance()->CreateEmitter("testEmitter");
 
 	// オブジェクトを生成
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("obj1");
@@ -69,30 +71,41 @@ void SampleScene::Initialize()
 
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
 
-	object->GetOption().drawPath = DrawPath::Forward;
+	//object->GetOption().drawPath = DrawPath::Forward;
 
 	object_ = object.get();
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
-	// オブジェクトを生成
-	object = std::make_unique<Object3d>("obj2");
-	object->Initialize();
+	//// オブジェクトを生成
+	//object = std::make_unique<Object3d>("obj2");
+	//object->Initialize();
 
-	// レンダラーの追加
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	//// レンダラーの追加
+	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
 
-	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+	//object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	object2_ = object.get();
+	//object2_ = object.get();
 
-	Object3dManager::GetInstance()->AddObject(std::move(object));
+	//Object3dManager::GetInstance()->AddObject(std::move(object));
 
-	sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
+	//sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 
 	//emitter_ = std::make_unique<ParticleEmitter>();
 	//emitter_->Initialize("test");
 	//emitter_->SetParticle("test");
+
+	ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect", "white.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("PlayerSlashEffect", "circle.png");
+
+	ParticleManager::GetInstance()->CreateEmitter("HitEffect", "EnemyDamageEmitter");
+	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	emitter_ = emitters.at("HitEffect").get();
+	emitter_->SetParent(object_->GetWorldTransform());
+	//emitter_->AddParticle("EnemyDamageEffect");
+	//emitter_->AddParticle("PlayerSlashEffect");
+	emitter_->SetActiveFlag(false);
 
 	// ============ライト=================//
 	lightManager_->AddLight(std::make_unique<PointLight>("SamplePoint"));
@@ -106,7 +119,9 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
-	sprite_->Update();
+	//sprite_->Update();
+
+	emitter_->SetTranslate(object_->GetWorldTransform()->GetTranslation());
 
 	lightManager_->Update();
 
@@ -136,8 +151,8 @@ void SampleScene::DebugUpdate()
 	object_->DebugGui();
 	ImGui::End();
 
-	ImGui::Begin("Object2");
-	object2_->DebugGui();
-	ImGui::End();
+	//ImGui::Begin("Object2");
+	//object2_->DebugGui();
+	//ImGui::End();
 }
 #endif

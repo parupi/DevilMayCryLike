@@ -75,7 +75,7 @@ private:
 
 	AttackNode LoadAttackNode(const std::string& attackName);
 
-	void DrawAttackNodeEditor(AttackNode& node);
+	void DrawAttackNodeEditor(const std::string& attackName, AttackNode& node);
 
 	void DrawAttackDerivativeEditorUI();
 

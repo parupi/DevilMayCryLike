@@ -18,7 +18,7 @@ void ParticleEditor::Draw()
 {
 	ImGui::Begin("Particle Editor");
 
-	if (ImGui::CollapsingHeader("Particles", ImGuiTreeNodeFlags_DefaultOpen))
+	if (ImGui::CollapsingHeader("Particles", ImGuiTreeNodeFlags_DefaultOpen)) 
 	{
 		DrawParticleEditor();
 	}
@@ -33,6 +33,28 @@ void ParticleEditor::Draw()
 
 void ParticleEditor::DrawParticleEditor()
 {
+	ImGui::Separator();
+	ImGui::Text("Create New Particle");
+
+	static char newParticleName[64] = "";
+	static char newTexturePath[128] = "";
+
+	ImGui::InputText("Particle Name", newParticleName, IM_ARRAYSIZE(newParticleName));
+	ImGui::InputText("Texture Path", newTexturePath, IM_ARRAYSIZE(newTexturePath));
+
+	if (ImGui::Button("Create Particle"))
+	{
+		if (strlen(newParticleName) > 0)
+		{
+			manager_->CreateParticleGroup(newParticleName, newTexturePath);
+
+			newParticleName[0] = '\0';
+			newTexturePath[0] = '\0';
+		}
+	}
+
+	ImGui::Separator();
+
 	auto& groups = manager_->GetParticleGroups();
 
 	if (groups.empty()) return;
@@ -169,18 +191,43 @@ void ParticleEditor::DrawParticleEditor()
 
 void ParticleEditor::DrawEmitterEditor()
 {
+	// ===== New Emitter Create =====
+	ImGui::Separator();
+	ImGui::Text("Create New Emitter");
+
+	static char newEmitterName[64] = "";
+
+	ImGui::InputText("Emitter Name", newEmitterName, IM_ARRAYSIZE(newEmitterName));
+
+	if (ImGui::Button("Create Emitter"))
+	{
+		if (strlen(newEmitterName) > 0)
+		{
+			manager_->CreateEmitter(newEmitterName);
+
+			newEmitterName[0] = '\0';
+		}
+	}
+
+	ImGui::Separator();
+
 	auto& emitters = manager_->GetEmitters();
 	if (emitters.empty()) return;
 
 	std::vector<const char*> names;
 	std::vector<std::string> keys;
-	ParticleEmitter* emitter_ptr = nullptr;
 
 	for (auto& [name, emitter] : emitters)
 	{
 		names.push_back(name.c_str());
 		keys.push_back(name);
-		emitter_ptr = emitter.get();
+	}
+
+	ParticleEmitter* emitter_ptr = nullptr;
+
+	if (selectedEmitterIndex_ < keys.size())
+	{
+		emitter_ptr = emitters.at(keys[selectedEmitterIndex_]).get();
 	}
 
 	ImGui::Combo("Emitter", &selectedEmitterIndex_, names.data(), (int)names.size());
@@ -202,8 +249,6 @@ void ParticleEditor::DrawEmitterEditor()
 
 		bool& isActive = global_->GetValueRef<bool>(emitterName, "IsActive");
 		ImGui::Checkbox("Is Active", &isActive);
-
-
 
 		ImGui::TreePop();
 	}

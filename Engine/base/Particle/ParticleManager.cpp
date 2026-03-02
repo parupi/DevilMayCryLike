@@ -141,7 +141,6 @@ void ParticleManager::Draw()
 	}
 }
 
-
 void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
 {
 	if (particleGroups_.contains(name)) {
@@ -156,10 +155,16 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	CreateParticleRenderer(name, textureFilePath);
 }
 
-void ParticleManager::CreateEmitter(const std::string& emitterName, const std::string& particleName)
+void ParticleManager::CreateEmitter(const std::string& emitterName, const std::string& dataName)
 {
+	if (emitters_.contains(emitterName))
+	{
+		return;
+	}
+
 	auto emitter = std::make_unique<ParticleEmitter>();
-	emitter->Initialize(this, emitterName);
+	emitter->Initialize(this, emitterName, dataName);
+
 	emitters_.emplace(emitterName, std::move(emitter));
 }
 
@@ -371,6 +376,7 @@ Particle ParticleManager::MakeNewParticle(const std::string name, const Vector3&
 	particle.color = { distColorR(randomEngine) , distColorG(randomEngine) , distColorB(randomEngine) , 1.0f };
 	particle.lifeTime = distTime(randomEngine);
 	particle.currentTime = 0.0f;
+	particle.isBillboard = params.isBillboard;
 
 	return particle;
 }
@@ -405,6 +411,8 @@ ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* glob
 	// Color
 	params.colorMin = global->GetValueRef<Vector3>(groupName, "minColor");
 	params.colorMax = global->GetValueRef<Vector3>(groupName, "maxColor");
+
+	params.isBillboard = global->GetValueRef<bool>(groupName, "IsBillboard");
 
 	return params;
 }

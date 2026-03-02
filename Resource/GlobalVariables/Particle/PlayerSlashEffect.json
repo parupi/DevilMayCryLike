@@ -1,0 +1,62 @@
+{
+    "PlayerSlashEffect": {
+        "BlendMode": 2,
+        "FadeType": 1,
+        "IsBillboard": false,
+        "ShrinkStartRatio": 0.0,
+        "maxAlpha": 0.0,
+        "maxColor": [
+            1.0,
+            0.11764705926179886,
+            0.11764705926179886
+        ],
+        "maxLifeTime": 0.20000000298023224,
+        "maxRotate": [
+            3.140000104904175,
+            3.140000104904175,
+            3.140000104904175
+        ],
+        "maxScale": [
+            1.0,
+            5.0,
+            1.0
+        ],
+        "maxTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "maxVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minAlpha": 0.0,
+        "minColor": [
+            1.0,
+            0.0,
+            0.0
+        ],
+        "minLifeTime": 0.4000000059604645,
+        "minRotate": [
+            -3.140000104904175,
+            -3.140000104904175,
+            -3.140000104904175
+        ],
+        "minScale": [
+            1.0,
+            5.0,
+            1.0
+        ],
+        "minTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}
