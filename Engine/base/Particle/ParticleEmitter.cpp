@@ -5,7 +5,7 @@
 #include <fstream>
 #include <nlohmann/json.hpp>
 
-void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::string& name)
+void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::string& name, const std::string& dataName)
 {
 	particleManager_ = particleManager;
 
@@ -22,7 +22,9 @@ void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::st
 	GlobalVariables::GetInstance()->AddItem(emitter.name, "EmitAll", bool{});
 	GlobalVariables::GetInstance()->AddItem(emitter.name, "Count", int{});
 
-	Load("Resource/Emitter/" + name + ".json");
+	if (dataName != "") {
+		Load("Resource/Emitter/" + dataName + ".json");
+	}
 }
 
 void ParticleEmitter::Update(Vector3 position)
@@ -36,7 +38,7 @@ void ParticleEmitter::Update(Vector3 position)
 	if (!transform_->GetParent()) {
 		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
 	} else {
-		emitter.transform.translate = transform_->GetWorldPos();
+		emitter.transform.translate = transform_->GetParent()->GetWorldPos();
 	}
 
 	if (emitter.isActive) {
@@ -70,7 +72,7 @@ void ParticleEmitter::Emit()
 	if (!transform_->GetParent()) {
 		position = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
 	} else {
-		position = transform_->GetWorldPos();
+		position = transform_->GetParent()->GetWorldPos();
 	}
 
 	for (auto& p : particles_)
@@ -106,25 +108,36 @@ void ParticleEmitter::Save(const std::string& path)
 {
 	namespace fs = std::filesystem;
 
-	// パスをfilesystem形式に変換
 	fs::path filePath(path);
-
-	// 親ディレクトリ取得
 	fs::path directory = filePath.parent_path();
 
-	// ディレクトリが存在しなければ作成（再帰）
 	if (!directory.empty() && !fs::exists(directory))
 	{
 		fs::create_directories(directory);
 	}
 
-	// JSON構築
 	nlohmann::json j;
 
 	j["EmitterName"] = emitter.name;
 	j["Frequency"] = emitter.frequency;
 	j["IsActive"] = emitter.isActive;
 
+	// ===== Transform 保存 =====
+	j["Transform"]["Position"] =
+	{
+		emitter.transform.translate.x,
+		emitter.transform.translate.y,
+		emitter.transform.translate.z
+	};
+
+	j["Transform"]["Scale"] =
+	{
+		emitter.transform.scale.x,
+		emitter.transform.scale.y,
+		emitter.transform.scale.z
+	};
+
+	// ===== Particles =====
 	j["Particles"] = nlohmann::json::array();
 
 	for (auto& p : particles_)
@@ -137,12 +150,8 @@ void ParticleEmitter::Save(const std::string& path)
 		j["Particles"].push_back(particleJson);
 	}
 
-	// ファイル出力
 	std::ofstream file(filePath);
-	if (!file.is_open())
-	{
-		return;
-	}
+	if (!file.is_open()) return;
 
 	file << j.dump(4);
 }
@@ -158,16 +167,42 @@ void ParticleEmitter::Load(const std::string& path)
 	emitter.frequency = j.value("Frequency", 0.5f);
 	emitter.isActive = j.value("IsActive", true);
 
+	// ===== Transform 読み込み =====
+	if (j.contains("Transform"))
+	{
+		auto& t = j["Transform"];
+
+		if (t.contains("Position"))
+		{
+			emitter.transform.translate.x = t["Position"][0];
+			emitter.transform.translate.y = t["Position"][1];
+			emitter.transform.translate.z = t["Position"][2];
+		}
+
+		if (t.contains("Scale"))
+		{
+			emitter.transform.scale.x = t["Scale"][0];
+			emitter.transform.scale.y = t["Scale"][1];
+			emitter.transform.scale.z = t["Scale"][2];
+		}
+
+		//emitter.transform.TransferMatrix(particleManager_->GetCamera());
+	}
+
+	// ===== Particles =====
 	particles_.clear();
 
-	for (auto& particleJson : j["Particles"])
+	if (j.contains("Particles"))
 	{
-		EmitterParticle p;
+		for (auto& particleJson : j["Particles"])
+		{
+			EmitterParticle p;
 
-		p.name = particleJson.value("ParticleName", "");
-		p.count = particleJson.value("Count", 1);
-		p.spawnRate = particleJson.value("SpawnRate", 1.0f);
+			p.name = particleJson.value("ParticleName", "");
+			p.count = particleJson.value("Count", 1);
+			p.spawnRate = particleJson.value("SpawnRate", 1.0f);
 
-		particles_.push_back(p);
+			particles_.push_back(p);
+		}
 	}
 }

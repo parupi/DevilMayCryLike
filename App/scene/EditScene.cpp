@@ -7,6 +7,7 @@
 #include <3d/SkySystem/SkySystem.h>
 #include <3d/Light/LightManager.h>
 #include "3d/Object/Object3dManager.h"
+#include "base/Particle/ParticleManager.h"
 
 void EditScene::Initialize()
 {
@@ -17,12 +18,15 @@ void EditScene::Initialize()
 	CameraManager::GetInstance()->AddCamera(std::move(gameCamera));
 	CameraManager::GetInstance()->SetActiveCamera("GameCamera");
 
-	//// カメラの生成
-	//std::unique_ptr<Camera> camera = std::make_unique<Camera>("Camera");
-	//camera->GetTranslate() = { 0.0f, 0.0f, -0.0f };
-	//camera->GetRotate() = { 0.0f, -0.0f, 0.0f };
-	//CameraManager::GetInstance()->AddCamera(std::move(camera));
-	//CameraManager::GetInstance()->SetActiveCamera("Camera");
+	std::unique_ptr<BaseCamera> normalCamera = std::make_unique<BaseCamera>("NormalCamera");
+	normalCamera->GetTranslate() = { 0.0f, 0.0f, -10.0f };
+	normalCamera->GetRotate() = { 0.0f, -0.0f, 0.0f };
+	CameraManager::GetInstance()->AddCamera(std::move(normalCamera));
+	CameraManager::GetInstance()->SetActiveCamera("NormalCamera");
+
+	// 入力の受付状態を管理するクラス生成
+	inputContext_ = std::make_unique<InputContext>();
+	inputContext_->Initialize(Input::GetInstance());
 	
 	ModelManager::GetInstance()->LoadModel("PlayerBody");
 	ModelManager::GetInstance()->LoadModel("PlayerHead");
@@ -47,6 +51,7 @@ void EditScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("UI/RBButton.png");
 	TextureManager::GetInstance()->LoadTexture("UI/SticDown.png");
 	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
+	TextureManager::GetInstance()->LoadTexture("white.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
@@ -70,9 +75,11 @@ void EditScene::Initialize()
 	std::unique_ptr<Player> player = std::make_unique<Player>("Player");
 	player->AddCollider(CollisionManager::GetInstance()->FindCollider("Player"));
 	player->Initialize();
+	player->SetInput(inputContext_->GetPlayerInput());
 	Object3dManager::GetInstance()->AddObject(std::move(player));
 
 	//LightManager::GetInstance()->CreateDirectionalLight("Directional");
+	//ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect")
 }
 
 void EditScene::Finalize()
@@ -81,6 +88,7 @@ void EditScene::Finalize()
 
 void EditScene::Update()
 {
+	//ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect", "white.png");
 	LightManager::GetInstance()->Update();
 }
 

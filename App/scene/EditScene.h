@@ -1,5 +1,6 @@
 #pragma once
 #include "scene/BaseScene.h"
+#include "input/InputContext.h"
 class EditScene : public BaseScene
 {
 public:
@@ -20,5 +21,8 @@ public:
 	void DebugUpdate() override;
 #endif // _DEBUG
 
+private:
+	// 入力をまとめたクラス
+	std::unique_ptr<InputContext> inputContext_ = nullptr;
 };
 

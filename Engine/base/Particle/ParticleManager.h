@@ -62,7 +62,7 @@ public:
 	// パーティクルグループを登録する
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
 	// エミッターを生成する関数
-	void CreateEmitter(const std::string& emitterName, const std::string& particleName);
+	void CreateEmitter(const std::string& emitterName, const std::string& dataName = "");
 
 #ifdef _DEBUG
 	void DebugGui();
@@ -124,8 +124,6 @@ private:
 	void RegisterEditorParameters(const std::string& name);
 
 	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList);
-	// 描画前処理
-	void DrawSet(BlendMode blendMode = BlendMode::kAdd);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数

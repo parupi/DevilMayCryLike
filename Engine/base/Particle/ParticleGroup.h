@@ -20,6 +20,7 @@ struct ParticleParameters {
 	Vector2 lifeTime;
 	Vector3 colorMin;
 	Vector3 colorMax;
+	bool isBillboard;
 };
 
 struct ParticleGroup

@@ -21,7 +21,6 @@ struct EmitterParticle
 	float spawnRate = 1.0f;
 };
 
-
 class ParticleEmitter
 {
 public:
@@ -29,9 +28,9 @@ public:
 	~ParticleEmitter() = default;
 
 	// 初期化
-	void Initialize(ParticleManager* particleManager, const std::string& name);
+	void Initialize(ParticleManager* particleManager, const std::string& name, const std::string& dataName = "");
 	// 更新
-	void Update(Vector3 position = {0.0f, 0.0f, 0.0f});
+	void Update(Vector3 position = { 0.0f, 0.0f, 0.0f });
 	// 発生
 	void Emit();
 	// パーティクルを追加
@@ -56,6 +55,6 @@ public:
 	void SetFrequency(float time) { emitter.frequency = time; }
 	void SetActiveFlag(bool flag) { emitter.isActive = flag; }
 	void SetParent(WorldTransform* transform) { transform_->SetParent(transform); }
-
+	void SetTranslate(const Vector3& translate) { emitter.transform.translate = translate; }
 
 };

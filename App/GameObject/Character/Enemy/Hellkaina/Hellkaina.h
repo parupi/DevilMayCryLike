@@ -24,5 +24,7 @@ public:
     HellkainaWeapon* GetWeapon() { return weapon_; }
 private:
     HellkainaWeapon* weapon_; ///< 武器クラス
+
+    ParticleEmitter* emitter_;
 };
 

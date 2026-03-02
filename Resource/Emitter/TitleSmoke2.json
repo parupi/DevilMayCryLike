@@ -4,7 +4,7 @@
     "IsActive": true,
     "Particles": [
         {
-            "Count": 12,
+            "Count": 54,
             "ParticleName": "TitleSmoke2",
             "SpawnRate": 1.0
         }

@@ -7,11 +7,9 @@
 #include <scene/Transition/TransitionManager.h>
 #include "BaseState/EnemyStateKnockBack.h"
 
-
 Enemy::Enemy(std::string objectName) : Object3d(objectName)
 {
 	Object3d::Initialize();
-
 
 }
 

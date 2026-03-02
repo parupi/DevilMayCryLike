@@ -76,6 +76,7 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("UI/RBButton.png");
 	TextureManager::GetInstance()->LoadTexture("UI/SticDown.png");
 	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
+	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	// ステージの情報を読み込んで生成
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
@@ -86,6 +87,8 @@ void GameScene::Initialize()
 	ParticleManager::GetInstance()->CreateParticleGroup("hitSmoke", "hitSmoke.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("GameCircle", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("GameSmoke", "smoke.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect", "white.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("PlayerSlashEffect", "circle.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");

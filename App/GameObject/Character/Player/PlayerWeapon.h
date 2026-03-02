@@ -38,6 +38,6 @@ private:
 	Player* player_ = nullptr;
 
 
-	std::unique_ptr<ParticleEmitter> smokeEmitter_;
+	ParticleEmitter* emitter_;
 };
 

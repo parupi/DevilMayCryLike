@@ -49,11 +49,11 @@ void TitleScene::Initialize()
 
 	// タイトルシーンにあるもやもやを生成
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSphere", "circle2.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSphere", "TitleSphere");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSphere");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke", "circle.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke", "TitleSmoke");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke2", "smoke.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2", "TitleSmoke2");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
