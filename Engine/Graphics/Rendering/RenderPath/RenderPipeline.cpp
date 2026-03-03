@@ -114,7 +114,8 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	TransitionToRTV();
 	// 描画前処理
 	forwardPath->BeginDraw(rtvIndex_, dsvIndex_);
-
+	// 線描画の受け受け開始
+	PrimitiveLineDrawer::GetInstance()->BeginDraw();
 	// スカイボックスの描画
 	SkySystem::GetInstance()->Draw();
 	// Forward描画で設定されているオブジェクトの描画
@@ -126,8 +127,7 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	SpriteManager::GetInstance()->DrawAllSprite();
 	// トランジションの描画
 	TransitionManager::GetInstance()->Draw();
-	// 線描画の受け受け開始
-	PrimitiveLineDrawer::GetInstance()->BeginDraw();
+
 	// コライダーのデバッグ描画
 	CollisionManager::GetInstance()->Draw();
 #ifdef _DEBUG

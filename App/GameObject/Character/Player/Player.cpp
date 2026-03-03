@@ -112,6 +112,12 @@ void Player::Update(float deltaTime)
 	// 毎フレーム切っておく
 	onGround_ = false;
 
+	if (isLockOn_) {
+		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+	} else {
+		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
+	}
+
 	if (lockOnEnemy_) {
 		reticle_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
 		reticle_->Update();
@@ -123,16 +129,15 @@ void Player::Draw()
 	weapon_->Draw();
 	Object3d::Draw();
 
-	combat_->Draw();
-	SpriteManager::GetInstance()->DrawSet();
-	attackBranchUI_->Draw();
+
+	//SpriteManager::GetInstance()->DrawSet();
+	//attackBranchUI_->Draw();
 }
 
 void Player::DrawEffect()
 {
-	if (isLockOn_) {
-		reticle_->Draw();
-	}
+
+	combat_->Draw();
 }
 
 #ifdef _DEBUG

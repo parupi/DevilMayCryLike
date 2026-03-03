@@ -151,9 +151,9 @@ void GameScene::Draw()
 	// スプライトの描画前処理
 	//SpriteManager::GetInstance()->DrawSet();
 	// プレイヤーのスプライト描画
-	//if (player_) {
-	//	player_->DrawEffect();
-	//}
+	if (player_) {
+		player_->DrawEffect();
+	}
 
 	//gameUI_->Draw();
 

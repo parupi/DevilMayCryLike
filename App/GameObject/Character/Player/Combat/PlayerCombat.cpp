@@ -99,6 +99,10 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 					ChangeState("AttackHighTime");
 					return;
 				}
+				if (command.stickDir.y >= 0.7f) {
+					ChangeState("Stinger");
+					return;
+				}
 			}
 		}
 
