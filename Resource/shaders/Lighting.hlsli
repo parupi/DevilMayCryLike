@@ -55,3 +55,36 @@ float3 DecodeNormal(float3 packed)
 {
     return normalize(packed * 2.0f - 1.0f);
 }
+
+// ShadowMap
+Texture2D<float> gShadow : register(t5);
+
+SamplerComparisonState sampler_Shadow : register(s1);
+
+// Light VP
+cbuffer LightMatrixCB : register(b4)
+{
+    float4x4 LightViewProj;
+}
+
+float CalcShadow(float3 worldPos)
+{
+    float4 shadowPos = mul(float4(worldPos, 1.0), LightViewProj);
+
+    shadowPos.xyz /= shadowPos.w;
+
+    float2 uv = shadowPos.xy * 0.5 + 0.5;
+    float depth = shadowPos.z;
+
+    // 範囲外チェック
+    if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1)
+        return 1.0;
+
+    float shadow = gShadow.SampleCmpLevelZero(
+        sampler_Shadow,
+        uv,
+        depth
+    );
+
+    return shadow;
+}

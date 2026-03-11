@@ -26,6 +26,8 @@ public:
 	void BeginCascade(uint32_t index);
 	// カスケード終了
 	void EndCascade(uint32_t index);
+	// SRVの設定
+	void BindSrv();
 
 	// カスケードの情報を取得
 	const CascadeData* GetCascadeData() const { return cascades_.data(); }

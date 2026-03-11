@@ -77,18 +77,18 @@ void SampleScene::Initialize()
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
-	//// オブジェクトを生成
-	//object = std::make_unique<Object3d>("obj2");
-	//object->Initialize();
+	// オブジェクトを生成
+	object = std::make_unique<Object3d>("obj2");
+	object->Initialize();
 
-	//// レンダラーの追加
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	// レンダラーの追加
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
 
-	//object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	//object2_ = object.get();
+	object2_ = object.get();
 
-	//Object3dManager::GetInstance()->AddObject(std::move(object));
+	Object3dManager::GetInstance()->AddObject(std::move(object));
 
 	//sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 

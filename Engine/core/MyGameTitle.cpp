@@ -47,16 +47,10 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("TITLE");
+	SceneManager::GetInstance()->ChangeScene("SAMPLE");
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(dxManager.get(), psoManager.get());
-
-	//csm = std::make_unique<CascadedShadowMap>();
-	//csm->Initialize(dxManager.get(), 1280);
-
-	//shadowPath = std::make_unique<ShadowPass>();
-	//shadowPath->Initialize(dxManager.get(), psoManager.get(), csm.get());
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();

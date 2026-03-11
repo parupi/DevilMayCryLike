@@ -40,6 +40,11 @@ void CascadedShadowMap::Update()
 
 	CalculateCascadeSplits();
 	CalculateLightMatrices();
+
+	for (uint32_t i = 0; i < kCascadeCount; ++i)
+	{
+		mappedLightVP_[i]->lightViewProj = cascades_[i].lightViewProj;
+	}
 }
 
 void CascadedShadowMap::Bind(uint32_t rootIndex, uint32_t cascadeIndex)
@@ -82,6 +87,14 @@ void CascadedShadowMap::EndCascade(uint32_t index)
 		D3D12_RESOURCE_STATE_DEPTH_WRITE,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
 	);
+}
+
+void CascadedShadowMap::BindSrv()
+{
+	auto* cmd = dxManager_->GetCommandContext()->GetCommandList();
+	auto* srvManager = dxManager_->GetSrvManager();
+
+	cmd->SetGraphicsRootDescriptorTable(4, srvManager->GetGPUDescriptorHandle(srvIndices_[2]));
 }
 
 void CascadedShadowMap::CalculateCascadeSplits()

@@ -1,11 +1,11 @@
-cbuffer ObjectCB : register(b0)
+cbuffer LightVP : register(b1)
 {
-    float4x4 World;
+    float4x4 lightViewProj;
 };
 
-cbuffer LightCB : register(b1)
+cbuffer Object : register(b0)
 {
-    float4x4 LightViewProj;
+    float4x4 world;
 };
 
 struct VSInput
@@ -15,13 +15,15 @@ struct VSInput
 
 struct VSOutput
 {
-    float4 svpos : SV_POSITION;
+    float4 pos : SV_POSITION;
 };
 
 VSOutput main(VSInput input)
 {
     VSOutput o;
-    float4 worldPos = mul(float4(input.pos, 1.0f), World);
-    o.svpos = mul(worldPos, LightViewProj);
+
+    float4 worldPos = mul(float4(input.pos, 1), world);
+    o.pos = mul(worldPos, lightViewProj);
+
     return o;
 }

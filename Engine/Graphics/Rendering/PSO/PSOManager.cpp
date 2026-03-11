@@ -1558,6 +1558,16 @@ void PSOManager::CreateLightingPathSignature()
 	samplerDesc.RegisterSpace = 0;
 	samplerDesc.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+	D3D12_STATIC_SAMPLER_DESC shadowSampler{};
+	shadowSampler.Filter = D3D12_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
+	shadowSampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	shadowSampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	shadowSampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
+	shadowSampler.ComparisonFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	shadowSampler.ShaderRegister = 1;
+	shadowSampler.RegisterSpace = 0;
+	shadowSampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
 	// Descriptor ranges:
 	//  - t0..t3 : GBuffer textures (Albedo, Normal, WorldPos, Material)
 	//  - t4     : Lights StructuredBuffer
@@ -1578,39 +1588,54 @@ void PSOManager::CreateLightingPathSignature()
 	descriptorRangesForLight[0].RegisterSpace = 0;
 	descriptorRangesForLight[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	// RootParameter 作成
-	D3D12_ROOT_PARAMETER rootParameters[4] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForShadow[1] = {};
+	// range 1: Shadow SRV (t5)
+	descriptorRangesForShadow[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForShadow[0].NumDescriptors = 1;            // t5
+	descriptorRangesForShadow[0].BaseShaderRegister = 5;        // t5
+	descriptorRangesForShadow[0].RegisterSpace = 0;
+	descriptorRangesForShadow[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	// [0] DescriptorTable (GBuffer)
+	D3D12_ROOT_PARAMETER rootParameters[6] = {};
+	// 0 GBuffer
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[0].DescriptorTable.NumDescriptorRanges = _countof(descriptorRanges);
+	rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
 	rootParameters[0].DescriptorTable.pDescriptorRanges = descriptorRanges;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	// [1] Camera CBV (b2)
+	// 1 Camera
 	rootParameters[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[1].Descriptor.ShaderRegister = 2; // b2
-	rootParameters[1].Descriptor.RegisterSpace = 0;
+	rootParameters[1].Descriptor.ShaderRegister = 2;
 	rootParameters[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	// [2] LightCount CBV (b3)
+	// 2 LightCount
 	rootParameters[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[2].Descriptor.ShaderRegister = 3; // b3
-	rootParameters[2].Descriptor.RegisterSpace = 0;
+	rootParameters[2].Descriptor.ShaderRegister = 3;
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-
-	// [4] DescriptorTable (Lights)
+	// 3 Lights
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangesForLight);
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = 1;
 	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRangesForLight;
 	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// 4 ShadowMap
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[4].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[4].DescriptorTable.pDescriptorRanges = descriptorRangesForShadow;
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// 5 LightMatrix
+	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[5].Descriptor.ShaderRegister = 4;
+	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
-	// Root Signature Desc
+	D3D12_STATIC_SAMPLER_DESC samplers[2] =
+	{
+		samplerDesc,
+		shadowSampler
+	};
+
 	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
 	rootSignatureDesc.pParameters = rootParameters;
 	rootSignatureDesc.NumParameters = _countof(rootParameters);
-	rootSignatureDesc.pStaticSamplers = &samplerDesc;
-	rootSignatureDesc.NumStaticSamplers = 1;
+	rootSignatureDesc.pStaticSamplers = samplers;
+	rootSignatureDesc.NumStaticSamplers = _countof(samplers);
 	rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
 
 	// シリアライズしてバイナリにする
@@ -1942,11 +1967,11 @@ void PSOManager::CreateCSMPSO()
 	// -------------------------
 	D3D12_RASTERIZER_DESC rasterizerDesc{};
 	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
-	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_FRONT;
 	rasterizerDesc.FrontCounterClockwise = FALSE;
 	rasterizerDesc.DepthBias = 1000;
 	rasterizerDesc.DepthBiasClamp = 0.0f;
-	rasterizerDesc.SlopeScaledDepthBias = 1.0f;
+	rasterizerDesc.SlopeScaledDepthBias = 1.5f;
 	rasterizerDesc.DepthClipEnable = TRUE;
 
 	// -------------------------
@@ -1955,7 +1980,7 @@ void PSOManager::CreateCSMPSO()
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
 	depthStencilDesc.DepthEnable = TRUE;
 	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
+	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
 	depthStencilDesc.StencilEnable = FALSE;
 
 	// -------------------------
