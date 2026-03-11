@@ -21,7 +21,7 @@ public:
 	bool isFinished() const { return isFinish_; }
 private:
 
-	std::vector<std::unique_ptr<Sprite>> scoreNums_;
+	std::vector<Sprite*> scoreNums_;
 	
 	bool isStart_ = false;
 	bool isFinish_ = false;

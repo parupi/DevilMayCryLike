@@ -4,10 +4,7 @@
 #include <cassert>
 #include <cstring>
 #include <3d/SkySystem/SkySystem.h>
-#include <base/TextureManager.h>
-#ifdef _DEBUG
-#include <imgui.h>
-#endif // IMGUI
+#include "Graphics/Resource/TextureManager.h"
 
 InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveType type, const std::string& texturePath)
 {
@@ -26,7 +23,7 @@ void InstancingRenderer::CreateInstanceBuffer()
 {
     auto* dxManager = RendererManager::GetInstance()->GetDxManager();
     size_t bufferSize = sizeof(InstanceData) * 1024; // 1024 instance max
-    dxManager->CreateBufferResource(bufferSize, instanceBuffer_);
+    instanceBuffer_ = dxManager->GetResourceManager()->CreateUploadResource(bufferSize);
    
     // CreateBufferResource が HRESULT 返さないなら、instanceBuffer_ の有無を確認
     if (!instanceBuffer_) {
@@ -68,6 +65,14 @@ void InstancingRenderer::Draw()
     auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
     // インスタンシング描画
     commandList->DrawInstanced(6, static_cast<UINT>(instances_.size()), 0, 0);
+}
+
+void InstancingRenderer::DrawGBuffer()
+{
+}
+
+void InstancingRenderer::DrawShadow()
+{
 }
 
 #ifdef _DEBUG

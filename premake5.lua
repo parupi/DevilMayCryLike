@@ -1,5 +1,5 @@
-workspace "GuchisEngin"
-   startproject "GuchisEngin"
+workspace "GuchisEngine"
+   startproject "GuchisEngine"
    configurations { "Debug", "Release" }
    platforms { "x64" }
 
@@ -13,7 +13,7 @@ externalproject "DirectXTex"
    kind "StaticLib"
    language "C++"
 
-project "GuchisEngin"
+project "GuchisEngine"
    kind "WindowedApp"
    language "C++"
    cppdialect "C++20"

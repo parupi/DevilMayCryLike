@@ -7,7 +7,7 @@
 #include <math/Vector4.h>
 #include "3d/Object/Model/Model.h"
 #include "3d/Object/Renderer/PrimitiveRenderer.h"
-#include "base/Particle/ParticleStruct.h"
+#include "base/Particle/InstanceData.h"
 
 class InstancingRenderer : public BaseRenderer
 {
@@ -16,6 +16,10 @@ public:
 
     void Update(WorldTransform* parentTransform) override;
     void Draw() override;
+    // GBufferに描画
+    void DrawGBuffer() override;
+
+    void DrawShadow() override;
 #ifdef _DEBUG
     void DebugGui(size_t index) override;
 #endif
@@ -31,6 +35,8 @@ private:
     std::vector<InstanceData> instances_;
     Microsoft::WRL::ComPtr<ID3D12Resource> instanceBuffer_;
     InstanceData* mappedInstanceData_ = nullptr;
+
+    uint32_t instanceHandle_ = 0;
 
     D3D12_VERTEX_BUFFER_VIEW vbView_;
 

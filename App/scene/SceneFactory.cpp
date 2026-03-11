@@ -22,7 +22,8 @@ BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
     }
     else if (sceneName == "Edit") {
         newScene = new EditScene();
-    } else if (sceneName == "SAMPLE") {
+    } 
+    else if (sceneName == "SAMPLE") {
         newScene = new SampleScene();
     }
 

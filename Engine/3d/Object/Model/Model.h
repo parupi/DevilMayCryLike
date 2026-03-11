@@ -34,6 +34,12 @@ public: // メンバ関数
 	void Update() override;
 	// 描画
 	void Draw() override;
+	// GBufferに描画
+	void DrawGBuffer() override;
+
+	void DrawShadow() override;
+
+	std::vector<Material*> GetMaterials() override;
 	// 
 	void Bind();
 

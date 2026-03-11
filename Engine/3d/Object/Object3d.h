@@ -11,6 +11,7 @@
 #include "3d/Camera/BaseCamera.h"
 #include <3d/Object/Renderer/BaseRenderer.h>
 #include <3d/Collider/BaseCollider.h>
+#include "ObjectData.h"
 class Object3dManager;
 class WorldTransform;
 
@@ -29,6 +30,8 @@ public: // メンバ関数
 	// 更新処理
 	virtual void Update(float deltaTime);
 	virtual void Draw();
+
+	void DrawShadow();
 
 	void ResetObject();
 
@@ -54,6 +57,7 @@ private: // メンバ変数
 	// どうやって描画するかの設定
 	struct DrawOption {
 		BlendMode blendMode = BlendMode::kNormal;
+		DrawPath drawPath = DrawPath::Deferred;
 	}drawOption_;
 	// 描画するかどうかの設定
 	bool isDraw = true;
@@ -68,7 +72,7 @@ public: // ゲッター // セッター //
 	// カメラ
 	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 
-	DrawOption GetOption() const { return drawOption_; }
+	DrawOption& GetOption() { return drawOption_; }
 
 	void SetIsDraw(bool flag) { isDraw = flag; }
 

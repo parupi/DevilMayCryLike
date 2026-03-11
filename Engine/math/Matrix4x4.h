@@ -76,3 +76,7 @@ void PrintOnImGui(const Matrix4x4& matrix, const char* label = "Matrix");
 Vector3 GetTranslation(const Matrix4x4& matrix);
 
 void DecomposeMatrix(const Matrix4x4& m, Vector3& outScale, Quaternion& outRot, Vector3& outTrans);
+
+Matrix4x4 CreateLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up);
+
+Matrix4x4 CreateOrthographic(float width, float height, float nearZ, float farZ);

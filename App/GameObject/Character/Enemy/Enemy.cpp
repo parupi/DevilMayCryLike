@@ -7,11 +7,9 @@
 #include <scene/Transition/TransitionManager.h>
 #include "BaseState/EnemyStateKnockBack.h"
 
-
 Enemy::Enemy(std::string objectName) : Object3d(objectName)
 {
 	Object3d::Initialize();
-
 
 }
 
@@ -28,12 +26,6 @@ void Enemy::Update(float deltaTime)
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
 	}
 
-	// カメラ合切り替え中とフェード中は動かさない
-	if (!TransitionManager::GetInstance()->IsFinished() || CameraManager::GetInstance()->IsTransition()) {
-		Object3d::Update(deltaTime);
-		return;
-	}
-
 	// 起動する前だったら動かない
 	if (!isActive_) {
 		return;
@@ -47,20 +39,20 @@ void Enemy::Update(float deltaTime)
 		return;
 	}
 
-	slashEmitter_->Update();
-	smokeEmitter_->Update();
+	//slashEmitter_->Update();
+	//smokeEmitter_->Update();
 
-	hitStop_->Update();
+	hitStop_->Update(deltaTime);
+	float dt = deltaTime * hitStop_->GetTimeScale();
+
 
 
 	if (currentState_) {
-		currentState_->Update(*this, deltaTime);
+		currentState_->Update(*this, dt);
 	}
 
-	if (!hitStop_->GetHitStopData().isActive) {
-		GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
-		velocity_ += acceleration_ * deltaTime;
-	}
+	GetWorldTransform()->GetTranslation() += velocity_ * dt;
+	velocity_ += acceleration_ * dt;
 
 	if (!player_) {
 		return;
@@ -84,7 +76,7 @@ void Enemy::Update(float deltaTime)
 	// 回転をセット
 	GetWorldTransform()->GetRotation() = rot;
 
-	Object3d::Update(deltaTime);
+	Object3d::Update(dt);
 
 	onGround_ = false;
 }

@@ -8,7 +8,7 @@
 #include <scene/Transition/SceneTransitionController.h>
 #include <GameObject/Camera/TitleCamera.h>
 #include <GameObject/UI/TitleUI/TitleUI.h>
-#include <base/Particle/ParticleEmitter.h>
+#include <base/Particle/ParticleManager.h>
 
 /// <summary>
 /// タイトルシーンを管理するクラス  

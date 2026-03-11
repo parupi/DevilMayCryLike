@@ -1,0 +1,71 @@
+{
+    "test": {
+        "BlendMode": 2,
+        "Count": 3,
+        "EmitAll": false,
+        "EmitPosition": [
+            0.0,
+            6.199999809265137,
+            0.0
+        ],
+        "FadeType": 1,
+        "Frequency": 0.6000000238418579,
+        "IsActive": true,
+        "IsBillboard": false,
+        "ShrinkStartRatio": 0.0,
+        "maxAlpha": 0.0,
+        "maxColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "maxLifeTime": 0.699999988079071,
+        "maxRotate": [
+            5.900000095367432,
+            4.900000095367432,
+            5.900000095367432
+        ],
+        "maxScale": [
+            1.0,
+            28.899999618530273,
+            1.0
+        ],
+        "maxTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "maxVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minAlpha": 0.0,
+        "minColor": [
+            1.0,
+            1.0,
+            1.0
+        ],
+        "minLifeTime": 0.4000000059604645,
+        "minRotate": [
+            -4.699999809265137,
+            -4.599999904632568,
+            -5.199999809265137
+        ],
+        "minScale": [
+            1.0,
+            16.200000762939453,
+            1.0
+        ],
+        "minTranslate": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}

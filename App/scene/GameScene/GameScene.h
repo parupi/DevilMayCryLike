@@ -68,7 +68,7 @@ public:
 
 	void SetSceneTime(float time) { sceneTime_ = time; }
 
-	Sprite* GetMuskSprite() { return musk_.get(); }
+	Sprite* GetMuskSprite() { return musk_; }
 	float GetMuskAlpha() const { return muskAlpha_; }
 	void SetMuskAlpha(float alpha) { muskAlpha_ = alpha; }
 
@@ -95,7 +95,7 @@ private:
 	std::unique_ptr<GameUI> gameUI_;
 
 	// マスクを掛けるためのスプライト
-	std::unique_ptr<Sprite> musk_ = nullptr;
+	Sprite* musk_ = nullptr;
 	float muskAlpha_ = 0.0f;
 
 	// メニューのスプライト

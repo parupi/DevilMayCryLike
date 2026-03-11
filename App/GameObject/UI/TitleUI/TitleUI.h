@@ -43,14 +43,14 @@ public:
 private:
 
 	// タイトルのUI群
-	std::unique_ptr<Sprite> titleWord_;
-	std::unique_ptr<Sprite> titleUnder_;
-	std::unique_ptr<Sprite> titleUp_;
+	Sprite* titleWord_;
+	Sprite* titleUnder_;
+	Sprite* titleUp_;
 
 	// セレクトのUI群
-	std::array<std::unique_ptr<Sprite>, 2> selectArrows_;
-	std::unique_ptr<Sprite> gameStart_;
-	std::unique_ptr<Sprite> selectMask_;
+	std::array<Sprite*, 2> selectArrows_;
+	Sprite* gameStart_;
+	Sprite* selectMask_;
 
 	bool isExit_ = false;
 	float exitTime_ = 0.5f;

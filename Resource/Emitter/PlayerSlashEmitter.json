@@ -1,0 +1,24 @@
+{
+    "EmitterName": "PlayerSlashEmitter",
+    "Frequency": 0.0,
+    "IsActive": false,
+    "Particles": [
+        {
+            "Count": 2,
+            "ParticleName": "PlayerSlashEffect",
+            "SpawnRate": 1.0
+        }
+    ],
+    "Transform": {
+        "Position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            1.0,
+            1.0,
+            1.0
+        ]
+    }
+}

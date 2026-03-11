@@ -2,7 +2,7 @@
 #ifdef _DEBUG
 
 #include "base/WindowManager.h"
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 #include <memory>
 #include <mutex>
 class ImGuiManager

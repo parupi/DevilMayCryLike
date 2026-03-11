@@ -2,6 +2,7 @@
     "AttackHighTime": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
+        "ButtonIndex": 0,
         "ControlPoint_0": [
             0.0,
             -1.159999966621399,
@@ -43,14 +44,18 @@
             1.7999999523162842
         ],
         "Damage": 0.0,
+        "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.17499999701976776,
         "HitStopTime": 0.17499999701976776,
+        "ImpulseForce": 2.0,
+        "IsAir": false,
         "KnockBackSpeed": [
             0.0,
             7.5,
             0.0
         ],
+        "LockOnFlag": false,
         "MoveSpeed": [
             0.0,
             12.0,
@@ -61,10 +66,18 @@
         "NextAttackIndex_0": -1,
         "NextAttackIndex_1": -1,
         "NextAttackIndex_2": -1,
+        "NextAttack_0": "",
+        "NextAttack_1": "",
+        "NextAttack_2": "",
         "PointCount": 8,
         "PostDelay": 0.10000000149011612,
         "Posture": 0,
         "PreDelay": 0.05000000074505806,
-        "TotalDuration": 0.44999998807907104
+        "ReactionType": 2,
+        "RootAttackFlag": false,
+        "StunTime": 0.20000000298023224,
+        "TorqueForce": 3.0,
+        "TotalDuration": 0.44999998807907104,
+        "UpwardRatio": 3.200000047683716
     }
 }

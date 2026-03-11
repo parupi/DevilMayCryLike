@@ -61,15 +61,14 @@ void HellkainaStateKnockBack::Update(Enemy& enemy, float deltaTime)
         return;
     }
 
-    if (enemy.GetOnGround()) {
+    if (enemy.GetOnGround() && deltaTime != 0) {
         OnLand(enemy);
     }
 }
 
 void HellkainaStateKnockBack::OnLand(Enemy& enemy)
 {
-    if (currentType_ == ReactionType::Launch ||
-        currentType_ == ReactionType::Knockback)
+    if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback)
     {
         velocity_ *= 0.3f;
         enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = { 0.0f, 0.0f, 0.0f };

@@ -1,36 +1,38 @@
 #pragma once
-#include <math/Vector3.h>
-#include <math/Vector4.h>
 #include <string>
-#include <base/DirectXManager.h>
+#include "LightStructs.h"
+
+enum class LightType {
+    Directional,
+    Point,
+    Spot,
+};
+
+class PrimitiveLineDrawer;
 
 class BaseLight {
 public:
-    BaseLight(const std::string& name);
-    virtual ~BaseLight();
+    BaseLight() = default;
+    virtual ~BaseLight() = default;
     // 初期化処理
-    virtual void Initialize(DirectXManager* dxManager);
+    virtual void Initialize() = 0;
     // 更新処理
     virtual void Update() = 0;
-    // リソースの生成
-    virtual void CreateLightResource() = 0;
-    // リソースの更新
-    virtual void UpdateLightResource() = 0;
-    // 構造体のサイズを取得
-    virtual size_t GetDataSize() const = 0;
-    // シリアライズする
-    virtual void SerializeTo(void* dest) const = 0;
+
+#ifdef _DEBUG
+    // エディター描画
+    virtual void DrawLightEditor() = 0;
+    // デバッグ描画
+    virtual void DrawDebug(PrimitiveLineDrawer* drawer) = 0;
+#endif // DEBUG
+
     // 名前を取得
     const std::string& GetName() const { return name_; }
-    // 変更があったかどうかを取得
-    bool IsDirty() const { return isDirty_; }
-    // 変更を記録
-    void MarkDirty() { isDirty_ = true; }
-    // 変更をなくす
-    void ClearDirty() { isDirty_ = false; }
+    // ライトの情報を取得
+    const LightData& GetLightData() const { return lightData_; }
 protected:
+    // ライトの名前
     std::string name_;
-    Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
-    DirectXManager* dxManager_ = nullptr;
-    bool isDirty_ = true; // 値が変更されたら true
+    // ライトの情報
+    LightData lightData_{};
 };

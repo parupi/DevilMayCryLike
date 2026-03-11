@@ -117,10 +117,6 @@ void PlayerStateAttack::Enter(Player& player)
 
 void PlayerStateAttack::Update(Player& player, float deltaTime)
 {
-	if (player.GetHitStop()->GetHitStopData().isActive) {
-		player.GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation() = player.GetHitStop()->GetHitStopData().translate;
-	}
-
 	stateTime_.current += deltaTime;
 
 	// 攻撃フェーズの更新処理
@@ -140,7 +136,7 @@ void PlayerStateAttack::Update(Player& player, float deltaTime)
 		UpdateRecovery(player);
 		break;
 	case AttackPhase::Cancel:
-		attackChangeTimer_.current += DeltaTime::GetDeltaTime();
+		attackChangeTimer_.current += deltaTime;
 
 		// 状態遷移
 		if (stateTime_.current >= attackData_.totalDuration) {
@@ -149,7 +145,6 @@ void PlayerStateAttack::Update(Player& player, float deltaTime)
 
 		break;
 	}
-
 }
 
 void PlayerStateAttack::Exit(Player& player)

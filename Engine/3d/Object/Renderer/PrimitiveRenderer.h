@@ -18,7 +18,10 @@ public:
 
     void Update(WorldTransform* parentTransform) override;
     void Draw() override;
+    // GBufferに描画
+    void DrawGBuffer() override;
 
+    void DrawShadow() override;
 #ifdef _DEBUG
     void DebugGui(size_t index) override;
 #endif

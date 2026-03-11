@@ -19,7 +19,7 @@ SmoothEffect::~SmoothEffect()
 	psoManager_ = nullptr;
 	// 生成したリソースの削除
 	effectData_ = nullptr;
-	effectResource_.Reset();
+	effectHandle_ = 0;
 }
 
 void SmoothEffect::Update()
@@ -39,17 +39,18 @@ void SmoothEffect::Draw()
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetOffScreenSignature());
 	dxManager_->GetCommandList()->SetGraphicsRootDescriptorTable(0, inputSrv_);
 
-	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, effectResource_->GetGPUVirtualAddress());
+	dxManager_->GetCommandList()->SetGraphicsRootConstantBufferView(1, dxManager_->GetResourceManager()->GetGPUVirtualAddress(effectHandle_));
 
 	dxManager_->GetCommandList()->DrawInstanced(3, 1, 0, 0);
 }
 
 void SmoothEffect::CreateEffectResource()
 {
+	auto* resourceManager = dxManager_->GetResourceManager();
 	// ヴィネット用のリソースを作る
-	dxManager_->CreateBufferResource(sizeof(SmoothEffectData), effectResource_);
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(SmoothEffectData), L"GaussianEffect");
 	// 書き込むためのアドレスを取得
-	effectResource_->Map(0, nullptr, reinterpret_cast<void**>(&effectData_));
+	effectData_ = reinterpret_cast<SmoothEffectData*>(resourceManager->Map(effectHandle_));
 	// 初期値を設定
 	effectData_->blurStrength = 1.0f;
 	effectData_->iterations = 1;

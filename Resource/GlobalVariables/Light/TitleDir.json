@@ -1,11 +1,17 @@
 {
     "TitleDir": {
+        "Color": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+        ],
         "Direction": [
             0.0,
             -1.0,
             0.0
         ],
         "Enabled": true,
-        "Intensity": 0.05000000074505806
+        "Intensity": 0.5
     }
 }

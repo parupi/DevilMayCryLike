@@ -4,7 +4,7 @@
 #pragma comment(lib,"dxcompiler.lib")
 #include "2d/Sprite.h"
 #include "2d/SpriteManager.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include "3d/Object/Object3d.h"
 #include "3d/Object/Object3dManager.h"
 #include "3d/Object/Model/Model.h"

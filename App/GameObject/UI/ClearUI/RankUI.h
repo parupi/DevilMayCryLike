@@ -16,7 +16,7 @@ public:
 	void Start();
 
 private:
-	std::unique_ptr<Sprite> rank_;
+	Sprite* rank_;
 
 	bool isStart_ = false;
 	float timer_ = 0.0f;

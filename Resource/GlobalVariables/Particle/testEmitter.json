@@ -1,0 +1,13 @@
+{
+    "testEmitter": {
+        "Count": 6,
+        "EmitAll": false,
+        "EmitPosition": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Frequency": 1.090000033378601,
+        "IsActive": true
+    }
+}

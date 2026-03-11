@@ -1,13 +1,19 @@
 {
     "TitlePoint": {
+        "Color": [
+            0.0,
+            0.0,
+            1.0,
+            1.0
+        ],
         "Decay": 1.0,
         "Enabled": true,
-        "Intensity": 1.0,
+        "Intensity": 20.0,
         "Position": [
             0.0,
-            0.0,
-            0.0
+            0.699999988079071,
+            -7.0
         ],
-        "Radius": 10.0
+        "Radius": 5.800000190734863
     }
 }

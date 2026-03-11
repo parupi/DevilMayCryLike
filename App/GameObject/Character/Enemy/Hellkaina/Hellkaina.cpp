@@ -12,6 +12,7 @@
 #include "State/HellkainaStateAttackA.h"
 #include "State/HellkainaStateAttackB.h"
 #include "State/HellkainaStateSideMove.h"
+#include "base/Particle/ParticleManager.h"
 
 Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 {
@@ -32,15 +33,15 @@ Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 
 	hp_ = 10.0f;
 
-	slashEmitter_ = std::make_unique<ParticleEmitter>();
-	slashEmitter_->Initialize(name_ + "slash");
-	slashEmitter_->SetParticle("test");
-	slashEmitter_->SetParent(GetWorldTransform());
+	//slashEmitter_ = std::make_unique<ParticleEmitter>();
+	//slashEmitter_->Initialize(name_ + "slash");
+	//slashEmitter_->SetParticle("test");
+	//slashEmitter_->SetParent(GetWorldTransform());
 
-	smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	smokeEmitter_->Initialize(name_ + "HitSmoke");
-	smokeEmitter_->SetParticle("hitSmoke");
-	smokeEmitter_->SetParent(GetWorldTransform());
+	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
+	//smokeEmitter_->Initialize(name_ + "HitSmoke");
+	//smokeEmitter_->SetParticle("hitSmoke");
+	//smokeEmitter_->SetParent(GetWorldTransform());
 }
 
 void Hellkaina::Initialize()
@@ -68,6 +69,14 @@ void Hellkaina::Initialize()
 	Object3dManager::GetInstance()->AddObject(std::move(weapon));
 
 	hitStop_ = std::make_unique<HitStop>();
+
+	ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
+	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	emitter_ = emitters.at(name_ + "HitEffect").get();
+	emitter_->SetParent(GetWorldTransform());
+	emitter_->AddParticle("EnemyDamageEffect");
+	emitter_->AddParticle("PlayerSlashEffect");
+	emitter_->SetActiveFlag(false);
 
 	Enemy::Initialize();
 }
@@ -101,6 +110,8 @@ void Hellkaina::OnCollisionEnter(BaseCollider* other)
 	Enemy::OnCollisionEnter(other);
 
 	if (other->category_ == CollisionCategory::PlayerWeapon) {
+		if (!player_->IsAttack()) return;
+		
 		if (currentState_ != states_["KnockBack"].get()) {
 			ChangeState("KnockBack");
 			hp_ -= player_->GetAttackData().damage;
@@ -113,7 +124,7 @@ void Hellkaina::OnCollisionEnter(BaseCollider* other)
 			velocity_.y = player_->GetAttackData().knockBackSpeed.y;
 		}
 		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-		slashEmitter_->Emit();
+		emitter_->Emit();
 	}
 }
 

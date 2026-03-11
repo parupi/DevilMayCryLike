@@ -42,11 +42,12 @@ void Object3dManager::Update()
 	}
 }
 
-void Object3dManager::DrawSet()
+void Object3dManager::DrawForward()
 {
 	for (auto& object : objects_) {
 		if (!object) continue;
-
+		// 描画方式がForwardでなければ次
+		if (object->GetOption().drawPath != DrawPath::Forward) continue;
 		// ブレンドモードが違っていたら新しくPSOを設定
 		if (blendMode_ != object->GetOption().blendMode) {
 			// ブレンドモードを最新にしておく
@@ -61,12 +62,32 @@ void Object3dManager::DrawSet()
 			CameraManager::GetInstance()->BindCameraToShader();
 		}
 
+		// 描画
 		object->Draw();
 	}
 
-
 	// 次回の為にNoneに戻しておく
 	blendMode_ = BlendMode::kNone;
+}
+
+void Object3dManager::DrawDeferred()
+{
+	// 全オブジェクトの描画
+	for (auto& object : objects_) {
+		// 描画方式がDeferredでなければ次
+		if (object->GetOption().drawPath != DrawPath::Deferred) continue;
+		object->Draw();
+	}
+}
+
+void Object3dManager::DrawShadow()
+{
+	// 全オブジェクトの描画
+	for (auto& object : objects_) {
+		// 描画方式がDeferredでなければ次
+		if (object->GetOption().drawPath != DrawPath::Deferred) continue;
+		object->DrawShadow();
+	}
 }
 
 void Object3dManager::DrawSetForAnimation()

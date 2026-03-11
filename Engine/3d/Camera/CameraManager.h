@@ -3,7 +3,7 @@
 #include <memory>
 #include "3d/Camera/BaseCamera.h"
 #include <mutex>
-#include "base/DirectXManager.h"
+#include "Graphics/Device/DirectXManager.h"
 
 class CameraManager
 {
@@ -66,7 +66,8 @@ private:
 
 	DirectXManager* dxManager_ = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
+	uint32_t cameraHandle_ = 0;
 
 	CameraForGPU* cameraData_ = nullptr;
 

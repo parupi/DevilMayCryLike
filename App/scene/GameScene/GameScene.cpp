@@ -1,5 +1,5 @@
 #include "GameScene.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include "base/Particle/ParticleManager.h"
 #include "debuger/ImGuiManager.h"
 #include "math/Quaternion.h"
@@ -60,6 +60,7 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("Cube");
 	ModelManager::GetInstance()->LoadModel("suzannu");
 	ModelManager::GetInstance()->LoadModel("Sword");
+ 	ModelManager::GetInstance()->LoadModel("spirit_knight");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("Terrain.png");
@@ -75,6 +76,7 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("UI/RBButton.png");
 	TextureManager::GetInstance()->LoadTexture("UI/SticDown.png");
 	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
+	TextureManager::GetInstance()->LoadTexture("circle.png");
 
 	// ステージの情報を読み込んで生成
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
@@ -85,12 +87,13 @@ void GameScene::Initialize()
 	ParticleManager::GetInstance()->CreateParticleGroup("hitSmoke", "hitSmoke.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("GameCircle", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("GameSmoke", "smoke.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect", "white.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("PlayerSlashEffect", "circle.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
-	// ============ライト=================//
-	lightManager_->CreateDirectionalLight("gameDir");
+	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 	player_->SetInput(inputContext_->GetPlayerInput());
@@ -98,8 +101,7 @@ void GameScene::Initialize()
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
 
-	musk_ = std::make_unique<Sprite>();
-	musk_->Initialize("white.png");
+	musk_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "menuMusk", "white.png");
 	musk_->SetSize({ 1280.0f, 720.0f });
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
 
@@ -111,6 +113,7 @@ void GameScene::Initialize()
 
 void GameScene::Finalize()
 {
+	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CollisionManager::GetInstance()->DeleteAllCollider();
 	RendererManager::GetInstance()->DeleteAllRenderer();
@@ -122,17 +125,11 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-	lightManager_->UpdateAllLight();
+	lightManager_->Update();
 	gameUI_->Update();
 
 	if (currentState_) {
 		currentState_->Update(*this);
-	}
-
-	if (currentState_ == states_["Menu"].get()) {
-		player_->SetMenu(true);
-	} else {
-		player_->SetMenu(false);
 	}
 
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
@@ -151,20 +148,18 @@ void GameScene::Update()
 
 void GameScene::Draw()
 {
-	// 全オブジェクトの描画
-	Object3dManager::GetInstance()->DrawSet();
 	// スプライトの描画前処理
-	SpriteManager::GetInstance()->DrawSet();
+	//SpriteManager::GetInstance()->DrawSet();
 	// プレイヤーのスプライト描画
 	if (player_) {
 		player_->DrawEffect();
 	}
 
-	gameUI_->Draw();
+	//gameUI_->Draw();
 
-	musk_->Draw();
+	//musk_->Draw();
 
-	menuUI_->Draw();
+	//menuUI_->Draw();
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance()->Draw();

@@ -21,8 +21,8 @@ public:
 	void Draw();
 
 private:
-	std::unique_ptr<Sprite> upperDivider_ = nullptr;
-	std::unique_ptr<Sprite> underDivider_ = nullptr;
+	Sprite* upperDivider_ = nullptr;
+	Sprite* underDivider_ = nullptr;
 
 	float alpha_;
 	DividerState state_ = DividerState::Normal;

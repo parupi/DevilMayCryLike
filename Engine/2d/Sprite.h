@@ -1,11 +1,11 @@
 #pragma once
-#include "SpriteManager.h"
-#include "base/TextureManager.h"
+#include "Graphics/Resource/TextureManager.h"
 #include "math/Vector2.h"
 #include "math/Vector3.h"
 #include "math/Vector4.h"
 #include "math/Matrix4x4.h"
 #include "math/function.h"
+#include "SpriteStruct.h"
 
 class SpriteManager;
 
@@ -16,14 +16,10 @@ class SpriteManager;
 /// </summary>
 class Sprite {
 public:
-	Sprite() = default;
+	Sprite(const std::string& spriteName, const std::string& textureFilePath, SpriteLayer spriteLayer = SpriteLayer::Game);
 	~Sprite() = default;
 
-	/// <summary>
-	/// スプライトの初期化を行う
-	/// </summary>
-	/// <param name="textureFilePath">使用するテクスチャファイルパス</param>
-	void Initialize(std::string textureFilePath);
+	friend class SpriteManager;
 
 	/// <summary>
 	/// スプライトの更新処理  
@@ -96,11 +92,10 @@ private:
 private:
 	SpriteManager* spriteManager_ = nullptr; ///< スプライト管理クラスへのポインタ
 
-	// GPUリソース
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;             ///< 頂点バッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;              ///< インデックスバッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;           ///< マテリアルバッファ
-	Microsoft::WRL::ComPtr<ID3D12Resource> transformationMatrixResource_ = nullptr;///< 行列バッファ
+	uint32_t vertexHandle_ = 0;
+	uint32_t indexHandle_ = 0;
+	uint32_t materialHandle_ = 0;
+	uint32_t transformHandle_ = 0;
 
 	// GPUリソース内データへのポインタ
 	VertexData* vertexData_ = nullptr;               ///< 頂点データ
@@ -140,7 +135,19 @@ private:
 	Vector2 textureLeftTop_ = { 0.0f, 0.0f }; ///< テクスチャ切り出し左上座標
 	Vector2 textureSize_ = { 100.0f, 100.0f }; ///< テクスチャ切り出しサイズ
 
+	std::string name_;
+
+	SpriteRenderState renderState_;
+	//SpriteLayer
+	SpriteLayer layer_;
 public:
+	// 名前を取得
+	std::string GetName() { return name_; }
+	// 描画の設定を取得
+	const SpriteRenderState& GetRenderState() { return renderState_; }
+	// レイヤーを取得
+	SpriteLayer GetLayer() const { return layer_; }
+
 	/// <summary>
 	/// スプライトの座標を取得する
 	/// </summary>

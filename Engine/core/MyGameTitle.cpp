@@ -19,23 +19,23 @@ void MyGameTitle::Initialize()
 	ImGuiManager::GetInstance()->Initialize(winManager.get(), dxManager.get());
 #endif // IMGUI
 	// 2Dテクスチャマネージャーの初期化
-	TextureManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
+	TextureManager::GetInstance()->Initialize(dxManager.get());
 	// 3Dテクスチャマネージャーの初期化
-	ModelManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
+	ModelManager::GetInstance()->Initialize(dxManager.get());
 	// パーティクルマネージャーの初期化
-	ParticleManager::GetInstance()->Initialize(dxManager.get(), srvManager.get(), psoManager.get());
+	ParticleManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 	// スプライト共通部の初期化
 	SpriteManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 	// オブジェクト共通部
 	Object3dManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+	OffScreenManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+	PrimitiveLineDrawer::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	SkySystem::GetInstance()->Initialize(dxManager.get(), psoManager.get(), srvManager.get());
+	SkySystem::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
-	RendererManager::GetInstance()->Initialize(dxManager.get(), srvManager.get());
+	RendererManager::GetInstance()->Initialize(dxManager.get(), psoManager.get());
 
 	CollisionManager::GetInstance()->Initialize();
 
@@ -48,6 +48,15 @@ void MyGameTitle::Initialize()
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->ChangeScene("TITLE");
+
+	renderPipeline_ = std::make_unique<RenderPipeline>();
+	renderPipeline_->Initialize(dxManager.get(), psoManager.get());
+
+	//csm = std::make_unique<CascadedShadowMap>();
+	//csm->Initialize(dxManager.get(), 1280);
+
+	//shadowPath = std::make_unique<ShadowPass>();
+	//shadowPath->Initialize(dxManager.get(), psoManager.get(), csm.get());
 
 	// インスタンス生成
 	GlobalVariables::GetInstance();
@@ -75,12 +84,15 @@ void MyGameTitle::Finalize()
 	ModelManager::GetInstance()->Finalize();            
 
 	// 基盤系
+
 	RendererManager::GetInstance()->Finalize();
 	CollisionManager::GetInstance()->Finalize();
 	CameraManager::GetInstance()->Finalize();
 	LightManager::GetInstance()->Finalize();
 	TextureManager::GetInstance()->Finalize();          
-	OffScreenManager::GetInstance()->Finalize();        
+	OffScreenManager::GetInstance()->Finalize(); 
+	// 各種描画パスの削除
+	renderPipeline_->Finalize();
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
@@ -98,8 +110,8 @@ void MyGameTitle::Update()
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
-
 	OffScreenManager::GetInstance()->Update();
+	//csm->Update();
 #ifdef _DEBUG
 	SceneManager::GetInstance()->DebugUpdate();
 	ImGuiManager::GetInstance()->End();
@@ -108,33 +120,7 @@ void MyGameTitle::Update()
 
 void MyGameTitle::Draw()
 {
-	OffScreenManager::GetInstance()->BeginDrawToPingPong();
-
-	srvManager->BeginDraw();
-	// プリミティブ描画前処理
-	PrimitiveLineDrawer::GetInstance()->BeginDraw();
-	// 天球やスカイボックスの描画
-	SkySystem::GetInstance()->Draw();
-	// シーン描画処理
-	SceneManager::GetInstance()->Draw();
-	// シーンの描画が終わった後にトランジションの描画
-	SceneTransitionController::GetInstance()->Draw();
-
-	OffScreenManager::GetInstance()->EndDrawToPingPong();
-
-	dxManager->BeginDraw();
-
-	OffScreenManager::GetInstance()->DrawPostEffect();
-
-	CollisionManager::GetInstance()->Draw();
-
-	PrimitiveLineDrawer::GetInstance()->EndDraw();
-
-#ifdef _DEBUG
-	ImGuiManager::GetInstance()->Draw();
-#endif // DEBUG
-
-	dxManager->EndDraw();
+	renderPipeline_->Execute(psoManager.get());
 }
 
 void MyGameTitle::RemoveObjects()

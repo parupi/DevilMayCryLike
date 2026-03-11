@@ -63,21 +63,16 @@ private:
 
 	LightManager* lightManager_ = LightManager::GetInstance();
 
-	std::unique_ptr<Object3d> object_;
+	Object3d* object_;
+	Object3d* object2_;
+
+	Sprite* sprite_;
 
 	DirectionalLight* dirLight_;
 
-	std::unique_ptr<ParticleEmitter> emitter_;
+	ParticleEmitter* emitter_;
 
-	ax::NodeEditor::EditorContext* context_;
-	std::vector<ImGuiNode> nodes = {
-		{ 1,  11,  12, "Attack A" },
-		{ 2,  21,  22, "Attack B" },
-		{ 3,  31,  32, "Attack C" },
-	};
 
-	std::vector<Link> links;
-	LinkID nextLinkId = 100;
 
 };
 

@@ -25,8 +25,8 @@ public:
 	void Draw();
 
 private:
-	std::unique_ptr<Sprite> toTitle_ = nullptr;
-	std::unique_ptr<Sprite> toContinue_ = nullptr;
+	Sprite* toTitle_ = nullptr;
+	Sprite* toContinue_ = nullptr;
 
 	ChoicesState state_ = ChoicesState::Normal;
 

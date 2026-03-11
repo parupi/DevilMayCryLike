@@ -2,27 +2,24 @@
 #include <imgui.h>
 #include <input/Input.h>
 #include <base/utility/DeltaTime.h>
+#include "2d/SpriteManager.h"
 
 void MenuController::Initialize()
 {
 	TextureManager::GetInstance()->LoadTexture("SelectArrow2.png");
 
-	rightArrow_ = std::make_unique<Sprite>();
-	rightArrow_->Initialize("SelectArrow2.png");
+	rightArrow_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "rightArrow", "SelectArrow2.png");
 	rightArrow_->SetSize({ -64.0f, 64.0f });
 	rightArrow_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
-	leftArrow_ = std::make_unique<Sprite>();
-	leftArrow_->Initialize("SelectArrow2.png");
+	leftArrow_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "leftArrow", "SelectArrow2.png");
 	leftArrow_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	leftArrow_->SetSize({ 64.0f, 64.0f });
 
 	rightArrow_->SetPosition({ 820.0f, 300.0f });
 	leftArrow_->SetPosition({ 450.0f, 300.0f });
 
-	musk_ = std::make_unique<Sprite>();
-	musk_->Initialize("white.png");
+	musk_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "rightArrow", "white.png");
 	musk_->SetSize({330.0f, 64.0f});
-
 }
 
 void MenuController::Enter()

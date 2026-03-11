@@ -45,35 +45,6 @@ void AttackPlayer::DrawImGui()
 
 	ImGui::Combo("Attack", &selectedAttackIndex_, names.data(), (int)names.size());
 
-	//if (!isPlaying_) {
-	//    if (ImGui::Button("Play")) {
-	//        Play();
-	//    }
-	//} else {
-	//    if (ImGui::Button("Stop")) {
-	//        Stop();
-	//    }
-	//}
-
-	//ImGui::Separator();
-
-	//if (currentAttack_) {
-	//    AttackData data = currentAttack_->GetAttackData();
-
-	//    ImGui::Text("Time: %.2f / %.2f", debugTime_, data.totalDuration);
-
-	//    float t = debugTime_ / data.totalDuration;
-	//    ImGui::ProgressBar(t, ImVec2(-1, 0));
-
-	//    ImGui::Text("Pre: %.2f  Active: %.2f  Post: %.2f",
-	//        data.preDelay,
-	//        data.attackDuration,
-	//        data.postDelay
-	//    );
-	//}
-
-	//ImGui::End();
-
 	AttackData data = currentAttack_ ? currentAttack_->GetAttackData() : AttackData{};
 
 	// 再生制御

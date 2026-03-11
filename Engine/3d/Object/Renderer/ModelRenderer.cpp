@@ -29,20 +29,37 @@ void ModelRenderer::Update(WorldTransform* parentTransform)
 
 void ModelRenderer::Draw()
 {
-	RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
-
+	//RendererManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
+	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 4);
 	// 環境マップバインド
 	int envMapIndex = SkySystem::GetInstance()->GetEnvironmentMapIndex();
 
 	if (envMapIndex >= 0) {
-		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(6, envMapIndex);
 	} else {
 		TextureManager::GetInstance()->LoadTexture("skybox_cube.dds");
 		envMapIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath("skybox_cube.dds");
-		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(7, envMapIndex);
+		RendererManager::GetInstance()->GetSrvManager()->SetGraphicsRootDescriptorTable(6, envMapIndex);
 	}
 
 	model_->Draw();
+}
+
+void ModelRenderer::DrawGBuffer()
+{
+	localTransform_->BindToShader(RendererManager::GetInstance()->GetDxManager()->GetCommandList(), 1);
+	model_->DrawGBuffer(); // Model側へ委譲
+}
+
+void ModelRenderer::DrawShadow()
+{
+	auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
+
+	localTransform_->BindToShader(commandList, 0);
+
+	model_->DrawShadow();
+
+	commandList->DrawInstanced(3, 1, 0, 0);
 }
 
 void ModelRenderer::SetModel(const std::string& filePath)

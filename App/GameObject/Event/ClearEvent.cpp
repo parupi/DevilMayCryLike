@@ -49,12 +49,6 @@ void ClearEvent::Execute()
 
 	CameraManager::GetInstance()->SetActiveCamera("ClearCamera");
 
-	if (!player_) {
-		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-		if (!player_) return;
-	}
-	player_->Clear();
-
 	// ここでは即遷移せず「遷移予約」だけする
 	requested_ = true;
 	waitTime_ = 0.0f;

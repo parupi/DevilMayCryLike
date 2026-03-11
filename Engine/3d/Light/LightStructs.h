@@ -1,37 +1,22 @@
 #pragma once
-#pragma warning(push)
-#pragma warning(disable: 4324) 
 #include <math/Vector4.h>
 #include <math/Vector3.h>
 
+struct LightData
+{
+	uint32_t type;              // 0:Directional 1:Point 2:Spot
+	uint32_t enabled;
+	float intensity;
+	float decay;           // point/spot only
 
-struct  alignas(16) DirectionalLightData {
-	Vector4 color;		//!< ライトの色
-	Vector3 direction;	//!< ライトの向き
-	float intensity;	//!< 輝度
-	int enabled;
-};
+	Vector4 color;
 
-// pointLight
-struct alignas(16) PointLightData {
-	Vector4 color; //!<ライトの色
-	Vector3 position; //!<ライトの位置
-	float intensity; //!< 輝度
-	float radius; //!< ライトの届く最大距離
-	float decay; //!< 減衰率
-	int enabled;
-	float padding[2];
-};
+	Vector3 position;      // point/spot
+	float radius;          // point only
 
-// spotLight
-struct  alignas(16) SpotLightData {
-	Vector4 color; //!< ライトの色
-	Vector3 position; //!< ライトの位置
-	float intensity; //!< 輝度
-	Vector3 direction; //!< ライトの向き
-	float distance; //!< ライトの届く最大距離
-	float decay; //!< 減衰率
-	float cosAngle; //!< スポットライトの余弦
-	int enabled;
-	float padding[2];
+	Vector3 direction;     // directional/spot
+	float cosAngle;        // spot only
+
+	float distance;        // spot only
+	float padding[3];
 };

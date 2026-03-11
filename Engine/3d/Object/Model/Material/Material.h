@@ -1,7 +1,7 @@
 #pragma once
 #include <3d/Object/Model/ModelStructs.h>
-#include "base/DirectXManager.h"
-#include "base/SrvManager.h"
+#include "Graphics/Device/DirectXManager.h"
+#include "Graphics/Resource/SrvManager.h"
 
 class SrvManager;
 class DirectXManager;
@@ -10,14 +10,16 @@ class Material
 {
 public:
 	Material();
-	~Material() = default;
+	~Material();
 	// 初期化
 	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData);
 	// 更新処理
 	void Update();
 
 	// 描画
-	void Bind();
+	void Bind(UINT RootParameterIndex);
+	// GBufferへの描画
+	void BindForGBuffer();
 
 #ifdef _DEBUG
 	void DebugGui(uint32_t index);
@@ -25,11 +27,17 @@ public:
 
 private:
 	void CreateMaterialResource();
+	void CreateGBufferMaterialResource();
 
 private:
-	Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
+	//Microsoft::WRL::ComPtr<ID3D12Resource> materialGBufferResource_ = nullptr;
+
+	uint32_t materialHandle_ = 0;
+	uint32_t materialGBufferHandle_ = 0;
 
 	MaterialForGPU* materialForGPU_ = nullptr;
+	GBufferMaterialParam* gBufferMaterialParam_ = nullptr;
 	MaterialData materialData_;
 
 	DirectXManager* directXManager_ = nullptr;

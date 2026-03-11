@@ -3,6 +3,7 @@
 #include <GameData/GameData.h>
 #include <string>
 #include <base/utility/DeltaTime.h>
+#include "2d/SpriteManager.h"
 
 void ScoreUI::Initialize()
 {
@@ -10,11 +11,10 @@ void ScoreUI::Initialize()
 	int32_t digits = std::to_string(std::abs(targetScore_)).size();
 
 	for (int32_t i = 0; i < digits; i++) {
-		std::unique_ptr<Sprite> num = std::make_unique<Sprite>();
-		num->Initialize("Numbers.png");
+		Sprite* num = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "num" + std::to_string(i), "Numbers.png");
 		num->SetSize({ 64.0f, 64.0f });
 		num->SetUVSize({ 0.1f, 1.0f });
-		scoreNums_.push_back(std::move(num));
+		scoreNums_.push_back(num);
 	}
 
 	countSpeed_ = targetScore_* 0.5;
