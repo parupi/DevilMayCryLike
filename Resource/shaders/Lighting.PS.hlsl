@@ -112,11 +112,14 @@ float4 main(PSInput input) : SV_Target
     }
 
     float shadow = CalcShadow(P);
+    //float shadow = (depth <= gShadow.Sample(sampler_Linear, uv)) ? 1.0 : 0.0;
 
     finalColor *= shadow;
-   
-    //float depth = gShadow.Sample(sampler_Linear, input.uv).r;
-    //return float4(depth, 0, 0, 1);
     
+  
+    
+    //float d = gShadow.Sample(sampler_Linear, uv);
+    //return float4(d, d, d, 1);
+
     return float4(finalColor, 1.0f);
 }

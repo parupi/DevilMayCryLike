@@ -73,18 +73,17 @@ float CalcShadow(float3 worldPos)
 
     shadowPos.xyz /= shadowPos.w;
 
-    float2 uv = shadowPos.xy * 0.5 + 0.5;
-    float depth = shadowPos.z;
+    float2 uv;
+    uv.x = shadowPos.x * 0.5 + 0.5;
+    uv.y = -shadowPos.y * 0.5 + 0.5;
+
+    float depth = shadowPos.z - 0.001f;
 
     // 範囲外チェック
-    if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1)
+    if (uv.x < 0 || uv.x > 1 || uv.y < 0 || uv.y > 1 || depth < 0 || depth > 1)
         return 1.0;
 
-    float shadow = gShadow.SampleCmpLevelZero(
-        sampler_Shadow,
-        uv,
-        depth
-    );
-
+    //float shadow = gShadow.SampleCmpLevelZero(sampler_Shadow, uv, depth);
+    float shadow = (depth <= gShadow.Sample(sampler_Linear, uv)) ? 1.0 : 0.0;
     return shadow;
 }

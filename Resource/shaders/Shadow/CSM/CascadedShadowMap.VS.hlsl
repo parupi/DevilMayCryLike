@@ -22,8 +22,17 @@ VSOutput main(VSInput input)
 {
     VSOutput o;
 
-    float4 worldPos = mul(float4(input.pos, 1), world);
-    o.pos = mul(worldPos, lightViewProj);
+    float4 worldPos = mul(world, float4(input.pos, 1));
+    o.pos = mul(lightViewProj, worldPos);
 
     return o;
+    
+    //VSOutput o;
+
+    //float4 worldPos = mul(float4(input.pos, 1), world);
+
+    //o.pos = worldPos; // LightVPを無視
+    //o.pos = float4(input.pos.xy, 0, 1);
+
+    //return o;
 }

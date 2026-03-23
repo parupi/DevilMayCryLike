@@ -77,6 +77,8 @@ void CascadedShadowMap::BeginCascade(uint32_t index)
 
 	auto dsv = dxManager_->GetDsvManager()->GetDsvHandle(dsvIndices_[index]);
 
+	ctx->GetCommandList()->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
 	ctx->SetRenderTargets(nullptr, 0, &dsv);
 }
 
@@ -94,7 +96,7 @@ void CascadedShadowMap::BindSrv()
 	auto* cmd = dxManager_->GetCommandContext()->GetCommandList();
 	auto* srvManager = dxManager_->GetSrvManager();
 
-	cmd->SetGraphicsRootDescriptorTable(4, srvManager->GetGPUDescriptorHandle(srvIndices_[2]));
+	cmd->SetGraphicsRootDescriptorTable(4, srvManager->GetGPUDescriptorHandle(srvIndices_[0]));
 }
 
 void CascadedShadowMap::CalculateCascadeSplits()
@@ -105,6 +107,16 @@ void CascadedShadowMap::CalculateCascadeSplits()
 	cascades_[0].splitDepth = nearZ + 10.0f;
 	cascades_[1].splitDepth = nearZ + 30.0f;
 	cascades_[2].splitDepth = farZ;
+
+	//float farZ = camera_->GetFarClip();
+
+	//cascades_[0].splitDepth = farZ;
+
+	//// 他は無視
+	//for (uint32_t i = 1; i < kCascadeCount; ++i)
+	//{
+	//	cascades_[i].splitDepth = farZ;
+	//}
 }
 
 void CascadedShadowMap::CalculateLightMatrices()
@@ -136,7 +148,10 @@ void CascadedShadowMap::CalculateLightMatrices()
 		// World → LightView
 		Vector3 lightDir = Normalize(lights_[0].direction);
 
-		Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * 100.0f, center, { 0.0f, 1.0f, 0.0f });
+		//Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * 100.0f, center, { 0.0f, 1.0f, 0.0f });
+
+		float distance = 200.0f;
+		Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * distance, center, { 0,1,0 });
 
 		Vector3 frustumLight[8]{};
 		for (int j = 0; j < 8; ++j) {
@@ -150,12 +165,59 @@ void CascadedShadowMap::CalculateLightMatrices()
 			max = Max(max, frustumLight[j]);
 		}
 
-		Matrix4x4 lightProj = CreateOrthographic(max.x - min.x, max.y - min.y, min.z, max.z);
+		//Matrix4x4 lightProj = CreateOrthographic(max.x - min.x, max.y - min.y, 0.0f, max.z - min.z);
 
-		cascades_[i].lightViewProj = lightView * lightProj;
+		float width = max.x - min.x;
+		float height = max.y - min.y;
+
+		//float centerX = (max.x + min.x) * 0.5f;
+		//float centerY = (max.y + min.y) * 0.5f;
+
+		//Matrix4x4 lightProj = CreateOrthographic(width, height, 0.0f, max.z - min.z);
+
+		//// 中心補正
+		//Matrix4x4 offset = CreateTranslationMatrix(-centerX, -centerY, -min.z);
+		//
+		//cascades_[i].lightViewProj = lightProj * lightView;
+
+		//cascades_[i].lightViewProj = lightProj * offset * lightView;
+
+		float nearZ = min.z;
+		float farZ = max.z;
+
+		Matrix4x4 lightProj = CreateOrthographic(width, height, nearZ, farZ);
+
+		cascades_[i].lightViewProj = lightProj * lightView;
 
 		prevSplit = split;
 	}
+
+	//Vector3 lightDir = Normalize(lights_[0].direction);
+
+	//Vector3 center = { 0,0,0 };
+
+	//float distance = 100.0f;
+
+	//Matrix4x4 lightView = CreateLookAtMatrix(
+	//	center - lightDir * distance,
+	//	center,
+	//	{ 0,1,0 }
+	//);
+
+	//float width = 200.0f;
+	//float height = 200.0f;
+
+	//float nearZ = 0.1f;
+	//float farZ = 300.0f;
+
+	//Matrix4x4 lightProj = CreateOrthographic(width, height, nearZ, farZ);
+
+	//Matrix4x4 lightVP = lightProj * lightView;
+
+	//for (uint32_t i = 0; i < kCascadeCount; ++i)
+	//{
+	//	cascades_[i].lightViewProj = lightVP;
+	//}
 }
 
 void CascadedShadowMap::GetFrustumCornersViewSpace(float fovY, float aspect, float nearZ, float farZ, Vector3 outCorners[8])
@@ -185,6 +247,8 @@ void CascadedShadowMap::CreateDSV()
 	for (uint32_t i = 0; i < kCascadeCount; ++i)
 	{
 		GpuResourceFactory::TextureDesc desc{};
+		desc.width = shadowMapSize_;
+		desc.height = shadowMapSize_;
 		desc.format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.usage = GpuResourceFactory::Usage::DepthStencil;
 
