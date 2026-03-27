@@ -98,6 +98,8 @@ private:
 	Sprite* musk_ = nullptr;
 	float muskAlpha_ = 0.0f;
 
+	Sprite* deathText_ = nullptr;
+
 	// メニューのスプライト
 	std::unique_ptr<MenuUI> menuUI_ = nullptr;
 

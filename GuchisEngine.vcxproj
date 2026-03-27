@@ -150,6 +150,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
+    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
     <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
     <ClInclude Include="App\GameObject\Event\ClearEvent.h" />
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
@@ -298,7 +299,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
+    <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
+    <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -336,6 +338,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
+    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
@@ -463,7 +466,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
+    <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
+    <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

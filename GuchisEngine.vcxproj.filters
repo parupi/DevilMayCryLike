@@ -336,6 +336,9 @@
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
@@ -780,7 +783,8 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
+    <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
+    <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -886,6 +890,9 @@
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
@@ -1270,6 +1277,7 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
+    <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
+    <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
   </ItemGroup>
 </Project>

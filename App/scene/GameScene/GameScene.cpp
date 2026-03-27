@@ -60,7 +60,7 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("Cube");
 	ModelManager::GetInstance()->LoadModel("suzannu");
 	ModelManager::GetInstance()->LoadModel("Sword");
- 	ModelManager::GetInstance()->LoadModel("spirit_knight");
+	ModelManager::GetInstance()->LoadModel("spirit_knight");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("Terrain.png");
@@ -108,7 +108,9 @@ void GameScene::Initialize()
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
 
-
+	deathText_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "DeathText", "DeathText.png");
+	deathText_->SetAnchorPoint({0.5f, 0.5f});
+	deathText_->SetPosition({ 640.0f, 120.0f });
 }
 
 void GameScene::Finalize()
@@ -134,6 +136,8 @@ void GameScene::Update()
 
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
 	musk_->Update();
+
+	deathText_->Update();
 
 	menuUI_->Update();
 
