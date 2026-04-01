@@ -65,7 +65,7 @@ Vector2 BaseCamera::WorldToScreen(const Vector3& worldPos, int screenWidth, int 
 // カメラの前方向を取得
 Vector3 BaseCamera::GetForward() const {
 	Matrix4x4 rotMat = MakeRotateXYZMatrix(transform_.rotate);
-	// 第3列がZ方向（前方向） ※左手系Z+前提
+	// 第3列がZ方向（前方向)
 	return Normalize(Vector3{
 		rotMat.m[2][0],
 		rotMat.m[2][1],

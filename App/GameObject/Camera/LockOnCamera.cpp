@@ -8,6 +8,12 @@ LockOnCamera::LockOnCamera(std::string cameraName) : BaseCamera(cameraName)
 
 }
 
+void LockOnCamera::Initialize(Player* player, LockOnSystem* lockOn)
+{
+    player_ = player;
+    lockOn_ = lockOn;
+}
+
 void LockOnCamera::Update()
 {
     if (!player_) {
@@ -22,11 +28,11 @@ void LockOnCamera::Update()
 
     Vector3 lookTarget = playerPos;
 
-    Vector3 lockOnPos = player_->GetLockOnPos();
-    if (lockOnPos.x == 0.0f && lockOnPos.y == 0.0f && lockOnPos.z == 0.0f) {
-        CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
-        return;
-    }
+    Vector3 lockOnPos = lockOn_->GetCurrentTarget()->GetWorldPosition();
+    //if (lockOnPos.x == 0.0f && lockOnPos.y == 0.0f && lockOnPos.z == 0.0f) {
+    //    CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
+    //    return;
+    //}
 
     // プレイヤー → ロックオン対象のベクトル
     Vector3 toEnemy = lockOnPos - playerPos;

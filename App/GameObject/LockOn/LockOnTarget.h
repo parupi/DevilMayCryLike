@@ -2,13 +2,14 @@
 #include <math/Vector3.h>
 
 class LockOnSystem;
+class Object3d;
 
 class LockOnTarget
 {
 public:
-	// ‰Šú‰»
-	void Initialize(LockOnSystem* system);
-	// I—¹
+	// åˆæœŸåŒ–
+	void Initialize(LockOnSystem* system, Object3d* owner);
+	// çµ‚äº†
 	void Finalize();
 
 	Vector3 GetWorldPosition() const;
@@ -16,5 +17,6 @@ public:
 
 private:
 	LockOnSystem* system_ = nullptr;
+	Object3d* owner_ = nullptr;
 };
 

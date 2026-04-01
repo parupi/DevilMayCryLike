@@ -112,14 +112,14 @@ void Player::Update(float deltaTime)
 	// 毎フレーム切っておく
 	onGround_ = false;
 
-	if (isLockOn_) {
+	if (lockOn_->IsLockOn()) {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	} else {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	}
 
-	if (lockOnEnemy_) {
-		reticle_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
+	if (lockOn_->IsLockOn()) {
+		reticle_->SetPosition(CameraManager::GetInstance()->GetCurrentCamera()->WorldToScreen(lockOn_->GetCurrentTarget()->GetWorldPosition(), 1280, 720));
 		reticle_->Update();
 	}
 }
@@ -218,7 +218,7 @@ void Player::Move()
 		velocity_.y = velocityY;
 
 		// ロックオンしていなければプレイヤーの向きも更新
-		if (!isLockOn_) {
+		if (!lockOn_->IsLockOn()) {
 			if (Length(moveDir) > 0.001f) {
 				moveDir.x *= -1.0f;
 				Quaternion lookRot = LookRotation(moveDir);
@@ -231,61 +231,18 @@ void Player::Move()
 
 void Player::LockOn()
 {
-	enemies_.clear();
-	std::vector<Object3d*> objects;
-	objects = Object3dManager::GetInstance()->GetAllObject();
-	for (auto& object : objects) {
-		if (!object->name_.find("HellKaina")) {
-			enemies_.push_back(static_cast<Enemy*>(object));
-		}
-	}
+	if (lockOn_->IsLockOn()) {
+		auto* target = lockOn_->GetCurrentTarget();
 
-	if (input->TriggerButton(PadNumber::ButtonR) || input->TriggerKey(DIK_P)) {
-		isLockOn_ = true;
-		// 敵を設定
-		float lowDistance = 300.0f;
-		for (auto& enemy : enemies_) {
+		Vector3 toTarget = target->GetWorldPosition() - GetWorldTransform()->GetTranslation();
 
-			float length = Length(enemy->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
-			if (length < lowDistance) {
-				lowDistance = length;
-				lockOnEnemy_ = enemy;
-			}
-		}
-	}
+		// ターゲット方向に向く
+		Vector3 direction = Normalize(toTarget);
+		direction.x *= -1.0f;
+		Quaternion lookRot = LookRotation(direction);
 
-	if (!input->PushButton(PadNumber::ButtonR) && !input->PushKey(DIK_P)) {
-		isLockOn_ = false;
+		GetWorldTransform()->GetRotation() = lookRot;
 	}
-
-	if (isLockOn_) {
-		if (lockOnEnemy_->IsAlive()) {
-			Vector3 direction = Normalize(lockOnEnemy_->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
-			if (Length(direction) > 0.001f) {
-				direction.x *= -1.0f;
-				Quaternion lookRot = LookRotation(direction);
-
-				GetWorldTransform()->GetRotation() = lookRot;
-			}
-		} else {
-			isLockOn_ = false;
-			lockOnEnemy_ = nullptr;
-		}
-	}
-	if (isLockOn_) {
-		if (GetLockOnPos().x == 0.0f && GetLockOnPos().y == 0.0f && GetLockOnPos().z == 0.0f) {
-			isLockOn_ = false;
-			lockOnEnemy_ = nullptr;
-		}
-	}
-}
-
-const Vector3& Player::GetLockOnPos()
-{
-	if (lockOnEnemy_) {
-		return lockOnEnemy_->GetWorldTransform()->GetTranslation();
-	}
-	return {0.0f, 0.0f, 0.0f};
 }
 
 AttackInputState Player::GetAttackInputState() const
@@ -308,7 +265,7 @@ AttackInputState Player::GetAttackInputState() const
 	else if (lx < -threshold) state.dir = StickDir::Left;
 	else                      state.dir = StickDir::Neutral;
 
-	state.isLockOn = isLockOn_;
+	state.isLockOn = lockOn_->IsLockOn();
 
 	return state;
 }

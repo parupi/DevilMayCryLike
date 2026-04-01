@@ -18,7 +18,7 @@ class Enemy : public Object3d
 {
 public:
     Enemy(std::string objectName);
-    virtual ~Enemy() override = default;
+    virtual ~Enemy() override;
 
     /// <summary>
     /// 敵の初期化処理  
@@ -164,6 +164,8 @@ public:
 
     void SetIsAttack(bool flag) { isAttack_ = flag; }
 
+    // ロックオン機能のセット
+    void SetupLockOn(LockOnSystem* lockOnSystem);
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_; ///< ステート名と対応するステートオブジェクト
     EnemyStateBase* currentState_ = nullptr; ///< 現在のステート

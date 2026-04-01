@@ -301,6 +301,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
+    <ClInclude Include="App\Input\LockOnInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -468,6 +469,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
+    <ClCompile Include="App\Input\LockOnInput.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

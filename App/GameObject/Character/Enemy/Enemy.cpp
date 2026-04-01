@@ -13,6 +13,11 @@ Enemy::Enemy(std::string objectName) : Object3d(objectName)
 
 }
 
+Enemy::~Enemy()
+{
+	lockOnTarget_.Finalize();
+}
+
 void Enemy::Initialize()
 {
 	currentState_ = states_["Air"].get();
@@ -246,3 +251,9 @@ void Enemy::HitDamage()
 	// TODO : 敵ごとにノックバックステートを用意する
 	ChangeState("KnockBack", &damageInfo_);
 }
+
+void Enemy::SetupLockOn(LockOnSystem* lockOnSystem)
+{
+	lockOnTarget_.Initialize(lockOnSystem, this);
+}
+

@@ -22,6 +22,7 @@
 #include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/Effect/HitStopComponent.h"
+#include "GameObject/LockOn/LockOnSystem.h"
 
 class PlayerInput;
 
@@ -129,14 +130,9 @@ public:
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; } ///< 攻撃データを設定
 
 	/// <summary>
-	/// ロックオン中の敵のワールド座標を取得する。
-	/// </summary>
-	const Vector3& GetLockOnPos();
-
-	/// <summary>
 	/// 現在ロックオンしているかどうかを取得する。
 	/// </summary>
-	bool IsLockOn() const { return isLockOn_; }
+	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
 	// 攻撃派生UI
 	AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
@@ -147,6 +143,7 @@ public:
 	AttackInputState GetAttackInputState() const;
 
 	void SetInput(PlayerInput* input) { input_ = input; }
+	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
@@ -160,6 +157,8 @@ private:
 
 	PlayerInput* input_ = nullptr;
 
+	LockOnSystem* lockOn_ = nullptr;
+
 	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
 	Input* input = Input::GetInstance(); ///< 入力管理クラス
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
@@ -171,15 +170,11 @@ private:
 
 	std::unique_ptr<HitStop> hitStop_;
 
-	std::vector<Enemy*> enemies_; ///< 周囲の敵リスト
-	Enemy* lockOnEnemy_ = nullptr; ///< 現在ロックオンしている敵
-	bool isLockOn_ = false; ///< ロックオン状態フラグ
-
 	std::unique_ptr<PlayerWeapon> weapon_; ///< 武器クラス
 
 	bool onGround_ = false; ///< 接地判定フラグ
-
-	Sprite* reticle_; ///< テスト用スプライト（デバッグ表示など）
+	// ロックオン時のレティクル
+	Sprite* reticle_; 
 
 	std::unique_ptr<AttackBranchUI> attackBranchUI_;
 };
