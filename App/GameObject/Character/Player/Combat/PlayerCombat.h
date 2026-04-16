@@ -54,9 +54,9 @@ public:
 	// 攻撃を変更する TODO : FSMじゃなくてStateStackを使う
 	void ChangeState(const std::string& stateName);
 
-	std::string GetAttackStateNameByIndex(int32_t index) const;
+	//std::string GetAttackStateNameByIndex(int32_t index) const;
 
-	int32_t GetAttackStateCount() const;
+	//int32_t GetAttackStateCount() const;
 
 	bool IsAttacking() const { return !currentState_.empty(); }
 

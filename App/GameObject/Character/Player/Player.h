@@ -5,23 +5,21 @@
 #include <3d/Object/Object3dManager.h>
 #include <3d/WorldTransform.h>
 #include "3d/Object/Renderer/ModelRenderer.h"
-#include <input/Input.h>
 #include "State/PlayerStateBase.h"
 #include "PlayerWeapon.h"
 #include "math/Vector3.h"
 #include "math/function.h"
 #include <debuger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
-#include <GameObject/Character/Enemy/Enemy.h>
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
-#include "State/Attack/AttackBranchUI.h"
+//#include "State/Attack/AttackBranchUI.h"
 #include "StateMachine/PlayerStateMachine.h"
-#include "Movement/PlayerMovement.h"
-#include "Collision/PlayerCollider.h"
-#include "Collision/PlayerCollisionResolver.h"
+//#include "Movement/PlayerMovement.h"
+//#include "Collision/PlayerCollider.h"
+//#include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
-#include "GameObject/Effect/HitStopComponent.h"
+//#include "GameObject/Effect/HitStopComponent.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 
 class PlayerInput;
@@ -137,7 +135,7 @@ public:
 	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
 	// 攻撃派生UI
-	AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
+	//AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
 
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
@@ -148,12 +146,6 @@ private:
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
 	std::unique_ptr<PlayerCombat> combat_ = nullptr;
-
-	std::unique_ptr<PlayerMovement> movement_ = nullptr;
-
-	std::unique_ptr<PlayerCollider> collider_ = nullptr;
-	
-	std::unique_ptr<PlayerCollisionResolver> collisionResolver_ = nullptr;
 
 	PlayerInput* input_ = nullptr;
 
@@ -175,9 +167,6 @@ private:
 	bool onGround_ = false;
 	// ロックオン時のレティクル
 	Sprite* reticle_;
-
-	std::unique_ptr<AttackBranchUI> attackBranchUI_;
-
 	// 1フレームの移動距離を保持
 	Vector3 moveVector_;
 	// 調整用

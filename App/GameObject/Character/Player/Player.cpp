@@ -70,13 +70,6 @@ void Player::Initialize()
 	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
 
 	hitStop_ = std::make_unique<HitStop>();
-
-	// プレイヤーをカメラ側に向かせる
-	//GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
-
-	attackBranchUI_ = std::make_unique<AttackBranchUI>();
-	attackBranchUI_->Initialize();
-	attackBranchUI_->SetVisible(false);
 }
 
 void Player::Update(float deltaTime)
@@ -84,10 +77,10 @@ void Player::Update(float deltaTime)
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 
-	// Rキーを押したら死亡演出が流れる ← デバッグ用
-	if (Input::GetInstance()->TriggerKey(DIK_R)) {
-		ChangeState("Death");
-	}
+	//// Rキーを押したら死亡演出が流れる ← デバッグ用
+	//if (Input::GetInstance()->TriggerKey(DIK_R)) {
+	//	ChangeState("Death");
+	//}
 
 	scoreManager->Update();
 
@@ -109,7 +102,7 @@ void Player::Update(float deltaTime)
 
 	Object3d::Update(dt);
 
-	// 毎フレーム切っておく
+	// 接地フラグを毎フレーム切っておく
 	onGround_ = false;
 
 	if (lockOn_->IsLockOn()) {
@@ -129,9 +122,6 @@ void Player::Draw()
 	weapon_->Draw();
 	Object3d::Draw();
 
-
-	//SpriteManager::GetInstance()->DrawSet();
-	//attackBranchUI_->Draw();
 }
 
 void Player::DrawEffect()
@@ -182,7 +172,7 @@ void Player::Move(float deltaTime)
 	Vector3 inputDir = { 0.0f, 0.0f, 0.0f };
 
 	if (context.isMove) {
-		Vector3 inputDir = { context.move.x, 0.0f, context.move.y };
+		inputDir = { context.move.x, 0.0f, context.move.y };
 
 		if (Length(inputDir) > 0.01f) {
 			inputDir = Normalize(inputDir);

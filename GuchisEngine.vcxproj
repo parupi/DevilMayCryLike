@@ -130,15 +130,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateKnockBack.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h" />
-    <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollider.h" />
-    <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
-    <ClInclude Include="App\GameObject\Character\Player\Movement\PlayerMovement.h" />
     <ClInclude Include="App\GameObject\Character\Player\Player.h" />
     <ClInclude Include="App\GameObject\Character\Player\PlayerWeapon.h" />
-    <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.h" />
     <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackStructs.h" />
     <ClInclude Include="App\GameObject\Character\Player\State\Attack\PlayerStateAttack.h" />
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateAir.h" />
@@ -150,7 +146,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
-    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
     <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
     <ClInclude Include="App\GameObject\Event\ClearEvent.h" />
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
@@ -169,6 +164,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
+    <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="App\Input\InputContext.h" />
     <ClInclude Include="App\Input\LockOnInput.h" />
     <ClInclude Include="App\scene\ClearScene.h" />
@@ -182,7 +178,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
-    <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\2d\SpriteStruct.h" />
@@ -322,15 +317,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateKnockBack.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.cpp" />
-    <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollider.cpp" />
-    <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp" />
-    <ClCompile Include="App\GameObject\Character\Player\Movement\PlayerMovement.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\PlayerWeapon.cpp" />
-    <ClCompile Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\Attack\PlayerStateAttack.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateAir.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateClear.cpp" />
@@ -340,7 +331,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
-    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
@@ -359,6 +349,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
+    <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="App\Input\InputContext.cpp" />
     <ClCompile Include="App\Input\LockOnInput.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
@@ -372,7 +363,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
-    <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\BaseCamera.cpp" />

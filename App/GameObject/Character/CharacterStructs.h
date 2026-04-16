@@ -23,7 +23,7 @@ enum class ReactionType {
 struct AttackData {
 	std::string name; // 名前
 	// 挙動系
-	int32_t pointCount;                      // 制御点の数
+	int32_t pointCount = 0;                      // 制御点の数
 	std::vector<Vector3> controlPoints;      // 制御点（Vector3）
 
 	// 移動系
@@ -48,8 +48,8 @@ struct AttackData {
 	AttackPosture posture = AttackPosture::Stand;
 
 	// HitStop
-	float hitStopTime;
-	float hitStopIntensity;
+	float hitStopTime = 0.0f;
+	float hitStopIntensity = 0.0f;
 
 	// 攻撃を受けた側に送る情報
 	ReactionType type = ReactionType::HitStun;
@@ -64,8 +64,6 @@ struct AttackData {
 	// のけぞり用
 	float stunTime = 0.0f;
 };
-
-
 
 struct DamageInfo {
     float damage = 0.0f;
