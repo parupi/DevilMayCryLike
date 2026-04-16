@@ -48,6 +48,8 @@ Vector3 Normalize(const Vector3& v);
 Vector3 RotateVector(const Vector3& vector, const Quaternion& quaternion);
 Vector3 Lerp(const Vector3& start, const Vector3& end, float t);
 
+float LerpAngle(float a, float b, float t);
+
 bool IsValidVector3(const Vector3& v);
 
 // ImGuiを使ったVector3の描画

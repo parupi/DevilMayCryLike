@@ -45,7 +45,6 @@ void GameScene::Initialize()
 	cameraManager_->AddCamera(std::move(camera));
 
 	std::unique_ptr<LockOnCamera> lockOnCamera = std::make_unique<LockOnCamera>("LockOnCamera");
-	cameraManager_->AddCamera(std::move(lockOnCamera));
 
 	// カメラの生成
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
@@ -60,7 +59,7 @@ void GameScene::Initialize()
 	ModelManager::GetInstance()->LoadModel("Cube");
 	ModelManager::GetInstance()->LoadModel("suzannu");
 	ModelManager::GetInstance()->LoadModel("Sword");
- 	ModelManager::GetInstance()->LoadModel("spirit_knight");
+	ModelManager::GetInstance()->LoadModel("spirit_knight");
 	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
 	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
 	TextureManager::GetInstance()->LoadTexture("Terrain.png");
@@ -78,9 +77,6 @@ void GameScene::Initialize()
 	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 
-	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
-
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("smoke", "circle.png");
@@ -93,10 +89,34 @@ void GameScene::Initialize()
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
 
+	// ステージの情報を読み込んで生成
+	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
+
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
+
+	lockOnSystem_ = std::make_unique<LockOnSystem>();
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
 	player_->SetInput(inputContext_->GetPlayerInput());
+	player_->SetLockOn(lockOnSystem_.get());
+
+	lockOnSystem_->Initialize(inputContext_->GetLockOnInput(), player_);
+
+	// 生成された敵をロックオン対象に設定する
+	for (auto* obj : Object3dManager::GetInstance()->GetAllObject())
+	{
+		if (auto* enemy = dynamic_cast<Enemy*>(obj))
+		{
+			enemy->SetupLockOn(lockOnSystem_.get());
+		}
+	}
+
+	// カメラにプレイヤーとロックオンを受け渡す
+	lockOnCamera->Initialize(player_, lockOnSystem_.get());
+	// 生成が終わったカメラをマネージャに渡す
+	cameraManager_->AddCamera(std::move(lockOnCamera));
+
+	gameCamera_->Initialize(player_, lockOnSystem_.get(), inputContext_->GetCameraInput());
 
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
@@ -108,7 +128,9 @@ void GameScene::Initialize()
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
 
-
+	//deathText_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "DeathText", "DeathText.png");
+	//deathText_->SetAnchorPoint({0.5f, 0.5f});
+	//deathText_->SetPosition({ 640.0f, 120.0f });
 }
 
 void GameScene::Finalize()
@@ -135,9 +157,13 @@ void GameScene::Update()
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
 	musk_->Update();
 
+	//deathText_->Update();
+
 	menuUI_->Update();
 
 	inputContext_->Update();
+
+	lockOnSystem_->Update();
 
 	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
 

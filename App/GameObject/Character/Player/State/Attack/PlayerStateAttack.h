@@ -16,6 +16,8 @@ public:
 	void Exit(Player& player);
 	// 入力に基づいて次の行動を通知
 	AttackRequestData ExecuteCommand(Player& player, const PlayerCommand& command);
+	// 割り込みされたタイミングの処理
+	void OnInterrupted(Player& player);
 
 	AttackData GetAttackData() { return attackData_; }
 
@@ -25,9 +27,7 @@ public:
 	void DrawControlPoints(Player& player);
 	// 攻撃の名前
 	std::string name_;
-
-	bool GetCurrentInput(InputType& outInput, StickDir& outDir);
-
+	// 攻撃が終了したかどうか
 	bool IsFinished() const { return isFinish_; };
 	// 中断できるかどうか
 	bool CanBeInterrupted() const { return attackPhase_ == AttackPhase::Cancel; }

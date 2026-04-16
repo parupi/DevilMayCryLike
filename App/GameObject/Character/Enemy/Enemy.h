@@ -4,6 +4,7 @@
 #include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include <GameObject/LockOn/LockOnTarget.h>
 
 class Player;
 
@@ -17,7 +18,7 @@ class Enemy : public Object3d
 {
 public:
     Enemy(std::string objectName);
-    virtual ~Enemy() override = default;
+    virtual ~Enemy() override;
 
     /// <summary>
     /// 敵の初期化処理  
@@ -163,12 +164,16 @@ public:
 
     void SetIsAttack(bool flag) { isAttack_ = flag; }
 
+    // ロックオン機能のセット
+    void SetupLockOn(LockOnSystem* lockOnSystem);
 protected:
     std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_; ///< ステート名と対応するステートオブジェクト
     EnemyStateBase* currentState_ = nullptr; ///< 現在のステート
 
     std::unique_ptr<ParticleEmitter> slashEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
     std::unique_ptr<ParticleEmitter> smokeEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
+
+    LockOnTarget lockOnTarget_;
 
     float timeScale = 1.0f;
 
