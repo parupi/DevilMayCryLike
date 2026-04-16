@@ -10,73 +10,77 @@ LockOnCamera::LockOnCamera(std::string cameraName) : BaseCamera(cameraName)
 
 void LockOnCamera::Initialize(Player* player, LockOnSystem* lockOn)
 {
-    player_ = player;
-    lockOn_ = lockOn;
+	player_ = player;
+	lockOn_ = lockOn;
 }
 
 void LockOnCamera::Update()
 {
-    if (!player_) {
-        player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-        if (!player_) return; // プレイヤーがまだ見つからない場合は更新しない
-    }
+	if (!player_) return;
+	// ロックオン状態の取得
+	bool isLockOn = lockOn_->IsLockOn();
 
-    // プレイヤーの位置を取得
-    Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+	// プレイヤーの位置を取得
+	Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+	// ロックオンしていない場合は通常のカメラに切り替える
+	if (!isLockOn) {
+		// 今のロックオンカメラの角度を計算
+		Vector3 camToPlayer = GetTranslate() - playerPos;
+		camToPlayer.y = 0.0f;
+		camToPlayer = Normalize(camToPlayer);
 
-    Vector3 cameraPos{};
+		float angle = std::atan2(camToPlayer.x, camToPlayer.z);
 
-    Vector3 lookTarget = playerPos;
+		// GameCamera に渡す
+		auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance()->FindCamera("GameCamera"));
 
-    Vector3 lockOnPos = lockOn_->GetCurrentTarget()->GetWorldPosition();
-    //if (lockOnPos.x == 0.0f && lockOnPos.y == 0.0f && lockOnPos.z == 0.0f) {
-    //    CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
-    //    return;
-    //}
+		if (gameCam) {
+			gameCam->SetYaw(angle);
+		}
 
-    // プレイヤー → ロックオン対象のベクトル
-    Vector3 toEnemy = lockOnPos - playerPos;
-    toEnemy.y = 0.0f;
-    toEnemy = Normalize(toEnemy);
+		CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
+		return;
+	}
 
-    const float distance = 18.0f;
-    const float height = 8.0f;
+	Vector3 lockOnPos = lockOn_->GetCurrentTarget()->GetWorldPosition();
 
-    cameraPos = playerPos - (toEnemy * distance);
-    cameraPos.y += height;
+	Vector3 toEnemy;
+	if (isLockOn && !wasLockOn_) {
+		// 初期のフレームだけGameCameraの向きを引き継ぐ
+		toEnemy.x = sin(yaw_);
+		toEnemy.y = 0.0f;
+		toEnemy.z = cos(yaw_);
+	}
+	else {
+		// プレイヤー → ロックオン対象のベクトル
+		toEnemy = lockOnPos - playerPos;
+		toEnemy.y = 0.0f;
+		
+	}
+	toEnemy = Normalize(toEnemy);
 
-    // プレイヤーとロックオン対象の中間点を見る
-    lookTarget = (playerPos + lockOnPos) * 0.5f;
+	float distToEnemy = Length(lockOnPos - playerPos);
 
-    GetTranslate() = cameraPos;
-    LookAt(lookTarget);
-    BaseCamera::Update();
+	// 距離に応じてカメラを引く
+	float distance = std::clamp(distToEnemy * 1.2f, 12.0f, 25.0f);
 
-    Vector3 camToPlayer = GetTranslate() - playerPos;
-    camToPlayer.y = 0.0f;
+	const float height = 8.0f;
 
-    camToPlayer = Normalize(camToPlayer);
+	// 横方向を作る
+	Vector3 right = Normalize(Cross(Vector3(0, 1, 0), toEnemy));
+	// 少し横にずらす
+	float sideOffset = 3.0f;
+	Vector3 cameraPos = playerPos - toEnemy * distance + right * sideOffset;
+	cameraPos.y += 8.0f;
 
-    float horizontalAngle = std::atan2(camToPlayer.x, camToPlayer.z);
+	// 少し上を見る
+	Vector3 lookTarget = (playerPos + lockOnPos) * 0.5f + Vector3(0, 2.0f, 0);
 
-    if (player_) {
-        if (!player_->IsLockOn()) {
+	GetTranslate() = Lerp(GetTranslate(), cameraPos, 0.05f);
 
-            // 今のロックオンカメラの角度を計算
-            Vector3 camToPlayer = GetTranslate() - playerPos;
-            camToPlayer.y = 0.0f;
-            camToPlayer = Normalize(camToPlayer);
+	LookAt(lookTarget);
 
-            float angle = std::atan2(camToPlayer.x, camToPlayer.z);
-
-            // GameCamera に渡す
-            auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance()->FindCamera("GameCamera"));
-
-            if (gameCam) {
-                gameCam->SetHorizontalAngle(angle);
-            }
-
-            CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.2f);
-        }
-    }
+	BaseCamera::Update();
+	// 状態の更新
+	wasLockOn_ = isLockOn;
 }

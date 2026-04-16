@@ -7,6 +7,7 @@ void GameSceneStateMenu::Enter(GameScene& scene)
 	menuState_ = MenuState::Enter;
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);
+	scene.GetInputContext()->SetCanCameraMove(false);
 }
 
 void GameSceneStateMenu::Update(GameScene& scene)

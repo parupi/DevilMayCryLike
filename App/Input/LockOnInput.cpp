@@ -15,7 +15,7 @@ void LockOnInput::Update()
 			isPushLockOnKey_ = true;
 		}
 	} else {
-		if (input_->TriggerKey(DIK_P)) {
+		if (input_->PushKey(DIK_P)) {
 			isPushLockOnKey_ = true;
 		}
 	}

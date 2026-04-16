@@ -12,7 +12,7 @@ void PlayerStateMove::Update(Player& player, float deltaTime)
 {
 	Input* input = Input::GetInstance();
 
-	player.Move();
+	player.Move(deltaTime);
 	player.GetVelocity().y = 0.0f;
 
 	// 現在の入力状態が無ければ待機

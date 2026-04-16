@@ -7,6 +7,9 @@ void InputContext::Initialize(Input* input)
 
 	lockOnInput_ = std::make_unique<LockOnInput>();
 	lockOnInput_->Initialize(input);
+
+	cameraInput_ = std::make_unique<CameraInput>();
+	cameraInput_->Initialize(input);
 }
 
 void InputContext::Update()
@@ -16,5 +19,8 @@ void InputContext::Update()
 	}
 	if (canLockOn_) {
 		lockOnInput_->Update();
+	}
+	if (canCameraMove_) {
+		cameraInput_->Updata();
 	}
 }

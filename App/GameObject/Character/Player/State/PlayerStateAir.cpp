@@ -11,7 +11,7 @@ void PlayerStateAir::Enter(Player& player)
 void PlayerStateAir::Update(Player& player, float deltaTime)
 {
 	// 空中でも移動可
-	player.Move();
+	player.Move(deltaTime);
 
 	// 地面についたら待機状態にする
 	if (player.GetOnGround()) {

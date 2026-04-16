@@ -2,6 +2,7 @@
 #include "input/LockOnInput.h"
 #include <3d/Camera/CameraManager.h>
 #include "GameObject/Character/Player/Player.h"
+#include <3d/Primitive/PrimitiveLineDrawer.h>
 
 void LockOnSystem::Initialize(LockOnInput* input, Player* player)
 {
@@ -11,6 +12,7 @@ void LockOnSystem::Initialize(LockOnInput* input, Player* player)
 
 void LockOnSystem::Update()
 {
+	FindBestTarget();
 	// ロックオン入力
 	if (input_->PushLockOnKey()) {
 		if (!currentTarget_) {
@@ -73,22 +75,46 @@ float LockOnSystem::CalculateScore(LockOnTarget* target)
 {
 	auto* camera = CameraManager::GetInstance()->GetCurrentCamera();
 
-	Vector3 toTarget = target->GetWorldPosition() - player_->GetWorldTransform()->GetTranslation();
-	// y軸は評価しない
+	Vector3 camPos = camera->GetTranslate();
+	Vector3 targetPos = target->GetWorldPosition();
+
+	Vector3 toTarget = targetPos - camPos;
 	toTarget.y = 0.0f;
-	float distance = Length(toTarget);
-
 	Vector3 dir = Normalize(toTarget);
-	float dot = Dot(camera->GetForward(), dir);
 
-	// 背面は除外
+	Vector3 forward = camera->GetForward();
+	forward.y = 0.0f;
+	forward = Normalize(forward);
+
+	float dot = Dot(forward, dir);
+
+	float distance = Length(toTarget);
+	
+	//PrimitiveLineDrawer::GetInstance()->DrawWireSphere(targetPos, 1.0f, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	//Vector3 f = camera->GetForward();
+	//ImGui::Begin("Debug");
+	//ImGui::Text("Forward: %f %f %f\n", f.x, f.y, f.z);
+	//ImGui::End();
+
+	// ===== 背面除外 =====
 	if (dot < 0.0f) {
 		return FLT_MAX;
 	}
 
-	// 画面中央からの距離
-	float screenDist = 1.0f - dot;
+	// ===== 視野角チェック =====
+	float fov = camera->GetFovY();
+	float cosHalfFov = cos(fov * 0.5f);
 
-	// 重み付け
+	if (dot < cosHalfFov) {
+		return FLT_MAX;
+	}
+
+	// ===== 画面中心からのズレ =====
+	float angle = acos(dot); // ラジアン
+
+	// 正規化（0〜1）
+	float screenDist = angle / (fov * 0.5f);
+
+	// ===== スコア =====
 	return distance * 0.3f + screenDist * 0.7f;
 }

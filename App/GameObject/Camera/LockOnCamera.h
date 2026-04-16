@@ -1,6 +1,5 @@
 #pragma once
 #include "3d/Camera/BaseCamera.h"
-#include <input/Input.h>
 
 class Player;
 class LockOnSystem;
@@ -29,20 +28,15 @@ public:
 	/// </summary>
 	void Update() override;
 
+	void SetYaw(float yaw) { yaw_ = yaw; }
 private:
 	// 追従対象のプレイヤー
 	Player* player_ = nullptr;
 	// ロックオン対象を選別するクラス
 	LockOnSystem* lockOn_ = nullptr;
-
-	/// <summary>
-	/// 入力管理クラスのインスタンス
-	/// </summary>
-	Input* input_ = Input::GetInstance();
-
-	/// <summary>
-	/// 左右回転角（ラジアン）
-	/// </summary>
-	float horizontalAngle_ = 0.0f;
+	// 最初の角度
+	float yaw_ = 3.14f;
+	// ロックオン開始検知フラグ
+	bool wasLockOn_ = false;
 };
 

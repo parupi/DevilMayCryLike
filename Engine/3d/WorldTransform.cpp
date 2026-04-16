@@ -120,10 +120,10 @@ Vector3 WorldTransform::GetWorldPos()
 
 Vector3 WorldTransform::GetForward() const
 {
-	// ワールド行列の3列目（Z軸方向）
+	// ワールド行列の3列目
 	Vector3 forward{
-		matWorld_.m[0][2],
-		matWorld_.m[1][2],
+		matWorld_.m[2][0],
+		matWorld_.m[2][1],
 		matWorld_.m[2][2]
 	};
 

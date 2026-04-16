@@ -7,6 +7,7 @@ void GameSceneStateStart::Enter(GameScene& scene)
 	stageStart_->Initialize();
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);
+	scene.GetInputContext()->SetCanCameraMove(false);
 }
 
 void GameSceneStateStart::Update(GameScene& scene)

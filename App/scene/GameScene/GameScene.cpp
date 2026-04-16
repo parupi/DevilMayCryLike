@@ -116,6 +116,8 @@ void GameScene::Initialize()
 	// 生成が終わったカメラをマネージャに渡す
 	cameraManager_->AddCamera(std::move(lockOnCamera));
 
+	gameCamera_->Initialize(player_, lockOnSystem_.get(), inputContext_->GetCameraInput());
+
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
 
