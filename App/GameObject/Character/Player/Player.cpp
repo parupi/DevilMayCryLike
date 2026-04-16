@@ -71,8 +71,8 @@ void Player::Initialize()
 
 	hitStop_ = std::make_unique<HitStop>();
 
-	// プレイヤーをカメラ側を向かせる
-	GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
+	// プレイヤーをカメラ側に向かせる
+	//GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 180.0f, 0.0f });
 
 	attackBranchUI_ = std::make_unique<AttackBranchUI>();
 	attackBranchUI_->Initialize();
@@ -86,7 +86,7 @@ void Player::Update(float deltaTime)
 
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance()->TriggerKey(DIK_R)) {
-		//ChangeState("Death");
+		ChangeState("Death");
 	}
 
 	scoreManager->Update();
@@ -112,14 +112,14 @@ void Player::Update(float deltaTime)
 	// 毎フレーム切っておく
 	onGround_ = false;
 
-	if (isLockOn_) {
+	if (lockOn_->IsLockOn()) {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
 	} else {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	}
 
-	if (lockOnEnemy_) {
-		reticle_->SetPosition(CameraManager::GetInstance()->GetActiveCamera()->WorldToScreen(lockOnEnemy_->GetWorldTransform()->GetTranslation(), 1280, 720));
+	if (lockOn_->IsLockOn()) {
+		reticle_->SetPosition(CameraManager::GetInstance()->GetCurrentCamera()->WorldToScreen(lockOn_->GetCurrentTarget()->GetWorldPosition(), 1280, 720));
 		reticle_->Update();
 	}
 }
@@ -162,8 +162,6 @@ void Player::ChangeState(const std::string& stateName)
 
 void Player::ExecuteCommand(const PlayerCommand& command)
 {
-	// ロックオン
-
 	// ステートの更新
 	if (!combat_->IsAttacking()) {
 		stateMachine_->ExecuteCommand(*this, command);
@@ -171,59 +169,52 @@ void Player::ExecuteCommand(const PlayerCommand& command)
 	combat_->ExecuteCommand(command);
 }
 
-void Player::Move()
+void Player::Move(float deltaTime)
 {
-	input = Input::GetInstance();
 	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
 	if (!camera) return;
+	// 入力のcontext
+	const PlayerInputContext& context = input_->GetContext();
 
-	// 各フレームでまず速度をゼロに初期化
+	// Yは維持する
 	velocity_ = { 0.0f, velocity_.y, 0.0f };
 	// 入力方向をローカル（プレイヤーから見た）方向で作成
 	Vector3 inputDir = { 0.0f, 0.0f, 0.0f };
 
-	if (input->IsConnected()) {
-		if (input->GetLeftStickY() != 0.0f) {
-			inputDir.z = input->GetLeftStickY();
-		}
-		if (input->GetLeftStickX() != 0.0f) {
-			inputDir.x = input->GetLeftStickX();
-		}
-	} else {
-		if (Input::GetInstance()->PushKey(DIK_W)) inputDir.z += 1.0f;
-		if (Input::GetInstance()->PushKey(DIK_S)) inputDir.z -= 1.0f;
-		if (Input::GetInstance()->PushKey(DIK_D)) inputDir.x += 1.0f;
-		if (Input::GetInstance()->PushKey(DIK_A)) inputDir.x -= 1.0f;
-	}
+	if (context.isMove) {
+		Vector3 inputDir = { context.move.x, 0.0f, context.move.y };
 
-	if (Length(inputDir) > 0.01f) {
-		inputDir = Normalize(inputDir);
+		if (Length(inputDir) > 0.01f) {
+			inputDir = Normalize(inputDir);
 
-		// カメラのforward/right（Y方向カット）
-		Vector3 camForward = camera->GetForward(); // カメラの「向き」
-		camForward.y = 0.0f;
-		camForward = Normalize(camForward);
+			// カメラ基準で移動させる
+			Vector3 camForward = camera->GetForward();
+			camForward.y = 0.0f;
+			camForward = Normalize(camForward);
 
-		Vector3 camRight = camera->GetRight(); // カメラの右
-		camRight.y = 0.0f;
-		camRight = Normalize(camRight);
+			Vector3 camRight = camera->GetRight();
+			camRight.y = 0.0f;
+			camRight = Normalize(camRight);
 
-		// 入力方向をカメラの向きに投影
-		Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
-		moveDir = Normalize(moveDir);
+			Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
+			moveDir = Normalize(moveDir);
 
-		// 移動速度に反映
-		float velocityY = velocity_.y;
-		velocity_ = moveDir * 10.0f;
-		velocity_.y = velocityY;
+			float velocityY = velocity_.y;
+			velocity_ = moveDir * 10.0f;
+			velocity_.y = velocityY;
 
-		// ロックオンしていなければプレイヤーの向きも更新
-		if (!isLockOn_) {
-			if (Length(moveDir) > 0.001f) {
-				moveDir.x *= -1.0f;
-				Quaternion lookRot = LookRotation(moveDir);
+			// 向き更新
+			if (!lockOn_->IsLockOn()) {
+				if (Length(moveDir) > 0.001f) {
+					moveDir.x *= -1.0f;
 
-				GetWorldTransform()->GetRotation() = lookRot;
+					Quaternion targetRot = LookRotation(moveDir);
+
+					Quaternion& currentRot = GetWorldTransform()->GetRotation();
+
+					// 補間
+					currentRot = Slerp(currentRot, targetRot, rotateSpeed_ * deltaTime);
+				}
 			}
 		}
 	}
@@ -231,86 +222,18 @@ void Player::Move()
 
 void Player::LockOn()
 {
-	enemies_.clear();
-	std::vector<Object3d*> objects;
-	objects = Object3dManager::GetInstance()->GetAllObject();
-	for (auto& object : objects) {
-		if (!object->name_.find("HellKaina")) {
-			enemies_.push_back(static_cast<Enemy*>(object));
-		}
+	if (lockOn_->IsLockOn()) {
+		auto* target = lockOn_->GetCurrentTarget();
+
+		Vector3 toTarget = target->GetWorldPosition() - GetWorldTransform()->GetTranslation();
+
+		// ターゲット方向に向く
+		Vector3 direction = Normalize(toTarget);
+		direction.x *= -1.0f;
+		Quaternion lookRot = LookRotation(direction);
+
+		GetWorldTransform()->GetRotation() = lookRot;
 	}
-
-	if (input->TriggerButton(PadNumber::ButtonR) || input->TriggerKey(DIK_P)) {
-		isLockOn_ = true;
-		// 敵を設定
-		float lowDistance = 300.0f;
-		for (auto& enemy : enemies_) {
-
-			float length = Length(enemy->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
-			if (length < lowDistance) {
-				lowDistance = length;
-				lockOnEnemy_ = enemy;
-			}
-		}
-	}
-
-	if (!input->PushButton(PadNumber::ButtonR) && !input->PushKey(DIK_P)) {
-		isLockOn_ = false;
-	}
-
-	if (isLockOn_) {
-		if (lockOnEnemy_->IsAlive()) {
-			Vector3 direction = Normalize(lockOnEnemy_->GetWorldTransform()->GetTranslation() - GetWorldTransform()->GetTranslation());
-			if (Length(direction) > 0.001f) {
-				direction.x *= -1.0f;
-				Quaternion lookRot = LookRotation(direction);
-
-				GetWorldTransform()->GetRotation() = lookRot;
-			}
-		} else {
-			isLockOn_ = false;
-			lockOnEnemy_ = nullptr;
-		}
-	}
-	if (isLockOn_) {
-		if (GetLockOnPos().x == 0.0f && GetLockOnPos().y == 0.0f && GetLockOnPos().z == 0.0f) {
-			isLockOn_ = false;
-			lockOnEnemy_ = nullptr;
-		}
-	}
-}
-
-const Vector3& Player::GetLockOnPos()
-{
-	if (lockOnEnemy_) {
-		return lockOnEnemy_->GetWorldTransform()->GetTranslation();
-	}
-	return {0.0f, 0.0f, 0.0f};
-}
-
-AttackInputState Player::GetAttackInputState() const
-{
-	AttackInputState state{};
-
-	// ボタン
-	state.y = input->TriggerButton(PadNumber::ButtonY) || input->TriggerKey(DIK_J);
-	state.rb = input->PushButton(PadNumber::ButtonR);
-
-	// スティック方向（しきい値あり）
-	float lx = input->GetLeftStickX();
-	float ly = input->GetLeftStickY();
-
-	constexpr float threshold = 0.5f;
-
-	if (ly > threshold)       state.dir = StickDir::Up;
-	else if (ly < -threshold) state.dir = StickDir::Down;
-	else if (lx > threshold)  state.dir = StickDir::Right;
-	else if (lx < -threshold) state.dir = StickDir::Left;
-	else                      state.dir = StickDir::Neutral;
-
-	state.isLockOn = isLockOn_;
-
-	return state;
 }
 
 void Player::OnCollisionEnter(BaseCollider* other)

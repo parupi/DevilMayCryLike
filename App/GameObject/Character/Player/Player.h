@@ -22,6 +22,7 @@
 #include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/Effect/HitStopComponent.h"
+#include "GameObject/LockOn/LockOnSystem.h"
 
 class PlayerInput;
 
@@ -107,13 +108,15 @@ public:
 	/// プレイヤーの移動処理  
 	/// 入力ベクトルと物理挙動（加速度・速度）をもとに位置を更新する。
 	/// </summary>
-	void Move();
+	void Move(float deltaTime);
 
 	/// <summary>
 	/// ロックオン処理  
-	/// 敵との距離・方向を判定し、ターゲットを固定する。
+	/// ターゲットを固定する。
 	/// </summary>
 	void LockOn();
+
+	const Vector3& GetMoveVector() { return moveVector_; }
 
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
@@ -129,14 +132,9 @@ public:
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; } ///< 攻撃データを設定
 
 	/// <summary>
-	/// ロックオン中の敵のワールド座標を取得する。
-	/// </summary>
-	const Vector3& GetLockOnPos();
-
-	/// <summary>
 	/// 現在ロックオンしているかどうかを取得する。
 	/// </summary>
-	bool IsLockOn() const { return isLockOn_; }
+	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
 	// 攻撃派生UI
 	AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
@@ -144,9 +142,8 @@ public:
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
-	AttackInputState GetAttackInputState() const;
-
 	void SetInput(PlayerInput* input) { input_ = input; }
+	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
@@ -160,8 +157,10 @@ private:
 
 	PlayerInput* input_ = nullptr;
 
+	LockOnSystem* lockOn_ = nullptr;
+
 	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
-	Input* input = Input::GetInstance(); ///< 入力管理クラス
+
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
 	Vector3 velocity_{}; ///< プレイヤーの速度
@@ -171,15 +170,16 @@ private:
 
 	std::unique_ptr<HitStop> hitStop_;
 
-	std::vector<Enemy*> enemies_; ///< 周囲の敵リスト
-	Enemy* lockOnEnemy_ = nullptr; ///< 現在ロックオンしている敵
-	bool isLockOn_ = false; ///< ロックオン状態フラグ
-
 	std::unique_ptr<PlayerWeapon> weapon_; ///< 武器クラス
-
-	bool onGround_ = false; ///< 接地判定フラグ
-
-	Sprite* reticle_; ///< テスト用スプライト（デバッグ表示など）
+	// 接地判定フラグ
+	bool onGround_ = false;
+	// ロックオン時のレティクル
+	Sprite* reticle_;
 
 	std::unique_ptr<AttackBranchUI> attackBranchUI_;
+
+	// 1フレームの移動距離を保持
+	Vector3 moveVector_;
+	// 調整用
+	float rotateSpeed_ = 5.0f;
 };

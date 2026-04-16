@@ -150,12 +150,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
+    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
     <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
     <ClInclude Include="App\GameObject\Event\ClearEvent.h" />
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
     <ClInclude Include="App\GameObject\Event\EventFactory.h" />
     <ClInclude Include="App\GameObject\Event\EventManager.h" />
     <ClInclude Include="App\GameObject\Ground\Ground.h" />
+    <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
+    <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
@@ -167,6 +170,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="App\Input\InputContext.h" />
+    <ClInclude Include="App\Input\LockOnInput.h" />
     <ClInclude Include="App\scene\ClearScene.h" />
     <ClInclude Include="App\scene\EditScene.h" />
     <ClInclude Include="App\scene\GameScene\GameScene.h" />
@@ -178,6 +182,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\scene\SceneFactory.h" />
     <ClInclude Include="App\scene\TitleScene.h" />
     <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h" />
+    <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\2d\SpriteStruct.h" />
@@ -298,7 +303,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -336,12 +340,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
+    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />
     <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
     <ClCompile Include="App\GameObject\Ground\Ground.cpp" />
+    <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
+    <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
@@ -353,6 +360,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="App\Input\InputContext.cpp" />
+    <ClCompile Include="App\Input\LockOnInput.cpp" />
     <ClCompile Include="App\scene\ClearScene.cpp" />
     <ClCompile Include="App\scene\EditScene.cpp" />
     <ClCompile Include="App\scene\GameScene\GameScene.cpp" />
@@ -364,6 +372,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\scene\SceneFactory.cpp" />
     <ClCompile Include="App\scene\TitleScene.cpp" />
     <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp" />
+    <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\BaseCamera.cpp" />
@@ -463,7 +472,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

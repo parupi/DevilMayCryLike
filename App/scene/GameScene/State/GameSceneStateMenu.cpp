@@ -6,6 +6,8 @@ void GameSceneStateMenu::Enter(GameScene& scene)
 {
 	menuState_ = MenuState::Enter;
 	scene.GetInputContext()->SetCanPlayerMove(false);
+	scene.GetInputContext()->SetCanLockOn(false);
+	scene.GetInputContext()->SetCanCameraMove(false);
 }
 
 void GameSceneStateMenu::Update(GameScene& scene)
@@ -25,7 +27,7 @@ void GameSceneStateMenu::Update(GameScene& scene)
 		}
 		break;
 	case MenuState::Normal:
-		if (Input::GetInstance()->TriggerKey(DIK_M)) {
+		if (Input::GetInstance()->TriggerKey(DIK_M) || Input::GetInstance()->TriggerButton(ButtonStart)) {
 			scene.ChangeState("Play");
 		}
 		break;

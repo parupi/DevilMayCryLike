@@ -81,6 +81,8 @@ private:
 	GameSceneStateBase* currentState_ = nullptr;
 	// 入力をまとめたクラス
 	std::unique_ptr<InputContext> inputContext_ = nullptr;
+	// ロックオンの処理を行うクラス
+	std::unique_ptr<LockOnSystem> lockOnSystem_ = nullptr;
 
 	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
@@ -97,6 +99,8 @@ private:
 	// マスクを掛けるためのスプライト
 	Sprite* musk_ = nullptr;
 	float muskAlpha_ = 0.0f;
+
+	Sprite* deathText_ = nullptr;
 
 	// メニューのスプライト
 	std::unique_ptr<MenuUI> menuUI_ = nullptr;

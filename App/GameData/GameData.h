@@ -1,5 +1,7 @@
 #pragma once
 #include <mutex>
+
+// シーン間で共有するゲームの情報を保持するクラス
 class GameData
 {
 private:

@@ -1,60 +1,75 @@
 #include "GameCamera.h"
 #include <3d/Object/Object3dManager.h>
 #include "GameObject/Character/Player/Player.h"
+#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include <Input/CameraInput.h>
 
 GameCamera::GameCamera(std::string cameraName) : BaseCamera(cameraName)
 {
-    horizontalAngle_ = 3.14f * 3.0f;
+	//horizontalAngle_ = 3.14f * 3.0f;
+}
+
+void GameCamera::Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput)
+{
+	player_ = player;
+	lockOn_ = lockOn;
+	cameraInput_ = cameraInput;
 }
 
 void GameCamera::Update()
 {
-    if (!player_) {
-        player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-        if (!player_) return; // プレイヤーがまだ見つからない場合は更新しない
-    }
-
-    // プレイヤーの位置を取得
     Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
 
-    Vector3 cameraPos{};
+    // ===== 入力 =====
+    Vector2 stick = cameraInput_->GetStickDirection();
 
-    Vector3 lookTarget = playerPos;
-    
-    // === キー操作による水平角度の更新 ===
-    const float angleSpeed = 0.02f; // 回転速度（ラジアン）
-    if (input_->IsConnected()) {
-        horizontalAngle_ += input_->GetRightStickX() * angleSpeed;
-    } else {
-        if (input_->PushKey(DIK_K)) {
-            horizontalAngle_ -= angleSpeed;
-        }
-        if (input_->PushKey(DIK_L)) {
-            horizontalAngle_ += angleSpeed;
-        }
+    yaw_ += stick.x * sensitivityX;
+    pitch_ -= stick.y * sensitivityY;
+
+    // Pitch制限
+    float pitchLimit = 0.2f;
+    pitch_ = std::clamp(pitch_, -pitchLimit, pitchLimit);
+
+    float distance = 18.0f;
+    float baseHeight = 3.0f;
+
+    // ===== カメラ位置 =====
+    Vector3 offset;
+    offset.x = cos(pitch_) * sin(yaw_) * distance;
+    offset.y = baseHeight + sin(pitch_) * distance;
+    offset.z = cos(pitch_) * cos(yaw_) * distance;
+
+    Vector3 desiredPos = playerPos + offset;
+
+    // ===== 最小距離 =====
+    float minDist = 5.0f;
+    Vector3 toCamera = desiredPos - playerPos;
+    if (Length(toCamera) < minDist)
+    {
+        desiredPos = playerPos + Normalize(toCamera) * minDist;
     }
 
-    // 半径と高さを固定しつつ水平回転
-    const float distance = 20.0f;  // プレイヤーからの距離
-    const float height = 12.0f;    // 高さ
+    Vector3 forward = Normalize(player_->GetWorldTransform()->GetForward());
+    float lookHeight = 2.0f;
+    float lookOffset = 4.0f; // 視線の動き量
 
-    Vector3 offset = {
-        std::sin(horizontalAngle_) * distance,
-        height,
-        std::cos(horizontalAngle_) * distance,
-    };
+    Vector3 lookTarget = playerPos + Vector3(0, lookHeight, 0) + forward * 3.0f - Vector3(0, sin(pitch_) * lookOffset, 0);
 
-    // カメラの位置をプレイヤーの位置 + オフセット に設定
-    cameraPos = playerPos + offset;
+    // ===== スムージング =====
+    GetTranslate() = Lerp(GetTranslate(), desiredPos, 0.05f);
 
-    // 
-    lookTarget = playerPos;
-
-    GetTranslate() = cameraPos;
     LookAt(lookTarget);
+
     BaseCamera::Update();
 
     if (player_->IsLockOn()) {
-        CameraManager::GetInstance()->SetActiveCamera("LockOnCamera");
+        CameraManager::GetInstance()->SetActiveCamera("LockOnCamera", 0.3f);
+
+        // GameCamera に渡す
+        auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance()->FindCamera("GameCamera"));
+
+        if (gameCam) {
+            gameCam->SetYaw(yaw_);
+        }
     }
 }

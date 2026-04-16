@@ -124,6 +124,19 @@ Vector3 Lerp(const Vector3& start, const Vector3& end, float t) {
     return start * (1.0f - t) + end * t;
 }
 
+float LerpAngle(float a, float b, float t)
+{
+    float diff = b - a;
+
+    const float PI = 3.14159265f;
+
+    // -π〜πに収める
+    while (diff > PI) diff -= 2.0f * PI;
+    while (diff < -PI) diff += 2.0f * PI;
+
+    return a + diff * t;
+}
+
 bool IsValidVector3(const Vector3& v)
 {
     return

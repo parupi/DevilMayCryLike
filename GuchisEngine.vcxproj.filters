@@ -64,6 +64,9 @@
     <Filter Include="App\GameObject\Ground">
       <UniqueIdentifier>{246AB890-90D6-738B-59CA-0BE9C5F595F3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\LockOn">
+      <UniqueIdentifier>{BB28259C-2795-E096-F088-78F45CB402FF}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
     </Filter>
@@ -336,6 +339,9 @@
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
@@ -353,6 +359,12 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Ground\Ground.h">
       <Filter>App\GameObject\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h">
+      <Filter>App\GameObject\LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h">
+      <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -385,6 +397,9 @@
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
     <ClInclude Include="App\Input\InputContext.h">
+      <Filter>App\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Input\LockOnInput.h">
       <Filter>App\Input</Filter>
     </ClInclude>
     <ClInclude Include="App\scene\ClearScene.h">
@@ -780,7 +795,7 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h" />
+    <ClInclude Include="App\Input\CameraInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -888,6 +903,9 @@
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
@@ -905,6 +923,12 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Ground\Ground.cpp">
       <Filter>App\GameObject\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp">
+      <Filter>App\GameObject\LockOn</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp">
+      <Filter>App\GameObject\LockOn</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -937,6 +961,9 @@
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
     <ClCompile Include="App\Input\InputContext.cpp">
+      <Filter>App\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Input\LockOnInput.cpp">
       <Filter>App\Input</Filter>
     </ClCompile>
     <ClCompile Include="App\scene\ClearScene.cpp">
@@ -1270,6 +1297,6 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp" />
+    <ClCompile Include="App\Input\CameraInput.cpp" />
   </ItemGroup>
 </Project>
