@@ -34,17 +34,11 @@
     <Filter Include="App\GameObject\Character\Player">
       <UniqueIdentifier>{3E65711F-AA48-805F-B34B-AE9B1FAE46B0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="App\GameObject\Character\Player\Collision">
-      <UniqueIdentifier>{D9BFE0E8-45DA-438A-8EFC-531EFA556B91}</UniqueIdentifier>
-    </Filter>
     <Filter Include="App\GameObject\Character\Player\Combat">
       <UniqueIdentifier>{2330902D-0F82-671D-F8A0-A42DE4918006}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Player\Controller">
       <UniqueIdentifier>{11EE055A-FD55-CC27-66C1-E03D5248E313}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="App\GameObject\Character\Player\Movement">
-      <UniqueIdentifier>{38302A22-24AD-1D65-4D2A-1E793906BAF8}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Player\State">
       <UniqueIdentifier>{0E8B8502-7A4F-84F2-43B5-B4BCAF382028}</UniqueIdentifier>
@@ -279,12 +273,6 @@
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollider.h">
-      <Filter>App\GameObject\Character\Player\Collision</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.h">
-      <Filter>App\GameObject\Character\Player\Collision</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
     </ClInclude>
@@ -294,17 +282,11 @@
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h">
       <Filter>App\GameObject\Character\Player\Controller</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Player\Movement\PlayerMovement.h">
-      <Filter>App\GameObject\Character\Player\Movement</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Player.h">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\PlayerWeapon.h">
       <Filter>App\GameObject\Character\Player</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.h">
-      <Filter>App\GameObject\Character\Player\State\Attack</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\Attack\AttackStructs.h">
       <Filter>App\GameObject\Character\Player\State\Attack</Filter>
@@ -337,9 +319,6 @@
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
-      <Filter>App\GameObject\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Effect\HitStopComponent.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
@@ -395,6 +374,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Input\CameraInput.h">
+      <Filter>App\Input</Filter>
     </ClInclude>
     <ClInclude Include="App\Input\InputContext.h">
       <Filter>App\Input</Filter>
@@ -795,7 +777,6 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="App\Input\CameraInput.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -849,12 +830,6 @@
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollider.cpp">
-      <Filter>App\GameObject\Character\Player\Collision</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Player\Collision\PlayerCollisionResolver.cpp">
-      <Filter>App\GameObject\Character\Player\Collision</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
     </ClCompile>
@@ -864,17 +839,11 @@
     <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp">
       <Filter>App\GameObject\Character\Player\Controller</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Player\Movement\PlayerMovement.cpp">
-      <Filter>App\GameObject\Character\Player\Movement</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\PlayerWeapon.cpp">
       <Filter>App\GameObject\Character\Player</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Player\State\Attack\AttackBranchUI.cpp">
-      <Filter>App\GameObject\Character\Player\State\Attack</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\Attack\PlayerStateAttack.cpp">
       <Filter>App\GameObject\Character\Player\State\Attack</Filter>
@@ -901,9 +870,6 @@
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
-      <Filter>App\GameObject\Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Effect\HitStopComponent.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
@@ -959,6 +925,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Input\CameraInput.cpp">
+      <Filter>App\Input</Filter>
     </ClCompile>
     <ClCompile Include="App\Input\InputContext.cpp">
       <Filter>App\Input</Filter>
@@ -1297,6 +1266,5 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\Input\CameraInput.cpp" />
   </ItemGroup>
 </Project>

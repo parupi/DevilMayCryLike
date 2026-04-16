@@ -71,7 +71,7 @@ void LockOnCamera::Update()
 	// 少し横にずらす
 	float sideOffset = 3.0f;
 	Vector3 cameraPos = playerPos - toEnemy * distance + right * sideOffset;
-	cameraPos.y += 8.0f;
+	cameraPos.y += height;
 
 	// 少し上を見る
 	Vector3 lookTarget = (playerPos + lockOnPos) * 0.5f + Vector3(0, 2.0f, 0);
