@@ -101,8 +101,11 @@ void CascadedShadowMap::BindSrv()
 
 void CascadedShadowMap::CalculateCascadeSplits()
 {
-	float nearZ = camera_->GetNearClip();
-	float farZ = camera_->GetFarClip();
+	//float nearZ = camera_->GetNearClip();
+	//float farZ = camera_->GetFarClip();
+	
+	float nearZ = -500.0f;
+	float farZ = 500.0f;
 
 	cascades_[0].splitDepth = nearZ + 10.0f;
 	cascades_[1].splitDepth = nearZ + 30.0f;
@@ -188,6 +191,7 @@ void CascadedShadowMap::CalculateLightMatrices()
 		Matrix4x4 lightProj = CreateOrthographic(width, height, nearZ, farZ);
 
 		cascades_[i].lightViewProj = lightProj * lightView;
+		cascades_[i].lightViewProj = lightView * lightProj;
 
 		prevSplit = split;
 	}

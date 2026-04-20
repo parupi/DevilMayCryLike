@@ -110,16 +110,22 @@ float4 main(PSInput input) : SV_Target
         else if (light.type == 2)
             finalColor += CalcSpotLight(light, P, N, V, albedo);
     }
-
+    
     float shadow = CalcShadow(P);
-    //float shadow = (depth <= gShadow.Sample(sampler_Linear, uv)) ? 1.0 : 0.0;
 
+    //float4 shadowPos = mul(float4(P, 1.0), LightViewProj);
+    //shadowPos.xyz /= shadowPos.w;
+
+    ////// 可視化（0〜1に変換）
+    //float3 debug = shadowPos.xyz * 0.5 + 0.5;
+    //return float4(shadowPos.z, shadowPos.z, shadowPos.z, 1);
+    ////return float4(shadowPos.xy * 0.5 + 0.5, 0, 1);
+    ////return float4(debug, 1.0);
+    
+    //float mapDepth = gShadow.Sample(sampler_Linear, uv);
+    //return float4(depth, mapDepth, 0, 1);
+    
     finalColor *= shadow;
-    
-  
-    
-    //float d = gShadow.Sample(sampler_Linear, uv);
-    //return float4(d, d, d, 1);
 
     return float4(finalColor, 1.0f);
 }
