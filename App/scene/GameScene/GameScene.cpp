@@ -167,6 +167,10 @@ void GameScene::Update()
 
 	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
 
+	ImGui::Begin("GameScene Debug Info");
+	ImGui::DragFloat2("uvSize", &Object3dManager::GetInstance()->FindObject("Ground2")->GetRenderer("Ground2")->GetModel()->GetMaterials()[1]->GetUVData().size.x, 0.01f);
+	ImGui::End();
+
 #ifdef _DEBUG
 	//DebugUpdate();
 #endif

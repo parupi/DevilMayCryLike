@@ -55,6 +55,11 @@ void TitleScene::Initialize()
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke2", "smoke.png");
 	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2");
 
+	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	smokeEmitter_ = emitters.at("TitleSmoke").get();
+	smokeEmitter2_ = emitters.at("TitleSmoke2").get();
+	sphereEmitter_ = emitters.at("TitleSphere").get();
+
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
@@ -84,10 +89,10 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
-	//smokeEmitter_->Update();
-	//smokeEmitter2_->Update();
+	smokeEmitter_->Update();
+	smokeEmitter2_->Update();
 
-	//sphereEmitter_->Update();
+	sphereEmitter_->Update();
 
 	lightManager_->Update();
 

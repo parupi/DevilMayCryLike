@@ -8,14 +8,6 @@ Material::Material()
 
 Material::~Material()
 {
-	//if (materialGBufferHandle_ != kInvalidBufferHandle) {
-	//	resourceManager_->ReleaseBuffer(materialGBufferHandle_);
-	//	materialGBufferHandle_ = kInvalidBufferHandle;
-	//}
-	//if (materialBufferHandle_ != kInvalidBufferHandle) {
-	//	resourceManager_->ReleaseBuffer(materialBufferHandle_);
-	//	materialBufferHandle_ = kInvalidBufferHandle;
-	//}
 }
 
 void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData)
@@ -40,6 +32,7 @@ void Material::Update()
 	uvTransformMatrix *= MakeRotateZMatrix(uvTransform_.rotate.z);
 	uvTransformMatrix *= MakeTranslateMatrix(uvTransform_.translate);
 	materialForGPU_->uvTransform = uvTransformMatrix;
+	gBufferMaterialParam_->uvTransform = uvTransformMatrix;
 }
 
 void Material::Bind(UINT RootParameterIndex)

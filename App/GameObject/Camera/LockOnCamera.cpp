@@ -35,7 +35,7 @@ void LockOnCamera::Update()
 		auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance()->FindCamera("GameCamera"));
 
 		if (gameCam) {
-			gameCam->SetYaw(angle);
+			//gameCam->SetYaw(angle);
 		}
 
 		CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);

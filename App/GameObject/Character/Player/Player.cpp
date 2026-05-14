@@ -17,6 +17,8 @@
 #include "Controller/PlayerInput.h"
 #include "2d/SpriteManager.h"
 
+#include "../../../../Engine/input/Input.h"
+
 Player::Player(std::string objectNama) : Object3d(objectNama)
 {
 	Object3d::Initialize();
@@ -77,10 +79,10 @@ void Player::Update(float deltaTime)
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 
-	//// Rキーを押したら死亡演出が流れる ← デバッグ用
-	//if (Input::GetInstance()->TriggerKey(DIK_R)) {
-	//	ChangeState("Death");
-	//}
+	// Rキーを押したら死亡演出が流れる ← デバッグ用
+	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+		ChangeState("Death");
+	}
 
 	scoreManager->Update();
 

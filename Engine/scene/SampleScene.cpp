@@ -71,7 +71,7 @@ void SampleScene::Initialize()
 
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
 
-	//object->GetOption().drawPath = DrawPath::Forward;
+	object->GetOption().drawPath = DrawPath::Forward;
 
 	object_ = object.get();
 	// ゲームオブジェクトを追加
@@ -119,6 +119,10 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
+	//ImGui::Begin("SampleScene Debug Info");
+	//ImGui::DragFloat2("uvSize", &Object3dManager::GetInstance()->FindObject("obj1")->GetRenderer("render")->GetModel()->GetMaterials()[1]->GetUVData().size.x, 0.01f);
+	//ImGui::End();
+
 	//sprite_->Update();
 
 	emitter_->SetTranslate(object_->GetWorldTransform()->GetTranslation());

@@ -31,10 +31,10 @@ void PlayerCombat::Update(float deltaTime)
 		state.second->UpdateAttackData();
 	}
 
-	ImGui::Begin("Debug");
-	ImGui::Text("Current Attack Num: %d", static_cast<int>(currentState_.size()));
-	ImGui::Text("Current Attack State: %s", currentState_.empty() ? "None" : currentState_.back()->name_.c_str());
-	ImGui::End();
+	//ImGui::Begin("Debug");
+	//ImGui::Text("Current Attack Num: %d", static_cast<int>(currentState_.size()));
+	//ImGui::Text("Current Attack State: %s", currentState_.empty() ? "None" : currentState_.back()->name_.c_str());
+	//ImGui::End();
 
 	if (currentState_.empty()) return;
 

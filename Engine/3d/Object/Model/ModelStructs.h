@@ -178,11 +178,12 @@ struct MaterialForGPU {
 	float padding2[3];  // 16バイトアラインメント確保
 };
 
-struct alignas(16) GBufferMaterialParam
+struct GBufferMaterialParam
 {
 	float roughness;  
-	float metal;     
-	float padding[2]; 
+	float metal;
+	float padding[2];
+	Matrix4x4 uvTransform;
 };
 
 struct UVData {
