@@ -32,6 +32,7 @@ void SampleScene::Initialize()
 	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -10.0f };
 	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
+	cameraManager_->SetActiveCamera("KnockCamera");
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -44,7 +45,7 @@ void SampleScene::Initialize()
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane");
 	ModelManager::GetInstance()->LoadModel("Terrain");
-	ModelManager::GetInstance()->LoadModel("axis");
+	ModelManager::GetInstance()->LoadModel("Cube");
 	ModelManager::GetInstance()->LoadModel("ICO");
 	ModelManager::GetInstance()->LoadModel("multiMesh");
 	ModelManager::GetInstance()->LoadModel("multiMaterial");
@@ -65,13 +66,14 @@ void SampleScene::Initialize()
 	object->Initialize();
 
 	// レンダラーの追加
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "axis"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "Cube"));
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
 
-	object->GetOption().drawPath = DrawPath::Forward;
+	//object->GetOption().drawPath = DrawPath::Forward;
+	//object->GetRenderer("render")->GetModel()->GetMaterials()[1]->SetEnableTextureDensity(true);
 
 	object_ = object.get();
 	// ゲームオブジェクトを追加
@@ -132,7 +134,7 @@ void SampleScene::Update()
 	//emitter_->Update();
 
 #ifdef _DEBUG
-	DebugUpdate();
+	//DebugUpdate();
 #endif // _DEBUG
 }
 
