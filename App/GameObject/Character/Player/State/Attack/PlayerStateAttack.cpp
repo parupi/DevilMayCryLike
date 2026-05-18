@@ -116,9 +116,9 @@ void PlayerStateAttack::Update(Player& player, float deltaTime)
 		break;
 	}
 
-	ImGui::Begin("Debug");
-	ImGui::Text("Attack State: %s", name_.c_str());
-	ImGui::End();
+	//ImGui::Begin("Debug");
+	//ImGui::Text("Attack State: %s", name_.c_str());
+	//ImGui::End();
 }
 
 void PlayerStateAttack::Exit(Player& player)

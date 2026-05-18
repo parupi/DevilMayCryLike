@@ -47,7 +47,7 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 	}
 }
 
-void SkinnedModel::Update()
+void SkinnedModel::Update(const Vector3& objectScale)
 {
 	// アニメーションの更新を呼ぶ
 	animation_->Update();
@@ -57,11 +57,14 @@ void SkinnedModel::Update()
 
 	skeleton_->Update();
 
-
 	for (const auto& mesh : meshes_) {
 		auto* cluster = mesh->GetSkinCluster();
 		cluster->UpdateInputVertex(mesh->GetSkinnedMeshData()); // メッシュ単位になったのでこれでOK
 		cluster->UpdateSkinCluster(skeleton_->GetSkeletonData());
+	}
+
+	for (size_t i = 0; i < materials_.size(); i++) {
+		materials_[i]->Update(objectScale);
 	}
 }
 

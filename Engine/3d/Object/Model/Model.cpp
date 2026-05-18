@@ -56,12 +56,11 @@ void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& mat
 	materials_.push_back(std::move(material));
 }
 
-void Model::Update()
+void Model::Update(const Vector3& objectScale)
 {
 	for (size_t i = 0; i < materials_.size(); i++) {
-		materials_[i]->Update();
+		materials_[i]->Update(objectScale);
 	}
-
 }
 
 void Model::Draw()

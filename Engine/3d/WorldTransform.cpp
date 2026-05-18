@@ -8,8 +8,7 @@
 #endif // IMGUI
 #include "Camera/CameraManager.h"
 
-WorldTransform::~WorldTransform()
-{
+WorldTransform::~WorldTransform() {
 	//// GPUリソースの解放
 	//if (constBuffer_) {
 	//	constBuffer_->Unmap(0, nullptr);
@@ -21,8 +20,7 @@ WorldTransform::~WorldTransform()
 #endif
 }
 
-void WorldTransform::Initialize()
-{
+void WorldTransform::Initialize() {
 	// ワールド行列の初期化
 	matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
 
@@ -33,8 +31,7 @@ void WorldTransform::Initialize()
 	TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
 }
 
-void WorldTransform::CreateConstBuffer()
-{
+void WorldTransform::CreateConstBuffer() {
 	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
 	// MVP用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
 	bufferHandle_ = resourceManager->CreateUploadBuffer(sizeof(TransformationMatrix), L"WorldTransformBuffer");
@@ -44,11 +41,10 @@ void WorldTransform::CreateConstBuffer()
 	constMap->WVP = MakeIdentity4x4();
 	constMap->World = MakeIdentity4x4();
 	constMap->WorldInverseTranspose = MakeIdentity4x4();
-	
+
 }
 
-void WorldTransform::TransferMatrix(BaseCamera* camera)
-{
+void WorldTransform::TransferMatrix(BaseCamera* camera) {
 	// スケール、回転、平行移動を合成して行列を計算する
 	matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
 
@@ -61,7 +57,8 @@ void WorldTransform::TransferMatrix(BaseCamera* camera)
 	if (camera) {
 		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
 		worldViewProjectionMatrix = matWorld_ * viewProjectionMatrix;
-	} else {
+	}
+	else {
 		worldViewProjectionMatrix = matWorld_;
 	}
 
@@ -79,16 +76,14 @@ void WorldTransform::TransferMatrix(BaseCamera* camera)
 	}
 }
 
-void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd, int32_t index) const
-{
+void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd, int32_t index) const {
 	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
 
 	cmd->SetGraphicsRootConstantBufferView(index, resourceManager->GetGPUVirtualAddress(bufferHandle_));
 }
 
 #ifdef _DEBUG
-void WorldTransform::DebugGui()
-{
+void WorldTransform::DebugGui() {
 	if (ImGui::Button("ResetRotate")) {
 		rotation_ = Identity();
 	}
@@ -109,17 +104,40 @@ void WorldTransform::DebugGui()
 }
 #endif // _DEBUG
 
-Vector3 WorldTransform::GetWorldPos()
-{
-	worldPos_.x = matWorld_.m[3][0];
-	worldPos_.y = matWorld_.m[3][1];
-	worldPos_.z = matWorld_.m[3][2];
+Vector3 WorldTransform::GetWorldPos() const {
+	Vector3 worldPos;
+	worldPos.x = matWorld_.m[3][0];
+	worldPos.y = matWorld_.m[3][1];
+	worldPos.z = matWorld_.m[3][2];
 
-	return worldPos_;
+	return worldPos;
 }
 
-Vector3 WorldTransform::GetForward() const
-{
+Vector3 WorldTransform::GetWorldScale() const {
+	Vector3 scale{};
+
+	scale.x = Length(Vector3{
+		matWorld_.m[0][0],
+		matWorld_.m[0][1],
+		matWorld_.m[0][2]
+		});
+
+	scale.y = Length(Vector3{
+		matWorld_.m[1][0],
+		matWorld_.m[1][1],
+		matWorld_.m[1][2]
+		});
+
+	scale.z = Length(Vector3{
+		matWorld_.m[2][0],
+		matWorld_.m[2][1],
+		matWorld_.m[2][2]
+		});
+
+	return scale;
+}
+
+Vector3 WorldTransform::GetForward() const {
 	// ワールド行列の3列目
 	Vector3 forward{
 		matWorld_.m[2][0],

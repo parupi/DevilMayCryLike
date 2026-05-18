@@ -4,9 +4,21 @@
     "IsActive": true,
     "Particles": [
         {
-            "Count": 54,
+            "Count": 16,
             "ParticleName": "TitleSmoke2",
             "SpawnRate": 1.0
         }
-    ]
+    ],
+    "Transform": {
+        "Position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Scale": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
 }
