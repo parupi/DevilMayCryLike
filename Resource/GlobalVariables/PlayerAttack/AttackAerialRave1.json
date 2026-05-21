@@ -33,6 +33,36 @@
             0.800000011920929,
             0.4000000059604645
         ],
+        "ControlRotation_0": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "Damage": 0.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,

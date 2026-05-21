@@ -1,26 +1,26 @@
 #include "Player.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateMove.h"
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <3d/Collider/AABBCollider.h>
-#include <3d/Collider/CollisionManager.h>
-#include <base/utility/DeltaTime.h>
+#include "3d/Object/Renderer/RendererManager.h"
+#include "3d/Object/Renderer/PrimitiveRenderer.h"
+#include "3d/Collider/AABBCollider.h"
+#include "3d/Collider/CollisionManager.h"
+#include "base/utility/DeltaTime.h"
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
-#include <numbers>
-#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include "3d/Primitive/PrimitiveLineDrawer.h"
 #include "State/Attack/PlayerStateAttack.h"
-#include <scene/Transition/TransitionManager.h>
+#include "scene/Transition/TransitionManager.h"
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
 #include "Controller/PlayerInput.h"
 #include "2d/SpriteManager.h"
 
-#include "../../../../Engine/input/Input.h"
+#include <numbers>
 
-Player::Player(std::string objectNama) : Object3d(objectNama)
-{
+#include "input/Input.h"
+
+Player::Player(std::string objectNama) : Object3d(objectNama) {
 	Object3d::Initialize();
 
 	// レンダラーの生成
@@ -40,8 +40,7 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	stateMachine_->AddState("Clear", std::make_unique<PlayerStateClear>());
 }
 
-void Player::Initialize()
-{
+void Player::Initialize() {
 	combat_ = std::make_unique<PlayerCombat>();
 	combat_->Initialize(this);
 
@@ -74,8 +73,7 @@ void Player::Initialize()
 	hitStop_ = std::make_unique<HitStop>();
 }
 
-void Player::Update(float deltaTime)
-{
+void Player::Update(float deltaTime) {
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 
@@ -88,17 +86,18 @@ void Player::Update(float deltaTime)
 
 	LockOn();
 
- 	weapon_->Update(dt);
-
+	weapon_->Update(dt);
+	// 攻撃中でないならステートを更新する
 	if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this, dt);
 	}
 	combat_->Update(dt);
-
+	// 入力に応じたコマンドを実行
 	for (auto& cmd : input_->GetCommands()) {
 		ExecuteCommand(cmd);
 	}
 
+	// 移動処理
 	GetWorldTransform()->GetTranslation() += velocity_ * dt;
 	velocity_ += acceleration_ * dt;
 
@@ -109,7 +108,8 @@ void Player::Update(float deltaTime)
 
 	if (lockOn_->IsLockOn()) {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	} else {
+	}
+	else {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	}
 
@@ -119,22 +119,19 @@ void Player::Update(float deltaTime)
 	}
 }
 
-void Player::Draw()
-{
+void Player::Draw() {
 	weapon_->Draw();
 	Object3d::Draw();
 
 }
 
-void Player::DrawEffect()
-{
+void Player::DrawEffect() {
 
 	combat_->Draw();
 }
 
 #ifdef _DEBUG
-void Player::DebugGui()
-{
+void Player::DebugGui() {
 	stateMachine_->DebugGui();
 	ImGui::Begin("Player");
 	Object3d::DebugGui();
@@ -147,22 +144,19 @@ void Player::DebugGui()
 
 #endif // _DEBUG
 
-void Player::ChangeState(const std::string& stateName)
-{
+void Player::ChangeState(const std::string& stateName) {
 	stateMachine_->ChangeState(*this, stateName);
 }
 
-void Player::ExecuteCommand(const PlayerCommand& command)
-{
+void Player::ExecuteCommand(const PlayerCommand& command) {
 	// ステートの更新
 	if (!combat_->IsAttacking()) {
 		stateMachine_->ExecuteCommand(*this, command);
-	} 
+	}
 	combat_->ExecuteCommand(command);
 }
 
-void Player::Move(float deltaTime)
-{
+void Player::Move(float deltaTime) {
 	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
 	if (!camera) return;
 	// 入力のcontext
@@ -212,8 +206,7 @@ void Player::Move(float deltaTime)
 	}
 }
 
-void Player::LockOn()
-{
+void Player::LockOn() {
 	if (lockOn_->IsLockOn()) {
 		auto* target = lockOn_->GetCurrentTarget();
 
@@ -228,8 +221,7 @@ void Player::LockOn()
 	}
 }
 
-void Player::OnCollisionEnter(BaseCollider* other)
-{
+void Player::OnCollisionEnter(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
@@ -246,31 +238,35 @@ void Player::OnCollisionEnter(BaseCollider* other)
 		if (outNormal.x == 1.0f) {
 			// 右に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
+		}
+		else if (outNormal.x == -1.0f) {
 			// 左に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
+		}
+		else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
 			//velocity_.y = 0.0f;
 			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
+		}
+		else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
 			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
+		}
+		else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
+		}
+		else if (outNormal.z == -1.0f) {
 			// 手前に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
 	}
 }
 
-void Player::OnCollisionStay(BaseCollider* other)
-{
+void Player::OnCollisionStay(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
@@ -287,30 +283,34 @@ void Player::OnCollisionStay(BaseCollider* other)
 		if (outNormal.x == 1.0f) {
 			// 右に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
+		}
+		else if (outNormal.x == -1.0f) {
 			// 左に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
+		}
+		else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
 			//velocity_.y = 0.0f;
 			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
+		}
+		else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
 			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
+		}
+		else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
+		}
+		else if (outNormal.z == -1.0f) {
 			// 手前に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
 	}
 }
 
-void Player::OnCollisionExit(BaseCollider* other)
-{
+void Player::OnCollisionExit(BaseCollider* other) {
 	other;
 }

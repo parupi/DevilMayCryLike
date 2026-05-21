@@ -43,20 +43,20 @@ private:
 	// 入力受付状態の更新
 	AttackRequestData UpdateCancel(Player& player);
 	
-	TimeData stateTime_;
+	TimeData stateTime_{};
 
 	enum class AttackPhase {
 		Startup, // 予備動作
 		Active, // 攻撃中
 		Recovery, // 硬直
 		Cancel, // 入力待ち時間
-	}attackPhase_;
+	}attackPhase_{};
 
 	GlobalVariables* gv = GlobalVariables::GetInstance();
 
-	AttackData attackData_;
+	AttackData attackData_{};
 	// 派生先を管理するためのタイマー
-	TimeData attackChangeTimer_;
+	TimeData attackChangeTimer_{};
 
 	std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
 	bool isFinish_ = false;

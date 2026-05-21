@@ -21,10 +21,11 @@ enum class ReactionType {
 
 // 攻撃の情報
 struct AttackData {
-	std::string name; // 名前
+	std::string name = ""; // 名前
 	// 挙動系
 	int32_t pointCount = 0;                      // 制御点の数
 	std::vector<Vector3> controlPoints;      // 制御点（Vector3）
+	std::vector<Vector3> controlRotations;   // 制御点の回転（Vector3）
 
 	// 移動系
 	Vector3 moveVelocity{};                  // 攻撃中の移動速度
@@ -68,11 +69,11 @@ struct AttackData {
 struct DamageInfo {
     float damage = 0.0f;
 
-    Vector3 hitPosition;
-    Vector3 hitNormal;
-    Vector3 attackerPosition;
+	Vector3 hitPosition{};
+	Vector3 hitNormal{};
+	Vector3 attackerPosition{};
     // ノックバックの方向
-    Vector3 direction;
+	Vector3 direction{};
 
     ReactionType type = ReactionType::HitStun;
 
@@ -88,8 +89,8 @@ struct DamageInfo {
 };
 
 struct MoveIntent {
-	Vector3 moveDir; // 入力方向
-	float moveScale; // 0.0f〜1.0f
-	bool jump; // このフレームでジャンプしたい
-	bool dash; // ダッシュしたい
+	Vector3 moveDir{}; // 入力方向
+	float moveScale = 0.0f; // 0.0f〜1.0f
+	bool jump =	false; // このフレームでジャンプしたい
+	bool dash = false; // ダッシュしたい
 };

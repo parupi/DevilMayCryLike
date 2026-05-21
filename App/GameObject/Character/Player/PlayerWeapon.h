@@ -37,6 +37,8 @@ private:
 
 	Player* player_ = nullptr;
 
+	Vector3 defaultPosition_{};
+	Vector3 defaultRotation_{};
 
 	ParticleEmitter* emitter_;
 };

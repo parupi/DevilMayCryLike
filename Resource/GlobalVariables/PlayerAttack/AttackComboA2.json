@@ -33,6 +33,36 @@
             1.0,
             1.5
         ],
+        "ControlRotation_0": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
@@ -64,7 +94,7 @@
         "PointCount": 6,
         "PostDelay": 0.07999999821186066,
         "Posture": 0,
-        "PreDelay": 0.07999999821186066,
+        "PreDelay": 0.11999999731779099,
         "ReactionType": 0,
         "RootAttackFlag": false,
         "StunTime": 0.10000000149011612,

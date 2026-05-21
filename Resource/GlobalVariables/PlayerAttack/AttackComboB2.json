@@ -2,6 +2,7 @@
     "AttackComboB2": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
+        "ButtonIndex": 0,
         "ControlPoint_0": [
             -0.6000000238418579,
             -0.30000001192092896,
@@ -67,16 +68,84 @@
             0.6000000238418579,
             0.9200000166893005
         ],
+        "ControlRotation_0": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_10": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_11": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_12": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_6": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_7": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_8": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_9": [
+            0.0,
+            0.0,
+            0.0
+        ],
         "Damage": 1.0,
+        "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.03999999910593033,
         "HitStopTime": 0.029999999329447746,
         "ImpulseForce": 18.0,
+        "IsAir": false,
         "KnockBackSpeed": [
             0.0,
             0.0,
             2.0
         ],
+        "LockOnFlag": false,
         "MoveSpeed": [
             0.0,
             0.0,
@@ -97,6 +166,7 @@
         "Posture": 0,
         "PreDelay": 0.07999999821186066,
         "ReactionType": 0,
+        "RootAttackFlag": false,
         "StunTime": 0.11999999731779099,
         "TorqueForce": 0.0,
         "TotalDuration": 0.75,

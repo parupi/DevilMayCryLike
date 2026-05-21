@@ -61,6 +61,9 @@ public:
 	void LoadFile(const std::string& directoryName, const std::string& groupName);
 	void LoadFiles(const std::string& directoryName);
 
+	// アイテムの存在確認
+	bool HasItem(const std::string& groupName, const std::string& key) const;
+
 	// ディレクトリ内のグループ名一覧取得
 	std::vector<std::string> GetGroupNames(const std::string& directoryName) const;
 private:
