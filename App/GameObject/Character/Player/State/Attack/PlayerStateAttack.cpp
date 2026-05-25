@@ -140,10 +140,10 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 			return req;
 		}
 
-		if (player.IsLockOn()) {
-			// スティックの状況をもとに動きを変える
+		//if (player.IsLockOn()) {
+		//	// スティックの状況をもとに動きを変える
 
-		}
+		//}
 
 		const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
 
@@ -246,6 +246,14 @@ void PlayerStateAttack::DrawControlPoints(Player& player) {
 	for (size_t i = 0; i < curvePoints.size() - 1; i++) {
 		PrimitiveLineDrawer::GetInstance()->DrawLine(player.GetWorldTransform()->GetTranslation() + curvePoints[i], player.GetWorldTransform()->GetTranslation() + curvePoints[i + 1], { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
+}
+
+bool PlayerStateAttack::HasBranch(Player& player) const {
+	const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
+
+	int nextCount = static_cast<int>(node.nextAttacks.size());
+
+	return nextCount > 0;
 }
 
 void PlayerStateAttack::UpdatePhase(float time) {

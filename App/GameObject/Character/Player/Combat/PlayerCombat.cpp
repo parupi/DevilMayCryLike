@@ -28,21 +28,36 @@ void PlayerCombat::Update(float deltaTime) {
 	for (auto& state : states_) {
 		state.second->UpdateAttackData();
 	}
+	// コンボのリセット処理
+	if (waitingForNextCombo_) {
 
-	//ImGui::Begin("Debug");
-	//ImGui::Text("Current Attack Num: %d", static_cast<int>(currentState_.size()));
-	//ImGui::Text("Current Attack State: %s", currentState_.empty() ? "None" : currentState_.back()->name_.c_str());
-	//ImGui::End();
+		comboResetTimer_ -= deltaTime;
+
+		if (comboResetTimer_ <= 0.0f) {
+			waitingForNextCombo_ = false;
+
+			// 納刀モーション
+			AddState("Sheathe");
+		}
+	}
 
 	if (currentState_.empty()) return;
 
 	auto& top = currentState_.back();
 
 	top->Update(*player_, deltaTime);
-
+	// 攻撃が終了していたらスタックから抜ける
 	if (top->IsFinished()) {
+		// スタックから抜ける前に、もしこの攻撃が派生可能だったら、次の攻撃を待つ状態に入る
+		bool wasBranching = top->HasBranch(*player_);
+
 		top->Exit(*player_);
 		currentState_.pop_back();
+		// 次の攻撃を待つ状態に入る
+		if (wasBranching) {
+			waitingForNextCombo_ = true;
+			comboResetTimer_ = 0.3f;
+		}
 	}
 }
 
@@ -52,14 +67,15 @@ void PlayerCombat::Draw() {
 	}
 }
 
-void PlayerCombat::ChangeState(const std::string& stateName) {
+void PlayerCombat::AddState(const std::string& stateName) {
+	// 攻撃中でなければそのまま遷移
 	if (currentState_.empty()) {
 		auto it = states_[stateName].get();
 		it->Enter(*player_);
 		currentState_.push_back(it);
 		return;
 	}
-
+	// 攻撃中であっても、現在の攻撃が割り込み可能であれば遷移
 	if (currentState_.back()->CanBeInterrupted()) {
 		auto it = states_[stateName].get();
 		it->Enter(*player_);
@@ -72,19 +88,19 @@ void PlayerCombat::ChangeState(const std::string& stateName) {
 void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 	// 攻撃の入力か確認
 	if (command.action != PlayerAction::Attack) return;
-	// 次の攻撃がすでにある場合は新しい攻撃を受け付けない
-	//if (currentState_.size() >= 2) return;
+	// 次段入力された
+	waitingForNextCombo_ = false;
 
 	// 攻撃がない場合一段目攻撃を設定 存在したらその攻撃を派生させる
 	if (currentState_.empty()) {
 		if (player_->IsLockOn()) {
 			if (player_->GetOnGround()) {
 				if (command.stickDir.y <= -0.7f) {
-					ChangeState("AttackHighTime");
+					AddState("AttackHighTime");
 					return;
 				}
 				if (command.stickDir.y >= 0.7f) {
-					ChangeState("Stinger");
+					AddState("Stinger");
 					return;
 				}
 			}
@@ -92,10 +108,10 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 
 		// ここまで来て攻撃が見つからなかったら通常
 		if (player_->GetOnGround()) {
-			ChangeState("AttackComboA1");
+			AddState("AttackComboA1");
 		}
 		else {
-			ChangeState("AttackAerialRave1");
+			AddState("AttackAerialRave1");
 		}
 	}
 	else {
@@ -111,7 +127,7 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 			player_->ChangeState("Air");
 			break;
 		case AttackRequest::ChangeAttack:
-			ChangeState(req.nextAttack);
+			AddState(req.nextAttack);
 			break;
 		case AttackRequest::None:
 			int a = 0;
@@ -216,10 +232,6 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 		}
 	}
 
-	//for (int32_t i = 0; i < pointCount; ++i) {
-	//	Vector3& point = global_->GetValueRef<Vector3>(attackName, "ControlPoint_" + std::to_string(i));
-	//	ImGui::DragFloat3(("P" + std::to_string(i)).c_str(), &point.x, 0.01f);
-	//}
 	for (int32_t i = 0; i < pointCount; ++i) {
 
 		ImGui::PushID(i);

@@ -31,6 +31,8 @@ public:
 	bool IsFinished() const { return isFinish_; };
 	// 中断できるかどうか
 	bool CanBeInterrupted() const { return attackPhase_ == AttackPhase::Cancel; }
+	// 派生先の攻撃があるかどうか
+	bool HasBranch(Player& player) const;
 private:
 	// フェーズの更新
 	void UpdatePhase(float time);
@@ -58,7 +60,7 @@ private:
 	// 派生先を管理するためのタイマー
 	TimeData attackChangeTimer_{};
 
-	std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
+	//std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
 	bool isFinish_ = false;
 };
 

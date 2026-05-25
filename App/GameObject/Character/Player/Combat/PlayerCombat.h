@@ -52,7 +52,7 @@ public:
 	// 描画
 	void Draw();
 	// 攻撃を変更する TODO : FSMじゃなくてStateStackを使う
-	void ChangeState(const std::string& stateName);
+	void AddState(const std::string& stateName);
 
 	//std::string GetAttackStateNameByIndex(int32_t index) const;
 
@@ -91,5 +91,9 @@ private:
 	Player* player_ = nullptr;
 
 	std::unique_ptr<AttackPlayer> attackPlayer_ = nullptr;
+	// コンボのリセットタイマー
+	float comboResetTimer_ = 0.0f;
+	// 次の攻撃入力を待っているかどうか
+	bool waitingForNextCombo_ = false;
 };
 

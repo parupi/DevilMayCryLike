@@ -22,8 +22,7 @@
 #include "State/GameSceneStateMenu.h"
 #include "State/GameSceneStateStart.h"
 
-void GameScene::Initialize()
-{
+void GameScene::Initialize() {
 	// ステートの生成
 	states_["Start"] = std::make_unique<GameSceneStateStart>();
 	states_["Play"] = std::make_unique<GameSceneStatePlay>();
@@ -103,10 +102,8 @@ void GameScene::Initialize()
 	lockOnSystem_->Initialize(inputContext_->GetLockOnInput(), player_);
 
 	// 生成された敵をロックオン対象に設定する
-	for (auto* obj : Object3dManager::GetInstance()->GetAllObject())
-	{
-		if (auto* enemy = dynamic_cast<Enemy*>(obj))
-		{
+	for (auto* obj : Object3dManager::GetInstance()->GetAllObject()) {
+		if (auto* enemy = dynamic_cast<Enemy*>(obj)) {
 			enemy->SetupLockOn(lockOnSystem_.get());
 		}
 	}
@@ -133,8 +130,7 @@ void GameScene::Initialize()
 	//deathText_->SetPosition({ 640.0f, 120.0f });
 }
 
-void GameScene::Finalize()
-{
+void GameScene::Finalize() {
 	SpriteManager::GetInstance()->DeleteAllSprite();
 	Object3dManager::GetInstance()->DeleteAllObject();
 	CollisionManager::GetInstance()->DeleteAllCollider();
@@ -145,8 +141,7 @@ void GameScene::Finalize()
 	EventManager::GetInstance()->Finalize();
 }
 
-void GameScene::Update()
-{
+void GameScene::Update() {
 	lightManager_->Update();
 	gameUI_->Update();
 
@@ -167,17 +162,12 @@ void GameScene::Update()
 
 	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
 
-	ImGui::Begin("GameScene Debug Info");
-	ImGui::DragFloat2("uvSize", &Object3dManager::GetInstance()->FindObject("Ground2")->GetRenderer("Ground2")->GetModel()->GetMaterials()[1]->GetUVData().scale.x, 0.01f);
-	ImGui::End();
-
 #ifdef _DEBUG
 	//DebugUpdate();
 #endif
 }
 
-void GameScene::Draw()
-{
+void GameScene::Draw() {
 	// スプライトの描画前処理
 	//SpriteManager::GetInstance()->DrawSet();
 	// プレイヤーのスプライト描画
@@ -195,13 +185,10 @@ void GameScene::Draw()
 	ParticleManager::GetInstance()->Draw();
 }
 
-void GameScene::DrawRTV()
-{
-}
+void GameScene::DrawRTV() {}
 
 #ifdef _DEBUG
-void GameScene::DebugUpdate()
-{
+void GameScene::DebugUpdate() {
 	if (player_) {
 		player_->DebugGui();
 	}
@@ -210,8 +197,7 @@ void GameScene::DebugUpdate()
 }
 #endif // _DEBUG
 
-void GameScene::ChangeState(const std::string& stateName)
-{
+void GameScene::ChangeState(const std::string& stateName) {
 	currentState_->Exit(*this);
 	auto it = states_.find(stateName);
 	if (it != states_.end()) {
