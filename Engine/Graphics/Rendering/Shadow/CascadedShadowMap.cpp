@@ -3,27 +3,36 @@
 #include "3d/Camera/BaseCamera.h"
 #include "3d/Light/LightManager.h"
 #include "3d/Camera/CameraManager.h"
+#include <math/Vector4.h>
+#include <math/function.h>
+#include <algorithm>
+#include <cfloat>
+#ifdef _DEBUG
+#include <imgui.h>
+#endif
 
-void CascadedShadowMap::Initialize(DirectXManager* dxManager, uint32_t shadowMapSize)
-{
+void CascadedShadowMap::Initialize(DirectXManager* dxManager, uint32_t shadowMapSize) {
 	dxManager_ = dxManager;
 	shadowMapSize_ = shadowMapSize;
 
 	CreateDSV();
 
 	auto* resourceManager = dxManager_->GetResourceManager();
-	for (uint32_t i = 0; i < kCascadeCount; ++i)
-	{
+	for (uint32_t i = 0; i < kCascadeCount; ++i) {
 		lightVPIndex_[i] = resourceManager->CreateUploadBuffer(sizeof(LightData) * 128);
-
 		mappedLightVP_[i] = reinterpret_cast<LightVPConstants*>(resourceManager->Map(lightVPIndex_[i]));
 	}
+
+	// ライティングパス用: 全カスケードデータをまとめた CB
+	lightingCBIndex_  = resourceManager->CreateUploadBuffer(512); // 272B data, 256B-aligned allocation
+	mappedLightingCB_ = reinterpret_cast<CascadeLightingCB*>(resourceManager->Map(lightingCBIndex_));
 }
 
-void CascadedShadowMap::Update()
-{
+void CascadedShadowMap::Update() {
 	// カメラの情報を取得
 	camera_ = CameraManager::GetInstance()->GetActiveCamera();
+	if (!camera_) return;
+
 	// ライトの情報を取得
 	lights_ = LightManager::GetInstance()->GetAllLightData();
 	// DirectionalLight以外を削除
@@ -40,10 +49,24 @@ void CascadedShadowMap::Update()
 
 	CalculateCascadeSplits();
 	CalculateLightMatrices();
+
+	// シャドウパス用（各カスケードの VP 行列を個別バッファに書き込み）
+	for (uint32_t i = 0; i < kCascadeCount; ++i) {
+		mappedLightVP_[i]->lightViewProj = cascades_[i].lightViewProj;
+	}
+
+	// ライティングパス用（全カスケードデータをまとめて書き込み）
+	mappedLightingCB_->lightViewProj0   = cascades_[0].lightViewProj;
+	mappedLightingCB_->lightViewProj1   = cascades_[1].lightViewProj;
+	mappedLightingCB_->lightViewProj2   = cascades_[2].lightViewProj;
+	mappedLightingCB_->cascadeFar[0]    = cascades_[0].splitDepth;
+	mappedLightingCB_->cascadeFar[1]    = cascades_[1].splitDepth;
+	mappedLightingCB_->cascadeFar[2]    = cascades_[2].splitDepth;
+	mappedLightingCB_->cascadeFar[3]    = 0.0f;
+	mappedLightingCB_->cameraView       = camera_->GetViewMatrix();
 }
 
-void CascadedShadowMap::Bind(uint32_t rootIndex, uint32_t cascadeIndex)
-{
+void CascadedShadowMap::Bind(uint32_t rootIndex, uint32_t cascadeIndex) {
 	auto* cmd = dxManager_->GetCommandContext()->GetCommandList();
 	auto* resourceManager = dxManager_->GetResourceManager();
 
@@ -51,8 +74,7 @@ void CascadedShadowMap::Bind(uint32_t rootIndex, uint32_t cascadeIndex)
 	cmd->SetGraphicsRootConstantBufferView(rootIndex, resourceManager->GetGPUVirtualAddress(lightVPIndex_[cascadeIndex]));
 }
 
-void CascadedShadowMap::BeginCascade(uint32_t index)
-{
+void CascadedShadowMap::BeginCascade(uint32_t index) {
 	auto* ctx = dxManager_->GetCommandContext();
 
 	ctx->TransitionResource(
@@ -72,11 +94,12 @@ void CascadedShadowMap::BeginCascade(uint32_t index)
 
 	auto dsv = dxManager_->GetDsvManager()->GetDsvHandle(dsvIndices_[index]);
 
+	ctx->GetCommandList()->ClearDepthStencilView(dsv, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+
 	ctx->SetRenderTargets(nullptr, 0, &dsv);
 }
 
-void CascadedShadowMap::EndCascade(uint32_t index)
-{
+void CascadedShadowMap::EndCascade(uint32_t index) {
 	dxManager_->GetCommandContext()->TransitionResource(
 		shadowMaps_[index].Get(),
 		D3D12_RESOURCE_STATE_DEPTH_WRITE,
@@ -84,69 +107,113 @@ void CascadedShadowMap::EndCascade(uint32_t index)
 	);
 }
 
-void CascadedShadowMap::CalculateCascadeSplits()
-{
-	float nearZ = camera_->GetNearClip();
-	float farZ = camera_->GetFarClip();
+void CascadedShadowMap::BindSrv() {
+	auto* cmd = dxManager_->GetCommandContext()->GetCommandList();
+	auto* srvManager = dxManager_->GetSrvManager();
 
-	cascades_[0].splitDepth = nearZ + 10.0f;
-	cascades_[1].splitDepth = nearZ + 30.0f;
-	cascades_[2].splitDepth = farZ;
+	// srvIndices_[0~2] は連続確保済みのためテーブル先頭だけ指定すれば t5,t6,t7 が全て対応する
+	cmd->SetGraphicsRootDescriptorTable(4, srvManager->GetGPUDescriptorHandle(srvIndices_[0]));
 }
 
-void CascadedShadowMap::CalculateLightMatrices()
-{
-	float prevSplit = camera_->GetNearClip();
+void CascadedShadowMap::BindCascadeCB(uint32_t rootIndex) {
+	auto* cmd             = dxManager_->GetCommandContext()->GetCommandList();
+	auto* resourceManager = dxManager_->GetResourceManager();
 
-	for (uint32_t i = 0; i < kCascadeCount; ++i)
-	{
-		float split = cascades_[i].splitDepth;
+	cmd->SetGraphicsRootConstantBufferView(rootIndex, resourceManager->GetGPUVirtualAddress(lightingCBIndex_));
+}
 
-		// Frustum8点を取得
-		Vector3 frustumView[8];
-		GetFrustumCornersViewSpace(camera_->GetFovY(), camera_->GetAspectRate(), prevSplit, split, frustumView);
+void CascadedShadowMap::CalculateCascadeSplits() {
+	if (!camera_) return;
 
-		// ViewからWorldに変換
-		Matrix4x4 invView = Inverse(camera_->GetViewMatrix());
-		Vector3 frustumWorld[8]{};
+	float nearVal = camera_->GetNearClip();
+	float farVal  = shadowFar_;
 
-		for (int j = 0; j < 8; ++j) {
-			frustumWorld[j] = Transform(frustumView[j], invView);
+	// Practical Split Scheme: 対数分割と均等分割を splitLambda_ でブレンド
+	for (uint32_t i = 1; i <= kCascadeCount; ++i) {
+		float t         = float(i) / float(kCascadeCount);
+		float logSplit  = nearVal * powf(farVal / nearVal, t);
+		float uniSplit  = nearVal + (farVal - nearVal) * t;
+		cascades_[i - 1].splitDepth = splitLambda_ * logSplit + (1.0f - splitLambda_) * uniSplit;
+	}
+	// 最終カスケードは必ず shadowFar_ まで
+	cascades_[kCascadeCount - 1].splitDepth = farVal;
+}
+
+void CascadedShadowMap::CalculateLightMatrices() {
+	if (!camera_) return;
+	if (lights_.empty()) return;
+
+	Vector3 lightDir = Normalize(lights_[0].direction);
+
+	Vector3 up = { 0.0f, 1.0f, 0.0f };
+	if (fabsf(Dot(lightDir, up)) > 0.999f) {
+		up = { 0.0f, 0.0f, 1.0f };
+	}
+
+	float fovY   = camera_->GetFovY();
+	float aspect = camera_->GetAspectRate();
+	const Matrix4x4& viewMatrix = camera_->GetViewMatrix();
+
+	float cascadeNear = camera_->GetNearClip();
+
+	for (uint32_t cascIdx = 0; cascIdx < kCascadeCount; ++cascIdx) {
+		float nearZ = cascadeNear;
+		float farZ  = cascades_[cascIdx].splitDepth;
+		cascadeNear = farZ;  // 次のカスケードの near
+
+		// このカスケード用の VP 逆行列でワールド空間フラスタムコーナーを取得
+		Matrix4x4 cascadeProj = MakePerspectiveFovMatrix(fovY, aspect, nearZ, farZ);
+		Matrix4x4 invVP       = Inverse(viewMatrix * cascadeProj);
+
+		// NDC 8頂点 (DX12: Z=[0,1]) → ワールド空間
+		Vector3 corners[8];
+		int idx = 0;
+		for (int zi = 0; zi < 2; ++zi) {
+			float nz = (zi == 0) ? 0.0f : 1.0f;
+			for (int yi = 0; yi < 2; ++yi) {
+				float ny = (yi == 0) ? -1.0f : 1.0f;
+				for (int xi = 0; xi < 2; ++xi) {
+					float nx = (xi == 0) ? -1.0f : 1.0f;
+					Vector4 ndc   = { nx, ny, nz, 1.0f };
+					Vector4 world = ndc * invVP;
+					corners[idx++] = { world.x / world.w, world.y / world.w, world.z / world.w };
+				}
+			}
 		}
 
-		Vector3 center{ 0.0f, 0.0f, 0.0f };
-		for (auto& v : frustumWorld) {
-			center += v;
+		// フラスタムコーナーの重心を注視点とするライトビュー行列を生成
+		Vector3 center = {};
+		for (int i = 0; i < 8; ++i) {
+			center.x += corners[i].x;
+			center.y += corners[i].y;
+			center.z += corners[i].z;
 		}
-		center /= 8.0f;
+		center.x /= 8.0f;
+		center.y /= 8.0f;
+		center.z /= 8.0f;
 
-		// World → LightView
-		Vector3 lightDir = Normalize(lights_[0].direction);
+		Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * shadowDistance_, center, up);
 
-		Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * 100.0f, center, { 0.0f, 1.0f, 0.0f });
-
-		Vector3 frustumLight[8]{};
-		for (int j = 0; j < 8; ++j) {
-			frustumLight[j] = Transform(frustumWorld[j], lightView);
+		// ライトビュー空間でのAABBを計算してタイトなオルソ投影を生成
+		float minX = FLT_MAX, maxX = -FLT_MAX;
+		float minY = FLT_MAX, maxY = -FLT_MAX;
+		float minZ = FLT_MAX, maxZ = -FLT_MAX;
+		for (int i = 0; i < 8; ++i) {
+			Vector3 lv = Transform(corners[i], lightView);
+			minX = (std::min)(minX, lv.x); maxX = (std::max)(maxX, lv.x);
+			minY = (std::min)(minY, lv.y); maxY = (std::max)(maxY, lv.y);
+			minZ = (std::min)(minZ, lv.z); maxZ = (std::max)(maxZ, lv.z);
 		}
 
-		Vector3 min = frustumLight[0];
-		Vector3 max = frustumLight[0];
-		for (int j = 1; j < 8; ++j) {
-			min = Min(min, frustumLight[j]);
-			max = Max(max, frustumLight[j]);
-		}
+		// 影の送り主（カメラ後方のオブジェクト）を含めるため near を後退させる
+		minZ -= shadowDistance_;
 
-		Matrix4x4 lightProj = CreateOrthographic(max.x - min.x, max.y - min.y, min.z, max.z);
-
-		cascades_[i].lightViewProj = lightView * lightProj;
-
-		prevSplit = split;
+		Matrix4x4 lightProj = MakeOrthographicMatrix(minX, maxY, maxX, minY, minZ, maxZ);
+		cascades_[cascIdx].lightViewProj = lightView * lightProj;
 	}
 }
 
-void CascadedShadowMap::GetFrustumCornersViewSpace(float fovY, float aspect, float nearZ, float farZ, Vector3 outCorners[8])
-{
+void CascadedShadowMap::GetFrustumCornersViewSpace(float fovY, float aspect, float nearZ, float farZ, Vector3 outCorners[8]) {
 	float tanFov = tanf(fovY * 0.5f);
 
 	float nearH = nearZ * tanFov;
@@ -167,11 +234,11 @@ void CascadedShadowMap::GetFrustumCornersViewSpace(float fovY, float aspect, flo
 	outCorners[7] = { -farW, -farH, farZ };
 }
 
-void CascadedShadowMap::CreateDSV()
-{
-	for (uint32_t i = 0; i < kCascadeCount; ++i)
-	{
+void CascadedShadowMap::CreateDSV() {
+	for (uint32_t i = 0; i < kCascadeCount; ++i) {
 		GpuResourceFactory::TextureDesc desc{};
+		desc.width = shadowMapSize_;
+		desc.height = shadowMapSize_;
 		desc.format = DXGI_FORMAT_R24G8_TYPELESS;
 		desc.usage = GpuResourceFactory::Usage::DepthStencil;
 
@@ -192,3 +259,39 @@ void CascadedShadowMap::CreateDSV()
 		);
 	}
 }
+
+#ifdef _DEBUG
+void CascadedShadowMap::DrawDebugUI() {
+	ImGui::Begin("Shadow Map (CSM)");
+
+	ImGui::Text("Parameters");
+	ImGui::Separator();
+	ImGui::DragFloat("Light Distance", &shadowDistance_, 1.0f, 10.0f, 500.0f, "%.1f");
+	ImGui::DragFloat("Shadow Far",     &shadowFar_,      1.0f, 1.0f,  2000.0f, "%.1f");
+	ImGui::SliderFloat("Split Lambda", &splitLambda_,    0.0f, 1.0f,  "%.2f");
+
+	ImGui::Spacing();
+	ImGui::Text("Cascade Split Depths (view-space Z)");
+	ImGui::Separator();
+	for (uint32_t i = 0; i < kCascadeCount; ++i) {
+		ImGui::Text("  Cascade %u far: %.1f", i, cascades_[i].splitDepth);
+	}
+
+	if (!lights_.empty()) {
+		ImGui::Spacing();
+		ImGui::Text("Light Direction");
+		ImGui::Separator();
+		ImGui::Text("  (%.2f, %.2f, %.2f)", lights_[0].direction.x, lights_[0].direction.y, lights_[0].direction.z);
+	}
+
+	if (camera_) {
+		ImGui::Spacing();
+		Vector3 p = camera_->GetTranslate();
+		ImGui::Text("Camera Pos");
+		ImGui::Separator();
+		ImGui::Text("  (%.1f, %.1f, %.1f)", p.x, p.y, p.z);
+	}
+
+	ImGui::End();
+}
+#endif

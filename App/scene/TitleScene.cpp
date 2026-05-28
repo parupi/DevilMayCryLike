@@ -94,7 +94,7 @@ void TitleScene::Update()
 
 	sphereEmitter_->Update();
 
-	lightManager_->Update();
+	//lightManager_->Update();
 
 	titleUI_->Update();
 

@@ -19,6 +19,9 @@ void LightManager::Initialize(DirectXManager* dxManager)
 {
     dxManager_ = dxManager;
     CreateLightBuffers();
+
+    csm = std::make_unique<CascadedShadowMap>();
+    csm->Initialize(dxManager, 1280);
 }
 
 void LightManager::Finalize()
@@ -56,8 +59,10 @@ void LightManager::Update()
 
     *mappedCountPtr_ = static_cast<UINT>(gpuLightCache_.size());
 
+    csm->Update();
+
 #ifdef _DEBUG
-    // エディター描画
+    csm->DrawDebugUI();
     DrawLightEditor();
 #endif // DEBUG
 }
