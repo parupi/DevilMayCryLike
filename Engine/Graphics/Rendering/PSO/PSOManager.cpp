@@ -1589,9 +1589,9 @@ void PSOManager::CreateLightingPathSignature()
 	descriptorRangesForLight[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
 	D3D12_DESCRIPTOR_RANGE descriptorRangesForShadow[1] = {};
-	// range 1: Shadow SRV (t5)
+	// range: Shadow SRVs (t5, t6, t7 = cascade 0, 1, 2)
 	descriptorRangesForShadow[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-	descriptorRangesForShadow[0].NumDescriptors = 1;            // t5
+	descriptorRangesForShadow[0].NumDescriptors = 3;            // t5, t6, t7
 	descriptorRangesForShadow[0].BaseShaderRegister = 5;        // t5
 	descriptorRangesForShadow[0].RegisterSpace = 0;
 	descriptorRangesForShadow[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;

@@ -62,7 +62,7 @@ void LightManager::Update()
     csm->Update();
 
 #ifdef _DEBUG
-    // エディター描画
+    csm->DrawDebugUI();
     DrawLightEditor();
 #endif // DEBUG
 }
