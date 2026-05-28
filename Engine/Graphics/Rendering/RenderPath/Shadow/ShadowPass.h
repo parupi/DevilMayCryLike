@@ -19,6 +19,8 @@ public:
 	void Execute();
 	// 描画後処理
 	void EndDraw();
+	// SRVIndexを取得
+	uint32_t GetSrvIndex() const { return srvIndex_; }
 private:
 	void CreateResource();
 

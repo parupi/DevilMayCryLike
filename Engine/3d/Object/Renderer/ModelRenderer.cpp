@@ -55,8 +55,6 @@ void ModelRenderer::DrawShadow() {
 	localTransform_->BindToShader(commandList, 0);
 
 	model_->DrawShadow();
-
-	commandList->DrawInstanced(3, 1, 0, 0);
 }
 
 void ModelRenderer::SetModel(const std::string& filePath) {

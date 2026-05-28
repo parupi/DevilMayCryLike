@@ -147,7 +147,7 @@ void GameScene::Finalize()
 
 void GameScene::Update()
 {
-	lightManager_->Update();
+	//lightManager_->Update();
 	gameUI_->Update();
 
 	if (currentState_) {

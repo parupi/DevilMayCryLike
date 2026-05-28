@@ -27,6 +27,8 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
 
 	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
+	// 地面にしっかりつくようにする
+	GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 0.5f;
 
 	// StateMachine生成
 	stateMachine_ = std::make_unique<PlayerStateMachine>();
@@ -48,6 +50,7 @@ void Player::Initialize()
 	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
+	//static_cast<AABBCollider*>(GetCollider(name_))->transform_->GetTranslation().y += 0.1f;
 	// 武器のレンダラー生成
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成

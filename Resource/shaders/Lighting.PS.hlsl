@@ -96,13 +96,15 @@ float4 main(PSInput input) : SV_Target
 
     float3 finalColor = float3(0.06, 0.06, 0.06); // ambient
 
+    float shadow = CalcShadow(P);
+
     for (uint i = 0; i < LightCount; i++)
     {
         LightData light = Lights[i];
         if (!light.enabled) continue;
 
         if (light.type == 0)
-            finalColor += CalcDirectionalLight(light, N, V, albedo);
+            finalColor += CalcDirectionalLight(light, N, V, albedo) * shadow;
 
         else if (light.type == 1)
             finalColor += CalcPointLight(light, P, N, V, albedo);

@@ -12,6 +12,7 @@
 #include "SpotLight.h"
 #include "Graphics/Device/DirectXManager.h"
 #include <vector>
+#include "Graphics/Rendering/Shadow/CascadedShadowMap.h"
 
 class LightManager
 {
@@ -36,6 +37,8 @@ public:
 	void BindLightsToShader();
 	// 全ライトの情報を取得
 	std::vector<LightData> GetAllLightData() { return gpuLightCache_; }
+
+	CascadedShadowMap* GetCSM() { return csm.get(); }
 
 #ifdef _DEBUG
 	// デバッグ描画をする
@@ -62,6 +65,8 @@ private:
 	const UINT MaxLights = 128;
 	// srvIndex
 	uint32_t srvIndex_ = 0;
+
+	std::unique_ptr<CascadedShadowMap> csm = nullptr;
 
 	// デバッグ用
 #ifdef _DEBUG

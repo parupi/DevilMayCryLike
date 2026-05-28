@@ -401,3 +401,19 @@ Matrix4x4 CreateOrthographic(float width, float height, float nearZ, float farZ)
 
     return m;
 }
+
+Matrix4x4 CreateTranslationMatrix(float x, float y, float z)
+{
+    Matrix4x4 m{};
+
+    m.m[0][0] = 1.0f;
+    m.m[1][1] = 1.0f;
+    m.m[2][2] = 1.0f;
+    m.m[3][3] = 1.0f;
+
+    m.m[3][0] = x;
+    m.m[3][1] = y;
+    m.m[3][2] = z;
+
+    return m;
+}

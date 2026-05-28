@@ -13,8 +13,6 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include <3d/SkySystem/SkySystem.h>
 #include <Graphics/Rendering/RenderPath/ForwardRenderPath.h>
-#include <Graphics/Rendering/Shadow/CascadedShadowMap.h>
-#include <Graphics/Rendering/RenderPath/Shadow/ShadowPass.h>
 #include "Graphics/Rendering/RenderPath/RenderPipeline.h"
 
 class GuchisFramework
@@ -51,7 +49,6 @@ protected:
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
 	std::unique_ptr<RenderPipeline> renderPipeline_;
 
-	std::unique_ptr<CascadedShadowMap> csm = nullptr;
-	std::unique_ptr<ShadowPass> shadowPath = nullptr;
+
 };
 

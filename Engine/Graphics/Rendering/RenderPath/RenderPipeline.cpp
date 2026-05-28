@@ -29,6 +29,10 @@ void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManage
 
 	forwardPath = std::make_unique<ForwardRenderPath>();
 	forwardPath->Initialize(dxManager_, psoManager);
+
+	shadowPath = std::make_unique<ShadowPass>();
+	shadowPath->Initialize(dxManager, psoManager, LightManager::GetInstance()->GetCSM());
+
 	// rtvResourceの生成
 	auto* rtvManager = dxManager_->GetRtvManager();
 	auto* srvManager = dxManager_->GetSrvManager();
@@ -83,6 +87,13 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	/// GBufferPath（Deferredの各バッファ生成）
 	///---------------------------------------------------------
 	
+	shadowPath->BeginDraw();
+
+	shadowPath->Execute();
+
+	shadowPath->EndDraw();
+
+
 	TransitionToRTV();
 	
 	gBufferPath->Begin(dsvIndex_);
@@ -98,7 +109,10 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	///---------------------------------------------------------
 	TransitionToRTV();
 
-	lightingPath->Begin(rtvIndex_);
+	lightingPath->Begin(rtvIndex_, shadowPath->GetSrvIndex());
+	
+	LightManager::GetInstance()->GetCSM()->BindSrv();
+	LightManager::GetInstance()->GetCSM()->BindCascadeCB(5);
 
 	LightManager::GetInstance()->BindLightsToShader();
 	CameraManager::GetInstance()->BindCameraToShader();
