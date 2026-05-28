@@ -75,7 +75,7 @@ float CalcShadow(float3 worldPos)
 
     float2 uv;
     uv.x = shadowPos.x * 0.5 + 0.5;
-    uv.y = shadowPos.y * 0.5 + 0.5;
+    uv.y = -shadowPos.y * 0.5 + 0.5;
 
     float depth = shadowPos.z - 0.001f;
     

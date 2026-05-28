@@ -47,7 +47,7 @@ void MyGameTitle::Initialize()
 	// シーンマネージャーに最初のシーンをセット
 	SceneManager::GetInstance()->SetSceneFactory(sceneFactory_.get());
 	// シーンマネージャーに最初のシーンをセット
-	SceneManager::GetInstance()->ChangeScene("SAMPLE");
+	SceneManager::GetInstance()->ChangeScene("TITLE");
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(dxManager.get(), psoManager.get());
@@ -104,8 +104,8 @@ void MyGameTitle::Update()
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
+	LightManager::GetInstance()->Update();
 	OffScreenManager::GetInstance()->Update();
-	//csm->Update();
 #ifdef _DEBUG
 	SceneManager::GetInstance()->DebugUpdate();
 	ImGuiManager::GetInstance()->End();

@@ -96,13 +96,15 @@ float4 main(PSInput input) : SV_Target
 
     float3 finalColor = float3(0.06, 0.06, 0.06); // ambient
 
+    float shadow = CalcShadow(P);
+
     for (uint i = 0; i < LightCount; i++)
     {
         LightData light = Lights[i];
         if (!light.enabled) continue;
 
         if (light.type == 0)
-            finalColor += CalcDirectionalLight(light, N, V, albedo);
+            finalColor += CalcDirectionalLight(light, N, V, albedo) * shadow;
 
         else if (light.type == 1)
             finalColor += CalcPointLight(light, P, N, V, albedo);
@@ -110,22 +112,6 @@ float4 main(PSInput input) : SV_Target
         else if (light.type == 2)
             finalColor += CalcSpotLight(light, P, N, V, albedo);
     }
-    
-    float shadow = CalcShadow(P);
-
-    //float4 shadowPos = mul(float4(P, 1.0), LightViewProj);
-    //shadowPos.xyz /= shadowPos.w;
-
-    ////// 可視化（0〜1に変換）
-    //float3 debug = shadowPos.xyz * 0.5 + 0.5;
-    //return float4(shadowPos.z, shadowPos.z, shadowPos.z, 1);
-    ////return float4(shadowPos.xy * 0.5 + 0.5, 0, 1);
-    ////return float4(debug, 1.0);
-    
-    //float mapDepth = gShadow.Sample(sampler_Linear, uv);
-    //return float4(depth, mapDepth, 0, 1);
-    
-    finalColor *= shadow;
 
     return float4(finalColor, 1.0f);
 }

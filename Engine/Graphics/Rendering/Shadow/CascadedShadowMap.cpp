@@ -24,6 +24,8 @@ void CascadedShadowMap::Update()
 {
 	// カメラの情報を取得
 	camera_ = CameraManager::GetInstance()->GetActiveCamera();
+	if (!camera_) return;
+
 	// ライトの情報を取得
 	lights_ = LightManager::GetInstance()->GetAllLightData();
 	// DirectionalLight以外を削除
@@ -101,127 +103,42 @@ void CascadedShadowMap::BindSrv()
 
 void CascadedShadowMap::CalculateCascadeSplits()
 {
-	//float nearZ = camera_->GetNearClip();
-	//float farZ = camera_->GetFarClip();
-	
-	float nearZ = -500.0f;
-	float farZ = 500.0f;
-
-	cascades_[0].splitDepth = nearZ + 10.0f;
-	cascades_[1].splitDepth = nearZ + 30.0f;
-	cascades_[2].splitDepth = farZ;
-
-	//float farZ = camera_->GetFarClip();
-
-	//cascades_[0].splitDepth = farZ;
-
-	//// 他は無視
-	//for (uint32_t i = 1; i < kCascadeCount; ++i)
-	//{
-	//	cascades_[i].splitDepth = farZ;
-	//}
+	// 固定オルソ投影を使うため分割計算は不要
 }
 
 void CascadedShadowMap::CalculateLightMatrices()
 {
-	float prevSplit = camera_->GetNearClip();
+	if (!camera_) return;
+	if (lights_.empty()) return;
 
-	for (uint32_t i = 0; i < kCascadeCount; ++i)
-	{
-		float split = cascades_[i].splitDepth;
+	Vector3 lightDir = Normalize(lights_[0].direction);
 
-		// Frustum8点を取得
-		Vector3 frustumView[8];
-		GetFrustumCornersViewSpace(camera_->GetFovY(), camera_->GetAspectRate(), prevSplit, split, frustumView);
-
-		// ViewからWorldに変換
-		Matrix4x4 invView = Inverse(camera_->GetViewMatrix());
-		Vector3 frustumWorld[8]{};
-
-		for (int j = 0; j < 8; ++j) {
-			frustumWorld[j] = Transform(frustumView[j], invView);
-		}
-
-		Vector3 center{ 0.0f, 0.0f, 0.0f };
-		for (auto& v : frustumWorld) {
-			center += v;
-		}
-		center /= 8.0f;
-
-		// World → LightView
-		Vector3 lightDir = Normalize(lights_[0].direction);
-
-		//Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * 100.0f, center, { 0.0f, 1.0f, 0.0f });
-
-		float distance = 200.0f;
-		Matrix4x4 lightView = CreateLookAtMatrix(center - lightDir * distance, center, { 0,1,0 });
-
-		Vector3 frustumLight[8]{};
-		for (int j = 0; j < 8; ++j) {
-			frustumLight[j] = Transform(frustumWorld[j], lightView);
-		}
-
-		Vector3 min = frustumLight[0];
-		Vector3 max = frustumLight[0];
-		for (int j = 1; j < 8; ++j) {
-			min = Min(min, frustumLight[j]);
-			max = Max(max, frustumLight[j]);
-		}
-
-		//Matrix4x4 lightProj = CreateOrthographic(max.x - min.x, max.y - min.y, 0.0f, max.z - min.z);
-
-		float width = max.x - min.x;
-		float height = max.y - min.y;
-
-		//float centerX = (max.x + min.x) * 0.5f;
-		//float centerY = (max.y + min.y) * 0.5f;
-
-		//Matrix4x4 lightProj = CreateOrthographic(width, height, 0.0f, max.z - min.z);
-
-		//// 中心補正
-		//Matrix4x4 offset = CreateTranslationMatrix(-centerX, -centerY, -min.z);
-		//
-		//cascades_[i].lightViewProj = lightProj * lightView;
-
-		//cascades_[i].lightViewProj = lightProj * offset * lightView;
-
-		float nearZ = min.z;
-		float farZ = max.z;
-
-		Matrix4x4 lightProj = CreateOrthographic(width, height, nearZ, farZ);
-
-		cascades_[i].lightViewProj = lightProj * lightView;
-		cascades_[i].lightViewProj = lightView * lightProj;
-
-		prevSplit = split;
+	// lightDir が真上/真下の場合は up を前方向にする
+	Vector3 up = { 0.0f, 1.0f, 0.0f };
+	if (fabsf(Dot(lightDir, up)) > 0.999f) {
+		up = { 0.0f, 0.0f, 1.0f };
 	}
 
-	//Vector3 lightDir = Normalize(lights_[0].direction);
+	// カメラ位置を中心にシャドウマップを配置
+	Vector3 center = camera_->GetTranslate();
+	const float shadowDistance = 150.0f;
+	const float orthoSize      = 100.0f;  // 中心から50ユニット四方をカバー
+	const float shadowNear     = 0.1f;
+	const float shadowFar      = shadowDistance * 2.0f;
 
-	//Vector3 center = { 0,0,0 };
+	Matrix4x4 lightView = CreateLookAtMatrix(
+		center - lightDir * shadowDistance,
+		center,
+		up
+	);
 
-	//float distance = 100.0f;
+	Matrix4x4 lightProj = CreateOrthographic(orthoSize, orthoSize, shadowNear, shadowFar);
 
-	//Matrix4x4 lightView = CreateLookAtMatrix(
-	//	center - lightDir * distance,
-	//	center,
-	//	{ 0,1,0 }
-	//);
+	Matrix4x4 lightVP = lightView * lightProj;
 
-	//float width = 200.0f;
-	//float height = 200.0f;
-
-	//float nearZ = 0.1f;
-	//float farZ = 300.0f;
-
-	//Matrix4x4 lightProj = CreateOrthographic(width, height, nearZ, farZ);
-
-	//Matrix4x4 lightVP = lightProj * lightView;
-
-	//for (uint32_t i = 0; i < kCascadeCount; ++i)
-	//{
-	//	cascades_[i].lightViewProj = lightVP;
-	//}
+	for (uint32_t i = 0; i < kCascadeCount; ++i) {
+		cascades_[i].lightViewProj = lightVP;
+	}
 }
 
 void CascadedShadowMap::GetFrustumCornersViewSpace(float fovY, float aspect, float nearZ, float farZ, Vector3 outCorners[8])

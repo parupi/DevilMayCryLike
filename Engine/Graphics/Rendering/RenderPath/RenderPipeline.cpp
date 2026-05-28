@@ -112,6 +112,7 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	lightingPath->Begin(rtvIndex_, shadowPath->GetSrvIndex());
 	
 	LightManager::GetInstance()->GetCSM()->BindSrv();
+	LightManager::GetInstance()->GetCSM()->Bind(5, 0);
 
 	LightManager::GetInstance()->BindLightsToShader();
 	CameraManager::GetInstance()->BindCameraToShader();

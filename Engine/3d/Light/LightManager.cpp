@@ -88,8 +88,6 @@ void LightManager::BindLightsToShader()
 
     // SRV (StructuredBuffer)
     cmd->SetGraphicsRootDescriptorTable(3, srv->GetGPUDescriptorHandle(srvIndex_));
-
-    csm->Bind(5, 0);
 }
 
 #ifdef _DEBUG
