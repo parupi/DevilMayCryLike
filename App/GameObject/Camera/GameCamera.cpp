@@ -1,60 +1,149 @@
 #include "GameCamera.h"
-#include <3d/Object/Object3dManager.h>
 #include "GameObject/Character/Player/Player.h"
+#include <Input/CameraInput.h>
 
-GameCamera::GameCamera(std::string cameraName) : BaseCamera(cameraName)
+GameCamera::GameCamera(std::string cameraName)
+    : BaseCamera(cameraName)
 {
-    horizontalAngle_ = 3.14f * 3.0f;
+}
+
+void GameCamera::Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput)
+{
+    player_ = player;
+    lockOn_ = lockOn;
+    cameraInput_ = cameraInput;
+}
+
+void GameCamera::SetMode(Mode mode)
+{
+    if (mode_ == mode) return;
+
+    Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+    Vector3 camPos = GetTranslate();
+
+    // ===== LockOn → Free =====
+    if (mode_ == Mode::LockOn && mode == Mode::Free)
+    {
+        Vector3 toCam = camPos - playerPos;
+
+        distance_ = Length(toCam);
+
+        if (distance_ > 0.001f)
+        {
+            yaw_ = std::atan2(toCam.x, toCam.z);
+            pitch_ = std::asin(toCam.y / distance_);
+        }
+    }
+
+    // ===== Free → LockOn =====
+    if (mode_ == Mode::Free && mode == Mode::LockOn)
+    {
+        // yawだけ引き継げばOK（見た目はそのまま）
+    }
+
+    mode_ = mode;
 }
 
 void GameCamera::Update()
 {
-    if (!player_) {
-        player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-        if (!player_) return; // プレイヤーがまだ見つからない場合は更新しない
+    if (!player_) return;
+
+    switch (mode_)
+    {
+    case Mode::Free:
+        UpdateFree();
+        break;
+
+    case Mode::LockOn:
+        UpdateLockOn();
+        break;
     }
 
-    // プレイヤーの位置を取得
+    BaseCamera::Update();
+}
+
+void GameCamera::UpdateFree()
+{
+    if (lockOn_->IsLockOn())
+    {
+        SetMode(Mode::LockOn);
+        return;
+    }
+
     Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
 
-    Vector3 cameraPos{};
+    Vector2 stick = cameraInput_->GetStickDirection();
 
-    Vector3 lookTarget = playerPos;
-    
-    // === キー操作による水平角度の更新 ===
-    const float angleSpeed = 0.02f; // 回転速度（ラジアン）
-    if (input_->IsConnected()) {
-        horizontalAngle_ += input_->GetRightStickX() * angleSpeed;
-    } else {
-        if (input_->PushKey(DIK_K)) {
-            horizontalAngle_ -= angleSpeed;
-        }
-        if (input_->PushKey(DIK_L)) {
-            horizontalAngle_ += angleSpeed;
-        }
+    yaw_ += stick.x * sensitivityX;
+    pitch_ -= stick.y * sensitivityY;
+
+    float pitchLimit = 0.2f;
+    pitch_ = std::clamp(pitch_, -pitchLimit, pitchLimit);
+
+    float baseHeight = 3.0f;
+
+    Vector3 offset;
+    offset.x = cos(pitch_) * sin(yaw_) * distance_;
+    offset.y = baseHeight + sin(pitch_) * distance_;
+    offset.z = cos(pitch_) * cos(yaw_) * distance_;
+
+    Vector3 desiredPos = playerPos + offset;
+
+    float minDist = 5.0f;
+    Vector3 toCamera = desiredPos - playerPos;
+    if (Length(toCamera) < minDist)
+    {
+        desiredPos = playerPos + Normalize(toCamera) * minDist;
     }
 
-    // 半径と高さを固定しつつ水平回転
-    const float distance = 20.0f;  // プレイヤーからの距離
-    const float height = 12.0f;    // 高さ
+    Vector3 forward = Normalize(player_->GetWorldTransform()->GetForward());
 
-    Vector3 offset = {
-        std::sin(horizontalAngle_) * distance,
-        height,
-        std::cos(horizontalAngle_) * distance,
-    };
+    Vector3 lookTarget =
+        playerPos + Vector3(0, 2.0f, 0) + forward * 3.0f
+        - Vector3(0, sin(pitch_) * 4.0f, 0);
 
-    // カメラの位置をプレイヤーの位置 + オフセット に設定
-    cameraPos = playerPos + offset;
+    GetTranslate() = Lerp(GetTranslate(), desiredPos, 0.05f);
 
-    // 
-    lookTarget = playerPos;
-
-    GetTranslate() = cameraPos;
     LookAt(lookTarget);
-    BaseCamera::Update();
+}
 
-    if (player_->IsLockOn()) {
-        CameraManager::GetInstance()->SetActiveCamera("LockOnCamera");
+void GameCamera::UpdateLockOn()
+{
+    if (!lockOn_->IsLockOn())
+    {
+        SetMode(Mode::Free);
+        return;
     }
+
+    Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+    Vector3 enemyPos = lockOn_->GetCurrentTarget()->GetWorldPosition();
+
+    Vector3 toEnemy = enemyPos - playerPos;
+    toEnemy.y = 0.0f;
+    toEnemy = Normalize(toEnemy);
+
+    float distToEnemy = Length(enemyPos - playerPos);
+
+    float distance = std::clamp(distToEnemy * 1.2f, 12.0f, 25.0f);
+
+    const float height = 8.0f;
+
+    Vector3 right = Normalize(Cross(Vector3(0, 1, 0), toEnemy));
+
+    Vector3 cameraPos =
+        playerPos - toEnemy * distance
+        + right * 3.0f;
+
+    cameraPos.y += height;
+
+    Vector3 lookTarget =
+        (playerPos + enemyPos) * 0.5f
+        + Vector3(0, 2.0f, 0);
+
+    GetTranslate() = Lerp(GetTranslate(), cameraPos, 0.05f);
+
+    LookAt(lookTarget);
+
+    // Free復帰用
+    yaw_ = std::atan2(toEnemy.x, toEnemy.z);
 }

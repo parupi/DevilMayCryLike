@@ -3,45 +3,44 @@
 #include "input/Input.h"
 
 class Player;
+class LockOnSystem;
+class CameraInput;
 
-/// <summary>
-/// ゲーム中のプレイヤーを追従するカメラを管理するクラス
-/// プレイヤーの位置と入力に基づいてカメラを制御する
-/// </summary>
 class GameCamera : public BaseCamera
 {
 public:
-	/// <summary>
-	/// コンストラクタ
-	/// </summary>
-	/// <param name="cameraName">カメラの名前</param>
-	GameCamera(std::string cameraName);
+    enum class Mode
+    {
+        Free,
+        LockOn
+    };
 
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
-	~GameCamera() override = default;
+    GameCamera(std::string cameraName);
+    ~GameCamera() override = default;
 
-	/// <summary>
-	/// プレイヤーを追従するカメラの更新処理
-	/// 入力による回転・追従などの挙動を更新する
-	/// </summary>
-	void Update() override;
+    void Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput);
+    void Update() override;
 
-	void SetHorizontalAngle(float angle) { horizontalAngle_ = angle; }
+    // ★ 修正：関数化
+    void SetMode(Mode mode);
+
 private:
-	/// <summary>
-	/// 追従対象のプレイヤー
-	/// </summary>
-	Player* player_ = nullptr;
+    void UpdateFree();
+    void UpdateLockOn();
 
-	/// <summary>
-	/// 入力管理クラスのインスタンス
-	/// </summary>
-	Input* input_ = Input::GetInstance();
+private:
+    Player* player_ = nullptr;
+    LockOnSystem* lockOn_ = nullptr;
+    CameraInput* cameraInput_ = nullptr;
 
-	/// <summary>
-	/// 左右回転角（ラジアン）
-	/// </summary>
-	float horizontalAngle_ = 0.0f;
+    Mode mode_ = Mode::Free;
+
+    float yaw_ = 3.14f;
+    float pitch_ = 0.0f;
+    float distance_ = 18.0f;
+
+    Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
+
+    float sensitivityX = 0.03f;
+    float sensitivityY = 0.01f;
 };

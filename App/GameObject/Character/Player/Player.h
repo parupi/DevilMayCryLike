@@ -5,23 +5,22 @@
 #include <3d/Object/Object3dManager.h>
 #include <3d/WorldTransform.h>
 #include "3d/Object/Renderer/ModelRenderer.h"
-#include <input/Input.h>
 #include "State/PlayerStateBase.h"
 #include "PlayerWeapon.h"
 #include "math/Vector3.h"
 #include "math/function.h"
 #include <debuger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
-#include <GameObject/Character/Enemy/Enemy.h>
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
-#include "State/Attack/AttackBranchUI.h"
+//#include "State/Attack/AttackBranchUI.h"
 #include "StateMachine/PlayerStateMachine.h"
-#include "Movement/PlayerMovement.h"
-#include "Collision/PlayerCollider.h"
-#include "Collision/PlayerCollisionResolver.h"
+//#include "Movement/PlayerMovement.h"
+//#include "Collision/PlayerCollider.h"
+//#include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
-#include "GameObject/Effect/HitStopComponent.h"
+//#include "GameObject/Effect/HitStopComponent.h"
+#include "GameObject/LockOn/LockOnSystem.h"
 
 class PlayerInput;
 
@@ -107,13 +106,15 @@ public:
 	/// プレイヤーの移動処理  
 	/// 入力ベクトルと物理挙動（加速度・速度）をもとに位置を更新する。
 	/// </summary>
-	void Move();
+	void Move(float deltaTime);
 
 	/// <summary>
 	/// ロックオン処理  
-	/// 敵との距離・方向を判定し、ターゲットを固定する。
+	/// ターゲットを固定する。
 	/// </summary>
 	void LockOn();
+
+	const Vector3& GetMoveVector() { return moveVector_; }
 
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
@@ -129,39 +130,29 @@ public:
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; } ///< 攻撃データを設定
 
 	/// <summary>
-	/// ロックオン中の敵のワールド座標を取得する。
-	/// </summary>
-	const Vector3& GetLockOnPos();
-
-	/// <summary>
 	/// 現在ロックオンしているかどうかを取得する。
 	/// </summary>
-	bool IsLockOn() const { return isLockOn_; }
+	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
 	// 攻撃派生UI
-	AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
+	//AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
 
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
-	AttackInputState GetAttackInputState() const;
-
 	void SetInput(PlayerInput* input) { input_ = input; }
+	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
 	std::unique_ptr<PlayerCombat> combat_ = nullptr;
 
-	std::unique_ptr<PlayerMovement> movement_ = nullptr;
-
-	std::unique_ptr<PlayerCollider> collider_ = nullptr;
-	
-	std::unique_ptr<PlayerCollisionResolver> collisionResolver_ = nullptr;
-
 	PlayerInput* input_ = nullptr;
 
+	LockOnSystem* lockOn_ = nullptr;
+
 	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
-	Input* input = Input::GetInstance(); ///< 入力管理クラス
+
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
 	Vector3 velocity_{}; ///< プレイヤーの速度
@@ -171,15 +162,13 @@ private:
 
 	std::unique_ptr<HitStop> hitStop_;
 
-	std::vector<Enemy*> enemies_; ///< 周囲の敵リスト
-	Enemy* lockOnEnemy_ = nullptr; ///< 現在ロックオンしている敵
-	bool isLockOn_ = false; ///< ロックオン状態フラグ
-
 	std::unique_ptr<PlayerWeapon> weapon_; ///< 武器クラス
-
-	bool onGround_ = false; ///< 接地判定フラグ
-
-	Sprite* reticle_; ///< テスト用スプライト（デバッグ表示など）
-
-	std::unique_ptr<AttackBranchUI> attackBranchUI_;
+	// 接地判定フラグ
+	bool onGround_ = false;
+	// ロックオン時のレティクル
+	Sprite* reticle_;
+	// 1フレームの移動距離を保持
+	Vector3 moveVector_;
+	// 調整用
+	float rotateSpeed_ = 5.0f;
 };

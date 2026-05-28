@@ -32,14 +32,13 @@ void BaseCamera::LookAt(const Vector3& target) {
 	Vector3 eye = transform_.translate;
 	Vector3 forward = Normalize(target - eye);
 
-	// 水平方向のみの回転（XZ平面に投影）
-	forward.y = 0.0f;
-	forward = Normalize(forward);
+	// Yaw（左右）
+	float yaw = std::atan2(forward.x, forward.z);
 
-	// Y軸の回転角だけ計算
-	float angle = std::atan2(forward.x, forward.z); // Y軸回転角（ラジアン）
+	// Pitch（上下）
+	float pitch = -std::asin(forward.y);
 
-	transform_.rotate = { transform_.rotate.x, angle, transform_.rotate.z };
+	transform_.rotate = { pitch, yaw, 0.0f };
 }
 
 Vector2 BaseCamera::WorldToScreen(const Vector3& worldPos, int screenWidth, int screenHeight) const
@@ -64,13 +63,15 @@ Vector2 BaseCamera::WorldToScreen(const Vector3& worldPos, int screenWidth, int 
 
 // カメラの前方向を取得
 Vector3 BaseCamera::GetForward() const {
-	Matrix4x4 rotMat = MakeRotateXYZMatrix(transform_.rotate);
-	// 第3列がZ方向（前方向） ※左手系Z+前提
-	return Normalize(Vector3{
-		rotMat.m[2][0],
-		rotMat.m[2][1],
-		rotMat.m[2][2]
-		});
+	float pitch = transform_.rotate.x;
+	float yaw = transform_.rotate.y;
+
+	Vector3 forward;
+	forward.x = cos(pitch) * sin(yaw);
+	forward.y = sin(pitch);
+	forward.z = cos(pitch) * cos(yaw);
+
+	return Normalize(forward);
 }
 
 // カメラの右方向を取得

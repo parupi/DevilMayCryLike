@@ -96,9 +96,9 @@ void MyGameTitle::Update()
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Begin();
 #endif // DEBUG
+	GuchisFramework::Update();
 	CameraManager::GetInstance()->Update();
 	ParticleManager::GetInstance()->Update();
-	GuchisFramework::Update();
 	SceneTransitionController::GetInstance()->Update();
 	Object3dManager::GetInstance()->Update();
 	RendererManager::GetInstance()->Update();

@@ -81,37 +81,7 @@ void PlayerStateAttack::Enter(Player& player)
 	}
 	// 今回の攻撃のパラメータを送っておく
 	player.SetAttackData(attackData_);
-
-	// --- 派生UI設定 ---
-	std::vector<AttackBranch> branches;
-
-	int count = gv->GetValueRef<int32_t>(name_, "NextAttackCount");
-	for (int i = 0; i < count; ++i) {
-		AttackBranch b{};
-		b.nextAttack = gv->GetValueRef<int32_t>(
-			name_, "NextAttackIndex_" + std::to_string(i));
-
-		// 今の仕様
-		b.input = InputType::Y;
-		b.dir = StickDir::Neutral;
-		b.requireLockOn = false;
-
-		// 特例：ロックオン＋下
-		if (name_ == "AttackComboA1") {
-			b.dir = StickDir::Down;
-			b.requireLockOn = true;
-		}
-
-		//b.iconFile = "ui/attack_icon.png"; // 仮
-
-		branches.push_back(b);
-	}
-
-	if (player.GetAttackBranchUI()) {
-		player.GetAttackBranchUI()->SetBranches(branches);
-		player.GetAttackBranchUI()->SetVisible(true);
-	}
-
+	
 	isFinish_ = false;
 }
 
@@ -145,6 +115,10 @@ void PlayerStateAttack::Update(Player& player, float deltaTime)
 
 		break;
 	}
+
+	//ImGui::Begin("Debug");
+	//ImGui::Text("Attack State: %s", name_.c_str());
+	//ImGui::End();
 }
 
 void PlayerStateAttack::Exit(Player& player)
@@ -155,11 +129,6 @@ void PlayerStateAttack::Exit(Player& player)
 	stateTime_.max = attackData_.totalDuration;
 
 	attackChangeTimer_.current = 0.0f;
-
-	if (player.GetAttackBranchUI()) {
-		player.GetAttackBranchUI()->Clear();
-		player.GetAttackBranchUI()->SetVisible(false);
-	}
 }
 
 AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const PlayerCommand& command)
@@ -177,7 +146,7 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 			// スティックの状況をもとに動きを変える
 
 		} 
-		
+
 		const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
 
 		int nextCount = static_cast<int>(node.nextAttacks.size());
@@ -211,6 +180,12 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 	}
 
 	return req;
+}
+
+void PlayerStateAttack::OnInterrupted(Player& player)
+{
+	// 割り込みされたので攻撃を終了させる
+	isFinish_ = true;
 }
 
 void PlayerStateAttack::UpdateAttackData()
@@ -275,26 +250,6 @@ void PlayerStateAttack::DrawControlPoints(Player& player)
 	}
 }
 
-bool PlayerStateAttack::GetCurrentInput(InputType& outInput, StickDir& outDir)
-{
-	if (Input::GetInstance()->TriggerButton(PadNumber::ButtonY) || Input::GetInstance()->TriggerKey(DIK_J)) {
-		outInput = InputType::Y;
-	} else {
-		return false;
-	}
-
-	float y = Input::GetInstance()->GetLeftStickY();
-	float x = Input::GetInstance()->GetLeftStickX();
-
-	if (y > 0.5f) outDir = StickDir::Up;
-	else if (y < -0.5f) outDir = StickDir::Down;
-	else if (x > 0.5f) outDir = StickDir::Right;
-	else if (x < -0.5f) outDir = StickDir::Left;
-	else outDir = StickDir::Neutral;
-
-	return true;
-}
-
 void PlayerStateAttack::UpdatePhase(float time)
 {
 	if (time < attackData_.preDelay) {
@@ -310,6 +265,7 @@ void PlayerStateAttack::UpdatePhase(float time)
 
 void PlayerStateAttack::UpdateStartup(Player& player)
 {
+	player;
 }
 
 void PlayerStateAttack::UpdateActive(Player& player)
@@ -367,5 +323,6 @@ void PlayerStateAttack::UpdateRecovery(Player& player)
 
 AttackRequestData PlayerStateAttack::UpdateCancel(Player& player)
 {
+	player;
 	return AttackRequestData();
 }

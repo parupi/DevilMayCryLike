@@ -1,5 +1,6 @@
 #pragma once
 #include <vector>
+#include "math/Vector3.h"
 
 class Object3d;
 class ModelRenderer;
@@ -8,7 +9,7 @@ class BaseModel
 {
 public:
 	//virtual ~BaseModel() = default;
-	virtual void Update() = 0;
+	virtual void Update(const Vector3& objectScale) = 0;
 	virtual void Draw() = 0;
 	virtual void DrawGBuffer() = 0;
 	virtual void DrawShadow() = 0;

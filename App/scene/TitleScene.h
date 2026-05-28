@@ -75,9 +75,9 @@ private:
 	// ==========================
 	// パーティクルエフェクト
 	// ==========================
-	std::unique_ptr<ParticleEmitter> smokeEmitter_;  ///< 煙パーティクルエミッター①
-	std::unique_ptr<ParticleEmitter> smokeEmitter2_; ///< 煙パーティクルエミッター②
-	std::unique_ptr<ParticleEmitter> sphereEmitter_; ///< 球状パーティクルエミッター
+	ParticleEmitter* smokeEmitter_;  ///< 煙パーティクルエミッター①
+	ParticleEmitter* smokeEmitter2_; ///< 煙パーティクルエミッター②
+	ParticleEmitter* sphereEmitter_; ///< 球状パーティクルエミッター
 
 	// ==========================
 	// ライト・遷移・UI

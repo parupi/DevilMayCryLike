@@ -31,6 +31,11 @@ void PlayerCombat::Update(float deltaTime)
 		state.second->UpdateAttackData();
 	}
 
+	//ImGui::Begin("Debug");
+	//ImGui::Text("Current Attack Num: %d", static_cast<int>(currentState_.size()));
+	//ImGui::Text("Current Attack State: %s", currentState_.empty() ? "None" : currentState_.back()->name_.c_str());
+	//ImGui::End();
+
 	if (currentState_.empty()) return;
 
 	auto& top = currentState_.back();
@@ -41,7 +46,7 @@ void PlayerCombat::Update(float deltaTime)
 		top->Exit(*player_);
 		currentState_.pop_back();
 	}
-}
+} 
 
 void PlayerCombat::Draw()
 {
@@ -62,34 +67,18 @@ void PlayerCombat::ChangeState(const std::string& stateName)
 	if (currentState_.back()->CanBeInterrupted()) {
 		auto it = states_[stateName].get();
 		it->Enter(*player_);
+		currentState_.back()->OnInterrupted(*player_);
 		currentState_.push_back(it);
 		return;
 	}
-}
-
-std::string PlayerCombat::GetAttackStateNameByIndex(int32_t index) const
-{
-	int i = 0;
-	for (const auto& [name, state] : states_) {
-		if (i == index) return name;
-		++i;
-	}
-	return "";
-}
-
-int32_t PlayerCombat::GetAttackStateCount() const
-{
-	int32_t count = 0;
-	for (const auto& [_, state] : states_) {
-		++count;
-	}
-	return count;
 }
 
 void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 {
 	// 攻撃の入力か確認
 	if (command.action != PlayerAction::Attack) return;
+	// 次の攻撃がすでにある場合は新しい攻撃を受け付けない
+	//if (currentState_.size() >= 2) return;
 
 	// 攻撃がない場合一段目攻撃を設定 存在したらその攻撃を派生させる
 	if (currentState_.empty()) {
@@ -113,6 +102,7 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 			ChangeState("AttackAerialRave1");
 		}
 	} else {
+		// 一段目じゃなければ
 		auto& top = currentState_.back();
 		auto req = top->ExecuteCommand(*player_, command);
 
@@ -125,6 +115,9 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 			break;
 		case AttackRequest::ChangeAttack:
 			ChangeState(req.nextAttack);
+			break;
+		case AttackRequest::None:
+			int a = 0;
 			break;
 		}
 	}
@@ -342,7 +335,7 @@ void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNod
 	ImGui::Text("Attack : %s", node.name.c_str());
 	ImGui::Separator();
 
-	int count = attackGraph_[attackName].nextAttacks.size();
+	int count = static_cast<int>(attackGraph_[attackName].nextAttacks.size());
 
 	global_->GetValueRef<int>(attackName, "NextAttackCount") = count;
 

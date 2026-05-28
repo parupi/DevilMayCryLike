@@ -17,7 +17,7 @@ public: // メンバ関数
 	// 初期化
 	void Initialize(ModelLoader* modelLoader, const std::string& fileName);
 
-	void Update() override;
+	void Update(const Vector3& objectScale = { 1.0f, 1.0f, 1.0f }) override;
 	// 描画
 	void Draw() override;
 	// CSによるSkinningの更新

@@ -8,14 +8,6 @@ Material::Material()
 
 Material::~Material()
 {
-	//if (materialGBufferHandle_ != kInvalidBufferHandle) {
-	//	resourceManager_->ReleaseBuffer(materialGBufferHandle_);
-	//	materialGBufferHandle_ = kInvalidBufferHandle;
-	//}
-	//if (materialBufferHandle_ != kInvalidBufferHandle) {
-	//	resourceManager_->ReleaseBuffer(materialBufferHandle_);
-	//	materialBufferHandle_ = kInvalidBufferHandle;
-	//}
 }
 
 void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData)
@@ -28,18 +20,28 @@ void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager
 	CreateGBufferMaterialResource();
 }
 
-void Material::Update()
+void Material::Update(const Vector3& objectScale)
 {
+	Vector2 finalUVScale = uvData_.scale;
+
+	// TextureDensity維持
+	if (enableTextureDensity_) {
+		finalUVScale.x *= textureDensityScale_ / objectScale.x;
+		finalUVScale.y *= textureDensityScale_ / objectScale.z;
+		finalUVScale * 0.2f; // スケール調整
+	}
 	// uvTransformに値を適用
 	uvTransform_.translate = { uvData_.position.x, uvData_.position.y, 0.0f };
 	uvTransform_.rotate = { 0.0f, 0.0f, uvData_.rotation };
-	uvTransform_.scale = { uvData_.size.x, uvData_.size.y, 1.0f };
+	uvTransform_.scale = { finalUVScale.x, finalUVScale.y, 1.0f };
 	// Transform情報を作る
 	Matrix4x4 uvTransformMatrix = MakeIdentity4x4();
 	uvTransformMatrix *= MakeScaleMatrix(uvTransform_.scale);
 	uvTransformMatrix *= MakeRotateZMatrix(uvTransform_.rotate.z);
 	uvTransformMatrix *= MakeTranslateMatrix(uvTransform_.translate);
+	// マテリアル構造体に反映
 	materialForGPU_->uvTransform = uvTransformMatrix;
+	gBufferMaterialParam_->uvTransform = uvTransformMatrix;
 }
 
 void Material::Bind(UINT RootParameterIndex)
@@ -69,7 +71,7 @@ void Material::DebugGui(uint32_t index)
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("ResetUVScale")) {
-			uvData_.size = {1.0f, 1.0f};
+			uvData_.scale = {1.0f, 1.0f};
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("ResetuvPosition")) {
@@ -77,7 +79,7 @@ void Material::DebugGui(uint32_t index)
 		}
 
 		ImGui::DragFloat2("uvPosition", &uvData_.position.x, 0.01f, -10.0f, 10.0f);
-		ImGui::DragFloat2("UVScale", &uvData_.size.x, 0.01f, -10.0f, 10.0f);
+		ImGui::DragFloat2("UVScale", &uvData_.scale.x, 0.01f, -10.0f, 10.0f);
 		ImGui::SliderAngle("UVRotate", &uvData_.rotation);
 		ImGui::ColorEdit4("color", &materialForGPU_->color.x);
 		ImGui::SliderFloat("environmentIntensity", &materialForGPU_->environmentIntensity, 0.0f, 1.0f);
