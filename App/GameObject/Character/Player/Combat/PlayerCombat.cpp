@@ -50,13 +50,23 @@ void PlayerCombat::Update(float deltaTime) {
 	if (top->IsFinished()) {
 		// スタックから抜ける前に、もしこの攻撃が派生可能だったら、次の攻撃を待つ状態に入る
 		bool wasBranching = top->HasBranch(*player_);
+		
+		// 現在の攻撃の名前を保持
+		auto& currentAttackName = top->GetAttackName();
 
 		top->Exit(*player_);
 		currentState_.pop_back();
+
 		// 次の攻撃を待つ状態に入る
 		if (wasBranching) {
 			waitingForNextCombo_ = true;
 			comboResetTimer_ = 0.3f;
+		} else {
+			// 納刀モーションでなければ
+			if (currentAttackName != "Sheathe") {
+				// 次の攻撃が無ければ速攻納刀モーション
+				AddState("Sheathe");
+			}
 		}
 	}
 }

@@ -39,8 +39,10 @@ private:
     float pitch_ = 0.0f;
     float distance_ = 18.0f;
 
+    Vector3 smoothedLookOffset_ = Vector3(0.0f, 0.0f, 0.0f);
+
     Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
 
     float sensitivityX = 0.03f;
-    float sensitivityY = 0.01f;
+    float sensitivityY = 0.025f;
 };
