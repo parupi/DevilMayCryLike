@@ -76,10 +76,11 @@
         "Damage": 0.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
-        "HitStopIntensity": 0.10000000149011612,
-        "HitStopTime": 0.10000000149011612,
+        "HitStopIntensity": 0.03999999910593033,
+        "HitStopTime": 0.03999999910593033,
         "ImpulseForce": 0.0,
         "IsAir": false,
+        "IsMove": false,
         "KnockBackSpeed": [
             0.0,
             0.550000011920929,

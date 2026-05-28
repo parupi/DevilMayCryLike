@@ -39,14 +39,14 @@ void PlayerWeapon::Update(float deltaTime) {
 
 	Object3d::Update(deltaTime);
 
-	ImGui::Begin("Weapon Debug");
-	ImGui::DragFloat3("Position", &defaultPosition_.x, 0.1f);
-	ImGui::DragFloat3("Rotation", &defaultRotation_.x, 0.1f);
-	ImGui::End();
+	//ImGui::Begin("Weapon Debug");
+	//ImGui::DragFloat3("Position", &defaultPosition_.x, 0.1f);
+	//ImGui::DragFloat3("Rotation", &defaultRotation_.x, 0.1f);
+	//ImGui::End();
 
 
-	GetWorldTransform()->GetTranslation() = defaultPosition_;
-	GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
+	//GetWorldTransform()->GetTranslation() = defaultPosition_;
+	//GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
 }
 
 void PlayerWeapon::Draw() {

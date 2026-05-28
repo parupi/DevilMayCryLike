@@ -1,43 +1,134 @@
 {
     "Stinger": {
-        "AttackDuration": 0.0,
+        "AttackDuration": 0.15000000596046448,
         "AttackPosture": 0,
-        "ButtonIndex": 0,
-        "Damage": 0.0,
-        "DirIndex": 0,
+        "ButtonIndex": 2,
+        "ControlPoint_0": [
+            0.0,
+            0.800000011920929,
+            0.0
+        ],
+        "ControlPoint_1": [
+            0.0,
+            0.800000011920929,
+            -0.5
+        ],
+        "ControlPoint_2": [
+            0.0,
+            0.800000011920929,
+            -1.0
+        ],
+        "ControlPoint_3": [
+            0.0,
+            0.800000011920929,
+            -1.5
+        ],
+        "ControlPoint_4": [
+            0.0,
+            0.800000011920929,
+            -2.0
+        ],
+        "ControlPoint_5": [
+            0.0,
+            0.75,
+            2.0
+        ],
+        "ControlPoint_6": [
+            0.0,
+            0.800000011920929,
+            2.0
+        ],
+        "ControlPoint_7": [
+            0.0,
+            0.800000011920929,
+            2.0
+        ],
+        "ControlPoint_8": [
+            0.0,
+            0.8999999761581421,
+            4.0
+        ],
+        "ControlRotation_0": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_6": [
+            85.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_7": [
+            80.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_8": [
+            70.0,
+            0.0,
+            0.0
+        ],
+        "Damage": 0.5,
+        "DirIndex": 1,
         "DrawDebugControlPoints": false,
-        "HitStopIntensity": 0.0,
-        "HitStopTime": 0.0,
-        "ImpulseForce": 0.0,
+        "HitStopIntensity": 0.05999999865889549,
+        "HitStopTime": 0.019999999552965164,
+        "ImpulseForce": 12.0,
         "IsAir": false,
+        "IsMove": false,
         "KnockBackSpeed": [
             0.0,
-            0.0,
-            0.0
+            0.07000000029802322,
+            30.0
         ],
-        "LockOnFlag": false,
+        "LockOnFlag": true,
         "MoveSpeed": [
             0.0,
-            0.0,
-            0.0
+            0.5,
+            30.0
         ],
         "NextAttackCount": 0,
-        "NextAttackDelay": 0.0,
+        "NextAttackDelay": 0.03999999910593033,
         "NextAttackIndex_0": -1,
         "NextAttackIndex_1": -1,
         "NextAttackIndex_2": -1,
         "NextAttack_0": "",
         "NextAttack_1": "",
         "NextAttack_2": "",
-        "PointCount": 0,
-        "PostDelay": 0.0,
+        "PointCount": 9,
+        "PostDelay": 0.15000000596046448,
         "Posture": 0,
-        "PreDelay": 0.0,
-        "ReactionType": 0,
-        "RootAttackFlag": false,
-        "StunTime": 0.0,
-        "TorqueForce": 0.0,
-        "TotalDuration": 0.0,
-        "UpwardRatio": 0.0
+        "PreDelay": 0.11999999731779099,
+        "ReactionType": 1,
+        "RootAttackFlag": true,
+        "StunTime": 0.5,
+        "TorqueForce": 30.0,
+        "TotalDuration": 1.0,
+        "UpwardRatio": 0.75
     }
 }
