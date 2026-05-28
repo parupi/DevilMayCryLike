@@ -37,7 +37,7 @@ private:
 	// フェーズの更新
 	void UpdatePhase(float time);
 	// 予備動作の更新
-	void UpdateStartup(Player& player);
+	void UpdateStartup(Player& player, float deltaTime);
 	// アクティブ状態の更新
 	void UpdateActive(Player& player);
 	// 後隙状態の更新

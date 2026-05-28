@@ -1,5 +1,6 @@
 #pragma once
 #include "PlayerStateBase.h"
+// ジャンプ状態を管理するクラス
 class PlayerStateJump : public PlayerStateBase
 {
 public:

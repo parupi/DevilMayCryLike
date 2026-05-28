@@ -2,6 +2,7 @@
 #include "PlayerStateBase.h"
 #include "math/Vector3.h"
 #include "math/Quaternion.h"
+// 死亡状態を管理するクラス
 class PlayerStateDeath : public PlayerStateBase
 {
 public:

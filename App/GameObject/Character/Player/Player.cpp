@@ -53,14 +53,16 @@ void Player::Initialize() {
 	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("WeaponCollider"));
 	// 武器を生成
 	weapon_ = std::make_unique<PlayerWeapon>("PlayerWeapon");
-
+	// 武器にレンダラーを追加
 	weapon_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerWeapon"));
-
+	// 武器にコライダーを追加
 	weapon_->AddCollider(CollisionManager::GetInstance()->FindCollider("WeaponCollider"));
-
+	// 武器の初期化
 	weapon_->Initialize();
-
+	// 武器のワールドトランスフォームをプレイヤーの子にする
 	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
+	// プレイヤークラスのポインタを武器クラスに渡す
+	weapon_->SetPlayer(this);
 
 	scoreManager = std::make_unique<StylishScoreManager>();
 
@@ -156,54 +158,56 @@ void Player::ExecuteCommand(const PlayerCommand& command) {
 	combat_->ExecuteCommand(command);
 }
 
-void Player::Move(float deltaTime) {
+Vector3 Player::GetMoveDirection() const {
 	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
-	if (!camera) return;
+	if (!camera) return {};
 	// 入力のcontext
 	const PlayerInputContext& context = input_->GetContext();
+	// 移動中じゃなければ処理しない
+	if (!context.isMove) return {};
 
-	// Yは維持する
-	velocity_ = { 0.0f, velocity_.y, 0.0f };
-	// 入力方向をローカル（プレイヤーから見た）方向で作成
-	Vector3 inputDir = { 0.0f, 0.0f, 0.0f };
+	// 入力方向を取得
+	Vector3 inputDir = { context.move.x, 0.0f, context.move.y };
+	// 大きさが小さければ処理しない
+	if (Length(inputDir) < 0.01f) return {};
+	// 入力方向を正規化
+	inputDir = Normalize(inputDir);
+	// カメラ基準で移動させる
+	// カメラの前方向を取得
+	Vector3 camForward = camera->GetForward();
+	camForward.y = 0.0f;
+	camForward = Normalize(camForward);
+	// カメラの右方向を取得
+	Vector3 camRight = camera->GetRight();
+	camRight.y = 0.0f;
+	camRight = Normalize(camRight);
+	// カメラの向きと入力方向から移動方向を作成
+	Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
+	// 正規化して返す
+	return Normalize(moveDir);
+}
 
-	if (context.isMove) {
-		inputDir = { context.move.x, 0.0f, context.move.y };
+void Player::Move(Vector3 moveDir, float deltaTime) {
+	// y軸の速度はそのままにしておく
+	float velocityY = velocity_.y;
 
-		if (Length(inputDir) > 0.01f) {
-			inputDir = Normalize(inputDir);
+	velocity_ = moveDir * moveSpeed_;
+	velocity_.y = velocityY;
+}
 
-			// カメラ基準で移動させる
-			Vector3 camForward = camera->GetForward();
-			camForward.y = 0.0f;
-			camForward = Normalize(camForward);
+void Player::Rotate(Vector3 moveDir, float deltaTime) {
+	// ロックオンしているなら回転させない
+	if (lockOn_->IsLockOn()) return;
+	// 移動方向が無ければ処理しない
+	if (Length(moveDir) < 0.001f) return;
 
-			Vector3 camRight = camera->GetRight();
-			camRight.y = 0.0f;
-			camRight = Normalize(camRight);
-
-			Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
-			moveDir = Normalize(moveDir);
-
-			float velocityY = velocity_.y;
-			velocity_ = moveDir * 10.0f;
-			velocity_.y = velocityY;
-
-			// 向き更新
-			if (!lockOn_->IsLockOn()) {
-				if (Length(moveDir) > 0.001f) {
-					moveDir.x *= -1.0f;
-
-					Quaternion targetRot = LookRotation(moveDir);
-
-					Quaternion& currentRot = GetWorldTransform()->GetRotation();
-
-					// 補間
-					currentRot = Slerp(currentRot, targetRot, rotateSpeed_ * deltaTime);
-				}
-			}
-		}
-	}
+	moveDir.x *= -1.0f;
+	// 移動方向から目標の回転を作成
+	Quaternion targetRot = LookRotation(moveDir);
+	// 現在の回転を取得
+	Quaternion& currentRot = GetWorldTransform()->GetRotation();
+	// 補完して回転を更新
+	currentRot = Slerp(currentRot, targetRot, rotateSpeed_ * deltaTime);
 }
 
 void Player::LockOn() {

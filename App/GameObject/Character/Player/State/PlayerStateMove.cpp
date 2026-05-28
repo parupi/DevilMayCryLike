@@ -5,12 +5,18 @@
 
 void PlayerStateMove::Enter(Player& player)
 {
+	// 接地している状態で移動状態に入るので、y軸の速度は0にしておく
 	player.GetAcceleration().y = 0.0f;
 }
 
 void PlayerStateMove::Update(Player& player, float deltaTime)
 {
-	player.Move(deltaTime);
+	// 移動方向を取得
+	Vector3 moveDir = player.GetMoveDirection();
+	// 移動と回転を実行
+	player.Move(moveDir, deltaTime);
+	player.Rotate(moveDir, deltaTime);
+	// 接地中なのでy軸の速度は0にしておく
 	player.GetVelocity().y = 0.0f;
 
 	// 現在の入力状態が無ければ待機
@@ -28,6 +34,7 @@ void PlayerStateMove::Update(Player& player, float deltaTime)
 
 void PlayerStateMove::Exit(Player& player)
 {
+	// 移動状態から出るときは水平速度を0にしておく
 	player.GetVelocity().x = 0.0f;
 	player.GetVelocity().z = 0.0f;
 }

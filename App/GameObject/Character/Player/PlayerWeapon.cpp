@@ -24,37 +24,29 @@ void PlayerWeapon::Initialize() {
 	defaultPosition_ = { 0.0f, 0.6f, -0.5f };
 	defaultRotation_ = { 0.0f, 90.0f, 150.0f };
 
-	//GetWorldTransform()->GetTranslation() = defaultPosition_;
-	//GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
+	GetWorldTransform()->GetTranslation() = defaultPosition_;
+	GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
 }
 
 void PlayerWeapon::Update(float deltaTime) {
-
-	// オブジェクトマネージャからプレイヤーを探して生ポインタを受け取る
-	if (player_ == nullptr) {
-		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
-	}
-
+	if (!player_) return;
+	// 攻撃中かどうかを武器のコライダーに反映
 	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
+	// 攻撃中ならエフェクトを発生させる
 	if (player_->IsAttack()) {
 		emitter_->Emit();
 	}
 
-	//ImGui::Begin("Weapon Debug");
-	//ImGui::DragFloat3("Position", &defaultPosition_.x, 0.1f);
-	//ImGui::DragFloat3("Rotation", &defaultRotation_.x, 0.1f);
-	//ImGui::End();
-
-	//GetWorldTransform()->GetTranslation() = defaultPosition_;
-	//GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
-
-	// 座標が全て0の時に止める	
-	if (GetWorldTransform()->GetTranslation() == Vector3{ 0.0f, 0.0f, 0.0f }) {
-		GetWorldTransform()->GetTranslation() = defaultPosition_;
-		GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
-	}
-
 	Object3d::Update(deltaTime);
+
+	ImGui::Begin("Weapon Debug");
+	ImGui::DragFloat3("Position", &defaultPosition_.x, 0.1f);
+	ImGui::DragFloat3("Rotation", &defaultRotation_.x, 0.1f);
+	ImGui::End();
+
+
+	GetWorldTransform()->GetTranslation() = defaultPosition_;
+	GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
 }
 
 void PlayerWeapon::Draw() {

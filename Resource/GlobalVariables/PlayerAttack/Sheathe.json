@@ -60,6 +60,7 @@
         "HitStopTime": 0.0,
         "ImpulseForce": 0.0,
         "IsAir": false,
+        "IsMove": true,
         "KnockBackSpeed": [
             0.0,
             0.0,

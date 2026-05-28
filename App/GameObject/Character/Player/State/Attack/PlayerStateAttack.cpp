@@ -27,6 +27,7 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 
 	// その他
 	gv->AddItem(name_, "DrawDebugControlPoints", bool()); // 制御点のデバッグ描画フラグ
+	gv->AddItem(name_, "IsMove", bool(false)); // 攻撃中に移動するかどうか(モーション用のフラグ)
 
 	// ダメージなどの汎用パラメータ
 	gv->AddItem(name_, "Damage", float());
@@ -94,7 +95,7 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 	switch (attackPhase_) {
 	case AttackPhase::Startup:
 	{
-		UpdateStartup(player);
+		UpdateStartup(player, deltaTime);
 		break;
 	}
 	case AttackPhase::Active:
@@ -114,6 +115,11 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 		}
 
 		break;
+	}
+
+	// 移動可能の場合は移動させる
+	if (attackData_.isMove) {
+		player.Move(player.GetMoveDirection(), deltaTime);
 	}
 
 	//ImGui::Begin("Debug");
@@ -208,6 +214,7 @@ void PlayerStateAttack::UpdateAttackData() {
 	attackData_.nextAttackDelay = gv->GetInstance()->GetValueRef<float>(name_, "NextAttackDelay");
 
 	// その他
+	attackData_.isMove = gv->GetInstance()->GetValueRef<bool>(name_, "IsMove");
 	attackData_.drawDebugControlPoints = gv->GetInstance()->GetValueRef<bool>(name_, "DrawDebugControlPoints");
 	attackData_.damage = gv->GetInstance()->GetValueRef<float>(name_, "Damage");
 
@@ -271,7 +278,12 @@ void PlayerStateAttack::UpdatePhase(float time) {
 	}
 }
 
-void PlayerStateAttack::UpdateStartup(Player& player) {
+void PlayerStateAttack::UpdateStartup(Player& player, float deltaTime) {
+	// 方向転換
+	Vector3 moveDir = player.GetMoveDirection();
+	// プレイヤーの向きを移動方向に向ける
+	player.Rotate(moveDir, deltaTime);
+
 	// 武器を制御点の最初の位置に移動させる
 	Vector3 targetPos = attackData_.controlPoints[0];
 	// 武器の初期位置

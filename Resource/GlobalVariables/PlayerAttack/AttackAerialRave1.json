@@ -33,35 +33,45 @@
             0.800000011920929,
             0.4000000059604645
         ],
+        "ControlPoint_6": [
+            -1.0,
+            0.800000011920929,
+            0.4000000059604645
+        ],
         "ControlRotation_0": [
+            120.0,
             0.0,
-            0.0,
-            0.0
+            100.0
         ],
         "ControlRotation_1": [
+            120.0,
             0.0,
-            0.0,
-            0.0
+            100.0
         ],
         "ControlRotation_2": [
+            100.0,
             0.0,
-            0.0,
-            0.0
+            90.0
         ],
         "ControlRotation_3": [
+            90.0,
             0.0,
-            0.0,
-            0.0
+            60.0
         ],
         "ControlRotation_4": [
+            80.0,
             0.0,
-            0.0,
-            0.0
+            50.0
         ],
         "ControlRotation_5": [
+            60.0,
             0.0,
+            30.0
+        ],
+        "ControlRotation_6": [
+            60.0,
             0.0,
-            0.0
+            30.0
         ],
         "Damage": 0.0,
         "DirIndex": 0,
@@ -91,7 +101,7 @@
         "NextAttack_0": "AttackAerialRave2",
         "NextAttack_1": "",
         "NextAttack_2": "",
-        "PointCount": 6,
+        "PointCount": 7,
         "PostDelay": 0.03999999910593033,
         "Posture": 0,
         "PreDelay": 0.029999999329447746,

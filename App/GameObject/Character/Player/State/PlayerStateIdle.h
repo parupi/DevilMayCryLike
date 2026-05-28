@@ -1,5 +1,6 @@
 #pragma once 
 #include "PlayerStateBase.h"
+// 待機状態を管理するクラス
 class PlayerStateIdle : public PlayerStateBase
 {
 public:

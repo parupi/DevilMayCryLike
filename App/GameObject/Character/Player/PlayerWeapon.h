@@ -27,18 +27,21 @@ public:
 	// 離れた
 	void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
 
+	// ======================
+	// アクセッサ
+	// ======================
 	void SetIsAttack(bool flag) { isAttack_ = flag; }
-
+	void SetPlayer(Player* player) { player_ = player; }
 	void SetScoreManager(StylishScoreManager* scoreManager) { scoreManager_ = scoreManager; }
 private:
 	bool isAttack_ = false;
 
 	StylishScoreManager* scoreManager_;
-
+	// プレイヤーの生ポインタ（武器からプレイヤーの状態を参照するために必要）
 	Player* player_ = nullptr;
-
-	Vector3 defaultPosition_{};
-	Vector3 defaultRotation_{};
+	// 移動と回転の初期位置
+	Vector3 defaultPosition_ = { 0.0f, 0.6f, -0.5f };
+	Vector3 defaultRotation_ = { 0.0f, 90.0f, 150.0f };
 
 	ParticleEmitter* emitter_;
 };

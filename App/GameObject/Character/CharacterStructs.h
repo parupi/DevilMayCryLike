@@ -32,7 +32,6 @@ struct AttackData {
 	Vector3 knockBackSpeed{};             // 敵のノックバック速度
 
 	// タイマー系
-
 	float totalDuration = 0.0f;              // 攻撃全体にかかる時間
 	float preDelay = 0.0f;                   // 予備動作の時間
 	float attackDuration = 0.0f;             // 攻撃中の時間
@@ -41,6 +40,8 @@ struct AttackData {
 
 	// その他
 	bool drawDebugControlPoints = false;     // 制御点のデバッグ描画フラグ
+
+	bool isMove = false;                     // 攻撃中に移動するかどうか(モーション用のフラグ)
 
 	// 攻撃力
 	float damage = 0.0f;                      // ダメージ値

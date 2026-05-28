@@ -44,42 +44,42 @@
             3.0
         ],
         "ControlRotation_0": [
-            0.0,
+            60.0,
             0.0,
             0.0
         ],
         "ControlRotation_1": [
-            0.0,
+            60.0,
             0.0,
             0.0
         ],
         "ControlRotation_2": [
-            0.0,
+            70.0,
             0.0,
             0.0
         ],
         "ControlRotation_3": [
-            0.0,
+            80.0,
             0.0,
             0.0
         ],
         "ControlRotation_4": [
-            0.0,
+            90.0,
             0.0,
             0.0
         ],
         "ControlRotation_5": [
-            0.0,
+            90.0,
             0.0,
             0.0
         ],
         "ControlRotation_6": [
-            0.0,
+            90.0,
             0.0,
             0.0
         ],
         "ControlRotation_7": [
-            0.0,
+            90.0,
             0.0,
             0.0
         ],
@@ -90,6 +90,7 @@
         "HitStopTime": 0.0,
         "ImpulseForce": 8.0,
         "IsAir": false,
+        "IsMove": false,
         "KnockBackSpeed": [
             0.0,
             10.0,

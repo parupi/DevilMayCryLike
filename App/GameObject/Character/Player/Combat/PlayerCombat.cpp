@@ -308,6 +308,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 	ImGui::Separator();
 
 	// その他
+	ImGui::Checkbox("IsMove", &global_->GetValueRef<bool>(attackName, "IsMove"));
 	ImGui::Checkbox("Draw Debug Control Points", &global_->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
 
 	ImGui::DragFloat("Damage", &global_->GetValueRef<float>(attackName, "Damage"), 0.01f);
