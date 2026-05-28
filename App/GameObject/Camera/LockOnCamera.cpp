@@ -2,6 +2,8 @@
 #include <3d/Object/Object3dManager.h>
 #include "GameObject/Character/Player/Player.h"
 #include "GameCamera.h"
+#include <base/utility/DeltaTime.h>
+#include <cmath>
 
 LockOnCamera::LockOnCamera(std::string cameraName) : BaseCamera(cameraName)
 {
@@ -76,7 +78,8 @@ void LockOnCamera::Update()
 	// 少し上を見る
 	Vector3 lookTarget = (playerPos + lockOnPos) * 0.5f + Vector3(0, 2.0f, 0);
 
-	GetTranslate() = Lerp(GetTranslate(), cameraPos, 0.05f);
+	float t = 1.0f - std::exp(-5.0f * DeltaTime::GetDeltaTime());
+	GetTranslate() = Lerp(GetTranslate(), cameraPos, t);
 
 	LookAt(lookTarget);
 

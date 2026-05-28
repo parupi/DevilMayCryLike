@@ -33,6 +33,8 @@ public:
 	bool CanBeInterrupted() const { return attackPhase_ == AttackPhase::Cancel; }
 	// 派生先の攻撃があるかどうか
 	bool HasBranch(Player& player) const;
+	// 攻撃の名前を取得
+	const std::string& GetAttackName() const { return name_; }
 private:
 	// フェーズの更新
 	void UpdatePhase(float time);
