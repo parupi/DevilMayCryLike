@@ -26,9 +26,8 @@ void Material::Update(const Vector3& objectScale)
 
 	// TextureDensity維持
 	if (enableTextureDensity_) {
-		finalUVScale.x *= textureDensityScale_ / objectScale.x;
-		finalUVScale.y *= textureDensityScale_ / objectScale.z;
-		finalUVScale * 0.2f; // スケール調整
+		finalUVScale.x = objectScale.x + objectScale.y + objectScale.z;
+		finalUVScale.y = objectScale.x + objectScale.y + objectScale.z;
 	}
 	// uvTransformに値を適用
 	uvTransform_.translate = { uvData_.position.x, uvData_.position.y, 0.0f };

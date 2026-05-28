@@ -51,26 +51,22 @@ public:
 	void Update(float deltaTime);
 	// 描画
 	void Draw();
-	// 攻撃を変更する TODO : FSMじゃなくてStateStackを使う
-	void ChangeState(const std::string& stateName);
-
-	//std::string GetAttackStateNameByIndex(int32_t index) const;
-
-	//int32_t GetAttackStateCount() const;
-
+	// 攻撃を追加する
+	void AddState(const std::string& stateName);
+	// 現在攻撃中かどうか
 	bool IsAttacking() const { return !currentState_.empty(); }
-
+	// 攻撃ノードを取得
 	const AttackNode& GetAttackNode(const std::string& name) const{ return attackGraph_.at(name); }
-
+	// プレイヤーからのコマンドを受け取って処理する
 	void ExecuteCommand(const PlayerCommand& command);
 private:
 	// Jsonの名前からステートを生成
 	void CreateState();
-
+	// 攻撃データエディタのUIを描画
 	void DrawAttackDataEditorUI();
 	// 攻撃を追加
 	void AddAttackState(const std::string& attackName);
-
+	// 攻撃データエディタのUIを描画
 	void DrawAttackDataEditor(PlayerStateAttack* attack);
 
 	AttackNode LoadAttackNode(const std::string& attackName);
@@ -87,9 +83,12 @@ private:
 	std::vector<PlayerStateAttack*> currentState_;
 
 	GlobalVariables* global_ = GlobalVariables::GetInstance();
-	// プレイヤーのポインターを取得 TODO : なんか良い感じの受け渡し方法にしたい
+	// プレイヤーの参照を保持
 	Player* player_ = nullptr;
-
+	// 攻撃再生クラス
 	std::unique_ptr<AttackPlayer> attackPlayer_ = nullptr;
+	// コンボのリセットタイマー
+	float comboResetTimer_ = 0.0f;
+	// 次の攻撃入力を待っているかどうか
+	bool waitingForNextCombo_ = false;
 };
-

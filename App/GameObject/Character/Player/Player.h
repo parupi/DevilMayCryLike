@@ -102,16 +102,13 @@ public:
 	/// </summary>
 	bool GetOnGround() const { return onGround_; }
 
-	/// <summary>
-	/// プレイヤーの移動処理  
-	/// 入力ベクトルと物理挙動（加速度・速度）をもとに位置を更新する。
-	/// </summary>
-	void Move(float deltaTime);
-
-	/// <summary>
+	// プレイヤーの移動方向を取得する。
+	Vector3 GetMoveDirection() const;
+	// プレイヤーの移動処理  
+	void Move(Vector3 moveDir, float deltaTime);
+	// プレイヤーの向き更新処理
+	void Rotate(Vector3 moveDir, float deltaTime);
 	/// ロックオン処理  
-	/// ターゲットを固定する。
-	/// </summary>
 	void LockOn();
 
 	const Vector3& GetMoveVector() { return moveVector_; }
@@ -169,6 +166,8 @@ private:
 	Sprite* reticle_;
 	// 1フレームの移動距離を保持
 	Vector3 moveVector_;
-	// 調整用
-	float rotateSpeed_ = 5.0f;
+	// 移動速度
+	const float moveSpeed_ = 10.0f;
+	// 回転速度
+	const float rotateSpeed_ = 5.0f;
 };

@@ -2,8 +2,7 @@
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 
-void PlayerCombat::Initialize(Player* player)
-{
+void PlayerCombat::Initialize(Player* player) {
 	player_ = player;
 
 	CreateState();
@@ -18,8 +17,7 @@ void PlayerCombat::Initialize(Player* player)
 	attackPlayer_->SetAttacks(list);
 }
 
-void PlayerCombat::Update(float deltaTime)
-{
+void PlayerCombat::Update(float deltaTime) {
 	// 毎フレーム
 	attackPlayer_->Update(DeltaTime::GetDeltaTime());
 	attackPlayer_->DrawImGui();
@@ -30,40 +28,54 @@ void PlayerCombat::Update(float deltaTime)
 	for (auto& state : states_) {
 		state.second->UpdateAttackData();
 	}
+	// コンボのリセット処理
+	if (waitingForNextCombo_) {
 
-	//ImGui::Begin("Debug");
-	//ImGui::Text("Current Attack Num: %d", static_cast<int>(currentState_.size()));
-	//ImGui::Text("Current Attack State: %s", currentState_.empty() ? "None" : currentState_.back()->name_.c_str());
-	//ImGui::End();
+		comboResetTimer_ -= deltaTime;
+
+		if (comboResetTimer_ <= 0.0f) {
+			waitingForNextCombo_ = false;
+
+			// 納刀モーション
+			AddState("Sheathe");
+		}
+	}
 
 	if (currentState_.empty()) return;
 
 	auto& top = currentState_.back();
 
 	top->Update(*player_, deltaTime);
-
+	// 攻撃が終了していたらスタックから抜ける
 	if (top->IsFinished()) {
+		// スタックから抜ける前に、もしこの攻撃が派生可能だったら、次の攻撃を待つ状態に入る
+		bool wasBranching = top->HasBranch(*player_);
+
 		top->Exit(*player_);
 		currentState_.pop_back();
+		// 次の攻撃を待つ状態に入る
+		if (wasBranching) {
+			waitingForNextCombo_ = true;
+			comboResetTimer_ = 0.3f;
+		}
 	}
-} 
+}
 
-void PlayerCombat::Draw()
-{
+void PlayerCombat::Draw() {
 	for (auto& state : states_) {
 		state.second->DrawControlPoints(*player_);
 	}
 }
 
-void PlayerCombat::ChangeState(const std::string& stateName)
-{
+void PlayerCombat::AddState(const std::string& stateName) {
+	// 攻撃中でなければそのまま遷移
 	if (currentState_.empty()) {
 		auto it = states_[stateName].get();
 		it->Enter(*player_);
 		currentState_.push_back(it);
 		return;
 	}
-
+	// 攻撃中であっても、現在の攻撃が割り込み可能であれば遷移
 	if (currentState_.back()->CanBeInterrupted()) {
 		auto it = states_[stateName].get();
 		it->Enter(*player_);
@@ -73,23 +85,22 @@ void PlayerCombat::ChangeState(const std::string& stateName)
 	}
 }
 
-void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
-{
+void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 	// 攻撃の入力か確認
 	if (command.action != PlayerAction::Attack) return;
-	// 次の攻撃がすでにある場合は新しい攻撃を受け付けない
-	//if (currentState_.size() >= 2) return;
+	// 次段入力された
+	waitingForNextCombo_ = false;
 
 	// 攻撃がない場合一段目攻撃を設定 存在したらその攻撃を派生させる
 	if (currentState_.empty()) {
 		if (player_->IsLockOn()) {
 			if (player_->GetOnGround()) {
 				if (command.stickDir.y <= -0.7f) {
-					ChangeState("AttackHighTime");
+					AddState("AttackHighTime");
 					return;
 				}
 				if (command.stickDir.y >= 0.7f) {
-					ChangeState("Stinger");
+					AddState("Stinger");
 					return;
 				}
 			}
@@ -97,11 +108,13 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 
 		// ここまで来て攻撃が見つからなかったら通常
 		if (player_->GetOnGround()) {
-			ChangeState("AttackComboA1");
-		} else {
-			ChangeState("AttackAerialRave1");
+			AddState("AttackComboA1");
 		}
-	} else {
+		else {
+			AddState("AttackAerialRave1");
+		}
+	}
+	else {
 		// 一段目じゃなければ
 		auto& top = currentState_.back();
 		auto req = top->ExecuteCommand(*player_, command);
@@ -114,7 +127,7 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 			player_->ChangeState("Air");
 			break;
 		case AttackRequest::ChangeAttack:
-			ChangeState(req.nextAttack);
+			AddState(req.nextAttack);
 			break;
 		case AttackRequest::None:
 			int a = 0;
@@ -123,8 +136,7 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command)
 	}
 }
 
-void PlayerCombat::CreateState()
-{
+void PlayerCombat::CreateState() {
 	auto list = global_->GetGroupNames("PlayerAttack");
 	for (std::string name : list) {
 		global_->LoadFile("PlayerAttack", name);
@@ -134,8 +146,7 @@ void PlayerCombat::CreateState()
 	}
 }
 
-void PlayerCombat::DrawAttackDataEditorUI()
-{
+void PlayerCombat::DrawAttackDataEditorUI() {
 #ifdef _DEBUG
 	// 攻撃ステートを収集
 	std::vector<PlayerStateAttack*> attackStates;
@@ -190,8 +201,7 @@ void PlayerCombat::DrawAttackDataEditorUI()
 #endif // IMGUI
 }
 
-void PlayerCombat::AddAttackState(const std::string& attackName)
-{
+void PlayerCombat::AddAttackState(const std::string& attackName) {
 	// すでに存在しているなら追加しない
 	if (states_.contains(attackName)) {
 		return;
@@ -207,26 +217,55 @@ void PlayerCombat::AddAttackState(const std::string& attackName)
 	states_[attackName] = std::move(state);
 }
 
-void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
-{
+void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 #ifdef _DEBUG
 	const char* attackName = attack->name_.c_str();
 
 	int32_t& pointCount = global_->GetValueRef<int32_t>(attackName, "PointCount");
 
 	for (int32_t i = 0; i < pointCount; ++i) {
+
+		const std::string rotationKey = "ControlRotation_" + std::to_string(i);
+
+		if (!global_->HasItem(attackName, rotationKey)) {
+			global_->AddItem(attackName, rotationKey, Vector3{});
+		}
+	}
+
+	for (int32_t i = 0; i < pointCount; ++i) {
+
+		ImGui::PushID(i);
+
+		//=========================
+		// Position
+		//=========================
 		Vector3& point = global_->GetValueRef<Vector3>(attackName, "ControlPoint_" + std::to_string(i));
-		ImGui::DragFloat3(("P" + std::to_string(i)).c_str(), &point.x, 0.01f);
+
+		ImGui::DragFloat3("Position", &point.x, 0.01f);
+
+		//=========================
+		// Rotation (Euler)
+		//=========================
+		Vector3& rotation = global_->GetValueRef<Vector3>(attackName, "ControlRotation_" + std::to_string(i));
+
+		ImGui::DragFloat3("Rotation", &rotation.x, 1.0f);
+
+		ImGui::Separator();
+
+		ImGui::PopID();
 	}
 
 	if (ImGui::Button("Add Point")) {
 		global_->AddItem(attackName, "ControlPoint_" + std::to_string(pointCount), Vector3{});
+		global_->AddItem(attackName, "ControlRotation_" + std::to_string(pointCount), Vector3{});
+
 		++pointCount;
 	}
 
 	if (ImGui::Button("Remove Last") && pointCount > 0) {
 		--pointCount;
 		global_->RemoveItem(attackName, "ControlPoint_" + std::to_string(pointCount));
+		global_->RemoveItem(attackName, "ControlRotation_" + std::to_string(pointCount));
 	}
 	ImGui::Separator();
 
@@ -256,8 +295,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
 
 	ImGui::Checkbox("RequireLockOn", &global_->GetValueRef<bool>(attackName, "LockOnFlag"));
 
-	if (global_->GetValueRef<bool>(attackName, "LockOnFlag"))
-	{
+	if (global_->GetValueRef<bool>(attackName, "LockOnFlag")) {
 		const char* dirLabels[] = {
 			"None",
 			"To Enemy",
@@ -270,6 +308,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
 	ImGui::Separator();
 
 	// その他
+	ImGui::Checkbox("IsMove", &global_->GetValueRef<bool>(attackName, "IsMove"));
 	ImGui::Checkbox("Draw Debug Control Points", &global_->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
 
 	ImGui::DragFloat("Damage", &global_->GetValueRef<float>(attackName, "Damage"), 0.01f);
@@ -315,8 +354,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack)
 #endif // IMGUI
 }
 
-AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName)
-{
+AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName) {
 	AttackNode node;
 	node.name = attackName;
 
@@ -330,8 +368,7 @@ AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName)
 	return node;
 }
 
-void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNode& node)
-{
+void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNode& node) {
 	ImGui::Text("Attack : %s", node.name.c_str());
 	ImGui::Separator();
 
@@ -347,8 +384,7 @@ void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNod
 	}
 }
 
-void PlayerCombat::DrawAttackDerivativeEditorUI()
-{
+void PlayerCombat::DrawAttackDerivativeEditorUI() {
 #ifdef _DEBUG
 	static std::string selectedAttack;
 
@@ -356,10 +392,8 @@ void PlayerCombat::DrawAttackDerivativeEditorUI()
 
 	// --- 左：攻撃一覧 ---
 	ImGui::BeginChild("AttackList", ImVec2(200, 0), true);
-	for (auto& [name, node] : attackGraph_)
-	{
-		if (ImGui::Selectable(name.c_str(), selectedAttack == name))
-		{
+	for (auto& [name, node] : attackGraph_) {
+		if (ImGui::Selectable(name.c_str(), selectedAttack == name)) {
 			selectedAttack = name;
 		}
 	}
@@ -370,15 +404,13 @@ void PlayerCombat::DrawAttackDerivativeEditorUI()
 	// --- 右：派生先設定 ---
 	ImGui::BeginChild("DerivativeSetting", ImVec2(0, 0), true);
 
-	if (!selectedAttack.empty())
-	{
+	if (!selectedAttack.empty()) {
 		AttackNode& node = attackGraph_[selectedAttack];
 
 		ImGui::Text("Selected Attack: %s", selectedAttack.c_str());
 		ImGui::Separator();
 
-		for (auto& [targetName, targetNode] : attackGraph_)
-		{
+		for (auto& [targetName, targetNode] : attackGraph_) {
 			if (targetName == selectedAttack)
 				continue;
 
@@ -387,7 +419,8 @@ void PlayerCombat::DrawAttackDerivativeEditorUI()
 			if (ImGui::Checkbox(targetName.c_str(), &hasLink)) {
 				if (hasLink) {
 					node.nextAttacks.push_back(targetName);
-				} else {
+				}
+				else {
 					std::erase(node.nextAttacks, targetName);
 				}
 			}

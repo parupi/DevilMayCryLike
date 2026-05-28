@@ -1,4 +1,5 @@
 #include "PlayerStateBase.h"
+// クリア状態を管理するクラス
 class PlayerStateClear : public PlayerStateBase
 {
 public:

@@ -1,26 +1,26 @@
 #include "Player.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateMove.h"
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <3d/Collider/AABBCollider.h>
-#include <3d/Collider/CollisionManager.h>
-#include <base/utility/DeltaTime.h>
+#include "3d/Object/Renderer/RendererManager.h"
+#include "3d/Object/Renderer/PrimitiveRenderer.h"
+#include "3d/Collider/AABBCollider.h"
+#include "3d/Collider/CollisionManager.h"
+#include "base/utility/DeltaTime.h"
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
-#include <numbers>
-#include <3d/Primitive/PrimitiveLineDrawer.h>
+#include "3d/Primitive/PrimitiveLineDrawer.h"
 #include "State/Attack/PlayerStateAttack.h"
-#include <scene/Transition/TransitionManager.h>
+#include "scene/Transition/TransitionManager.h"
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
 #include "Controller/PlayerInput.h"
 #include "2d/SpriteManager.h"
 
-#include "../../../../Engine/input/Input.h"
+#include <numbers>
 
-Player::Player(std::string objectNama) : Object3d(objectNama)
-{
+#include "input/Input.h"
+
+Player::Player(std::string objectNama) : Object3d(objectNama) {
 	Object3d::Initialize();
 
 	// レンダラーの生成
@@ -42,8 +42,7 @@ Player::Player(std::string objectNama) : Object3d(objectNama)
 	stateMachine_->AddState("Clear", std::make_unique<PlayerStateClear>());
 }
 
-void Player::Initialize()
-{
+void Player::Initialize() {
 	combat_ = std::make_unique<PlayerCombat>();
 	combat_->Initialize(this);
 
@@ -57,14 +56,16 @@ void Player::Initialize()
 	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("WeaponCollider"));
 	// 武器を生成
 	weapon_ = std::make_unique<PlayerWeapon>("PlayerWeapon");
-
+	// 武器にレンダラーを追加
 	weapon_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerWeapon"));
-
+	// 武器にコライダーを追加
 	weapon_->AddCollider(CollisionManager::GetInstance()->FindCollider("WeaponCollider"));
-
+	// 武器の初期化
 	weapon_->Initialize();
-
+	// 武器のワールドトランスフォームをプレイヤーの子にする
 	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
+	// プレイヤークラスのポインタを武器クラスに渡す
+	weapon_->SetPlayer(this);
 
 	scoreManager = std::make_unique<StylishScoreManager>();
 
@@ -77,8 +78,7 @@ void Player::Initialize()
 	hitStop_ = std::make_unique<HitStop>();
 }
 
-void Player::Update(float deltaTime)
-{
+void Player::Update(float deltaTime) {
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 
@@ -91,17 +91,18 @@ void Player::Update(float deltaTime)
 
 	LockOn();
 
- 	weapon_->Update(dt);
-
+	weapon_->Update(dt);
+	// 攻撃中でないならステートを更新する
 	if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this, dt);
 	}
 	combat_->Update(dt);
-
+	// 入力に応じたコマンドを実行
 	for (auto& cmd : input_->GetCommands()) {
 		ExecuteCommand(cmd);
 	}
 
+	// 移動処理
 	GetWorldTransform()->GetTranslation() += velocity_ * dt;
 	velocity_ += acceleration_ * dt;
 
@@ -112,7 +113,8 @@ void Player::Update(float deltaTime)
 
 	if (lockOn_->IsLockOn()) {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	} else {
+	}
+	else {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	}
 
@@ -122,22 +124,19 @@ void Player::Update(float deltaTime)
 	}
 }
 
-void Player::Draw()
-{
+void Player::Draw() {
 	weapon_->Draw();
 	Object3d::Draw();
 
 }
 
-void Player::DrawEffect()
-{
+void Player::DrawEffect() {
 
 	combat_->Draw();
 }
 
 #ifdef _DEBUG
-void Player::DebugGui()
-{
+void Player::DebugGui() {
 	stateMachine_->DebugGui();
 	ImGui::Begin("Player");
 	Object3d::DebugGui();
@@ -150,73 +149,71 @@ void Player::DebugGui()
 
 #endif // _DEBUG
 
-void Player::ChangeState(const std::string& stateName)
-{
+void Player::ChangeState(const std::string& stateName) {
 	stateMachine_->ChangeState(*this, stateName);
 }
 
-void Player::ExecuteCommand(const PlayerCommand& command)
-{
+void Player::ExecuteCommand(const PlayerCommand& command) {
 	// ステートの更新
 	if (!combat_->IsAttacking()) {
 		stateMachine_->ExecuteCommand(*this, command);
-	} 
+	}
 	combat_->ExecuteCommand(command);
 }
 
-void Player::Move(float deltaTime)
-{
+Vector3 Player::GetMoveDirection() const {
 	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
-	if (!camera) return;
+	if (!camera) return {};
 	// 入力のcontext
 	const PlayerInputContext& context = input_->GetContext();
+	// 移動中じゃなければ処理しない
+	if (!context.isMove) return {};
 
-	// Yは維持する
-	velocity_ = { 0.0f, velocity_.y, 0.0f };
-	// 入力方向をローカル（プレイヤーから見た）方向で作成
-	Vector3 inputDir = { 0.0f, 0.0f, 0.0f };
-
-	if (context.isMove) {
-		inputDir = { context.move.x, 0.0f, context.move.y };
-
-		if (Length(inputDir) > 0.01f) {
-			inputDir = Normalize(inputDir);
-
-			// カメラ基準で移動させる
-			Vector3 camForward = camera->GetForward();
-			camForward.y = 0.0f;
-			camForward = Normalize(camForward);
-
-			Vector3 camRight = camera->GetRight();
-			camRight.y = 0.0f;
-			camRight = Normalize(camRight);
-
-			Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
-			moveDir = Normalize(moveDir);
-
-			float velocityY = velocity_.y;
-			velocity_ = moveDir * 10.0f;
-			velocity_.y = velocityY;
-
-			// 向き更新
-			if (!lockOn_->IsLockOn()) {
-				if (Length(moveDir) > 0.001f) {
-					moveDir.x *= -1.0f;
-
-					Quaternion targetRot = LookRotation(moveDir);
-
-					Quaternion& currentRot = GetWorldTransform()->GetRotation();
-
-					// 補間
-					currentRot = Slerp(currentRot, targetRot, rotateSpeed_ * deltaTime);
-				}
-			}
-		}
-	}
+	// 入力方向を取得
+	Vector3 inputDir = { context.move.x, 0.0f, context.move.y };
+	// 大きさが小さければ処理しない
+	if (Length(inputDir) < 0.01f) return {};
+	// 入力方向を正規化
+	inputDir = Normalize(inputDir);
+	// カメラ基準で移動させる
+	// カメラの前方向を取得
+	Vector3 camForward = camera->GetForward();
+	camForward.y = 0.0f;
+	camForward = Normalize(camForward);
+	// カメラの右方向を取得
+	Vector3 camRight = camera->GetRight();
+	camRight.y = 0.0f;
+	camRight = Normalize(camRight);
+	// カメラの向きと入力方向から移動方向を作成
+	Vector3 moveDir = camRight * inputDir.x + camForward * inputDir.z;
+	// 正規化して返す
+	return Normalize(moveDir);
 }
 
-void Player::LockOn()
-{
+void Player::Move(Vector3 moveDir, float deltaTime) {
+	// y軸の速度はそのままにしておく
+	float velocityY = velocity_.y;
+
+	velocity_ = moveDir * moveSpeed_;
+	velocity_.y = velocityY;
+}
+
+void Player::Rotate(Vector3 moveDir, float deltaTime) {
+	// ロックオンしているなら回転させない
+	if (lockOn_->IsLockOn()) return;
+	// 移動方向が無ければ処理しない
+	if (Length(moveDir) < 0.001f) return;
+
+	moveDir.x *= -1.0f;
+	// 移動方向から目標の回転を作成
+	Quaternion targetRot = LookRotation(moveDir);
+	// 現在の回転を取得
+	Quaternion& currentRot = GetWorldTransform()->GetRotation();
+	// 補完して回転を更新
+	currentRot = Slerp(currentRot, targetRot, rotateSpeed_ * deltaTime);
+}
+
+void Player::LockOn() {
 	if (lockOn_->IsLockOn()) {
 		auto* target = lockOn_->GetCurrentTarget();
 
@@ -231,8 +228,7 @@ void Player::LockOn()
 	}
 }
 
-void Player::OnCollisionEnter(BaseCollider* other)
-{
+void Player::OnCollisionEnter(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
@@ -249,31 +245,35 @@ void Player::OnCollisionEnter(BaseCollider* other)
 		if (outNormal.x == 1.0f) {
 			// 右に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
+		}
+		else if (outNormal.x == -1.0f) {
 			// 左に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
+		}
+		else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
 			//velocity_.y = 0.0f;
 			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
+		}
+		else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
 			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
+		}
+		else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
+		}
+		else if (outNormal.z == -1.0f) {
 			// 手前に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
 	}
 }
 
-void Player::OnCollisionStay(BaseCollider* other)
-{
+void Player::OnCollisionStay(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
@@ -290,30 +290,34 @@ void Player::OnCollisionStay(BaseCollider* other)
 		if (outNormal.x == 1.0f) {
 			// 右に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
+		}
+		else if (outNormal.x == -1.0f) {
 			// 左に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
+		}
+		else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
 			//velocity_.y = 0.0f;
 			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
+		}
+		else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
 			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
+		}
+		else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
+		}
+		else if (outNormal.z == -1.0f) {
 			// 手前に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
 	}
 }
 
-void Player::OnCollisionExit(BaseCollider* other)
-{
+void Player::OnCollisionExit(BaseCollider* other) {
 	other;
 }

@@ -31,11 +31,13 @@ public:
 	bool IsFinished() const { return isFinish_; };
 	// 中断できるかどうか
 	bool CanBeInterrupted() const { return attackPhase_ == AttackPhase::Cancel; }
+	// 派生先の攻撃があるかどうか
+	bool HasBranch(Player& player) const;
 private:
 	// フェーズの更新
 	void UpdatePhase(float time);
 	// 予備動作の更新
-	void UpdateStartup(Player& player);
+	void UpdateStartup(Player& player, float deltaTime);
 	// アクティブ状態の更新
 	void UpdateActive(Player& player);
 	// 後隙状態の更新
@@ -43,22 +45,22 @@ private:
 	// 入力受付状態の更新
 	AttackRequestData UpdateCancel(Player& player);
 	
-	TimeData stateTime_;
+	TimeData stateTime_{};
 
 	enum class AttackPhase {
 		Startup, // 予備動作
 		Active, // 攻撃中
 		Recovery, // 硬直
 		Cancel, // 入力待ち時間
-	}attackPhase_;
+	}attackPhase_{};
 
 	GlobalVariables* gv = GlobalVariables::GetInstance();
 
-	AttackData attackData_;
+	AttackData attackData_{};
 	// 派生先を管理するためのタイマー
-	TimeData attackChangeTimer_;
+	TimeData attackChangeTimer_{};
 
-	std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
+	//std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
 	bool isFinish_ = false;
 };
 

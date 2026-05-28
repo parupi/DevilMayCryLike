@@ -18,8 +18,7 @@ void GlobalVariables::CreateGroup(const string& groupName) {
 	datas_[groupName];
 }
 
-void GlobalVariables::RemoveItem(const std::string& groupName, const std::string& key)
-{
+void GlobalVariables::RemoveItem(const std::string& groupName, const std::string& key) {
 	auto itGroup = datas_.find(groupName);
 	if (itGroup == datas_.end()) return;
 	itGroup->second.items.erase(key);
@@ -120,8 +119,16 @@ void GlobalVariables::LoadFiles(const std::string& directoryName) {
 	}
 }
 
-std::vector<std::string> GlobalVariables::GetGroupNames(const std::string& directoryName) const
-{
+bool GlobalVariables::HasItem(const std::string& groupName, const std::string& key) const {
+	auto groupIt = datas_.find(groupName);
+	if (groupIt == datas_.end()) {
+		return false;
+	}
+
+	return groupIt->second.items.contains(key);
+}
+
+std::vector<std::string> GlobalVariables::GetGroupNames(const std::string& directoryName) const {
 	std::vector<std::string> result;
 
 	std::filesystem::path dir = std::filesystem::path(kDirectoryPath) / directoryName;
@@ -185,7 +192,7 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 			// int型の値を登録
 			int32_t value = itItem->get<int32_t>();
 			SetValue(groupName, itemName, value);
-		} 
+		}
 		// float型の値を保持していれば
 		else if (itItem->is_number_float()) {
 			// int型の値を登録
@@ -197,7 +204,7 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 			// float型のjson配列登録
 			Vector3 value = { itItem->at(0), itItem->at(1), itItem->at(2) };
 			SetValue(groupName, itemName, value);
-		} 
+		}
 		// Vector4型の値を保持していれば
 		else if (itItem->is_array() && itItem->size() == 4) {
 			// float型のjson配列登録

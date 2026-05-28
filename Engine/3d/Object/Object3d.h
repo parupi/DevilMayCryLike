@@ -16,8 +16,8 @@ class Object3dManager;
 class WorldTransform;
 
 struct TimeData {
-	float max;
-	float current;
+	float max = 1.0f;
+	float current = 0.0f;
 };
 
 class Object3d

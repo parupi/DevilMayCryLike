@@ -2,6 +2,7 @@
     "AttackComboB3": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
+        "ButtonIndex": 0,
         "ControlPoint_0": [
             0.75,
             0.0,
@@ -42,16 +43,60 @@
             0.0,
             3.0
         ],
+        "ControlRotation_0": [
+            60.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            60.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            70.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            80.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_6": [
+            90.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_7": [
+            90.0,
+            0.0,
+            0.0
+        ],
         "Damage": 3.0,
+        "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.0,
         "HitStopTime": 0.0,
         "ImpulseForce": 8.0,
+        "IsAir": false,
+        "IsMove": false,
         "KnockBackSpeed": [
             0.0,
             10.0,
             30.0
         ],
+        "LockOnFlag": false,
         "MoveSpeed": [
             0.0,
             0.0,
@@ -64,11 +109,15 @@
         "NextAttackIndex_2": -1,
         "NextAttackIndex_3": -1,
         "NextAttackIndex_4": -1,
+        "NextAttack_0": "",
+        "NextAttack_1": "",
+        "NextAttack_2": "",
         "PointCount": 8,
         "PostDelay": 0.20000000298023224,
         "Posture": 0,
         "PreDelay": 0.10000000149011612,
         "ReactionType": 1,
+        "RootAttackFlag": false,
         "StunTime": 0.0,
         "TorqueForce": 100.0,
         "TotalDuration": 0.6000000238418579,
