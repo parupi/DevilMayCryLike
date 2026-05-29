@@ -80,3 +80,5 @@ void DecomposeMatrix(const Matrix4x4& m, Vector3& outScale, Quaternion& outRot, 
 Matrix4x4 CreateLookAtMatrix(const Vector3& eye, const Vector3& target, const Vector3& up);
 
 Matrix4x4 CreateOrthographic(float width, float height, float nearZ, float farZ);
+
+Matrix4x4 CreateTranslationMatrix(float x, float y, float z);

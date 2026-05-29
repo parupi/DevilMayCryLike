@@ -1,6 +1,6 @@
 {
-    "EmitterName": "TitleSmoke2",
-    "Frequency": 0.5,
+    "EmitterName": "TitleSphere",
+    "Frequency": 0.800000011920929,
     "IsActive": true,
     "Particles": [
         {
@@ -8,5 +8,17 @@
             "ParticleName": "TitleSphere",
             "SpawnRate": 1.0
         }
-    ]
+    ],
+    "Transform": {
+        "Position": [
+            0.0,
+            3.0,
+            0.0
+        ],
+        "Scale": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
 }

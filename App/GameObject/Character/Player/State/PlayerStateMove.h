@@ -1,5 +1,6 @@
 #pragma once
 #include "PlayerStateBase.h"
+// 移動状態を管理するクラス
 class PlayerStateMove : public PlayerStateBase
 {
 public:

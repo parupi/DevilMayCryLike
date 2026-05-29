@@ -1,5 +1,7 @@
 #pragma once
 #include "PlayerStateBase.h"
+
+// 空中状態を管理するクラス
 class PlayerStateAir : public PlayerStateBase
 {
 public:

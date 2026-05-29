@@ -7,8 +7,7 @@
 #include "base/utility/DeltaTime.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 
-PlayerStateAttack::PlayerStateAttack(std::string attackName)
-{
+PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	name_ = attackName;
 	std::string groupName = "Attack/" + name_;
 	// 攻撃のデータを生成
@@ -28,6 +27,7 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName)
 
 	// その他
 	gv->AddItem(name_, "DrawDebugControlPoints", bool()); // 制御点のデバッグ描画フラグ
+	gv->AddItem(name_, "IsMove", bool(false)); // 攻撃中に移動するかどうか(モーション用のフラグ)
 
 	// ダメージなどの汎用パラメータ
 	gv->AddItem(name_, "Damage", float());
@@ -65,8 +65,7 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName)
 	gv->AddItem(name_, "DirIndex", int32_t(0));
 }
 
-void PlayerStateAttack::Enter(Player& player)
-{
+void PlayerStateAttack::Enter(Player& player) {
 	attackPhase_ = AttackPhase::Startup;
 	stateTime_.current = 0.0f;
 	stateTime_.max = attackData_.totalDuration;
@@ -78,15 +77,15 @@ void PlayerStateAttack::Enter(Player& player)
 
 	for (int32_t i = 0; i < attackData_.pointCount; i++) {
 		attackData_.controlPoints.push_back(gv->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i)));
+		attackData_.controlRotations.push_back(gv->GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i)));
 	}
 	// 今回の攻撃のパラメータを送っておく
 	player.SetAttackData(attackData_);
-	
+
 	isFinish_ = false;
 }
 
-void PlayerStateAttack::Update(Player& player, float deltaTime)
-{
+void PlayerStateAttack::Update(Player& player, float deltaTime) {
 	stateTime_.current += deltaTime;
 
 	// 攻撃フェーズの更新処理
@@ -95,8 +94,10 @@ void PlayerStateAttack::Update(Player& player, float deltaTime)
 	// フェーズごとの処理を追加
 	switch (attackPhase_) {
 	case AttackPhase::Startup:
-
+	{
+		UpdateStartup(player, deltaTime);
 		break;
+	}
 	case AttackPhase::Active:
 	{
 		UpdateActive(player);
@@ -116,13 +117,13 @@ void PlayerStateAttack::Update(Player& player, float deltaTime)
 		break;
 	}
 
-	ImGui::Begin("Debug");
-	ImGui::Text("Attack State: %s", name_.c_str());
-	ImGui::End();
+	// 移動可能の場合は移動させる
+	if (attackData_.isMove) {
+		player.Move(player.GetMoveDirection(), deltaTime);
+	}
 }
 
-void PlayerStateAttack::Exit(Player& player)
-{
+void PlayerStateAttack::Exit(Player& player) {
 	player;
 	attackPhase_ = AttackPhase::Startup;
 	stateTime_.current = 0.0f;
@@ -131,8 +132,7 @@ void PlayerStateAttack::Exit(Player& player)
 	attackChangeTimer_.current = 0.0f;
 }
 
-AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const PlayerCommand& command)
-{
+AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const PlayerCommand& command) {
 	AttackRequestData req{};
 	req.nextAttack = "";
 	req.type = AttackRequest::None;
@@ -141,11 +141,6 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 		if (attackPhase_ != AttackPhase::Cancel) {
 			return req;
 		}
-
-		if (player.IsLockOn()) {
-			// スティックの状況をもとに動きを変える
-
-		} 
 
 		const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
 
@@ -170,7 +165,8 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 			return req;
 		}
 
-	} else if (command.action == PlayerAction::Jump) {
+	}
+	else if (command.action == PlayerAction::Jump) {
 		if (attackPhase_ != AttackPhase::Cancel || gv->GetValueRef<int32_t>(name_, "AttackPosture") == 1) {
 			return req;
 		}
@@ -182,19 +178,19 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 	return req;
 }
 
-void PlayerStateAttack::OnInterrupted(Player& player)
-{
+void PlayerStateAttack::OnInterrupted(Player& player) {
 	// 割り込みされたので攻撃を終了させる
 	isFinish_ = true;
 }
 
-void PlayerStateAttack::UpdateAttackData()
-{
+void PlayerStateAttack::UpdateAttackData() {
 	// 制御点
 	attackData_.pointCount = gv->GetInstance()->GetValueRef<int32_t>(name_, "PointCount");
 	attackData_.controlPoints.resize(attackData_.pointCount);
+	attackData_.controlRotations.resize(attackData_.pointCount);
 	for (int32_t i = 0; i < attackData_.pointCount; i++) {
 		attackData_.controlPoints[i] = gv->GetInstance()->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i));
+		attackData_.controlRotations[i] = gv->GetInstance()->GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i));
 	}
 
 	// 移動系
@@ -209,6 +205,7 @@ void PlayerStateAttack::UpdateAttackData()
 	attackData_.nextAttackDelay = gv->GetInstance()->GetValueRef<float>(name_, "NextAttackDelay");
 
 	// その他
+	attackData_.isMove = gv->GetInstance()->GetValueRef<bool>(name_, "IsMove");
 	attackData_.drawDebugControlPoints = gv->GetInstance()->GetValueRef<bool>(name_, "DrawDebugControlPoints");
 	attackData_.damage = gv->GetInstance()->GetValueRef<float>(name_, "Damage");
 
@@ -226,8 +223,7 @@ void PlayerStateAttack::UpdateAttackData()
 	attackData_.stunTime = gv->GetValueRef<float>(name_, "StunTime");
 }
 
-void PlayerStateAttack::DrawControlPoints(Player& player)
-{
+void PlayerStateAttack::DrawControlPoints(Player& player) {
 	if (attackData_.pointCount < 4 || !attackData_.drawDebugControlPoints) return;
 
 	// 制御点の位置に球を描画
@@ -250,26 +246,46 @@ void PlayerStateAttack::DrawControlPoints(Player& player)
 	}
 }
 
-void PlayerStateAttack::UpdatePhase(float time)
-{
+bool PlayerStateAttack::HasBranch(Player& player) const {
+	const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
+
+	int nextCount = static_cast<int>(node.nextAttacks.size());
+
+	return nextCount > 0;
+}
+
+void PlayerStateAttack::UpdatePhase(float time) {
 	if (time < attackData_.preDelay) {
 		attackPhase_ = AttackPhase::Startup;
-	} else if (time < attackData_.preDelay + attackData_.attackDuration) {
+	}
+	else if (time < attackData_.preDelay + attackData_.attackDuration) {
 		attackPhase_ = AttackPhase::Active;
-	} else if (time < attackData_.preDelay + attackData_.attackDuration + attackData_.postDelay) {
+	}
+	else if (time < attackData_.preDelay + attackData_.attackDuration + attackData_.postDelay) {
 		attackPhase_ = AttackPhase::Recovery;
-	} else {
+	}
+	else {
 		attackPhase_ = AttackPhase::Cancel;
 	}
 }
 
-void PlayerStateAttack::UpdateStartup(Player& player)
-{
-	player;
+void PlayerStateAttack::UpdateStartup(Player& player, float deltaTime) {
+	// 方向転換
+	Vector3 moveDir = player.GetMoveDirection();
+	// プレイヤーの向きを移動方向に向ける
+	player.Rotate(moveDir, deltaTime);
+
+	// 武器を制御点の最初の位置に移動させる
+	Vector3 targetPos = attackData_.controlPoints[0];
+	// 武器の初期位置
+	Vector3 firstPos = player.GetWeapon()->GetWorldTransform()->GetTranslation();
+	// 予備動作の時間に応じて線形補間で移動させる
+	Vector3 currentPos = Lerp(firstPos, targetPos, stateTime_.current / attackData_.preDelay);
+	// 武器の位置を更新
+	player.GetWeapon()->GetWorldTransform()->GetTranslation() = currentPos;
 }
 
-void PlayerStateAttack::UpdateActive(Player& player)
-{
+void PlayerStateAttack::UpdateActive(Player& player) {
 	// 攻撃判定ON、移動処理
 	player.GetWeapon()->SetIsAttack(true);
 	// ローカル速度の取得
@@ -285,44 +301,24 @@ void PlayerStateAttack::UpdateActive(Player& player)
 	float activeStart = attackData_.preDelay;
 	float t = std::clamp((stateTime_.current - activeStart) / attackData_.attackDuration, 0.0f, 1.0f);
 
-	// 現在位置と進行方向
+	// 現在位置を計算
 	Vector3 pos = CatmullRomSpline(attackData_.controlPoints, t);
-	const float deltaT = 0.01f;
-	float tNext = std::clamp(t + deltaT, 0.0f, 1.0f);
-	Vector3 nextPos = CatmullRomSpline(attackData_.controlPoints, tNext);
-
-	Vector3 forward = Normalize(nextPos - pos); // 曲線の接線
-	Vector3 up = { 0.0f, 1.0f, 0.0f };
-
-	// 曲線に直角な方向（right）を主軸にした回転にする
-	Vector3 right = Normalize(Cross(up, forward));       // ← forwardと垂直
-	up = Normalize(Cross(forward, right));               // 正規直交系再構成
-
-	// 回転行列を right/up/forward の順で構築
-	Matrix4x4 rotationMat = {
-		right.x,  right.y,  right.z,  0.0f,
-		up.x,     up.y,     up.z,     0.0f,
-		forward.x,forward.y,forward.z,0.0f,
-		0.0f,     0.0f,     0.0f,     1.0f
-	};
-
-	// 回転クォータニオン化
-	Quaternion qRot = QuaternionFromMatrix(rotationMat);
-	player.GetWeapon()->GetWorldTransform()->GetRotation() = qRot;
+	// 現在の回転を計算
+	Vector3 rot = CatmullRomSpline(attackData_.controlRotations, t);
 
 	// 位置の設定
 	player.GetWeapon()->GetWorldTransform()->GetTranslation() = pos;
+	// 回転の設定
+	player.GetWeapon()->GetWorldTransform()->GetRotation() = EulerDegree(rot);
 }
 
-void PlayerStateAttack::UpdateRecovery(Player& player)
-{
+void PlayerStateAttack::UpdateRecovery(Player& player) {
 	player.GetWeapon()->SetIsAttack(false);
 
 	player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
 }
 
-AttackRequestData PlayerStateAttack::UpdateCancel(Player& player)
-{
+AttackRequestData PlayerStateAttack::UpdateCancel(Player& player) {
 	player;
 	return AttackRequestData();
 }

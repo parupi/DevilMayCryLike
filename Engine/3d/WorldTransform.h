@@ -62,9 +62,12 @@ public:
 	void SetParent(WorldTransform* parent) { parent_ = parent; }
 	WorldTransform* GetParent() { return parent_; }
 	void DetachParent() { parent_ = nullptr; }
+	// ワールド座標を取得
+	Vector3 GetWorldPos() const;
+	// ワールドスケールを取得
+	Vector3 GetWorldScale() const;
 
-	Vector3 GetWorldPos();
-
+	// 前方向を取得
 	Vector3 GetForward() const;
 	void SetMatWVP(const Matrix4x4& mat) { constMap->WVP = mat; }
 private:

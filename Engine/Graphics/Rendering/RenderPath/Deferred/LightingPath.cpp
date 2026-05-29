@@ -49,7 +49,7 @@ void LightingPath::CreateFullScreenVB()
 	fullScreenVBV_.StrideInBytes = sizeof(FullScreenVertex);
 }
 
-void LightingPath::Begin(uint32_t rtvIndex)
+void LightingPath::Begin(uint32_t rtvIndex, uint32_t shadowSrvIndex)
 {
 	auto cmd = dxManager_->GetCommandList();
 	auto* commandContext = dxManager_->GetCommandContext();

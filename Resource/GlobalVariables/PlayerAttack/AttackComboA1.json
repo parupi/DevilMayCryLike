@@ -33,6 +33,36 @@
             -3.0,
             0.0
         ],
+        "ControlRotation_0": [
+            -30.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            -15.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            60.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            120.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            150.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            180.0,
+            0.0,
+            0.0
+        ],
         "Damage": 0.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,

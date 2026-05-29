@@ -32,6 +32,7 @@ void SampleScene::Initialize()
 	normalCamera_->GetTranslate() = { 0.0f, 0.0f, -10.0f };
 	normalCamera_->GetRotate() = { 0.0f, 0.0f, 0.0f };
 	cameraManager_->AddCamera(std::move(normalCamera_));
+	cameraManager_->SetActiveCamera("KnockCamera");
 
 	// .gltfファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadSkinnedModel("walk");
@@ -44,7 +45,7 @@ void SampleScene::Initialize()
 	// .objファイルからモデルを読み込む
 	ModelManager::GetInstance()->LoadModel("plane");
 	ModelManager::GetInstance()->LoadModel("Terrain");
-	ModelManager::GetInstance()->LoadModel("axis");
+	ModelManager::GetInstance()->LoadModel("Cube");
 	ModelManager::GetInstance()->LoadModel("ICO");
 	ModelManager::GetInstance()->LoadModel("multiMesh");
 	ModelManager::GetInstance()->LoadModel("multiMaterial");
@@ -65,30 +66,31 @@ void SampleScene::Initialize()
 	object->Initialize();
 
 	// レンダラーの追加
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "axis"));
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render", "Cube"));
 
 	object->AddRenderer(RendererManager::GetInstance()->FindRender("render"));
 
 	object->GetWorldTransform()->GetTranslation() = { 0.0f, 2.0f, 0.0f };
 
 	//object->GetOption().drawPath = DrawPath::Forward;
+	//object->GetRenderer("render")->GetModel()->GetMaterials()[1]->SetEnableTextureDensity(true);
 
 	object_ = object.get();
 	// ゲームオブジェクトを追加
 	Object3dManager::GetInstance()->AddObject(std::move(object));
 
-	//// オブジェクトを生成
-	//object = std::make_unique<Object3d>("obj2");
-	//object->Initialize();
+	// オブジェクトを生成
+	object = std::make_unique<Object3d>("obj2");
+	object->Initialize();
 
-	//// レンダラーの追加
-	//RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
+	// レンダラーの追加
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("render2", "Terrain"));
 
-	//object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
+	object->AddRenderer(RendererManager::GetInstance()->FindRender("render2"));
 
-	//object2_ = object.get();
+	object2_ = object.get();
 
-	//Object3dManager::GetInstance()->AddObject(std::move(object));
+	Object3dManager::GetInstance()->AddObject(std::move(object));
 
 	//sprite_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "test", "uvChecker.png");
 
@@ -119,6 +121,10 @@ void SampleScene::Finalize()
 
 void SampleScene::Update()
 {
+	//ImGui::Begin("SampleScene Debug Info");
+	//ImGui::DragFloat2("uvSize", &Object3dManager::GetInstance()->FindObject("obj1")->GetRenderer("render")->GetModel()->GetMaterials()[1]->GetUVData().size.x, 0.01f);
+	//ImGui::End();
+
 	//sprite_->Update();
 
 	emitter_->SetTranslate(object_->GetWorldTransform()->GetTranslation());
@@ -128,7 +134,7 @@ void SampleScene::Update()
 	//emitter_->Update();
 
 #ifdef _DEBUG
-	DebugUpdate();
+	//DebugUpdate();
 #endif // _DEBUG
 }
 

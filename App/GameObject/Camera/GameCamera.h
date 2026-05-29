@@ -2,51 +2,47 @@
 #include "3d/Camera/BaseCamera.h"
 #include "input/Input.h"
 
-
 class Player;
 class LockOnSystem;
 class CameraInput;
 
-/// <summary>
-/// ゲーム中のプレイヤーを追従するカメラを管理するクラス
-/// プレイヤーの位置と入力に基づいてカメラを制御する
-/// </summary>
 class GameCamera : public BaseCamera
 {
 public:
-	/// <summary>
-	/// コンストラクタ
-	/// </summary>
-	/// <param name="cameraName">カメラの名前</param>
-	GameCamera(std::string cameraName);
+    enum class Mode
+    {
+        Free,
+        LockOn
+    };
 
-	/// <summary>
-	/// デストラクタ
-	/// </summary>
-	~GameCamera() override = default;
+    GameCamera(std::string cameraName);
+    ~GameCamera() override = default;
 
-	// 初期化処理
-	void Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput);
+    void Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput);
+    void Update() override;
 
-	/// <summary>
-	/// プレイヤーを追従するカメラの更新処理
-	/// 入力による回転・追従などの挙動を更新する
-	/// </summary>
-	void Update() override;
+    // ★ 修正：関数化
+    void SetMode(Mode mode);
 
-	void SetYaw(float yaw) { yaw_ = yaw; }
 private:
-	// 追従対象のプレイヤー
-	Player* player_ = nullptr;
-	// ロックオン対象を選別するクラス
-	LockOnSystem* lockOn_ = nullptr;
-	// カメラの入力を受け取るクラス
-	CameraInput* cameraInput_ = nullptr;
-	// 左右
-	float yaw_ = 3.14f;
-	// 上下
-	float pitch_ = 0.0f;
-	// カメラの回転感度
-	float sensitivityX = 0.03f;
-	float sensitivityY = 0.01f;
+    void UpdateFree();
+    void UpdateLockOn();
+
+private:
+    Player* player_ = nullptr;
+    LockOnSystem* lockOn_ = nullptr;
+    CameraInput* cameraInput_ = nullptr;
+
+    Mode mode_ = Mode::Free;
+
+    float yaw_ = 3.14f;
+    float pitch_ = 0.0f;
+    float distance_ = 18.0f;
+
+    Vector3 smoothedLookOffset_ = Vector3(0.0f, 0.0f, 0.0f);
+
+    Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
+
+    float sensitivityX = 0.03f;
+    float sensitivityY = 0.025f;
 };

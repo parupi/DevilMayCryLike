@@ -49,11 +49,16 @@ void TitleScene::Initialize()
 
 	// タイトルシーンにあるもやもやを生成
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSphere", "circle2.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSphere");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSphere", "TitleSphere");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke", "circle.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke", "TitleSmoke");
 	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke2", "smoke.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2");
+	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2", "TitleSmoke2");
+
+	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	smokeEmitter_ = emitters.at("TitleSmoke").get();
+	smokeEmitter2_ = emitters.at("TitleSmoke2").get();
+	sphereEmitter_ = emitters.at("TitleSphere").get();
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
@@ -80,16 +85,17 @@ void TitleScene::Finalize()
 	RendererManager::GetInstance()->DeleteAllRenderer();
 	CameraManager::GetInstance()->DeleteAllCamera();
 	LightManager::GetInstance()->DeleteAllLight();
+	ParticleManager::GetInstance()->DeleteAllEmitters();
 }
 
 void TitleScene::Update()
 {
-	//smokeEmitter_->Update();
-	//smokeEmitter2_->Update();
+	smokeEmitter_->Update();
+	smokeEmitter2_->Update();
 
-	//sphereEmitter_->Update();
+	sphereEmitter_->Update();
 
-	lightManager_->Update();
+	//lightManager_->Update();
 
 	titleUI_->Update();
 

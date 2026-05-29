@@ -17,6 +17,9 @@ void Ground::Initialize()
 	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
 
 	GetCollider(name_)->category_ = CollisionCategory::Ground;
+	// uvサイズをオブジェクトの大きさに合わせる
+	GetRenderer(name_)->GetModel()->GetMaterials()[1]->SetEnableTextureDensity(true);
+
 	//GetCollider(name_)->transform_->GetScale() = GetWorldTransform()->GetScale();
 	//CollisionManager::GetInstance()->FindCollider(name_);
 	//smokeEmitter_ = std::make_unique<ParticleEmitter>();

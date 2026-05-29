@@ -52,12 +52,6 @@ void MyGameTitle::Initialize()
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(dxManager.get(), psoManager.get());
 
-	//csm = std::make_unique<CascadedShadowMap>();
-	//csm->Initialize(dxManager.get(), 1280);
-
-	//shadowPath = std::make_unique<ShadowPass>();
-	//shadowPath->Initialize(dxManager.get(), psoManager.get(), csm.get());
-
 	// インスタンス生成
 	GlobalVariables::GetInstance();
 }
@@ -102,16 +96,16 @@ void MyGameTitle::Update()
 #ifdef _DEBUG
 	ImGuiManager::GetInstance()->Begin();
 #endif // DEBUG
+	GuchisFramework::Update();
 	CameraManager::GetInstance()->Update();
 	ParticleManager::GetInstance()->Update();
-	GuchisFramework::Update();
 	SceneTransitionController::GetInstance()->Update();
 	Object3dManager::GetInstance()->Update();
 	RendererManager::GetInstance()->Update();
 	CollisionManager::GetInstance()->Update();
 
+	LightManager::GetInstance()->Update();
 	OffScreenManager::GetInstance()->Update();
-	//csm->Update();
 #ifdef _DEBUG
 	SceneManager::GetInstance()->DebugUpdate();
 	ImGuiManager::GetInstance()->End();

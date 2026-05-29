@@ -20,6 +20,7 @@
 
 class Object3d;
 class ModelRenderer;
+
 class Model : public BaseModel
 {
 public: // メンバ関数
@@ -31,7 +32,7 @@ public: // メンバ関数
 
 	void InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData);
 
-	void Update() override;
+	void Update(const Vector3& objectScale = {1.0f, 1.0f, 1.0f}) override;
 	// 描画
 	void Draw() override;
 	// GBufferに描画

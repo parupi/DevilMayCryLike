@@ -4,14 +4,17 @@
 
 void PlayerStateAir::Enter(Player& player)
 {
+	// ジャンプから遷移してきた場合はすでに上向きの速度があるので加速度は重力のみ
 	player.GetAcceleration().y = -12.0f;
-
 }
 
 void PlayerStateAir::Update(Player& player, float deltaTime)
 {
-	// 空中でも移動可
-	player.Move(deltaTime);
+	// 移動方向を取得
+	Vector3 moveDir = player.GetMoveDirection();
+	// 移動と回転を実行
+	player.Move(moveDir, deltaTime);
+	player.Rotate(moveDir, deltaTime);
 
 	// 地面についたら待機状態にする
 	if (player.GetOnGround()) {

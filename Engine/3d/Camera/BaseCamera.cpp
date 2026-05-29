@@ -68,7 +68,7 @@ Vector3 BaseCamera::GetForward() const {
 
 	Vector3 forward;
 	forward.x = cos(pitch) * sin(yaw);
-	forward.y = sin(pitch);
+	forward.y = -sin(pitch);
 	forward.z = cos(pitch) * cos(yaw);
 
 	return Normalize(forward);

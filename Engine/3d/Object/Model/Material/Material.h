@@ -14,7 +14,7 @@ public:
 	// 初期化
 	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData);
 	// 更新処理
-	void Update();
+	void Update(const Vector3& objectScale = {1.0f, 1.0f, 1.0f});
 
 	// 描画
 	void Bind(UINT RootParameterIndex);
@@ -25,6 +25,8 @@ public:
 	void DebugGui(uint32_t index);
 #endif // _DEBUG
 
+	// TextureDensityの維持をするかどうかのフラグを設定
+	void SetEnableTextureDensity(bool enable) { enableTextureDensity_ = enable; }
 private:
 	void CreateMaterialResource();
 	void CreateGBufferMaterialResource();
@@ -45,6 +47,11 @@ private:
 
 	EulerTransform uvTransform_{ {1.0f, 1.0f, 1.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f} };
 	UVData uvData_;
+
+	// TextureDensityの維持をするかどうかのフラグ
+	bool enableTextureDensity_ = false;
+	// テクスチャ密度を維持するためのスケール値
+	float textureDensityScale_ = 1.0f;
 
 public:
 	// 色
