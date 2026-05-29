@@ -9,6 +9,7 @@ PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName) {}
 void PlayerWeapon::Initialize() {
 	Object3d::Initialize();
 
+	//GetRenderer("PlayerWeapon")->GetWorldTransform()->GetTranslation() = { 0.0f, 0.5f, 0.0f };
 	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = { 0.5f, 0.5f, 0.5f };
 
 	GetCollider("WeaponCollider")->category_ = CollisionCategory::PlayerWeapon;
@@ -21,7 +22,7 @@ void PlayerWeapon::Initialize() {
 	emitter_ = emitters.at("PlayerWeaponTrailEmitter").get();
 	emitter_->SetParent(GetWorldTransform());
 
-	defaultPosition_ = { 0.0f, 0.6f, -0.5f };
+	defaultPosition_ = { 0.0f, 0.1f, -0.5f };
 	defaultRotation_ = { 0.0f, 90.0f, 150.0f };
 
 	GetWorldTransform()->GetTranslation() = defaultPosition_;

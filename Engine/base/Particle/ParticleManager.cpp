@@ -168,6 +168,11 @@ void ParticleManager::CreateEmitter(const std::string& emitterName, const std::s
 	emitters_.emplace(emitterName, std::move(emitter));
 }
 
+void ParticleManager::DeleteAllEmitters()
+{
+	emitters_.clear();
+}
+
 void ParticleManager::CreateParticleGPU(const std::string& name)
 {
 	auto* rm = dxManager_->GetResourceManager();

@@ -4,7 +4,7 @@
     "IsActive": true,
     "Particles": [
         {
-            "Count": 2,
+            "Count": 1,
             "ParticleName": "TitleSphere",
             "SpawnRate": 1.0
         }
@@ -12,7 +12,7 @@
     "Transform": {
         "Position": [
             0.0,
-            2.4000000953674316,
+            3.0,
             0.0
         ],
         "Scale": [
