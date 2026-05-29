@@ -121,10 +121,6 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 	if (attackData_.isMove) {
 		player.Move(player.GetMoveDirection(), deltaTime);
 	}
-
-	//ImGui::Begin("Debug");
-	//ImGui::Text("Attack State: %s", name_.c_str());
-	//ImGui::End();
 }
 
 void PlayerStateAttack::Exit(Player& player) {
@@ -145,11 +141,6 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 		if (attackPhase_ != AttackPhase::Cancel) {
 			return req;
 		}
-
-		//if (player.IsLockOn()) {
-		//	// スティックの状況をもとに動きを変える
-
-		//}
 
 		const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
 

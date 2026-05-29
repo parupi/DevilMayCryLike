@@ -63,7 +63,8 @@ public:
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
 	// エミッターを生成する関数
 	void CreateEmitter(const std::string& emitterName, const std::string& dataName = "");
-
+	// 全てのエミッターを削除する関数
+	void DeleteAllEmitters();
 #ifdef _DEBUG
 	void DebugGui();
 #endif // DEBUG
