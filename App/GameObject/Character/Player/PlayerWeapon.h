@@ -1,7 +1,7 @@
 #pragma once
 #include "3d/Object/Object3d.h"
 #include <GameData/Score/StylishScoreManager.h>
-#include "base/Particle/ParticleEmitter.h"
+#include "3d/Trail/WeaponTrail.h"
 
 class Player;
 class PlayerWeapon : public Object3d
@@ -43,6 +43,10 @@ private:
 	Vector3 defaultPosition_ = { 0.0f, 0.6f, -0.5f };
 	Vector3 defaultRotation_ = { 0.0f, 90.0f, 150.0f };
 
-	ParticleEmitter* emitter_;
+	// 刃先 (tip) と根本 (hilt) のローカルオフセット
+	Vector3 tipOffset_  = { 0.0f,  0.5f, 0.0f };
+	Vector3 hiltOffset_ = { 0.0f, -0.5f, 0.0f };
+
+	std::unique_ptr<WeaponTrail> trail_;
 };
 

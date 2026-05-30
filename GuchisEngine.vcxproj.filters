@@ -106,6 +106,9 @@
     <Filter Include="Engine\3d\Camera">
       <UniqueIdentifier>{397A8D3D-2573-AC8F-4EA5-91143AFD8B9B}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\3d\Trail">
+      <UniqueIdentifier>{B7F2A3C1-9D4E-4B8F-A1C2-3E5F7A9B0D2C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\3d\Collider">
       <UniqueIdentifier>{BEECA80A-AAD0-6960-1331-64B3FF3354E2}</UniqueIdentifier>
     </Filter>
@@ -608,6 +611,9 @@
     </ClInclude>
     <ClInclude Include="Engine\base\Logger.h">
       <Filter>Engine\base</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\3d\Trail\WeaponTrail.h">
+      <Filter>Engine\3d\Trail</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\Particle\InstanceData.h">
       <Filter>Engine\base\Particle</Filter>
@@ -1126,6 +1132,9 @@
     </ClCompile>
     <ClCompile Include="Engine\base\Logger.cpp">
       <Filter>Engine\base</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\3d\Trail\WeaponTrail.cpp">
+      <Filter>Engine\3d\Trail</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp">
       <Filter>Engine\base\Particle</Filter>
