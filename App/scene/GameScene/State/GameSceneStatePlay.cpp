@@ -1,5 +1,6 @@
 #include "GameSceneStatePlay.h"
 #include "scene/GameScene/GameScene.h"
+#include <base/utility/DeltaTime.h>
 
 void GameSceneStatePlay::Enter(GameScene& scene)
 {

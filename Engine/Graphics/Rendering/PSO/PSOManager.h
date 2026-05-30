@@ -70,6 +70,9 @@ public:// アクセッサ
 	// CascadedShadowMap
 	ID3D12RootSignature* GetCSMRootSignature() { return csmRootSignature_.Get(); }
 	ID3D12PipelineState* GetCSMPSO();
+	// Trail
+	ID3D12RootSignature* GetTrailSignature() { return trailSignature_.Get(); }
+	ID3D12PipelineState* GetTrailPSO();
 private:
 	// スプライト
 	void CreateSpriteSignature();
@@ -110,6 +113,9 @@ private:
 	// CascadedShadowMap
 	void CreateCSMRootSignature();
 	void CreateCSMPSO();
+	// Trail
+	void CreateTrailSignature();
+	void CreateTrailPSO();
 private:
 	DirectXManager* dxManager_ = nullptr;
 
@@ -153,4 +159,7 @@ private: // データ格納用変数
 	// CascadedShadowMap
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> csmRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmPSO_;
+	// Trail
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> trailSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;
 };

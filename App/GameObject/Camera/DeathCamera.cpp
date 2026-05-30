@@ -2,6 +2,7 @@
 #include "GameObject/Character/Player/Player.h"
 #include <random>
 #include <math/Easing.h>
+#include <base/utility/DeltaTime.h>
 
 DeathCamera::DeathCamera(const std::string& cameraName, BaseCamera* sourceCamera, Player* player)
     : BaseCamera(cameraName), player_(player)

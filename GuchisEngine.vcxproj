@@ -242,6 +242,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Include\SceneLoader.h" />
     <ClInclude Include="Engine\audio\Audio.h" />
     <ClInclude Include="Engine\base\Logger.h" />
+    <ClInclude Include="Engine\3d\Trail\WeaponTrail.h" />
     <ClInclude Include="Engine\base\Particle\InstanceData.h" />
     <ClInclude Include="Engine\base\Particle\Particle.h" />
     <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
@@ -416,6 +417,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Include\SceneLoader.cpp" />
     <ClCompile Include="Engine\audio\Audio.cpp" />
     <ClCompile Include="Engine\base\Logger.cpp" />
+    <ClCompile Include="Engine\3d\Trail\WeaponTrail.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleManager.cpp" />

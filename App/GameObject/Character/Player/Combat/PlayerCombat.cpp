@@ -1,6 +1,7 @@
 #include "PlayerCombat.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
+#include <base/utility/DeltaTime.h>
 
 void PlayerCombat::Initialize(Player* player) {
 	player_ = player;
