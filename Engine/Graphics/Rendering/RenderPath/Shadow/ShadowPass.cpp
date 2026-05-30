@@ -10,8 +10,6 @@ void ShadowPass::Initialize(DirectXManager* dxManager, PSOManager* psoManager, C
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
 	shadowMap_ = shadowMap;
-
-	CreateResource();
 }
 
 void ShadowPass::BeginDraw()
@@ -35,12 +33,4 @@ void ShadowPass::Execute()
 
 		shadowMap_->EndCascade(i);
 	}
-}
-
-void ShadowPass::EndDraw()
-{
-}
-
-void ShadowPass::CreateResource()
-{
 }
