@@ -18,6 +18,7 @@
 #include "ParticleEmitter.h"
 #include <memory>
 #include "ParticleEditor.h"
+#include <3d/Object/Renderer/PrimitiveRenderer.h>
 
 struct ParticleForGPU {
 	Matrix4x4 WVP;
@@ -30,6 +31,11 @@ struct ParticleGroupGPU
 	uint32_t instancingHandle;
 	ParticleForGPU* mappedPtr;
 	uint32_t srvIndex;
+	BufferHandle vertexHandle = kInvalidBufferHandle;
+	BufferHandle indexHandle  = kInvalidBufferHandle;
+	D3D12_VERTEX_BUFFER_VIEW vbv{};
+	D3D12_INDEX_BUFFER_VIEW  ibv{};
+	uint32_t indexCount = 0;
 };
 
 struct ParticleRenderState
@@ -60,7 +66,7 @@ public:
 	// 描画
 	void Draw();
 	// パーティクルグループを登録する
-	void CreateParticleGroup(const std::string name_, const std::string textureFilePath);
+	void CreateParticleGroup(const std::string name_, const std::string textureFilePath, PrimitiveType shape = PrimitiveType::Plane);
 	// エミッターを生成する関数
 	void CreateEmitter(const std::string& emitterName, const std::string& dataName = "");
 	// 全てのエミッターを削除する関数
@@ -118,7 +124,7 @@ private:
 
 	void DrawEditor(GlobalVariables* global, const std::string& groupName);
 
-	void CreateParticleGPU(const std::string& name);
+	void CreateParticleGPU(const std::string& name, PrimitiveType shape);
 
 	void CreateParticleRenderer(const std::string& name, const std::string& textureFilePath);
 

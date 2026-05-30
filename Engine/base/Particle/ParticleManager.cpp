@@ -3,9 +3,10 @@
 #include "math/function.h"
 #include <numbers>
 #include <debuger/ImGuiManager.h>
-#include <algorithm> 
+#include <algorithm>
 #include <base/utility/DeltaTime.h>
 #include "Graphics/Resource/TextureManager.h"
+#include <3d/Object/Renderer/MeshGenerator.h>
 
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
@@ -28,9 +29,21 @@ void ParticleManager::Finalize()
 	}
 	particleGroups_.clear();
 
+	// グループごとの頂点・インデックスバッファを解放
+	if (dxManager_) {
+		auto* rm = dxManager_->GetResourceManager();
+		for (auto& [name, gpu] : particleGPU_) {
+			if (gpu.vertexHandle != kInvalidBufferHandle) {
+				rm->ReleaseBuffer(gpu.vertexHandle);
+			}
+			if (gpu.indexHandle != kInvalidBufferHandle) {
+				rm->ReleaseBuffer(gpu.indexHandle);
+			}
+		}
+	}
+	particleGPU_.clear();
+
 	// パーティクル用のリソース
-	//instancingResource_.Reset();
-	//materialResource_.Reset();
 	vertexResource.Reset();
 
 	instancingData_ = nullptr;
@@ -103,7 +116,6 @@ void ParticleManager::Draw()
 	if (!commandList) return;
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	commandList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 
 	for (auto& [groupName, group] : particleGroups_)
 	{
@@ -123,25 +135,30 @@ void ParticleManager::Draw()
 
 		commandList->SetPipelineState(pso);
 		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
-		
+
 		// ③ GPU転送
 		UploadInstanceData(groupName, instanceList);
+
+		// === 頂点・インデックスバッファ設定（グループごとの形状）===
+		auto& gpu = particleGPU_[groupName];
+		commandList->IASetVertexBuffers(0, 1, &gpu.vbv);
+		commandList->IASetIndexBuffer(&gpu.ibv);
 
 		// === 定数バッファ設定 ===
 		commandList->SetGraphicsRootConstantBufferView(0, dxManager_->GetResourceManager()->GetGPUVirtualAddress(materialHandle_));
 
 		// === SRV設定 ===
-		srvManager_->SetGraphicsRootDescriptorTable(1, particleGPU_[groupName].srvIndex);
+		srvManager_->SetGraphicsRootDescriptorTable(1, gpu.srvIndex);
 
 		// === テクスチャ設定 ===
 		srvManager_->SetGraphicsRootDescriptorTable(2, renderStates_[groupName].textureIndex);
 
 		// ④ 描画
-		particleRenderer_.Draw(commandList, instanceList.size());
+		particleRenderer_.Draw(commandList, instanceList.size(), gpu.indexCount);
 	}
 }
 
-void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath)
+void ParticleManager::CreateParticleGroup(const std::string name, const std::string textureFilePath, PrimitiveType shape)
 {
 	if (particleGroups_.contains(name)) {
 		// 登録済みの名前なら早期リターン
@@ -151,7 +168,7 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroups_.emplace(name, ParticleGroup{});
 
 	RegisterEditorParameters(name);
-	CreateParticleGPU(name);
+	CreateParticleGPU(name, shape);
 	CreateParticleRenderer(name, textureFilePath);
 }
 
@@ -173,19 +190,63 @@ void ParticleManager::DeleteAllEmitters()
 	emitters_.clear();
 }
 
-void ParticleManager::CreateParticleGPU(const std::string& name)
+void ParticleManager::CreateParticleGPU(const std::string& name, PrimitiveType shape)
 {
 	auto* rm = dxManager_->GetResourceManager();
 
 	ParticleGroupGPU gpu{};
 
+	// --- インスタンシングバッファ ---
 	gpu.instancingHandle = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleInstancing");
-
 	gpu.mappedPtr = reinterpret_cast<ParticleForGPU*>(rm->Map(gpu.instancingHandle));
 
 	gpu.srvIndex = srvManager_->Allocate();
-
 	srvManager_->CreateSRVforStructuredBuffer(gpu.srvIndex, rm->GetResource(gpu.instancingHandle), kNumMaxInstance, sizeof(ParticleForGPU));
+
+	// --- 形状に応じたメッシュ生成 ---
+	MeshData meshData;
+	switch (shape) {
+	case PrimitiveType::Ring:
+		meshData = MeshGenerator::CreateRing();
+		break;
+	case PrimitiveType::Cylinder:
+		meshData = MeshGenerator::CreateCylinder();
+		break;
+	case PrimitiveType::Plane:
+	default:
+		// XY平面 (Billboard向け)、旧来仕様と同じ -1〜1 の 2x2 サイズ
+		meshData.vertices = {
+			{{ 1,  1, 0, 1}, {0, 0}, {0, 0, 1}},
+			{{-1,  1, 0, 1}, {1, 0}, {0, 0, 1}},
+			{{ 1, -1, 0, 1}, {0, 1}, {0, 0, 1}},
+			{{-1, -1, 0, 1}, {1, 1}, {0, 0, 1}},
+		};
+		meshData.indices = {0, 1, 2, 2, 1, 3};
+		break;
+	}
+
+	// --- 頂点バッファ ---
+	const size_t vbSize = sizeof(VertexData) * meshData.vertices.size();
+	gpu.vertexHandle = rm->CreateUploadBuffer(vbSize, L"ParticleVB");
+	void* vbPtr = rm->Map(gpu.vertexHandle);
+	assert(vbPtr);
+	std::memcpy(vbPtr, meshData.vertices.data(), vbSize);
+	ID3D12Resource* vbResource = rm->GetResource(gpu.vertexHandle);
+	gpu.vbv.BufferLocation = vbResource->GetGPUVirtualAddress();
+	gpu.vbv.SizeInBytes    = static_cast<UINT>(vbSize);
+	gpu.vbv.StrideInBytes  = sizeof(VertexData);
+
+	// --- インデックスバッファ ---
+	const size_t ibSize = sizeof(uint32_t) * meshData.indices.size();
+	gpu.indexHandle = rm->CreateUploadBuffer(ibSize, L"ParticleIB");
+	void* ibPtr = rm->Map(gpu.indexHandle);
+	assert(ibPtr);
+	std::memcpy(ibPtr, meshData.indices.data(), ibSize);
+	ID3D12Resource* ibResource = rm->GetResource(gpu.indexHandle);
+	gpu.ibv.BufferLocation = ibResource->GetGPUVirtualAddress();
+	gpu.ibv.SizeInBytes    = static_cast<UINT>(ibSize);
+	gpu.ibv.Format         = DXGI_FORMAT_R32_UINT;
+	gpu.indexCount         = static_cast<uint32_t>(meshData.indices.size());
 
 	particleGPU_.emplace(name, std::move(gpu));
 }
