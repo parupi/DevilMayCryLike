@@ -1,7 +1,6 @@
 #include "ParticleRenderer.h"
 
-void ParticleRenderer::Draw(ID3D12GraphicsCommandList* commandList, size_t instanceSize)
+void ParticleRenderer::Draw(ID3D12GraphicsCommandList* commandList, size_t instanceSize, uint32_t indexCount)
 {
-    // インスタンシング描画
-    commandList->DrawInstanced(6, static_cast<UINT>(instanceSize), 0, 0);
+    commandList->DrawIndexedInstanced(indexCount, static_cast<UINT>(instanceSize), 0, 0, 0);
 }
