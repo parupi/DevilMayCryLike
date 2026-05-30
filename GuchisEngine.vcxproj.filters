@@ -240,9 +240,6 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h">
       <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateKnockBack.h">
-      <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClInclude>
@@ -778,7 +775,19 @@
       <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateClear.h" />
-    <ClInclude Include="EnemySensorComponent.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMovementComponent.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\GruntMeleeWeapon.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\EnemyStateNames.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateApproach.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateAttackNormal.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateCombatIdle.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStatePatrol.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRetreat.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRushAttack.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -1269,6 +1278,17 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateClear.cpp" />
-    <ClCompile Include="EnemySensorComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMovementComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMeleeWeapon.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateApproach.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateAttackNormal.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateCombatIdle.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStatePatrol.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRetreat.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRushAttack.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.cpp" />
   </ItemGroup>
 </Project>

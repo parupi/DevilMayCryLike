@@ -1,10 +1,12 @@
 #pragma once
-#include "GameObject/Character/Enemy/BaseState/EnemyStateKnockBack.h"
 #include "3d/Object/Object3d.h"
+#include "math/Vector3.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "../BaseState/EnemyStateBase.h"
 
-class EnemyStateKnockBack : public EnemyStateBase
-{
+class Enemy;
+
+class EnemyStateKnockBack : public EnemyStateBase {
 public:
 	EnemyStateKnockBack() = default;
 	~EnemyStateKnockBack() override = default;

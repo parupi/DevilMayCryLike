@@ -2,14 +2,16 @@
 #include "scene/GameScene/GameScene.h"
 #include "input/Input.h"
 
-void GameSceneStateMenu::Enter(GameScene& scene) {
+void GameSceneStateMenu::Enter(GameScene& scene)
+{
 	menuState_ = MenuState::Enter;
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);
 	scene.GetInputContext()->SetCanCameraMove(false);
 }
 
-void GameSceneStateMenu::Update(GameScene& scene) {
+void GameSceneStateMenu::Update(GameScene& scene)
+{
 	scene.SetSceneTime(0.0f);
 
 	float muskAlpha = scene.GetMuskAlpha();
@@ -33,6 +35,7 @@ void GameSceneStateMenu::Update(GameScene& scene) {
 	scene.SetMuskAlpha(muskAlpha);
 }
 
-void GameSceneStateMenu::Exit(GameScene& scene) {
+void GameSceneStateMenu::Exit(GameScene& scene)
+{
 	scene.GetMenuUI()->Exit();
 }

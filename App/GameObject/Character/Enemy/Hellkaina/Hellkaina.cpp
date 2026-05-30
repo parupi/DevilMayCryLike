@@ -3,16 +3,16 @@
 #include <3d/Object/Renderer/RendererManager.h>
 #include <3d/Collider/AABBCollider.h>
 #include <3d/Object/Renderer/ModelRenderer.h>
-#include "State/EnemyStateIdle.h"
-#include "State/EnemyStateAir.h"
-#include "State/EnemyStateMove.h"
-#include "State/HellkainaStateKnockBack.h"
-#include "State/HellkainaStateSideMove.h"
-#include "State/HellkainaStateAttackA.h"  // HellkainaWeaponAttackState が定義されている
+#include "../State/EnemyStateIdle.h"
+#include "../State/EnemyStateAir.h"
+#include "../State/EnemyStateMove.h"
+#include "../State/EnemyStateKnockBack.h"
+#include "../State/EnemyStateSideMove.h"
 #include <scene/Transition/TransitionManager.h>
 #include <3d/Collider/CollisionManager.h>
 #include "base/Particle/ParticleManager.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
+#include <GameObject/Character/Enemy/State/HellkainaStateAttackA.h>
 
 namespace
 {
@@ -92,8 +92,8 @@ void Hellkaina::Initialize()
     states_[EnemyStateName::Idle]      = std::make_unique<EnemyStateIdle>();
     states_[EnemyStateName::Move]      = std::make_unique<EnemyStateMove>();
     states_[EnemyStateName::Air]       = std::make_unique<EnemyStateAir>();
-    states_[EnemyStateName::KnockBack] = std::make_unique<HellkainaStateKnockBack>();
-    states_[HellkainaStateName::SideMove] = std::make_unique<HellkainaStateSideMove>();
+    states_[EnemyStateName::KnockBack]     = std::make_unique<EnemyStateKnockBack>();
+    states_[HellkainaStateName::SideMove]  = std::make_unique<EnemyStateSideMove>();
     states_[HellkainaStateName::AttackA]  = std::make_unique<HellkainaWeaponAttackState>(weapon_, MakeAttackAParams());
     states_[HellkainaStateName::AttackB]  = std::make_unique<HellkainaWeaponAttackState>(weapon_, MakeAttackBParams());
 
