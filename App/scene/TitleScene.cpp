@@ -2,8 +2,8 @@
 #include "Graphics/Resource/TextureManager.h"
 #include <2d/SpriteManager.h>
 #include <input/Input.h>
-#include <Include/SceneLoader.h>
-#include <Include/SceneBuilder.h>
+#include <Stage/SceneLoader.h>
+#include <Stage/SceneBuilder.h>
 #include <3d/Object/Model/ModelManager.h>
 #include <3d/SkySystem/SkySystem.h>
 #include <3d/Light/PointLight.h>

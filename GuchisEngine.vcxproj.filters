@@ -252,25 +252,25 @@
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\EnemyStateAir.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\EnemyStateIdle.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\EnemyStateMove.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackA.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateKnockBack.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
@@ -384,37 +384,37 @@
     <ClInclude Include="App\Input\LockOnInput.h">
       <Filter>App\Input</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\ClearScene.h">
+    <ClInclude Include="App\Scene\ClearScene.h">
       <Filter>App\scene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\EditScene.h">
+    <ClInclude Include="App\Scene\EditScene.h">
       <Filter>App\scene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\GameScene\GameScene.h">
+    <ClInclude Include="App\Scene\GameScene\GameScene.h">
       <Filter>App\scene\GameScene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStateBase.h">
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateBase.h">
       <Filter>App\scene\GameScene\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStateMenu.h">
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateMenu.h">
       <Filter>App\scene\GameScene\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStatePlay.h">
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStatePlay.h">
       <Filter>App\scene\GameScene\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\GameScene\State\GameSceneStateStart.h">
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h">
       <Filter>App\scene\GameScene\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\Object3dFactory.h">
+    <ClInclude Include="App\Scene\Object3dFactory.h">
       <Filter>App\scene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\SceneFactory.h">
+    <ClInclude Include="App\Scene\SceneFactory.h">
       <Filter>App\scene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\TitleScene.h">
+    <ClInclude Include="App\Scene\TitleScene.h">
       <Filter>App\scene</Filter>
     </ClInclude>
-    <ClInclude Include="App\scene\Transition\VignetteExpandTransition.h">
+    <ClInclude Include="App\Scene\Transition\VignetteExpandTransition.h">
       <Filter>App\scene\Transition</Filter>
     </ClInclude>
     <ClInclude Include="Engine\2d\Sprite.h">
@@ -597,10 +597,10 @@
     <ClInclude Include="Engine\Graphics\Resource\TextureManager.h">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Include\SceneBuilder.h">
+    <ClInclude Include="App\Stage\SceneBuilder.h">
       <Filter>Engine\Include</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Include\SceneLoader.h">
+    <ClInclude Include="App\Stage\SceneLoader.h">
       <Filter>Engine\Include</Filter>
     </ClInclude>
     <ClInclude Include="Engine\audio\Audio.h">
@@ -777,6 +777,8 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateClear.h" />
+    <ClInclude Include="EnemySensorComponent.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -809,25 +811,25 @@
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\EnemyStateAir.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateAir.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\EnemyStateIdle.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\EnemyStateMove.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackA.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateAttackB.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateKnockBack.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\State\HellkainaStateSideMove.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp">
       <Filter>App\GameObject\Character\Enemy\Hellkaina\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
@@ -935,37 +937,37 @@
     <ClCompile Include="App\Input\LockOnInput.cpp">
       <Filter>App\Input</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\ClearScene.cpp">
+    <ClCompile Include="App\Scene\ClearScene.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\EditScene.cpp">
+    <ClCompile Include="App\Scene\EditScene.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\GameScene\GameScene.cpp">
+    <ClCompile Include="App\Scene\GameScene\GameScene.cpp">
       <Filter>App\scene\GameScene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStateBase.cpp">
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateBase.cpp">
       <Filter>App\scene\GameScene\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStateMenu.cpp">
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateMenu.cpp">
       <Filter>App\scene\GameScene\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStatePlay.cpp">
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStatePlay.cpp">
       <Filter>App\scene\GameScene\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\GameScene\State\GameSceneStateStart.cpp">
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp">
       <Filter>App\scene\GameScene\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\Object3dFactory.cpp">
+    <ClCompile Include="App\Scene\Object3dFactory.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\SceneFactory.cpp">
+    <ClCompile Include="App\Scene\SceneFactory.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\TitleScene.cpp">
+    <ClCompile Include="App\Scene\TitleScene.cpp">
       <Filter>App\scene</Filter>
     </ClCompile>
-    <ClCompile Include="App\scene\Transition\VignetteExpandTransition.cpp">
+    <ClCompile Include="App\Scene\Transition\VignetteExpandTransition.cpp">
       <Filter>App\scene\Transition</Filter>
     </ClCompile>
     <ClCompile Include="Engine\2d\Sprite.cpp">
@@ -1115,10 +1117,10 @@
     <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Include\SceneBuilder.cpp">
+    <ClCompile Include="App\Stage\SceneBuilder.cpp">
       <Filter>Engine\Include</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Include\SceneLoader.cpp">
+    <ClCompile Include="App\Stage\SceneLoader.cpp">
       <Filter>Engine\Include</Filter>
     </ClCompile>
     <ClCompile Include="Engine\audio\Audio.cpp">
@@ -1266,5 +1268,7 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateClear.cpp" />
+    <ClCompile Include="EnemySensorComponent.cpp" />
   </ItemGroup>
 </Project>

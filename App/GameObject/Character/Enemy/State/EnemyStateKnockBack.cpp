@@ -1,14 +1,14 @@
-#include "HellkainaStateKnockBack.h"
-#include <base/utility/DeltaTime.h>
+#include "EnemyStateKnockBack.h"
 #include "GameObject/Character/Enemy/Enemy.h"
+#include "GameObject/Character/Enemy/EnemyStateNames.h"
 
-void HellkainaStateKnockBack::Enter(const DamageInfo& info, Enemy& enemy)
+void EnemyStateKnockBack::Enter(Enemy& enemy)
 {
+    const DamageInfo& info = enemy.GetPendingDamageInfo();
+
     currentType_ = info.type;
     velocity_ = info.direction * info.impulseForce;
     stateTime_.current = 0.0f;
-
-    // ★ 回転関連初期化
     currentTilt_ = 0.0f;
     targetTilt_ = 20.0f;
 
@@ -23,7 +23,7 @@ void HellkainaStateKnockBack::Enter(const DamageInfo& info, Enemy& enemy)
     case ReactionType::Knockback:
         velocity_.y += info.impulseForce * info.upwardRatio;
         angularVel_ = info.torqueForce;
-        enemy.GetWorldTransform()->GetTranslation().y += 0.3f;  // 10cmだけ上げる
+        enemy.GetWorldTransform()->GetTranslation().y += 0.3f;
         enemy.SetOnGround(false);
         break;
 
@@ -34,51 +34,41 @@ void HellkainaStateKnockBack::Enter(const DamageInfo& info, Enemy& enemy)
     }
 }
 
-
-void HellkainaStateKnockBack::Update(Enemy& enemy, float deltaTime)
+void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime)
 {
-    float dt = deltaTime;
-    stateTime_.current += dt;
+    stateTime_.current += deltaTime;
 
-    velocity_.y += -9.8f * dt;
+    velocity_.y += -9.8f * deltaTime;
     enemy.SetVelocity(velocity_);
 
     if (currentType_ != ReactionType::HitStun) {
         float rotate = Lerp(0.0f, angularVel_, stateTime_.current);
         enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ rotate, rotate, rotate });
-    }
-
-    if (currentType_ == ReactionType::HitStun) {
-        // 徐々にtargetTilt_へ近づける（吹っ飛んでるときののけぞり）
-        currentTilt_ = Lerp(currentTilt_, targetTilt_, dt * 5.0f);
-
-        // X軸のみに回転を付ける（のけぞり感が最も出る）
+    } else {
+        currentTilt_ = Lerp(currentTilt_, targetTilt_, deltaTime * 5.0f);
         enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ currentTilt_, 0.0f, 0.0f });
+
+        if ((stunTimer_ -= deltaTime) <= 0.0f) {
+            enemy.ChangeState(EnemyStateName::Idle);
+            return;
+        }
     }
 
-    if (currentType_ == ReactionType::HitStun && (stunTimer_ -= dt) <= 0) {
-        enemy.ChangeState("Idle");
-        return;
-    }
-
-    if (enemy.GetOnGround() && deltaTime != 0) {
+    if (enemy.GetOnGround() && deltaTime != 0.0f) {
         OnLand(enemy);
     }
 }
 
-void HellkainaStateKnockBack::OnLand(Enemy& enemy)
+void EnemyStateKnockBack::OnLand(Enemy& enemy)
 {
-    if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback)
-    {
+    if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
         velocity_ *= 0.3f;
         enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = { 0.0f, 0.0f, 0.0f };
-        enemy.ChangeState("Idle");
-        return;
+        enemy.ChangeState(EnemyStateName::Idle);
     }
 }
 
-
-void HellkainaStateKnockBack::Exit(Enemy& enemy)
+void EnemyStateKnockBack::Exit(Enemy& enemy)
 {
     enemy;
 }

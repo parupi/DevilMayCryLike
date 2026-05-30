@@ -1,10 +1,10 @@
 #pragma once
 #include "GameObject/Character/Enemy/BaseState/EnemyStateBase.h"
-class HellkainaStateSideMove : public EnemyStateBase
+class EnemyStateSideMove : public EnemyStateBase
 {
 public:
-	HellkainaStateSideMove() = default;
-	~HellkainaStateSideMove() override = default;
+	EnemyStateSideMove() = default;
+	~EnemyStateSideMove() override = default;
 	void Enter(Enemy& enemy) override;
 	void Update(Enemy& enemy, float deltaTime) override;
 	void Exit(Enemy& enemy) override;

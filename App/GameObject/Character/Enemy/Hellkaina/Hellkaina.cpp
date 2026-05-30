@@ -7,146 +7,167 @@
 #include "State/EnemyStateAir.h"
 #include "State/EnemyStateMove.h"
 #include "State/HellkainaStateKnockBack.h"
+#include "State/HellkainaStateSideMove.h"
+#include "State/HellkainaStateAttackA.h"  // HellkainaWeaponAttackState が定義されている
 #include <scene/Transition/TransitionManager.h>
 #include <3d/Collider/CollisionManager.h>
-#include "State/HellkainaStateAttackA.h"
-#include "State/HellkainaStateAttackB.h"
-#include "State/HellkainaStateSideMove.h"
 #include "base/Particle/ParticleManager.h"
+#include "GameObject/Character/Enemy/EnemyStateNames.h"
+
+namespace
+{
+    // AttackA のモーションデータ（近距離薙ぎ）
+    WeaponMotionParams MakeAttackAParams()
+    {
+        WeaponMotionParams p;
+        p.duration  = 0.25f;
+        p.moveSpeed = 2.0f;
+        p.translate = {
+            { -0.75f,  0.75f, -0.75f },
+            { -0.75f,  0.75f, -0.75f },
+            {  0.0f,   0.35f, -0.85f },
+            {  0.25f,  0.0f,  -1.0f  },
+        };
+        p.rotate = {
+            {   0.0f, 0.0f, 30.0f },
+            {   0.0f, 0.0f, 30.0f },
+            { -45.0f, 0.0f, 30.0f },
+            {-100.0f, 0.0f, 30.0f },
+        };
+        return p;
+    }
+
+    // AttackB のモーションデータ（高速突進）
+    WeaponMotionParams MakeAttackBParams()
+    {
+        WeaponMotionParams p;
+        p.duration  = 0.4f;
+        p.moveSpeed = 16.0f;
+        p.translate = {
+            { -0.75f,  0.75f, -0.75f },
+            { -0.75f,  0.75f, -0.75f },
+            {  0.0f,   0.35f, -0.85f },
+            {  0.25f,  0.0f,  -1.0f  },
+        };
+        p.rotate = {
+            {   0.0f, 0.0f, 30.0f },
+            {   0.0f, 0.0f, 30.0f },
+            { -45.0f, 0.0f, 30.0f },
+            {-100.0f, 0.0f, 30.0f },
+        };
+        return p;
+    }
+}
 
 Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 {
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+    RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+    AddRenderer(RendererManager::GetInstance()->FindRender(name_));
+    GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
-	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
-
-	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
-
-	states_["Idle"] = std::make_unique<EnemyStateIdle>();
-	states_["Move"] = std::make_unique<EnemyStateMove>();
-	states_["SideMove"] = std::make_unique<HellkainaStateSideMove>();
-	states_["Air"] = std::make_unique<EnemyStateAir>();
-	states_["KnockBack"] = std::make_unique<HellkainaStateKnockBack>();
-	states_["AttackA"] = std::make_unique<HellkainaStateAttackA>();
-	states_["AttackB"] = std::make_unique<HellkainaStateAttackB>();
-	currentState_ = states_["Air"].get();
-
-	hp_ = 10.0f;
-
-	//slashEmitter_ = std::make_unique<ParticleEmitter>();
-	//slashEmitter_->Initialize(name_ + "slash");
-	//slashEmitter_->SetParticle("test");
-	//slashEmitter_->SetParent(GetWorldTransform());
-
-	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
-	//smokeEmitter_->Initialize(name_ + "HitSmoke");
-	//smokeEmitter_->SetParticle("hitSmoke");
-	//smokeEmitter_->SetParent(GetWorldTransform());
+    hp_ = 10.0f;
 }
 
 void Hellkaina::Initialize()
 {
-	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
-	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
+    // コライダーのサイズ調整
+    auto* col = static_cast<AABBCollider*>(GetCollider(name_));
+    col->GetColliderData().offsetMax *= 0.5f;
+    col->GetColliderData().offsetMin *= 0.5f;
 
-	// 武器のレンダラー生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "HellkainaWeapon", "Sword"));
-	// 武器用のコライダー生成
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "HellkainaWeapon"));
-	// 武器を生成
-	std::unique_ptr<HellkainaWeapon> weapon = std::make_unique<HellkainaWeapon>(name_ + "HellkainaWeapon");
+    // 武器の生成（ステート生成より先に行う）
+    RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "HellkainaWeapon", "Sword"));
+    CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "HellkainaWeapon"));
 
-	weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "HellkainaWeapon"));
+    auto weapon = std::make_unique<HellkainaWeapon>(name_ + "HellkainaWeapon");
+    weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "HellkainaWeapon"));
+    weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "HellkainaWeapon"));
+    weapon->Initialize();
+    weapon->GetWorldTransform()->SetParent(GetWorldTransform());
 
-	weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "HellkainaWeapon"));
+    weapon_ = weapon.get();
+    Object3dManager::GetInstance()->AddObject(std::move(weapon));
 
-	weapon->Initialize();
+    // ステートの登録（weapon_ が確定した後なので AttackA/B に渡せる）
+    states_[EnemyStateName::Idle]      = std::make_unique<EnemyStateIdle>();
+    states_[EnemyStateName::Move]      = std::make_unique<EnemyStateMove>();
+    states_[EnemyStateName::Air]       = std::make_unique<EnemyStateAir>();
+    states_[EnemyStateName::KnockBack] = std::make_unique<HellkainaStateKnockBack>();
+    states_[HellkainaStateName::SideMove] = std::make_unique<HellkainaStateSideMove>();
+    states_[HellkainaStateName::AttackA]  = std::make_unique<HellkainaWeaponAttackState>(weapon_, MakeAttackAParams());
+    states_[HellkainaStateName::AttackB]  = std::make_unique<HellkainaWeaponAttackState>(weapon_, MakeAttackBParams());
 
-	weapon->GetWorldTransform()->SetParent(GetWorldTransform());
+    // パーティクル
+    ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
+    auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+    emitter_ = emitters.at(name_ + "HitEffect").get();
+    emitter_->SetParent(GetWorldTransform());
+    emitter_->AddParticle("EnemyDamageEffect");
+    emitter_->AddParticle("PlayerSlashEffect");
+    emitter_->SetActiveFlag(false);
 
-	weapon_ = weapon.get();
-
-	Object3dManager::GetInstance()->AddObject(std::move(weapon));
-
-	hitStop_ = std::make_unique<HitStop>();
-
-	ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
-	emitter_ = emitters.at(name_ + "HitEffect").get();
-	emitter_->SetParent(GetWorldTransform());
-	emitter_->AddParticle("EnemyDamageEffect");
-	emitter_->AddParticle("PlayerSlashEffect");
-	emitter_->SetActiveFlag(false);
-
-	Enemy::Initialize();
+    Enemy::Initialize();
 }
 
 void Hellkaina::Update(float deltaTime)
 {
-
-	//weapon_->Update();
-	weapon_->SetIsDraw(isAttack_);
-	Enemy::Update(deltaTime);
+    weapon_->SetIsDraw(isAttack_);
+    Enemy::Update(deltaTime);
 }
 
 #ifdef _DEBUG
 void Hellkaina::DebugGui()
 {
-	ImGui::Begin(name_.c_str());
-	Object3d::DebugGui();
-	ImGui::End();
-	//std::string weaponName = name_ + "weapon";
-	//ImGui::Begin(weaponName.c_str());
-	//weapon_->DebugGui();
-	//ImGui::End();
-	
+    ImGui::Begin(name_.c_str());
+    Object3d::DebugGui();
+    ImGui::End();
 }
 #endif // DEBUG
 
 void Hellkaina::OnCollisionEnter(BaseCollider* other)
 {
-	if (!player_) return;
+    Enemy::OnCollisionEnter(other);
 
-	Enemy::OnCollisionEnter(other);
+    if (other->category_ != CollisionCategory::PlayerWeapon) return;
+    if (!player_ || !player_->IsAttack()) return;
 
-	if (other->category_ == CollisionCategory::PlayerWeapon) {
-		if (!player_->IsAttack()) return;
-		
-		if (currentState_ != states_["KnockBack"].get()) {
-			ChangeState("KnockBack");
-			hp_ -= player_->GetAttackData().damage;
-			// プレイヤーの位置に応じて速度を設定
-			Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
-			Vector3 direction = Normalize(GetWorldTransform()->GetTranslation() - playerPos);
-			Vector3 newVelocity = direction * player_->GetAttackData().knockBackSpeed.z;
-			velocity_ = newVelocity;
-			// y軸はプレイヤーの位置にかかわらず一定
-			velocity_.y = player_->GetAttackData().knockBackSpeed.y;
-		}
-		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-		emitter_->Emit();
-	}
+    // KnockBack 中は重複して被弾しない（ヒットストップとエフェクトは毎回発火）
+    if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
+        hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
+        emitter_->Emit();
+        return;
+    }
+
+    hp_ -= player_->GetAttackData().damage;
+    if (hp_ <= 0.0f) {
+        OnDeath();
+    }
+
+    // DamageInfo を構築して Enemy に渡す（KnockBack ステートが Enter() で参照する）
+    DamageInfo info;
+    info.damage          = player_->GetAttackData().damage;
+    info.hitPosition     = GetWorldTransform()->GetTranslation();
+    info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
+    info.direction       = Normalize(info.hitPosition - info.attackerPosition);
+    info.type            = player_->GetAttackData().type;
+    info.impulseForce    = player_->GetAttackData().impulseForce;
+    info.upwardRatio     = player_->GetAttackData().upwardRatio;
+    info.torqueForce     = player_->GetAttackData().torqueForce;
+    info.stunTime        = player_->GetAttackData().stunTime;
+
+    SetPendingDamageInfo(info);
+    ChangeState(EnemyStateName::KnockBack);
+
+    hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
+    emitter_->Emit();
 }
 
 void Hellkaina::OnCollisionStay(BaseCollider* other)
 {
-	//RotateVector(player_->GetAttackData().knockBackSpeed, player_->GetWorldTransform()->GetRotation());
-	Enemy::OnCollisionStay(other);
-
-	//if (other->category_ == CollisionCategory::PlayerWeapon) {
-	//	if (currentState_ != states_["KnockBack"].get()) {
-	//		ChangeState("KnockBack");
-	//		hp_ -= player_->GetAttackData().damage;
-	//		// 速度を設定
-	//		Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
-	//		Vector3 direction = Normalize(GetWorldTransform()->GetTranslation() - playerPos);
-	//		Vector3 newVelocity = direction * player_->GetAttackData().knockBackSpeed;
-	//		velocity_ = newVelocity;
-	//	}
-	//}
+    Enemy::OnCollisionStay(other);
 }
 
 void Hellkaina::OnCollisionExit(BaseCollider* other)
 {
-	Enemy::OnCollisionExit(other);
+    Enemy::OnCollisionExit(other);
 }

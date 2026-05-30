@@ -1,7 +1,7 @@
 #pragma once
 
 #include <vector>
-#include <Include/SceneLoader.h>
+#include <Stage/SceneLoader.h>
 
 class Object3d;
 class BaseCamera;
@@ -17,5 +17,4 @@ private:
     // 最後に生成するイベントリスト
     static std::vector<const SceneObject*> pendingEvents_;
     static void BuildPendingEvents();
-
 };
