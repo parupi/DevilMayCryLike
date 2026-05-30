@@ -56,6 +56,9 @@ void PSOManager::Finalize()
 		pso.Reset();
 	}
 
+	csmRootSignature_.Reset();
+	csmPSO_.Reset();
+
 	// Trail
 	trailSignature_.Reset();
 	trailPSO_.Reset();

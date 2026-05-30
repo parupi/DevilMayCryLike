@@ -75,6 +75,7 @@ void RenderPipeline::Finalize()
 	gBufferPath.reset();
 	lightingPath.reset();
 	forwardPath.reset();
+	shadowPath.reset();
 
 	rtvResource_.Reset();
 	srvResource_.Reset();
@@ -91,9 +92,6 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 
 	shadowPath->Execute();
 
-	shadowPath->EndDraw();
-
-
 	TransitionToRTV();
 	
 	gBufferPath->Begin(dsvIndex_);
@@ -109,7 +107,7 @@ void RenderPipeline::Execute(PSOManager* psoManager)
 	///---------------------------------------------------------
 	TransitionToRTV();
 
-	lightingPath->Begin(rtvIndex_, shadowPath->GetSrvIndex());
+	lightingPath->Begin(rtvIndex_, 0);
 	
 	LightManager::GetInstance()->GetCSM()->BindSrv();
 	LightManager::GetInstance()->GetCSM()->BindCascadeCB(5);

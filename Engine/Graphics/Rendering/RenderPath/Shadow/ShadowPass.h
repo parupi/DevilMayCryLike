@@ -17,13 +17,8 @@ public:
 	void BeginDraw();
 	// 実行
 	void Execute();
-	// 描画後処理
-	void EndDraw();
 	// SRVIndexを取得
 	uint32_t GetSrvIndex() const { return srvIndex_; }
-private:
-	void CreateResource();
-
 private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
