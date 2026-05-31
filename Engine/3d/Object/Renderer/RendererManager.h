@@ -37,6 +37,7 @@ public:
 
 	DirectXManager* GetDxManager() { return dxManager_; }
 	SrvManager* GetSrvManager() { return srvManager_; }
+	PSOManager* GetPsoManager() { return psoManager_; }
 private:
 	//std::unique_ptr<GBufferPass> gBufferPass = nullptr;
 

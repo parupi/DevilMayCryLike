@@ -132,8 +132,8 @@ void Player::Draw() {
 }
 
 void Player::DrawEffect() {
-
 	combat_->Draw();
+	weapon_->DrawEffect();
 }
 
 #ifdef _DEBUG

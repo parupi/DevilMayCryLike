@@ -1,16 +1,18 @@
 #include "Mesh.h"
 #include "Graphics/Device/DirectXManager.h"
 
-Mesh::~Mesh() {
-	if (vertexResource_) {
-		vertexResource_->Unmap(0, nullptr);
-		vertexResource_.Reset();  // ← ここでリソースを解放
-		vertexData_ = nullptr;
-	}
-	if (indexResource_) {
-		indexResource_->Unmap(0, nullptr);
-		indexResource_.Reset();   // ← ここでリソースを解放
-		indexData_ = nullptr;
+Mesh::~Mesh()
+{
+	if (directXManager_) {
+		auto* resourceManager = directXManager_->GetResourceManager();
+		if (vertexHandle_ != kInvalidBufferHandle) {
+			resourceManager->ReleaseBuffer(vertexHandle_);
+			vertexHandle_ = kInvalidBufferHandle;
+		}
+		if (indexHandle_ != kInvalidBufferHandle) {
+			resourceManager->ReleaseBuffer(indexHandle_);
+			indexHandle_ = kInvalidBufferHandle;
+		}
 	}
 }
 
@@ -84,37 +86,38 @@ void Mesh::CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData
 
 void Mesh::CreateVertexResource()
 {
-	vertexResource_ = directXManager_->GetResourceManager()->CreateUploadBufferWithData(meshData_.vertices.data(), sizeof(VertexData) * meshData_.vertices.size());
+	auto* resourceManager = directXManager_->GetResourceManager();
+	const size_t vertexSize = sizeof(VertexData) * meshData_.vertices.size();
 
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
-	vertexBufferView_.SizeInBytes = sizeof(VertexData) * meshData_.vertices.size();
+	vertexHandle_ = resourceManager->CreateUploadBuffer(vertexSize, L"Mesh:Vertex");
+
+	void* ptr = resourceManager->Map(vertexHandle_);
+	assert(ptr);
+	std::memcpy(ptr, meshData_.vertices.data(), vertexSize);
+
+	ID3D12Resource* resource = resourceManager->GetResource(vertexHandle_);
+	vertexBufferView_.BufferLocation = resource->GetGPUVirtualAddress();
+	vertexBufferView_.SizeInBytes = static_cast<UINT>(vertexSize);
 	vertexBufferView_.StrideInBytes = sizeof(VertexData);
 
-	//// 頂点リソースにデータを書き込む
-	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&vertexData_)); // 書き込むためのアドレスを取得
-	std::memcpy(vertexData_, meshData_.vertices.data(), sizeof(VertexData) * meshData_.vertices.size());
-	
-	// ログ出力
-	Logger::LogBufferCreation("Mesh:Vertex", vertexResource_.Get(), meshData_.vertices.size());
+	Logger::LogBufferCreation("Mesh:Vertex", resource, meshData_.vertices.size());
 }
 
 void Mesh::CreateIndexResource()
 {
 	auto* resourceManager = directXManager_->GetResourceManager();
+	const size_t indexSize = sizeof(uint32_t) * meshData_.indices.size();
 
-	indexResource_ = resourceManager->CreateUploadBufferWithData(
-		meshData_.indices.data(),
-		sizeof(uint32_t) * meshData_.indices.size()
-	);
+	indexHandle_ = resourceManager->CreateUploadBuffer(indexSize, L"Mesh:Index");
 
-	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
-	indexBufferView_.SizeInBytes = static_cast<UINT>(sizeof(uint32_t) * meshData_.indices.size());
+	void* ptr = resourceManager->Map(indexHandle_);
+	assert(ptr);
+	std::memcpy(ptr, meshData_.indices.data(), indexSize);
+
+	ID3D12Resource* resource = resourceManager->GetResource(indexHandle_);
+	indexBufferView_.BufferLocation = resource->GetGPUVirtualAddress();
+	indexBufferView_.SizeInBytes = static_cast<UINT>(indexSize);
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 
-
-	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&indexData_));
-	std::memcpy(indexData_, meshData_.indices.data(), sizeof(uint32_t) * meshData_.indices.size());
-
-	// ログ出力
-	Logger::LogBufferCreation("Mesh:Index", indexResource_.Get(), meshData_.indices.size());
+	Logger::LogBufferCreation("Mesh:Index", resource, meshData_.indices.size());
 }

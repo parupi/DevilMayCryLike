@@ -2,6 +2,7 @@
 #include <3d/Object/Model/ModelStructs.h>
 #include <3d/Object/Model/Animation/SkinCluster.h>
 #include <memory>
+#include "Graphics/Resource/ResourceManager.h"
 
 class SrvManager;
 class DirectXManager;
@@ -40,14 +41,8 @@ private:
 	DirectXManager* directXManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_ = nullptr;
-
-	uint32_t vertexHandle_ = 0;
-	uint32_t indexHandle_ = 0;
-
-	VertexData* vertexData_ = nullptr;
-	uint32_t* indexData_ = nullptr;
+	BufferHandle vertexHandle_ = kInvalidBufferHandle;
+	BufferHandle indexHandle_ = kInvalidBufferHandle;
 
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_{};

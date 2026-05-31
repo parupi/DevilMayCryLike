@@ -5,5 +5,5 @@
 class ParticleRenderer
 {
 public:
-	void Draw(ID3D12GraphicsCommandList* commandList, size_t instanceSize);
+	void Draw(ID3D12GraphicsCommandList* commandList, size_t instanceSize, uint32_t indexCount);
 };

@@ -248,11 +248,16 @@ void ResourceManager::ReleaseBuffer(BufferHandle handle)
     // staging に ComPtr を移して、実解放は OnFrameEnd->ProcessPendingReleases に任せる
     {
         std::lock_guard<std::mutex> lk(mutex_);
-        staging_.push_back(table_[handle].resource);
+        auto& entry = table_[handle];
+        // 永続マップされた Upload バッファは解放前に必ず Unmap する
+        if (entry.isUpload && entry.mappedPtr) {
+            entry.resource->Unmap(0, nullptr);
+            entry.mappedPtr = nullptr;
+        }
+        staging_.push_back(entry.resource);
         // mark entry dead so nobody else tries to use it
-        table_[handle].resource.Reset();
-        table_[handle].mappedPtr = nullptr;
-        table_[handle].alive = false;
+        entry.resource.Reset();
+        entry.alive = false;
         // add to free list to reuse handle
         freeList_.push_back(handle);
     }
