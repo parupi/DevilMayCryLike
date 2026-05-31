@@ -1,5 +1,5 @@
 #include "PlayerWeapon.h"
-#include "3d/Collider/AABBCollider.h"
+#include "3d/Collider/OBBCollider.h"
 #include "Player.h"
 #include "scene/Transition/TransitionManager.h"
 #include "math/function.h"
@@ -10,11 +10,10 @@ void PlayerWeapon::Initialize() {
 	Object3d::Initialize();
 
 	//GetRenderer("PlayerWeapon")->GetWorldTransform()->GetTranslation() = { 0.0f, 0.5f, 0.0f };
-	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = { 0.5f, 0.5f, 0.5f };
+	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = { 0.5f, 1.0f, 0.5f };
 
 	GetCollider("WeaponCollider")->category_ = CollisionCategory::PlayerWeapon;
-	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMax = { 0.5f, 0.5f, 0.5f };
-	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().offsetMin = { -0.5f, -0.5f, -0.5f };
+	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().halfExtents = { 0.5f, 1.0f, 0.5f };
 
 	trail_ = std::make_unique<WeaponTrail>();
 	trail_->Initialize();
@@ -28,9 +27,9 @@ void PlayerWeapon::Initialize() {
 
 void PlayerWeapon::Update(float deltaTime) {
 	if (!player_) return;
-	// 攻撃中かどうかを武器のコライダーに反映
-	static_cast<AABBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
 
+	// 攻撃中ならエフェクトを発生させる
+	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
 	// 刃先・根本のワールド座標を計算してトレイルに渡す
 	const Matrix4x4& worldMat = GetWorldTransform()->GetMatWorld();
 	Vector3 worldTip  = Transform(tipOffset_,  worldMat);

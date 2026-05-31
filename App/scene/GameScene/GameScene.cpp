@@ -1,4 +1,9 @@
 #include "GameScene.h"
+#include "Scene/Object3dFactory.h"
+#include "GameObject/Character/Enemy/Hellkaina/Hellkaina.h"
+#include "GameObject/Character/Enemy/GruntMelee/GruntMelee.h"
+#include "GameObject/Character/Player/Player.h"
+#include "GameObject/Ground/Ground.h"
 #include "Graphics/Resource/TextureManager.h"
 #include "base/Particle/ParticleManager.h"
 #include "debuger/ImGuiManager.h"
@@ -10,8 +15,8 @@
 #include "3d/Object/Renderer/ModelRenderer.h"
 #include "3d/Collider/CollisionManager.h"
 #include "3d/Object/Renderer/PrimitiveRenderer.h"
-#include "Include/SceneLoader.h"
-#include "Include/SceneBuilder.h"
+#include "Stage/SceneLoader.h"
+#include "Stage/SceneBuilder.h"
 #include "3d/SkySystem/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
 #include "scene/Transition/TransitionManager.h"
@@ -21,12 +26,20 @@
 #include "scene/GameScene/State/GameSceneStatePlay.h"
 #include "State/GameSceneStateMenu.h"
 #include "State/GameSceneStateStart.h"
+#include "State/GameSceneStateClear.h"
 
 void GameScene::Initialize() {
+	// オブジェクト生成クラスの登録
+	Object3dFactory::Register("Player",   [](const std::string& n){ return std::make_unique<Player>(n); });
+	Object3dFactory::Register("HellKaina",  [](const std::string& n){ return std::make_unique<Hellkaina>(n); });
+	Object3dFactory::Register("GruntMelee", [](const std::string& n){ return std::make_unique<GruntMelee>(n); });
+	Object3dFactory::Register("Ground",   [](const std::string& n){ return std::make_unique<Ground>(n); });
+
 	// ステートの生成
 	states_["Start"] = std::make_unique<GameSceneStateStart>();
 	states_["Play"] = std::make_unique<GameSceneStatePlay>();
 	states_["Menu"] = std::make_unique<GameSceneStateMenu>();
+	states_["Clear"] = std::make_unique<GameSceneStateClear>();
 	currentState_ = states_["Start"].get();
 
 	// 入力の受付状態を管理するクラス生成

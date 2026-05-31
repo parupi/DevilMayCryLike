@@ -4,6 +4,7 @@
 #include "3d/Object/Renderer/RendererManager.h"
 #include "3d/Object/Renderer/PrimitiveRenderer.h"
 #include "3d/Collider/AABBCollider.h"
+#include "3d/Collider/OBBCollider.h"
 #include "3d/Collider/CollisionManager.h"
 #include "base/utility/DeltaTime.h"
 #include "State/PlayerStateJump.h"
@@ -53,7 +54,7 @@ void Player::Initialize() {
 	// 武器のレンダラー生成
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>("WeaponCollider"));
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<OBBCollider>("WeaponCollider"));
 	// 武器を生成
 	weapon_ = std::make_unique<PlayerWeapon>("PlayerWeapon");
 	// 武器にレンダラーを追加

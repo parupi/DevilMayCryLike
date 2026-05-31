@@ -12,3 +12,9 @@ struct SphereData {
 	Vector3 offset = { 0.0f, 0.0f, 0.0f };
 	bool isActive = true;
 };
+
+struct OBBData {
+	Vector3 halfExtents = { 0.5f, 0.5f, 0.5f };
+	Vector3 offset = { 0.0f, 0.0f, 0.0f };
+	bool isActive = true;
+};
