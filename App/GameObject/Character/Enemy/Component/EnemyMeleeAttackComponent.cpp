@@ -16,12 +16,10 @@ void EnemyMeleeAttackComponent::BeginAttack(Enemy& enemy, const MeleeAttackParam
 
 void EnemyMeleeAttackComponent::ApplyWeaponPose(float t) {
 	if (!params_.weaponTranslate.empty()) {
-		weapon_->GetWorldTransform()->GetTranslation() =
-			CatmullRomSpline(params_.weaponTranslate, t);
+		weapon_->GetWorldTransform()->GetTranslation() = CatmullRomSpline(params_.weaponTranslate, t);
 	}
 	if (!params_.weaponRotate.empty()) {
-		weapon_->GetRenderer(weapon_->name_)->GetWorldTransform()->GetRotation() =
-			EulerDegree(CatmullRomSpline(params_.weaponRotate, t));
+		weapon_->GetRenderer(weapon_->name_)->GetWorldTransform()->GetRotation() = EulerDegree(CatmullRomSpline(params_.weaponRotate, t));
 	}
 }
 
@@ -50,9 +48,7 @@ void EnemyMeleeAttackComponent::Update(Enemy& enemy, float deltaTime) {
 		if (params_.rushSpeed > 0.0f) {
 			Player* player = enemy.GetPlayer();
 			if (player) {
-				Vector3 dir = Normalize(
-					player->GetWorldTransform()->GetTranslation() -
-					enemy.GetWorldTransform()->GetTranslation());
+				Vector3 dir = Normalize(player->GetWorldTransform()->GetTranslation() - enemy.GetWorldTransform()->GetTranslation());
 				dir.y = 0.0f;
 				enemy.GetWorldTransform()->GetTranslation() += dir * params_.rushSpeed * deltaTime;
 			}

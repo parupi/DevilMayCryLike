@@ -1,5 +1,6 @@
 #include "CollisionManager.h"
 #include "base/Logger.h"
+#include <cmath>
 
 
 CollisionManager* CollisionManager::instance = nullptr;
@@ -188,6 +189,15 @@ bool CollisionManager::CheckCollision(BaseCollider* a, BaseCollider* b)
     if (typeA == CollisionShapeType::AABB && typeB == CollisionShapeType::AABB) {
         return CheckAABBToAABBCollision(static_cast<AABBCollider*>(a), static_cast<AABBCollider*>(b));
     }
+    if (typeA == CollisionShapeType::OBB && typeB == CollisionShapeType::OBB) {
+        return CheckOBBToOBBCollision(static_cast<OBBCollider*>(a), static_cast<OBBCollider*>(b));
+    }
+    if (typeA == CollisionShapeType::OBB && typeB == CollisionShapeType::AABB) {
+        return CheckOBBToAABBCollision(static_cast<OBBCollider*>(a), static_cast<AABBCollider*>(b));
+    }
+    if (typeA == CollisionShapeType::AABB && typeB == CollisionShapeType::OBB) {
+        return CheckOBBToAABBCollision(static_cast<OBBCollider*>(b), static_cast<AABBCollider*>(a));
+    }
     return false;
 }
 
@@ -216,4 +226,126 @@ bool CollisionManager::CheckSphereToSphereCollision(SphereCollider* a, SphereCol
     float distSq = Length(a->GetCenter() - b->GetCenter());
     float radiusSum = a->GetRadius() + b->GetRadius();
     return distSq <= (radiusSum * radiusSum);
+}
+
+bool CollisionManager::CheckOBBToOBBCollision(OBBCollider* a, OBBCollider* b)
+{
+    if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return false;
+
+    const Vector3& heA = a->GetWorldHalfExtents();
+    const Vector3& heB = b->GetWorldHalfExtents();
+
+    // R[i][j] = Dot(A.axis[i], B.axis[j])
+    // 分離軸定理(SAT)用の回転行列を構築
+    float R[3][3], AbsR[3][3];
+    const float eps = 1e-6f;
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            R[i][j] = Dot(a->GetAxis(i), b->GetAxis(j));
+            AbsR[i][j] = std::abs(R[i][j]) + eps;
+        }
+    }
+
+    // Aの座標系での中心間ベクトル
+    Vector3 diff = b->GetCenter() - a->GetCenter();
+    float t[3] = {
+        Dot(diff, a->GetAxis(0)),
+        Dot(diff, a->GetAxis(1)),
+        Dot(diff, a->GetAxis(2))
+    };
+
+    float heAv[3] = { heA.x, heA.y, heA.z };
+    float heBv[3] = { heB.x, heB.y, heB.z };
+
+    // Aの3軸でテスト
+    for (int i = 0; i < 3; i++) {
+        float ra = heAv[i];
+        float rb = heBv[0]*AbsR[i][0] + heBv[1]*AbsR[i][1] + heBv[2]*AbsR[i][2];
+        if (std::abs(t[i]) > ra + rb) return false;
+    }
+
+    // Bの3軸でテスト
+    for (int j = 0; j < 3; j++) {
+        float ra = heAv[0]*AbsR[0][j] + heAv[1]*AbsR[1][j] + heAv[2]*AbsR[2][j];
+        float rb = heBv[j];
+        float tProj = std::abs(t[0]*R[0][j] + t[1]*R[1][j] + t[2]*R[2][j]);
+        if (tProj > ra + rb) return false;
+    }
+
+    // A.axis[i] x B.axis[j] の9軸でテスト
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int i1 = (i + 1) % 3, i2 = (i + 2) % 3;
+            int j1 = (j + 1) % 3, j2 = (j + 2) % 3;
+            float ra = heAv[i1]*AbsR[i2][j] + heAv[i2]*AbsR[i1][j];
+            float rb = heBv[j1]*AbsR[i][j2] + heBv[j2]*AbsR[i][j1];
+            float tProj = std::abs(t[i2]*R[i1][j] - t[i1]*R[i2][j]);
+            if (tProj > ra + rb) return false;
+        }
+    }
+
+    return true;
+}
+
+bool CollisionManager::CheckOBBToAABBCollision(OBBCollider* obb, AABBCollider* aabb)
+{
+    if (!obb->GetColliderData().isActive || !aabb->GetColliderData().isActive) return false;
+
+    // AABBの中心と半サイズ
+    Vector3 aabbCenter = (aabb->GetMax() + aabb->GetMin()) * 0.5f;
+    Vector3 aabbHalf   = (aabb->GetMax() - aabb->GetMin()) * 0.5f;
+    const Vector3& obbHalf = obb->GetWorldHalfExtents();
+
+    // R[i][j] = Dot(OBB.axis[i], AABB.axis[j])
+    // AABBの軸はワールド軸なので R[i][j] = OBB.axis[i] の j番目の成分
+    float R[3][3], AbsR[3][3];
+    const float eps = 1e-6f;
+    for (int i = 0; i < 3; i++) {
+        const Vector3& ax = obb->GetAxis(i);
+        float comp[3] = { ax.x, ax.y, ax.z };
+        for (int j = 0; j < 3; j++) {
+            R[i][j]    = comp[j];
+            AbsR[i][j] = std::abs(comp[j]) + eps;
+        }
+    }
+
+    // OBBローカル座標での中心間ベクトル
+    Vector3 diff = aabbCenter - obb->GetCenter();
+    float t[3] = {
+        Dot(diff, obb->GetAxis(0)),
+        Dot(diff, obb->GetAxis(1)),
+        Dot(diff, obb->GetAxis(2))
+    };
+    float diffComp[3] = { diff.x, diff.y, diff.z };
+
+    float obbHalfv[3]  = { obbHalf.x,  obbHalf.y,  obbHalf.z  };
+    float aabbHalfv[3] = { aabbHalf.x, aabbHalf.y, aabbHalf.z };
+
+    // OBBの3軸でテスト
+    for (int i = 0; i < 3; i++) {
+        float ra = obbHalfv[i];
+        float rb = aabbHalfv[0]*AbsR[i][0] + aabbHalfv[1]*AbsR[i][1] + aabbHalfv[2]*AbsR[i][2];
+        if (std::abs(t[i]) > ra + rb) return false;
+    }
+
+    // AABBの3軸 (ワールドX,Y,Z) でテスト
+    for (int j = 0; j < 3; j++) {
+        float ra = obbHalfv[0]*AbsR[0][j] + obbHalfv[1]*AbsR[1][j] + obbHalfv[2]*AbsR[2][j];
+        float rb = aabbHalfv[j];
+        if (std::abs(diffComp[j]) > ra + rb) return false;
+    }
+
+    // OBB.axis[i] x AABB.axis[j] の9軸でテスト
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            int i1 = (i + 1) % 3, i2 = (i + 2) % 3;
+            int j1 = (j + 1) % 3, j2 = (j + 2) % 3;
+            float ra    = obbHalfv[i1]*AbsR[i2][j]  + obbHalfv[i2]*AbsR[i1][j];
+            float rb    = aabbHalfv[j1]*AbsR[i][j2] + aabbHalfv[j2]*AbsR[i][j1];
+            float tProj = std::abs(t[i2]*R[i1][j] - t[i1]*R[i2][j]);
+            if (tProj > ra + rb) return false;
+        }
+    }
+
+    return true;
 }

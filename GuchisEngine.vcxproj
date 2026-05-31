@@ -121,6 +121,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMovementComponent.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\EnemyStateNames.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.h" />
@@ -136,11 +137,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
@@ -182,6 +183,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Scene\EditScene.h" />
     <ClInclude Include="App\Scene\GameScene\GameScene.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateBase.h" />
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateClear.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateMenu.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStatePlay.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h" />
@@ -189,7 +191,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Scene\SceneFactory.h" />
     <ClInclude Include="App\Scene\TitleScene.h" />
     <ClInclude Include="App\Scene\Transition\VignetteExpandTransition.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h" />
+    <ClInclude Include="App\Stage\SceneBuilder.h" />
+    <ClInclude Include="App\Stage\SceneLoader.h" />
     <ClInclude Include="Engine\2d\Sprite.h" />
     <ClInclude Include="Engine\2d\SpriteManager.h" />
     <ClInclude Include="Engine\2d\SpriteStruct.h" />
@@ -199,6 +202,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\Collider\BaseCollider.h" />
     <ClInclude Include="Engine\3d\Collider\ColliderStructs.h" />
     <ClInclude Include="Engine\3d\Collider\CollisionManager.h" />
+    <ClInclude Include="Engine\3d\Collider\OBBCollider.h" />
     <ClInclude Include="Engine\3d\Collider\SphereCollider.h" />
     <ClInclude Include="Engine\3d\Light\BaseLight.h" />
     <ClInclude Include="Engine\3d\Light\DirectionalLight.h" />
@@ -250,8 +254,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
     <ClInclude Include="Engine\Graphics\Resource\SrvManager.h" />
     <ClInclude Include="Engine\Graphics\Resource\TextureManager.h" />
-    <ClInclude Include="App\Stage\SceneBuilder.h" />
-    <ClInclude Include="App\Stage\SceneLoader.h" />
     <ClInclude Include="Engine\audio\Audio.h" />
     <ClInclude Include="Engine\base\Logger.h" />
     <ClInclude Include="Engine\base\Particle\InstanceData.h" />
@@ -310,7 +312,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateClear.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -322,6 +323,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMovementComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMeleeWeapon.cpp" />
@@ -336,11 +338,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateAir.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp" />
@@ -380,6 +382,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Scene\EditScene.cpp" />
     <ClCompile Include="App\Scene\GameScene\GameScene.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateBase.cpp" />
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateClear.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateMenu.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStatePlay.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp" />
@@ -387,13 +390,15 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Scene\SceneFactory.cpp" />
     <ClCompile Include="App\Scene\TitleScene.cpp" />
     <ClCompile Include="App\Scene\Transition\VignetteExpandTransition.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp" />
+    <ClCompile Include="App\Stage\SceneBuilder.cpp" />
+    <ClCompile Include="App\Stage\SceneLoader.cpp" />
     <ClCompile Include="Engine\2d\Sprite.cpp" />
     <ClCompile Include="Engine\2d\SpriteManager.cpp" />
     <ClCompile Include="Engine\3d\Camera\BaseCamera.cpp" />
     <ClCompile Include="Engine\3d\Camera\CameraManager.cpp" />
     <ClCompile Include="Engine\3d\Collider\AABBCollider.cpp" />
     <ClCompile Include="Engine\3d\Collider\CollisionManager.cpp" />
+    <ClCompile Include="Engine\3d\Collider\OBBCollider.cpp" />
     <ClCompile Include="Engine\3d\Collider\SphereCollider.cpp" />
     <ClCompile Include="Engine\3d\Light\DirectionalLight.cpp" />
     <ClCompile Include="Engine\3d\Light\LightManager.cpp" />
@@ -437,8 +442,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Resource\RtvManager.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\SrvManager.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp" />
-    <ClCompile Include="App\Stage\SceneBuilder.cpp" />
-    <ClCompile Include="App\Stage\SceneLoader.cpp" />
     <ClCompile Include="Engine\audio\Audio.cpp" />
     <ClCompile Include="Engine\base\Logger.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
@@ -487,7 +490,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateClear.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

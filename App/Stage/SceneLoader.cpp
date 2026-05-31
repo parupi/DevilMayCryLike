@@ -1,5 +1,6 @@
 #include "SceneLoader.h"
 #include <fstream>
+#include <stdexcept>
 
 using json = nlohmann::json;
 
@@ -22,116 +23,69 @@ std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
     return objects;
 }
 
-void SceneLoader::ParseObject(const json& objJson, SceneObject& outObject) {
-    outObject.name_ = objJson["name"];
-    outObject.className = objJson.value("class", "Object3d");
+void SceneLoader::ParseObject(const json& j, SceneObject& out) {
+    out.name      = j["name"];
+    out.className = j.value("class", "Object3d");
 
-    const auto& transform = objJson["transform"];
-    outObject.transform.translate = {
-        transform["translation"][0],
-        transform["translation"][1],
-        transform["translation"][2],
-    };
-    outObject.transform.rotate = {
-        transform["rotation"][0],
-        transform["rotation"][1],
-        transform["rotation"][2],
-    };
-    outObject.transform.scale = {
-        transform["scaling"][0],
-        transform["scaling"][1],
-        transform["scaling"][2],
-    };
+    const auto& t = j["transform"];
+    out.transform.translate = { t["translation"][0], t["translation"][1], t["translation"][2] };
+    out.transform.rotate    = { t["rotation"][0],    t["rotation"][1],    t["rotation"][2]    };
+    out.transform.scale     = { t["scaling"][0],     t["scaling"][1],     t["scaling"][2]     };
 
-    if (objJson.contains("file_name")) {
-        outObject.fileName = objJson["file_name"];
+    if (j.contains("file_name")) {
+        out.fileName = j["file_name"].get<std::string>();
     }
 
-    if (objJson.contains("collider")) {
-        outObject.collider = ParseCollider(objJson["collider"]);
+    if (j.contains("collider")) {
+        out.collider = ParseCollider(j["collider"]);
     }
 
-    if (objJson.contains("event")) {
+    if (j.contains("event")) {
         EventInfo info;
-        auto& eventJson = objJson["event"];
+        const auto& ev = j["event"];
 
-        info.type = eventJson.value("type", "");
-        info.trigger = eventJson.value("trigger", "");
+        info.type    = ev.value("type",    "");
+        info.trigger = ev.value("trigger", "");
 
-        if (info.type == "EnemySpawn") {
-            if (eventJson.contains("enemies")) {
-                for (auto& enemyJson : eventJson["enemies"]) {
-                    EnemySpawnInfo e;
-                    e.name = enemyJson.value("name", "");
-                    e.delay = enemyJson.value("delay", 0.0f);
-                    info.enemies.push_back(e);
-                }
+        if (info.type == "EnemySpawn" && ev.contains("enemies")) {
+            for (const auto& e : ev["enemies"]) {
+                info.enemies.push_back({ e.value("name", ""), e.value("delay", 0.0f) });
             }
-        } else if (info.type == "Clear") {
-            if (eventJson.contains("conditions")) {
-                for (auto& condJson : eventJson["conditions"]) {
-                    EventCondition cond;
-                    cond.type = condJson.value("type", "");
-                    if (condJson.contains("targets")) {
-                        for (auto& t : condJson["targets"]) {
-                            cond.targets.push_back(t.get<std::string>());
-                        }
+        } else if (info.type == "Clear" && ev.contains("conditions")) {
+            for (const auto& c : ev["conditions"]) {
+                EventCondition cond;
+                cond.type = c.value("type", "");
+                if (c.contains("targets")) {
+                    for (const auto& target : c["targets"]) {
+                        cond.targets.push_back(target.get<std::string>());
                     }
-                    info.conditions.push_back(cond);
                 }
+                info.conditions.push_back(cond);
             }
         }
 
-        outObject.eventInfo = info;
-    }
-
-
-    if (objJson.contains("children")) {
-        for (const auto& childJson : objJson["children"]) {
-            SceneObject child;
-            ParseObject(childJson, child);
-            outObject.children.push_back(child);
-        }
+        out.eventInfo = info;
     }
 }
 
-Collider SceneLoader::ParseCollider(const json& colliderJson) {
-    Collider collider;
+Collider SceneLoader::ParseCollider(const json& j) {
+    Collider col;
+    const std::string type = j["type"];
 
-    std::string type = colliderJson["type"];
     if (type == "BOX") {
-        collider.type = ColliderType::AABB;
+        col.type = ColliderType::AABB;
 
-        Vector3 center = {
-            colliderJson["center"][0],
-            colliderJson["center"][1],
-            colliderJson["center"][2],
-        };
-        Vector3 size = {
-            colliderJson["size"][0],
-            colliderJson["size"][1],
-            colliderJson["size"][2],
-        };
+        const Vector3 center = { j["center"][0], j["center"][1], j["center"][2] };
+        const Vector3 half   = { j["size"][0] * 0.5f, j["size"][1] * 0.5f, j["size"][2] * 0.5f };
 
-        collider.aabb.offsetMin = {
-            center.x - size.x * 0.5f,
-            center.y - size.y * 0.5f,
-            center.z - size.z * 0.5f,
-        };
-        collider.aabb.offsetMax = {
-            center.x + size.x * 0.5f,
-            center.y + size.y * 0.5f,
-            center.z + size.z * 0.5f,
-        };
+        col.aabb.offsetMin = center - half;
+        col.aabb.offsetMax = center + half;
+
     } else if (type == "SPHERE") {
-        collider.type = ColliderType::Sphere;
-        collider.sphere.offset = {
-            colliderJson["center"][0],
-            colliderJson["center"][1],
-            colliderJson["center"][2],
-        };
-        collider.sphere.radius = colliderJson["size"][0] * 0.5f;
+        col.type = ColliderType::Sphere;
+        col.sphere.offset = { j["center"][0], j["center"][1], j["center"][2] };
+        col.sphere.radius = j["size"][0] * 0.5f;
     }
 
-    return collider;
+    return col;
 }

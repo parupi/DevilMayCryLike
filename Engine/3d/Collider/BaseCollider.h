@@ -6,6 +6,7 @@
 enum class CollisionShapeType {
 	AABB,
 	Sphere,
+	OBB,
 };
 
 class Object3d;

@@ -1,20 +1,26 @@
 #pragma once
-
 #include <vector>
 #include <Stage/SceneLoader.h>
 
 class Object3d;
-class BaseCamera;
+class WorldTransform;
 
 class SceneBuilder {
 public:
-    // ルートノード群からシーン構築
     static void BuildScene(const std::vector<SceneObject>& sceneObjects);
 
 private:
-    static std::unique_ptr<Object3d> BuildObjectRecursive(const SceneObject& sceneObj, Object3d* parent);
+    static bool IsEvent(const SceneObject& obj);
 
-    // 最後に生成するイベントリスト
-    static std::vector<const SceneObject*> pendingEvents_;
-    static void BuildPendingEvents();
+    // エディタとエンジンの座標系変換を適用 (Y↔Z スワップ)
+    static void ApplyTransform(WorldTransform* transform, const EulerTransform& src);
+
+    // コライダーを生成してオブジェクトに登録
+    static void ApplyCollider(Object3d* object, const std::string& name, const Collider& col);
+
+    // 通常オブジェクトを生成してマネージャーに登録
+    static void BuildObject(const SceneObject& sceneObj, std::vector<SceneObject>& outPendingEvents);
+
+    // イベントオブジェクトを生成してマネージャーに登録
+    static void BuildEvent(const SceneObject& sceneObj);
 };

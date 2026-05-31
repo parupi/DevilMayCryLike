@@ -4,6 +4,7 @@
 #include "BaseCollider.h"
 #include "AABBCollider.h"
 #include "SphereCollider.h"
+#include "OBBCollider.h"
 #include <set>
 class CollisionManager
 {
@@ -53,6 +54,8 @@ private:
 
 	bool CheckAABBToAABBCollision(AABBCollider* a, AABBCollider* b);
 	bool CheckSphereToSphereCollision(SphereCollider* a, SphereCollider* b);
+	bool CheckOBBToOBBCollision(OBBCollider* a, OBBCollider* b);
+	bool CheckOBBToAABBCollision(OBBCollider* obb, AABBCollider* aabb);
 
 private:
 	std::vector<std::unique_ptr<BaseCollider>> colliders_;

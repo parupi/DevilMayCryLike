@@ -2,196 +2,145 @@
 #include "SceneBuilder.h"
 #include "3d/Object/Object3d.h"
 #include "3d/WorldTransform.h"
-#include "3d/Object/Renderer/ModelRenderer.h"
-#include "3d/Object/Model/ModelManager.h"
 #include "3d/Collider/AABBCollider.h"
 #include "3d/Collider/SphereCollider.h"
-#include <3d/Collider/CollisionManager.h>
-#include <3d/Object/Renderer/RendererManager.h>
-#include "math/Vector3.h"
-#include <scene/Object3dFactory.h>
-#include <GameObject/Event/EventManager.h>
-#include <GameObject/Event/EventFactory.h>
-#include <GameObject/Event/EnemySpawnEvent.h>
-#include <GameObject/Event/ClearEvent.h>
+#include "3d/Collider/CollisionManager.h"
+#include "scene/Object3dFactory.h"
+#include "GameObject/Character/Enemy/Enemy.h"
+#include "GameObject/Event/EventManager.h"
+#include "GameObject/Event/EventFactory.h"
+#include "GameObject/Event/EnemySpawnEvent.h"
+#include "GameObject/Event/ClearEvent.h"
 
+// ---------------------------------------------------------------------------
+// helpers
+// ---------------------------------------------------------------------------
 
-std::vector<const SceneObject*> SceneBuilder::pendingEvents_;
+bool SceneBuilder::IsEvent(const SceneObject& obj) {
+    return obj.className.rfind("Event_", 0) == 0;
+}
+
+void SceneBuilder::ApplyTransform(WorldTransform* transform, const EulerTransform& src) {
+    // Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
+    Vector3 translate = src.translate;
+    std::swap(translate.y, translate.z);
+    transform->GetTranslation() = translate;
+
+    Vector3 scale = src.scale;
+    std::swap(scale.y, scale.z);
+    transform->GetScale() = scale;
+}
+
+void SceneBuilder::ApplyCollider(Object3d* object, const std::string& name, const Collider& col) {
+    const Vector3 scale = object->GetWorldTransform()->GetScale();
+
+    if (col.type == ColliderType::AABB) {
+        auto collider = std::make_unique<AABBCollider>(name);
+        AABBData data = col.aabb;
+        data.offsetMin *= scale * 2.0f;
+        data.offsetMax *= scale * 2.0f;
+        collider->GetColliderData() = data;
+        BaseCollider* ptr = collider.get();
+        CollisionManager::GetInstance()->AddCollider(std::move(collider));
+        object->AddCollider(ptr);
+
+    } else if (col.type == ColliderType::Sphere) {
+        auto collider = std::make_unique<SphereCollider>(name);
+        SphereData data = col.sphere;
+        data.offset *= scale;
+        collider->GetColliderData() = data;
+        BaseCollider* ptr = collider.get();
+        CollisionManager::GetInstance()->AddCollider(std::move(collider));
+        object->AddCollider(ptr);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// public entry point
+// ---------------------------------------------------------------------------
 
 void SceneBuilder::BuildScene(const std::vector<SceneObject>& sceneObjects) {
-	for (const auto& obj : sceneObjects) {
-		std::unique_ptr<Object3d> object = BuildObjectRecursive(obj, nullptr);
-		if (obj.className.find("Event_")) {
-			Object3dManager::GetInstance()->AddObject(std::move(object));
-		}
-	}
+    std::vector<SceneObject> pendingEvents;
 
-	// 最後にイベントを生成
-	BuildPendingEvents();
+    // Pass 1: 通常オブジェクトを生成
+    for (const auto& sceneObj : sceneObjects) {
+        BuildObject(sceneObj, pendingEvents);
+    }
+
+    // Pass 2: イベントを生成（参照する敵が先に Object3dManager に存在している必要がある）
+    for (const auto& eventObj : pendingEvents) {
+        BuildEvent(eventObj);
+    }
 }
 
-std::unique_ptr<Object3d> SceneBuilder::BuildObjectRecursive(const SceneObject& sceneObj, Object3d* parent) {
-	std::unique_ptr<Object3d> object;
+// ---------------------------------------------------------------------------
+// private builders
+// ---------------------------------------------------------------------------
 
-	// イベントは最後にまとめて生成
-	if (sceneObj.className.find("Event_") == 0) {
-		pendingEvents_.push_back(&sceneObj);
-		return nullptr;
-	}
+void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObject>& outPendingEvents) {
+    if (IsEvent(sceneObj)) {
+        outPendingEvents.push_back(sceneObj);
+        return;
+    }
 
-	object = Object3dFactory::Create(sceneObj.className, sceneObj.name_);
+    auto object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
 
-	// トランスフォーム設定
-	WorldTransform* transform = object->GetWorldTransform();
-	// Translation の Y と Z を入れ替えてから代入
-	Vector3 tempTranslate = sceneObj.transform.translate;
-	std::swap(tempTranslate.y, tempTranslate.z);
-	transform->GetTranslation() = tempTranslate;
+    ApplyTransform(object->GetWorldTransform(), sceneObj.transform);
 
-	// Scale の Y と Z を入れ替えてから代入
-	Vector3 tempScale = sceneObj.transform.scale;
-	std::swap(tempScale.y, tempScale.z);
-	transform->GetScale() = tempScale;
+    if (sceneObj.collider) {
+        ApplyCollider(object.get(), sceneObj.name, sceneObj.collider.value());
+    }
 
-	//transform->GetRotation() = EulerDegree(sceneObj.transform.rotate);
+    object->Initialize();
 
-	if (parent) {
-		transform->SetParent(parent->GetWorldTransform());
-	}
-
-	// --- Colliderの生成と登録 ---
-	if (sceneObj.collider) {
-		const Collider& col = sceneObj.collider.value();
-
-		if (col.type == ColliderType::AABB) {
-			std::unique_ptr<AABBCollider> collider = std::make_unique<AABBCollider>(sceneObj.name_);
-			AABBData scaledAABB = col.aabb;
-
-			// スケールを適用
-			scaledAABB.offsetMin *= object->GetWorldTransform()->GetScale() * 2.0f;
-			scaledAABB.offsetMax *= object->GetWorldTransform()->GetScale() * 2.0f;
-
-			collider->GetColliderData() = scaledAABB;
-
-			BaseCollider* colPtr = collider.get();
-			CollisionManager::GetInstance()->AddCollider(std::move(collider));
-			object->AddCollider(colPtr);
-		} else if (col.type == ColliderType::Sphere) {
-			std::unique_ptr<SphereCollider> collider = std::make_unique<SphereCollider>(sceneObj.name_);
-
-			SphereData scaledSphere = col.sphere;
-
-			Vector3 scale = object->GetWorldTransform()->GetScale();
-			// XYZの中で最大のスケールを使う（非均一スケール対応）
-			//float maxScale = std::max(scale.x, scale.y, scale.z);
-			//scaledSphere.radius *= maxScale;
-
-			// offset もスケールに合わせて調整
-			scaledSphere.offset *= scale;
-			// 設定したデータを入れる
-			collider->GetColliderData() = scaledSphere;
-			// ポインタを取得しておく
-			BaseCollider* colPtr = collider.get();
-			CollisionManager::GetInstance()->AddCollider(std::move(collider));
-
-			object->AddCollider(colPtr);
-		}
-	}
-
-	object->Initialize();
-
-	// 子オブジェクトの構築
-	for (const auto& child : sceneObj.children) {
-		BuildObjectRecursive(child, object.get());
-	}
-
-	return object;
+    Object3dManager::GetInstance()->AddObject(std::move(object));
 }
 
-void SceneBuilder::BuildPendingEvents()
-{
-	for (const SceneObject* sceneObj : pendingEvents_) {
-		std::unique_ptr<BaseEvent> eventObject = EventFactory::Create(sceneObj->className, sceneObj->name_);
+void SceneBuilder::BuildEvent(const SceneObject& sceneObj) {
+    auto eventObject = EventFactory::Create(sceneObj.className, sceneObj.name);
+    if (!eventObject) return;
 
-		if (sceneObj->eventInfo.has_value()) {
-			const EventInfo& info = sceneObj->eventInfo.value();
+    if (sceneObj.eventInfo.has_value()) {
+        const EventInfo& info = sceneObj.eventInfo.value();
 
-			if (info.type == "EnemySpawn") {
-				EnemySpawnEvent* spawnEvent = dynamic_cast<EnemySpawnEvent*>(eventObject.get());
-				if (spawnEvent) {
-					for (const auto& enemyInfo : info.enemies) {
-						Enemy* enemy = dynamic_cast<Enemy*>(
-							Object3dManager::GetInstance()->FindObject(enemyInfo.name)
-							);
-						if (enemy) {
-							enemy->SetActive(false); // 最初は非アクティブ
-							spawnEvent->AddEnemy(enemy);
-						}
-					}
-				}
-			} else if (info.type == "Clear") {
-				ClearEvent* clearEvent = dynamic_cast<ClearEvent*>(eventObject.get());
-				if (clearEvent) {
-					for (const auto& cond : info.conditions) {
-						if (cond.type == "DEFEAT_ENEMIES") {
-							for (const auto& targetName : cond.targets) {
-								Enemy* enemy = dynamic_cast<Enemy*>(
-									Object3dManager::GetInstance()->FindObject(targetName)
-									);
-								if (enemy) {
-									clearEvent->AddTargetEnemy(enemy);
-								}
-							}
-						}
-					}
-				}
-			}
+        if (info.type == "EnemySpawn") {
+            auto* spawnEvent = dynamic_cast<EnemySpawnEvent*>(eventObject.get());
+            if (spawnEvent) {
+                for (const auto& enemyInfo : info.enemies) {
+                    auto* enemy = dynamic_cast<Enemy*>(
+                        Object3dManager::GetInstance()->FindObject(enemyInfo.name));
+                    if (enemy) {
+                        enemy->SetActive(false);
+                        spawnEvent->AddEnemy(enemy);
+                    }
+                }
+            }
+        } else if (info.type == "Clear") {
+            auto* clearEvent = dynamic_cast<ClearEvent*>(eventObject.get());
+            if (clearEvent) {
+                for (const auto& cond : info.conditions) {
+                    if (cond.type == "DEFEAT_ENEMIES") {
+                        for (const auto& targetName : cond.targets) {
+                            auto* enemy = dynamic_cast<Enemy*>(
+                                Object3dManager::GetInstance()->FindObject(targetName));
+                            if (enemy) {
+                                clearEvent->AddTargetEnemy(enemy);
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
-			EventManager::GetInstance()->AddEvent(eventObject.get());
-		}
+        EventManager::GetInstance()->AddEvent(eventObject.get());
+    }
 
-		// Transform, Collider 設定は通常の Object3d と同じ処理
-		WorldTransform* transform = eventObject->GetWorldTransform();
-		Vector3 tempTranslate = sceneObj->transform.translate;
-		std::swap(tempTranslate.y, tempTranslate.z);
-		transform->GetTranslation() = tempTranslate;
+    ApplyTransform(eventObject->GetWorldTransform(), sceneObj.transform);
 
-		Vector3 tempScale = sceneObj->transform.scale;
-		std::swap(tempScale.y, tempScale.z);
-		transform->GetScale() = tempScale;
+    if (sceneObj.collider) {
+        ApplyCollider(eventObject.get(), sceneObj.name, sceneObj.collider.value());
+    }
 
-		//transform->GetRotation() = EulerDegree(sceneObj->transform.rotate);
-
-		if (sceneObj->collider) {
-			const Collider& col = sceneObj->collider.value();
-			if (col.type == ColliderType::AABB) {
-				auto collider = std::make_unique<AABBCollider>(sceneObj->name_);
-				AABBData scaledAABB = col.aabb;
-				scaledAABB.offsetMin *= transform->GetScale() * 2.0f;
-				scaledAABB.offsetMax *= transform->GetScale() * 2.0f;
-				collider->GetColliderData() = scaledAABB;
-				BaseCollider* colPtr = collider.get();
-				CollisionManager::GetInstance()->AddCollider(std::move(collider));
-				eventObject->AddCollider(colPtr);
-
-			} else if (col.type == ColliderType::Sphere) {
-				auto collider = std::make_unique<SphereCollider>(sceneObj->name_);
-				SphereData scaledSphere = col.sphere;
-				scaledSphere.offset *= eventObject->GetWorldTransform()->GetScale();
-				BaseCollider* colPtr = collider.get();
-				CollisionManager::GetInstance()->AddCollider(std::move(collider));
-				eventObject->AddCollider(colPtr);
-			}
-		}
-
-		eventObject->Initialize();
-
-
-
-		Object3dManager::GetInstance()->AddObject(std::move(eventObject));
-
-	}
-
-	pendingEvents_.clear();
+    eventObject->Initialize();
+    Object3dManager::GetInstance()->AddObject(std::move(eventObject));
 }
-

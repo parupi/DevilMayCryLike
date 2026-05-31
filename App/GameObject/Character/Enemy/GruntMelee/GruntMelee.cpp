@@ -17,131 +17,121 @@
 #include "State/GruntStateAttackNormal.h"
 #include "State/GruntStateRushAttack.h"
 
-GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName)
-{
-    RendererManager::GetInstance()->AddRenderer(
-        std::make_unique<ModelRenderer>(name_, "PlayerBody"));
-    AddRenderer(RendererManager::GetInstance()->FindRender(name_));
-    GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
+GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
-    hp_ = 8.0f;
+	hp_ = 8.0f;
 }
 
-void GruntMelee::Initialize()
-{
-    auto* col = static_cast<AABBCollider*>(GetCollider(name_));
-    col->GetColliderData().offsetMax *= 0.5f;
-    col->GetColliderData().offsetMin *= 0.5f;
+void GruntMelee::Initialize() {
+	auto* col = static_cast<AABBCollider*>(GetCollider(name_));
+	col->GetColliderData().offsetMax *= 0.5f;
+	col->GetColliderData().offsetMin *= 0.5f;
 
-    // 武器の生成
-    RendererManager::GetInstance()->AddRenderer(
-        std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
-    CollisionManager::GetInstance()->AddCollider(
-        std::make_unique<AABBCollider>(name_ + "Weapon"));
+	// 武器の生成
+	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
+	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
 
-    auto weapon = std::make_unique<GruntMeleeWeapon>(name_ + "Weapon");
-    weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "Weapon"));
-    weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "Weapon"));
-    weapon->Initialize();
-    weapon->GetWorldTransform()->SetParent(GetWorldTransform());
+	auto weapon = std::make_unique<GruntMeleeWeapon>(name_ + "Weapon");
+	weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "Weapon"));
+	weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "Weapon"));
+	weapon->Initialize();
+	weapon->GetWorldTransform()->SetParent(GetWorldTransform());
 
-    weapon_ = weapon.get();
-    Object3dManager::GetInstance()->AddObject(std::move(weapon));
+	weapon_ = weapon.get();
+	Object3dManager::GetInstance()->AddObject(std::move(weapon));
 
-    // コンポーネント生成
-    sensor_      = std::make_unique<EnemySensorComponent>();
-    movement_    = std::make_unique<EnemyMovementComponent>();
-    meleeAttack_ = std::make_unique<EnemyMeleeAttackComponent>(weapon_);
+	// コンポーネント生成
+	sensor_ = std::make_unique<EnemySensorComponent>();
+	movement_ = std::make_unique<EnemyMovementComponent>();
+	meleeAttack_ = std::make_unique<EnemyMeleeAttackComponent>(weapon_);
 
-    // ステート登録
-    states_[EnemyStateName::Air]       = std::make_unique<EnemyStateAir>();
-    states_[EnemyStateName::KnockBack] = std::make_unique<EnemyStateKnockBack>();
+	// ステート登録
+	states_[EnemyStateName::Air] = std::make_unique<EnemyStateAir>();
+	states_[EnemyStateName::KnockBack] = std::make_unique<EnemyStateKnockBack>();
 
-    states_[GruntMeleeStateName::Patrol]     = std::make_unique<GruntStatePatrol>(sensor_.get());
-    // KnockBack/Air 終了後に EnemyStateName::Idle/Move へ戻るため CombatIdle を全キーで登録する
-    states_[EnemyStateName::Idle]            = std::make_unique<GruntStateCombatIdle>(sensor_.get());
-    states_[EnemyStateName::Move]            = std::make_unique<GruntStateCombatIdle>(sensor_.get());
-    states_[GruntMeleeStateName::CombatIdle] = std::make_unique<GruntStateCombatIdle>(sensor_.get());
-    states_[GruntMeleeStateName::Approach]    = std::make_unique<GruntStateApproach>(movement_.get());
-    states_[GruntMeleeStateName::SideMove]    = std::make_unique<GruntStateSideMove>(movement_.get());
-    states_[GruntMeleeStateName::Retreat]     = std::make_unique<GruntStateRetreat>(movement_.get());
-    states_[GruntMeleeStateName::AttackNormal] = std::make_unique<GruntStateAttackNormal>(meleeAttack_.get());
-    states_[GruntMeleeStateName::RushAttack]  = std::make_unique<GruntStateRushAttack>(meleeAttack_.get());
+	states_[GruntMeleeStateName::Patrol] = std::make_unique<GruntStatePatrol>(sensor_.get());
+	// KnockBack/Air 終了後に EnemyStateName::Idle/Move へ戻るため CombatIdle を全キーで登録する
+	states_[EnemyStateName::Idle] = std::make_unique<GruntStateCombatIdle>(sensor_.get());
+	states_[EnemyStateName::Move] = std::make_unique<GruntStateCombatIdle>(sensor_.get());
+	states_[GruntMeleeStateName::CombatIdle] = std::make_unique<GruntStateCombatIdle>(sensor_.get());
+	states_[GruntMeleeStateName::Approach] = std::make_unique<GruntStateApproach>(movement_.get());
+	states_[GruntMeleeStateName::SideMove] = std::make_unique<GruntStateSideMove>(movement_.get());
+	states_[GruntMeleeStateName::Retreat] = std::make_unique<GruntStateRetreat>(movement_.get());
+	states_[GruntMeleeStateName::AttackNormal] = std::make_unique<GruntStateAttackNormal>(meleeAttack_.get());
+	states_[GruntMeleeStateName::RushAttack] = std::make_unique<GruntStateRushAttack>(meleeAttack_.get());
 
-    // パーティクル
-    ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-    auto& emitters = ParticleManager::GetInstance()->GetEmitters();
-    emitter_ = emitters.at(name_ + "HitEffect").get();
-    emitter_->SetParent(GetWorldTransform());
-    emitter_->AddParticle("EnemyDamageEffect");
-    emitter_->AddParticle("PlayerSlashEffect");
-    emitter_->SetActiveFlag(false);
+	currentState_ = states_[GruntMeleeStateName::Patrol].get();
 
-    Enemy::Initialize();
+	// パーティクル
+	ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
+	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	emitter_ = emitters.at(name_ + "HitEffect").get();
+	emitter_->SetParent(GetWorldTransform());
+	emitter_->AddParticle("EnemyDamageEffect");
+	emitter_->AddParticle("PlayerSlashEffect");
+	emitter_->SetActiveFlag(false);
 
-    // 初期ステートを Patrol へ上書き（Enemy::Initialize() は "Air" にセットする）
-    ChangeState(GruntMeleeStateName::Patrol);
+	Enemy::Initialize();
+
+	// 初期ステートを Patrol へ上書き（Enemy::Initialize() は "Air" にセットする）
+	ChangeState(GruntMeleeStateName::Patrol);
 }
 
-void GruntMelee::Update(float deltaTime)
-{
-    weapon_->SetIsDraw(isAttack_);
-    Enemy::Update(deltaTime);
+void GruntMelee::Update(float deltaTime) {
+	weapon_->SetIsDraw(isAttack_);
+	Enemy::Update(deltaTime);
 }
 
 #ifdef _DEBUG
-void GruntMelee::DebugGui()
-{
-    ImGui::Begin(name_.c_str());
-    Object3d::DebugGui();
-    ImGui::End();
+void GruntMelee::DebugGui() {
+	ImGui::Begin(name_.c_str());
+	Object3d::DebugGui();
+	ImGui::End();
 }
 #endif
 
-void GruntMelee::OnCollisionEnter(BaseCollider* other)
-{
-    Enemy::OnCollisionEnter(other);
+void GruntMelee::OnCollisionEnter(BaseCollider* other) {
+	Enemy::OnCollisionEnter(other);
 
-    if (other->category_ != CollisionCategory::PlayerWeapon) return;
-    if (!player_ || !player_->IsAttack()) return;
+	if (other->category_ != CollisionCategory::PlayerWeapon) return;
+	if (!player_ || !player_->IsAttack()) return;
 
-    if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
-        hitStop_->Start(player_->GetAttackData().hitStopTime,
-                        player_->GetAttackData().hitStopIntensity * 3.0f);
-        emitter_->Emit();
-        return;
-    }
+	if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
+		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
+		emitter_->Emit();
+		return;
+	}
 
-    hp_ -= player_->GetAttackData().damage;
-    if (hp_ <= 0.0f) {
-        OnDeath();
-    }
+	hp_ -= player_->GetAttackData().damage;
+	if (hp_ <= 0.0f) {
+		OnDeath();
+	}
 
-    DamageInfo info;
-    info.damage           = player_->GetAttackData().damage;
-    info.hitPosition      = GetWorldTransform()->GetTranslation();
-    info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
-    info.direction        = Normalize(info.hitPosition - info.attackerPosition);
-    info.type             = player_->GetAttackData().type;
-    info.impulseForce     = player_->GetAttackData().impulseForce;
-    info.upwardRatio      = player_->GetAttackData().upwardRatio;
-    info.torqueForce      = player_->GetAttackData().torqueForce;
-    info.stunTime         = player_->GetAttackData().stunTime;
+	DamageInfo info;
+	info.damage = player_->GetAttackData().damage;
+	info.hitPosition = GetWorldTransform()->GetTranslation();
+	info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
+	info.direction = Normalize(info.hitPosition - info.attackerPosition);
+	info.type = player_->GetAttackData().type;
+	info.impulseForce = player_->GetAttackData().impulseForce;
+	info.upwardRatio = player_->GetAttackData().upwardRatio;
+	info.torqueForce = player_->GetAttackData().torqueForce;
+	info.stunTime = player_->GetAttackData().stunTime;
 
-    SetPendingDamageInfo(info);
-    ChangeState(EnemyStateName::KnockBack);
+	SetPendingDamageInfo(info);
+	ChangeState(EnemyStateName::KnockBack);
 
-    hitStop_->Start(player_->GetAttackData().hitStopTime,
-                    player_->GetAttackData().hitStopIntensity * 3.0f);
-    emitter_->Emit();
+	hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
+	emitter_->Emit();
 }
 
-void GruntMelee::OnCollisionStay(BaseCollider* other)
-{
-    Enemy::OnCollisionStay(other);
+void GruntMelee::OnCollisionStay(BaseCollider* other) {
+	Enemy::OnCollisionStay(other);
 }
 
-void GruntMelee::OnCollisionExit(BaseCollider* other)
-{
-    Enemy::OnCollisionExit(other);
+void GruntMelee::OnCollisionExit(BaseCollider* other) {
+	Enemy::OnCollisionExit(other);
 }

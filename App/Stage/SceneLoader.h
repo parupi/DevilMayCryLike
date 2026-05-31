@@ -1,11 +1,10 @@
 #pragma once
-#include <fstream>
-#include <nlohmann/json.hpp> 
+#include <string>
+#include <vector>
+#include <optional>
+#include <nlohmann/json.hpp>
 #include <3d/Collider/ColliderStructs.h>
 #include <math/function.h>
-#include <GameObject/Character/Enemy/Enemy.h>
-
-using json = nlohmann::json;
 
 struct EnemySpawnInfo {
     std::string name;
@@ -20,7 +19,7 @@ struct EventCondition {
 struct EventInfo {
     std::string type;
     std::string trigger;
-    std::vector<EnemySpawnInfo> enemies;   // EnemySpawn 用
+    std::vector<EnemySpawnInfo> enemies;    // EnemySpawn 用
     std::vector<EventCondition> conditions; // ClearEvent 用
 };
 
@@ -32,21 +31,16 @@ enum class ColliderType {
 
 struct Collider {
     ColliderType type = ColliderType::None;
-
-    // AABB用
     AABBData aabb;
-
-    // Sphere用
     SphereData sphere;
 };
 
 struct SceneObject {
-    std::string name_;
-    std::string className = "Object3d";
+    std::string name;
+    std::string className    = "Object3d";
     EulerTransform transform;
     std::optional<std::string> fileName;
     std::optional<Collider> collider;
-    std::vector<SceneObject> children;
     std::optional<EventInfo> eventInfo;
 };
 
@@ -54,11 +48,9 @@ struct SceneObject {
 class SceneLoader
 {
 public:
-    // JSONファイルからルートのSceneObject群を読み込む
     static std::vector<SceneObject> Load(const std::string& path);
 
 private:
-    static void ParseObject(const nlohmann::json& json, SceneObject& outObject);
-    static Collider ParseCollider(const nlohmann::json& json);
+    static void ParseObject(const nlohmann::json& j, SceneObject& out);
+    static Collider ParseCollider(const nlohmann::json& j);
 };
-
