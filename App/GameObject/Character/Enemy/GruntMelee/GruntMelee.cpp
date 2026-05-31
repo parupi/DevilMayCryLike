@@ -33,6 +33,8 @@ void GruntMelee::Initialize() {
 	// 武器の生成
 	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
 	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
+	// 武器コライダーカテゴリを設定（プレイヤーへのダメージ判定に使用）
+	CollisionManager::GetInstance()->FindCollider(name_ + "Weapon")->category_ = CollisionCategory::EnemyWeapon;
 
 	auto weapon = std::make_unique<GruntMeleeWeapon>(name_ + "Weapon");
 	weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "Weapon"));
@@ -87,7 +89,20 @@ void GruntMelee::Initialize() {
 }
 
 void GruntMelee::Update(float deltaTime) {
-	weapon_->SetIsDraw(isAttack_);
+	// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
+	weapon_->SetIsDraw(true);
+
+	if (meleeAttack_->IsFinished()) {
+		weapon_->GetWorldTransform()->GetTranslation() = { 0.0f, 0.1f, -0.5f };
+		weapon_->GetWorldTransform()->GetRotation()    = EulerDegree({ 0.0f, 90.0f, 150.0f });
+	}
+
+	// 攻撃フェーズのみ武器コライダーを有効化（予備動作・非攻撃時は無効）
+	bool isAttackPhase = !meleeAttack_->IsFinished() && !meleeAttack_->IsWindingUp();
+	auto* weaponCol = static_cast<AABBCollider*>(weapon_->GetCollider(name_ + "Weapon"));
+	if (weaponCol) {
+		weaponCol->GetColliderData().isActive = isAttackPhase;
+	}
 
 	// 予備動作中にチャージリングを一定間隔で発射
 	if (meleeAttack_->IsWindingUp()) {

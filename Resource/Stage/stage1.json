@@ -361,7 +361,7 @@
         },
         {
             "name": "HellKaina7",
-            "class": "GruntMelee",
+            "class": "BossKnight",
             "transform": {
                 "translation": [
                     0.0,
@@ -374,9 +374,9 @@
                     0.0
                 ],
                 "scaling": [
-                    3.0,
-                    3.0,
-                    3.0
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             },
             "collider": {

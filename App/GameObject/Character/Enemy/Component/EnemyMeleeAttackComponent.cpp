@@ -8,8 +8,8 @@ EnemyMeleeAttackComponent::EnemyMeleeAttackComponent(Object3d* weapon)
 	: weapon_(weapon) {}
 
 void EnemyMeleeAttackComponent::BeginAttack(Enemy& enemy, const MeleeAttackParams& params) {
-	params_   = params;
-	timer_    = 0.0f;
+	params_ = params;
+	timer_ = 0.0f;
 	finished_ = false;
 	enemy.SetIsAttack(true);
 }
@@ -38,7 +38,8 @@ void EnemyMeleeAttackComponent::Update(Enemy& enemy, float deltaTime) {
 		vel.z = 0.0f;
 		enemy.SetVelocity(vel);
 
-	} else {
+	}
+	else {
 		// ── Attack フェーズ ──────────────────────────────────────────
 		float t = (timer_ - params_.windupDuration) / params_.attackDuration;
 		t = std::min(t, 1.0f);

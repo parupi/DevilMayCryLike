@@ -10,9 +10,13 @@ struct PixelShaderOutput
 
 cbuffer VignetteParam : register(b0)
 {
-    float32_t radius;
-    float32_t intensity;
-    float32_t softness;
+    float32_t  radius;
+    float32_t  intensity;
+    float32_t  softness;
+    float32_t  _pad0;
+    // vignetteColor: エッジのブレンド先の色
+    // (0,0,0,0) のときは既存の黒暗転と同じ挙動
+    float32_t4 vignetteColor;
 }
 
 PixelShaderOutput main(VertexShaderOutput input)
@@ -31,9 +35,10 @@ PixelShaderOutput main(VertexShaderOutput input)
     // 強度を適用
     vignette = lerp(1.0f, vignette, intensity);
 
-    // 色に乗算
-    output.color.rgb = texColor.rgb * vignette;
-    output.color.a = texColor.a;
+    // エッジ色とシーン色をブレンド
+    // vignetteColor=(0,0,0) のとき従来の暗転と同じ挙動になる
+    output.color.rgb = lerp(vignetteColor.rgb, texColor.rgb, vignette);
+    output.color.a   = texColor.a;
 
     return output;
 }

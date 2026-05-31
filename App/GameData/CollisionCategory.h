@@ -8,5 +8,6 @@ enum class CollisionCategory {
 	Player,
 	PlayerWeapon,
 	Enemy,
+	EnemyWeapon,
 	Ground,
 };
