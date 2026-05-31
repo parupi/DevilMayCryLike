@@ -1,5 +1,6 @@
 #include "MyGameTitle.h"
 #include <scene/SceneFactory.h>
+#include <GameObjectRegister.h>
 #include <base/Particle/ParticleManager.h>
 #include "offscreen/OffScreenManager.h"
 #include <3d/Primitive/PrimitiveLineDrawer.h>
@@ -42,6 +43,9 @@ void MyGameTitle::Initialize()
 	CameraManager::GetInstance()->Initialize(dxManager.get());
 
 	LightManager::GetInstance()->Initialize(dxManager.get());
+	// 全ゲームオブジェクトクラスをファクトリーに登録
+	RegisterAllGameObjects();
+
 	// 最初のシーンを生成
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	// シーンマネージャーに最初のシーンをセット

@@ -2,6 +2,7 @@
 #include <scene/SceneManager.h>
 #include <scene/Transition/SceneTransitionController.h>
 #include <scene/Transition/TransitionManager.h>
+#include <base/utility/DeltaTime.h>
 
 ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear)
 {
