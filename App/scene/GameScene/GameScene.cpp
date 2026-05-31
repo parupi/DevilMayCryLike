@@ -90,6 +90,7 @@ void GameScene::Initialize() {
 	ParticleManager::GetInstance()->CreateParticleGroup("GameSmoke", "smoke.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect", "white.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("PlayerSlashEffect", "circle.png");
+	ParticleManager::GetInstance()->CreateParticleGroup("EnemyChargeRing", "white.png", PrimitiveType::Ring);
 
 	// スカイボックスを生成
 	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");

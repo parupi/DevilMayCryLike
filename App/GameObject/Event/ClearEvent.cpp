@@ -4,13 +4,11 @@
 #include <scene/Transition/TransitionManager.h>
 #include <base/utility/DeltaTime.h>
 
-ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear)
-{
+ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear) {
 	Object3d::Initialize();
 }
 
-void ClearEvent::Update(float deltaTime)
-{
+void ClearEvent::Update(float deltaTime) {
 	if (currentFrame_ < skipFrames_) {
 		currentFrame_++;
 	}
@@ -44,8 +42,7 @@ void ClearEvent::Update(float deltaTime)
 	}
 }
 
-void ClearEvent::Execute()
-{
+void ClearEvent::Execute() {
 	isClear_ = true;
 
 	CameraManager::GetInstance()->SetActiveCamera("ClearCamera");
@@ -58,7 +55,6 @@ void ClearEvent::Execute()
 	TransitionManager::GetInstance()->SetTransition("Fade");
 }
 
-void ClearEvent::AddTargetEnemy(Enemy* enemy)
-{
+void ClearEvent::AddTargetEnemy(Enemy* enemy) {
 	targetEnemies_.push_back(enemy);
 }

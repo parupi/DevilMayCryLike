@@ -3,332 +3,488 @@
 #include "ParticleEditor.h"
 #include "ParticleManager.h"
 #include "ParticleEmitter.h"
+#include "ParticleGroup.h"
 #include "debuger/GlobalVariables.h"
 #include <imgui.h>
 #include <format>
 #include <Windows.h>
 
+// ─────────────────────────────────────────────────────────────────
+// Initialize / Finalize
+// ─────────────────────────────────────────────────────────────────
+
 void ParticleEditor::Initialize(ParticleManager* manager)
 {
-	manager_ = manager;
-	global_ = GlobalVariables::GetInstance();
+    manager_ = manager;
+    global_  = GlobalVariables::GetInstance();
+
+    ed::Config cfg;
+    cfg.SettingsFile = "ParticleNodeEditor.json";
+    nodeCtx_ = ed::CreateEditor(&cfg);
 }
+
+void ParticleEditor::Finalize()
+{
+    if (nodeCtx_) {
+        ed::DestroyEditor(nodeCtx_);
+        nodeCtx_ = nullptr;
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// Draw  (3 ウィンドウを開く)
+// ─────────────────────────────────────────────────────────────────
 
 void ParticleEditor::Draw()
 {
-	ImGui::Begin("Particle Editor");
-
-	if (ImGui::CollapsingHeader("Particles", ImGuiTreeNodeFlags_DefaultOpen)) 
-	{
-		DrawParticleEditor();
-	}
-
-	if (ImGui::CollapsingHeader("Emitters", ImGuiTreeNodeFlags_DefaultOpen))
-	{
-		DrawEmitterEditor();
-	}
-
-	ImGui::End();
+    DrawParticleWindow();
+    DrawEmitterWindow();
+    DrawNodeGraph();
 }
 
-void ParticleEditor::DrawParticleEditor()
+// ─────────────────────────────────────────────────────────────────
+// ウィンドウ 1 : Particle Groups
+// ─────────────────────────────────────────────────────────────────
+
+void ParticleEditor::DrawParticleWindow()
 {
-	ImGui::Separator();
-	ImGui::Text("Create New Particle");
+    ImGui::SetNextWindowSize(ImVec2(420, 600), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Particle Groups");
 
-	static char newParticleName[64] = "";
-	static char newTexturePath[128] = "";
-
-	ImGui::InputText("Particle Name", newParticleName, IM_ARRAYSIZE(newParticleName));
-	ImGui::InputText("Texture Path", newTexturePath, IM_ARRAYSIZE(newTexturePath));
-
-	if (ImGui::Button("Create Particle"))
-	{
-		if (strlen(newParticleName) > 0)
-		{
-			manager_->CreateParticleGroup(newParticleName, newTexturePath);
-
-			newParticleName[0] = '\0';
-			newTexturePath[0] = '\0';
-		}
-	}
-
+    // ── 新規作成 ─────────────────────────────────────────────────
+    ImGui::Text("Create New Particle Group");
 	ImGui::Separator();
 
-	auto& groups = manager_->GetParticleGroups();
+    static char newName[64]    = "";
+    static char newTex[128]    = "";
+    static int  newShapeIndex  = 0;
 
-	if (groups.empty()) return;
+    const char* shapeLabels[] = { "Plane (Billboard)", "Ring", "Cylinder" };
 
-	// 名前リスト作成
-	std::vector<const char*> names;
-	std::vector<std::string> keys;
+    ImGui::InputText("Name",    newName, IM_ARRAYSIZE(newName));
+    ImGui::InputText("Texture", newTex,  IM_ARRAYSIZE(newTex));
+    ImGui::Combo("Shape", &newShapeIndex, shapeLabels, IM_ARRAYSIZE(shapeLabels));
 
-	for (auto& [name, group] : groups)
-	{
-		names.push_back(name.c_str());
-		keys.push_back(name);
-	}
+    if (ImGui::Button("Create") && strlen(newName) > 0) {
+        PrimitiveType shape = static_cast<PrimitiveType>(newShapeIndex);
+        manager_->CreateParticleGroup(newName, newTex, shape);
+        newName[0] = '\0';
+        newTex[0]  = '\0';
+    }
 
-	ImGui::Combo("Particle Group", &selectedParticleIndex_, names.data(), (int)names.size());
+    // ── グループ一覧 ─────────────────────────────────────────────
+    ImGui::Text("Edit");
+    ImGui::Separator();
 
-	if (selectedParticleIndex_ >= keys.size()) return;
+    auto& groups = manager_->GetParticleGroups();
+    if (groups.empty()) { ImGui::End(); return; }
 
-	const std::string& groupName = keys[selectedParticleIndex_];
+    std::vector<const char*> names;
+    std::vector<std::string> keys;
+    for (auto& [name, _] : groups) {
+        names.push_back(name.c_str());
+        keys.push_back(name);
+    }
 
-	// ===== ここから既存DrawEditor移植 =====
+    if (selectedParticleIndex_ >= (int)keys.size()) selectedParticleIndex_ = 0;
+    ImGui::Combo("Group", &selectedParticleIndex_, names.data(), (int)names.size());
 
-	if (ImGui::TreeNode("Particle Settings"))
-	{
-		// ====== Translate ======
-		Vector3& minTranslate = global_->GetValueRef<Vector3>(groupName, "minTranslate");
-		Vector3& maxTranslate = global_->GetValueRef<Vector3>(groupName, "maxTranslate");
-		if (ImGui::TreeNode("Translate")) {
-			ImGui::DragFloat3("Min Translate", &minTranslate.x, 0.1f);
-			ImGui::DragFloat3("Max Translate", &maxTranslate.x, 0.1f);
-			ImGui::TreePop();
-		}
+    const std::string& gName = keys[selectedParticleIndex_];
 
-		// ====== Rotate ======
-		Vector3& minRotate = global_->GetValueRef<Vector3>(groupName, "minRotate");
-		Vector3& maxRotate = global_->GetValueRef<Vector3>(groupName, "maxRotate");
-		if (ImGui::TreeNode("Rotate")) {
-			ImGui::DragFloat3("Min Rotate", &minRotate.x, 0.1f);
-			ImGui::DragFloat3("Max Rotate", &maxRotate.x, 0.1f);
-			ImGui::TreePop();
-		}
+    // Shape 表示（変更不可：形状はGPUリソースに紐づくため作成時のみ）
+    const char* shapeNames[] = { "Plane", "Ring", "Cylinder" };
+    ImGui::Text("Shape: %s", shapeNames[(int)groups.at(gName).shape]);
 
-		// ====== Scale ======
-		Vector3& minScale = global_->GetValueRef<Vector3>(groupName, "minScale");
-		Vector3& maxScale = global_->GetValueRef<Vector3>(groupName, "maxScale");
-		if (ImGui::TreeNode("Scale")) {
-			ImGui::DragFloat3("Min Scale", &minScale.x, 0.1f);
-			ImGui::DragFloat3("Max Scale", &maxScale.x, 0.1f);
-			ImGui::TreePop();
-		}
+    ImGui::Spacing();
 
-		// ====== Velocity ======
-		Vector3& minVelocity = global_->GetValueRef<Vector3>(groupName, "minVelocity");
-		Vector3& maxVelocity = global_->GetValueRef<Vector3>(groupName, "maxVelocity");
-		if (ImGui::TreeNode("Velocity")) {
-			ImGui::DragFloat3("Min Velocity", &minVelocity.x, 0.1f);
-			ImGui::DragFloat3("Max Velocity", &maxVelocity.x, 0.1f);
-			ImGui::TreePop();
-		}
+    // ── パラメータ ────────────────────────────────────────────────
+    if (ImGui::CollapsingHeader("Transform Range")) {
+        Vector3& minT = global_->GetValueRef<Vector3>(gName, "minTranslate");
+        Vector3& maxT = global_->GetValueRef<Vector3>(gName, "maxTranslate");
+        ImGui::DragFloat3("Min Translate", &minT.x, 0.1f);
+        ImGui::DragFloat3("Max Translate", &maxT.x, 0.1f);
 
-		// ====== LifeTime ======
-		float& minLifeTime = global_->GetValueRef<float>(groupName, "minLifeTime");
-		float& maxLifeTime = global_->GetValueRef<float>(groupName, "maxLifeTime");
-		if (ImGui::TreeNode("LifeTime")) {
-			ImGui::DragFloat("Min LifeTime", &minLifeTime, 0.1f, 0.0f, 9999.0f);
-			ImGui::DragFloat("Max LifeTime", &maxLifeTime, 0.1f, 0.0f, 9999.0f);
-			ImGui::TreePop();
-		}
+        Vector3& minR = global_->GetValueRef<Vector3>(gName, "minRotate");
+        Vector3& maxR = global_->GetValueRef<Vector3>(gName, "maxRotate");
+        ImGui::DragFloat3("Min Rotate", &minR.x, 0.1f);
+        ImGui::DragFloat3("Max Rotate", &maxR.x, 0.1f);
 
-		// ====== Color ======
-		Vector3& minColor = global_->GetValueRef<Vector3>(groupName, "minColor");
-		Vector3& maxColor = global_->GetValueRef<Vector3>(groupName, "maxColor");
-		if (ImGui::TreeNode("Color")) {
-			ImGui::ColorEdit3("Min Color", &minColor.x);
-			ImGui::ColorEdit3("Max Color", &maxColor.x);
-			ImGui::TreePop();
-		}
+        Vector3& minS = global_->GetValueRef<Vector3>(gName, "minScale");
+        Vector3& maxS = global_->GetValueRef<Vector3>(gName, "maxScale");
+        ImGui::DragFloat3("Min Scale", &minS.x, 0.01f);
+        ImGui::DragFloat3("Max Scale", &maxS.x, 0.01f);
+    }
 
-		bool& isBillboard = global_->GetValueRef<bool>(groupName, "IsBillboard");
-		if (ImGui::TreeNode("Billboard")) {
-			ImGui::Checkbox("IsBillboard", &isBillboard);
-			ImGui::TreePop();
-		}
+    if (ImGui::CollapsingHeader("Velocity")) {
+        Vector3& minV = global_->GetValueRef<Vector3>(gName, "minVelocity");
+        Vector3& maxV = global_->GetValueRef<Vector3>(gName, "maxVelocity");
+        ImGui::DragFloat3("Min Velocity", &minV.x, 0.1f);
+        ImGui::DragFloat3("Max Velocity", &maxV.x, 0.1f);
+    }
 
-		ImGui::TreePop();
-	}
+    if (ImGui::CollapsingHeader("Lifetime")) {
+        float& minL = global_->GetValueRef<float>(gName, "minLifeTime");
+        float& maxL = global_->GetValueRef<float>(gName, "maxLifeTime");
+        ImGui::DragFloat("Min LifeTime", &minL, 0.1f, 0.0f, 9999.0f);
+        ImGui::DragFloat("Max LifeTime", &maxL, 0.1f, 0.0f, 9999.0f);
+    }
 
-	// ====== FadeType ======
-	if (ImGui::TreeNode("Fade Settings")) {
+    if (ImGui::CollapsingHeader("Color")) {
+        Vector3& minC = global_->GetValueRef<Vector3>(gName, "minColor");
+        Vector3& maxC = global_->GetValueRef<Vector3>(gName, "maxColor");
+        ImGui::ColorEdit3("Min Color", &minC.x);
+        ImGui::ColorEdit3("Max Color", &maxC.x);
+        bool& billboard = global_->GetValueRef<bool>(gName, "IsBillboard");
+        ImGui::Checkbox("Billboard", &billboard);
+    }
 
-		int& fadeTypeInt = global_->GetValueRef<int>(groupName, "FadeType");
-		const char* fadeTypeNames[] = {
-			"None", "Alpha", "ScaleShrink"
-		};
+    if (ImGui::CollapsingHeader("Fade")) {
+        int& fadeInt = global_->GetValueRef<int>(gName, "FadeType");
+        const char* fadeNames[] = { "None", "Alpha", "ScaleShrink" };
+        ImGui::Combo("Fade Type", &fadeInt, fadeNames, IM_ARRAYSIZE(fadeNames));
+        if (static_cast<FadeType>(fadeInt) == FadeType::ScaleShrink) {
+            float& shrink = global_->GetValueRef<float>(gName, "ShrinkStartRatio");
+            ImGui::SliderFloat("Shrink Start", &shrink, 0.0f, 1.0f);
+        }
+    }
 
-		// コンボで選択
-		ImGui::Combo("Fade Type", &fadeTypeInt, fadeTypeNames, IM_ARRAYSIZE(fadeTypeNames));
+    if (ImGui::CollapsingHeader("Blend Mode")) {
+        int& blend = global_->GetValueRef<int>(gName, "BlendMode");
+        const char* blendNames[] = { "None", "Normal", "Add", "Subtract", "Multiply", "Screen" };
+        ImGui::Combo("Blend", &blend, blendNames, IM_ARRAYSIZE(blendNames));
+    }
 
-		FadeType fadeType = static_cast<FadeType>(fadeTypeInt);
+    ImGui::Spacing();
+    if (ImGui::Button("Save##particle")) {
+        global_->SaveFile("Particle", gName);
+    }
 
-		// フェードタイプごとに個別パラメータを出す
-		switch (fadeType) {
-		case FadeType::Alpha:
-
-			break;
-		case FadeType::ScaleShrink: {
-			// このフェードタイプ専用のパラメータ
-			float& shrinkStart = global_->GetValueRef<float>(groupName, "ShrinkStartRatio");
-
-			ImGui::SliderFloat("Shrink Start Ratio", &shrinkStart, 0.0f, 1.0f);
-			break;
-		}
-		case FadeType::None:
-		default:
-
-			break;
-		}
-		ImGui::TreePop();
-	}
-
-	// ===== Blend Settings =====
-	if (ImGui::TreeNode("Blend Mode")) {
-		int& blendModeInt = global_->GetValueRef<int>(groupName, "BlendMode");
-		const char* blendNames[] = { "None", "Normal", "Add", "Subtract", "Multiply", "Screen" };
-		ImGui::Combo("Blend Mode", &blendModeInt, blendNames, IM_ARRAYSIZE(blendNames));
-		ImGui::TreePop();
-	}
-
-	if (ImGui::Button("Save Particle"))
-	{
-		global_->SaveFile("Particle", groupName);
-	}
+    ImGui::End();
 }
 
-void ParticleEditor::DrawEmitterEditor()
+// ─────────────────────────────────────────────────────────────────
+// ウィンドウ 2 : Emitters
+// ─────────────────────────────────────────────────────────────────
+
+void ParticleEditor::DrawEmitterWindow()
 {
-	// ===== New Emitter Create =====
-	ImGui::Separator();
-	ImGui::Text("Create New Emitter");
+    ImGui::SetNextWindowSize(ImVec2(360, 500), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Emitters");
 
-	static char newEmitterName[64] = "";
+    // ── 新規作成 ─────────────────────────────────────────────────
+    ImGui::Text("Create New Emitter");
+    ImGui::Separator();
 
-	ImGui::InputText("Emitter Name", newEmitterName, IM_ARRAYSIZE(newEmitterName));
+    static char newName[64] = "";
+    ImGui::InputText("Name##em", newName, IM_ARRAYSIZE(newName));
+    if (ImGui::Button("Create##em") && strlen(newName) > 0) {
+        manager_->CreateEmitter(newName);
+        newName[0] = '\0';
+    }
 
-	if (ImGui::Button("Create Emitter"))
-	{
-		if (strlen(newEmitterName) > 0)
-		{
-			manager_->CreateEmitter(newEmitterName);
+    // ── エミッター一覧 ────────────────────────────────────────────
+    ImGui::Text("Edit");
+    ImGui::Separator();
 
-			newEmitterName[0] = '\0';
-		}
-	}
+    auto& emitters = manager_->GetEmitters();
+    if (emitters.empty()) { ImGui::End(); return; }
 
-	ImGui::Separator();
+    std::vector<const char*> names;
+    std::vector<std::string> keys;
+    for (auto& [name, _] : emitters) {
+        names.push_back(name.c_str());
+        keys.push_back(name);
+    }
 
-	auto& emitters = manager_->GetEmitters();
-	if (emitters.empty()) return;
+    if (selectedEmitterIndex_ >= (int)keys.size()) selectedEmitterIndex_ = 0;
+    ImGui::Combo("Emitter", &selectedEmitterIndex_, names.data(), (int)names.size());
 
-	std::vector<const char*> names;
-	std::vector<std::string> keys;
+    const std::string& eName     = keys[selectedEmitterIndex_];
+    ParticleEmitter*   emitterPtr = emitters.at(eName).get();
 
-	for (auto& [name, emitter] : emitters)
-	{
-		names.push_back(name.c_str());
-		keys.push_back(name);
-	}
+    // ── 基本設定 ─────────────────────────────────────────────────
+    if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
+        Vector3& pos  = global_->GetValueRef<Vector3>(eName, "EmitPosition");
+        float&   freq = global_->GetValueRef<float>(eName, "Frequency");
+        int&     cnt  = global_->GetValueRef<int>(eName, "Count");
+        bool&    act  = global_->GetValueRef<bool>(eName, "IsActive");
 
-	ParticleEmitter* emitter_ptr = nullptr;
+        ImGui::DragFloat3("Position",  &pos.x, 0.1f);
+        ImGui::DragFloat("Frequency", &freq, 0.01f, 0.01f, 1000.0f);
+        ImGui::DragInt("Count",       &cnt,  1, 0, 1000);
+        ImGui::Checkbox("Active",     &act);
+    }
 
-	if (selectedEmitterIndex_ < keys.size())
-	{
-		emitter_ptr = emitters.at(keys[selectedEmitterIndex_]).get();
-	}
+    // ── 接続済みパーティクル (count/spawnRate の調整) ──────────────
+    if (ImGui::CollapsingHeader("Connected Particles", ImGuiTreeNodeFlags_DefaultOpen)) {
+        auto& particles = emitterPtr->GetParticles();
 
-	ImGui::Combo("Emitter", &selectedEmitterIndex_, names.data(), (int)names.size());
+        if (particles.empty()) {
+            ImGui::TextDisabled("No particles connected.");
+            ImGui::TextDisabled("Connect via the Node Graph window.");
+        }
 
-	if (selectedEmitterIndex_ >= keys.size()) return;
+        for (int i = 0; i < (int)particles.size(); ++i) {
+            ImGui::PushID(i);
+            ImGui::Separator();
+            ImGui::Text("%s", particles[i].name.c_str());
+            ImGui::DragInt("Count##p",    &particles[i].count,     1, 0, 1000);
+            ImGui::DragFloat("Rate##p",   &particles[i].spawnRate, 0.01f, 0.0f, 10.0f);
+            if (ImGui::SmallButton("Remove")) {
+                emitterPtr->RemoveParticle(i);
+                ImGui::PopID();
+                break;
+            }
+            ImGui::PopID();
+        }
+    }
 
-	const std::string& emitterName = keys[selectedEmitterIndex_];
+    ImGui::Spacing();
 
-	if (ImGui::TreeNode("Emitter Settings"))
-	{
-		Vector3& emitPos = global_->GetValueRef<Vector3>(emitterName, "EmitPosition");
-		ImGui::DragFloat3("Emit Position", &emitPos.x, 0.1f);
+    if (ImGui::Button("Emit Now")) {
+        global_->SetValue(eName, "EmitAll", true);
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Save##em")) {
+        emitterPtr->Save("Resource/Emitter/" + eName + ".json");
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Load##em")) {
+        emitterPtr->Load("Resource/Emitter/" + eName + ".json");
+    }
 
-		float& frequency = global_->GetValueRef<float>(emitterName, "Frequency");
-		ImGui::DragFloat("Frequency", &frequency, 0.01f, 0.01f, 1000.0f);
+    ImGui::End();
+}
 
-		int& count = global_->GetValueRef<int>(emitterName, "Count");
-		ImGui::DragInt("Count", &count, 1, 0, 1000);
+// ─────────────────────────────────────────────────────────────────
+// ウィンドウ 3 : Node Graph
+// ─────────────────────────────────────────────────────────────────
 
-		bool& isActive = global_->GetValueRef<bool>(emitterName, "IsActive");
-		ImGui::Checkbox("Is Active", &isActive);
+void ParticleEditor::DrawNodeGraph()
+{
+    auto& emitters = manager_->GetEmitters();
+    auto& groups   = manager_->GetParticleGroups();
 
-		ImGui::TreePop();
-	}
+    // ID をあらかじめ確保
+    for (auto& [name, _] : emitters) GetOrCreateEmitterNodeId(name);
+    for (auto& [name, _] : groups)   GetOrCreateParticleNodeId(name);
 
-	if (ImGui::TreeNode("Particles")) {
+    ImGui::SetNextWindowSize(ImVec2(900, 600), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Particle Node Graph")) {
+        // ウィンドウが折りたたまれているときは ed::Begin/End を呼ばずに終了
+        ImGui::End();
+        return;
+    }
+    ImGui::TextDisabled("Drag from Emitter [OUT] pin to Particle [IN] pin to connect. Right-click link to delete.");
+    ImGui::Spacing();
 
-		auto& particles = emitter_ptr->GetParticles();
+    ed::SetCurrentEditor(nodeCtx_);
+    ed::Begin("particle_graph", ImVec2(0, 0));
 
-		for (int i = 0; i < particles.size(); ++i)
-		{
-			ImGui::PushID(i);
+    // ── Emitter ノード ────────────────────────────────────────────
+    float emitterY = 20.0f;
+    for (auto& [emName, emitter] : emitters) {
+        uintptr_t nodeId = emitterNodeIds_.at(emName);
+        uintptr_t outPin = OutputPinId(nodeId);
 
-			ImGui::Separator();
+        if (firstFrame_) {
+            ed::SetNodePosition(ed::NodeId(nodeId), ImVec2(50.0f, emitterY));
+            emitterY += 140.0f;
+        }
 
-			ImGui::Text("Particle: %s", particles[i].name.c_str());
+        ed::PushStyleColor(ed::StyleColor_NodeBg,     ImColor(180, 100, 30, 220));
+        ed::PushStyleColor(ed::StyleColor_NodeBorder,  ImColor(220, 140, 60, 255));
+        ed::BeginNode(ed::NodeId(nodeId));
 
-			ImGui::DragInt("Count", &particles[i].count, 1, 0, 1000);
-			ImGui::DragFloat("SpawnRate", &particles[i].spawnRate, 0.01f, 0.0f, 10.0f);
+        ImGui::Text("[ Emitter ]");
+        ImGui::Text("%s", emName.c_str());
 
-			if (ImGui::Button("Remove"))
-			{
-				emitter_ptr->RemoveParticle(i);
-				ImGui::PopID();
-				break;
-			}
+        auto& particles = emitter.get()->GetParticles();
+        ImGui::TextDisabled("%d particle(s)", (int)particles.size());
 
-			ImGui::PopID();
-		}
+        ImGui::SameLine();
 
-		const auto& groups = manager_->GetParticleGroups();
-		ImGui::Separator();
-		ImGui::Text("Add Particle");
+        // Output pin
+        ed::BeginPin(ed::PinId(outPin), ed::PinKind::Output);
+        ImGui::Text("OUT >");
+        ed::EndPin();
 
-		static int selectedIndex = 0;
+        ed::EndNode();
+        ed::PopStyleColor(2);
+    }
 
-		std::vector<const char*> names;
-		std::vector<std::string> keys;
+    // ── Particle Group ノード ─────────────────────────────────────
+    float particleY = 20.0f;
+    const char* shapeLabels[] = { "Plane", "Ring", "Cylinder" };
+    for (auto& [pgName, group] : groups) {
+        uintptr_t nodeId = particleNodeIds_.at(pgName);
+        uintptr_t inPin  = InputPinId(nodeId);
 
-		for (auto& [name, group] : groups)
-		{
-			names.push_back(name.c_str());
-			keys.push_back(name);
-		}
+        if (firstFrame_) {
+            ed::SetNodePosition(ed::NodeId(nodeId), ImVec2(500.0f, particleY));
+            particleY += 120.0f;
+        }
 
-		ImGui::Combo("Particle", &selectedIndex, names.data(), (int)names.size());
+        ed::PushStyleColor(ed::StyleColor_NodeBg,    ImColor(30, 80, 180, 220));
+        ed::PushStyleColor(ed::StyleColor_NodeBorder, ImColor(60, 140, 220, 255));
+        ed::BeginNode(ed::NodeId(nodeId));
 
-		if (ImGui::Button("Add"))
-		{
-			emitter_ptr->AddParticle(keys[selectedIndex]);
-		}
+        // Input pin
+        ed::BeginPin(ed::PinId(inPin), ed::PinKind::Input);
+        ImGui::Text("< IN");
+        ed::EndPin();
 
-		ImGui::TreePop();
+        ImGui::SameLine();
+        ImGui::Text("[ Particle Group ]");
+        ImGui::Text("%s", pgName.c_str());
+        ImGui::TextDisabled("Shape: %s", shapeLabels[(int)group.shape]);
 
-		ImGui::Separator();
+        ed::EndNode();
+        ed::PopStyleColor(2);
+    }
 
-		if (ImGui::Button("Save Emitter"))
-		{
-			emitter_ptr->Save("Resource/Emitter/" + emitterName + ".json");
-		}
+    // ── リンク描画 ────────────────────────────────────────────────
+    for (auto& [emName, emitter] : emitters) {
+        if (!emitterNodeIds_.count(emName)) continue;
+        uintptr_t outPin = OutputPinId(emitterNodeIds_.at(emName));
 
-		ImGui::SameLine();
+        for (auto& ep : emitter.get()->GetParticles()) {
+            if (!particleNodeIds_.count(ep.name)) continue;
+            uintptr_t inPin  = InputPinId(particleNodeIds_.at(ep.name));
+            uintptr_t linkId = GetOrCreateLinkId(emName, ep.name);
 
-		if (ImGui::Button("Load Emitter"))
-		{
-			emitter_ptr->Load("Resource/Emitter/" + emitterName + ".json");
-		}
-	}
+            ed::Link(ed::LinkId(linkId), ed::PinId(outPin), ed::PinId(inPin),
+                     ImColor(255, 200, 50, 255), 2.0f);
+        }
+    }
 
-	ImGui::Separator();
+    // ── 新規リンク作成 ────────────────────────────────────────────
+    // Begin() 内部で m_InActive=true が無条件に設定されるため
+    // 戻り値に関わらず EndCreate() を必ず呼ぶ必要がある
+    ed::BeginCreate(ImColor(255, 255, 255, 255), 2.0f);
+    {
+        ed::PinId startPin, endPin;
+        if (ed::QueryNewLink(&startPin, &endPin)) {
+            uintptr_t startId = startPin.Get();
+            uintptr_t endId   = endPin.Get();
 
-	bool& emitAll = global_->GetValueRef<bool>(emitterName, "EmitAll");
-	if (ImGui::Button("Emit Now"))
-	{
-		emitAll = true;
-	}
+            // ピンの向きを正規化（input→output でドラッグされた場合に対応）
+            if (IsInputPin(startId) && IsOutputPin(endId)) std::swap(startId, endId);
 
-	if (ImGui::Button("Save Emitter"))
-	{
-		global_->SaveFile("Particle", emitterName);
-	}
+            if (IsOutputPin(startId) && IsInputPin(endId)) {
+                std::string emName = EmitterNameFromOutputPin(startId);
+                std::string pgName = ParticleNameFromInputPin(endId);
+
+                // 既に接続済みかチェック
+                bool alreadyConnected = false;
+                if (emitters.count(emName)) {
+                    for (auto& ep : emitters.at(emName).get()->GetParticles()) {
+                        if (ep.name == pgName) { alreadyConnected = true; break; }
+                    }
+                }
+
+                if (!emName.empty() && !pgName.empty() && !alreadyConnected) {
+                    if (ed::AcceptNewItem(ImColor(0, 255, 128, 255), 2.0f)) {
+                        emitters.at(emName).get()->AddParticle(pgName);
+                    }
+                } else {
+                    ed::RejectNewItem(ImColor(255, 80, 80, 255), 2.0f);
+                }
+            } else {
+                ed::RejectNewItem(ImColor(255, 80, 80, 255), 2.0f);
+            }
+        }
+    }
+    ed::EndCreate(); // 常に呼ぶ
+
+    // ── リンク削除 ────────────────────────────────────────────────
+    // BeginDelete() も同様に m_InActive を無条件設定するため常に EndDelete() を呼ぶ
+    ed::BeginDelete();
+    {
+        ed::LinkId deletedId;
+        while (ed::QueryDeletedLink(&deletedId)) {
+            if (ed::AcceptDeletedItem(true)) {
+                uintptr_t rawId = deletedId.Get();
+                for (auto it = linkIds_.begin(); it != linkIds_.end(); ++it) {
+                    if (it->second != rawId) continue;
+
+                    const std::string& emName = it->first.first;
+                    const std::string& pgName = it->first.second;
+
+                    if (emitters.count(emName)) {
+                        auto& ep = emitters.at(emName).get()->GetParticles();
+                        for (size_t i = 0; i < ep.size(); ++i) {
+                            if (ep[i].name == pgName) {
+                                emitters.at(emName).get()->RemoveParticle(i);
+                                break;
+                            }
+                        }
+                    }
+                    linkIds_.erase(it);
+                    break;
+                }
+            }
+        }
+    }
+    ed::EndDelete(); // 常に呼ぶ
+
+    ed::End();
+    ed::SetCurrentEditor(nullptr);
+
+    firstFrame_ = false;
+
+    ImGui::End();
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ID ヘルパー
+// ─────────────────────────────────────────────────────────────────
+
+uintptr_t ParticleEditor::GetOrCreateEmitterNodeId(const std::string& name)
+{
+    auto it = emitterNodeIds_.find(name);
+    if (it != emitterNodeIds_.end()) return it->second;
+
+    uintptr_t id = nextNodeId_++;
+    emitterNodeIds_[name]       = id;
+    nodeIdToEmitterName_[id]    = name;
+    return id;
+}
+
+uintptr_t ParticleEditor::GetOrCreateParticleNodeId(const std::string& name)
+{
+    auto it = particleNodeIds_.find(name);
+    if (it != particleNodeIds_.end()) return it->second;
+
+    uintptr_t id = nextNodeId_++;
+    particleNodeIds_[name]       = id;
+    nodeIdToParticleName_[id]    = name;
+    return id;
+}
+
+uintptr_t ParticleEditor::GetOrCreateLinkId(const std::string& emitterName, const std::string& particleName)
+{
+    auto key = std::make_pair(emitterName, particleName);
+    auto it  = linkIds_.find(key);
+    if (it != linkIds_.end()) return it->second;
+
+    uintptr_t id = nextLinkId_++;
+    linkIds_[key] = id;
+    return id;
+}
+
+std::string ParticleEditor::EmitterNameFromOutputPin(uintptr_t pinId) const
+{
+    uintptr_t nodeId = pinId - 100000;
+    auto it = nodeIdToEmitterName_.find(nodeId);
+    return (it != nodeIdToEmitterName_.end()) ? it->second : "";
+}
+
+std::string ParticleEditor::ParticleNameFromInputPin(uintptr_t pinId) const
+{
+    uintptr_t nodeId = pinId - 200000;
+    auto it = nodeIdToParticleName_.find(nodeId);
+    return (it != nodeIdToParticleName_.end()) ? it->second : "";
 }
 
 #endif

@@ -65,7 +65,7 @@ void GruntMelee::Initialize() {
 
 	currentState_ = states_[GruntMeleeStateName::Patrol].get();
 
-	// パーティクル
+	// パーティクル: ヒットエフェクト
 	ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
 	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
 	emitter_ = emitters.at(name_ + "HitEffect").get();
@@ -73,6 +73,12 @@ void GruntMelee::Initialize() {
 	emitter_->AddParticle("EnemyDamageEffect");
 	emitter_->AddParticle("PlayerSlashEffect");
 	emitter_->SetActiveFlag(false);
+
+	// パーティクル: チャージエフェクト（予備動作中に収束するリング）
+	ParticleManager::GetInstance()->CreateEmitter(name_ + "ChargeEffect");
+	chargeEmitter_ = ParticleManager::GetInstance()->GetEmitters().at(name_ + "ChargeEffect").get();
+	chargeEmitter_->SetParent(GetWorldTransform());
+	chargeEmitter_->AddParticle("EnemyChargeRing");
 
 	Enemy::Initialize();
 
@@ -82,6 +88,18 @@ void GruntMelee::Initialize() {
 
 void GruntMelee::Update(float deltaTime) {
 	weapon_->SetIsDraw(isAttack_);
+
+	// 予備動作中にチャージリングを一定間隔で発射
+	if (meleeAttack_->IsWindingUp()) {
+		chargeEmitTimer_ += deltaTime;
+		if (chargeEmitTimer_ >= kChargeEmitInterval) {
+			chargeEmitter_->Emit();
+			chargeEmitTimer_ = 0.0f;
+		}
+	} else {
+		chargeEmitTimer_ = 0.0f;
+	}
+
 	Enemy::Update(deltaTime);
 }
 

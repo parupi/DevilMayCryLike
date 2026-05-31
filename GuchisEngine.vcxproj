@@ -231,6 +231,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\Object\Renderer\ModelRenderer.h" />
     <ClInclude Include="Engine\3d\Object\Renderer\PrimitiveFactory.h" />
     <ClInclude Include="Engine\3d\Object\Renderer\PrimitiveRenderer.h" />
+    <ClInclude Include="Engine\3d\Object\Renderer\PrimitiveType.h" />
     <ClInclude Include="Engine\3d\Object\Renderer\RendererManager.h" />
     <ClInclude Include="Engine\3d\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="Engine\3d\SkySystem\SkySystem.h" />
