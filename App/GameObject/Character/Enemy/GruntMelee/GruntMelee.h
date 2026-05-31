@@ -27,10 +27,14 @@ public:
     void OnCollisionExit(BaseCollider* other) override;
 
 private:
-    GruntMeleeWeapon* weapon_  = nullptr;
-    ParticleEmitter*  emitter_ = nullptr;
+    GruntMeleeWeapon* weapon_        = nullptr;
+    ParticleEmitter*  emitter_       = nullptr;
+    ParticleEmitter*  chargeEmitter_ = nullptr;
 
-    std::unique_ptr<EnemySensorComponent>     sensor_;
-    std::unique_ptr<EnemyMovementComponent>   movement_;
+    float chargeEmitTimer_ = 0.0f;
+    static constexpr float kChargeEmitInterval = 0.1f;
+
+    std::unique_ptr<EnemySensorComponent>      sensor_;
+    std::unique_ptr<EnemyMovementComponent>    movement_;
     std::unique_ptr<EnemyMeleeAttackComponent> meleeAttack_;
 };

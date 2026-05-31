@@ -4,11 +4,7 @@
 #include <3d/Camera/CameraManager.h>
 #include "3d/Camera/BaseCamera.h"
 
-enum class PrimitiveType {
-    Plane,
-    Ring,
-    Cylinder
-};
+#include "PrimitiveType.h"
 
 class PrimitiveRenderer : public BaseRenderer {
 public:

@@ -3,6 +3,7 @@
 #include "math/Vector2.h"
 #include "math/Vector3.h"
 #include "Particle.h"
+#include "3d/Object/Renderer/PrimitiveType.h"
 
 struct ParticleParameters {
 	Vector2 translateX;
@@ -27,4 +28,5 @@ struct ParticleGroup
 {
 	std::vector<Particle> particles;
 	ParticleParameters params;
+	PrimitiveType shape = PrimitiveType::Plane;
 };

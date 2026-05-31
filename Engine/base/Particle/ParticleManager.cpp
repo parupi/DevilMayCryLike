@@ -53,6 +53,13 @@ void ParticleManager::Finalize()
 	// カメラへの参照も解放（ただし所有権はない）
 	camera_ = nullptr;
 
+#ifdef _DEBUG
+	if (editor_) {
+		editor_->Finalize();
+		editor_.reset();
+	}
+#endif
+
 	// 外部への参照も切っておく（所有権は持っていないのでdeleteはしない）
 	dxManager_ = nullptr;
 	srvManager_ = nullptr;
@@ -165,7 +172,9 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 		return;
 	}
 
-	particleGroups_.emplace(name, ParticleGroup{});
+	ParticleGroup group{};
+	group.shape = shape;
+	particleGroups_.emplace(name, std::move(group));
 
 	RegisterEditorParameters(name);
 	CreateParticleGPU(name, shape);

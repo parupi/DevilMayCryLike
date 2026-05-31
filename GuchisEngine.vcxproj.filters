@@ -588,6 +588,9 @@
     <ClInclude Include="Engine\3d\Object\Renderer\PrimitiveRenderer.h">
       <Filter>Engine\3d\Object\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3d\Object\Renderer\PrimitiveType.h">
+      <Filter>Engine\3d\Object\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\3d\Object\Renderer\RendererManager.h">
       <Filter>Engine\3d\Object\Renderer</Filter>
     </ClInclude>
