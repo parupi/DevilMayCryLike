@@ -15,6 +15,8 @@
 #include <GameObject/Effect/HitStop.h>
 //#include "State/Attack/AttackBranchUI.h"
 #include "StateMachine/PlayerStateMachine.h"
+#include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Effect/HitVignetteEffect.h"
 //#include "Movement/PlayerMovement.h"
 //#include "Collision/PlayerCollider.h"
 //#include "Collision/PlayerCollisionResolver.h"
@@ -137,6 +139,12 @@ public:
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
+	// 被ダメージ処理
+	void TakeDamage(const DamageInfo& info);
+	const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
+
+	float GetHp() const { return hp_; }
+
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
@@ -170,4 +178,13 @@ private:
 	const float moveSpeed_ = 10.0f;
 	// 回転速度
 	const float rotateSpeed_ = 5.0f;
+
+	// HP
+	float hp_ = 5.0f;
+	// 無敵時間（被弾直後の連続ヒット防止）
+	float invincibleTimer_ = 0.0f;
+	// 被ダメージ情報（ノックバックステートで参照）
+	DamageInfo pendingDamageInfo_;
+	// 被弾時のビネットエフェクト
+	std::unique_ptr<HitVignetteEffect> hitVignette_;
 };

@@ -25,6 +25,12 @@
     <Filter Include="App\GameObject\Character\Enemy\BaseState">
       <UniqueIdentifier>{5A318708-46AE-7A4B-6F2B-7B5F5B0717DF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\BossKnight">
+      <UniqueIdentifier>{BA31D99A-264C-3C3C-6F6E-4CD0DBC76343}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\BossKnight\State">
+      <UniqueIdentifier>{8AC4CBE0-F6FF-2BA4-FFF4-A8336BAFB0D4}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Character\Enemy\Component">
       <UniqueIdentifier>{310D60B6-1D8A-53F9-4607-540D32E3EF8C}</UniqueIdentifier>
     </Filter>
@@ -252,6 +258,27 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h">
       <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClInclude>
@@ -360,6 +387,9 @@
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateJump.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateKnockBack.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
@@ -367,6 +397,9 @@
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitVignetteEffect.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
@@ -863,6 +896,27 @@
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClCompile>
@@ -962,6 +1016,9 @@
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateJump.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateKnockBack.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
@@ -969,6 +1026,9 @@
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitVignetteEffect.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">

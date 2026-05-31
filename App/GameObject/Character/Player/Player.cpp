@@ -14,6 +14,7 @@
 #include "scene/Transition/TransitionManager.h"
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
+#include "State/PlayerStateKnockBack.h"
 #include "Controller/PlayerInput.h"
 #include "2d/SpriteManager.h"
 
@@ -41,6 +42,7 @@ Player::Player(std::string objectNama) : Object3d(objectNama) {
 	stateMachine_->AddState("Air", std::make_unique<PlayerStateAir>());
 	stateMachine_->AddState("Death", std::make_unique<PlayerStateDeath>());
 	stateMachine_->AddState("Clear", std::make_unique<PlayerStateClear>());
+	stateMachine_->AddState("Knockback", std::make_unique<PlayerStateKnockBack>());
 }
 
 void Player::Initialize() {
@@ -77,6 +79,9 @@ void Player::Initialize() {
 	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
 
 	hitStop_ = std::make_unique<HitStop>();
+
+	hitVignette_ = std::make_unique<HitVignetteEffect>();
+	hitVignette_->Initialize();
 }
 
 void Player::Update(float deltaTime) {
@@ -92,9 +97,22 @@ void Player::Update(float deltaTime) {
 
 	LockOn();
 
+	// 無敵時間のカウントダウン
+	if (invincibleTimer_ > 0.0f) {
+		invincibleTimer_ -= dt;
+	}
+
+	// 被弾ビネットの更新
+	hitVignette_->Update(dt);
+
 	weapon_->Update(dt);
-	// 攻撃中でないならステートを更新する
-	if (!combat_->IsAttacking()) {
+
+	// ノックバック中は戦闘状態に関わらず常にステートを更新する
+	bool isKnockbackState = (stateMachine_->GetCurrentState() &&
+	                         std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
+	if (isKnockbackState) {
+		stateMachine_->UpdateCurrentState(*this, dt);
+	} else if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this, dt);
 	}
 	combat_->Update(dt);
@@ -155,7 +173,10 @@ void Player::ChangeState(const std::string& stateName) {
 }
 
 void Player::ExecuteCommand(const PlayerCommand& command) {
-	// ステートの更新
+	// デス状態では全コマンドを無視する
+	auto* cur = stateMachine_->GetCurrentState();
+	if (cur && std::string(cur->GetDebugName()) == "Death") return;
+
 	if (!combat_->IsAttacking()) {
 		stateMachine_->ExecuteCommand(*this, command);
 	}
@@ -229,7 +250,57 @@ void Player::LockOn() {
 	}
 }
 
+void Player::TakeDamage(const DamageInfo& info)
+{
+	// デス状態・無敵時間中は被ダメージなし
+	auto* cur = stateMachine_->GetCurrentState();
+	if (cur && std::string(cur->GetDebugName()) == "Death") return;
+	if (invincibleTimer_ > 0.0f) return;
+
+	hp_ -= info.damage;
+	invincibleTimer_ = 1.2f;
+
+	pendingDamageInfo_ = info;
+
+	// 被弾ビネットフラッシュ
+	hitVignette_->Play();
+
+	// 攻撃を強制中断
+	combat_->InterruptCombat();
+
+	if (hp_ <= 0.0f) {
+		ChangeState("Death");
+		hitVignette_->Stop();
+	} else {
+		stateMachine_->ChangeState(*this, "Knockback");
+	}
+}
+
 void Player::OnCollisionEnter(BaseCollider* other) {
+	// 敵の武器に当たったら被ダメージ
+	if (other->category_ == CollisionCategory::EnemyWeapon) {
+		if (!other->owner_) return;
+
+		Vector3 weaponPos = other->owner_->GetWorldTransform()->GetTranslation();
+		Vector3 playerPos = GetWorldTransform()->GetTranslation();
+		Vector3 dir = playerPos - weaponPos;
+		dir.y = 0.0f;
+		dir = (Length(dir) > 0.001f) ? Normalize(dir) : Vector3{ 0.0f, 0.0f, -1.0f };
+
+		DamageInfo info;
+		info.damage       = 1.0f;
+		info.direction    = dir;
+		info.type         = ReactionType::Knockback;
+		info.impulseForce = 15.0f;
+		info.upwardRatio  = 0.4f;
+		info.stunTime     = 0.7f;
+		info.hitPosition  = playerPos;
+		info.attackerPosition = weaponPos;
+
+		TakeDamage(info);
+		return;
+	}
+
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
 
 		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));

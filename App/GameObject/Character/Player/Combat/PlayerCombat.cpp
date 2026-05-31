@@ -79,6 +79,15 @@ void PlayerCombat::Draw() {
 	}
 }
 
+void PlayerCombat::InterruptCombat() {
+	for (auto* state : currentState_) {
+		state->Exit(*player_);
+	}
+	currentState_.clear();
+	waitingForNextCombo_ = false;
+	comboResetTimer_ = 0.0f;
+}
+
 void PlayerCombat::AddState(const std::string& stateName) {
 	// 攻撃中でなければそのまま遷移
 	if (currentState_.empty()) {
