@@ -1,9 +1,4 @@
 #include "GameScene.h"
-#include "Scene/Object3dFactory.h"
-#include "GameObject/Character/Enemy/Hellkaina/Hellkaina.h"
-#include "GameObject/Character/Enemy/GruntMelee/GruntMelee.h"
-#include "GameObject/Character/Player/Player.h"
-#include "GameObject/Ground/Ground.h"
 #include "Graphics/Resource/TextureManager.h"
 #include "base/Particle/ParticleManager.h"
 #include "debuger/ImGuiManager.h"
@@ -27,14 +22,10 @@
 #include "State/GameSceneStateMenu.h"
 #include "State/GameSceneStateStart.h"
 #include "State/GameSceneStateClear.h"
+#include <GameObject/Character/Enemy/Enemy.h>
+#include "3d/Object/Object3dManager.h"
 
 void GameScene::Initialize() {
-	// オブジェクト生成クラスの登録
-	Object3dFactory::Register("Player",   [](const std::string& n){ return std::make_unique<Player>(n); });
-	Object3dFactory::Register("HellKaina",  [](const std::string& n){ return std::make_unique<Hellkaina>(n); });
-	Object3dFactory::Register("GruntMelee", [](const std::string& n){ return std::make_unique<GruntMelee>(n); });
-	Object3dFactory::Register("Ground",   [](const std::string& n){ return std::make_unique<Ground>(n); });
-
 	// ステートの生成
 	states_["Start"] = std::make_unique<GameSceneStateStart>();
 	states_["Play"] = std::make_unique<GameSceneStatePlay>();
@@ -88,6 +79,8 @@ void GameScene::Initialize() {
 	TextureManager::GetInstance()->LoadTexture("UI/SticDown.png");
 	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
 	TextureManager::GetInstance()->LoadTexture("circle.png");
+	TextureManager::GetInstance()->LoadTexture("smoke.png");
+	TextureManager::GetInstance()->LoadTexture("white.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");

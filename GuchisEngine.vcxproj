@@ -176,6 +176,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
+    <ClInclude Include="App\GameObjectRegister.h" />
     <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="App\Input\InputContext.h" />
     <ClInclude Include="App\Input\LockOnInput.h" />
@@ -233,6 +234,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\3d\Object\Renderer\RendererManager.h" />
     <ClInclude Include="Engine\3d\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="Engine\3d\SkySystem\SkySystem.h" />
+    <ClInclude Include="Engine\3d\Trail\WeaponTrail.h" />
     <ClInclude Include="Engine\3d\WorldTransform.h" />
     <ClInclude Include="Engine\Graphics\Device\CommandContext.h" />
     <ClInclude Include="Engine\Graphics\Device\DirectXManager.h" />
@@ -256,7 +258,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Resource\TextureManager.h" />
     <ClInclude Include="Engine\audio\Audio.h" />
     <ClInclude Include="Engine\base\Logger.h" />
-    <ClInclude Include="Engine\3d\Trail\WeaponTrail.h" />
     <ClInclude Include="Engine\base\Particle\InstanceData.h" />
     <ClInclude Include="Engine\base\Particle\Particle.h" />
     <ClInclude Include="Engine\base\Particle\ParticleEditor.h" />
@@ -376,6 +377,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
+    <ClCompile Include="App\GameObjectRegister.cpp" />
     <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="App\Input\InputContext.cpp" />
     <ClCompile Include="App\Input\LockOnInput.cpp" />
@@ -424,6 +426,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\3d\Object\Renderer\RendererManager.cpp" />
     <ClCompile Include="Engine\3d\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="Engine\3d\SkySystem\SkySystem.cpp" />
+    <ClCompile Include="Engine\3d\Trail\WeaponTrail.cpp" />
     <ClCompile Include="Engine\3d\WorldTransform.cpp" />
     <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp" />
     <ClCompile Include="Engine\Graphics\Device\DirectXManager.cpp" />
@@ -445,7 +448,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp" />
     <ClCompile Include="Engine\audio\Audio.cpp" />
     <ClCompile Include="Engine\base\Logger.cpp" />
-    <ClCompile Include="Engine\3d\Trail\WeaponTrail.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\base\Particle\ParticleManager.cpp" />

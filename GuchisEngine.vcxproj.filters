@@ -118,9 +118,6 @@
     <Filter Include="Engine\3d\Camera">
       <UniqueIdentifier>{397A8D3D-2573-AC8F-4EA5-91143AFD8B9B}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Engine\3d\Trail">
-      <UniqueIdentifier>{B7F2A3C1-9D4E-4B8F-A1C2-3E5F7A9B0D2C}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Engine\3d\Collider">
       <UniqueIdentifier>{BEECA80A-AAD0-6960-1331-64B3FF3354E2}</UniqueIdentifier>
     </Filter>
@@ -150,6 +147,9 @@
     </Filter>
     <Filter Include="Engine\3d\SkySystem">
       <UniqueIdentifier>{6C5F14A6-D8C0-F1B3-612E-3866CD8E2873}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\3d\Trail">
+      <UniqueIdentifier>{4C5F96F3-B8EA-03B8-C1FB-86AC2D0660B8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Graphics">
       <UniqueIdentifier>{7B960115-E721-6FD9-F032-F2CD5C3DCBD9}</UniqueIdentifier>
@@ -423,6 +423,9 @@
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObjectRegister.h">
+      <Filter>App</Filter>
+    </ClInclude>
     <ClInclude Include="App\Input\CameraInput.h">
       <Filter>App\Input</Filter>
     </ClInclude>
@@ -594,6 +597,9 @@
     <ClInclude Include="Engine\3d\SkySystem\SkySystem.h">
       <Filter>Engine\3d\SkySystem</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\3d\Trail\WeaponTrail.h">
+      <Filter>Engine\3d\Trail</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\3d\WorldTransform.h">
       <Filter>Engine\3d</Filter>
     </ClInclude>
@@ -662,9 +668,6 @@
     </ClInclude>
     <ClInclude Include="Engine\base\Logger.h">
       <Filter>Engine\base</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\3d\Trail\WeaponTrail.h">
-      <Filter>Engine\3d\Trail</Filter>
     </ClInclude>
     <ClInclude Include="Engine\base\Particle\InstanceData.h">
       <Filter>Engine\base\Particle</Filter>
@@ -1019,6 +1022,9 @@
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObjectRegister.cpp">
+      <Filter>App</Filter>
+    </ClCompile>
     <ClCompile Include="App\Input\CameraInput.cpp">
       <Filter>App\Input</Filter>
     </ClCompile>
@@ -1163,6 +1169,9 @@
     <ClCompile Include="Engine\3d\SkySystem\SkySystem.cpp">
       <Filter>Engine\3d\SkySystem</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\3d\Trail\WeaponTrail.cpp">
+      <Filter>Engine\3d\Trail</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\3d\WorldTransform.cpp">
       <Filter>Engine\3d</Filter>
     </ClCompile>
@@ -1225,9 +1234,6 @@
     </ClCompile>
     <ClCompile Include="Engine\base\Logger.cpp">
       <Filter>Engine\base</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\3d\Trail\WeaponTrail.cpp">
-      <Filter>Engine\3d\Trail</Filter>
     </ClCompile>
     <ClCompile Include="Engine\base\Particle\ParticleEditor.cpp">
       <Filter>Engine\base\Particle</Filter>
