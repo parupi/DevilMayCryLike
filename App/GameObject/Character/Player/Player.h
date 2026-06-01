@@ -13,15 +13,10 @@
 #include <GameData/Score/StylishScoreManager.h>
 #include <2d/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
-//#include "State/Attack/AttackBranchUI.h"
 #include "StateMachine/PlayerStateMachine.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "GameObject/Effect/HitVignetteEffect.h"
-//#include "Movement/PlayerMovement.h"
-//#include "Collision/PlayerCollider.h"
-//#include "Collision/PlayerCollisionResolver.h"
 #include "Combat/PlayerCombat.h"
-//#include "GameObject/Effect/HitStopComponent.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 
 class PlayerInput;
@@ -63,6 +58,8 @@ public:
 	/// 攻撃時エフェクトやヒット演出などを描画する。
 	/// </summary>
 	void DrawEffect();
+	// UI描画処理
+	void DrawUI();
 
 	/// <summary>
 	/// 衝突開始時の処理  
@@ -143,7 +140,7 @@ public:
 	void TakeDamage(const DamageInfo& info);
 	const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
 
-	float GetHp() const { return hp_; }
+	int32_t GetHp() const { return hp_; }
 
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
@@ -172,15 +169,18 @@ private:
 	bool onGround_ = false;
 	// ロックオン時のレティクル
 	Sprite* reticle_;
+	// HPのハートのスプライト
+	std::vector<Sprite*> hearts_;
 	// 1フレームの移動距離を保持
 	Vector3 moveVector_;
 	// 移動速度
 	const float moveSpeed_ = 10.0f;
 	// 回転速度
 	const float rotateSpeed_ = 5.0f;
-
+	// 最大HP
+	int32_t maxHp_ = 5;
 	// HP
-	float hp_ = 5.0f;
+	int32_t hp_ = 5;
 	// 無敵時間（被弾直後の連続ヒット防止）
 	float invincibleTimer_ = 0.0f;
 	// 被ダメージ情報（ノックバックステートで参照）

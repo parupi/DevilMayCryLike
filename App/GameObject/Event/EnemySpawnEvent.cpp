@@ -29,7 +29,8 @@ void EnemySpawnEvent::Execute()
 {
 	isTriggered_ = true;
 	for (auto& enemy : enemies_) {
-		enemy->SetActive(true);
+		//enemy->SetActive(true);
+		enemy->Spawn();
 	} 
 }
 

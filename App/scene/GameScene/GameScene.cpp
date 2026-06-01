@@ -81,6 +81,7 @@ void GameScene::Initialize() {
 	TextureManager::GetInstance()->LoadTexture("circle.png");
 	TextureManager::GetInstance()->LoadTexture("smoke.png");
 	TextureManager::GetInstance()->LoadTexture("white.png");
+	TextureManager::GetInstance()->LoadTexture("Heart.png");
 
 	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");

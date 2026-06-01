@@ -52,8 +52,6 @@ void Enemy::Update(float deltaTime)
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 
-
-
 	if (currentState_) {
 		currentState_->Update(*this, dt);
 	}
@@ -97,6 +95,13 @@ void Enemy::Draw()
 
 void Enemy::DrawEffect()
 {
+}
+
+void Enemy::Spawn() {
+	
+
+	Object3d::Update(0.0f);
+	isActive_ = true;
 }
 
 #ifdef _DEBUG

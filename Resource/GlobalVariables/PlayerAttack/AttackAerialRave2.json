@@ -63,7 +63,7 @@
             0.0,
             70.0
         ],
-        "Damage": 0.0,
+        "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.15000000596046448,

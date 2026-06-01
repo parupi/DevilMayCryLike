@@ -77,6 +77,15 @@ void Player::Initialize() {
 	reticle_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
 	reticle_->SetSize({ 32.0f, 32.0f });
 	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
+	// HP表示用のハートスプライトを生成
+	hearts_.resize(maxHp_);
+	for (int32_t i = 0; i < maxHp_; ++i) {
+		// UI要素の初期化
+		hearts_[i] = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::UI, "heart" + std::to_string(i), "Heart.png");
+		hearts_[i]->SetSize({ 64.0f, 64.0f });
+		hearts_[i]->SetAnchorPoint({ 0.5f, 0.5f });
+		hearts_[i]->SetPosition({ 50.0f + i * 50.0f, 50.0f }); // 左上に横並びで配置
+	}
 
 	hitStop_ = std::make_unique<HitStop>();
 
@@ -109,10 +118,11 @@ void Player::Update(float deltaTime) {
 
 	// ノックバック中は戦闘状態に関わらず常にステートを更新する
 	bool isKnockbackState = (stateMachine_->GetCurrentState() &&
-	                         std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
+		std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
 	if (isKnockbackState) {
 		stateMachine_->UpdateCurrentState(*this, dt);
-	} else if (!combat_->IsAttacking()) {
+	}
+	else if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this, dt);
 	}
 	combat_->Update(dt);
@@ -141,6 +151,15 @@ void Player::Update(float deltaTime) {
 		reticle_->SetPosition(CameraManager::GetInstance()->GetCurrentCamera()->WorldToScreen(lockOn_->GetCurrentTarget()->GetWorldPosition(), 1280, 720));
 		reticle_->Update();
 	}
+
+	for (size_t i = 0; i < hearts_.size(); ++i) {
+		if (i < hp_) {
+			hearts_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // HP分は表示
+		} else {
+			hearts_[i]->SetColor({ 0.0f, 0.0f, 0.0f, 0.3f }); // 残りは半透明で表示
+		}
+		hearts_[i]->Update();
+	}
 }
 
 void Player::Draw() {
@@ -152,6 +171,10 @@ void Player::Draw() {
 void Player::DrawEffect() {
 	combat_->Draw();
 	weapon_->DrawEffect();
+}
+
+void Player::DrawUI() {
+
 }
 
 #ifdef _DEBUG
@@ -250,8 +273,7 @@ void Player::LockOn() {
 	}
 }
 
-void Player::TakeDamage(const DamageInfo& info)
-{
+void Player::TakeDamage(const DamageInfo& info) {
 	// デス状態・無敵時間中は被ダメージなし
 	auto* cur = stateMachine_->GetCurrentState();
 	if (cur && std::string(cur->GetDebugName()) == "Death") return;
@@ -271,7 +293,8 @@ void Player::TakeDamage(const DamageInfo& info)
 	if (hp_ <= 0.0f) {
 		ChangeState("Death");
 		hitVignette_->Stop();
-	} else {
+	}
+	else {
 		stateMachine_->ChangeState(*this, "Knockback");
 	}
 }
@@ -288,13 +311,13 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		dir = (Length(dir) > 0.001f) ? Normalize(dir) : Vector3{ 0.0f, 0.0f, -1.0f };
 
 		DamageInfo info;
-		info.damage       = 1.0f;
-		info.direction    = dir;
-		info.type         = ReactionType::Knockback;
+		info.damage = 1.0f;
+		info.direction = dir;
+		info.type = ReactionType::Knockback;
 		info.impulseForce = 15.0f;
-		info.upwardRatio  = 0.4f;
-		info.stunTime     = 0.7f;
-		info.hitPosition  = playerPos;
+		info.upwardRatio = 0.4f;
+		info.stunTime = 0.7f;
+		info.hitPosition = playerPos;
 		info.attackerPosition = weaponPos;
 
 		TakeDamage(info);

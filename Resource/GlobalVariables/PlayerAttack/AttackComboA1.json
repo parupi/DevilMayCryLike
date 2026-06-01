@@ -63,13 +63,14 @@
             0.0,
             0.0
         ],
-        "Damage": 0.0,
+        "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.11999999731779099,
         "HitStopTime": 0.009999999776482582,
         "ImpulseForce": 10.0,
         "IsAir": false,
+        "IsMove": false,
         "KnockBackSpeed": [
             0.0,
             1.0,
