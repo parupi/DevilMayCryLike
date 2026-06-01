@@ -42,6 +42,8 @@ public:
     /// </summary>
     virtual void DrawEffect();
 
+	void Spawn();
+
 #ifdef _DEBUG
     /// <summary>
     /// デバッグ用GUI描画処理  

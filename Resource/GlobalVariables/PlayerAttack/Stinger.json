@@ -93,11 +93,11 @@
             0.0,
             0.0
         ],
-        "Damage": 0.5,
+        "Damage": 1.0,
         "DirIndex": 1,
         "DrawDebugControlPoints": false,
-        "HitStopIntensity": 0.05999999865889549,
-        "HitStopTime": 0.019999999552965164,
+        "HitStopIntensity": 0.029999999329447746,
+        "HitStopTime": 0.029999999329447746,
         "ImpulseForce": 12.0,
         "IsAir": false,
         "IsMove": false,
@@ -127,7 +127,7 @@
         "ReactionType": 1,
         "RootAttackFlag": true,
         "StunTime": 0.5,
-        "TorqueForce": 30.0,
+        "TorqueForce": 15.0,
         "TotalDuration": 1.0,
         "UpwardRatio": 0.75
     }
