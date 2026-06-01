@@ -42,7 +42,7 @@ public:
 	/// <summary>
 	/// イベント名を取得
 	/// </summary>
-	const std::string& GetName() const { return name_; }
+	const std::string& GetName() const { return Object3d::name_; }
 
 	/// <summary>
 	/// イベントの種類を取得
@@ -50,7 +50,6 @@ public:
 	EventType GetType() const { return type_; }
 
 protected:
-	std::string name_;
 	EventType type_;
 	bool isTriggered_ = false;
 };

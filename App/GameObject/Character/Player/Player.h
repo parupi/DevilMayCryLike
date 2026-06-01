@@ -168,7 +168,7 @@ private:
 	// 接地判定フラグ
 	bool onGround_ = false;
 	// ロックオン時のレティクル
-	Sprite* reticle_;
+	//Sprite* reticle_;
 	// HPのハートのスプライト
 	std::vector<Sprite*> hearts_;
 	// 1フレームの移動距離を保持

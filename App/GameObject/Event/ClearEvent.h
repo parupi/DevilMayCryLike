@@ -35,6 +35,11 @@ public:
 	/// </summary>
 	void AddTargetEnemy(Enemy* enemy);
 
+	/// <summary>
+	/// クリア済みか確認
+	/// </summary>
+	bool IsClear() const { return isClear_; }
+
 private:
 	std::vector<Enemy*> targetEnemies_;
 	Player* player_ = nullptr;
@@ -43,8 +48,4 @@ private:
 
 	int skipFrames_ = 30;
 	int currentFrame_ = 0;
-
-	bool requested_ = false;
-	float waitTime_ = 0.0f;
-	float waitDuration_ = 0.5f;
 };
