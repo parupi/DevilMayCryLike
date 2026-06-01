@@ -85,6 +85,12 @@ void BossKnight::Initialize() {
 }
 
 void BossKnight::Update(float deltaTime) {
+	// KnockBack は velocity_.y を直接操作するため重力の二重適用を避ける
+	bool isKnockBack = (currentState_ == states_.at(EnemyStateName::KnockBack).get());
+	if (!isKnockBack) {
+		SetAcceleration({ 0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f });
+	}
+
 	// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
 	weapon_->SetIsDraw(true);
 

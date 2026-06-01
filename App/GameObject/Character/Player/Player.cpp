@@ -74,9 +74,6 @@ void Player::Initialize() {
 
 	weapon_->SetScoreManager(scoreManager.get());
 
-	reticle_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
-	reticle_->SetSize({ 32.0f, 32.0f });
-	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
 	// HP表示用のハートスプライトを生成
 	hearts_.resize(maxHp_);
 	for (int32_t i = 0; i < maxHp_; ++i) {
@@ -139,18 +136,6 @@ void Player::Update(float deltaTime) {
 
 	// 接地フラグを毎フレーム切っておく
 	onGround_ = false;
-
-	if (lockOn_->IsLockOn()) {
-		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-	}
-	else {
-		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
-	}
-
-	if (lockOn_->IsLockOn()) {
-		reticle_->SetPosition(CameraManager::GetInstance()->GetCurrentCamera()->WorldToScreen(lockOn_->GetCurrentTarget()->GetWorldPosition(), 1280, 720));
-		reticle_->Update();
-	}
 
 	for (size_t i = 0; i < hearts_.size(); ++i) {
 		if (i < hp_) {
@@ -260,15 +245,16 @@ void Player::Rotate(Vector3 moveDir, float deltaTime) {
 
 void Player::LockOn() {
 	if (lockOn_->IsLockOn()) {
+		// 現在のターゲットを取得
 		auto* target = lockOn_->GetCurrentTarget();
-
+		// ターゲットへのベクトルを計算
 		Vector3 toTarget = target->GetWorldPosition() - GetWorldTransform()->GetTranslation();
 
 		// ターゲット方向に向く
 		Vector3 direction = Normalize(toTarget);
 		direction.x *= -1.0f;
 		Quaternion lookRot = LookRotation(direction);
-
+		// 回転を適用
 		GetWorldTransform()->GetRotation() = lookRot;
 	}
 }
