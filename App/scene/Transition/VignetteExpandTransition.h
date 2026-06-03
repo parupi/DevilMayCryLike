@@ -1,7 +1,7 @@
 #pragma once
-#include <scene/Transition/BaseTransition.h>
+#include <Scene/Transition/BaseTransition.h>
 #include <memory>
-#include <offscreen/VignetteEffect.h>
+#include <Graphics/Rendering/PostEffect/VignetteEffect.h>
 class VignetteExpandTransition : public BaseTransition
 {
 public:

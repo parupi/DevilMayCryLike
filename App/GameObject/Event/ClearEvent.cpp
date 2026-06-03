@@ -1,6 +1,6 @@
 #include "ClearEvent.h"
-#include <scene/Transition/TransitionManager.h>
-#include <base/utility/DeltaTime.h>
+#include <Scene/Transition/TransitionManager.h>
+#include <Utility/DeltaTime.h>
 
 ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear) {
 	Object3d::Initialize();

@@ -1,7 +1,7 @@
 #include "EnemyMeleeAttackComponent.h"
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Player/Player.h"
-#include "3d/Object/Object3d.h"
+#include "World3D/Object/Object3d.h"
 #include <algorithm>
 
 EnemyMeleeAttackComponent::EnemyMeleeAttackComponent(Object3d* weapon)

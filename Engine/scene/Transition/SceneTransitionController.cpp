@@ -1,17 +1,17 @@
 #include "SceneTransitionController.h"
-#include "scene/Transition/TransitionManager.h"
-#include <scene/SceneManager.h>
-#include <2d/SpriteManager.h>
+#include "Scene/Transition/TransitionManager.h"
+#include <Scene/SceneManager.h>
+#include <Graphics/Rendering/Sprite/SpriteManager.h>
 
-SceneTransitionController* SceneTransitionController::instance = nullptr;
+std::unique_ptr<SceneTransitionController> SceneTransitionController::instance;
 std::once_flag SceneTransitionController::initInstanceFlag;
 
 SceneTransitionController* SceneTransitionController::GetInstance()
 {
     std::call_once(initInstanceFlag, []() {
-        instance = new SceneTransitionController();
+        instance.reset(new SceneTransitionController());
         });
-    return instance;
+    return instance.get();
 }
 
 void SceneTransitionController::RequestSceneChange(const std::string& nextScene, bool useTransition)
@@ -63,6 +63,5 @@ void SceneTransitionController::Draw()
 
 void SceneTransitionController::Finalize()
 {
-    delete instance;
-    instance = nullptr;
+    instance.reset();
 }

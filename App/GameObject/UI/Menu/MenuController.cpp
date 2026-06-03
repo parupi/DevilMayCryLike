@@ -1,8 +1,8 @@
 #include "MenuController.h"
 #include <imgui.h>
-#include <input/Input.h>
-#include <base/utility/DeltaTime.h>
-#include "2d/SpriteManager.h"
+#include <Input/Input.h>
+#include <Utility/DeltaTime.h>
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void MenuController::Initialize()
 {

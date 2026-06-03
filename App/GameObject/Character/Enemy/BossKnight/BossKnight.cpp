@@ -1,13 +1,13 @@
 #include "BossKnight.h"
 #include "GameObject/Character/Player/Player.h"
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
-#include <3d/Collider/AABBCollider.h>
-#include <3d/Collider/CollisionManager.h>
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <World3D/Object/Renderer/ModelRenderer.h>
+#include <World3D/Collider/AABBCollider.h>
+#include <World3D/Collider/CollisionManager.h>
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "GameObject/Character/Enemy/State/EnemyStateKnockBack.h"
-#include "base/Particle/ParticleManager.h"
+#include "Graphics/Rendering/Particle/ParticleManager.h"
 
 #include "State/BossStateCombatIdle.h"
 #include "State/BossStateApproach.h"

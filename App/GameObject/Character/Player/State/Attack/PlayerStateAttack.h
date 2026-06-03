@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject/Character/Player/State/PlayerStateBase.h"
-#include "debuger/GlobalVariables.h"
-#include "3d/Object/Object3d.h"
+#include "Debugger/GlobalVariables.h"
+#include "World3D/Object/Object3d.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "AttackStructs.h"
 class Player;

@@ -1,18 +1,17 @@
 #pragma once
-#include <scene/BaseScene.h>
-#include <scene/AbstractSceneFactory.h>
+#include <Scene/BaseScene.h>
+#include <Scene/AbstractSceneFactory.h>
 #include <memory>
 #include <mutex>
 class SceneManager
 {
 private:
-	static SceneManager* instance;
+	static std::unique_ptr<SceneManager> instance;
 	static std::once_flag initInstanceFlag;
 
 	SceneManager() = default;
-	~SceneManager() = default;
-	SceneManager(SceneManager&) = default;
-	SceneManager& operator=(SceneManager&) = default;
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
 public:
 
 	// シングルトンインスタンスの取得

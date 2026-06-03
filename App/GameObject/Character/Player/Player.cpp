@@ -1,26 +1,26 @@
 #include "Player.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateMove.h"
-#include "3d/Object/Renderer/RendererManager.h"
-#include "3d/Object/Renderer/PrimitiveRenderer.h"
-#include "3d/Collider/AABBCollider.h"
-#include "3d/Collider/OBBCollider.h"
-#include "3d/Collider/CollisionManager.h"
-#include "base/utility/DeltaTime.h"
+#include "World3D/Object/Renderer/RendererManager.h"
+#include "World3D/Object/Renderer/PrimitiveRenderer.h"
+#include "World3D/Collider/AABBCollider.h"
+#include "World3D/Collider/OBBCollider.h"
+#include "World3D/Collider/CollisionManager.h"
+#include "Utility/DeltaTime.h"
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
-#include "3d/Primitive/PrimitiveLineDrawer.h"
+#include "World3D/Primitive/PrimitiveLineDrawer.h"
 #include "State/Attack/PlayerStateAttack.h"
-#include "scene/Transition/TransitionManager.h"
+#include "Scene/Transition/TransitionManager.h"
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
 #include "State/PlayerStateKnockBack.h"
 #include "Controller/PlayerInput.h"
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 #include <numbers>
 
-#include "input/Input.h"
+#include "Input/Input.h"
 
 Player::Player(std::string objectNama) : Object3d(objectNama) {
 	Object3d::Initialize();

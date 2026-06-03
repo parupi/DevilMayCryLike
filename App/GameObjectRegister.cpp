@@ -1,5 +1,5 @@
 #include "GameObjectRegister.h"
-#include "scene/Object3dFactory.h"
+#include "Scene/Object3dFactory.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Enemy/Hellkaina/Hellkaina.h"
 #include "GameObject/Character/Enemy/GruntMelee/GruntMelee.h"

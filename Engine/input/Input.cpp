@@ -2,15 +2,15 @@
 #include <stdexcept>
 #include <string>
 
-Input* Input::instance = nullptr;
+std::unique_ptr<Input> Input::instance;
 std::once_flag Input::initInstanceFlag;
 
 Input* Input::GetInstance()
 {
     std::call_once(initInstanceFlag, []() {
-        instance = new Input();
+        instance.reset(new Input());
         });
-    return instance;
+    return instance.get();
 }
 
 // 初期化処理
@@ -57,8 +57,7 @@ void Input::Finalize()
     if (devMouse_) {
         devMouse_->Unacquire();
     }
-    delete instance;
-    instance = nullptr;
+    instance.reset();
 }
 
 // ジョイスティックのセットアップ

@@ -2,15 +2,15 @@
 #include <cassert>
 #include <algorithm>
 
-Audio* Audio::instance = nullptr;
+std::unique_ptr<Audio> Audio::instance;
 std::once_flag Audio::initInstanceFlag;
 
 Audio* Audio::GetInstance()
 {
 	std::call_once(initInstanceFlag, []() {
-		instance = new Audio;
+		instance.reset(new Audio);
 		});
-	return instance;
+	return instance.get();
 }
 
 void Audio::Initialize()
@@ -193,8 +193,7 @@ void Audio::Finalize()
 	}
 	masterVoice->DestroyVoice();
 	xAudio2.Reset();
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices)

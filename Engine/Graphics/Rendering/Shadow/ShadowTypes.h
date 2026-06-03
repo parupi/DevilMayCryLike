@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <math/Matrix4x4.h>
+#include <Math/Matrix4x4.h>
 
 static constexpr uint32_t kCascadeCount = 3;
 

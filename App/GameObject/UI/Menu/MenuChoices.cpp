@@ -1,7 +1,7 @@
 #include "MenuChoices.h"
 #include <imgui.h>
-#include <base/utility/DeltaTime.h>
-#include "2d/SpriteManager.h"
+#include <Utility/DeltaTime.h>
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void MenuChoices::Initialize()
 {

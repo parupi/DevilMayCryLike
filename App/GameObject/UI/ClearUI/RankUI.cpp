@@ -1,8 +1,8 @@
 #define NOMINMAX
 #include "RankUI.h"
-#include <base/utility/DeltaTime.h>
+#include <Utility/DeltaTime.h>
 #include <GameData/GameData.h>
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void RankUI::Initialize()
 {

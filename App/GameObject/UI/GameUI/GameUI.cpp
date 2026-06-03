@@ -1,5 +1,5 @@
 #include "GameUI.h"
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void GameUI::Initialize()
 {

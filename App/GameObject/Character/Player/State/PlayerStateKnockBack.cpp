@@ -1,7 +1,7 @@
 #include "PlayerStateKnockBack.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/CharacterStructs.h"
-#include "math/Vector3.h"
+#include "Math/Vector3.h"
 
 void PlayerStateKnockBack::Enter(Player& player) {
 	timer_ = 0.0f;

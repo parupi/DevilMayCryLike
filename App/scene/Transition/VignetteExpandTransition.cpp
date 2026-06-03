@@ -1,6 +1,6 @@
 #include "VignetteExpandTransition.h"
-#include <offscreen/VignetteEffect.h>
-#include <offscreen/OffScreenManager.h>
+#include <Graphics/Rendering/PostEffect/VignetteEffect.h>
+#include <Graphics/Rendering/PostEffect/OffScreenManager.h>
 
 VignetteExpandTransition::VignetteExpandTransition(const std::string& transitionName)
 {

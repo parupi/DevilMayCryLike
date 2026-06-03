@@ -1,6 +1,6 @@
 #include "LockOnTarget.h"
 #include "LockOnSystem.h"
-#include "3d/Object/Object3d.h"
+#include "World3D/Object/Object3d.h"
 
 void LockOnTarget::Initialize(LockOnSystem* system, Object3d* owner)
 {

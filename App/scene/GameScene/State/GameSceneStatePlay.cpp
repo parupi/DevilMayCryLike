@@ -1,6 +1,6 @@
 #include "GameSceneStatePlay.h"
-#include "scene/GameScene/GameScene.h"
-#include <base/utility/DeltaTime.h>
+#include "Scene/GameScene/GameScene.h"
+#include <Utility/DeltaTime.h>
 #include <GameObject/Event/EventManager.h>
 #include <GameObject/Event/ClearEvent.h>
 

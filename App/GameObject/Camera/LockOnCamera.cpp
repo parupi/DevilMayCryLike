@@ -1,8 +1,8 @@
 #include "LockOnCamera.h"
-#include <3d/Object/Object3dManager.h>
+#include <World3D/Object/Object3dManager.h>
 #include "GameObject/Character/Player/Player.h"
 #include "GameCamera.h"
-#include <base/utility/DeltaTime.h>
+#include <Utility/DeltaTime.h>
 #include <cmath>
 
 LockOnCamera::LockOnCamera(std::string cameraName) : BaseCamera(cameraName)

@@ -1,5 +1,5 @@
 #include "LockOnInput.h"
-#include "input/Input.h"
+#include "Input/Input.h"
 
 void LockOnInput::Initialize(Input* input)
 {

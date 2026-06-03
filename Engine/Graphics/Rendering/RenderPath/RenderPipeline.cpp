@@ -1,221 +1,111 @@
 #include "RenderPipeline.h"
+#include "Pass/ShadowRenderPass.h"
+#include "Pass/GBufferRenderPass.h"
+#include "Pass/LightingRenderPass.h"
+#include "Pass/ForwardSceneRenderPass.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
-#include <3d/Light/LightManager.h>
-#include <3d/Object/Object3dManager.h>
-#include <3d/Camera/CameraManager.h>
-#include <3d/SkySystem/SkySystem.h>
-#include <scene/Transition/TransitionManager.h>
-#include <scene/SceneManager.h>
-#include <debuger/ImGuiManager.h>
-#include <offscreen/OffScreenManager.h>
-#include <base/Particle/ParticleManager.h>
-#include <3d/Primitive/PrimitiveLineDrawer.h>
-#include <3d/Collider/CollisionManager.h>
-#include <2d/SpriteManager.h>
+#include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#ifdef _DEBUG
+#include <Debugger/ImGuiManager.h>
+#endif
 
-void RenderPipeline::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
+void RenderPipeline::Initialize(const EngineContext& ctx)
 {
-	dxManager_ = dxManager;
+	ctx_ = ctx;
 
-	gBufferManager = std::make_unique<GBufferManager>();
-	gBufferManager->Initialize(dxManager_);
+	// --- 共有リソースの生成 ---
+	auto* rtvManager = ctx_.dxManager->GetRtvManager();
+	auto* srvManager = ctx_.dxManager->GetSrvManager();
 
-	gBufferPath = std::make_unique<GBufferPath>();
-	gBufferPath->Initialize(dxManager_, gBufferManager.get(), psoManager);
+	GpuResourceFactory::TextureDesc rtvDesc;
+	rtvDesc.clearColor[0] = 0.6f;
+	rtvDesc.clearColor[1] = 0.5f;
+	rtvDesc.clearColor[2] = 0.1f;
+	rtvDesc.clearColor[3] = 1.0f;
+	rtvDesc.format = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	rtvDesc.usage = GpuResourceFactory::Usage::RenderTarget;
+	rtvResource_ = ctx_.dxManager->GetResourceFactory()->CreateTexture2D(rtvDesc);
 
-	lightingPath = std::make_unique<LightingPath>();
-	lightingPath->Initialize(dxManager_, gBufferManager.get(), psoManager);
+	sharedRT_.rtvIndex = rtvManager->Allocate();
+	rtvManager->CreateRTV(sharedRT_.rtvIndex, rtvResource_.Get());
 
-	forwardPath = std::make_unique<ForwardRenderPath>();
-	forwardPath->Initialize(dxManager_, psoManager);
+	srvIndex_ = srvManager->Allocate();
+	srvManager->CreateSRVforTexture2D(srvIndex_, rtvResource_.Get(), rtvDesc.format, 1);
 
-	shadowPath = std::make_unique<ShadowPass>();
-	shadowPath->Initialize(dxManager, psoManager, LightManager::GetInstance()->GetCSM());
-
-	// rtvResourceの生成
-	auto* rtvManager = dxManager_->GetRtvManager();
-	auto* srvManager = dxManager_->GetSrvManager();
-
-	// リソースの生成
-	GpuResourceFactory::TextureDesc desc;
-	desc.clearColor[0] = 0.6f;
-	desc.clearColor[1] = 0.5f;
-	desc.clearColor[2] = 0.1f;
-	desc.clearColor[3] = 1.0f;
-	desc.format = DXGI_FORMAT_R16G16B16A16_FLOAT;
-	desc.usage = GpuResourceFactory::Usage::RenderTarget;
-	rtvResource_ = dxManager_->GetResourceFactory()->CreateTexture2D(desc);
-
-	// rtvの生成
-	rtvIndex_ = dxManager_->GetRtvManager()->Allocate();
-	dxManager_->GetRtvManager()->CreateRTV(rtvIndex_, rtvResource_.Get());
-
-	// SRV の生成
-	srvIndex_ = dxManager_->GetSrvManager()->Allocate();
-	dxManager_->GetSrvManager()->CreateSRVforTexture2D(srvIndex_, rtvResource_.Get(), desc.format, 1);
-
-	// DSV生成
 	GpuResourceFactory::TextureDesc dsvDesc{};
 	dsvDesc.format = DXGI_FORMAT_R24G8_TYPELESS;
 	dsvDesc.usage = GpuResourceFactory::Usage::DepthStencil;
-
-	depthBuffer_ = dxManager_->GetResourceFactory()->CreateTexture2D(dsvDesc);
+	depthBuffer_ = ctx_.dxManager->GetResourceFactory()->CreateTexture2D(dsvDesc);
 	depthBuffer_->SetName(L"DepthBufferForForward");
 
-	dsvIndex_ = dxManager_->GetDsvManager()->Allocate();
-	dxManager_->GetDsvManager()->CreateDsv(dsvIndex_, depthBuffer_.Get(), DXGI_FORMAT_D24_UNORM_S8_UINT);
+	sharedRT_.dsvIndex = ctx_.dxManager->GetDsvManager()->Allocate();
+	ctx_.dxManager->GetDsvManager()->CreateDsv(sharedRT_.dsvIndex, depthBuffer_.Get(), DXGI_FORMAT_D24_UNORM_S8_UINT);
 
-	TransitionToSRV();
+	sharedRT_.rtvResource = rtvResource_.Get();
+	sharedRT_.depthBuffer = depthBuffer_.Get();
+
+	// 初期状態はSRV
+	auto* commandCtx = ctx_.dxManager->GetCommandContext();
+	commandCtx->TransitionResource(rtvResource_.Get(),
+		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandCtx->TransitionResource(depthBuffer_.Get(),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+	// --- GBufferManager ---
+	gBufferManager_ = std::make_unique<GBufferManager>();
+	gBufferManager_->Initialize(ctx_.dxManager);
+
+	// --- パスを順番に登録 ---
+	{
+		auto pass = std::make_unique<ShadowRenderPass>();
+		pass->Initialize(ctx_);
+		passes_.push_back(std::move(pass));
+	}
+	{
+		auto pass = std::make_unique<GBufferRenderPass>();
+		pass->Initialize(ctx_, gBufferManager_.get(), sharedRT_);
+		passes_.push_back(std::move(pass));
+	}
+	{
+		auto pass = std::make_unique<LightingRenderPass>();
+		pass->Initialize(ctx_, gBufferManager_.get(), sharedRT_);
+		passes_.push_back(std::move(pass));
+	}
+	{
+		auto pass = std::make_unique<ForwardSceneRenderPass>();
+		pass->Initialize(ctx_, sharedRT_);
+		passes_.push_back(std::move(pass));
+	}
 }
 
 void RenderPipeline::Finalize()
 {
-	gBufferManager->Finalize();
-	gBufferPath.reset();
-	lightingPath.reset();
-	forwardPath.reset();
-	shadowPath.reset();
-
+	passes_.clear();
+	gBufferManager_->Finalize();
 	rtvResource_.Reset();
-	srvResource_.Reset();
 	depthBuffer_.Reset();
 }
 
-void RenderPipeline::Execute(PSOManager* psoManager)
+void RenderPipeline::Execute()
 {
-	///---------------------------------------------------------
-	/// GBufferPath（Deferredの各バッファ生成）
-	///---------------------------------------------------------
-	
-	shadowPath->BeginDraw();
+	// 各描画パスを順番に実行
+	for (auto& pass : passes_) {
+		pass->Execute();
+	}
 
-	shadowPath->Execute();
+	// OffScreen / PostEffect / 最終合成
+	ctx_.offScreenManager->CopyLightingToPing(srvIndex_);
+	ctx_.offScreenManager->BeginDrawToPingPong();
+	ctx_.offScreenManager->EndDrawToPingPong();
+	ctx_.offScreenManager->ExecutePostEffects();
 
-	TransitionToRTV();
-	
-	gBufferPath->Begin(dsvIndex_);
+	ctx_.dxManager->BeginDraw();
+	ctx_.dxManager->Render(ctx_.psoManager, ctx_.offScreenManager->GetFinalSrvIndex());
 
-	Object3dManager::GetInstance()->DrawDeferred();
-
-	gBufferPath->End();
-
-	TransitionToSRV();
-
-	///---------------------------------------------------------
-	/// LightingPath（GBuffer結果を使って描画）
-	///---------------------------------------------------------
-	TransitionToRTV();
-
-	lightingPath->Begin(rtvIndex_, 0);
-	
-	LightManager::GetInstance()->GetCSM()->BindSrv();
-	LightManager::GetInstance()->GetCSM()->BindCascadeCB(5);
-
-	LightManager::GetInstance()->BindLightsToShader();
-	CameraManager::GetInstance()->BindCameraToShader();
-
-	lightingPath->End();
-
-	TransitionToSRV();
-
-	///---------------------------------------------------------
-	/// ForwardRenderPath
-	///---------------------------------------------------------
-
-	TransitionToRTV();
-	// 描画前処理
-	forwardPath->BeginDraw(rtvIndex_, dsvIndex_);
-
-	// スカイボックスの描画
-	SkySystem::GetInstance()->Draw();
-	// Forward描画で設定されているオブジェクトの描画
-	Object3dManager::GetInstance()->DrawForward();
-
-	// シーンの描画
-	SceneManager::GetInstance()->Draw();
-	// スプライトの描画
-	SpriteManager::GetInstance()->DrawAllSprite();
-	// トランジションの描画
-	TransitionManager::GetInstance()->Draw();
-
-	// コライダーのデバッグ描画
-	CollisionManager::GetInstance()->Draw();
 #ifdef _DEBUG
-	// ライトのデバッグ描画
-	LightManager::GetInstance()->DrawDebug();
-#endif // DEBUG
-	// 線描画の受付終了
-	PrimitiveLineDrawer::GetInstance()->EndDraw();
-	// 描画後処理
-	forwardPath->EndDraw();
+	ctx_.imGuiManager->Draw();
+#endif
 
-	// 線描画の受け受け開始
-	PrimitiveLineDrawer::GetInstance()->BeginDraw();
-
-	TransitionToSRV();
-
-	///---------------------------------------------------------
-	/// OffScreen（ポストエフェクト前の下準備 or 前景エフェクト）
-	///---------------------------------------------------------
-	OffScreenManager::GetInstance()->CopyLightingToPing(srvIndex_);
-
-	OffScreenManager::GetInstance()->BeginDrawToPingPong();
-
-	OffScreenManager::GetInstance()->EndDrawToPingPong();
-
-	///---------------------------------------------------------
-	/// PostEffectPath（Ping-Pong結果から最終1枚に統合）
-	///---------------------------------------------------------
-	OffScreenManager::GetInstance()->ExecutePostEffects();
-
-	dxManager_->BeginDraw();
-
-	dxManager_->Render(psoManager, OffScreenManager::GetInstance()->GetFinalSrvIndex());
-
-	///---------------------------------------------------------
-	/// UI, ImGui描画（バックバッファ上で最終）
-	///---------------------------------------------------------
-#ifdef _DEBUG
-	ImGuiManager::GetInstance()->Draw();
-#endif // DEBUG
-
-	///---------------------------------------------------------
-	/// フレーム終了
-	///---------------------------------------------------------
-	dxManager_->EndDraw();
-}
-
-void RenderPipeline::TransitionToRTV()
-{
-	auto* commandContext = dxManager_->GetCommandContext();
-
-	commandContext->TransitionResource(
-		rtvResource_.Get(),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_RENDER_TARGET
-	);
-
-	commandContext->TransitionResource(
-		depthBuffer_.Get(),
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-		D3D12_RESOURCE_STATE_DEPTH_WRITE
-	);
-}
-
-void RenderPipeline::TransitionToSRV()
-{
-	auto* commandContext = dxManager_->GetCommandContext();
-
-	commandContext->TransitionResource(
-		rtvResource_.Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-	);
-
-	commandContext->TransitionResource(
-		depthBuffer_.Get(),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE,
-		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE
-	);
+	ctx_.dxManager->EndDraw();
 }

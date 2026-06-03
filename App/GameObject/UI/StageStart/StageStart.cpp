@@ -1,9 +1,9 @@
 #include "StageStart.h"
 #include <memory>
-#include <3d/Camera/CameraManager.h>
-#include "3d/Camera/BaseCamera.h"
-#include <scene/Transition/TransitionManager.h>
-#include <input/Input.h>
+#include <World3D/Camera/CameraManager.h>
+#include "World3D/Camera/BaseCamera.h"
+#include <Scene/Transition/TransitionManager.h>
+#include <Input/Input.h>
 
 void StageStart::Initialize()
 {

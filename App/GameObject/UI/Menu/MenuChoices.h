@@ -1,5 +1,5 @@
 #pragma once
-#include "2d/Sprite.h"
+#include "Graphics/Rendering/Sprite/Sprite.h"
 #include <memory>
 
 enum class ChoicesState {

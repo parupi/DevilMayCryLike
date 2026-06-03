@@ -1,5 +1,5 @@
 #include "FadeTransition.h"
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 FadeTransition::FadeTransition(const std::string& transitionName)
 {

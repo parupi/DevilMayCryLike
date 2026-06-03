@@ -1,5 +1,5 @@
 #pragma once
-#include "3d/Object/Object3d.h"
+#include "World3D/Object/Object3d.h"
 #include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"

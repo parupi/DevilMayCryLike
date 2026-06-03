@@ -1,13 +1,13 @@
 #pragma once
-#include "scene/BaseScene.h"
+#include "Scene/BaseScene.h"
 
 #include "GameObject/Camera/GameCamera.h"
-#include "3d/Light/LightManager.h"
+#include "World3D/Light/LightManager.h"
 #include "GameObject/UI/StageStart/StageStart.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Camera/ClearCamera.h"
 #include "GameObject/UI/GameUI/GameUI.h"
-#include "scene/GameScene/State/GameSceneStateBase.h"
+#include "Scene/GameScene/State/GameSceneStateBase.h"
 #include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
 #include "Input/InputContext.h"

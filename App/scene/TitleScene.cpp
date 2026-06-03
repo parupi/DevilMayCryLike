@@ -1,18 +1,18 @@
 #include "TitleScene.h"
 #include "Graphics/Resource/TextureManager.h"
-#include <2d/SpriteManager.h>
-#include <input/Input.h>
+#include <Graphics/Rendering/Sprite/SpriteManager.h>
+#include <Input/Input.h>
 #include <Stage/SceneLoader.h>
 #include <Stage/SceneBuilder.h>
-#include <3d/Object/Model/ModelManager.h>
-#include <3d/SkySystem/SkySystem.h>
-#include <3d/Light/PointLight.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
-#include <3d/Object/Renderer/RendererManager.h>
-#include <scene/Transition/FadeTransition.h>
-#include <scene/Transition/TransitionManager.h>
+#include <World3D/Object/Model/ModelManager.h>
+#include <Graphics/Rendering/Sky/SkySystem.h>
+#include <World3D/Light/PointLight.h>
+#include <World3D/Object/Renderer/ModelRenderer.h>
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <Scene/Transition/FadeTransition.h>
+#include <Scene/Transition/TransitionManager.h>
 #include <GameObject/Camera/TitleCamera.h>
-#include <3d/Collider/CollisionManager.h>
+#include <World3D/Collider/CollisionManager.h>
 
 
 void TitleScene::Initialize()

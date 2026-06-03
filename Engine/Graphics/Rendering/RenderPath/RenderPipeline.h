@@ -1,47 +1,34 @@
 #pragma once
-#include "Graphics/Rendering/RenderPath/ForwardRenderPath.h"
-#include "Graphics/Rendering/RenderPath/Deferred/GBufferPath.h"
-#include "Graphics/Rendering/RenderPath/Deferred/LightingPath.h"
-#include "Graphics/Rendering/RenderPath/Deferred/GBufferManager.h"
-#include <Graphics/Rendering/Shadow/CascadedShadowMap.h>
-#include <Graphics/Rendering/RenderPath/Shadow/ShadowPass.h>
-
-class DirectXManager;
-class PSOManager;
+#include "IRenderPass.h"
+#include "Impl/GBufferManager.h"
+#include "Core/EngineContext.h"
+#include <wrl.h>
+#include <d3d12.h>
+#include <vector>
+#include <memory>
 
 class RenderPipeline
 {
 public:
 	RenderPipeline() = default;
 	~RenderPipeline() = default;
-	// 初期化
-	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
-	// 終了
+
+	void Initialize(const EngineContext& ctx);
 	void Finalize();
-	// 描画実行
-	void Execute(PSOManager* psoManager);
-	// ResourceをRTVに変更
-	void TransitionToRTV();
-	// ResourceをSRVに変更
-	void TransitionToSRV();
-	
+	void Execute();
+
 private:
-	DirectXManager* dxManager_ = nullptr;
+	EngineContext ctx_{};
 
-	std::unique_ptr<GBufferManager> gBufferManager = nullptr;
-	std::unique_ptr<GBufferPath> gBufferPath = nullptr;
-	std::unique_ptr<LightingPath> lightingPath = nullptr;
-	std::unique_ptr<ForwardRenderPath> forwardPath = nullptr;
-	std::unique_ptr<ShadowPass> shadowPath = nullptr;
+	// GBufferは複数パス(GBuffer/Lighting)で共有するため直接所有
+	std::unique_ptr<GBufferManager> gBufferManager_;
 
-	// 全部のパスで書き込みをするRtv
+	// 実行順に並べた描画パス
+	std::vector<std::unique_ptr<IRenderPass>> passes_;
+
+	// 全パスで共有するRTV/DSVリソース
 	Microsoft::WRL::ComPtr<ID3D12Resource> rtvResource_;
-	uint32_t rtvIndex_;
-	// 全部のパスで書き込みをするRtv
-	Microsoft::WRL::ComPtr<ID3D12Resource> srvResource_;
-	uint32_t srvIndex_; 
-
 	Microsoft::WRL::ComPtr<ID3D12Resource> depthBuffer_;
-	uint32_t dsvIndex_ = 0;
+	SharedRenderTarget sharedRT_{};
+	uint32_t srvIndex_ = 0;
 };
-

@@ -1,6 +1,6 @@
 #pragma once
-#include "3d/Object/Object3d.h"
-#include "math/Vector3.h"
+#include "World3D/Object/Object3d.h"
+#include "Math/Vector3.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "../BaseState/EnemyStateBase.h"
 

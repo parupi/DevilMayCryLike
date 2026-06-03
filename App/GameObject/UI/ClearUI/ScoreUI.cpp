@@ -2,8 +2,8 @@
 #include <cstdint>
 #include <GameData/GameData.h>
 #include <string>
-#include <base/utility/DeltaTime.h>
-#include "2d/SpriteManager.h"
+#include <Utility/DeltaTime.h>
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void ScoreUI::Initialize()
 {

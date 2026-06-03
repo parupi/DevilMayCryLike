@@ -1,0 +1,151 @@
+#include "Object3d.h"
+#include "Object3dManager.h"
+#include "Graphics/Resource/TextureManager.h"
+#include <World3D/WorldTransform.h>
+#include <numbers>
+#include "Model/ModelManager.h"
+#ifdef _DEBUG
+#include <imgui.h>
+#endif // IMGUI
+#include <World3D/Camera/CameraManager.h>
+
+Object3d::Object3d(std::string objectName)
+{
+	name_ = objectName;
+	isAlive = true;
+	Initialize();
+}
+
+void Object3d::Initialize()
+{
+	objectManager_ = Object3dManager::GetInstance();
+
+	transform_ = std::make_unique<WorldTransform>();
+	transform_->Initialize();
+
+	camera_ = objectManager_->GetDefaultCamera();
+}
+
+void Object3d::Update(float deltaTime)
+{
+	camera_ = CameraManager::GetInstance()->GetCurrentCamera();
+
+	transform_->TransferMatrix(camera_);
+
+	for (size_t i = 0; i < renders_.size(); i++) {
+		renders_[i]->Update(transform_.get());
+	}
+}
+
+void Object3d::Draw()
+{
+	switch (drawOption_.drawPath) {
+	case DrawPath::Forward:
+		for (size_t i = 0; i < renders_.size(); i++) {
+			if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {
+				skinned->UpdateSkinningWithCS();
+			}
+			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
+			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetObjectSignature());
+			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			renders_[i]->Draw();
+		}
+		break;
+	case DrawPath::Deferred:
+		for (auto* d : deferredDrawables_) {
+			d->DrawGBuffer();
+		}
+		break;
+	}
+}
+
+void Object3d::DrawShadow()
+{
+	if (drawOption_.drawPath != DrawPath::Deferred) return;
+	for (auto* s : shadowCasters_) {
+		s->DrawShadow();
+	}
+}
+
+void Object3d::ResetObject()
+{
+	for (auto& collider : colliders_) {
+		collider->isAlive = false;
+	}
+	colliders_.clear();
+
+	for (auto& renderer : renders_) {
+		renderer->isAlive = false;
+	}
+	renders_.clear();
+	deferredDrawables_.clear();
+	shadowCasters_.clear();
+}
+
+#ifdef _DEBUG
+void Object3d::DebugGui()
+{
+	if (ImGui::TreeNode("Transform")) {
+		transform_->DebugGui();
+		ImGui::TreePop();
+	}
+
+	for (size_t i = 0; i < renders_.size(); i++) {
+		renders_[i]->DebugGui(i);
+	}
+}
+#endif // _DEBUG
+
+void Object3d::OnCollisionEnter(BaseCollider* other)
+{
+	other;
+}
+
+void Object3d::OnCollisionStay(BaseCollider* other)
+{
+	other;
+}
+
+void Object3d::OnCollisionExit(BaseCollider* other)
+{
+	other;
+}
+
+void Object3d::AddRenderer(BaseRenderer* renderer)
+{
+	renders_.push_back(renderer);
+	if (auto* d = dynamic_cast<IDeferredDrawable*>(renderer)) {
+		deferredDrawables_.push_back(d);
+	}
+	if (auto* s = dynamic_cast<IShadowCaster*>(renderer)) {
+		shadowCasters_.push_back(s);
+	}
+}
+
+void Object3d::AddCollider(BaseCollider* collider)
+{
+	collider->SetOwner(this);
+	colliders_.push_back(collider);
+}
+
+BaseRenderer* Object3d::GetRenderer(std::string name)
+{
+	for (auto& render : renders_) {
+		if (render->name_ == name) {
+			return render;
+		}
+	}
+	Logger::Log("renderが見つかりませんでした");
+	return nullptr;
+}
+
+BaseCollider* Object3d::GetCollider(std::string name)
+{
+	for (auto& collider : colliders_) {
+		if (collider->name_ == name) {
+			return collider;
+		}
+	}
+	Logger::Log("colliderが見つかりませんでした");
+	return nullptr;
+}

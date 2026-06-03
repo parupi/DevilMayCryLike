@@ -7,16 +7,16 @@
 #include <unordered_map>
 #include <wrl.h>
 #include <mutex>
+#include <memory>
 class TextureManager
 {
 private:
-	static TextureManager* instance;
+	static std::unique_ptr<TextureManager> instance;
 	static std::once_flag initInstanceFlag;
 
 	TextureManager() = default;
-	~TextureManager() = default;
-	TextureManager(TextureManager&) = default;
-	TextureManager& operator=(TextureManager&) = default;
+	TextureManager(const TextureManager&) = delete;
+	TextureManager& operator=(const TextureManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
 	static TextureManager* GetInstance();

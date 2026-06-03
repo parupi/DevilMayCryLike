@@ -1,5 +1,5 @@
 #include "PlayerInput.h"
-#include "input/Input.h"
+#include "Input/Input.h"
 
 void PlayerInput::Initialize(Input* input)
 {

@@ -7,13 +7,12 @@
 class TransitionManager
 {
 private:
-	static TransitionManager* instance;
+	static std::unique_ptr<TransitionManager> instance;
 	static std::once_flag initInstanceFlag;
 
 	TransitionManager() = default;
-	~TransitionManager() = default;
-	TransitionManager(TransitionManager&) = default;
-	TransitionManager& operator=(TransitionManager&) = default;
+	TransitionManager(const TransitionManager&) = delete;
+	TransitionManager& operator=(const TransitionManager&) = delete;
 public:
 	// インスタンスの取得
 	static TransitionManager* GetInstance();

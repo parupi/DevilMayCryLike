@@ -1,18 +1,18 @@
 #include "SceneManager.h"
 #include <cassert>
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Collider/CollisionManager.h>
-#include <3d/Object/Object3dManager.h>
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <World3D/Collider/CollisionManager.h>
+#include <World3D/Object/Object3dManager.h>
 
-SceneManager* SceneManager::instance = nullptr;
+std::unique_ptr<SceneManager> SceneManager::instance;
 std::once_flag SceneManager::initInstanceFlag;
 
 SceneManager* SceneManager::GetInstance()
 {
 	std::call_once(initInstanceFlag, []() {
-		instance = new SceneManager();
+		instance.reset(new SceneManager());
 		});
-	return instance;
+	return instance.get();
 }
 
 void SceneManager::Finalize()
@@ -22,8 +22,7 @@ void SceneManager::Finalize()
 	delete scene_;
 	scene_ = nullptr;
 
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 void SceneManager::Update()

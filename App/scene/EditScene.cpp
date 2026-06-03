@@ -1,13 +1,13 @@
 #include "EditScene.h"
 #include <GameObject/Ground/Ground.h>
-#include <3d/Object/Model/ModelManager.h>
+#include <World3D/Object/Model/ModelManager.h>
 #include <GameObject/Camera/GameCamera.h>
 #include <GameObject/Character/Player/Player.h>
-#include <3d/Collider/CollisionManager.h>
-#include <3d/SkySystem/SkySystem.h>
-#include <3d/Light/LightManager.h>
-#include "3d/Object/Object3dManager.h"
-#include "base/Particle/ParticleManager.h"
+#include <World3D/Collider/CollisionManager.h>
+#include <Graphics/Rendering/Sky/SkySystem.h>
+#include <World3D/Light/LightManager.h>
+#include "World3D/Object/Object3dManager.h"
+#include "Graphics/Rendering/Particle/ParticleManager.h"
 
 void EditScene::Initialize()
 {

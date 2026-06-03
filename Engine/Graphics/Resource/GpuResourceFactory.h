@@ -1,5 +1,5 @@
 #pragma once
-#include "base/WindowManager.h"
+#include "Platform/WindowManager.h"
 #include <d3d12.h>
 #include <wrl.h>
 #include <DirectXTex/DirectXTex.h>

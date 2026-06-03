@@ -1,14 +1,14 @@
 #include "TransitionManager.h"
 
-TransitionManager* TransitionManager::instance = nullptr;
+std::unique_ptr<TransitionManager> TransitionManager::instance;
 std::once_flag TransitionManager::initInstanceFlag;
 
 TransitionManager* TransitionManager::GetInstance()
 {
 	std::call_once(initInstanceFlag, []() {
-		instance = new TransitionManager();
+		instance.reset(new TransitionManager());
 		});
-	return instance;
+	return instance.get();
 }
 
 void TransitionManager::Finalize()
@@ -16,8 +16,7 @@ void TransitionManager::Finalize()
 	transitions_.clear();
 	current_ = nullptr;
 
-	delete instance;
-	instance = nullptr;
+	instance.reset();
 }
 
 bool TransitionManager::AddTransition(std::unique_ptr<BaseTransition> transition)

@@ -1,16 +1,16 @@
 #include "ClearScene.h"
-#include <3d/Camera/BaseCamera.h>
-#include <3d/Camera/CameraManager.h>
-#include <3d/SkySystem/SkySystem.h>
-#include <3d/Light/LightManager.h>
-#include <3d/Object/Object3dManager.h>
-#include <3d/Collider/CollisionManager.h>
-#include <3d/Object/Renderer/RendererManager.h>
+#include <World3D/Camera/BaseCamera.h>
+#include <World3D/Camera/CameraManager.h>
+#include <Graphics/Rendering/Sky/SkySystem.h>
+#include <World3D/Light/LightManager.h>
+#include <World3D/Object/Object3dManager.h>
+#include <World3D/Collider/CollisionManager.h>
+#include <World3D/Object/Renderer/RendererManager.h>
 #include "Graphics/Resource/TextureManager.h"
-#include <input/Input.h>
-#include <scene/Transition/SceneTransitionController.h>
+#include <Input/Input.h>
+#include <Scene/Transition/SceneTransitionController.h>
 #include <GameData/GameData.h>
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void ClearScene::Initialize()
 {

@@ -1,9 +1,9 @@
 #include "LockOnSystem.h"
-#include "input/LockOnInput.h"
-#include "3d/Camera/CameraManager.h"
+#include "Input/LockOnInput.h"
+#include "World3D/Camera/CameraManager.h"
 #include "GameObject/Character/Player/Player.h"
-#include "3d/Primitive/PrimitiveLineDrawer.h"
-#include "2d/SpriteManager.h"
+#include "World3D/Primitive/PrimitiveLineDrawer.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 	input_ = input;

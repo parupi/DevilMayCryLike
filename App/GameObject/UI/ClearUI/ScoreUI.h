@@ -1,6 +1,6 @@
 #pragma once
 #include <vector>
-#include <2d/Sprite.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
 #include <memory>
 class ScoreUI
 {

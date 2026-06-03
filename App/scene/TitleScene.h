@@ -1,14 +1,14 @@
 #pragma once
-#include "3d/Camera/BaseCamera.h"
-#include <scene/BaseScene.h>
-#include "scene/SceneManager.h"
+#include "World3D/Camera/BaseCamera.h"
+#include <Scene/BaseScene.h>
+#include "Scene/SceneManager.h"
 #include <memory>
-#include <3d/Camera/CameraManager.h>
-#include <3d/Light/LightManager.h>
-#include <scene/Transition/SceneTransitionController.h>
+#include <World3D/Camera/CameraManager.h>
+#include <World3D/Light/LightManager.h>
+#include <Scene/Transition/SceneTransitionController.h>
 #include <GameObject/Camera/TitleCamera.h>
 #include <GameObject/UI/TitleUI/TitleUI.h>
-#include <base/Particle/ParticleManager.h>
+#include <Graphics/Rendering/Particle/ParticleManager.h>
 
 /// <summary>
 /// タイトルシーンを管理するクラス  

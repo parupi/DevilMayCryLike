@@ -1,7 +1,7 @@
 #pragma once
-#include "3d/Object/Object3d.h"
+#include "World3D/Object/Object3d.h"
 #include <GameData/Score/StylishScoreManager.h>
-#include "3d/Trail/WeaponTrail.h"
+#include "Graphics/Rendering/Effect/WeaponTrail.h"
 
 class Player;
 class PlayerWeapon : public Object3d

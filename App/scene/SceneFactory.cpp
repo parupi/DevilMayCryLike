@@ -1,10 +1,10 @@
 #include "SceneFactory.h"
-#include "scene/BaseScene.h"
-#include "scene/TitleScene.h"
-#include "scene/GameScene/GameScene.h"
-#include "scene/ClearScene.h"
-#include "scene/SampleScene.h"
-#include "scene/EditScene.h"
+#include "Scene/BaseScene.h"
+#include "Scene/TitleScene.h"
+#include "Scene/GameScene/GameScene.h"
+#include "Scene/ClearScene.h"
+#include "Scene/SampleScene.h"
+#include "Scene/EditScene.h"
 
 BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
 {

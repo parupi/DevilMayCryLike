@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/AbstractSceneFactory.h"
+#include "Scene/AbstractSceneFactory.h"
 
 // このゲーム用のシーン工場
 class SceneFactory : public AbstractSceneFactory

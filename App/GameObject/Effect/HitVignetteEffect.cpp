@@ -1,6 +1,6 @@
 #include "HitVignetteEffect.h"
-#include <offscreen/VignetteEffect.h>
-#include <offscreen/OffScreenManager.h>
+#include <Graphics/Rendering/PostEffect/VignetteEffect.h>
+#include <Graphics/Rendering/PostEffect/OffScreenManager.h>
 #include <algorithm>
 
 void HitVignetteEffect::Initialize() {

@@ -3,8 +3,8 @@
 #include <vector>
 #include <optional>
 #include <nlohmann/json.hpp>
-#include <3d/Collider/ColliderStructs.h>
-#include <math/function.h>
+#include <World3D/Collider/ColliderStructs.h>
+#include <Math/MathUtils.h>
 
 struct EnemySpawnInfo {
     std::string name;

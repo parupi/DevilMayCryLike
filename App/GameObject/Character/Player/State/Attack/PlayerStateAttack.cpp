@@ -1,10 +1,10 @@
 #include "PlayerStateAttack.h"
-#include "debuger/GlobalVariables.h"
-#include "3d/Primitive/PrimitiveLineDrawer.h"
-#include <math/function.h>
+#include "Debugger/GlobalVariables.h"
+#include "World3D/Primitive/PrimitiveLineDrawer.h"
+#include <Math/MathUtils.h>
 #include "GameObject/Character/Player/Player.h"
-#include "3d/Collider/AABBCollider.h"
-#include "base/utility/DeltaTime.h"
+#include "World3D/Collider/AABBCollider.h"
+#include "Utility/DeltaTime.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 
 PlayerStateAttack::PlayerStateAttack(std::string attackName) {

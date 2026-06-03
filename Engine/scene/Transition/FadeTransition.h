@@ -1,7 +1,7 @@
 #pragma once
-#include <scene/Transition/BaseTransition.h>
+#include <Scene/Transition/BaseTransition.h>
 #include <memory>
-#include <2d/Sprite.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
 class FadeTransition : public BaseTransition
 {
 public:

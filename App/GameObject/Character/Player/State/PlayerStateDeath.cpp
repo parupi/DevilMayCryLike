@@ -1,11 +1,11 @@
 #include "PlayerStateDeath.h"
-#include <base/utility/DeltaTime.h>
+#include <Utility/DeltaTime.h>
 #include <algorithm>
 #include "GameObject/Character/Player/Player.h"
-#include <scene/Transition/SceneTransitionController.h>
-#include <scene/Transition/TransitionManager.h>
-#include <scene/Transition/VignetteExpandTransition.h>
-#include <math/Easing.h>
+#include <Scene/Transition/SceneTransitionController.h>
+#include <Scene/Transition/TransitionManager.h>
+#include <Scene/Transition/VignetteExpandTransition.h>
+#include <Math/Easing.h>
 #include <GameObject/Camera/DeathCamera.h>
 
 PlayerStateDeath::PlayerStateDeath()

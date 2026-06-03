@@ -1,5 +1,6 @@
 #include "GuchisFramework.h"
-#include "base/utility/DeltaTime.h"
+#include "Utility/DeltaTime.h"
+#include "Scene/SceneManager.h"
 
 void GuchisFramework::Initialize()
 {
@@ -12,6 +13,10 @@ void GuchisFramework::Initialize()
 	// PSOマネージャーの初期化
 	psoManager = std::make_unique<PSOManager>();
 	psoManager->Initialize(dxManager.get());
+
+	// コアサービスを EngineContext に登録
+	ctx_.dxManager = dxManager.get();
+	ctx_.psoManager = psoManager.get();
 
 	// 入力の初期化
 	Input::GetInstance()->Initialize();

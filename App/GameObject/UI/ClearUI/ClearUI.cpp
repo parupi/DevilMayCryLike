@@ -3,8 +3,8 @@
 #ifdef _DEBUG
 #include <imgui.h>
 #endif // DEBUG
-#include "base/utility/DeltaTime.h"
-#include "2d/SpriteManager.h"
+#include "Utility/DeltaTime.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void ClearUI::Initialize()
 {

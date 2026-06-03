@@ -1,7 +1,7 @@
 #include "GameSceneStateMenu.h"
-#include "scene/GameScene/GameScene.h"
-#include "input/Input.h"
-#include <base/utility/DeltaTime.h>
+#include "Scene/GameScene/GameScene.h"
+#include "Input/Input.h"
+#include <Utility/DeltaTime.h>
 
 void GameSceneStateMenu::Enter(GameScene& scene)
 {

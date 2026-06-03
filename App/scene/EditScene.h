@@ -1,6 +1,6 @@
 #pragma once
-#include "scene/BaseScene.h"
-#include "input/InputContext.h"
+#include "Scene/BaseScene.h"
+#include "Input/InputContext.h"
 class EditScene : public BaseScene
 {
 public:

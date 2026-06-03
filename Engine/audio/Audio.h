@@ -5,6 +5,7 @@
 #include <fstream>
 #include <wrl.h>
 #include <mutex>
+#include <memory>
 #include <unordered_map>
 #include <array>
 
@@ -13,13 +14,12 @@ static const size_t kMaxPlayWave = 100;
 
 class Audio
 {
-	static Audio* instance;
+	static std::unique_ptr<Audio> instance;
 	static std::once_flag initInstanceFlag;
 
 	Audio() = default;
-	~Audio() = default;
-	Audio(Audio&) = default;
-	Audio& operator=(Audio&) = default;
+	Audio(const Audio&) = delete;
+	Audio& operator=(const Audio&) = delete;
 public:
 
 	// シングルトンインスタンスの取得

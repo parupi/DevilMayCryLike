@@ -1,8 +1,8 @@
 #include "Ground.h"
-#include <3d/Object/Renderer/RendererManager.h>
+#include <World3D/Object/Renderer/RendererManager.h>
 #include <memory>
-#include "3d/Object/Renderer/ModelRenderer.h"
-#include <3d/Collider/CollisionManager.h>
+#include "World3D/Object/Renderer/ModelRenderer.h"
+#include <World3D/Collider/CollisionManager.h>
 
 Ground::Ground(std::string objectName) : Object3d(objectName)
 {

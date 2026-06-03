@@ -1,16 +1,16 @@
 #pragma once
 #include <string>
 #include <mutex>
+#include <memory>
 class SceneTransitionController
 {
 private:
-	static SceneTransitionController* instance;
+	static std::unique_ptr<SceneTransitionController> instance;
 	static std::once_flag initInstanceFlag;
 
 	SceneTransitionController() = default;
-	~SceneTransitionController() = default;
-	SceneTransitionController(SceneTransitionController&) = default;
-	SceneTransitionController& operator=(SceneTransitionController&) = default;
+	SceneTransitionController(const SceneTransitionController&) = delete;
+	SceneTransitionController& operator=(const SceneTransitionController&) = delete;
 public:
 	// インスタンスの取得
 	static SceneTransitionController* GetInstance();

@@ -3,7 +3,7 @@
 #ifdef USE_IMGUI
 #include <imgui.h>
 #endif // IMGUI
-#include <math/Quaternion.h>
+#include <Math/Quaternion.h>
 
 Vector3 Vector3::operator-() const
 {

@@ -1,8 +1,8 @@
 #include "PlayerWeapon.h"
-#include "3d/Collider/OBBCollider.h"
+#include "World3D/Collider/OBBCollider.h"
 #include "Player.h"
-#include "scene/Transition/TransitionManager.h"
-#include "math/function.h"
+#include "Scene/Transition/TransitionManager.h"
+#include "Math/MathUtils.h"
 
 PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName) {}
 
