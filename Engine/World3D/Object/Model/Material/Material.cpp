@@ -8,17 +8,17 @@ Material::Material()
 
 Material::~Material()
 {
-	if (directXManager_) {
-		auto* resourceManager = directXManager_->GetResourceManager();
-		if (materialHandle_ != kInvalidBufferHandle) {
-			resourceManager->ReleaseBuffer(materialHandle_);
-			materialHandle_ = kInvalidBufferHandle;
-		}
-		if (materialGBufferHandle_ != kInvalidBufferHandle) {
-			resourceManager->ReleaseBuffer(materialGBufferHandle_);
-			materialGBufferHandle_ = kInvalidBufferHandle;
-		}
-	}
+	//if (directXManager_) {
+	//	auto* resourceManager = directXManager_->GetResourceManager();
+	//	if (materialHandle_ != kInvalidBufferHandle) {
+	//		resourceManager->ReleaseBuffer(materialHandle_);
+	//		materialHandle_ = kInvalidBufferHandle;
+	//	}
+	//	if (materialGBufferHandle_ != kInvalidBufferHandle) {
+	//		resourceManager->ReleaseBuffer(materialGBufferHandle_);
+	//		materialGBufferHandle_ = kInvalidBufferHandle;
+	//	}
+	//}
 }
 
 void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData)

@@ -35,7 +35,7 @@ void GuchisFramework::Finalize() {
 }
 
 void GuchisFramework::Update() {
-	//Input::GetInstance().Update();
+	Input::GetInstance().Update();
 	DeltaTime::Update();
 	SceneManager::GetInstance().Update();
 }
