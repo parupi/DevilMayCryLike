@@ -2,16 +2,16 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <3d/Object/Object3dManager.h>
-#include <3d/WorldTransform.h>
-#include "3d/Object/Renderer/ModelRenderer.h"
+#include <World3D/Object/Object3dManager.h>
+#include <World3D/WorldTransform.h>
+#include "World3D/Object/Renderer/ModelRenderer.h"
 #include "State/PlayerStateBase.h"
 #include "PlayerWeapon.h"
-#include "math/Vector3.h"
-#include "math/function.h"
-#include <debuger/GlobalVariables.h>
+#include "Math/Vector3.h"
+#include "Math/MathUtils.h"
+#include <Debugger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
-#include <2d/Sprite.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
 #include "StateMachine/PlayerStateMachine.h"
 #include "GameObject/Character/CharacterStructs.h"
@@ -29,8 +29,7 @@ struct PlayerCommand;
 /// モデル描画、状態遷移、移動、攻撃、ロックオン、スコア加算、  
 /// エフェクトやヒットストップなど、プレイヤーの全挙動を管理する。
 /// </summary>
-class Player : public Object3d
-{
+class Player : public Object3d {
 public:
 	Player(std::string objectNama);
 	~Player() override = default;
@@ -153,12 +152,12 @@ private:
 
 	LockOnSystem* lockOn_ = nullptr;
 
-	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
+	GlobalVariables* gv = &GlobalVariables::GetInstance(); ///< グローバル変数管理
 
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
 	Vector3 velocity_{}; ///< プレイヤーの速度
-	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f }; ///< プレイヤーの加速度
+	Vector3 acceleration_{0.0f, 0.0f, 0.0f}; ///< プレイヤーの加速度
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ
 

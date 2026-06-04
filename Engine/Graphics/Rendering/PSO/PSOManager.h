@@ -3,34 +3,14 @@
 #include <d3d12.h>
 #include <mutex>
 #include "Graphics/Device/DirectXManager.h"
-
-enum class BlendMode {
-	kNone,
-	kNormal,
-	kAdd,
-	kSubtract,
-	kMultiply,
-	kScreen,
-};
-
-enum class OffScreenEffectType {
-	kNone,
-	kGray,
-	kVignette,
-	kSmooth,
-	kGauss,
-	kOutLine,
-	kDepth
-};
+#include "Graphics/Rendering/PSO/PSOCommon.h"
 
 class PSOManager {
 public:
-	// 初期化
 	void Initialize(DirectXManager* dxManager);
-	// 終了処理
 	void Finalize();
 
-public:// アクセッサ
+public:
 	// スプライト
 	ID3D12RootSignature* GetSpriteSignature() { return spriteSignature_.Get(); }
 	ID3D12PipelineState* GetSpritePSO(BlendMode blendMode);
@@ -55,71 +35,65 @@ public:// アクセッサ
 
 	ID3D12RootSignature* GetSkinningSignature() { return skinningSignature_.Get(); }
 	ID3D12PipelineState* GetSkinningPSO();
+
 	// DeferredRendering
 	ID3D12RootSignature* GetDeferredSignature() { return deferredSignature_.Get(); }
 	ID3D12PipelineState* GetDeferredPSO();
+
 	// LightingPath
 	ID3D12RootSignature* GetLightingPathSignature() { return lightingPathSignature_.Get(); }
 	ID3D12PipelineState* GetLightingPathPSO();
+
 	// FinalComposite
 	ID3D12RootSignature* GetFinalCompositeRootSignature() { return finalCompositeRootSignature_.Get(); }
 	ID3D12PipelineState* GetFinalCompositePSO(bool isPostCopy = false);
+
 	// Composite
 	ID3D12RootSignature* GetCompositeRootSignature() { return compositeRootSignature_.Get(); }
 	ID3D12PipelineState* GetCompositePSO();
+
 	// CascadedShadowMap
 	ID3D12RootSignature* GetCSMRootSignature() { return csmRootSignature_.Get(); }
 	ID3D12PipelineState* GetCSMPSO();
+
 	// Trail
 	ID3D12RootSignature* GetTrailSignature() { return trailSignature_.Get(); }
 	ID3D12PipelineState* GetTrailPSO();
+
 private:
-	// スプライト
 	void CreateSpriteSignature();
 	void CreateSpritePSO(BlendMode blendMode);
-	// パーティクル
 	void CreateParticleSignature();
 	void CreateParticlePSO(BlendMode blendMode);
-	// オブジェクト
 	void CreateObjectSignature();
 	void CreateObjectPSO(BlendMode blendMode);
-	// アニメーション
 	void CreateAnimationSignature();
 	void CreateAnimationPSO();
-	// オフスクリーン
 	void CreateOffScreenSignature();
 	void CreateOffScreenPSO(OffScreenEffectType effectType);
-	// プリミティブ
 	void CreatePrimitiveSignature();
 	void CreatePrimitivePSO();
-	// スカイボックス
 	void CreateSkyboxSignature();
 	void CreateSkyboxPSO();
-	// ComputeSkinning
 	void CreateSkinningSignature();
 	void CreateSkinningPSO();
-	// DeferredRendering
 	void CreateDeferredSignature();
 	void CreateDeferredPSO();
-	// LightingPath
 	void CreateLightingPathSignature();
 	void CreateLightingPathPSO();
-	// FinalComposite
 	void CreateFinalCompositeRootSignature();
 	void CreateFinalCompositePSO(bool isPostCopy);
-	// Composite
 	void CreateCompositeRootSignature();
 	void CreateCompositePSO();
-	// CascadedShadowMap
 	void CreateCSMRootSignature();
 	void CreateCSMPSO();
-	// Trail
 	void CreateTrailSignature();
 	void CreateTrailPSO();
+
 private:
 	DirectXManager* dxManager_ = nullptr;
 
-private: // データ格納用変数
+private:
 	// スプライト
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> spriteSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> spriteGraphicsPipelineState_;
@@ -150,10 +124,10 @@ private: // データ格納用変数
 	// LightingPath
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> lightingPathSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> lightingPathPipelineState_;
-	// 最終描画用
+	// FinalComposite
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> finalCompositeRootSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 2> finalCompositePSO_;
-	// Forward Deferred 合成用
+	// Forward/Deferred合成
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> compositeRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> compositePSO_;
 	// CascadedShadowMap

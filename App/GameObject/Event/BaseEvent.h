@@ -1,5 +1,5 @@
 #pragma once
-#include "3d/Object/Object3d.h"
+#include "World3D/Object/Object3d.h"
 
 /// <summary>
 /// イベントの種類を識別する列挙体

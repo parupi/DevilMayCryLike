@@ -1,6 +1,6 @@
 #pragma once
-#include "3d/Camera/BaseCamera.h"
-#include <math/Vector3.h>
+#include "World3D/Camera/BaseCamera.h"
+#include <Math/Vector3.h>
 #include <random>
 
 class Player;

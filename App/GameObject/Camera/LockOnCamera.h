@@ -1,5 +1,5 @@
 #pragma once
-#include "3d/Camera/BaseCamera.h"
+#include "World3D/Camera/BaseCamera.h"
 
 class Player;
 class LockOnSystem;

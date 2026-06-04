@@ -5,16 +5,13 @@
 class GameData
 {
 private:
-	static GameData* instance;
-	static std::once_flag initInstanceFlag;
-
 	GameData() = default;
 	~GameData() = default;
-	GameData(const GameData&) = default;
-	GameData& operator=(const GameData&) = default;
+	GameData(const GameData&) = delete;
+	GameData& operator=(const GameData&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static GameData* GetInstance();
+	static GameData& GetInstance();
 
 	int32_t GetClearScore() const { return clearScore_; }
 	void SetClearScore(int32_t score) { clearScore_ = score; }

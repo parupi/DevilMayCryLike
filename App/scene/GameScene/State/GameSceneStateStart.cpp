@@ -1,5 +1,5 @@
 #include "GameSceneStateStart.h"
-#include "scene/GameScene/GameScene.h"
+#include "Scene/GameScene/GameScene.h"
 
 void GameSceneStateStart::Enter(GameScene& scene)
 {

@@ -1,5 +1,5 @@
 #pragma once
-#include <math/Vector2.h>
+#include <Math/Vector2.h>
 #include <cstdint>
 
 enum class InputType {

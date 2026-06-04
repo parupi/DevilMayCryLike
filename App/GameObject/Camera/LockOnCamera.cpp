@@ -1,8 +1,8 @@
-#include "LockOnCamera.h"
-#include <3d/Object/Object3dManager.h>
+﻿#include "LockOnCamera.h"
+#include <World3D/Object/Object3dManager.h>
 #include "GameObject/Character/Player/Player.h"
 #include "GameCamera.h"
-#include <base/utility/DeltaTime.h>
+#include <Utility/DeltaTime.h>
 #include <cmath>
 
 LockOnCamera::LockOnCamera(std::string cameraName) : BaseCamera(cameraName)
@@ -34,13 +34,13 @@ void LockOnCamera::Update()
 		float angle = std::atan2(camToPlayer.x, camToPlayer.z);
 
 		// GameCamera に渡す
-		auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance()->FindCamera("GameCamera"));
+		auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance().FindCamera("GameCamera"));
 
 		if (gameCam) {
 			//gameCam->SetYaw(angle);
 		}
 
-		CameraManager::GetInstance()->SetActiveCamera("GameCamera", 0.3f);
+		CameraManager::GetInstance().SetActiveCamera("GameCamera", 0.3f);
 		return;
 	}
 

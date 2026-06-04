@@ -5,7 +5,7 @@
 #include <d3d12.h>
 #include <wrl.h>
 #include "ShadowTypes.h"
-#include "3d/Light/LightStructs.h"
+#include "World3D/Light/LightStructs.h"
 
 class DirectXManager;
 class BaseCamera;

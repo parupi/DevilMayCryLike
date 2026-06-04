@@ -1,10 +1,10 @@
-#include "Enemy.h"
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <3d/Collider/CollisionManager.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
+﻿#include "Enemy.h"
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <World3D/Object/Renderer/PrimitiveRenderer.h>
+#include <World3D/Collider/CollisionManager.h>
+#include <World3D/Object/Renderer/ModelRenderer.h>
 #include "GameObject/Character/Player/Player.h"
-#include <scene/Transition/TransitionManager.h>
+#include <Scene/Transition/TransitionManager.h>
 
 
 Enemy::Enemy(std::string objectName) : Object3d(objectName)
@@ -33,7 +33,7 @@ void Enemy::Initialize()
 void Enemy::Update(float deltaTime)
 {
 	if (!player_) {
-		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+		player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
 	}
 

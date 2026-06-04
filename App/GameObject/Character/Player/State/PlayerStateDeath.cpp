@@ -1,27 +1,27 @@
-#include "PlayerStateDeath.h"
-#include <base/utility/DeltaTime.h>
+﻿#include "PlayerStateDeath.h"
+#include <Utility/DeltaTime.h>
 #include <algorithm>
 #include "GameObject/Character/Player/Player.h"
-#include <scene/Transition/SceneTransitionController.h>
-#include <scene/Transition/TransitionManager.h>
-#include <scene/Transition/VignetteExpandTransition.h>
-#include <math/Easing.h>
+#include <Scene/Transition/SceneTransitionController.h>
+#include <Scene/Transition/TransitionManager.h>
+#include <Scene/Transition/VignetteExpandTransition.h>
+#include <Math/Easing.h>
 #include <GameObject/Camera/DeathCamera.h>
 
 PlayerStateDeath::PlayerStateDeath()
 {
 	// ステート生成時に一度トランジションを生成
-	if (TransitionManager::GetInstance()->AddTransition(std::make_unique<VignetteExpandTransition>("Death"))) {
+	if (TransitionManager::GetInstance().AddTransition(std::make_unique<VignetteExpandTransition>("Death"))) {
 		// 追加に成功したら初期化
-		static_cast<VignetteExpandTransition*>(TransitionManager::GetInstance()->GetCurrentTransition())->Initialize();
+		static_cast<VignetteExpandTransition*>(TransitionManager::GetInstance().GetCurrentTransition())->Initialize();
 		// 生成した段階ではフェードをセットしておく
-		TransitionManager::GetInstance()->SetTransition("Fade");
+		TransitionManager::GetInstance().SetTransition("Fade");
 	}
 }
 
 void PlayerStateDeath::Enter(Player& player)
 {
-	auto cameraManager = CameraManager::GetInstance();
+	auto* cameraManager = &CameraManager::GetInstance();
 
 	// 現在のゲームカメラを取得
 	BaseCamera* current = cameraManager->GetActiveCamera();
@@ -50,7 +50,7 @@ void PlayerStateDeath::Enter(Player& player)
 void PlayerStateDeath::Update(Player& player, float deltaTime)
 {
 	if (currentTime_ <= 0.0f) {
-		CameraManager::GetInstance()->SetActiveCamera("DeathCamera");
+		CameraManager::GetInstance().SetActiveCamera("DeathCamera");
 	}
 
 	// 時間経過
@@ -81,10 +81,10 @@ void PlayerStateDeath::Update(Player& player, float deltaTime)
 void PlayerStateDeath::Exit(Player& player)
 {
 	// シーン遷移を設定
-	TransitionManager::GetInstance()->SetTransition("Death");
+	TransitionManager::GetInstance().SetTransition("Death");
 
 	// シーンを変える
-	SceneTransitionController::GetInstance()->RequestSceneChange("GAMEPLAY");
+	SceneTransitionController::GetInstance().RequestSceneChange("GAMEPLAY");
 	player;
 }
 

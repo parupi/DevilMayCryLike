@@ -2,6 +2,7 @@
 
 #include "BaseScene.h"
 #include <string>
+#include <memory>
 
 /// <summary>
 /// シーン工場(概念)
@@ -12,6 +13,6 @@ public:
 	// 仮想デストラクタ
 	virtual ~AbstractSceneFactory() = default;
 	// シーン生成
-	virtual BaseScene* CreateScene(const std::string& sceneName) = 0;
+	virtual std::unique_ptr<BaseScene> CreateScene(const std::string& sceneName) = 0;
 };
 

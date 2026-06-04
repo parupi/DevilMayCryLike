@@ -2,7 +2,7 @@
 #include <memory>
 #include "RankUI.h"
 #include "ScoreUI.h"
-#include <2d/Sprite.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
 
 enum class State {
 	ResultDrop,

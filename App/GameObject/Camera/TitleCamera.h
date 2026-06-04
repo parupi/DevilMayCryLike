@@ -1,5 +1,5 @@
 #pragma once
-#include "3d/Camera/BaseCamera.h"
+#include "World3D/Camera/BaseCamera.h"
 
 /// <summary>
 /// タイトル画面で使用されるカメラを管理するクラス

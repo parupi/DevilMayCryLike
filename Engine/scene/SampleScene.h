@@ -1,20 +1,20 @@
-#pragma once
-#include <3d/Object/Object3d.h>
-#include <2d/Sprite.h>
-#include <3d/Object/Model/Model.h>
+﻿#pragma once
+#include <World3D/Object/Object3d.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
+#include <World3D/Object/Model/Model.h>
 #include <vector>
-#include "3d/Camera/BaseCamera.h"
-#include <scene/BaseScene.h>
+#include "World3D/Camera/BaseCamera.h"
+#include <Scene/BaseScene.h>
 #include <memory>
-#include <audio/Audio.h>
-#include <3d/Camera/CameraManager.h>
-#include <3d/WorldTransform.h>
-#include <base/Particle/ParticleEmitter.h>
-#include "offscreen/GrayEffect.h"
-#include <3d/Light/LightManager.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
-#include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <3d/Collider/AABBCollider.h>
+#include <Audio/Audio.h>
+#include <World3D/Camera/CameraManager.h>
+#include <World3D/WorldTransform.h>
+#include <Graphics/Rendering/Particle/ParticleEmitter.h>
+#include "Graphics/Rendering/PostEffect/GrayEffect.h"
+#include <World3D/Light/LightManager.h>
+#include <World3D/Object/Renderer/ModelRenderer.h>
+#include <World3D/Object/Renderer/PrimitiveRenderer.h>
+#include <World3D/Collider/AABBCollider.h>
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Camera/GameCamera.h"
 #include <imgui_node_editor.h>
@@ -57,11 +57,11 @@ public:
 #endif // _DEBUG
 
 private:
-	CameraManager* cameraManager_ = CameraManager::GetInstance();
+	CameraManager* cameraManager_ = &CameraManager::GetInstance();
 
 	std::unique_ptr<BaseCamera> normalCamera_;
 
-	LightManager* lightManager_ = LightManager::GetInstance();
+	LightManager* lightManager_ = &LightManager::GetInstance();
 
 	Object3d* object_;
 	Object3d* object2_;

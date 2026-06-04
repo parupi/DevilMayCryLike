@@ -1,6 +1,6 @@
-#include "GameSceneStatePlay.h"
-#include "scene/GameScene/GameScene.h"
-#include <base/utility/DeltaTime.h>
+﻿#include "GameSceneStatePlay.h"
+#include "Scene/GameScene/GameScene.h"
+#include <Utility/DeltaTime.h>
 #include <GameObject/Event/EventManager.h>
 #include <GameObject/Event/ClearEvent.h>
 
@@ -29,12 +29,12 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 		break;
 	case PlayState::Play:
 
-		if (Input::GetInstance()->TriggerKey(DIK_M) || Input::GetInstance()->PushButton(ButtonStart)) {
+		if (Input::GetInstance().TriggerKey(DIK_M) || Input::GetInstance().PushButton(ButtonStart)) {
 			scene.ChangeState("Menu");
 		}
 
 		{
-			auto* clearEvent = static_cast<ClearEvent*>(EventManager::GetInstance()->FindEvent("Event_Clear"));
+			auto* clearEvent = static_cast<ClearEvent*>(EventManager::GetInstance().FindEvent("Event_Clear"));
 			if (clearEvent && clearEvent->IsClear()) {
 				scene.ChangeState("Clear");
 			}

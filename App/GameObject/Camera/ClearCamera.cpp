@@ -1,4 +1,4 @@
-#include "ClearCamera.h"
+﻿#include "ClearCamera.h"
 
 ClearCamera::ClearCamera(std::string cameraName) : BaseCamera(cameraName)
 {
@@ -8,7 +8,7 @@ ClearCamera::ClearCamera(std::string cameraName) : BaseCamera(cameraName)
 void ClearCamera::Update()
 {
     if (!player_) {
-        player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+        player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
         if (!player_) return;
     }
 

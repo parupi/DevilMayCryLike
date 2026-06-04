@@ -1,10 +1,10 @@
 #pragma once
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/PrimitiveRenderer.h>
-#include <3d/Object/Object3dManager.h>
-#include <3d/Object/Object3d.h>
-#include <2d/Sprite.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <World3D/Object/Renderer/PrimitiveRenderer.h>
+#include <World3D/Object/Object3dManager.h>
+#include <World3D/Object/Object3d.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
+#include <World3D/Object/Renderer/ModelRenderer.h>
 
 /// <summary>
 /// タイトルのUIをまとめるクラス

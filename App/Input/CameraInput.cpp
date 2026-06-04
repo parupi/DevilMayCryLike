@@ -1,5 +1,5 @@
 #include "CameraInput.h"
-#include "input/input.h" 
+#include "Input/input.h" 
 
 void CameraInput::Initialize(Input* input)
 {

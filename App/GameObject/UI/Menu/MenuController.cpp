@@ -1,24 +1,24 @@
-#include "MenuController.h"
+﻿#include "MenuController.h"
 #include <imgui.h>
-#include <input/Input.h>
-#include <base/utility/DeltaTime.h>
-#include "2d/SpriteManager.h"
+#include <Input/Input.h>
+#include <Utility/DeltaTime.h>
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void MenuController::Initialize()
 {
-	TextureManager::GetInstance()->LoadTexture("SelectArrow2.png");
+	TextureManager::GetInstance().LoadTexture("SelectArrow2.png");
 
-	rightArrow_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "rightArrow", "SelectArrow2.png");
+	rightArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rightArrow", "SelectArrow2.png");
 	rightArrow_->SetSize({ -64.0f, 64.0f });
 	rightArrow_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
-	leftArrow_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "leftArrow", "SelectArrow2.png");
+	leftArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "leftArrow", "SelectArrow2.png");
 	leftArrow_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	leftArrow_->SetSize({ 64.0f, 64.0f });
 
 	rightArrow_->SetPosition({ 820.0f, 300.0f });
 	leftArrow_->SetPosition({ 450.0f, 300.0f });
 
-	musk_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "rightArrow", "white.png");
+	musk_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rightArrow", "white.png");
 	musk_->SetSize({330.0f, 64.0f});
 }
 
@@ -49,11 +49,11 @@ void MenuController::Exit()
 //		leftArrow_->SetPosition({ 450.0f, 300.0f });
 //		musk_->SetPosition({ 470.0f, 300.0f });
 //
-//		if (Input::GetInstance()->TriggerKey(DIK_W) || Input::GetInstance()->TriggerKey(DIK_S)/* || Input::GetInstance()->PushButton(ButtonStart)*/) {
+//		if (Input::GetInstance().TriggerKey(DIK_W) || Input::GetInstance().TriggerKey(DIK_S)/* || Input::GetInstance().PushButton(ButtonStart)*/) {
 //			states_ = MenuStates::SelectSecond;
 //		}
 //
-//		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+//		if (Input::GetInstance().TriggerKey(DIK_SPACE)) {
 //			states_ = MenuStates::Exit;
 //		}
 //		break;
@@ -62,11 +62,11 @@ void MenuController::Exit()
 //		leftArrow_->SetPosition({ 450.0f, 450.0f });
 //		musk_->SetPosition({ 470.0f, 450.0f });
 //
-//		if (Input::GetInstance()->TriggerKey(DIK_W) || Input::GetInstance()->TriggerKey(DIK_S)) {
+//		if (Input::GetInstance().TriggerKey(DIK_W) || Input::GetInstance().TriggerKey(DIK_S)) {
 //			states_ = MenuStates::SelectFirst;
 //		}
 //
-//		if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+//		if (Input::GetInstance().TriggerKey(DIK_SPACE)) {
 //			states_ = MenuStates::Decision;
 //		}
 //		break;
@@ -105,7 +105,7 @@ void MenuController::Exit()
 
 void MenuController::Update()
 {
-    Input* input = Input::GetInstance();
+    Input* input = &Input::GetInstance();
 
     // ===== 入力取得 =====
     static bool stickNeutral = true;

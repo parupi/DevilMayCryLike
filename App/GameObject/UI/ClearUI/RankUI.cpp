@@ -1,19 +1,19 @@
-#define NOMINMAX
+﻿#define NOMINMAX
 #include "RankUI.h"
-#include <base/utility/DeltaTime.h>
+#include <Utility/DeltaTime.h>
 #include <GameData/GameData.h>
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void RankUI::Initialize()
 {
-    rank_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "rankUI", "Ranks.png");
+    rank_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rankUI", "Ranks.png");
     rank_->SetUVSize({ 0.2f, 1.0f });
     rank_->SetAnchorPoint({ 0.5f, 0.5f });
 
     // ランクに応じた UV の X 座標
     float uvX = 0.0f; // default D
 
-    std::string currentRank = GameData::GetInstance()->GetClearRank();
+    std::string currentRank = GameData::GetInstance().GetClearRank();
         
     if (currentRank == "C")      uvX = 0.2f;
     else if (currentRank == "B") uvX = 0.4f;

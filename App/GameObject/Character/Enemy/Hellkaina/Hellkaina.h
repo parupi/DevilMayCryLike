@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "HellkainaWeapon.h"
-#include "base/Particle/ParticleEmitter.h"
+#include "Graphics/Rendering/Particle/ParticleEmitter.h"
 
 class Hellkaina : public Enemy
 {

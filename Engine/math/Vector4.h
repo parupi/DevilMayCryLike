@@ -1,6 +1,6 @@
 #pragma once
 #include <cmath> // sqrtf関数を使うために必要
-#include <math/Matrix4x4.h>
+#include <Math/Matrix4x4.h>
 struct Quaternion;
 
 /// <summary>

@@ -1,34 +1,34 @@
 #include "Player.h"
 #include "State/PlayerStateIdle.h"
 #include "State/PlayerStateMove.h"
-#include "3d/Object/Renderer/RendererManager.h"
-#include "3d/Object/Renderer/PrimitiveRenderer.h"
-#include "3d/Collider/AABBCollider.h"
-#include "3d/Collider/OBBCollider.h"
-#include "3d/Collider/CollisionManager.h"
-#include "base/utility/DeltaTime.h"
+#include "World3D/Object/Renderer/RendererManager.h"
+#include "World3D/Object/Renderer/PrimitiveRenderer.h"
+#include "World3D/Collider/AABBCollider.h"
+#include "World3D/Collider/OBBCollider.h"
+#include "World3D/Collider/CollisionManager.h"
+#include "Utility/DeltaTime.h"
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
-#include "3d/Primitive/PrimitiveLineDrawer.h"
+#include "World3D/Primitive/PrimitiveLineDrawer.h"
 #include "State/Attack/PlayerStateAttack.h"
-#include "scene/Transition/TransitionManager.h"
+#include "Scene/Transition/TransitionManager.h"
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
 #include "State/PlayerStateKnockBack.h"
 #include "Controller/PlayerInput.h"
-#include "2d/SpriteManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 #include <numbers>
 
-#include "input/Input.h"
+#include "Input/Input.h"
 
 Player::Player(std::string objectNama) : Object3d(objectNama) {
 	Object3d::Initialize();
 
 	// レンダラーの生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
 
-	AddRenderer(RendererManager::GetInstance()->FindRender("PlayerHead"));
+	AddRenderer(RendererManager::GetInstance().FindRender("PlayerHead"));
 	// 地面にしっかりつくようにする
 	GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 0.5f;
 
@@ -54,15 +54,15 @@ void Player::Initialize() {
 	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
 	//static_cast<AABBCollider*>(GetCollider(name_))->transform_->GetTranslation().y += 0.1f;
 	// 武器のレンダラー生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<OBBCollider>("WeaponCollider"));
+	CollisionManager::GetInstance().AddCollider(std::make_unique<OBBCollider>("WeaponCollider"));
 	// 武器を生成
 	weapon_ = std::make_unique<PlayerWeapon>("PlayerWeapon");
 	// 武器にレンダラーを追加
-	weapon_->AddRenderer(RendererManager::GetInstance()->FindRender("PlayerWeapon"));
+	weapon_->AddRenderer(RendererManager::GetInstance().FindRender("PlayerWeapon"));
 	// 武器にコライダーを追加
-	weapon_->AddCollider(CollisionManager::GetInstance()->FindCollider("WeaponCollider"));
+	weapon_->AddCollider(CollisionManager::GetInstance().FindCollider("WeaponCollider"));
 	// 武器の初期化
 	weapon_->Initialize();
 	// 武器のワールドトランスフォームをプレイヤーの子にする
@@ -78,10 +78,10 @@ void Player::Initialize() {
 	hearts_.resize(maxHp_);
 	for (int32_t i = 0; i < maxHp_; ++i) {
 		// UI要素の初期化
-		hearts_[i] = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::UI, "heart" + std::to_string(i), "Heart.png");
-		hearts_[i]->SetSize({ 64.0f, 64.0f });
-		hearts_[i]->SetAnchorPoint({ 0.5f, 0.5f });
-		hearts_[i]->SetPosition({ 50.0f + i * 50.0f, 50.0f }); // 左上に横並びで配置
+		hearts_[i] = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "heart" + std::to_string(i), "Heart.png");
+		hearts_[i]->SetSize({64.0f, 64.0f});
+		hearts_[i]->SetAnchorPoint({0.5f, 0.5f});
+		hearts_[i]->SetPosition({50.0f + i * 50.0f, 50.0f}); // 左上に横並びで配置
 	}
 
 	hitStop_ = std::make_unique<HitStop>();
@@ -95,7 +95,7 @@ void Player::Update(float deltaTime) {
 	float dt = deltaTime * hitStop_->GetTimeScale();
 
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
-	if (Input::GetInstance()->TriggerKey(DIK_R)) {
+	if (Input::GetInstance().TriggerKey(DIK_R)) {
 		ChangeState("Death");
 	}
 
@@ -118,8 +118,7 @@ void Player::Update(float deltaTime) {
 		std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
 	if (isKnockbackState) {
 		stateMachine_->UpdateCurrentState(*this, dt);
-	}
-	else if (!combat_->IsAttacking()) {
+	} else if (!combat_->IsAttacking()) {
 		stateMachine_->UpdateCurrentState(*this, dt);
 	}
 	combat_->Update(dt);
@@ -139,9 +138,9 @@ void Player::Update(float deltaTime) {
 
 	for (size_t i = 0; i < hearts_.size(); ++i) {
 		if (i < hp_) {
-			hearts_[i]->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f }); // HP分は表示
+			hearts_[i]->SetColor({1.0f, 1.0f, 1.0f, 1.0f}); // HP分は表示
 		} else {
-			hearts_[i]->SetColor({ 0.0f, 0.0f, 0.0f, 0.3f }); // 残りは半透明で表示
+			hearts_[i]->SetColor({0.0f, 0.0f, 0.0f, 0.3f}); // 残りは半透明で表示
 		}
 		hearts_[i]->Update();
 	}
@@ -192,7 +191,7 @@ void Player::ExecuteCommand(const PlayerCommand& command) {
 }
 
 Vector3 Player::GetMoveDirection() const {
-	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera = CameraManager::GetInstance().GetActiveCamera();
 	if (!camera) return {};
 	// 入力のcontext
 	const PlayerInputContext& context = input_->GetContext();
@@ -200,7 +199,7 @@ Vector3 Player::GetMoveDirection() const {
 	if (!context.isMove) return {};
 
 	// 入力方向を取得
-	Vector3 inputDir = { context.move.x, 0.0f, context.move.y };
+	Vector3 inputDir = {context.move.x, 0.0f, context.move.y};
 	// 大きさが小さければ処理しない
 	if (Length(inputDir) < 0.01f) return {};
 	// 入力方向を正規化
@@ -279,8 +278,7 @@ void Player::TakeDamage(const DamageInfo& info) {
 	if (hp_ <= 0.0f) {
 		ChangeState("Death");
 		hitVignette_->Stop();
-	}
-	else {
+	} else {
 		stateMachine_->ChangeState(*this, "Knockback");
 	}
 }
@@ -294,7 +292,7 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		Vector3 playerPos = GetWorldTransform()->GetTranslation();
 		Vector3 dir = playerPos - weaponPos;
 		dir.y = 0.0f;
-		dir = (Length(dir) > 0.001f) ? Normalize(dir) : Vector3{ 0.0f, 0.0f, -1.0f };
+		dir = (Length(dir) > 0.001f) ? Normalize(dir) : Vector3{0.0f, 0.0f, -1.0f};
 
 		DamageInfo info;
 		info.damage = 1.0f;
@@ -326,28 +324,23 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		if (outNormal.x == 1.0f) {
 			// 右に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		}
-		else if (outNormal.x == -1.0f) {
+		} else if (outNormal.x == -1.0f) {
 			// 左に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		}
-		else if (outNormal.y == 1.0f) {
+		} else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
 			//velocity_.y = 0.0f;
 			onGround_ = true;
-		}
-		else if (outNormal.y == -1.0f) {
+		} else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
 			//velocity_ *= -1.0f;
-		}
-		else if (outNormal.z == 1.0f) {
+		} else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		}
-		else if (outNormal.z == -1.0f) {
+		} else if (outNormal.z == -1.0f) {
 			// 手前に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}
@@ -371,28 +364,23 @@ void Player::OnCollisionStay(BaseCollider* other) {
 		if (outNormal.x == 1.0f) {
 			// 右に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		}
-		else if (outNormal.x == -1.0f) {
+		} else if (outNormal.x == -1.0f) {
 			// 左に当たってる
 			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		}
-		else if (outNormal.y == 1.0f) {
+		} else if (outNormal.y == 1.0f) {
 			// 上に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
 			GetWorldTransform()->GetTranslation().y -= 0.1f;
 			//velocity_.y = 0.0f;
 			onGround_ = true;
-		}
-		else if (outNormal.y == -1.0f) {
+		} else if (outNormal.y == -1.0f) {
 			// 下に当たってる
 			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
 			//velocity_ *= -1.0f;
-		}
-		else if (outNormal.z == 1.0f) {
+		} else if (outNormal.z == 1.0f) {
 			// 奥に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		}
-		else if (outNormal.z == -1.0f) {
+		} else if (outNormal.z == -1.0f) {
 			// 手前に当たってる
 			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
 		}

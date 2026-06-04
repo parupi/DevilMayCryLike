@@ -1,14 +1,14 @@
-#pragma once
-#include "3d/Camera/BaseCamera.h"
-#include <scene/BaseScene.h>
-#include "scene/SceneManager.h"
+﻿#pragma once
+#include "World3D/Camera/BaseCamera.h"
+#include <Scene/BaseScene.h>
+#include "Scene/SceneManager.h"
 #include <memory>
-#include <3d/Camera/CameraManager.h>
-#include <3d/Light/LightManager.h>
-#include <scene/Transition/SceneTransitionController.h>
+#include <World3D/Camera/CameraManager.h>
+#include <World3D/Light/LightManager.h>
+#include <Scene/Transition/SceneTransitionController.h>
 #include <GameObject/Camera/TitleCamera.h>
 #include <GameObject/UI/TitleUI/TitleUI.h>
-#include <base/Particle/ParticleManager.h>
+#include <Graphics/Rendering/Particle/ParticleManager.h>
 
 /// <summary>
 /// タイトルシーンを管理するクラス  
@@ -70,7 +70,7 @@ private:
 
 private:
 	TitleCamera* camera_ = nullptr; ///< タイトルシーン専用カメラ
-	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
+	CameraManager* cameraManager_ = &CameraManager::GetInstance(); ///< カメラ管理クラス
 
 	// ==========================
 	// パーティクルエフェクト
@@ -82,7 +82,7 @@ private:
 	// ==========================
 	// ライト・遷移・UI
 	// ==========================
-	LightManager* lightManager_ = LightManager::GetInstance(); ///< ライト管理クラス
-	SceneTransitionController* controller = SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
+	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
+	SceneTransitionController* controller = &SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
 	std::unique_ptr<TitleUI> titleUI_; ///< タイトル画面のUI要素管理
 };

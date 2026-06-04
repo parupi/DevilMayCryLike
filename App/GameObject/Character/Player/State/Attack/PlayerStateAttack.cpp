@@ -1,10 +1,10 @@
-#include "PlayerStateAttack.h"
-#include "debuger/GlobalVariables.h"
-#include "3d/Primitive/PrimitiveLineDrawer.h"
-#include <math/function.h>
+﻿#include "PlayerStateAttack.h"
+#include "Debugger/GlobalVariables.h"
+#include "World3D/Primitive/PrimitiveLineDrawer.h"
+#include <Math/MathUtils.h>
 #include "GameObject/Character/Player/Player.h"
-#include "3d/Collider/AABBCollider.h"
-#include "base/utility/DeltaTime.h"
+#include "World3D/Collider/AABBCollider.h"
+#include "Utility/DeltaTime.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 
 PlayerStateAttack::PlayerStateAttack(std::string attackName) {
@@ -185,37 +185,37 @@ void PlayerStateAttack::OnInterrupted(Player& player) {
 
 void PlayerStateAttack::UpdateAttackData() {
 	// 制御点
-	attackData_.pointCount = gv->GetInstance()->GetValueRef<int32_t>(name_, "PointCount");
+	attackData_.pointCount = GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "PointCount");
 	attackData_.controlPoints.resize(attackData_.pointCount);
 	attackData_.controlRotations.resize(attackData_.pointCount);
 	for (int32_t i = 0; i < attackData_.pointCount; i++) {
-		attackData_.controlPoints[i] = gv->GetInstance()->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i));
-		attackData_.controlRotations[i] = gv->GetInstance()->GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i));
+		attackData_.controlPoints[i] = GlobalVariables::GetInstance().GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i));
+		attackData_.controlRotations[i] = GlobalVariables::GetInstance().GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i));
 	}
 
 	// 移動系
-	attackData_.moveVelocity = gv->GetInstance()->GetValueRef<Vector3>(name_, "MoveSpeed");
-	attackData_.knockBackSpeed = gv->GetInstance()->GetValueRef<Vector3>(name_, "KnockBackSpeed");
+	attackData_.moveVelocity = GlobalVariables::GetInstance().GetValueRef<Vector3>(name_, "MoveSpeed");
+	attackData_.knockBackSpeed = GlobalVariables::GetInstance().GetValueRef<Vector3>(name_, "KnockBackSpeed");
 
 	// タイマー系
-	attackData_.totalDuration = gv->GetInstance()->GetValueRef<float>(name_, "TotalDuration");
-	attackData_.preDelay = gv->GetInstance()->GetValueRef<float>(name_, "PreDelay");
-	attackData_.attackDuration = gv->GetInstance()->GetValueRef<float>(name_, "AttackDuration");
-	attackData_.postDelay = gv->GetInstance()->GetValueRef<float>(name_, "PostDelay");
-	attackData_.nextAttackDelay = gv->GetInstance()->GetValueRef<float>(name_, "NextAttackDelay");
+	attackData_.totalDuration = GlobalVariables::GetInstance().GetValueRef<float>(name_, "TotalDuration");
+	attackData_.preDelay = GlobalVariables::GetInstance().GetValueRef<float>(name_, "PreDelay");
+	attackData_.attackDuration = GlobalVariables::GetInstance().GetValueRef<float>(name_, "AttackDuration");
+	attackData_.postDelay = GlobalVariables::GetInstance().GetValueRef<float>(name_, "PostDelay");
+	attackData_.nextAttackDelay = GlobalVariables::GetInstance().GetValueRef<float>(name_, "NextAttackDelay");
 
 	// その他
-	attackData_.isMove = gv->GetInstance()->GetValueRef<bool>(name_, "IsMove");
-	attackData_.drawDebugControlPoints = gv->GetInstance()->GetValueRef<bool>(name_, "DrawDebugControlPoints");
-	attackData_.damage = gv->GetInstance()->GetValueRef<float>(name_, "Damage");
+	attackData_.isMove = GlobalVariables::GetInstance().GetValueRef<bool>(name_, "IsMove");
+	attackData_.drawDebugControlPoints = GlobalVariables::GetInstance().GetValueRef<bool>(name_, "DrawDebugControlPoints");
+	attackData_.damage = GlobalVariables::GetInstance().GetValueRef<float>(name_, "Damage");
 
-	attackData_.hitStopTime = gv->GetInstance()->GetValueRef<float>(name_, "HitStopTime");
+	attackData_.hitStopTime = GlobalVariables::GetInstance().GetValueRef<float>(name_, "HitStopTime");
 
-	attackData_.hitStopIntensity = gv->GetInstance()->GetValueRef<float>(name_, "HitStopIntensity");
+	attackData_.hitStopIntensity = GlobalVariables::GetInstance().GetValueRef<float>(name_, "HitStopIntensity");
 	// 攻撃を受けた側に送る情報
-	attackData_.type = static_cast<ReactionType>(gv->GetInstance()->GetValueRef<int32_t>(name_, "ReactionType"));
+	attackData_.type = static_cast<ReactionType>(GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "ReactionType"));
 	// ノックバック＆打ち上げ共通
-	attackData_.impulseForce = gv->GetInstance()->GetValueRef<float>(name_, "ImpulseForce");
+	attackData_.impulseForce = GlobalVariables::GetInstance().GetValueRef<float>(name_, "ImpulseForce");
 	attackData_.upwardRatio = gv->GetValueRef<float>(name_, "UpwardRatio");
 	// 吹っ飛び用
 	attackData_.torqueForce = gv->GetValueRef<float>(name_, "TorqueForce");
@@ -228,7 +228,7 @@ void PlayerStateAttack::DrawControlPoints(Player& player) {
 
 	// 制御点の位置に球を描画
 	for (int32_t i = 0; i < attackData_.pointCount; ++i) {
-		PrimitiveLineDrawer::GetInstance()->DrawWireSphere(player.GetWorldTransform()->GetTranslation() + attackData_.controlPoints[i], 0.05f, { 1, 1, 1, 1 }, 24);
+		PrimitiveLineDrawer::GetInstance().DrawWireSphere(player.GetWorldTransform()->GetTranslation() + attackData_.controlPoints[i], 0.05f, { 1, 1, 1, 1 }, 24);
 	}
 
 	// 曲線がどんな感じになるか計算
@@ -242,7 +242,7 @@ void PlayerStateAttack::DrawControlPoints(Player& player) {
 	}
 	// 計算した曲線を描画
 	for (size_t i = 0; i < curvePoints.size() - 1; i++) {
-		PrimitiveLineDrawer::GetInstance()->DrawLine(player.GetWorldTransform()->GetTranslation() + curvePoints[i], player.GetWorldTransform()->GetTranslation() + curvePoints[i + 1], { 1.0f, 1.0f, 1.0f, 1.0f });
+		PrimitiveLineDrawer::GetInstance().DrawLine(player.GetWorldTransform()->GetTranslation() + curvePoints[i], player.GetWorldTransform()->GetTranslation() + curvePoints[i + 1], { 1.0f, 1.0f, 1.0f, 1.0f });
 	}
 }
 

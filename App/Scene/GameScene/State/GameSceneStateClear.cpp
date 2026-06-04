@@ -1,7 +1,7 @@
-#include "GameSceneStateClear.h"
-#include "scene/GameScene/GameScene.h"
-#include <scene/Transition/SceneTransitionController.h>
-#include <base/utility/DeltaTime.h>
+﻿#include "GameSceneStateClear.h"
+#include "Scene/GameScene/GameScene.h"
+#include <Scene/Transition/SceneTransitionController.h>
+#include <Utility/DeltaTime.h>
 
 void GameSceneStateClear::Enter(GameScene& scene) {
 	scene.GetInputContext()->SetCanPlayerMove(false);
@@ -18,7 +18,7 @@ void GameSceneStateClear::Update(GameScene& scene) {
 	waitTime_ += DeltaTime::GetDeltaTime();
 	if (waitTime_ >= waitDuration_) {
 		requested_ = true;
-		SceneTransitionController::GetInstance()->RequestSceneChange("CLEAR", true);
+		SceneTransitionController::GetInstance().RequestSceneChange("CLEAR", true);
 	}
 }
 

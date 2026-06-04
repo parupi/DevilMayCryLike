@@ -2,7 +2,7 @@
 #ifdef USE_IMGUI
 #include <imgui.h>
 #endif // IMGUI
-#include "math/Matrix4x4.h" // 必要なMatrix4x4の定義を含むヘッダーをインクルード
+#include "Math/Matrix4x4.h" // 必要なMatrix4x4の定義を含むヘッダーをインクルード
 
 // ベクトルの加算
 Vector4 Vector4::operator+(const Vector4& other) const {

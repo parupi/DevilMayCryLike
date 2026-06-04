@@ -1,13 +1,13 @@
-#include "BossKnight.h"
+﻿#include "BossKnight.h"
 #include "GameObject/Character/Player/Player.h"
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Object/Renderer/ModelRenderer.h>
-#include <3d/Collider/AABBCollider.h>
-#include <3d/Collider/CollisionManager.h>
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <World3D/Object/Renderer/ModelRenderer.h>
+#include <World3D/Collider/AABBCollider.h>
+#include <World3D/Collider/CollisionManager.h>
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "GameObject/Character/Enemy/State/EnemyStateKnockBack.h"
-#include "base/Particle/ParticleManager.h"
+#include "Graphics/Rendering/Particle/ParticleManager.h"
 
 #include "State/BossStateCombatIdle.h"
 #include "State/BossStateApproach.h"
@@ -16,8 +16,8 @@
 #include "State/BossStateRush.h"
 
 BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
-	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 1.5f, 1.5f, 1.5f };
 
 	hp_ = kMaxHp;
@@ -30,17 +30,17 @@ void BossKnight::Initialize() {
 	col->GetColliderData().offsetMin *= 0.65f;
 
 	// ── 武器の生成 ──
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
-	CollisionManager::GetInstance()->FindCollider(name_ + "Weapon")->category_ = CollisionCategory::EnemyWeapon;
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
+	CollisionManager::GetInstance().AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
+	CollisionManager::GetInstance().FindCollider(name_ + "Weapon")->category_ = CollisionCategory::EnemyWeapon;
 
 	auto weapon = std::make_unique<BossWeapon>(name_ + "Weapon");
-	weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "Weapon"));
-	weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "Weapon"));
+	weapon->AddRenderer(RendererManager::GetInstance().FindRender(name_ + "Weapon"));
+	weapon->AddCollider(CollisionManager::GetInstance().FindCollider(name_ + "Weapon"));
 	weapon->Initialize();
 	weapon->GetWorldTransform()->SetParent(GetWorldTransform());
 	weapon_ = weapon.get();
-	Object3dManager::GetInstance()->AddObject(std::move(weapon));
+	Object3dManager::GetInstance().AddObject(std::move(weapon));
 
 	// ── コンポーネント生成 ──
 	sensor_ = std::make_unique<EnemySensorComponent>();
@@ -64,8 +64,8 @@ void BossKnight::Initialize() {
 	states_[BossStateName::Rush] = std::make_unique<BossStateRush>(meleeAttack_.get());
 
 	// ── パーティクル: ヒットエフェクト ──
-	ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	ParticleManager::GetInstance().CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
+	auto& emitters = ParticleManager::GetInstance().GetEmitters();
 	hitEmitter_ = emitters.at(name_ + "HitEffect").get();
 	hitEmitter_->SetParent(GetWorldTransform());
 	hitEmitter_->AddParticle("EnemyDamageEffect");
@@ -73,8 +73,8 @@ void BossKnight::Initialize() {
 	hitEmitter_->SetActiveFlag(false);
 
 	// ── パーティクル: チャージエフェクト（予備動作中に収束するリング）──
-	ParticleManager::GetInstance()->CreateEmitter(name_ + "ChargeEffect");
-	chargeEmitter_ = ParticleManager::GetInstance()->GetEmitters().at(name_ + "ChargeEffect").get();
+	ParticleManager::GetInstance().CreateEmitter(name_ + "ChargeEffect");
+	chargeEmitter_ = ParticleManager::GetInstance().GetEmitters().at(name_ + "ChargeEffect").get();
 	chargeEmitter_->SetParent(GetWorldTransform());
 	chargeEmitter_->AddParticle("EnemyChargeRing");
 

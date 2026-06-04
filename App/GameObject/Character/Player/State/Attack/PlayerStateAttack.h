@@ -1,7 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "GameObject/Character/Player/State/PlayerStateBase.h"
-#include "debuger/GlobalVariables.h"
-#include "3d/Object/Object3d.h"
+#include "Debugger/GlobalVariables.h"
+#include "World3D/Object/Object3d.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "AttackStructs.h"
 class Player;
@@ -56,7 +56,7 @@ private:
 		Cancel, // 入力待ち時間
 	}attackPhase_{};
 
-	GlobalVariables* gv = GlobalVariables::GetInstance();
+	GlobalVariables* gv = &GlobalVariables::GetInstance();
 
 	AttackData attackData_{};
 	// 派生先を管理するためのタイマー

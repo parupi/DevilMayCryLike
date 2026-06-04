@@ -1,13 +1,13 @@
-#pragma once
-#include "scene/BaseScene.h"
+﻿#pragma once
+#include "Scene/BaseScene.h"
 
 #include "GameObject/Camera/GameCamera.h"
-#include "3d/Light/LightManager.h"
+#include "World3D/Light/LightManager.h"
 #include "GameObject/UI/StageStart/StageStart.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Camera/ClearCamera.h"
 #include "GameObject/UI/GameUI/GameUI.h"
-#include "scene/GameScene/State/GameSceneStateBase.h"
+#include "Scene/GameScene/State/GameSceneStateBase.h"
 #include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
 #include "Input/InputContext.h"
@@ -84,11 +84,11 @@ private:
 	// ロックオンの処理を行うクラス
 	std::unique_ptr<LockOnSystem> lockOnSystem_ = nullptr;
 
-	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
+	CameraManager* cameraManager_ = &CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
 	ClearCamera* clearCamera_ = nullptr;
 
-	LightManager* lightManager_ = LightManager::GetInstance(); ///< ライト管理クラス
+	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
 

@@ -1,6 +1,6 @@
 #pragma once
-#include "3d/Camera/BaseCamera.h"
-#include "input/Input.h"
+#include "World3D/Camera/BaseCamera.h"
+#include "Input/Input.h"
 
 class Player;
 class LockOnSystem;
