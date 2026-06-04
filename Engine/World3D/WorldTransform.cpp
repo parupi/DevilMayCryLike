@@ -1,4 +1,4 @@
-#include "WorldTransform.h"
+﻿#include "WorldTransform.h"
 #include "Math/MathUtils.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "World3D/Object/Object3dManager.h"
@@ -28,11 +28,11 @@ void WorldTransform::Initialize() {
 	CreateConstBuffer();
 
 	// 定数バッファへ初期行列を転送
-	TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
+	TransferMatrix(CameraManager::GetInstance().GetCurrentCamera());
 }
 
 void WorldTransform::CreateConstBuffer() {
-	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
+	auto* resourceManager = Object3dManager::GetInstance().GetDxManager()->GetResourceManager();
 	// MVP用のリソースを作る。Matrix4x4 1つ分のサイズを用意する
 	bufferHandle_ = resourceManager->CreateUploadBuffer(sizeof(TransformationMatrix), L"WorldTransformBuffer");
 	// 書き込むためのアドレスを取得
@@ -68,16 +68,16 @@ void WorldTransform::TransferMatrix(BaseCamera* camera) {
 		//constMap->WorldInverseTranspose = Inverse(matWorld_);
 		constMap->WorldInverseTranspose = Transpose(Inverse(matWorld_));
 
-		auto* camera = CameraManager::GetInstance()->GetActiveCamera();
+		auto* camera = CameraManager::GetInstance().GetActiveCamera();
 		if (camera) {
-			Matrix4x4 viewProj = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix(); // あなたの実装に合わせて
+			Matrix4x4 viewProj = CameraManager::GetInstance().GetActiveCamera()->GetViewProjectionMatrix(); // あなたの実装に合わせて
 			constMap->WVP = matWorld_ * viewProj; // row-vector版: W * V * P
 		}
 	}
 }
 
 void WorldTransform::BindToShader(ID3D12GraphicsCommandList* cmd, int32_t index) const {
-	auto* resourceManager = Object3dManager::GetInstance()->GetDxManager()->GetResourceManager();
+	auto* resourceManager = Object3dManager::GetInstance().GetDxManager()->GetResourceManager();
 
 	cmd->SetGraphicsRootConstantBufferView(index, resourceManager->GetGPUVirtualAddress(bufferHandle_));
 }

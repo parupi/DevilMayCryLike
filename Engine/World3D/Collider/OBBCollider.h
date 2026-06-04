@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "BaseCollider.h"
 #include "World3D/Object/Object3d.h"
 #include <Math/Vector3.h>
@@ -29,5 +29,5 @@ public:
 	OBBData& GetColliderData() { return obbData_; }
 
 private:
-	BaseCamera* camera_ = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera_ = CameraManager::GetInstance().GetActiveCamera();
 };

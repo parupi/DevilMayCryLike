@@ -1,4 +1,4 @@
-#include "ModelLoader.h"
+﻿#include "ModelLoader.h"
 #include <cassert>
 #include "Graphics/Resource/TextureManager.h"
 
@@ -29,12 +29,12 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
 			matData.textureFilePath = textureFilePath.C_Str();
-			TextureManager::GetInstance()->LoadTexture(matData.textureFilePath);
-			matData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(matData.textureFilePath);
+			TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
+			matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
 		} else {
 			matData.textureFilePath = "white.png";
-			TextureManager::GetInstance()->LoadTexture(matData.textureFilePath);
-			matData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(matData.textureFilePath);
+			TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
+			matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
 		}
 
 		modelData.materials[i] = matData;
@@ -123,12 +123,12 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
 			matData.textureFilePath = textureFilePath.C_Str();
-			TextureManager::GetInstance()->LoadTexture(matData.textureFilePath);
-			matData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(matData.textureFilePath);
+			TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
+			matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
 		} else {
 			// テクスチャが無い場合は白テクスチャを使用
 			matData.textureFilePath = "__WHITE__"; // ログなどのデバッグ用
-			matData.textureIndex = TextureManager::GetInstance()->GetWhiteTextureIndex();
+			matData.textureIndex = TextureManager::GetInstance().GetWhiteTextureIndex();
 		}
 
 		modelData.materials[i] = matData;

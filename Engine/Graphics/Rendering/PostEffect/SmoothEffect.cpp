@@ -1,11 +1,11 @@
-#include "SmoothEffect.h"
+﻿#include "SmoothEffect.h"
 #include "OffScreenManager.h"
 #include <imgui/imgui.h>
 
 SmoothEffect::SmoothEffect() 
 {
-	dxManager_ = OffScreenManager::GetInstance()->GetDXManager();
-	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
+	dxManager_ = OffScreenManager::GetInstance().GetDXManager();
+	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
 

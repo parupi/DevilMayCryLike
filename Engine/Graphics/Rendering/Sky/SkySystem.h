@@ -15,15 +15,12 @@ struct VertexDataForSkybox {
 class SkySystem
 {
 private:
-	static std::unique_ptr<SkySystem> instance;
-	static std::once_flag initInstanceFlag;
-
 	SkySystem() = default;
 	SkySystem(const SkySystem&) = delete;
 	SkySystem& operator=(const SkySystem&) = delete;
 public:
 	// インスタンスの取得
-	static SkySystem* GetInstance();
+	static SkySystem& GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了

@@ -10,18 +10,16 @@
 class EventManager
 {
 private:
-	static EventManager* instance;
-
 	EventManager() = default;
 	~EventManager() = default;
-	EventManager(EventManager&) = default;
-	EventManager& operator=(EventManager&) = default;
+	EventManager(EventManager&) = delete;
+	EventManager& operator=(EventManager&) = delete;
 
 public:
 	/// <summary>
 	/// シングルトンインスタンスの取得
 	/// </summary>
-	static EventManager* GetInstance();
+	static EventManager& GetInstance();
 
 	/// <summary>
 	/// 終了処理

@@ -1,4 +1,4 @@
-#include "Object3d.h"
+﻿#include "Object3d.h"
 #include "Object3dManager.h"
 #include "Graphics/Resource/TextureManager.h"
 #include <World3D/WorldTransform.h>
@@ -18,7 +18,7 @@ Object3d::Object3d(std::string objectName)
 
 void Object3d::Initialize()
 {
-	objectManager_ = Object3dManager::GetInstance();
+	objectManager_ = &Object3dManager::GetInstance();
 
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();
@@ -28,7 +28,7 @@ void Object3d::Initialize()
 
 void Object3d::Update(float deltaTime)
 {
-	camera_ = CameraManager::GetInstance()->GetCurrentCamera();
+	camera_ = CameraManager::GetInstance().GetCurrentCamera();
 
 	transform_->TransferMatrix(camera_);
 
@@ -45,9 +45,9 @@ void Object3d::Draw()
 			if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {
 				skinned->UpdateSkinningWithCS();
 			}
-			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
-			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetObjectSignature());
-			Object3dManager::GetInstance()->GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			Object3dManager::GetInstance().GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance().GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
+			Object3dManager::GetInstance().GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance().GetPsoManager()->GetObjectSignature());
+			Object3dManager::GetInstance().GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			renders_[i]->Draw();
 		}
 		break;

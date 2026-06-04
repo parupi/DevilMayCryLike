@@ -4,45 +4,34 @@
 #include <World3D/Light/LightManager.h>
 #include <World3D/Camera/CameraManager.h>
 
-std::unique_ptr<Object3dManager> Object3dManager::instance;
-std::once_flag Object3dManager::initInstanceFlag;
-
-Object3dManager* Object3dManager::GetInstance()
-{
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new Object3dManager());
-		});
-	return instance.get();
+Object3dManager& Object3dManager::GetInstance() {
+	static Object3dManager instance;
+	return instance;
 }
 
-void Object3dManager::Initialize(DirectXManager* directXManager, PSOManager* psoManager)
-{
+void Object3dManager::Initialize(DirectXManager* directXManager, PSOManager* psoManager) {
 	assert(directXManager);
 	dxManager_ = directXManager;
 	psoManager_ = psoManager;
 }
 
-void Object3dManager::Finalize()
-{
+void Object3dManager::Finalize() {
 	objects_.clear();
 
 	dxManager_ = nullptr;
 	psoManager_ = nullptr;
 	defaultCamera_ = nullptr;
 
-	instance.reset();
 }
 
-void Object3dManager::Update()
-{
+void Object3dManager::Update() {
 	for (auto& object : objects_) {
 		if (!object) continue;
 		object->Update(deltaTime_);
 	}
 }
 
-void Object3dManager::DrawForward()
-{
+void Object3dManager::DrawForward() {
 	for (auto& object : objects_) {
 		if (!object) continue;
 		// 描画方式がForwardでなければ次
@@ -57,8 +46,8 @@ void Object3dManager::DrawForward()
 			dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 			// psoのセットをしたらlight,cameraもバインドしておく
-			LightManager::GetInstance()->BindLightsToShader();
-			CameraManager::GetInstance()->BindCameraToShader();
+			LightManager::GetInstance().BindLightsToShader();
+			CameraManager::GetInstance().BindCameraToShader();
 		}
 
 		// 描画
@@ -69,8 +58,7 @@ void Object3dManager::DrawForward()
 	blendMode_ = BlendMode::kNone;
 }
 
-void Object3dManager::DrawDeferred()
-{
+void Object3dManager::DrawDeferred() {
 	// 全オブジェクトの描画
 	for (auto& object : objects_) {
 		// 描画方式がDeferredでなければ次
@@ -79,8 +67,7 @@ void Object3dManager::DrawDeferred()
 	}
 }
 
-void Object3dManager::DrawShadow()
-{
+void Object3dManager::DrawShadow() {
 	// 全オブジェクトの描画
 	for (auto& object : objects_) {
 		// 描画方式がDeferredでなければ次
@@ -89,20 +76,17 @@ void Object3dManager::DrawShadow()
 	}
 }
 
-void Object3dManager::DrawSetForAnimation()
-{
+void Object3dManager::DrawSetForAnimation() {
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetAnimationPSO());			// PSOを設定
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetAnimationSignature());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Object3dManager::AddObject(std::unique_ptr<Object3d> object)
-{
+void Object3dManager::AddObject(std::unique_ptr<Object3d> object) {
 	objects_.push_back(std::move(object));
 }
 
-void Object3dManager::DeleteObject(const std::string& name)
-{
+void Object3dManager::DeleteObject(const std::string& name) {
 	for (auto& obj : objects_) {
 		if (obj && obj->name_ == name) {
 			obj->isAlive = false;
@@ -111,8 +95,7 @@ void Object3dManager::DeleteObject(const std::string& name)
 	}
 }
 
-void Object3dManager::DeleteAllObject()
-{
+void Object3dManager::DeleteAllObject() {
 	for (auto& obj : objects_) {
 		// 全オブジェクトの生存フラグを切る
 		obj->isAlive = false;
@@ -120,8 +103,7 @@ void Object3dManager::DeleteAllObject()
 	}
 }
 
-void Object3dManager::RemoveDeadObject()
-{
+void Object3dManager::RemoveDeadObject() {
 	size_t before = objects_.size();
 
 	objects_.erase(
@@ -141,8 +123,7 @@ void Object3dManager::RemoveDeadObject()
 }
 
 
-Object3d* Object3dManager::FindObject(std::string objectName)
-{
+Object3d* Object3dManager::FindObject(std::string objectName) {
 	for (auto& object : objects_) {
 		if (!object) continue;
 		if (object->name_ == objectName) {
@@ -153,8 +134,7 @@ Object3d* Object3dManager::FindObject(std::string objectName)
 	return nullptr;
 }
 
-std::vector<Object3d*> Object3dManager::GetAllObject()
-{
+std::vector<Object3d*> Object3dManager::GetAllObject() {
 	std::vector<Object3d*> objects;
 
 	for (auto& object : objects_) {

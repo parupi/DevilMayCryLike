@@ -1,18 +1,18 @@
-#include "MenuChoices.h"
+﻿#include "MenuChoices.h"
 #include <imgui.h>
 #include <Utility/DeltaTime.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void MenuChoices::Initialize()
 {
-	TextureManager::GetInstance()->LoadTexture("UI/Menu/ToTitle.png");
-	TextureManager::GetInstance()->LoadTexture("UI/Menu/ToContinue.png");
+	TextureManager::GetInstance().LoadTexture("UI/Menu/ToTitle.png");
+	TextureManager::GetInstance().LoadTexture("UI/Menu/ToContinue.png");
 
-	toTitle_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "toTitle", "UI/Menu/ToTitle.png");
+	toTitle_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "toTitle", "UI/Menu/ToTitle.png");
 	toTitle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	toTitle_->SetPosition({ 512.0f, 450.0f });
 
-	toContinue_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "toTitle", "UI/Menu/ToContinue.png");
+	toContinue_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "toTitle", "UI/Menu/ToContinue.png");
 	toContinue_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	toContinue_->SetPosition({ 512.0f, 300.0f });
 }
@@ -72,7 +72,7 @@ void MenuChoices::Update()
 
 void MenuChoices::Draw()
 {
-	SpriteManager::GetInstance()->DrawSet();
+	SpriteManager::GetInstance().DrawSet();
 	toTitle_->Draw();
 	toContinue_->Draw();
 }

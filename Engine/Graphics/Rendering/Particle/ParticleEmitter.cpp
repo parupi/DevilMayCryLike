@@ -1,4 +1,4 @@
-#include "ParticleEmitter.h"
+﻿#include "ParticleEmitter.h"
 #include "ParticleManager.h"
 #include "Debugger/GlobalVariables.h"
 #include <filesystem>
@@ -16,11 +16,11 @@ void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::st
 	transform_ = std::make_unique<WorldTransform>();
 	transform_->Initialize();
 
-	GlobalVariables::GetInstance()->AddItem(emitter.name, "EmitPosition", Vector3{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name, "Frequency", float{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name, "IsActive", bool{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name, "EmitAll", bool{});
-	GlobalVariables::GetInstance()->AddItem(emitter.name, "Count", int{});
+	GlobalVariables::GetInstance().AddItem(emitter.name, "EmitPosition", Vector3{});
+	GlobalVariables::GetInstance().AddItem(emitter.name, "Frequency", float{});
+	GlobalVariables::GetInstance().AddItem(emitter.name, "IsActive", bool{});
+	GlobalVariables::GetInstance().AddItem(emitter.name, "EmitAll", bool{});
+	GlobalVariables::GetInstance().AddItem(emitter.name, "Count", int{});
 
 	if (dataName != "") {
 		Load("Resource/Emitter/" + dataName + ".json");
@@ -29,22 +29,22 @@ void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::st
 
 void ParticleEmitter::Update(Vector3 position)
 {
-	emitter.isActive = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "IsActive");
+	emitter.isActive = GlobalVariables::GetInstance().GetValueRef<bool>(emitter.name, "IsActive");
 
-	emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
+	emitter.frequency = GlobalVariables::GetInstance().GetValueRef<float>(emitter.name, "Frequency");
 
-	emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
+	emitter.count = GlobalVariables::GetInstance().GetValueRef<int>(emitter.name, "Count");
 
 	if (!transform_->GetParent()) {
-		emitter.transform.translate = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+		emitter.transform.translate = GlobalVariables::GetInstance().GetValueRef<Vector3>(emitter.name, "EmitPosition");
 	} else {
 		emitter.transform.translate = transform_->GetParent()->GetWorldPos();
 	}
 
 	if (emitter.isActive) {
-		emitter.frequency = GlobalVariables::GetInstance()->GetValueRef<float>(emitter.name, "Frequency");
+		emitter.frequency = GlobalVariables::GetInstance().GetValueRef<float>(emitter.name, "Frequency");
 
-		emitter.count = GlobalVariables::GetInstance()->GetValueRef<int>(emitter.name, "Count");
+		emitter.count = GlobalVariables::GetInstance().GetValueRef<int>(emitter.name, "Count");
 		if (emitter.count < 0) {
 			emitter.count = 0;
 		}
@@ -57,11 +57,11 @@ void ParticleEmitter::Update(Vector3 position)
 		}
 	}
 
-	emitAll_ = GlobalVariables::GetInstance()->GetValueRef<bool>(emitter.name, "EmitAll");
+	emitAll_ = GlobalVariables::GetInstance().GetValueRef<bool>(emitter.name, "EmitAll");
 
 	if (emitAll_) {
 		Emit();
-		GlobalVariables::GetInstance()->SetValue(emitter.name, "EmitAll", false);
+		GlobalVariables::GetInstance().SetValue(emitter.name, "EmitAll", false);
 	}
 }
 
@@ -70,7 +70,7 @@ void ParticleEmitter::Emit()
 	Vector3 position = transform_->GetWorldPos();
 
 	if (!transform_->GetParent()) {
-		position = GlobalVariables::GetInstance()->GetValueRef<Vector3>(emitter.name, "EmitPosition");
+		position = GlobalVariables::GetInstance().GetValueRef<Vector3>(emitter.name, "EmitPosition");
 	} else {
 		position = transform_->GetParent()->GetWorldPos();
 	}

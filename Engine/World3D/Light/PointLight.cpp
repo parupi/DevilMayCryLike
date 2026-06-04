@@ -1,4 +1,4 @@
-#include "PointLight.h"
+﻿#include "PointLight.h"
 #ifdef _DEBUG
 #include <imgui.h>
 #include "World3D/Primitive/PrimitiveLineDrawer.h"
@@ -22,7 +22,7 @@ PointLight::PointLight(const std::string& name)
 
 void PointLight::Initialize()
 {
-	global_ = GlobalVariables::GetInstance();
+	global_ = &GlobalVariables::GetInstance();
 	// 既存のライトデータを読み込み
 	global_->LoadFile("Light", name_);
 	// 各種パラメータをエディターに追加

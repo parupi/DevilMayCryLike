@@ -1,4 +1,4 @@
-#include "GameSceneStateMenu.h"
+﻿#include "GameSceneStateMenu.h"
 #include "Scene/GameScene/GameScene.h"
 #include "Input/Input.h"
 #include <Utility/DeltaTime.h>
@@ -28,7 +28,7 @@ void GameSceneStateMenu::Update(GameScene& scene)
 		}
 		break;
 	case MenuState::Normal:
-		if (Input::GetInstance()->TriggerKey(DIK_M) || Input::GetInstance()->TriggerButton(ButtonStart)) {
+		if (Input::GetInstance().TriggerKey(DIK_M) || Input::GetInstance().TriggerButton(ButtonStart)) {
 			scene.ChangeState("Play");
 		}
 		break;

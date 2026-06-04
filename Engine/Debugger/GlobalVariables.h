@@ -36,7 +36,7 @@ public:
 	template<> struct NormalizeType<int> { using Type = int32_t; };
 
 	// インスタンス取得
-	static GlobalVariables* GetInstance();
+	static GlobalVariables& GetInstance();
 
 	// グループ作成
 	void CreateGroup(const std::string& groupName);

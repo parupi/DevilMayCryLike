@@ -1,4 +1,4 @@
-#include "GrayEffect.h"
+﻿#include "GrayEffect.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "OffScreenManager.h"
 #include <algorithm>
@@ -6,8 +6,8 @@
 
 GrayEffect::GrayEffect() : BaseOffScreen()
 {
-	dxManager_ = OffScreenManager::GetInstance()->GetDXManager();
-	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
+	dxManager_ = OffScreenManager::GetInstance().GetDXManager();
+	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
 }

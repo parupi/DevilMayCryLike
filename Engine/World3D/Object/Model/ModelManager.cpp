@@ -1,14 +1,9 @@
 #include "ModelManager.h"
 
-std::unique_ptr<ModelManager> ModelManager::instance;
-std::once_flag ModelManager::initInstanceFlag;
-
-ModelManager* ModelManager::GetInstance()
+ModelManager& ModelManager::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new ModelManager());
-		});
-	return instance.get();
+	static ModelManager instance;
+	return instance;
 }
 
 void ModelManager::Initialize(DirectXManager* dxManager)
@@ -19,7 +14,6 @@ void ModelManager::Initialize(DirectXManager* dxManager)
 
 void ModelManager::Finalize()
 {
-	instance.reset();
 }
 
 void ModelManager::LoadModel(const std::string& fileName)

@@ -1,4 +1,4 @@
-#include "AABBCollider.h"
+﻿#include "AABBCollider.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 
 AABBCollider::AABBCollider(std::string colliderName)
@@ -24,7 +24,7 @@ void AABBCollider::Update()
 		transform_->SetParent(owner_->GetWorldTransform());
 	}
   
-    transform_->TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
+    transform_->TransferMatrix(CameraManager::GetInstance().GetCurrentCamera());
 }
 
 void AABBCollider::DrawDebug()
@@ -44,7 +44,7 @@ void AABBCollider::DrawDebug()
         {min.x, max.y, max.z}  // 7
     };
 
-    PrimitiveLineDrawer* drawer = PrimitiveLineDrawer::GetInstance();
+    PrimitiveLineDrawer* drawer = &PrimitiveLineDrawer::GetInstance();
     Vector4 color = { 0.0f, 1.0f, 0.0f, 1.0f }; // 黄色
 
     // 底面

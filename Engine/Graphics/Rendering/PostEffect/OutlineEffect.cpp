@@ -1,11 +1,11 @@
-#include "OutlineEffect.h"
+﻿#include "OutlineEffect.h"
 #include "OffScreenManager.h"
 #include <imgui.h>
 
 OutlineEffect::OutlineEffect()
 {
-	dxManager_ = OffScreenManager::GetInstance()->GetDXManager();
-	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
+	dxManager_ = OffScreenManager::GetInstance().GetDXManager();
+	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
 }

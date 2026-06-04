@@ -1,4 +1,4 @@
-#include "Model.h"
+﻿#include "Model.h"
 #include "Math/MathUtils.h"
 #include "Graphics/Resource/TextureManager.h"
 #include <Math/Vector4.h>
@@ -43,7 +43,7 @@ void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 
 void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData)
 {
-	modelLoader_ = ModelManager::GetInstance()->GetModelLoader();
+	modelLoader_ = ModelManager::GetInstance().GetModelLoader();
 
 	// Meshの生成と初期化
 	auto mesh = std::make_unique<Mesh>();
@@ -70,8 +70,8 @@ void Model::Draw()
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
 		materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
-		CameraManager::GetInstance()->BindCameraToShader();
-		LightManager::GetInstance()->BindLightsToShader();
+		CameraManager::GetInstance().BindCameraToShader();
+		LightManager::GetInstance().BindLightsToShader();
 
 		// メッシュを描画
 		mesh->Bind();
@@ -133,7 +133,7 @@ void Model::Bind()
 void Model::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {
-		auto& modelMap = ModelManager::GetInstance()->models;
+		auto& modelMap = ModelManager::GetInstance().models;
 		static std::vector<std::string> modelNames;
 		static int selectedIndex = 0;
 

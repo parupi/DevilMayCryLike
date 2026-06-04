@@ -1,4 +1,4 @@
-#include "ClearEvent.h"
+﻿#include "ClearEvent.h"
 #include <Scene/Transition/TransitionManager.h>
 #include <Utility/DeltaTime.h>
 
@@ -32,8 +32,8 @@ void ClearEvent::Update(float deltaTime) {
 void ClearEvent::Execute() {
 	isClear_ = true;
 
-	CameraManager::GetInstance()->SetActiveCamera("ClearCamera");
-	TransitionManager::GetInstance()->SetTransition("Fade");
+	CameraManager::GetInstance().SetActiveCamera("ClearCamera");
+	TransitionManager::GetInstance().SetTransition("Fade");
 }
 
 void ClearEvent::AddTargetEnemy(Enemy* enemy) {

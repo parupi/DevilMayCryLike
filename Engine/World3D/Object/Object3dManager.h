@@ -9,15 +9,12 @@ class Object3d;
 class Object3dManager
 {
 private:
-	static std::unique_ptr<Object3dManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	Object3dManager() = default;
 	Object3dManager(const Object3dManager&) = delete;
 	Object3dManager& operator=(const Object3dManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static Object3dManager* GetInstance();
+	static Object3dManager& GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* directXManager, PSOManager* psoManager);
 	// 終了

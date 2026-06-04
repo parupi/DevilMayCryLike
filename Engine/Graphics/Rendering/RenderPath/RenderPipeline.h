@@ -7,8 +7,7 @@
 #include <vector>
 #include <memory>
 
-class RenderPipeline
-{
+class RenderPipeline {
 public:
 	RenderPipeline() = default;
 	~RenderPipeline() = default;

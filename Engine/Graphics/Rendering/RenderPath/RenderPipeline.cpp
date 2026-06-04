@@ -10,8 +10,7 @@
 #include <Debugger/ImGuiManager.h>
 #endif
 
-void RenderPipeline::Initialize(const EngineContext& ctx)
-{
+void RenderPipeline::Initialize(const EngineContext& ctx) {
 	ctx_ = ctx;
 
 	// --- 共有リソースの生成 ---
@@ -79,16 +78,14 @@ void RenderPipeline::Initialize(const EngineContext& ctx)
 	}
 }
 
-void RenderPipeline::Finalize()
-{
+void RenderPipeline::Finalize() {
 	passes_.clear();
 	gBufferManager_->Finalize();
 	rtvResource_.Reset();
 	depthBuffer_.Reset();
 }
 
-void RenderPipeline::Execute()
-{
+void RenderPipeline::Execute() {
 	// 各描画パスを順番に実行
 	for (auto& pass : passes_) {
 		pass->Execute();

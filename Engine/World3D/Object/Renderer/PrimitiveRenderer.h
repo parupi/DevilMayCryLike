@@ -8,18 +8,18 @@
 
 class PrimitiveRenderer : public BaseRenderer, public IDeferredDrawable {
 public:
-    PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName);
-    ~PrimitiveRenderer();
+	PrimitiveRenderer(const std::string& renderName, PrimitiveType type, std::string textureName);
+	~PrimitiveRenderer();
 
-    void Update(WorldTransform* parentTransform) override;
-    void Draw() override;
-    void DrawGBuffer() override;
+	void Update(WorldTransform* parentTransform) override;
+	void Draw() override;
+	void DrawGBuffer() override;
 #ifdef _DEBUG
-    void DebugGui(size_t index) override;
+	void DebugGui(size_t index) override;
 #endif
-    WorldTransform* GetWorldTransform() const override { return localTransform_.get(); }
-    BaseModel* GetModel() const override { return model_.get(); }
+	WorldTransform* GetWorldTransform() const override { return localTransform_.get(); }
+	BaseModel* GetModel() const override { return model_.get(); }
 
 private:
-    std::unique_ptr<Model> model_;
+	std::unique_ptr<Model> model_;
 };

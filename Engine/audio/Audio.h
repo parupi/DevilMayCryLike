@@ -8,22 +8,20 @@
 #include <memory>
 #include <unordered_map>
 #include <array>
+#include <vector>
 
 // 音源の同時再生数
 static const size_t kMaxPlayWave = 100;
 
 class Audio
 {
-	static std::unique_ptr<Audio> instance;
-	static std::once_flag initInstanceFlag;
-
 	Audio() = default;
 	Audio(const Audio&) = delete;
 	Audio& operator=(const Audio&) = delete;
 public:
 
 	// シングルトンインスタンスの取得
-	static Audio* GetInstance();
+	static Audio& GetInstance();
 private: // 構造体
 	// チャンクヘッダー
 	struct ChunkHeader {
@@ -46,7 +44,7 @@ private: // 構造体
 	// 音声データ
 	struct SoundData {
 		WAVEFORMATEX wfex; // 波形フォーマット
-		BYTE* pBuffer; // バッファの先頭アドレス
+		std::vector<BYTE> pBuffer; // バッファ
 		unsigned int bufferSize; // バッファのサイズ
 		int playSoundLength;
 	};

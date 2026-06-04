@@ -8,15 +8,12 @@
 class RendererManager
 {
 private:
-	static std::unique_ptr<RendererManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	RendererManager() = default;
 	RendererManager(const RendererManager&) = delete;
 	RendererManager& operator=(const RendererManager&) = delete;
 public:
 	// インスタンスの取得
-	static RendererManager* GetInstance();
+	static RendererManager& GetInstance();
 	// 初期化処理
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了処理

@@ -1,4 +1,4 @@
-#include "MenuUI.h"
+﻿#include "MenuUI.h"
 #include "Scene/GameScene/GameScene.h"
 #include <Scene/Transition/SceneTransitionController.h>
 
@@ -38,7 +38,7 @@ void MenuUI::Update()
 	}
 
 	if (controller_->GetStates() == MenuStates::Decision) {
-		SceneTransitionController::GetInstance()->RequestSceneChange("TITLE");
+		SceneTransitionController::GetInstance().RequestSceneChange("TITLE");
 	}
 
 	choices_->Update();

@@ -11,15 +11,12 @@
 class TextureManager
 {
 private:
-	static std::unique_ptr<TextureManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	TextureManager() = default;
 	TextureManager(const TextureManager&) = delete;
 	TextureManager& operator=(const TextureManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static TextureManager* GetInstance();
+	static TextureManager& GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* dxManager);
 	// 終了

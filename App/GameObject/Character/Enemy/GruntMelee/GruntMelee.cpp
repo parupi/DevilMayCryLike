@@ -1,4 +1,4 @@
-#include "GruntMelee.h"
+﻿#include "GruntMelee.h"
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
@@ -18,8 +18,8 @@
 #include "State/GruntStateRushAttack.h"
 
 GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
-	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
 	hp_ = 8.0f;
@@ -31,19 +31,19 @@ void GruntMelee::Initialize() {
 	col->GetColliderData().offsetMin *= 0.5f;
 
 	// 武器の生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
-	CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
+	CollisionManager::GetInstance().AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
 	// 武器コライダーカテゴリを設定（プレイヤーへのダメージ判定に使用）
-	CollisionManager::GetInstance()->FindCollider(name_ + "Weapon")->category_ = CollisionCategory::EnemyWeapon;
+	CollisionManager::GetInstance().FindCollider(name_ + "Weapon")->category_ = CollisionCategory::EnemyWeapon;
 
 	auto weapon = std::make_unique<GruntMeleeWeapon>(name_ + "Weapon");
-	weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "Weapon"));
-	weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "Weapon"));
+	weapon->AddRenderer(RendererManager::GetInstance().FindRender(name_ + "Weapon"));
+	weapon->AddCollider(CollisionManager::GetInstance().FindCollider(name_ + "Weapon"));
 	weapon->Initialize();
 	weapon->GetWorldTransform()->SetParent(GetWorldTransform());
 
 	weapon_ = weapon.get();
-	Object3dManager::GetInstance()->AddObject(std::move(weapon));
+	Object3dManager::GetInstance().AddObject(std::move(weapon));
 
 	// コンポーネント生成
 	sensor_ = std::make_unique<EnemySensorComponent>();
@@ -68,8 +68,8 @@ void GruntMelee::Initialize() {
 	currentState_ = states_[GruntMeleeStateName::Patrol].get();
 
 	// パーティクル: ヒットエフェクト
-	ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	ParticleManager::GetInstance().CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
+	auto& emitters = ParticleManager::GetInstance().GetEmitters();
 	emitter_ = emitters.at(name_ + "HitEffect").get();
 	emitter_->SetParent(GetWorldTransform());
 	emitter_->AddParticle("EnemyDamageEffect");
@@ -77,8 +77,8 @@ void GruntMelee::Initialize() {
 	emitter_->SetActiveFlag(false);
 
 	// パーティクル: チャージエフェクト（予備動作中に収束するリング）
-	ParticleManager::GetInstance()->CreateEmitter(name_ + "ChargeEffect");
-	chargeEmitter_ = ParticleManager::GetInstance()->GetEmitters().at(name_ + "ChargeEffect").get();
+	ParticleManager::GetInstance().CreateEmitter(name_ + "ChargeEffect");
+	chargeEmitter_ = ParticleManager::GetInstance().GetEmitters().at(name_ + "ChargeEffect").get();
 	chargeEmitter_->SetParent(GetWorldTransform());
 	chargeEmitter_->AddParticle("EnemyChargeRing");
 

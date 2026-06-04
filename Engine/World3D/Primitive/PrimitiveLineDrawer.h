@@ -12,15 +12,12 @@
 class PrimitiveLineDrawer
 {
 private:
-	static std::unique_ptr<PrimitiveLineDrawer> instance;
-	static std::once_flag initInstanceFlag;
-
 	PrimitiveLineDrawer() = default;
 	PrimitiveLineDrawer(const PrimitiveLineDrawer&) = delete;
 	PrimitiveLineDrawer& operator=(const PrimitiveLineDrawer&) = delete;
 
 public:
-	static PrimitiveLineDrawer* GetInstance();
+	static PrimitiveLineDrawer& GetInstance();
 
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	void Finalize();

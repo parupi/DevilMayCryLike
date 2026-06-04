@@ -2,15 +2,10 @@
 #include "Graphics/Resource/SrvManager.h"
 #include <Math/MathUtils.h>
 
-std::unique_ptr<OffScreenManager> OffScreenManager::instance;
-std::once_flag OffScreenManager::initInstanceFlag;
-
-OffScreenManager* OffScreenManager::GetInstance()
+OffScreenManager& OffScreenManager::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new OffScreenManager());
-		});
-	return instance.get();
+	static OffScreenManager instance;
+	return instance;
 }
 
 void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
@@ -61,7 +56,6 @@ void OffScreenManager::Finalize()
 	dxManager_ = nullptr;
 	psoManager_ = nullptr;
 
-	instance.reset();
 }
 
 void OffScreenManager::Update()
@@ -103,8 +97,7 @@ void OffScreenManager::ExecutePostEffects()
 
 void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect)
 {
-	PostEffectPath* path = new PostEffectPath(effect.get());
-	paths_.emplace_back(path);
+	paths_.push_back(std::make_unique<PostEffectPath>(effect.get()));
 	effects_.push_back(std::move(effect));
 }
 

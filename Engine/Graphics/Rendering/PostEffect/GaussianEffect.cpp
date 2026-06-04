@@ -1,11 +1,11 @@
-#include "GaussianEffect.h"
+﻿#include "GaussianEffect.h"
 #include "OffScreenManager.h"
 #include <imgui.h>
 
 GaussianEffect::GaussianEffect()
 {
-	dxManager_ = OffScreenManager::GetInstance()->GetDXManager();
-	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
+	dxManager_ = OffScreenManager::GetInstance().GetDXManager();
+	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
 

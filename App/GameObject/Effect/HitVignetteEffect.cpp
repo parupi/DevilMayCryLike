@@ -1,4 +1,4 @@
-#include "HitVignetteEffect.h"
+﻿#include "HitVignetteEffect.h"
 #include <Graphics/Rendering/PostEffect/VignetteEffect.h>
 #include <Graphics/Rendering/PostEffect/OffScreenManager.h>
 #include <algorithm>
@@ -11,10 +11,10 @@ void HitVignetteEffect::Initialize() {
 	vignette->GetEffectData().softness = kSoftness;
 	vignette->SetColor(kColorR, kColorG, kColorB);
 
-	OffScreenManager::GetInstance()->AddEffect(std::move(vignette));
+	OffScreenManager::GetInstance().AddEffect(std::move(vignette));
 
 	vignette_ = static_cast<VignetteEffect*>(
-		OffScreenManager::GetInstance()->FindEffect("HitVignette"));
+		OffScreenManager::GetInstance().FindEffect("HitVignette"));
 }
 
 void HitVignetteEffect::Play() {

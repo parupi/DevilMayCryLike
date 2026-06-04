@@ -1,12 +1,12 @@
-#include "VignetteEffect.h"
+﻿#include "VignetteEffect.h"
 #include "OffScreenManager.h"
 #include <imgui/imgui.h>
 
 VignetteEffect::VignetteEffect(const std::string& name)
 {
 	name_ = name;
-	dxManager_ = OffScreenManager::GetInstance()->GetDXManager();
-	psoManager_ = OffScreenManager::GetInstance()->GetPSOManager();
+	dxManager_ = OffScreenManager::GetInstance().GetDXManager();
+	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
 }

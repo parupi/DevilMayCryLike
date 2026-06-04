@@ -9,15 +9,12 @@
 class CollisionManager
 {
 private:
-	static std::unique_ptr<CollisionManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	CollisionManager() = default;
 	CollisionManager(const CollisionManager&) = delete;
 	CollisionManager& operator=(const CollisionManager&) = delete;
 
 public:
-	static CollisionManager* GetInstance();
+	static CollisionManager& GetInstance();
 
 	void Initialize();
 	// 終了処理

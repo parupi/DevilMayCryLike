@@ -1,4 +1,4 @@
-#include "InstancingRenderer.h"
+﻿#include "InstancingRenderer.h"
 #include "RendererManager.h"
 #include "PrimitiveFactory.h"
 #include <cassert>
@@ -21,7 +21,7 @@ InstancingRenderer::InstancingRenderer(const std::string& renderName, PrimitiveT
 
 void InstancingRenderer::CreateInstanceBuffer()
 {
-    auto* dxManager = RendererManager::GetInstance()->GetDxManager();
+    auto* dxManager = RendererManager::GetInstance().GetDxManager();
     size_t bufferSize = sizeof(InstanceData) * 1024; // 1024 instance max
     instanceBuffer_ = dxManager->GetResourceManager()->CreateUploadResource(bufferSize);
    
@@ -55,14 +55,14 @@ void InstancingRenderer::Update(WorldTransform* parentTransform)
     if (localTransform_->GetParent() == nullptr) {
         localTransform_->SetParent(parentTransform);
     }
-    localTransform_->TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
+    localTransform_->TransferMatrix(CameraManager::GetInstance().GetCurrentCamera());
 }
 
 void InstancingRenderer::Draw()
 {
     if (instances_.empty()) return;
 
-    auto* commandList = RendererManager::GetInstance()->GetDxManager()->GetCommandList();
+    auto* commandList = RendererManager::GetInstance().GetDxManager()->GetCommandList();
     // インスタンシング描画
     commandList->DrawInstanced(6, static_cast<UINT>(instances_.size()), 0, 0);
 }

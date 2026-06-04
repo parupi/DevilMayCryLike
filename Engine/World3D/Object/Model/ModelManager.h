@@ -13,15 +13,12 @@
 class ModelManager
 {
 private:
-	static std::unique_ptr<ModelManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	ModelManager() = default;
 	ModelManager(const ModelManager&) = delete;
 	ModelManager& operator=(const ModelManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static ModelManager* GetInstance();
+	static ModelManager& GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* dxManager);
 	// 終了

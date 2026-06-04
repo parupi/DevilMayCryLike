@@ -6,6 +6,5 @@
 
 class PrimitiveFactory {
 public:
-    static std::unique_ptr<Model> Create(PrimitiveType type, std::string textureName);
+	static std::unique_ptr<Model> Create(PrimitiveType type, std::string textureName);
 };
-

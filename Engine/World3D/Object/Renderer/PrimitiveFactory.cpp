@@ -1,4 +1,4 @@
-#include "PrimitiveFactory.h"
+﻿#include "PrimitiveFactory.h"
 #include "MeshGenerator.h"
 #include "Graphics/Resource/TextureManager.h"
 
@@ -34,8 +34,8 @@ std::unique_ptr<Model> PrimitiveFactory::Create(PrimitiveType type, std::string 
 
     // テクスチャ
     mat.textureFilePath = textureName;
-    TextureManager::GetInstance()->LoadTexture(textureName);
-    mat.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureName);
+    TextureManager::GetInstance().LoadTexture(textureName);
+    mat.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(textureName);
 
     meshData.materialIndex = 0;
 

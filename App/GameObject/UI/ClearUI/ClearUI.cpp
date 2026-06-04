@@ -1,4 +1,4 @@
-#define NOMINMAX
+﻿#define NOMINMAX
 #include "ClearUI.h"
 #ifdef _DEBUG
 #include <imgui.h>
@@ -9,21 +9,21 @@
 void ClearUI::Initialize()
 {
     // Result
-    resultUI_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "result", "Result.png");
+    resultUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "result", "Result.png");
     resultUI_->SetAnchorPoint({ 0.5f, 0.5f });
 
     resultDefaultPos_ = { 162.0f, 80.0f };
     resultUI_->SetPosition({ resultDefaultPos_.x, -200.0f });
 
     // Stage
-    stageNumUI_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "stageNum", "Stage1.png");
+    stageNumUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "stageNum", "Stage1.png");
     stageNumUI_->SetAnchorPoint({ 0.5f, 0.5f });
 
     stageDefaultPos_ = { 106.0f, 145.0f };
     stageNumUI_->SetPosition({ stageDefaultPos_.x, -200.0f });
 
     // Score
-    score_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "score", "Score.png");
+    score_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "score", "Score.png");
     score_->SetAnchorPoint({ 0.5f, 0.5f });
 
     scoreDefaultPos_ = { 142.0f, 340.0f };

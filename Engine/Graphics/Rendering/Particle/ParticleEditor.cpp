@@ -1,4 +1,4 @@
-#ifdef _DEBUG
+﻿#ifdef _DEBUG
 
 #include "ParticleEditor.h"
 #include "ParticleManager.h"
@@ -16,7 +16,7 @@
 void ParticleEditor::Initialize(ParticleManager* manager)
 {
     manager_ = manager;
-    global_  = GlobalVariables::GetInstance();
+    global_ = &GlobalVariables::GetInstance();
 
     ed::Config cfg;
     cfg.SettingsFile = "ParticleNodeEditor.json";

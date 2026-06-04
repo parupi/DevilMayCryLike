@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "World3D/Camera/BaseCamera.h"
 #include <Scene/BaseScene.h>
 #include "Scene/SceneManager.h"
@@ -70,7 +70,7 @@ private:
 
 private:
 	TitleCamera* camera_ = nullptr; ///< タイトルシーン専用カメラ
-	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
+	CameraManager* cameraManager_ = &CameraManager::GetInstance(); ///< カメラ管理クラス
 
 	// ==========================
 	// パーティクルエフェクト
@@ -82,7 +82,7 @@ private:
 	// ==========================
 	// ライト・遷移・UI
 	// ==========================
-	LightManager* lightManager_ = LightManager::GetInstance(); ///< ライト管理クラス
-	SceneTransitionController* controller = SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
+	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
+	SceneTransitionController* controller = &SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
 	std::unique_ptr<TitleUI> titleUI_; ///< タイトル画面のUI要素管理
 };

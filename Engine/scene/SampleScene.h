@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <World3D/Object/Object3d.h>
 #include <Graphics/Rendering/Sprite/Sprite.h>
 #include <World3D/Object/Model/Model.h>
@@ -57,11 +57,11 @@ public:
 #endif // _DEBUG
 
 private:
-	CameraManager* cameraManager_ = CameraManager::GetInstance();
+	CameraManager* cameraManager_ = &CameraManager::GetInstance();
 
 	std::unique_ptr<BaseCamera> normalCamera_;
 
-	LightManager* lightManager_ = LightManager::GetInstance();
+	LightManager* lightManager_ = &LightManager::GetInstance();
 
 	Object3d* object_;
 	Object3d* object2_;

@@ -1,4 +1,4 @@
-#include "SkinnedModel.h"
+﻿#include "SkinnedModel.h"
 #include "World3D/Object/Model/Animation/Skeleton.h"
 #include "World3D/Object/Model/Animation/SkinCluster.h"
 #include "World3D/Object/Model/Animation/Animation.h"
@@ -71,8 +71,8 @@ void SkinnedModel::Update(const Vector3& objectScale)
 void SkinnedModel::Draw()
 {
 	for (auto& mesh : meshes_) {
-		CameraManager::GetInstance()->BindCameraToShader();
-		LightManager::GetInstance()->BindLightsToShader();
+		CameraManager::GetInstance().BindCameraToShader();
+		LightManager::GetInstance().BindLightsToShader();
 
 		// マテリアル設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
@@ -90,8 +90,8 @@ void SkinnedModel::UpdateSkinningWithCS()
 	auto* commandList = modelLoader_->GetDxManager()->GetCommandList();
 
 	// Compute用のPSOとRootSignature設定
-	commandList->SetPipelineState(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningPSO());
-	commandList->SetComputeRootSignature(Object3dManager::GetInstance()->GetPsoManager()->GetSkinningSignature());
+	commandList->SetPipelineState(Object3dManager::GetInstance().GetPsoManager()->GetSkinningPSO());
+	commandList->SetComputeRootSignature(Object3dManager::GetInstance().GetPsoManager()->GetSkinningSignature());
 
 	// 各スキンクラスタのスキニング処理
 	for (auto& mesh : meshes_) {
@@ -123,7 +123,7 @@ std::vector<Material*> SkinnedModel::GetMaterials()
 void SkinnedModel::DebugGui(ModelRenderer* render)
 {
 	if (ImGui::TreeNode("Models")) {
-		auto& modelMap = ModelManager::GetInstance()->skinnedModels;
+		auto& modelMap = ModelManager::GetInstance().skinnedModels;
 		static std::vector<std::string> modelNames;
 		static int selectedIndex = 0;
 

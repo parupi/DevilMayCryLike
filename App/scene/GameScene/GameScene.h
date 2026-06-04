@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Scene/BaseScene.h"
 
 #include "GameObject/Camera/GameCamera.h"
@@ -84,11 +84,11 @@ private:
 	// ロックオンの処理を行うクラス
 	std::unique_ptr<LockOnSystem> lockOnSystem_ = nullptr;
 
-	CameraManager* cameraManager_ = CameraManager::GetInstance(); ///< カメラ管理クラス
+	CameraManager* cameraManager_ = &CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
 	ClearCamera* clearCamera_ = nullptr;
 
-	LightManager* lightManager_ = LightManager::GetInstance(); ///< ライト管理クラス
+	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
 

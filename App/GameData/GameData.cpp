@@ -1,12 +1,7 @@
-#include "GameData.h"
+﻿#include "GameData.h"
 
-GameData* GameData::instance = nullptr;
-std::once_flag GameData::initInstanceFlag;
-
-GameData* GameData::GetInstance()
+GameData& GameData::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance = new GameData();
-		});
+	static GameData instance;
 	return instance;
 }

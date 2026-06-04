@@ -1,4 +1,4 @@
-#include "CascadedShadowMap.h"
+﻿#include "CascadedShadowMap.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "World3D/Camera/BaseCamera.h"
 #include "World3D/Light/LightManager.h"
@@ -30,11 +30,11 @@ void CascadedShadowMap::Initialize(DirectXManager* dxManager, uint32_t shadowMap
 
 void CascadedShadowMap::Update() {
 	// カメラの情報を取得
-	camera_ = CameraManager::GetInstance()->GetActiveCamera();
+	camera_ = CameraManager::GetInstance().GetActiveCamera();
 	if (!camera_) return;
 
 	// ライトの情報を取得
-	lights_ = LightManager::GetInstance()->GetAllLightData();
+	lights_ = LightManager::GetInstance().GetAllLightData();
 	// DirectionalLight以外を削除
 	lights_.erase(
 		std::remove_if(

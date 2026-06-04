@@ -1,17 +1,12 @@
-#include "PrimitiveLineDrawer.h"
+﻿#include "PrimitiveLineDrawer.h"
 #include <World3D/Camera/CameraManager.h>
 #include <numbers>
 #include "Graphics/Resource/TextureManager.h"
 
-std::unique_ptr<PrimitiveLineDrawer> PrimitiveLineDrawer::instance;
-std::once_flag PrimitiveLineDrawer::initInstanceFlag;
-
-PrimitiveLineDrawer* PrimitiveLineDrawer::GetInstance()
+PrimitiveLineDrawer& PrimitiveLineDrawer::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new PrimitiveLineDrawer());
-		});
-	return instance.get();
+	static PrimitiveLineDrawer instance;
+	return instance;
 }
 
 void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
@@ -45,7 +40,6 @@ void PrimitiveLineDrawer::Finalize()
 	psoManager_ = nullptr;
 	srvManager_ = nullptr;
 
-	instance.reset();
 
 	Logger::Log("PrimitiveLineDrawer finalized.\n");
 }
@@ -197,7 +191,7 @@ void PrimitiveLineDrawer::DrawWireCircle(const Vector3& center, float radius, co
 void PrimitiveLineDrawer::Draw()
 {
 	// ビュープロジェクション行列を送る準備
-	const Matrix4x4& viewProjection = CameraManager::GetInstance()->GetActiveCamera()->GetViewProjectionMatrix();
+	const Matrix4x4& viewProjection = CameraManager::GetInstance().GetActiveCamera()->GetViewProjectionMatrix();
 	transform_->SetMatWVP(viewProjection);
 
 	ID3D12GraphicsCommandList* cmdList = dxManager_->GetCommandList();

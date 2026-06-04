@@ -1,4 +1,4 @@
-#include "DirectionalLight.h"
+﻿#include "DirectionalLight.h"
 #ifdef _DEBUG
 #include <imgui.h>
 #include "World3D/Primitive/PrimitiveLineDrawer.h"
@@ -22,7 +22,7 @@ DirectionalLight::DirectionalLight(const std::string& name)
 
 void DirectionalLight::Initialize()
 {
-	global_ = GlobalVariables::GetInstance();
+	global_ = &GlobalVariables::GetInstance();
 	// 既存のライトデータを読み込み
 	global_->LoadFile("Light", name_);
 	// エディター項目登録

@@ -8,15 +8,12 @@
 class OffScreenManager
 {
 private:
-	static std::unique_ptr<OffScreenManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	OffScreenManager() = default;
 	OffScreenManager(const OffScreenManager&) = delete;
 	OffScreenManager& operator=(const OffScreenManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static OffScreenManager* GetInstance();
+	static OffScreenManager& GetInstance();
 	// 初期化処理
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
 	// 終了
@@ -87,6 +84,6 @@ private:
 
 	// effects
 	std::vector<std::unique_ptr<BaseOffScreen>> effects_;
-	std::vector<PostEffectPath*> paths_;
+	std::vector<std::unique_ptr<PostEffectPath>> paths_;
 };
 

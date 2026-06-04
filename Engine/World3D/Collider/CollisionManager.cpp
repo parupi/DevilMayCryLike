@@ -3,15 +3,10 @@
 #include <cmath>
 
 
-std::unique_ptr<CollisionManager> CollisionManager::instance;
-std::once_flag CollisionManager::initInstanceFlag;
-
-CollisionManager* CollisionManager::GetInstance()
+CollisionManager& CollisionManager::GetInstance()
 {
-    std::call_once(initInstanceFlag, []() {
-        instance.reset(new CollisionManager());
-        });
-    return instance.get();
+	static CollisionManager instance;
+	return instance;
 }
 
 void CollisionManager::Initialize()
@@ -20,7 +15,6 @@ void CollisionManager::Initialize()
 
 void CollisionManager::Finalize()
 {
-    instance.reset();
 }
 
 void CollisionManager::Update()

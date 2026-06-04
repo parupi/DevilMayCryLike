@@ -63,14 +63,11 @@ public:
 
 
 private:
-	static std::unique_ptr<Input> instance;
-	static std::once_flag initInstanceFlag;
-
 	Input() = default;
 	Input(const Input&) = delete;
 	Input& operator=(const Input&) = delete;
 public: // メンバ関数
-	static Input* GetInstance();
+	static Input& GetInstance();
 
 	/// <summary>
 	/// 初期化

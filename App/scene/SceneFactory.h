@@ -7,7 +7,7 @@ class SceneFactory : public AbstractSceneFactory
 {
 public:
 	// 新しいシーンを生成
-	BaseScene* CreateScene(const std::string& sceneName) override;
+	std::unique_ptr<BaseScene> CreateScene(const std::string& sceneName) override;
 
 };
 

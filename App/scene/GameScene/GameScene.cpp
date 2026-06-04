@@ -35,7 +35,7 @@ void GameScene::Initialize() {
 
 	// 入力の受付状態を管理するクラス生成
 	inputContext_ = std::make_unique<InputContext>();
-	inputContext_->Initialize(Input::GetInstance());
+	inputContext_->Initialize(&Input::GetInstance());
 
 	// 最初のシーンに入る処理
 	currentState_->Enter(*this);
@@ -54,47 +54,47 @@ void GameScene::Initialize() {
 	clearCamera_ = clearCamera.get();
 	cameraManager_->AddCamera(std::move(clearCamera));
 
-	ModelManager::GetInstance()->LoadModel("PlayerBody");
-	ModelManager::GetInstance()->LoadModel("PlayerHead");
-	ModelManager::GetInstance()->LoadModel("PlayerLeftArm");
-	ModelManager::GetInstance()->LoadModel("PlayerRightArm");
-	ModelManager::GetInstance()->LoadModel("weapon");
-	ModelManager::GetInstance()->LoadModel("Cube");
-	ModelManager::GetInstance()->LoadModel("suzannu");
-	ModelManager::GetInstance()->LoadModel("Sword");
-	ModelManager::GetInstance()->LoadModel("spirit_knight");
-	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
-	TextureManager::GetInstance()->LoadTexture("gradationLine.png");
-	TextureManager::GetInstance()->LoadTexture("Terrain.png");
-	TextureManager::GetInstance()->LoadTexture("gradationLine_brightened.png");
-	TextureManager::GetInstance()->LoadTexture("MagicEffect.png");
-	TextureManager::GetInstance()->LoadTexture("portal.png");
-	TextureManager::GetInstance()->LoadTexture("DeathText.png");
-	TextureManager::GetInstance()->LoadTexture("GameUI.png");
-	TextureManager::GetInstance()->LoadTexture("reticle.png");
-	TextureManager::GetInstance()->LoadTexture("hitSmoke.png");
-	TextureManager::GetInstance()->LoadTexture("UI/Arrow.png");
-	TextureManager::GetInstance()->LoadTexture("UI/plus.png");
-	TextureManager::GetInstance()->LoadTexture("UI/RBButton.png");
-	TextureManager::GetInstance()->LoadTexture("UI/SticDown.png");
-	TextureManager::GetInstance()->LoadTexture("UI/YButton.png");
-	TextureManager::GetInstance()->LoadTexture("circle.png");
-	TextureManager::GetInstance()->LoadTexture("smoke.png");
-	TextureManager::GetInstance()->LoadTexture("white.png");
-	TextureManager::GetInstance()->LoadTexture("Heart.png");
+	ModelManager::GetInstance().LoadModel("PlayerBody");
+	ModelManager::GetInstance().LoadModel("PlayerHead");
+	ModelManager::GetInstance().LoadModel("PlayerLeftArm");
+	ModelManager::GetInstance().LoadModel("PlayerRightArm");
+	ModelManager::GetInstance().LoadModel("weapon");
+	ModelManager::GetInstance().LoadModel("Cube");
+	ModelManager::GetInstance().LoadModel("suzannu");
+	ModelManager::GetInstance().LoadModel("Sword");
+	ModelManager::GetInstance().LoadModel("spirit_knight");
+	TextureManager::GetInstance().LoadTexture("uvChecker.png");
+	TextureManager::GetInstance().LoadTexture("gradationLine.png");
+	TextureManager::GetInstance().LoadTexture("Terrain.png");
+	TextureManager::GetInstance().LoadTexture("gradationLine_brightened.png");
+	TextureManager::GetInstance().LoadTexture("MagicEffect.png");
+	TextureManager::GetInstance().LoadTexture("portal.png");
+	TextureManager::GetInstance().LoadTexture("DeathText.png");
+	TextureManager::GetInstance().LoadTexture("GameUI.png");
+	TextureManager::GetInstance().LoadTexture("reticle.png");
+	TextureManager::GetInstance().LoadTexture("hitSmoke.png");
+	TextureManager::GetInstance().LoadTexture("UI/Arrow.png");
+	TextureManager::GetInstance().LoadTexture("UI/plus.png");
+	TextureManager::GetInstance().LoadTexture("UI/RBButton.png");
+	TextureManager::GetInstance().LoadTexture("UI/SticDown.png");
+	TextureManager::GetInstance().LoadTexture("UI/YButton.png");
+	TextureManager::GetInstance().LoadTexture("circle.png");
+	TextureManager::GetInstance().LoadTexture("smoke.png");
+	TextureManager::GetInstance().LoadTexture("white.png");
+	TextureManager::GetInstance().LoadTexture("Heart.png");
 
-	ParticleManager::GetInstance()->CreateParticleGroup("test", "circle.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("fire", "circle.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("smoke", "circle.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("hitSmoke", "hitSmoke.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("GameCircle", "circle.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("GameSmoke", "smoke.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("EnemyDamageEffect", "white.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("PlayerSlashEffect", "circle.png");
-	ParticleManager::GetInstance()->CreateParticleGroup("EnemyChargeRing", "white.png", PrimitiveType::Ring);
+	ParticleManager::GetInstance().CreateParticleGroup("test", "circle.png");
+	ParticleManager::GetInstance().CreateParticleGroup("fire", "circle.png");
+	ParticleManager::GetInstance().CreateParticleGroup("smoke", "circle.png");
+	ParticleManager::GetInstance().CreateParticleGroup("hitSmoke", "hitSmoke.png");
+	ParticleManager::GetInstance().CreateParticleGroup("GameCircle", "circle.png");
+	ParticleManager::GetInstance().CreateParticleGroup("GameSmoke", "smoke.png");
+	ParticleManager::GetInstance().CreateParticleGroup("EnemyDamageEffect", "white.png");
+	ParticleManager::GetInstance().CreateParticleGroup("PlayerSlashEffect", "circle.png");
+	ParticleManager::GetInstance().CreateParticleGroup("EnemyChargeRing", "white.png", PrimitiveType::Ring);
 
 	// スカイボックスを生成
-	SkySystem::GetInstance()->CreateSkyBox("moonless_golf_4k.dds");
+	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");
 
 	// ステージの情報を読み込んで生成
 	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
@@ -103,14 +103,14 @@ void GameScene::Initialize() {
 
 	lockOnSystem_ = std::make_unique<LockOnSystem>();
 
-	player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+	player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
 	player_->SetInput(inputContext_->GetPlayerInput());
 	player_->SetLockOn(lockOnSystem_.get());
 
 	lockOnSystem_->Initialize(inputContext_->GetLockOnInput(), player_);
 
 	// 生成された敵をロックオン対象に設定する
-	for (auto* obj : Object3dManager::GetInstance()->GetAllObject()) {
+	for (auto* obj : Object3dManager::GetInstance().GetAllObject()) {
 		if (auto* enemy = dynamic_cast<Enemy*>(obj)) {
 			enemy->SetupLockOn(lockOnSystem_.get());
 		}
@@ -126,27 +126,27 @@ void GameScene::Initialize() {
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
 
-	musk_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "menuMusk", "white.png");
+	musk_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "menuMusk", "white.png");
 	musk_->SetSize({ 1280.0f, 720.0f });
 	musk_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
 
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
 
-	//deathText_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "DeathText", "DeathText.png");
+	//deathText_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "DeathText", "DeathText.png");
 	//deathText_->SetAnchorPoint({0.5f, 0.5f});
 	//deathText_->SetPosition({ 640.0f, 120.0f });
 }
 
 void GameScene::Finalize() {
-	SpriteManager::GetInstance()->DeleteAllSprite();
-	Object3dManager::GetInstance()->DeleteAllObject();
-	CollisionManager::GetInstance()->DeleteAllCollider();
-	RendererManager::GetInstance()->DeleteAllRenderer();
-	CameraManager::GetInstance()->DeleteAllCamera();
-	LightManager::GetInstance()->DeleteAllLight();
+	SpriteManager::GetInstance().DeleteAllSprite();
+	Object3dManager::GetInstance().DeleteAllObject();
+	CollisionManager::GetInstance().DeleteAllCollider();
+	RendererManager::GetInstance().DeleteAllRenderer();
+	CameraManager::GetInstance().DeleteAllCamera();
+	LightManager::GetInstance().DeleteAllLight();
 
-	EventManager::GetInstance()->Finalize();
+	EventManager::GetInstance().Finalize();
 }
 
 void GameScene::Update()
@@ -169,7 +169,7 @@ void GameScene::Update()
 
 	lockOnSystem_->Update();
 
-	Object3dManager::GetInstance()->SetDeltaTime(sceneTime_);
+	Object3dManager::GetInstance().SetDeltaTime(sceneTime_);
 
 #ifdef _DEBUG
 	//DebugUpdate();
@@ -178,7 +178,7 @@ void GameScene::Update()
 
 void GameScene::Draw() {
 	// スプライトの描画前処理
-	//SpriteManager::GetInstance()->DrawSet();
+	//SpriteManager::GetInstance().DrawSet();
 	// プレイヤーのスプライト描画
 	if (player_) {
 		player_->DrawEffect();
@@ -191,7 +191,7 @@ void GameScene::Draw() {
 	//menuUI_->Draw();
 
 	// 全パーティクルの描画
-	ParticleManager::GetInstance()->Draw();
+	ParticleManager::GetInstance().Draw();
 }
 
 void GameScene::DrawRTV() {}
@@ -202,7 +202,7 @@ void GameScene::DebugUpdate() {
 		player_->DebugGui();
 	}
 
-	//Object3dManager::GetInstance()->FindObject("HellKaina")->DebugGui();
+	//Object3dManager::GetInstance().FindObject("HellKaina")->DebugGui();
 }
 #endif // _DEBUG
 

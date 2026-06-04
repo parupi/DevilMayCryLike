@@ -1,4 +1,4 @@
-#include "SphereCollider.h"
+﻿#include "SphereCollider.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 #include <cmath>
 
@@ -20,7 +20,7 @@ void SphereCollider::Update()
 	if (owner_ && transform_->GetParent() == nullptr) {
 		transform_->SetParent(owner_->GetWorldTransform());
 	}
-	transform_->TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
+	transform_->TransferMatrix(CameraManager::GetInstance().GetCurrentCamera());
 }
 
 Vector3 SphereCollider::GetCenter() const
@@ -39,7 +39,7 @@ void SphereCollider::DrawDebug()
 	float radius = GetRadius();
 	Vector4 color = { 1.0f, 0.0f, 0.0f, 1.0f }; // 赤
 
-	PrimitiveLineDrawer* drawer = PrimitiveLineDrawer::GetInstance();
+	PrimitiveLineDrawer* drawer = &PrimitiveLineDrawer::GetInstance();
 
 	const int segments = 20;
 

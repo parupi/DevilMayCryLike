@@ -1,4 +1,4 @@
-#include "Enemy.h"
+﻿#include "Enemy.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/PrimitiveRenderer.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -33,7 +33,7 @@ void Enemy::Initialize()
 void Enemy::Update(float deltaTime)
 {
 	if (!player_) {
-		player_ = static_cast<Player*>(Object3dManager::GetInstance()->FindObject("Player"));
+		player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
 	}
 

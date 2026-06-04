@@ -1,4 +1,4 @@
-#include "LockOnSystem.h"
+﻿#include "LockOnSystem.h"
 #include "Input/LockOnInput.h"
 #include "World3D/Camera/CameraManager.h"
 #include "GameObject/Character/Player/Player.h"
@@ -9,7 +9,7 @@ void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 	input_ = input;
 	player_ = player;
 
-	reticle_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
+	reticle_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
 	reticle_->SetSize({ 32.0f, 32.0f });
 	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
 }
@@ -40,7 +40,7 @@ void LockOnSystem::Update() {
 	}
 
 	if (IsLockOn()) {
-		reticle_->SetPosition(CameraManager::GetInstance()->GetCurrentCamera()->WorldToScreen(currentTarget_->GetWorldPosition(), 1280, 720));
+		reticle_->SetPosition(CameraManager::GetInstance().GetCurrentCamera()->WorldToScreen(currentTarget_->GetWorldPosition(), 1280, 720));
 		reticle_->Update();
 	}
 }
@@ -84,7 +84,7 @@ LockOnTarget* LockOnSystem::FindBestTarget() {
 }
 
 float LockOnSystem::CalculateScore(LockOnTarget* target) {
-	auto* camera = CameraManager::GetInstance()->GetCurrentCamera();
+	auto* camera = CameraManager::GetInstance().GetCurrentCamera();
 
 	Vector3 camPos = camera->GetTranslate();
 	Vector3 targetPos = target->GetWorldPosition();
@@ -101,7 +101,7 @@ float LockOnSystem::CalculateScore(LockOnTarget* target) {
 
 	float distance = Length(toTarget);
 
-	//PrimitiveLineDrawer::GetInstance()->DrawWireSphere(targetPos, 1.0f, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
+	//PrimitiveLineDrawer::GetInstance().DrawWireSphere(targetPos, 1.0f, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
 	//Vector3 f = camera->GetForward();
 	//ImGui::Begin("Debug");
 	//ImGui::Text("Forward: %f %f %f\n", f.x, f.y, f.z);

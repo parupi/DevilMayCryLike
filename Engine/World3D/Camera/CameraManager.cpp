@@ -1,17 +1,12 @@
-#include "CameraManager.h"
+﻿#include "CameraManager.h"
 #include <World3D/Object/Object3dManager.h>
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include <Utility/DeltaTime.h>
 
-std::unique_ptr<CameraManager> CameraManager::instance;
-std::once_flag CameraManager::initInstanceFlag;
-
-CameraManager* CameraManager::GetInstance()
+CameraManager& CameraManager::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new CameraManager());
-		});
-	return instance.get();
+	static CameraManager instance;
+	return instance;
 }
 
 void CameraManager::Initialize(DirectXManager* dxManager)
@@ -35,7 +30,6 @@ void CameraManager::Finalize()
 
 	dxManager_ = nullptr;
 
-	instance.reset();
 
 	Logger::Log("CameraManager finalized.\n");
 }
@@ -68,7 +62,7 @@ void CameraManager::Update()
 
 	if (camera) {
 		cameraData_->worldPosition = camera->GetTranslate();
-		Object3dManager::GetInstance()->SetDefaultCamera(camera);
+		Object3dManager::GetInstance().SetDefaultCamera(camera);
 	}
 }
 
@@ -83,8 +77,8 @@ void CameraManager::SetActiveCamera(const std::string& cameraName, float transit
 	// 補間時間が指定されていない or 0 の場合は即切り替え
 	if (transitionTime <= 0.0f || activeCameraName_.empty()) {
 		activeCameraName_ = cameraName;
-		Object3dManager::GetInstance()->SetDefaultCamera(it->second.get());
-		ParticleManager::GetInstance()->SetCamera(it->second.get());
+		Object3dManager::GetInstance().SetDefaultCamera(it->second.get());
+		ParticleManager::GetInstance().SetCamera(it->second.get());
 		return;
 	}
 
@@ -104,8 +98,8 @@ void CameraManager::SetActiveCamera(const std::string& cameraName, float transit
 	endRot_ = nextCam->GetRotate();
 
 	// トランジションカメラをセット
-	Object3dManager::GetInstance()->SetDefaultCamera(transitionCamera_.get());
-	ParticleManager::GetInstance()->SetCamera(transitionCamera_.get());
+	Object3dManager::GetInstance().SetDefaultCamera(transitionCamera_.get());
+	ParticleManager::GetInstance().SetCamera(transitionCamera_.get());
 
 	transitionCamera_->SetFovY(cameras_[activeCameraName_]->GetFovY());
 	transitionCamera_->SetAspectRate(cameras_[activeCameraName_]->GetAspectRate());
@@ -191,8 +185,8 @@ void CameraManager::TransitionUpdate()
 		isTransitioning_ = false;
 		activeCameraName_ = nextCameraName_;
 		nextCameraName_.clear();
-		Object3dManager::GetInstance()->SetDefaultCamera(cameras_[activeCameraName_].get());
-		ParticleManager::GetInstance()->SetCamera(cameras_[activeCameraName_].get());
+		Object3dManager::GetInstance().SetDefaultCamera(cameras_[activeCameraName_].get());
+		ParticleManager::GetInstance().SetCamera(cameras_[activeCameraName_].get());
 		return;
 	}
 	// 次に設定するカメラも更新しておく

@@ -1,17 +1,12 @@
-#include "SkySystem.h"
+﻿#include "SkySystem.h"
 #include <World3D/Object/Object3dManager.h>
 #include "Graphics/Resource/TextureManager.h"
 #include <World3D/Camera/CameraManager.h>
 
-std::unique_ptr<SkySystem> SkySystem::instance;
-std::once_flag SkySystem::initInstanceFlag;
-
-SkySystem* SkySystem::GetInstance()
+SkySystem& SkySystem::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new SkySystem());
-		});
-	return instance.get();
+	static SkySystem instance;
+	return instance;
 }
 
 void SkySystem::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
@@ -35,7 +30,6 @@ void SkySystem::Finalize()
 		indexResource_.Reset();
 	}
 
-	instance.reset();
 }
 
 void SkySystem::Draw()
@@ -45,7 +39,7 @@ void SkySystem::Draw()
 	auto* commandList = dxManager_->GetCommandList();
 
 	// カメラ取得
-	BaseCamera* camera = CameraManager::GetInstance()->GetActiveCamera();
+	BaseCamera* camera = CameraManager::GetInstance().GetActiveCamera();
 
 	if (!camera) return;
 	Matrix4x4 view = camera->GetViewMatrix();
@@ -84,11 +78,11 @@ void SkySystem::CreateSkyBox(const std::string& textureFilePath)
 	CreateVertexResource();
 	CreateIndexResource();
 
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+	TextureManager::GetInstance().LoadTexture(textureFilePath);
 
 	MaterialData materialData;
 	materialData.textureFilePath = textureFilePath;
-	materialData.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	materialData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(textureFilePath);
 
 	material_ = std::make_unique<Material>();
 	material_->Initialize(dxManager_, srvManager_, materialData);

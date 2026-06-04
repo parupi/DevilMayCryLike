@@ -1,4 +1,4 @@
-#include "Hellkaina.h"
+﻿#include "Hellkaina.h"
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/AABBCollider.h>
@@ -61,8 +61,8 @@ namespace
 
 Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 {
-    RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
-    AddRenderer(RendererManager::GetInstance()->FindRender(name_));
+    RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+    AddRenderer(RendererManager::GetInstance().FindRender(name_));
     GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
     hp_ = 10.0f;
@@ -76,17 +76,17 @@ void Hellkaina::Initialize()
     col->GetColliderData().offsetMin *= 0.5f;
 
     // 武器の生成（ステート生成より先に行う）
-    RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_ + "HellkainaWeapon", "Sword"));
-    CollisionManager::GetInstance()->AddCollider(std::make_unique<AABBCollider>(name_ + "HellkainaWeapon"));
+    RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "HellkainaWeapon", "Sword"));
+    CollisionManager::GetInstance().AddCollider(std::make_unique<AABBCollider>(name_ + "HellkainaWeapon"));
 
     auto weapon = std::make_unique<HellkainaWeapon>(name_ + "HellkainaWeapon");
-    weapon->AddRenderer(RendererManager::GetInstance()->FindRender(name_ + "HellkainaWeapon"));
-    weapon->AddCollider(CollisionManager::GetInstance()->FindCollider(name_ + "HellkainaWeapon"));
+    weapon->AddRenderer(RendererManager::GetInstance().FindRender(name_ + "HellkainaWeapon"));
+    weapon->AddCollider(CollisionManager::GetInstance().FindCollider(name_ + "HellkainaWeapon"));
     weapon->Initialize();
     weapon->GetWorldTransform()->SetParent(GetWorldTransform());
 
     weapon_ = weapon.get();
-    Object3dManager::GetInstance()->AddObject(std::move(weapon));
+    Object3dManager::GetInstance().AddObject(std::move(weapon));
 
     // ステートの登録（weapon_ が確定した後なので AttackA/B に渡せる）
     states_[EnemyStateName::Idle]      = std::make_unique<EnemyStateIdle>();
@@ -98,8 +98,8 @@ void Hellkaina::Initialize()
     states_[HellkainaStateName::AttackB]  = std::make_unique<HellkainaWeaponAttackState>(weapon_, MakeAttackBParams());
 
     // パーティクル
-    ParticleManager::GetInstance()->CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-    auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+    ParticleManager::GetInstance().CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
+    auto& emitters = ParticleManager::GetInstance().GetEmitters();
     emitter_ = emitters.at(name_ + "HitEffect").get();
     emitter_->SetParent(GetWorldTransform());
     emitter_->AddParticle("EnemyDamageEffect");

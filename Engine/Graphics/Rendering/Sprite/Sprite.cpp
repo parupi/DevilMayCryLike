@@ -1,4 +1,4 @@
-#include "Sprite.h"
+﻿#include "Sprite.h"
 #include "Math/MathUtils.h"
 #ifdef _DEBUG
 #include <imgui.h>
@@ -10,12 +10,12 @@ Sprite::Sprite(const std::string& spriteName, const std::string& textureFilePath
 	name_ = spriteName;
 
 	// テクスチャを設定
-	textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(textureFilePath);
 	textureFilePath_ = textureFilePath;
 
 	layer_ = spriteLayer;
 
-	spriteManager_ = SpriteManager::GetInstance();
+	spriteManager_ = &SpriteManager::GetInstance();
 
 	// 各種リソースを作る
 	CreateVertexResource();
@@ -66,7 +66,7 @@ void Sprite::Draw()
 	// TransformationMatrixCBufferの場所を設定
 	commandList->SetGraphicsRootConstantBufferView(0, resourceManager->GetGPUVirtualAddress(materialHandle_));
 
-	commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance()->GetSrvHandleGPU(textureFilePath_));
+	commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance().GetSrvHandleGPU(textureFilePath_));
 
 	//// 描画!（DrawCall/ドローコール）。3頂点で1つのインスタンス。インスタンスについては今後
 	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
@@ -154,7 +154,7 @@ void Sprite::SetSpriteData()
 		bottom = -bottom;
 	}
 
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureFilePath_);
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance().GetMetaData(textureFilePath_);
 	float tex_left = textureLeftTop_.x / metadata.width;
 	float tex_right = (textureLeftTop_.x + textureSize_.x) / metadata.width;
 	float tex_top = textureLeftTop_.y / metadata.height;
@@ -184,7 +184,7 @@ void Sprite::SetSpriteData()
 void Sprite::AdjustTextureSize()
 {
 	// テクスチャメタデータを取得
-	const DirectX::TexMetadata& metadata = TextureManager::GetInstance()->GetMetaData(textureFilePath_);
+	const DirectX::TexMetadata& metadata = TextureManager::GetInstance().GetMetaData(textureFilePath_);
 
 	textureSize_.x = static_cast<float>(metadata.width);
 	textureSize_.y = static_cast<float>(metadata.height);

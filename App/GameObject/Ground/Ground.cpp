@@ -1,4 +1,4 @@
-#include "Ground.h"
+﻿#include "Ground.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <memory>
 #include "World3D/Object/Renderer/ModelRenderer.h"
@@ -12,16 +12,16 @@ Ground::Ground(std::string objectName) : Object3d(objectName)
 void Ground::Initialize()
 {
 	// レンダラーの生成
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>(name_, "Cube"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "Cube"));
 
-	AddRenderer(RendererManager::GetInstance()->FindRender(name_));
+	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 
 	GetCollider(name_)->category_ = CollisionCategory::Ground;
 	// uvサイズをオブジェクトの大きさに合わせる
 	GetRenderer(name_)->GetModel()->GetMaterials()[1]->SetEnableTextureDensity(true);
 
 	//GetCollider(name_)->transform_->GetScale() = GetWorldTransform()->GetScale();
-	//CollisionManager::GetInstance()->FindCollider(name_);
+	//CollisionManager::GetInstance().FindCollider(name_);
 	//smokeEmitter_ = std::make_unique<ParticleEmitter>();
 	//smokeEmitter_->Initialize(name_ + "Smoke");
 	//smokeEmitter_->SetParent(GetWorldTransform());

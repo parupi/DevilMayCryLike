@@ -1,16 +1,12 @@
-#include "Input.h"
+﻿#include "Input.h"
 #include <stdexcept>
 #include <string>
 
-std::unique_ptr<Input> Input::instance;
-std::once_flag Input::initInstanceFlag;
 
-Input* Input::GetInstance()
+Input& Input::GetInstance()
 {
-    std::call_once(initInstanceFlag, []() {
-        instance.reset(new Input());
-        });
-    return instance.get();
+	static Input instance;
+	return instance;
 }
 
 // 初期化処理
@@ -57,7 +53,6 @@ void Input::Finalize()
     if (devMouse_) {
         devMouse_->Unacquire();
     }
-    instance.reset();
 }
 
 // ジョイスティックのセットアップ

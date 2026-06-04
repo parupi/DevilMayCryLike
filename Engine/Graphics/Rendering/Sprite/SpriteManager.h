@@ -15,16 +15,13 @@ class PSOManager;
 class SpriteManager
 {
 private:
-	static std::unique_ptr<SpriteManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	SpriteManager() = default;
 	SpriteManager(const SpriteManager&) = delete;
 	SpriteManager& operator=(const SpriteManager&) = delete;
 
 public:
 	// シングルトンインスタンスの取得
-	static SpriteManager* GetInstance();
+	static SpriteManager& GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* directXManager, PSOManager* psoManager);
 	// 描画前処理

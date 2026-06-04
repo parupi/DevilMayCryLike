@@ -1,4 +1,4 @@
-#include "GlobalVariables.h"
+﻿#include "GlobalVariables.h"
 #include <fstream>
 #include "Windows.h"
 #ifdef _DEBUG
@@ -7,10 +7,10 @@
 
 using namespace std;
 
-GlobalVariables* GlobalVariables::GetInstance() {
+GlobalVariables& GlobalVariables::GetInstance() {
 	static GlobalVariables instance;
 
-	return &instance;
+	return instance;
 }
 
 void GlobalVariables::CreateGroup(const string& groupName) {

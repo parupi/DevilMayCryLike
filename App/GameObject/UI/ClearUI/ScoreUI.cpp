@@ -1,4 +1,4 @@
-#include "ScoreUI.h"
+﻿#include "ScoreUI.h"
 #include <cstdint>
 #include <GameData/GameData.h>
 #include <string>
@@ -7,11 +7,11 @@
 
 void ScoreUI::Initialize()
 {
-	targetScore_ = GameData::GetInstance()->GetClearScore();
+	targetScore_ = GameData::GetInstance().GetClearScore();
 	int32_t digits = std::to_string(std::abs(targetScore_)).size();
 
 	for (int32_t i = 0; i < digits; i++) {
-		Sprite* num = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "num" + std::to_string(i), "Numbers.png");
+		Sprite* num = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "num" + std::to_string(i), "Numbers.png");
 		num->SetSize({ 64.0f, 64.0f });
 		num->SetUVSize({ 0.1f, 1.0f });
 		scoreNums_.push_back(num);

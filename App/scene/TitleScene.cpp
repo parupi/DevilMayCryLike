@@ -1,4 +1,4 @@
-#include "TitleScene.h"
+﻿#include "TitleScene.h"
 #include "Graphics/Resource/TextureManager.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
@@ -17,26 +17,26 @@
 
 void TitleScene::Initialize()
 {
-	ModelManager::GetInstance()->LoadModel("PlayerBody");
-	ModelManager::GetInstance()->LoadModel("PlayerHead");
-	ModelManager::GetInstance()->LoadModel("weapon");
-	ModelManager::GetInstance()->LoadModel("Sword");
-	ModelManager::GetInstance()->LoadModel("Cube");
-	TextureManager::GetInstance()->LoadTexture("white.png");
-	TextureManager::GetInstance()->LoadTexture("Title.png");
-	TextureManager::GetInstance()->LoadTexture("uvChecker.png");
-	TextureManager::GetInstance()->LoadTexture("circle.png");
-	TextureManager::GetInstance()->LoadTexture("circle2.png");
-	TextureManager::GetInstance()->LoadTexture("TitleUnder.png");
-	TextureManager::GetInstance()->LoadTexture("TitleUp.png");
-	TextureManager::GetInstance()->LoadTexture("SelectArrow.png");
-	TextureManager::GetInstance()->LoadTexture("smoke.png");
+	ModelManager::GetInstance().LoadModel("PlayerBody");
+	ModelManager::GetInstance().LoadModel("PlayerHead");
+	ModelManager::GetInstance().LoadModel("weapon");
+	ModelManager::GetInstance().LoadModel("Sword");
+	ModelManager::GetInstance().LoadModel("Cube");
+	TextureManager::GetInstance().LoadTexture("white.png");
+	TextureManager::GetInstance().LoadTexture("Title.png");
+	TextureManager::GetInstance().LoadTexture("uvChecker.png");
+	TextureManager::GetInstance().LoadTexture("circle.png");
+	TextureManager::GetInstance().LoadTexture("circle2.png");
+	TextureManager::GetInstance().LoadTexture("TitleUnder.png");
+	TextureManager::GetInstance().LoadTexture("TitleUp.png");
+	TextureManager::GetInstance().LoadTexture("SelectArrow.png");
+	TextureManager::GetInstance().LoadTexture("smoke.png");
 
-	TextureManager::GetInstance()->LoadTexture("black.png");
-	TextureManager::GetInstance()->LoadTexture("SelectMask.png");
+	TextureManager::GetInstance().LoadTexture("black.png");
+	TextureManager::GetInstance().LoadTexture("SelectMask.png");
 
-	//TextureManager::GetInstance()->LoadTexture("GameStart.png");
-	TextureManager::GetInstance()->LoadTexture("TitleUI.png");
+	//TextureManager::GetInstance().LoadTexture("GameStart.png");
+	TextureManager::GetInstance().LoadTexture("TitleUI.png");
 
 	// カメラの生成
 
@@ -48,20 +48,20 @@ void TitleScene::Initialize()
 	camera_->Enter();
 
 	// タイトルシーンにあるもやもやを生成
-	ParticleManager::GetInstance()->CreateParticleGroup("TitleSphere", "circle2.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSphere", "TitleSphere");
-	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke", "circle.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke", "TitleSmoke");
-	ParticleManager::GetInstance()->CreateParticleGroup("TitleSmoke2", "smoke.png");
-	ParticleManager::GetInstance()->CreateEmitter("TitleSmoke2", "TitleSmoke2");
+	ParticleManager::GetInstance().CreateParticleGroup("TitleSphere", "circle2.png");
+	ParticleManager::GetInstance().CreateEmitter("TitleSphere", "TitleSphere");
+	ParticleManager::GetInstance().CreateParticleGroup("TitleSmoke", "circle.png");
+	ParticleManager::GetInstance().CreateEmitter("TitleSmoke", "TitleSmoke");
+	ParticleManager::GetInstance().CreateParticleGroup("TitleSmoke2", "smoke.png");
+	ParticleManager::GetInstance().CreateEmitter("TitleSmoke2", "TitleSmoke2");
 
-	auto& emitters = ParticleManager::GetInstance()->GetEmitters();
+	auto& emitters = ParticleManager::GetInstance().GetEmitters();
 	smokeEmitter_ = emitters.at("TitleSmoke").get();
 	smokeEmitter2_ = emitters.at("TitleSmoke2").get();
 	sphereEmitter_ = emitters.at("TitleSphere").get();
 
 	// スカイボックスを生成
-	SkySystem::GetInstance()->CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
+	SkySystem::GetInstance().CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
 	lightManager_->AddLight(std::make_unique<PointLight>("TitlePoint"));
 	lightManager_->AddLight(std::make_unique<SpotLight>("TitleSpot"));
@@ -73,19 +73,19 @@ void TitleScene::Initialize()
 	titleUI_->Initialize();
 
 	// 新しいトランジションの追加
-	TransitionManager::GetInstance()->AddTransition(std::make_unique<FadeTransition>("Fade"));
-	TransitionManager::GetInstance()->SetTransition("Fade");
+	TransitionManager::GetInstance().AddTransition(std::make_unique<FadeTransition>("Fade"));
+	TransitionManager::GetInstance().SetTransition("Fade");
 }
 
 void TitleScene::Finalize()
 {
-	SpriteManager::GetInstance()->DeleteAllSprite();
-	Object3dManager::GetInstance()->DeleteAllObject();
-	CollisionManager::GetInstance()->DeleteAllCollider();
-	RendererManager::GetInstance()->DeleteAllRenderer();
-	CameraManager::GetInstance()->DeleteAllCamera();
-	LightManager::GetInstance()->DeleteAllLight();
-	ParticleManager::GetInstance()->DeleteAllEmitters();
+	SpriteManager::GetInstance().DeleteAllSprite();
+	Object3dManager::GetInstance().DeleteAllObject();
+	CollisionManager::GetInstance().DeleteAllCollider();
+	RendererManager::GetInstance().DeleteAllRenderer();
+	CameraManager::GetInstance().DeleteAllCamera();
+	LightManager::GetInstance().DeleteAllLight();
+	ParticleManager::GetInstance().DeleteAllEmitters();
 }
 
 void TitleScene::Update()
@@ -109,10 +109,10 @@ void TitleScene::Update()
 
 void TitleScene::Draw()
 {
-	//Object3dManager::GetInstance()->DrawSet();
-	//Object3dManager::GetInstance()->DrawForGBuffer();
+	//Object3dManager::GetInstance().DrawSet();
+	//Object3dManager::GetInstance().DrawForGBuffer();
 
-	ParticleManager::GetInstance()->Draw();
+	ParticleManager::GetInstance().Draw();
 
 	//titleUI_->Draw();
 }
@@ -130,12 +130,12 @@ void TitleScene::DebugUpdate()
 void TitleScene::ChangePhase()
 {
 	if (!camera_->IsExit()) {
-		if (Input::GetInstance()->IsConnected()) {
-			if (Input::GetInstance()->PushButton(PadNumber::ButtonA)) {
+		if (Input::GetInstance().IsConnected()) {
+			if (Input::GetInstance().PushButton(PadNumber::ButtonA)) {
 				camera_->Exit();
 				titleUI_->Exit();
 			}
-		} else if (Input::GetInstance()->TriggerKey(DIK_SPACE)) {
+		} else if (Input::GetInstance().TriggerKey(DIK_SPACE)) {
 			camera_->Exit();
 			titleUI_->Exit();
 		}

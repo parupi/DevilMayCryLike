@@ -1,4 +1,4 @@
-#include "StylishScoreManager.h"
+﻿#include "StylishScoreManager.h"
 #include <Utility/DeltaTime.h>
 #include <imgui.h>
 #include <GameData/GameData.h>
@@ -13,8 +13,8 @@ void StylishScoreManager::Update()
         UpdateRank();
     }
 
-    GameData::GetInstance()->SetClearScore(currentScore_);
-    GameData::GetInstance()->SetClearRank(currentRank_);
+    GameData::GetInstance().SetClearScore(currentScore_);
+    GameData::GetInstance().SetClearRank(currentRank_);
 
 #ifdef _DEBUG
     ImGui::Begin("Stylish");

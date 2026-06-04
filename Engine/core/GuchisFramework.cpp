@@ -1,4 +1,4 @@
-#include "GuchisFramework.h"
+﻿#include "GuchisFramework.h"
 #include "Utility/DeltaTime.h"
 #include "Scene/SceneManager.h"
 
@@ -19,17 +19,17 @@ void GuchisFramework::Initialize()
 	ctx_.psoManager = psoManager.get();
 
 	// 入力の初期化
-	Input::GetInstance()->Initialize();
+	Input::GetInstance().Initialize();
 	// Audioの初期化
-	Audio::GetInstance()->Initialize();
+	Audio::GetInstance().Initialize();
 	// DeltaTime
 	DeltaTime::Initialize();
 }
 
 void GuchisFramework::Finalize()
 {
-	Input::GetInstance()->Finalize();
-	Audio::GetInstance()->Finalize();
+	Input::GetInstance().Finalize();
+	Audio::GetInstance().Finalize();
 	psoManager->Finalize();
 	winManager->Finalize();
 	
@@ -38,9 +38,9 @@ void GuchisFramework::Finalize()
 
 void GuchisFramework::Update()
 {
-	Input::GetInstance()->Update();
+	Input::GetInstance().Update();
 	DeltaTime::Update();
-	SceneManager::GetInstance()->Update();
+	SceneManager::GetInstance().Update();
 }
 
 void GuchisFramework::Run() {

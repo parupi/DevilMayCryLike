@@ -17,14 +17,11 @@
 class LightManager
 {
 private:
-	static std::unique_ptr<LightManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	LightManager() = default;
 	LightManager(const LightManager&) = delete;
 	LightManager& operator=(const LightManager&) = delete;
 public:
-	static LightManager* GetInstance();
+	static LightManager& GetInstance();
 
 	void Initialize(DirectXManager* dxManager);
 	void Finalize();

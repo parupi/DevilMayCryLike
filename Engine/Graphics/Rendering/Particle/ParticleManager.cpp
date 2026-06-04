@@ -1,4 +1,4 @@
-#define NOMINMAX
+﻿#define NOMINMAX
 #include "ParticleManager.h"
 #include "Math/MathUtils.h"
 #include <numbers>
@@ -11,14 +11,11 @@
 std::random_device seedGenerator;
 std::mt19937 randomEngine(seedGenerator());
 
-std::unique_ptr<ParticleManager> ParticleManager::instance;
 
-ParticleManager* ParticleManager::GetInstance()
+ParticleManager& ParticleManager::GetInstance()
 {
-	if (!instance) {
-		instance.reset(new ParticleManager());
-	}
-	return instance.get();
+	static ParticleManager instance;
+	return instance;
 }
 
 void ParticleManager::Finalize()
@@ -65,7 +62,6 @@ void ParticleManager::Finalize()
 	srvManager_ = nullptr;
 	psoManager_ = nullptr;
 
-	instance.reset();
 
 	// ログ出力など（任意）
 	Logger::Log("ParticleManager finalized.\n");
@@ -262,9 +258,9 @@ void ParticleManager::CreateParticleGPU(const std::string& name, PrimitiveType s
 void ParticleManager::CreateParticleRenderer(const std::string& name, const std::string& textureFilePath)
 {
 	ParticleRenderState state{};
-	state.textureIndex = TextureManager::GetInstance()->GetTextureIndexByFilePath(textureFilePath);
+	state.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(textureFilePath);
 
-	TextureManager::GetInstance()->LoadTexture(textureFilePath);
+	TextureManager::GetInstance().LoadTexture(textureFilePath);
 
 	renderStates_.emplace(name, std::move(state));
 }
@@ -600,7 +596,7 @@ void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& gro
 
 		// ====== Save ======
 		if (ImGui::Button("Save")) {
-			GlobalVariables::GetInstance()->SaveFile("Particle", groupName);
+			GlobalVariables::GetInstance().SaveFile("Particle", groupName);
 			std::string message = std::format("{}.json saved.", groupName);
 			MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 		}

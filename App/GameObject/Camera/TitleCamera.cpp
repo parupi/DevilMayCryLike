@@ -1,4 +1,4 @@
-#include "TitleCamera.h"
+﻿#include "TitleCamera.h"
 #include <Utility/DeltaTime.h>
 #include <algorithm>
 #include <Scene/Transition/SceneTransitionController.h>
@@ -43,7 +43,7 @@ void TitleCamera::Update()
 		transform_.rotate = Lerp(startRotate_, targetRotate_, easeT);
 
 		if (t >= 0.6f) {
-			SceneTransitionController::GetInstance()->RequestSceneChange("GAMEPLAY", true);
+			SceneTransitionController::GetInstance().RequestSceneChange("GAMEPLAY", true);
 		}
 		break;
 	}

@@ -48,14 +48,12 @@ struct ParticleRenderState
 class ParticleManager
 {
 private:
-	static std::unique_ptr<ParticleManager> instance;
-
 	ParticleManager() = default;
 	ParticleManager(const ParticleManager&) = delete;
 	ParticleManager& operator=(const ParticleManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static ParticleManager* GetInstance();
+	static ParticleManager& GetInstance();
 	// 終了
 	void Finalize();
 	// 初期化
@@ -167,7 +165,7 @@ private:
 #endif
 
 	// グローバルバリアース
-	GlobalVariables* global_ = GlobalVariables::GetInstance();
+	GlobalVariables* global_ = &GlobalVariables::GetInstance();
 
 	// ランダム用変数宣言
 	std::mt19937 randomEngine;

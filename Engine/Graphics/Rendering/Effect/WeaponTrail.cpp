@@ -12,7 +12,7 @@
 #include <cmath>
 
 WeaponTrail::~WeaponTrail() {
-	auto* rm = RendererManager::GetInstance()->GetDxManager()->GetResourceManager();
+	auto* rm = RendererManager::GetInstance().GetDxManager()->GetResourceManager();
 	if (vbHandle_ != kInvalidBufferHandle) {
 		rm->ReleaseBuffer(vbHandle_);
 	}
@@ -52,14 +52,14 @@ void WeaponTrail::Draw() {
 	BuildMesh();
 	if (vertexCount_ < 4) return;
 
-	auto* rendererMgr = RendererManager::GetInstance();
-	auto* dxManager = rendererMgr->GetDxManager();
+	auto& rendererMgr = RendererManager::GetInstance();
+	auto* dxManager = rendererMgr.GetDxManager();
 	auto* cmd = dxManager->GetCommandList();
-	auto* psoManager = rendererMgr->GetPsoManager();
-	auto* srvManager = rendererMgr->GetSrvManager();
+	auto* psoManager = rendererMgr.GetPsoManager();
+	auto* srvManager = rendererMgr.GetSrvManager();
 
 	// カメラから ViewProjection 行列を取得して CB に書き込む
-	auto* camera = CameraManager::GetInstance()->GetCurrentCamera();
+	auto* camera = CameraManager::GetInstance().GetCurrentCamera();
 	if (!camera) return;
 	mappedCB_->viewProj = camera->GetViewProjectionMatrix();
 	mappedCB_->tintColor = tintColor_;
@@ -116,7 +116,7 @@ void WeaponTrail::BuildMesh() {
 }
 
 void WeaponTrail::CreateVertexBuffer() {
-	auto* rm = RendererManager::GetInstance()->GetDxManager()->GetResourceManager();
+	auto* rm = RendererManager::GetInstance().GetDxManager()->GetResourceManager();
 
 	const size_t bufSize = sizeof(TrailVertex) * kMaxPoints * 2;
 	vbHandle_ = rm->CreateUploadBuffer(bufSize, L"WeaponTrailVB");
@@ -128,7 +128,7 @@ void WeaponTrail::CreateVertexBuffer() {
 }
 
 void WeaponTrail::CreateConstantBuffer() {
-	auto* rm = RendererManager::GetInstance()->GetDxManager()->GetResourceManager();
+	auto* rm = RendererManager::GetInstance().GetDxManager()->GetResourceManager();
 
 	// D3D12 CBV は 256 バイトアラインメントが必要
 	constexpr size_t cbSize = 256;
@@ -137,9 +137,9 @@ void WeaponTrail::CreateConstantBuffer() {
 }
 
 void WeaponTrail::CreateTrailTexture() {
-	auto* rendererMgr = RendererManager::GetInstance();
-	auto* dxManager = rendererMgr->GetDxManager();
-	auto* srvManager = rendererMgr->GetSrvManager();
+	auto& rendererMgr = RendererManager::GetInstance();
+	auto* dxManager = rendererMgr.GetDxManager();
+	auto* srvManager = rendererMgr.GetSrvManager();
 
 	constexpr UINT W = 64, H = 8;
 

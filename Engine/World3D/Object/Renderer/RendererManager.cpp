@@ -2,53 +2,40 @@
 #include "World3D/Object/Model/BaseModel.h"
 //#include "Graphics/Rendering/RenderPath/Impl/GBufferManager.h"
 
-std::unique_ptr<RendererManager> RendererManager::instance;
-std::once_flag RendererManager::initInstanceFlag;
-
-RendererManager* RendererManager::GetInstance()
-{
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new RendererManager());
-		});
-	return instance.get();
+RendererManager& RendererManager::GetInstance() {
+	static RendererManager instance;
+	return instance;
 }
 
-void RendererManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
-{
+void RendererManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager) {
 	dxManager_ = dxManager;
 	srvManager_ = dxManager_->GetSrvManager();
 	psoManager_ = psoManager;
 
 }
 
-void RendererManager::Finalize()
-{
+void RendererManager::Finalize() {
 	renders_.clear();
 
 	dxManager_ = nullptr;
 
-	instance.reset();
 }
 
-void RendererManager::Update()
-{
-	
-}
-
-void RendererManager::RenderGBufferPass()
-{
+void RendererManager::Update() {
 
 }
 
-void RendererManager::DeleteAllRenderer()
-{
+void RendererManager::RenderGBufferPass() {
+
+}
+
+void RendererManager::DeleteAllRenderer() {
 	for (auto& renderer : renders_) {
 		renderer->isAlive = false;
 	}
 }
 
-void RendererManager::RemoveDeadObjects()
-{
+void RendererManager::RemoveDeadObjects() {
 	size_t before = renders_.size();
 
 	renders_.erase(
@@ -67,13 +54,11 @@ void RendererManager::RemoveDeadObjects()
 	}
 }
 
-void RendererManager::AddRenderer(std::unique_ptr<BaseRenderer> render)
-{
+void RendererManager::AddRenderer(std::unique_ptr<BaseRenderer> render) {
 	renders_.push_back(std::move(render));
 }
 
-BaseRenderer* RendererManager::FindRender(std::string renderName)
-{
+BaseRenderer* RendererManager::FindRender(std::string renderName) {
 	for (auto& render : renders_) {
 		if (render->name_ == renderName) {
 			return render.get();

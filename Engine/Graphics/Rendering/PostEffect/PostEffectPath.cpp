@@ -1,4 +1,4 @@
-#include "PostEffectPath.h"
+﻿#include "PostEffectPath.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include <Graphics/Rendering/PostEffect/OffScreenManager.h>
@@ -6,7 +6,7 @@
 
 PostEffectPath::PostEffectPath(BaseOffScreen* effect)
 {
-    offscreen_ = OffScreenManager::GetInstance();
+    offscreen_ = &OffScreenManager::GetInstance();
 	dxManager_ = offscreen_->GetDXManager();
     psoManager_ = offscreen_->GetPSOManager();
 

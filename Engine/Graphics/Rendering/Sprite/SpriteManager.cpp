@@ -1,15 +1,10 @@
 #include "SpriteManager.h"
 #include <cassert>
 
-std::unique_ptr<SpriteManager> SpriteManager::instance;
-std::once_flag SpriteManager::initInstanceFlag;
-
-SpriteManager* SpriteManager::GetInstance()
+SpriteManager& SpriteManager::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new SpriteManager());
-		});
-	return instance.get();
+	static SpriteManager instance;
+	return instance;
 }
 
 void SpriteManager::Initialize(DirectXManager* directXManager, PSOManager* psoManager) {
@@ -42,7 +37,6 @@ void SpriteManager::Finalize()
 	dxManager_ = nullptr;
 	psoManager_ = nullptr;
 
-	instance.reset();
 }
 
 Sprite* SpriteManager::CreateSprite(SpriteLayer layer, const std::string& spriteName, const std::string& textureFilePath)

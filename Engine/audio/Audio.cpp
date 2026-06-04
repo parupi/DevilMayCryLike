@@ -1,16 +1,12 @@
-#include "Audio.h"
+﻿#include "Audio.h"
 #include <cassert>
 #include <algorithm>
 
-std::unique_ptr<Audio> Audio::instance;
-std::once_flag Audio::initInstanceFlag;
 
-Audio* Audio::GetInstance()
+Audio& Audio::GetInstance()
 {
-	std::call_once(initInstanceFlag, []() {
-		instance.reset(new Audio);
-		});
-	return instance.get();
+	static Audio instance;
+	return instance;
 }
 
 void Audio::Initialize()
@@ -114,21 +110,18 @@ void Audio::SoundLoadWave(const char* filename)
 	}
 
 	// Dataチャンクのデータ部 (波形のデータ) の読み込み
-	char* pBuffer = new char[data.size];
-	file.read(pBuffer, data.size);
+	SoundData soundData = {};
+	soundData.pBuffer.resize(data.size);
+	file.read(reinterpret_cast<char*>(soundData.pBuffer.data()), data.size);
 
 	// ファイルクローズ
 	file.close();
 
-	// SoundDataの生成
-	SoundData soundData = {};
-
 	soundData.wfex = format.fmt;
-	soundData.pBuffer = reinterpret_cast<BYTE*>(pBuffer);
 	soundData.bufferSize = data.size;
 	soundData.playSoundLength = data.size / format.fmt.nBlockAlign;
 
-	soundDataMap[filename] = soundData;
+	soundDataMap[filename] = std::move(soundData);
 
 	// 読み込んだ音声データをreturn
 	//return soundData;
@@ -137,10 +130,7 @@ void Audio::SoundLoadWave(const char* filename)
 void Audio::SoundUnload(const char* filename)
 {
 	SoundData* soundData = &soundDataMap[filename];
-	// バッファのメモリを解放
-	delete[] soundData->pBuffer;
-
-	soundData->pBuffer = 0;
+	soundData->pBuffer.clear();
 	soundData->bufferSize = 0;
 	soundData->wfex = {};
 }
@@ -193,7 +183,6 @@ void Audio::Finalize()
 	}
 	masterVoice->DestroyVoice();
 	xAudio2.Reset();
-	instance.reset();
 }
 
 int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices)
@@ -242,7 +231,7 @@ XAUDIO2_BUFFER Audio::SetBuffer(bool loop, const SoundData& sound)
 
 	// バッファの初期化
 	memset(&buffer, 0x00, sizeof(buffer));
-	buffer.pAudioData = sound.pBuffer;
+	buffer.pAudioData = sound.pBuffer.data();
 	buffer.AudioBytes = sound.bufferSize;
 	buffer.PlayBegin = 0;
 	buffer.PlayLength = sound.playSoundLength;
@@ -257,4 +246,3 @@ XAUDIO2_BUFFER Audio::SetBuffer(bool loop, const SoundData& sound)
 
 	return buffer;
 }
-

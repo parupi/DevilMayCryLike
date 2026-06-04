@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <unordered_map>
 #include <GameObject/Character/Player/State/Attack/PlayerStateAttack.h>
 #include "AttackPlayer.h"
@@ -84,7 +84,7 @@ private:
 	// 現在のステート
 	std::vector<PlayerStateAttack*> currentState_;
 
-	GlobalVariables* global_ = GlobalVariables::GetInstance();
+	GlobalVariables* global_ = &GlobalVariables::GetInstance();
 	// プレイヤーの参照を保持
 	Player* player_ = nullptr;
 	// 攻撃再生クラス

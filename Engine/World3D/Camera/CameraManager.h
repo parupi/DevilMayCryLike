@@ -8,15 +8,12 @@
 class CameraManager
 {
 private:
-	static std::unique_ptr<CameraManager> instance;
-	static std::once_flag initInstanceFlag;
-
 	CameraManager() = default;
 	CameraManager(const CameraManager&) = delete;
 	CameraManager& operator=(const CameraManager&) = delete;
 public:
 	// シングルトンインスタンスの取得
-	static CameraManager* GetInstance();
+	static CameraManager& GetInstance();
 	// 初期化
 	void Initialize(DirectXManager* dxManager);
 	// 終了

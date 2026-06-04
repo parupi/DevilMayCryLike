@@ -1,9 +1,9 @@
-#include "DebugSphere.h"
+﻿#include "DebugSphere.h"
 #include <World3D/Object/Model/ModelManager.h>
 
 void DebugSphere::Initialize()
 {
-	////ModelManager::GetInstance()->LoadModel("resource", "ICO.obj");
+	////ModelManager::GetInstance().LoadModel("resource", "ICO.obj");
 	//object_ = std::make_unique<Object3d>();
 	//object_->Initialize("ICO.obj");
 

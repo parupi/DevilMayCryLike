@@ -29,8 +29,7 @@ struct PlayerCommand;
 /// モデル描画、状態遷移、移動、攻撃、ロックオン、スコア加算、  
 /// エフェクトやヒットストップなど、プレイヤーの全挙動を管理する。
 /// </summary>
-class Player : public Object3d
-{
+class Player : public Object3d {
 public:
 	Player(std::string objectNama);
 	~Player() override = default;
@@ -153,12 +152,12 @@ private:
 
 	LockOnSystem* lockOn_ = nullptr;
 
-	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
+	GlobalVariables* gv = &GlobalVariables::GetInstance(); ///< グローバル変数管理
 
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
 	Vector3 velocity_{}; ///< プレイヤーの速度
-	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f }; ///< プレイヤーの加速度
+	Vector3 acceleration_{0.0f, 0.0f, 0.0f}; ///< プレイヤーの加速度
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ
 

@@ -9,17 +9,16 @@ PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName) {}
 void PlayerWeapon::Initialize() {
 	Object3d::Initialize();
 
-	//GetRenderer("PlayerWeapon")->GetWorldTransform()->GetTranslation() = { 0.0f, 0.5f, 0.0f };
-	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = { 0.5f, 1.0f, 0.5f };
+	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = {0.5f, 1.0f, 0.5f};
 
 	GetCollider("WeaponCollider")->category_ = CollisionCategory::PlayerWeapon;
-	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().halfExtents = { 0.5f, 1.0f, 0.5f };
+	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().halfExtents = {0.5f, 1.0f, 0.5f};
 
 	trail_ = std::make_unique<WeaponTrail>();
 	trail_->Initialize();
 
-	defaultPosition_ = { 0.0f, 0.1f, -0.5f };
-	defaultRotation_ = { 0.0f, 90.0f, 150.0f };
+	defaultPosition_ = {0.0f, 0.1f, -0.5f};
+	defaultRotation_ = {0.0f, 90.0f, 150.0f};
 
 	GetWorldTransform()->GetTranslation() = defaultPosition_;
 	GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
@@ -32,7 +31,7 @@ void PlayerWeapon::Update(float deltaTime) {
 	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
 	// 刃先・根本のワールド座標を計算してトレイルに渡す
 	const Matrix4x4& worldMat = GetWorldTransform()->GetMatWorld();
-	Vector3 worldTip  = Transform(tipOffset_,  worldMat);
+	Vector3 worldTip = Transform(tipOffset_, worldMat);
 	Vector3 worldHilt = Transform(hiltOffset_, worldMat);
 
 	if (player_->IsAttack()) {

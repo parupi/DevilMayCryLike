@@ -1,20 +1,20 @@
-#include "MenuDivider.h"
+﻿#include "MenuDivider.h"
 #include <imgui.h>
 #include "Utility/DeltaTime.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void MenuDivider::Initialize()
 {
-	TextureManager::GetInstance()->LoadTexture("UI/Menu/UpperDivider.png");
-	TextureManager::GetInstance()->LoadTexture("UI/Menu/UnderDivider.png");
+	TextureManager::GetInstance().LoadTexture("UI/Menu/UpperDivider.png");
+	TextureManager::GetInstance().LoadTexture("UI/Menu/UnderDivider.png");
 
-	upperDivider_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "upperDivider", "UI/Menu/UpperDivider.png");
+	upperDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "upperDivider", "UI/Menu/UpperDivider.png");
 	upperDivider_->SetPosition({ 320.0f, 480.0f });
 	upperDivider_->SetSize({ 640.0f, 380.0f });
 	upperDivider_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 
 	
-	underDivider_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "underDivider", "UI/Menu/UnderDivider.png");
+	underDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "underDivider", "UI/Menu/UnderDivider.png");
 	underDivider_->SetPosition({ 320.0f, 0.0f });
 	underDivider_->SetSize({ 640.0f, 380.0f });
 	underDivider_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });

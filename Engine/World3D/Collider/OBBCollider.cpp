@@ -1,4 +1,4 @@
-#include "OBBCollider.h"
+﻿#include "OBBCollider.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 
 OBBCollider::OBBCollider(std::string colliderName)
@@ -18,7 +18,7 @@ void OBBCollider::Update()
         transform_->SetParent(owner_->GetWorldTransform());
     }
 
-    transform_->TransferMatrix(CameraManager::GetInstance()->GetCurrentCamera());
+    transform_->TransferMatrix(CameraManager::GetInstance().GetCurrentCamera());
 
     const Matrix4x4& mat = transform_->GetMatWorld();
 
@@ -66,7 +66,7 @@ void OBBCollider::DrawDebug()
         c - axes_[0]*h.x + axes_[1]*h.y + axes_[2]*h.z, // 7: -++
     };
 
-    PrimitiveLineDrawer* drawer = PrimitiveLineDrawer::GetInstance();
+    PrimitiveLineDrawer* drawer = &PrimitiveLineDrawer::GetInstance();
     Vector4 color = { 1.0f, 0.5f, 0.0f, 1.0f }; // オレンジ
 
     // 底面 (z-)

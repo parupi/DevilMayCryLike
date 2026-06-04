@@ -1,24 +1,24 @@
-#include "TitleUI.h"
+﻿#include "TitleUI.h"
 #include <Utility/DeltaTime.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void TitleUI::Initialize()
 {
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<PrimitiveRenderer>("Title", PrimitiveType::Plane, "Title.png"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<PrimitiveRenderer>("Title", PrimitiveType::Plane, "Title.png"));
 
 	std::unique_ptr<PrimitiveRenderer> primitive = std::make_unique<PrimitiveRenderer>("TitleUp", PrimitiveType::Plane, "TitleUp.png");
 	primitive->GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, 0.7f };
-	RendererManager::GetInstance()->AddRenderer(std::move(primitive));
+	RendererManager::GetInstance().AddRenderer(std::move(primitive));
 
 	primitive = std::make_unique<PrimitiveRenderer>("TitleUnder", PrimitiveType::Plane, "TitleUnder.png");
 	primitive->GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, -0.8f };
-	RendererManager::GetInstance()->AddRenderer(std::move(primitive));
+	RendererManager::GetInstance().AddRenderer(std::move(primitive));
 
 	std::unique_ptr<Object3d> object = std::make_unique<Object3d>("Title");
 	object->Initialize();
-	object->AddRenderer(RendererManager::GetInstance()->FindRender("Title"));
-	object->AddRenderer(RendererManager::GetInstance()->FindRender("TitleUp"));
-	object->AddRenderer(RendererManager::GetInstance()->FindRender("TitleUnder"));
+	object->AddRenderer(RendererManager::GetInstance().FindRender("Title"));
+	object->AddRenderer(RendererManager::GetInstance().FindRender("TitleUp"));
+	object->AddRenderer(RendererManager::GetInstance().FindRender("TitleUnder"));
 
 	object->GetOption().drawPath = DrawPath::Forward;
 
@@ -32,10 +32,10 @@ void TitleUI::Initialize()
 	Vector3 dir = { -90.0f, 0.0f, 0.0f };
 	object->GetWorldTransform()->GetRotation() = EulerDegree(dir);
 
-	Object3dManager::GetInstance()->AddObject(std::move(object));
+	Object3dManager::GetInstance().AddObject(std::move(object));
 
 	for (int32_t i = 0; i < 2; i++) {
-		selectArrows_[i] = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "selectArrow" + std::to_string(i), "SelectArrow.png");
+		selectArrows_[i] = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "selectArrow" + std::to_string(i), "SelectArrow.png");
 		selectArrows_[i]->SetAnchorPoint({ 0.5f, 0.5f });
 
 		if (i == 0) {
@@ -46,11 +46,11 @@ void TitleUI::Initialize()
 		}
 	}
 
-	gameStart_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "titleUI", "TitleUI.png");
+	gameStart_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "titleUI", "TitleUI.png");
 	gameStart_->SetPosition({ 640.0f, 520.0f });
 	gameStart_->SetAnchorPoint({ 0.5f, 0.5f });
 
-	//selectMask_ = SpriteManager::GetInstance()->CreateSprite(SpriteLayer::Game, "selectMask", "circle.png");
+	//selectMask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "selectMask", "circle.png");
 	//selectMask_->SetPosition({ 640.0f, 520.0f });
 	//selectMask_->SetSize({ 500.0f, 100.0f });
 	//selectMask_->SetAnchorPoint({ 0.5f, 0.5f });
@@ -58,15 +58,15 @@ void TitleUI::Initialize()
 
 	// プレイヤーの生成
 	std::unique_ptr<Object3d> playerObject = std::make_unique<Object3d>("Player");
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("Player", "PlayerHead"));
-	playerObject->AddRenderer(RendererManager::GetInstance()->FindRender("Player"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("Player", "PlayerHead"));
+	playerObject->AddRenderer(RendererManager::GetInstance().FindRender("Player"));
 	playerObject->GetWorldTransform()->GetTranslation() = { 0.0f, 0.0f, -7.0f };
-	Object3dManager::GetInstance()->AddObject(std::move(playerObject));
+	Object3dManager::GetInstance().AddObject(std::move(playerObject));
 
 	// 武器の生成
 	std::unique_ptr<Object3d> weaponObject = std::make_unique<Object3d>("Sword");
-	RendererManager::GetInstance()->AddRenderer(std::make_unique<ModelRenderer>("Sword", "Sword"));
-	weaponObject->AddRenderer(RendererManager::GetInstance()->FindRender("Sword"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("Sword", "Sword"));
+	weaponObject->AddRenderer(RendererManager::GetInstance().FindRender("Sword"));
 	weaponObject->GetWorldTransform()->GetTranslation() = { 0.0f, 0.75f, -7.5f };
 	weaponObject->GetWorldTransform()->GetScale() = { 0.5f, 0.5f, 0.5f };
 	// 回転の計算
@@ -74,7 +74,7 @@ void TitleUI::Initialize()
 	weaponObject->GetWorldTransform()->GetRotation() = EulerDegree(direction);
 
 	weaponObject_ = weaponObject.get();
-	Object3dManager::GetInstance()->AddObject(std::move(weaponObject));
+	Object3dManager::GetInstance().AddObject(std::move(weaponObject));
 }
 
 void TitleUI::Update()
@@ -92,14 +92,14 @@ void TitleUI::Update()
 
 void TitleUI::Draw()
 {
-	SpriteManager::GetInstance()->DrawSet();
+	SpriteManager::GetInstance().DrawSet();
 	gameStart_->Draw();
 
 	//for (auto& arrow : selectArrows_) {
 	//	arrow->Draw();
 	//}
 
-	//SpriteManager::GetInstance()->DrawSet(BlendMode::kAdd);
+	//SpriteManager::GetInstance().DrawSet(BlendMode::kAdd);
 	//selectMask_->Draw();
 }
 
