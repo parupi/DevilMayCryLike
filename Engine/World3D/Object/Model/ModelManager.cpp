@@ -14,6 +14,9 @@ void ModelManager::Initialize(DirectXManager* dxManager)
 
 void ModelManager::Finalize()
 {
+	models.clear();
+	skinnedModels.clear();
+	modelLoader.reset();
 }
 
 void ModelManager::LoadModel(const std::string& fileName)

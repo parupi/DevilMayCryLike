@@ -21,15 +21,24 @@ void LightManager::Finalize() {
 	lights_.clear();
 	gpuLightCache_.clear();
 
-	// ResourceManager に破棄任せる
-	lightBufferHandle_ = 0;
-	lightCountHandle_ = 0;
+	csm.reset();
+
+	if (dxManager_) {
+		auto* rm = dxManager_->GetResourceManager();
+		if (lightBufferHandle_ != kInvalidBufferHandle) {
+			rm->ReleaseBuffer(lightBufferHandle_);
+			lightBufferHandle_ = kInvalidBufferHandle;
+		}
+		if (lightCountHandle_ != kInvalidBufferHandle) {
+			rm->ReleaseBuffer(lightCountHandle_);
+			lightCountHandle_ = kInvalidBufferHandle;
+		}
+	}
 
 	mappedLightPtr_ = nullptr;
 	mappedCountPtr_ = nullptr;
 
 	dxManager_ = nullptr;
-
 }
 
 void LightManager::Update() {

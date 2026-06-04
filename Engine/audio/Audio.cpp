@@ -1,16 +1,14 @@
-﻿#include "Audio.h"
+#include "Audio.h"
 #include <cassert>
 #include <algorithm>
 
 
-Audio& Audio::GetInstance()
-{
+Audio& Audio::GetInstance() {
 	static Audio instance;
 	return instance;
 }
 
-void Audio::Initialize()
-{
+void Audio::Initialize() {
 	HRESULT result;
 	// インスタンスの生成
 	result = XAudio2Create(&xAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR);
@@ -18,35 +16,30 @@ void Audio::Initialize()
 	result = xAudio2->CreateMasteringVoice(&masterVoice);
 
 }
-void Audio::StopBGM(int resourceNum)
-{
+void Audio::StopBGM(int resourceNum) {
 	pSourceVoices_[resourceNum]->Stop();
 	pSourceVoices_[resourceNum]->FlushSourceBuffers();
 }
 
-void Audio::PauseBGM(int resourceNum)
-{
+void Audio::PauseBGM(int resourceNum) {
 	pSourceVoices_[resourceNum]->Stop();
 }
 
-void Audio::ReStartBGM(int resourceNum)
-{
+void Audio::ReStartBGM(int resourceNum) {
 	pSourceVoices_[resourceNum]->Start();
 }
 
-void Audio::SetBGMVolume(int resourceNum, float volume)
-{
+void Audio::SetBGMVolume(int resourceNum, float volume) {
 	pSourceVoices_[resourceNum]->SetVolume(std::clamp(volume, 0.0f, 1.0f));
 }
 
-void Audio::SoundLoadWave(const char* filename)
-{
+void Audio::SoundLoadWave(const char* filename) {
 	//HRESULT result;
 	if (soundDataMap.count(filename)) {
 		// キーが存在する場合、処理を中断
 		return;
 	}
-	
+
 	// ファイル入力streamのインスタンス
 	std::ifstream file;
 	// 今回はサウンドのディレクトリが1つのため
@@ -127,16 +120,14 @@ void Audio::SoundLoadWave(const char* filename)
 	//return soundData;
 }
 
-void Audio::SoundUnload(const char* filename)
-{
+void Audio::SoundUnload(const char* filename) {
 	SoundData* soundData = &soundDataMap[filename];
 	soundData->pBuffer.clear();
 	soundData->bufferSize = 0;
 	soundData->wfex = {};
 }
 
-int Audio::SoundPlayWave(const char* filename, const bool isLoop)
-{
+int Audio::SoundPlayWave(const char* filename, const bool isLoop) {
 	HRESULT result;
 
 	SoundData& soundData = soundDataMap[filename];
@@ -151,8 +142,7 @@ int Audio::SoundPlayWave(const char* filename, const bool isLoop)
 	if (sourceNum == -1) { return -1; }
 
 	// 再生停止中、もしくは残りの再生数が最小のリソースを使用
-	if(pSourceVoices_[sourceNum] != nullptr)
-	{
+	if (pSourceVoices_[sourceNum] != nullptr) {
 		pSourceVoices_[sourceNum]->Stop();
 		pSourceVoices_[sourceNum]->FlushSourceBuffers();
 	}
@@ -171,22 +161,19 @@ int Audio::SoundPlayWave(const char* filename, const bool isLoop)
 	return sourceNum;
 }
 
-void Audio::Finalize()
-{
+void Audio::Finalize() {
 	// BGMリソースの解放
-	for (auto SourceVoice : pSourceVoices_)
-	{
-		if(SourceVoice != nullptr)
-		{
+	for (auto SourceVoice : pSourceVoices_) {
+		if (SourceVoice != nullptr) {
 			SourceVoice->DestroyVoice();
 		}
 	}
 	masterVoice->DestroyVoice();
 	xAudio2.Reset();
+	soundDataMap.clear();
 }
 
-int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices)
-{
+int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices) {
 	// 今回再生するリソース
 	int sourceVoiceNum = -1;
 
@@ -194,8 +181,7 @@ int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices)
 	unsigned int soundBuffer = 0;
 
 	// 使用できる再生リソースを検索
-	for (int i = 0; i < kMaxPlayWave; i++)
-	{
+	for (int i = 0; i < kMaxPlayWave; i++) {
 		if (sourceVoices[i] == nullptr) {
 			sourceVoiceNum = i;
 			break;
@@ -205,16 +191,12 @@ int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices)
 		sourceVoices[i]->GetState(&state);
 
 		// バッファが0ならば再生可能と判断
-		if (state.BuffersQueued == 0)
-		{
+		if (state.BuffersQueued == 0) {
 			sourceVoiceNum = i;
 			break;
-		}
-		else
-		{
+		} else {
 			// 初期値もしくはバッファが最小の場合は入れ替え
-			if (soundBuffer == 0 || soundBuffer > state.BuffersQueued)
-			{
+			if (soundBuffer == 0 || soundBuffer > state.BuffersQueued) {
 				soundBuffer = state.BuffersQueued;
 				sourceVoiceNum = i;
 			}
@@ -224,8 +206,7 @@ int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices)
 	return sourceVoiceNum;
 }
 
-XAUDIO2_BUFFER Audio::SetBuffer(bool loop, const SoundData& sound)
-{
+XAUDIO2_BUFFER Audio::SetBuffer(bool loop, const SoundData& sound) {
 	// バッファ設定
 	XAUDIO2_BUFFER buffer;
 
@@ -237,8 +218,7 @@ XAUDIO2_BUFFER Audio::SetBuffer(bool loop, const SoundData& sound)
 	buffer.PlayLength = sound.playSoundLength;
 
 	// ループ設定
-	if (loop)
-	{
+	if (loop) {
 		buffer.LoopBegin = 0;
 		buffer.LoopLength = sound.playSoundLength;
 		buffer.LoopCount = XAUDIO2_LOOP_INFINITE;

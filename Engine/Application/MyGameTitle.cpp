@@ -1,4 +1,4 @@
-﻿#include "MyGameTitle.h"
+#include "MyGameTitle.h"
 #include <Scene/SceneFactory.h>
 #include <GameObjectRegister.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
@@ -14,8 +14,7 @@
 #include <Graphics/Rendering/Sky/SkySystem.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 
-void MyGameTitle::Initialize()
-{
+void MyGameTitle::Initialize() {
 	GuchisFramework::Initialize();
 #ifdef _DEBUG
 	// ImGui初期化
@@ -54,15 +53,15 @@ void MyGameTitle::Initialize()
 	SceneManager::GetInstance().ChangeScene("TITLE");
 
 	// EngineContext に全サービスを登録（GuchisFramework::Initialize でコアサービスは登録済み）
-	ctx_.object3dManager   = &Object3dManager::GetInstance();
-	ctx_.lightManager      = &LightManager::GetInstance();
-	ctx_.cameraManager     = &CameraManager::GetInstance();
-	ctx_.skySystem         = &SkySystem::GetInstance();
-	ctx_.offScreenManager  = &OffScreenManager::GetInstance();
-	ctx_.sceneManager      = &SceneManager::GetInstance();
-	ctx_.spriteManager     = &SpriteManager::GetInstance();
+	ctx_.object3dManager = &Object3dManager::GetInstance();
+	ctx_.lightManager = &LightManager::GetInstance();
+	ctx_.cameraManager = &CameraManager::GetInstance();
+	ctx_.skySystem = &SkySystem::GetInstance();
+	ctx_.offScreenManager = &OffScreenManager::GetInstance();
+	ctx_.sceneManager = &SceneManager::GetInstance();
+	ctx_.spriteManager = &SpriteManager::GetInstance();
 	ctx_.transitionManager = &TransitionManager::GetInstance();
-	ctx_.collisionManager  = &CollisionManager::GetInstance();
+	ctx_.collisionManager = &CollisionManager::GetInstance();
 	ctx_.primitiveLineDrawer = &PrimitiveLineDrawer::GetInstance();
 #ifdef _DEBUG
 	ctx_.imGuiManager = &ImGuiManager::GetInstance();
@@ -73,8 +72,7 @@ void MyGameTitle::Initialize()
 
 }
 
-void MyGameTitle::Finalize()
-{
+void MyGameTitle::Finalize() {
 	// 描画処理系
 #ifdef _DEBUG
 	ImGuiManager::GetInstance().Finalize();
@@ -89,27 +87,25 @@ void MyGameTitle::Finalize()
 	// ゲームオブジェクト系
 	TransitionManager::GetInstance().Finalize();
 	SceneTransitionController::GetInstance().Finalize();
-	ParticleManager::GetInstance().Finalize(); 
-	SpriteManager::GetInstance().Finalize();           
-	Object3dManager::GetInstance().Finalize();         
-	ModelManager::GetInstance().Finalize();            
+	ParticleManager::GetInstance().Finalize();
+	SpriteManager::GetInstance().Finalize();
+	Object3dManager::GetInstance().Finalize();
+	ModelManager::GetInstance().Finalize();
 
 	// 基盤系
-
 	RendererManager::GetInstance().Finalize();
 	CollisionManager::GetInstance().Finalize();
 	CameraManager::GetInstance().Finalize();
 	LightManager::GetInstance().Finalize();
-	TextureManager::GetInstance().Finalize();          
-	OffScreenManager::GetInstance().Finalize(); 
+	TextureManager::GetInstance().Finalize();
+	OffScreenManager::GetInstance().Finalize();
 	// 各種描画パスの削除
 	renderPipeline_->Finalize();
 	// フレームワークベース
 	GuchisFramework::Finalize();
 }
 
-void MyGameTitle::Update()
-{
+void MyGameTitle::Update() {
 #ifdef _DEBUG
 	ImGuiManager::GetInstance().Begin();
 #endif // DEBUG
@@ -129,13 +125,11 @@ void MyGameTitle::Update()
 #endif // DEBUG
 }
 
-void MyGameTitle::Draw()
-{
+void MyGameTitle::Draw() {
 	renderPipeline_->Execute();
 }
 
-void MyGameTitle::RemoveObjects()
-{
+void MyGameTitle::RemoveObjects() {
 	RendererManager::GetInstance().RemoveDeadObjects();
 	CollisionManager::GetInstance().RemoveDeadObjects();
 	Object3dManager::GetInstance().RemoveDeadObject();

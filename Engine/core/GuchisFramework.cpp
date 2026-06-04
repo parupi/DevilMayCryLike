@@ -1,9 +1,8 @@
-﻿#include "GuchisFramework.h"
+#include "GuchisFramework.h"
 #include "Utility/DeltaTime.h"
 #include "Scene/SceneManager.h"
 
-void GuchisFramework::Initialize()
-{
+void GuchisFramework::Initialize() {
 	// WinDowsAPIの初期化
 	winManager = std::make_unique<WindowManager>();
 	winManager->Initialize();
@@ -26,19 +25,17 @@ void GuchisFramework::Initialize()
 	DeltaTime::Initialize();
 }
 
-void GuchisFramework::Finalize()
-{
+void GuchisFramework::Finalize() {
 	Input::GetInstance().Finalize();
 	Audio::GetInstance().Finalize();
 	psoManager->Finalize();
 	winManager->Finalize();
-	
+
 	dxManager->Finalize();
 }
 
-void GuchisFramework::Update()
-{
-	Input::GetInstance().Update();
+void GuchisFramework::Update() {
+	//Input::GetInstance().Update();
 	DeltaTime::Update();
 	SceneManager::GetInstance().Update();
 }

@@ -2,20 +2,18 @@
 #include "Graphics/Resource/SrvManager.h"
 #include <Math/MathUtils.h>
 
-OffScreenManager& OffScreenManager::GetInstance()
-{
+OffScreenManager& OffScreenManager::GetInstance() {
 	static OffScreenManager instance;
 	return instance;
 }
 
-void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager)
-{
+void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoManager) {
 	assert(dxManager);
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
 
-	viewport_ = { 0.0f, 0.0f, WindowManager::kClientWidth, WindowManager::kClientHeight, 0.0f, 1.0f };
-	scissorRect_ = { 0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight };
+	viewport_ = {0.0f, 0.0f, WindowManager::kClientWidth, WindowManager::kClientHeight, 0.0f, 1.0f};
+	scissorRect_ = {0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight};
 
 	clearValue_.Color[0] = 0.0f;
 	clearValue_.Color[1] = 0.0f;
@@ -44,8 +42,7 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 	pong_ = 1;
 }
 
-void OffScreenManager::Finalize()
-{
+void OffScreenManager::Finalize() {
 	// オフスクリーンエフェクトの解放
 	effects_.clear();
 
@@ -55,18 +52,15 @@ void OffScreenManager::Finalize()
 
 	dxManager_ = nullptr;
 	psoManager_ = nullptr;
-
 }
 
-void OffScreenManager::Update()
-{
+void OffScreenManager::Update() {
 	for (size_t i = 0; i < effects_.size(); i++) {
 		effects_[i]->Update();
 	}
 }
 
-void OffScreenManager::ExecutePostEffects()
-{
+void OffScreenManager::ExecutePostEffects() {
 	D3D12_GPU_DESCRIPTOR_HANDLE inputSrv = srvHandles_[pong_];
 	// 1つでも有効なpathが動いたか判定
 	bool anyExecuted = false;
@@ -95,14 +89,12 @@ void OffScreenManager::ExecutePostEffects()
 	}
 }
 
-void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect)
-{
+void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect) {
 	paths_.push_back(std::make_unique<PostEffectPath>(effect.get()));
 	effects_.push_back(std::move(effect));
 }
 
-BaseOffScreen* OffScreenManager::FindEffect(const std::string& name)
-{
+BaseOffScreen* OffScreenManager::FindEffect(const std::string& name) {
 	for (auto& effect : effects_) {
 		if (!effect) continue;
 
@@ -113,8 +105,7 @@ BaseOffScreen* OffScreenManager::FindEffect(const std::string& name)
 	return nullptr;
 }
 
-std::vector<BaseOffScreen*> OffScreenManager::GetEffects()
-{
+std::vector<BaseOffScreen*> OffScreenManager::GetEffects() {
 	std::vector<BaseOffScreen*> effects;
 	for (auto& effect : effects_) {
 		effects.push_back(effect.get());
@@ -122,8 +113,7 @@ std::vector<BaseOffScreen*> OffScreenManager::GetEffects()
 	return effects;
 }
 
-void OffScreenManager::BeginDrawToPingPong()
-{
+void OffScreenManager::BeginDrawToPingPong() {
 	// public API kept for external use if needed:
 	dxManager_->GetCommandContext()->TransitionResource(
 		pingPongBuffers_[ping_].Get(),
@@ -137,8 +127,7 @@ void OffScreenManager::BeginDrawToPingPong()
 	dxManager_->GetCommandContext()->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
-void OffScreenManager::EndDrawToPingPong()
-{
+void OffScreenManager::EndDrawToPingPong() {
 	dxManager_->GetCommandContext()->TransitionResource(
 		pingPongBuffers_[ping_].Get(),
 		D3D12_RESOURCE_STATE_RENDER_TARGET,
@@ -148,8 +137,7 @@ void OffScreenManager::EndDrawToPingPong()
 	std::swap(ping_, pong_);
 }
 
-void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv)
-{
+void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 	// 描画後にリソース状態を GENERIC_READ に戻す（ping_ を使う）
 	dxManager_->GetCommandContext()->TransitionResource(
 		pingPongBuffers_[ping_].Get(),
@@ -160,7 +148,7 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv)
 	auto* cmd = dxManager_->GetCommandList();
 
 	// DescriptorHeap を先にバインド
-	ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
+	ID3D12DescriptorHeap* heaps[] = {dxManager_->GetSrvManager()->GetHeap()};
 	cmd->SetDescriptorHeaps(1, heaps);
 
 	// --- RootSignature と PSO を正しくセット ---
@@ -193,8 +181,7 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv)
 }
 
 
-Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget()
-{
+Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget() {
 	GpuResourceFactory::TextureDesc desc;
 	desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
 	desc.usage = GpuResourceFactory::Usage::RenderTarget;
@@ -205,8 +192,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTa
 	return dxManager_->GetResourceFactory()->CreateTexture2D(desc);
 }
 
-uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
-{
+uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource) {
 	// allocate index from RtvManager
 	uint32_t index = dxManager_->GetRtvManager()->Allocate();
 	// create RTV at manager
@@ -214,8 +200,7 @@ uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Res
 	return index;
 }
 
-uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource)
-{
+uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource) {
 	uint32_t index = dxManager_->GetSrvManager()->Allocate();
 	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM, 1);
 	return index;

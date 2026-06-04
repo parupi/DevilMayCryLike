@@ -46,10 +46,8 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 
 	// 初期状態はSRV
 	auto* commandCtx = ctx_.dxManager->GetCommandContext();
-	commandCtx->TransitionResource(rtvResource_.Get(),
-		D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-	commandCtx->TransitionResource(depthBuffer_.Get(),
-		D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandCtx->TransitionResource(rtvResource_.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+	commandCtx->TransitionResource(depthBuffer_.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
 	// --- GBufferManager ---
 	gBufferManager_ = std::make_unique<GBufferManager>();

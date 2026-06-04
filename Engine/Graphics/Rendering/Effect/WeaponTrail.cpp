@@ -40,7 +40,7 @@ void WeaponTrail::AddPoint(const Vector3& tip, const Vector3& hilt) {
 	if (points_.size() >= kMaxPoints) {
 		points_.pop_front();
 	}
-	points_.push_back({ tip, hilt, 0.0f });
+	points_.push_back({tip, hilt, 0.0f});
 }
 
 void WeaponTrail::Clear() {
@@ -152,19 +152,19 @@ void WeaponTrail::CreateTrailTexture() {
 
 	uint8_t* pix = img.GetPixels();
 	for (UINT y = 0; y < H; y++) {
-		float v = static_cast<float>(y) / (H - 1);            // 0 → 1
-		float vn = v * 2.0f - 1.0f;                           // -1 → 1
-		float vFade = 1.0f - vn * vn;                         // 端 = 0, 中央 = 1
-		vFade = std::sqrt(vFade);                              // ソフトカーブ
+		float v = static_cast<float>(y) / (H - 1); // 0 → 1
+		float vn = v * 2.0f - 1.0f; // -1 → 1
+		float vFade = 1.0f - vn * vn; // 端 = 0, 中央 = 1
+		vFade = std::sqrt(vFade); // ソフトカーブ
 
 		for (UINT x = 0; x < W; x++) {
-			float u = static_cast<float>(x) / (W - 1);        // 0 → 1
+			float u = static_cast<float>(x) / (W - 1); // 0 → 1
 			float alpha = u * vFade;
 			UINT idx = (y * W + x) * 4;
-			pix[idx + 0] = 255;                                 // R
-			pix[idx + 1] = 255;                                 // G
-			pix[idx + 2] = 255;                                 // B
-			pix[idx + 3] = static_cast<uint8_t>(alpha * 255);  // A
+			pix[idx + 0] = 255; // R
+			pix[idx + 1] = 255; // G
+			pix[idx + 2] = 255; // B
+			pix[idx + 3] = static_cast<uint8_t>(alpha * 255); // A
 		}
 	}
 
