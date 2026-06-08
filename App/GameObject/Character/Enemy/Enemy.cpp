@@ -1,4 +1,4 @@
-﻿#include "Enemy.h"
+#include "Enemy.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/PrimitiveRenderer.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -7,19 +7,16 @@
 #include <Scene/Transition/TransitionManager.h>
 
 
-Enemy::Enemy(std::string objectName) : Object3d(objectName)
-{
+Enemy::Enemy(std::string objectName) : Object3d(objectName) {
 	Object3d::Initialize();
 
 }
 
-Enemy::~Enemy()
-{
+Enemy::~Enemy() {
 	lockOnTarget_.Finalize();
 }
 
-void Enemy::Initialize()
-{
+void Enemy::Initialize() {
 	if (!hitStop_) {
 		hitStop_ = std::make_unique<HitStop>();
 	}
@@ -30,8 +27,7 @@ void Enemy::Initialize()
 	}
 }
 
-void Enemy::Update(float deltaTime)
-{
+void Enemy::Update(float deltaTime) {
 	if (!player_) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
@@ -86,19 +82,17 @@ void Enemy::Update(float deltaTime)
 	onGround_ = false;
 }
 
-void Enemy::Draw()
-{
+void Enemy::Draw() {
 	if (isActive_ && isAlive_) {
 		Object3d::Draw();
 	}
 }
 
-void Enemy::DrawEffect()
-{
+void Enemy::DrawEffect() {
 }
 
 void Enemy::Spawn() {
-	
+
 
 	Object3d::Update(0.0f);
 	isActive_ = true;
@@ -106,8 +100,7 @@ void Enemy::Spawn() {
 
 #ifdef _DEBUG
 
-void Enemy::DebugGui()
-{
+void Enemy::DebugGui() {
 	ImGui::Begin("Enemy");
 	Object3d::DebugGui();
 	ImGui::End();
@@ -115,8 +108,7 @@ void Enemy::DebugGui()
 #endif // _DEBUG
 
 
-void Enemy::OnCollisionEnter(BaseCollider* other)
-{
+void Enemy::OnCollisionEnter(BaseCollider* other) {
 	if (other->category_ != CollisionCategory::Ground) return;
 
 	AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name_));
@@ -142,8 +134,7 @@ void Enemy::OnCollisionEnter(BaseCollider* other)
 	}
 }
 
-void Enemy::OnCollisionStay(BaseCollider* other)
-{
+void Enemy::OnCollisionStay(BaseCollider* other) {
 	if (other->category_ != CollisionCategory::Ground) return;
 
 	AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name_));
@@ -168,13 +159,11 @@ void Enemy::OnCollisionStay(BaseCollider* other)
 	}
 }
 
-void Enemy::OnCollisionExit(BaseCollider* other)
-{
+void Enemy::OnCollisionExit(BaseCollider* other) {
 	other;
 }
 
-void Enemy::ChangeState(const std::string& stateName)
-{
+void Enemy::ChangeState(const std::string& stateName) {
 	if (currentState_) currentState_->Exit(*this);
 
 	auto it = states_.find(stateName);
@@ -184,14 +173,12 @@ void Enemy::ChangeState(const std::string& stateName)
 	}
 }
 
-void Enemy::OnDeath()
-{
+void Enemy::OnDeath() {
 	isAlive_ = false;
 
 }
 
-void Enemy::SetupLockOn(LockOnSystem* lockOnSystem)
-{
+void Enemy::SetupLockOn(LockOnSystem* lockOnSystem) {
 	lockOnTarget_.Initialize(lockOnSystem, this);
 }
 

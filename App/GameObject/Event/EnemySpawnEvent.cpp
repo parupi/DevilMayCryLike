@@ -5,17 +5,14 @@ EnemySpawnEvent::EnemySpawnEvent(std::string objectName) : BaseEvent(objectName,
 }
 
 
-void EnemySpawnEvent::AddEnemy(Enemy* enemy)
-{
+void EnemySpawnEvent::AddEnemy(Enemy* enemy) {
 	enemies_.push_back(enemy);
 }
 
-void EnemySpawnEvent::Initialize()
-{
+void EnemySpawnEvent::Initialize() {
 }
 
-void EnemySpawnEvent::Update(float deltaTime)
-{
+void EnemySpawnEvent::Update(float deltaTime) {
 	if (currentFrame_ < skipFrames_) {
 		currentFrame_++;
 	}
@@ -25,17 +22,15 @@ void EnemySpawnEvent::Update(float deltaTime)
 }
 
 
-void EnemySpawnEvent::Execute()
-{
+void EnemySpawnEvent::Execute() {
 	isTriggered_ = true;
 	for (auto& enemy : enemies_) {
 		//enemy->SetActive(true);
 		enemy->Spawn();
-	} 
+	}
 }
 
-void EnemySpawnEvent::OnCollisionEnter(BaseCollider* other)
-{
+void EnemySpawnEvent::OnCollisionEnter(BaseCollider* other) {
 	if (currentFrame_ < skipFrames_) {
 		return; // 最初の数フレームは処理しない
 	}

@@ -14,8 +14,7 @@
 
 using namespace Microsoft::WRL;
 
-void DirectXManager::Initialize(WindowManager* winManager)
-{
+void DirectXManager::Initialize(WindowManager* winManager) {
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
@@ -76,8 +75,7 @@ void DirectXManager::Initialize(WindowManager* winManager)
 	shaderCompiler_->Initialize();
 }
 
-void DirectXManager::Finalize()
-{
+void DirectXManager::Finalize() {
 	commandContext_.reset();
 	swapChainManager_.reset();
 
@@ -101,8 +99,7 @@ void DirectXManager::Finalize()
 }
 
 ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(
-	D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible)
-{
+	D3D12_DESCRIPTOR_HEAP_TYPE heapType, UINT numDescriptors, bool shaderVisible) {
 	ComPtr<ID3D12DescriptorHeap> descriptorHeap = nullptr;
 	D3D12_DESCRIPTOR_HEAP_DESC descriptorHeapDesc{};
 	descriptorHeapDesc.Type = heapType;
@@ -117,8 +114,7 @@ ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(
 }
 
 ComPtr<ID3D12Resource> DirectXManager::UploadTextureData(
-	ID3D12Resource* texture, const DirectX::ScratchImage& mipImages)
-{
+	ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
 	DirectX::PrepareUpload(
 		GetDevice(),
@@ -151,8 +147,7 @@ ComPtr<ID3D12Resource> DirectXManager::UploadTextureData(
 	return uploadBuffer;
 }
 
-void DirectXManager::CreateDepthBuffer()
-{
+void DirectXManager::CreateDepthBuffer() {
 	GpuResourceFactory::TextureDesc desc{};
 	desc.format = DXGI_FORMAT_D24_UNORM_S8_UINT;
 	desc.usage = GpuResourceFactory::Usage::DepthStencil;
@@ -165,8 +160,7 @@ void DirectXManager::CreateDepthBuffer()
 	dsvManager_->CreateDsv(dsvIndex_, depthBuffer_.Get());
 }
 
-void DirectXManager::CreateRenderTargetView()
-{
+void DirectXManager::CreateRenderTargetView() {
 	D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
 	rtvDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
@@ -185,8 +179,7 @@ void DirectXManager::CreateRenderTargetView()
 	Logger::Log("Complete CreateRenderTargetViews!\n");
 }
 
-void DirectXManager::SetViewPort()
-{
+void DirectXManager::SetViewPort() {
 	viewport_.Width = WindowManager::kClientWidth;
 	viewport_.Height = WindowManager::kClientHeight;
 	viewport_.TopLeftX = 0;
@@ -195,23 +188,20 @@ void DirectXManager::SetViewPort()
 	viewport_.MaxDepth = 1.0f;
 }
 
-void DirectXManager::SetScissor()
-{
+void DirectXManager::SetScissor() {
 	scissorRect_.left = 0;
 	scissorRect_.right = WindowManager::kClientWidth;
 	scissorRect_.top = 0;
 	scissorRect_.bottom = WindowManager::kClientHeight;
 }
 
-void DirectXManager::SetMainRTV()
-{
+void DirectXManager::SetMainRTV() {
 	auto cmd = GetCommandList();
 	auto rtv = rtvManager_->GetCPUDescriptorHandle(0);
 	cmd->OMSetRenderTargets(1, &rtv, FALSE, nullptr);
 }
 
-void DirectXManager::SetMainDepth(ID3D12DescriptorHeap* dsvHeap)
-{
+void DirectXManager::SetMainDepth(ID3D12DescriptorHeap* dsvHeap) {
 	auto cmd = GetCommandList();
 	if (dsvHeap == nullptr) {
 		cmd->OMSetRenderTargets(0, nullptr, FALSE, nullptr);
@@ -221,8 +211,7 @@ void DirectXManager::SetMainDepth(ID3D12DescriptorHeap* dsvHeap)
 	cmd->OMSetRenderTargets(0, nullptr, FALSE, &dsv);
 }
 
-void DirectXManager::BeginDraw()
-{
+void DirectXManager::BeginDraw() {
 	UINT backBufferIndex = GetSwapChainManager()->GetCurrentBackBufferIndex();
 	ID3D12Resource* backBuffer = GetSwapChainManager()->GetBackBuffer(backBufferIndex);
 
@@ -234,16 +223,15 @@ void DirectXManager::BeginDraw()
 
 	commandContext_->SetRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex));
 
-	float clearColor[4]{ r, g, b, a };
+	float clearColor[4]{r, g, b, a};
 	commandContext_->ClearRenderTarget(rtvManager_->GetCPUDescriptorHandle(backBufferIndex), clearColor);
 	commandContext_->SetViewportAndScissor(viewport_, scissorRect_);
 }
 
-void DirectXManager::Render(PSOManager* psoManager, uint32_t srvIndex)
-{
+void DirectXManager::Render(PSOManager* psoManager, uint32_t srvIndex) {
 	auto* commandList = GetCommandList();
 
-	ID3D12DescriptorHeap* heaps[] = { srvManager_->GetHeap() };
+	ID3D12DescriptorHeap* heaps[] = {srvManager_->GetHeap()};
 	commandList->SetDescriptorHeaps(1, heaps);
 
 	commandList->SetPipelineState(psoManager->GetFinalCompositePSO());
@@ -253,8 +241,7 @@ void DirectXManager::Render(PSOManager* psoManager, uint32_t srvIndex)
 	commandList->DrawInstanced(3, 1, 0, 0);
 }
 
-void DirectXManager::EndDraw()
-{
+void DirectXManager::EndDraw() {
 	UINT backBufferIndex = swapChainManager_->GetCurrentBackBufferIndex();
 	ID3D12Resource* backBuffer = swapChainManager_->GetBackBuffer(backBufferIndex);
 
