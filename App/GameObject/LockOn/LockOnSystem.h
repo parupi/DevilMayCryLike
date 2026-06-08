@@ -4,6 +4,7 @@
 
 class LockOnInput;
 class Player;
+class Sprite;
 
 // ロックオン対象の選定をするクラス
 class LockOnSystem
@@ -29,8 +30,10 @@ public:
 private:
 	// ロックオンの入力を判別するクラス
 	LockOnInput* input_ = nullptr;
-	// 
+	// プレイヤーの参照
 	Player* player_ = nullptr;
+	// レティクル描画用のスプライト
+	Sprite* reticle_;
 
 	std::vector<LockOnTarget*> targets_;
 	LockOnTarget* currentTarget_ = nullptr;

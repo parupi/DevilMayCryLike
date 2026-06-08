@@ -1,49 +1,37 @@
 #include "SceneManager.h"
 #include <cassert>
-#include <3d/Object/Renderer/RendererManager.h>
-#include <3d/Collider/CollisionManager.h>
-#include <3d/Object/Object3dManager.h>
+#include <World3D/Object/Renderer/RendererManager.h>
+#include <World3D/Collider/CollisionManager.h>
+#include <World3D/Object/Object3dManager.h>
 
-SceneManager* SceneManager::instance = nullptr;
-std::once_flag SceneManager::initInstanceFlag;
 
-SceneManager* SceneManager::GetInstance()
-{
-	std::call_once(initInstanceFlag, []() {
-		instance = new SceneManager();
-		});
+SceneManager& SceneManager::GetInstance() {
+	static SceneManager instance;
 	return instance;
 }
 
-void SceneManager::Finalize()
-{
+void SceneManager::Finalize() {
 	// 最後のシーンの終了と解放
 	scene_->Finalize();
-	delete scene_;
-	scene_ = nullptr;
-
-	delete instance;
-	instance = nullptr;
+	scene_.reset();
 }
 
-void SceneManager::Update()
-{
+void SceneManager::Update() {
 	// 次シーンの予約があるなら
 	if (nextScene_) {
 		// 旧シーンの終了
 		if (scene_) {
 			scene_->Finalize();
-			delete scene_;
+			scene_.reset();
 
 			// 全オブジェクトを削除
-			RendererManager::GetInstance()->RemoveDeadObjects();
-			CollisionManager::GetInstance()->RemoveDeadObjects();
-			Object3dManager::GetInstance()->RemoveDeadObject();
+			RendererManager::GetInstance().RemoveDeadObjects();
+			CollisionManager::GetInstance().RemoveDeadObjects();
+			Object3dManager::GetInstance().RemoveDeadObject();
 		}
 
 		// シーンの切り替え
-		scene_ = nextScene_;
-		nextScene_ = nullptr;
+		scene_ = std::move(nextScene_);
 
 		scene_->SetSceneManager(this);
 
@@ -54,18 +42,15 @@ void SceneManager::Update()
 	scene_->Update();
 }
 
-void SceneManager::Draw()
-{
+void SceneManager::Draw() {
 	scene_->Draw();
 }
 
-void SceneManager::DrawRTV()
-{
+void SceneManager::DrawRTV() {
 	scene_->DrawRTV();
 }
 
-void SceneManager::ChangeScene(const std::string& sceneName)
-{
+void SceneManager::ChangeScene(const std::string& sceneName) {
 	assert(sceneFactory_);
 	assert(nextScene_ == nullptr);
 
@@ -74,10 +59,8 @@ void SceneManager::ChangeScene(const std::string& sceneName)
 }
 
 #ifdef _DEBUG
-void SceneManager::DebugUpdate()
-{
+void SceneManager::DebugUpdate() {
 	scene_->DebugUpdate();
 }
 #endif
-
 

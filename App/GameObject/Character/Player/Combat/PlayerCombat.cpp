@@ -1,6 +1,7 @@
 #include "PlayerCombat.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
+#include <Utility/DeltaTime.h>
 
 void PlayerCombat::Initialize(Player* player) {
 	player_ = player;
@@ -76,6 +77,15 @@ void PlayerCombat::Draw() {
 	for (auto& state : states_) {
 		state.second->DrawControlPoints(*player_);
 	}
+}
+
+void PlayerCombat::InterruptCombat() {
+	for (auto* state : currentState_) {
+		state->Exit(*player_);
+	}
+	currentState_.clear();
+	waitingForNextCombo_ = false;
+	comboResetTimer_ = 0.0f;
 }
 
 void PlayerCombat::AddState(const std::string& stateName) {

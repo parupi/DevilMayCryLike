@@ -1,19 +1,16 @@
 #pragma once
-#include "base/WindowManager.h"
+#include "Platform/WindowManager.h"
 #include "Graphics/Device/DirectXManager.h"
-#include "input/Input.h"
+#include "Input/Input.h"
 #ifdef _DEBUG
-#include "debuger/LeakChecker.h"
+#include "Debugger/LeakChecker.h"
 #endif // _DEBUG
 
-#include <scene/SceneManager.h>
-#include <scene/SceneFactory.h>
-#include <scene/AbstractSceneFactory.h>
-#include <audio/Audio.h>
+#include <Scene/AbstractSceneFactory.h>
+#include <Audio/Audio.h>
 #include "Graphics/Rendering/PSO/PSOManager.h"
-#include <3d/SkySystem/SkySystem.h>
-#include <Graphics/Rendering/RenderPath/ForwardRenderPath.h>
 #include "Graphics/Rendering/RenderPath/RenderPipeline.h"
+#include "Core/EngineContext.h"
 
 class GuchisFramework
 {
@@ -42,13 +39,13 @@ public:
 	void Run();
 
 protected:
-
 	std::unique_ptr<WindowManager> winManager = nullptr;
 	std::unique_ptr<DirectXManager> dxManager = nullptr;
 	std::unique_ptr<PSOManager> psoManager = nullptr;
 	std::unique_ptr<AbstractSceneFactory> sceneFactory_ = nullptr;
 	std::unique_ptr<RenderPipeline> renderPipeline_;
 
-
+	// 全サービスへのビュー。MyGameTitle::Initialize() で完全に設定される
+	EngineContext ctx_;
 };
 

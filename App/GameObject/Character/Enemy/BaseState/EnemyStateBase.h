@@ -3,6 +3,7 @@
 #include <memory>
 
 class Enemy;
+
 class EnemyStateBase {
 public:
     virtual ~EnemyStateBase() = default;

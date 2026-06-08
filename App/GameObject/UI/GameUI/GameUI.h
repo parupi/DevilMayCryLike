@@ -1,6 +1,6 @@
 #pragma once
 #include <memory>
-#include <2d/Sprite.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
 class GameUI
 {
 public:

@@ -1,8 +1,8 @@
 #include "SwapChainManager.h"
-#include <base/WindowManager.h>
+#include <Platform/WindowManager.h>
 #include "GraphicsDevice.h"
 #include "CommandContext.h"
-#include <base/Logger.h>
+#include <Utility/Logger.h>
 #include <cassert>
 
 SwapChainManager::~SwapChainManager()

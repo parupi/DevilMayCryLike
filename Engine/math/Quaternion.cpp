@@ -4,10 +4,10 @@
 #ifdef USE_IMGUI
 #include <imgui.h>
 #endif // IMGUI
-#include <math/Matrix4x4.h>
-#include <math/Vector3.h>
+#include <Math/Matrix4x4.h>
+#include <Math/Vector3.h>
 #include <numbers>
-#include <math/function.h>
+#include <Math/MathUtils.h>
 // コンストラクタ
 Quaternion::Quaternion(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 

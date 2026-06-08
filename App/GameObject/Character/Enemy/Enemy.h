@@ -1,6 +1,5 @@
 #pragma once
-#include "3d/Object/Object3d.h"
-#include "base/Particle/ParticleEmitter.h"
+#include "World3D/Object/Object3d.h"
 #include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"
@@ -9,10 +8,9 @@
 class Player;
 
 /// <summary>
-/// 敵キャラクターを制御するクラス  
-/// 
-/// 状態遷移、衝突処理、被ダメージ・死亡演出、ヒットストップ、
-/// パーティクルエフェクトなどを統合的に管理する。
+/// 敵キャラクターの基底クラス。
+/// ステートマシン・物理演算・地形衝突・接地判定・死亡管理を担う。
+/// 武器・エフェクト・被弾ロジックなどキャラクター固有の処理は派生クラスで実装する。
 /// </summary>
 class Enemy : public Object3d
 {
@@ -43,6 +41,8 @@ public:
     /// パーティクルやダメージエフェクトなどを描画する。
     /// </summary>
     virtual void DrawEffect();
+
+	void Spawn();
 
 #ifdef _DEBUG
     /// <summary>
@@ -79,25 +79,24 @@ public:
     // ======================
 
     /// <summary>
-    /// 敵の状態（ステート）を切り替える。  
-    /// 例：待機 → 攻撃、攻撃 → 被弾、など。
+    /// ステートを切り替える。KnockBack ステートに情報を渡す場合は
+    /// あらかじめ SetPendingDamageInfo() を呼ぶこと。
     /// </summary>
-    /// <param name="stateName">遷移先ステート名</param>
-    void ChangeState(const std::string& stateName, const DamageInfo* info = nullptr);
+    void ChangeState(const std::string& stateName);
 
     /// <summary>
-    /// 敵の死亡処理  
-    /// HPが0になった際のエフェクトや消滅処理を行う。
+    /// HP が 0 になったときに呼ぶ。isAlive_ を false にしてコンポーネントを無効化する。
     /// </summary>
     void OnDeath();
 
-    /// <summary>
-    /// 敵が生存しているかを返す。
-    /// </summary>
     bool IsAlive() const { return isAlive_; }
 
-    // 食らった攻撃のパラメータを保存
-    void HitDamage();
+    /// <summary>
+    /// KnockBack ステートが Enter() で参照するダメージ情報をセットする。
+    /// ChangeState("KnockBack") の直前に呼ぶこと。
+    /// </summary>
+    void SetPendingDamageInfo(const DamageInfo& info) { pendingDamageInfo_ = info; }
+    const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
 
     // ======================
     // Getter / Setter
@@ -149,48 +148,33 @@ public:
     /// </summary>
     void SetHp(float hp) { hp_ = hp; }
 
-    /// <summary>
-    /// 敵がアクティブ状態かどうかを取得する。
-    /// </summary>
     bool IsActive() const { return isActive_; }
-
-    /// <summary>
-    /// 敵のアクティブ状態を設定する。
-    /// </summary>
     void SetActive(bool flag) { isActive_ = flag; }
-
-    // 煙を出す
-    void EmitSmoke() { smokeEmitter_->Emit(); }
 
     void SetIsAttack(bool flag) { isAttack_ = flag; }
 
-    // ロックオン機能のセット
     void SetupLockOn(LockOnSystem* lockOnSystem);
-protected:
-    std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_; ///< ステート名と対応するステートオブジェクト
-    EnemyStateBase* currentState_ = nullptr; ///< 現在のステート
 
-    std::unique_ptr<ParticleEmitter> slashEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
-    std::unique_ptr<ParticleEmitter> smokeEmitter_; ///< 被弾・斬撃エフェクト用パーティクル
+protected:
+    std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
+    EnemyStateBase* currentState_ = nullptr;
 
     LockOnTarget lockOnTarget_;
 
-    float timeScale = 1.0f;
+    Player* player_ = nullptr;
 
-    Player* player_ = nullptr; ///< プレイヤー参照ポインタ
+    Vector3 velocity_{};
+    Vector3 acceleration_{ 0.0f, 0.0f, 0.0f };
 
-    Vector3 velocity_{}; ///< 現在の速度
-    Vector3 acceleration_{ 0.0f, 0.0f, 0.0f }; ///< 現在の加速度
-
-    float hp_ = 3.0f; ///< 敵のHP
-    bool onGround_ = false; ///< 地面との接地判定
-    bool isActive_ = true; ///< アクティブ状態（処理対象か）
-    bool isAlive_ = true; ///< 生存状態フラグ
-    int deathTimer_ = 0; ///< 死亡後の待機タイマー
+    float hp_ = 3.0f;
+    bool onGround_ = false;
+    bool isActive_ = true;
+    bool isAlive_ = true;
+    int deathTimer_ = 0;
 
     bool isAttack_ = false;
 
-    DamageInfo damageInfo_;
+    DamageInfo pendingDamageInfo_;
 
-    std::unique_ptr<HitStop> hitStop_; ///< ヒットストップ管理クラス
+    std::unique_ptr<HitStop> hitStop_;
 };

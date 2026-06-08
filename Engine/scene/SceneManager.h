@@ -1,24 +1,20 @@
 #pragma once
-#include <scene/BaseScene.h>
-#include <scene/AbstractSceneFactory.h>
+#include <Scene/BaseScene.h>
+#include <Scene/AbstractSceneFactory.h>
 #include <memory>
 #include <mutex>
 class SceneManager
 {
 private:
-	static SceneManager* instance;
-	static std::once_flag initInstanceFlag;
-
 	SceneManager() = default;
-	~SceneManager() = default;
-	SceneManager(SceneManager&) = default;
-	SceneManager& operator=(SceneManager&) = default;
+	SceneManager(const SceneManager&) = delete;
+	SceneManager& operator=(const SceneManager&) = delete;
 public:
 
 	// シングルトンインスタンスの取得
-	static SceneManager* GetInstance();
+	static SceneManager& GetInstance();
 	// 次のシーンを予約する
-	void SetNextScene(BaseScene* nextScene) { nextScene_ = nextScene; }
+	void SetNextScene(std::unique_ptr<BaseScene> nextScene) { nextScene_ = std::move(nextScene); }
 	// 終了
 	void Finalize();
 	// 更新
@@ -36,9 +32,9 @@ public:
 
 private:
 	// 実行中のシーン
-	BaseScene* scene_ = nullptr;
+	std::unique_ptr<BaseScene> scene_;
 	// 次のシーン
-	BaseScene* nextScene_ = nullptr;
+	std::unique_ptr<BaseScene> nextScene_;
 	// シーンファクトリー
 	AbstractSceneFactory* sceneFactory_ = nullptr;
 

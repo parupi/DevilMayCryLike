@@ -2,24 +2,21 @@
 #include <unordered_map>
 #include <memory>
 #include <string>
-#include <3d/Object/Object3dManager.h>
-#include <3d/WorldTransform.h>
-#include "3d/Object/Renderer/ModelRenderer.h"
+#include <World3D/Object/Object3dManager.h>
+#include <World3D/WorldTransform.h>
+#include "World3D/Object/Renderer/ModelRenderer.h"
 #include "State/PlayerStateBase.h"
 #include "PlayerWeapon.h"
-#include "math/Vector3.h"
-#include "math/function.h"
-#include <debuger/GlobalVariables.h>
+#include "Math/Vector3.h"
+#include "Math/MathUtils.h"
+#include <Debugger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
-#include <2d/Sprite.h>
+#include <Graphics/Rendering/Sprite/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
-//#include "State/Attack/AttackBranchUI.h"
 #include "StateMachine/PlayerStateMachine.h"
-//#include "Movement/PlayerMovement.h"
-//#include "Collision/PlayerCollider.h"
-//#include "Collision/PlayerCollisionResolver.h"
+#include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Effect/HitVignetteEffect.h"
 #include "Combat/PlayerCombat.h"
-//#include "GameObject/Effect/HitStopComponent.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 
 class PlayerInput;
@@ -32,8 +29,7 @@ struct PlayerCommand;
 /// モデル描画、状態遷移、移動、攻撃、ロックオン、スコア加算、  
 /// エフェクトやヒットストップなど、プレイヤーの全挙動を管理する。
 /// </summary>
-class Player : public Object3d
-{
+class Player : public Object3d {
 public:
 	Player(std::string objectNama);
 	~Player() override = default;
@@ -61,6 +57,8 @@ public:
 	/// 攻撃時エフェクトやヒット演出などを描画する。
 	/// </summary>
 	void DrawEffect();
+	// UI描画処理
+	void DrawUI();
 
 	/// <summary>
 	/// 衝突開始時の処理  
@@ -137,6 +135,12 @@ public:
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
+	// 被ダメージ処理
+	void TakeDamage(const DamageInfo& info);
+	const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
+
+	int32_t GetHp() const { return hp_; }
+
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
@@ -148,12 +152,12 @@ private:
 
 	LockOnSystem* lockOn_ = nullptr;
 
-	GlobalVariables* gv = GlobalVariables::GetInstance(); ///< グローバル変数管理
+	GlobalVariables* gv = &GlobalVariables::GetInstance(); ///< グローバル変数管理
 
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
 	Vector3 velocity_{}; ///< プレイヤーの速度
-	Vector3 acceleration_{ 0.0f, 0.0f, 0.0f }; ///< プレイヤーの加速度
+	Vector3 acceleration_{0.0f, 0.0f, 0.0f}; ///< プレイヤーの加速度
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ
 
@@ -163,11 +167,23 @@ private:
 	// 接地判定フラグ
 	bool onGround_ = false;
 	// ロックオン時のレティクル
-	Sprite* reticle_;
+	//Sprite* reticle_;
+	// HPのハートのスプライト
+	std::vector<Sprite*> hearts_;
 	// 1フレームの移動距離を保持
 	Vector3 moveVector_;
 	// 移動速度
 	const float moveSpeed_ = 10.0f;
 	// 回転速度
 	const float rotateSpeed_ = 5.0f;
+	// 最大HP
+	int32_t maxHp_ = 5;
+	// HP
+	int32_t hp_ = 5;
+	// 無敵時間（被弾直後の連続ヒット防止）
+	float invincibleTimer_ = 0.0f;
+	// 被ダメージ情報（ノックバックステートで参照）
+	DamageInfo pendingDamageInfo_;
+	// 被弾時のビネットエフェクト
+	std::unique_ptr<HitVignetteEffect> hitVignette_;
 };

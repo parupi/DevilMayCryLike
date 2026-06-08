@@ -1,32 +1,18 @@
-#include "ClearEvent.h"
-#include <scene/SceneManager.h>
-#include <scene/Transition/SceneTransitionController.h>
-#include <scene/Transition/TransitionManager.h>
+﻿#include "ClearEvent.h"
+#include <Scene/Transition/TransitionManager.h>
+#include <Utility/DeltaTime.h>
 
-ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear)
-{
+ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear) {
 	Object3d::Initialize();
 }
 
-void ClearEvent::Update(float deltaTime)
-{
+void ClearEvent::Update(float deltaTime) {
 	if (currentFrame_ < skipFrames_) {
 		currentFrame_++;
 	}
 
 	if (currentFrame_ < skipFrames_) {
-		return; // 最初の数フレームは処理しない
-	}
-
-	if (requested_) {
-		waitTime_ += DeltaTime::GetDeltaTime();
-
-		if (waitTime_ >= waitDuration_) {
-			// 一度だけ実行
-			requested_ = false;
-
-			SceneTransitionController::GetInstance()->RequestSceneChange("CLEAR", true);
-		}
+		return;
 	}
 
 	if (isClear_) return;
@@ -43,21 +29,13 @@ void ClearEvent::Update(float deltaTime)
 	}
 }
 
-void ClearEvent::Execute()
-{
+void ClearEvent::Execute() {
 	isClear_ = true;
 
-	CameraManager::GetInstance()->SetActiveCamera("ClearCamera");
-
-	// ここでは即遷移せず「遷移予約」だけする
-	requested_ = true;
-	waitTime_ = 0.0f;
-
-	// 最初のフェード開始などは即実行するなら残してOK
-	TransitionManager::GetInstance()->SetTransition("Fade");
+	CameraManager::GetInstance().SetActiveCamera("ClearCamera");
+	TransitionManager::GetInstance().SetTransition("Fade");
 }
 
-void ClearEvent::AddTargetEnemy(Enemy* enemy)
-{
+void ClearEvent::AddTargetEnemy(Enemy* enemy) {
 	targetEnemies_.push_back(enemy);
 }

@@ -1,5 +1,5 @@
 #pragma once
-#include "scene/GameScene/State/GameSceneStateBase.h"
+#include "Scene/GameScene/State/GameSceneStateBase.h"
 class GameSceneStateMenu : public GameSceneStateBase
 {
 public:

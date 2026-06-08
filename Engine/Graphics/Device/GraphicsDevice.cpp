@@ -1,7 +1,7 @@
 #include "GraphicsDevice.h"
 #include <format>
-#include <base/Logger.h>
-#include <base/StringUtility.h>
+#include <Utility/Logger.h>
+#include <Utility/StringUtility.h>
 #include <cassert>
 
 GraphicsDevice::~GraphicsDevice()

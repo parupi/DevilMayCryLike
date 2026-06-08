@@ -1,0 +1,30 @@
+#pragma once
+#include "World3D/Object/Object3d.h"
+#include "Math/Vector3.h"
+#include "GameObject/Character/CharacterStructs.h"
+#include "../BaseState/EnemyStateBase.h"
+
+class Enemy;
+
+class EnemyStateKnockBack : public EnemyStateBase {
+public:
+	EnemyStateKnockBack() = default;
+	~EnemyStateKnockBack() override = default;
+	void Enter(Enemy& enemy) override;
+	void Update(Enemy& enemy, float deltaTime) override;
+	void Exit(Enemy& enemy) override;
+
+private:
+	void OnLand(Enemy& enemy);
+
+	TimeData stateTime_;
+	ReactionType currentType_;
+	Vector3 velocity_;
+
+	float stunTimer_ = 0.0f;
+	float tiltAmount_ = 0.0f;
+	float angularVel_ = 0.0f;
+
+	float currentTilt_ = 0.0f;
+	float targetTilt_ = 0.0f;
+};

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <unordered_map>
 #include <GameObject/Character/Player/State/Attack/PlayerStateAttack.h>
 #include "AttackPlayer.h"
@@ -55,6 +55,8 @@ public:
 	void AddState(const std::string& stateName);
 	// 現在攻撃中かどうか
 	bool IsAttacking() const { return !currentState_.empty(); }
+	// 攻撃を強制中断する（被弾時など）
+	void InterruptCombat();
 	// 攻撃ノードを取得
 	const AttackNode& GetAttackNode(const std::string& name) const{ return attackGraph_.at(name); }
 	// プレイヤーからのコマンドを受け取って処理する
@@ -82,7 +84,7 @@ private:
 	// 現在のステート
 	std::vector<PlayerStateAttack*> currentState_;
 
-	GlobalVariables* global_ = GlobalVariables::GetInstance();
+	GlobalVariables* global_ = &GlobalVariables::GetInstance();
 	// プレイヤーの参照を保持
 	Player* player_ = nullptr;
 	// 攻撃再生クラス

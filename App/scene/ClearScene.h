@@ -1,6 +1,6 @@
 #pragma once
-#include "scene/BaseScene.h"
-#include <2d/Sprite.h>
+#include "Scene/BaseScene.h"
+#include <Graphics/Rendering/Sprite/Sprite.h>
 #include <vector>
 #include <memory>
 #include <GameObject/UI/ClearUI/ClearUI.h>

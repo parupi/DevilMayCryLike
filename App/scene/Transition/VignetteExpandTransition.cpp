@@ -1,6 +1,6 @@
-#include "VignetteExpandTransition.h"
-#include <offscreen/VignetteEffect.h>
-#include <offscreen/OffScreenManager.h>
+﻿#include "VignetteExpandTransition.h"
+#include <Graphics/Rendering/PostEffect/VignetteEffect.h>
+#include <Graphics/Rendering/PostEffect/OffScreenManager.h>
 
 VignetteExpandTransition::VignetteExpandTransition(const std::string& transitionName)
 {
@@ -16,7 +16,7 @@ void VignetteExpandTransition::Initialize()
     vignette->GetEffectData().radius = 1.0f;
     vignette->GetEffectData().softness = 2.0f;
 
-    OffScreenManager::GetInstance()->AddEffect(std::move(vignette));
+    OffScreenManager::GetInstance().AddEffect(std::move(vignette));
 }
 
 void VignetteExpandTransition::Start(bool isFadeOut)
@@ -27,7 +27,7 @@ void VignetteExpandTransition::Start(bool isFadeOut)
 	// softness の初期値を設定
 	// フェードアウトなら 2.0f → 0.0f、フェードインなら 0.0f → 2.0f に変化
 	currentSoftness_ = isFadeOut ? 2.0f : 0.0f;
-    static_cast<VignetteEffect*> (OffScreenManager::GetInstance()->FindEffect("vignette"))->GetEffectData().softness = currentSoftness_;
+    static_cast<VignetteEffect*> (OffScreenManager::GetInstance().FindEffect("vignette"))->GetEffectData().softness = currentSoftness_;
 }
 
 void VignetteExpandTransition::Update()
@@ -50,7 +50,7 @@ void VignetteExpandTransition::Update()
         }
     }
 
-    static_cast<VignetteEffect*> (OffScreenManager::GetInstance()->FindEffect("vignette"))->GetEffectData().softness = currentSoftness_;
+    static_cast<VignetteEffect*> (OffScreenManager::GetInstance().FindEffect("vignette"))->GetEffectData().softness = currentSoftness_;
 }
 
 void VignetteExpandTransition::Draw()

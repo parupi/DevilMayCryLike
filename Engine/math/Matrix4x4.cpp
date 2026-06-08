@@ -2,9 +2,9 @@
 #ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
-#include <math/Quaternion.h>
-#include <math/Vector3.h>
-#include "function.h"
+#include "Math/Quaternion.h"
+#include "Math/Vector3.h"
+#include "MathUtils.h"
 
 // デフォルトコンストラクタ
 Matrix4x4::Matrix4x4() : m{ {0.0f} } {}

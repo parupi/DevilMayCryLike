@@ -1,48 +1,46 @@
 #pragma once
-#include "3d/Camera/BaseCamera.h"
-#include "input/Input.h"
+#include "World3D/Camera/BaseCamera.h"
+#include "Input/Input.h"
 
 class Player;
 class LockOnSystem;
 class CameraInput;
 
-class GameCamera : public BaseCamera
-{
+class GameCamera : public BaseCamera {
 public:
-    enum class Mode
-    {
-        Free,
-        LockOn
-    };
+	enum class Mode {
+		Free,
+		LockOn
+	};
 
-    GameCamera(std::string cameraName);
-    ~GameCamera() override = default;
+	GameCamera(std::string cameraName);
+	~GameCamera() override = default;
 
-    void Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput);
-    void Update() override;
+	void Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput);
+	void Update() override;
 
-    // ★ 修正：関数化
-    void SetMode(Mode mode);
-
-private:
-    void UpdateFree();
-    void UpdateLockOn();
+	// モードの切り替え
+	void SetMode(Mode mode);
 
 private:
-    Player* player_ = nullptr;
-    LockOnSystem* lockOn_ = nullptr;
-    CameraInput* cameraInput_ = nullptr;
+	void UpdateFree();
+	void UpdateLockOn();
 
-    Mode mode_ = Mode::Free;
+private:
+	Player* player_ = nullptr;
+	LockOnSystem* lockOn_ = nullptr;
+	CameraInput* cameraInput_ = nullptr;
 
-    float yaw_ = 3.14f;
-    float pitch_ = 0.0f;
-    float distance_ = 18.0f;
+	Mode mode_ = Mode::Free;
 
-    Vector3 smoothedLookOffset_ = Vector3(0.0f, 0.0f, 0.0f);
+	float yaw_ = 3.14f;
+	float pitch_ = 0.0f;
+	float distance_ = 18.0f;
 
-    Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
+	Vector3 smoothedLookOffset_ = Vector3(0.0f, 0.0f, 0.0f);
 
-    float sensitivityX = 0.03f;
-    float sensitivityY = 0.025f;
+	Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
+
+	float sensitivityX = 0.03f;
+	float sensitivityY = 0.025f;
 };

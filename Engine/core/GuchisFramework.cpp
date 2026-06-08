@@ -1,8 +1,8 @@
 #include "GuchisFramework.h"
-#include "base/utility/DeltaTime.h"
+#include "Utility/DeltaTime.h"
+#include "Scene/SceneManager.h"
 
-void GuchisFramework::Initialize()
-{
+void GuchisFramework::Initialize() {
 	// WinDowsAPIの初期化
 	winManager = std::make_unique<WindowManager>();
 	winManager->Initialize();
@@ -13,29 +13,31 @@ void GuchisFramework::Initialize()
 	psoManager = std::make_unique<PSOManager>();
 	psoManager->Initialize(dxManager.get());
 
+	// コアサービスを EngineContext に登録
+	ctx_.dxManager = dxManager.get();
+	ctx_.psoManager = psoManager.get();
+
 	// 入力の初期化
-	Input::GetInstance()->Initialize();
+	Input::GetInstance().Initialize();
 	// Audioの初期化
-	Audio::GetInstance()->Initialize();
+	Audio::GetInstance().Initialize();
 	// DeltaTime
 	DeltaTime::Initialize();
 }
 
-void GuchisFramework::Finalize()
-{
-	Input::GetInstance()->Finalize();
-	Audio::GetInstance()->Finalize();
+void GuchisFramework::Finalize() {
+	Input::GetInstance().Finalize();
+	Audio::GetInstance().Finalize();
 	psoManager->Finalize();
 	winManager->Finalize();
-	
+
 	dxManager->Finalize();
 }
 
-void GuchisFramework::Update()
-{
-	Input::GetInstance()->Update();
+void GuchisFramework::Update() {
+	Input::GetInstance().Update();
 	DeltaTime::Update();
-	SceneManager::GetInstance()->Update();
+	SceneManager::GetInstance().Update();
 }
 
 void GuchisFramework::Run() {

@@ -1,6 +1,6 @@
 #pragma once
-#include "3d/Object/Object3d.h"
-#include <base/Particle/ParticleEmitter.h>
+#include "World3D/Object/Object3d.h"
+#include <Graphics/Rendering/Particle/ParticleEmitter.h>
 class Ground : public Object3d
 {
 public:

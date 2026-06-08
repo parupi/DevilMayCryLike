@@ -1,14 +1,9 @@
-#include "EventManager.h"
+﻿#include "EventManager.h"
 #include <iostream>
 
-EventManager* EventManager::instance = nullptr;
-
-EventManager* EventManager::GetInstance()
+EventManager& EventManager::GetInstance()
 {
-    if (!instance) {
-        instance = new EventManager();
-    }
-	
+	static EventManager instance;
 	return instance;
 }
 
@@ -17,8 +12,6 @@ void EventManager::Finalize()
     // 既存のイベントを削除
     events_.clear();
 
-    delete instance;
-    instance = nullptr;
 }
 
 void EventManager::AddEvent(BaseEvent* event)

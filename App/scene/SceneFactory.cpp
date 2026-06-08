@@ -1,31 +1,17 @@
 #include "SceneFactory.h"
-#include "scene/BaseScene.h"
-#include "scene/TitleScene.h"
-#include "scene/GameScene/GameScene.h"
-#include "scene/ClearScene.h"
-#include "scene/SampleScene.h"
-#include "scene/EditScene.h"
+#include "Scene/BaseScene.h"
+#include "Scene/TitleScene.h"
+#include "Scene/GameScene/GameScene.h"
+#include "Scene/ClearScene.h"
+#include "Scene/SampleScene.h"
+#include "Scene/EditScene.h"
 
-BaseScene* SceneFactory::CreateScene(const std::string& sceneName)
+std::unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& sceneName)
 {
-    // 次のシーンを生成
-    BaseScene* newScene = nullptr;
-
-    if (sceneName == "TITLE") {
-        newScene = new TitleScene();
-    }
-    else if (sceneName == "GAMEPLAY") {
-        newScene = new GameScene();
-    }
-    else if (sceneName == "CLEAR") {
-        newScene = new ClearScene();
-    }
-    else if (sceneName == "Edit") {
-        newScene = new EditScene();
-    } 
-    else if (sceneName == "SAMPLE") {
-        newScene = new SampleScene();
-    }
-
-    return newScene;
+    if (sceneName == "TITLE")    return std::make_unique<TitleScene>();
+    if (sceneName == "GAMEPLAY") return std::make_unique<GameScene>();
+    if (sceneName == "CLEAR")    return std::make_unique<ClearScene>();
+    if (sceneName == "Edit")     return std::make_unique<EditScene>();
+    if (sceneName == "SAMPLE")   return std::make_unique<SampleScene>();
+    return nullptr;
 }
