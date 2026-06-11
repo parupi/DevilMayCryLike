@@ -954,6 +954,8 @@
     <ClInclude Include="Externals\imgui\imstb_truetype.h">
       <Filter>Externals\imgui</Filter>
     </ClInclude>
+    <ClInclude Include="App\Tutorial\Tutorial.h" />
+    <ClInclude Include="App\Tutorial\TutorialSystem.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -1578,5 +1580,7 @@
       <Filter>Externals\imgui</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="App\Tutorial\Tutorial.cpp" />
+    <ClCompile Include="App\Tutorial\TutorialSystem.cpp" />
   </ItemGroup>
 </Project>

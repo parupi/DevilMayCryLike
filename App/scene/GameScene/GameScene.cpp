@@ -133,9 +133,8 @@ void GameScene::Initialize() {
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
 
-	//deathText_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "DeathText", "DeathText.png");
-	//deathText_->SetAnchorPoint({0.5f, 0.5f});
-	//deathText_->SetPosition({ 640.0f, 120.0f });
+	tutorial_ = std::make_unique<TutorialSystem>();
+	tutorial_->Initialize();
 }
 
 void GameScene::Finalize() {
@@ -169,7 +168,13 @@ void GameScene::Update()
 
 	lockOnSystem_->Update();
 
-	Object3dManager::GetInstance().SetDeltaTime(sceneTime_);
+	tutorial_->Update();
+
+	if (Input::GetInstance().TriggerKey(DIK_N)) {
+		tutorial_->StartTutorial(TutorialState::AttackA);
+	}
+
+	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
 
 #ifdef _DEBUG
 	//DebugUpdate();

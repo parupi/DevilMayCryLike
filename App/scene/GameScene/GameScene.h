@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "Scene/BaseScene.h"
 
 #include "GameObject/Camera/GameCamera.h"
@@ -11,6 +11,7 @@
 #include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
 #include "Input/InputContext.h"
+#include "Tutorial/TutorialSystem.h"
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -66,7 +67,7 @@ public:
 	// ステートを切り替える
 	void ChangeState(const std::string& stateName);
 
-	void SetSceneTime(float time) { sceneTime_ = time; }
+	void SetSceneTime(float time) { sceneDeltaTime_ = time; }
 
 	Sprite* GetMuskSprite() { return musk_; }
 	float GetMuskAlpha() const { return muskAlpha_; }
@@ -92,8 +93,6 @@ private:
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
 
-
-
 	std::unique_ptr<GameUI> gameUI_;
 
 	// マスクを掛けるためのスプライト
@@ -104,6 +103,8 @@ private:
 
 	// メニューのスプライト
 	std::unique_ptr<MenuUI> menuUI_ = nullptr;
+	// シーン全体のデルタタイム
+	float sceneDeltaTime_ = 0.0f;
 
-	float sceneTime_ = 0.0f;
+	std::unique_ptr<TutorialSystem> tutorial_ = nullptr;
 };
