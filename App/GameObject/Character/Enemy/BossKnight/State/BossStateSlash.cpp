@@ -41,4 +41,4 @@ void BossStateSlash::Update(Enemy& enemy, float deltaTime) {
 	}
 }
 
-void BossStateSlash::Exit(Enemy& enemy) {}
+void BossStateSlash::Exit(Enemy&) {}

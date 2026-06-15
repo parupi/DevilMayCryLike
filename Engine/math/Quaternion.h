@@ -54,5 +54,7 @@ Quaternion QuaternionFromMatrix(const Matrix4x4& m);
 
 Quaternion FromToRotation(const Vector3& from, const Vector3& to);
 
+#ifdef _DEBUG
 // ImGuiを使ったクォータニオンの描画
 void PrintOnImGui(const Quaternion& q, const char* label = "Quaternion");
+#endif // DEBUG

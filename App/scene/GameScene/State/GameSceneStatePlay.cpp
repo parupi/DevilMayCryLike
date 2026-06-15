@@ -44,4 +44,4 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 	scene.SetMuskAlpha(muskAlpha);
 }
 
-void GameSceneStatePlay::Exit(GameScene& scene) {}
+void GameSceneStatePlay::Exit(GameScene&) {}

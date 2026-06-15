@@ -1,7 +1,7 @@
 #include "Quaternion.h"
 #include <cmath>    // sqrtf
 #include <stdexcept>
-#ifdef USE_IMGUI
+#ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
 #include <Math/Matrix4x4.h>
@@ -245,7 +245,7 @@ Quaternion FromToRotation(const Vector3& from, const Vector3& to)
             axis = Cross(Vector3(0.0f, 1.0f, 0.0f), f);
         }
         Normalize(axis);
-        return MakeRotateAxisAngleQuaternion(axis, std::numbers::pi);
+        return MakeRotateAxisAngleQuaternion(axis, static_cast<float>(std::numbers::pi));
     }
 
     // 通常ケース
@@ -261,12 +261,11 @@ Quaternion FromToRotation(const Vector3& from, const Vector3& to)
     );
 }
 
-
+#ifdef _DEBUG
 // ImGuiを使ったクォータニオンの描画
 void PrintOnImGui(const Quaternion& q, const char* label) {
-#ifdef USE_IMGUI
     ImGui::Begin(label);
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f, w: %.2f)", "Quaternion", q.x, q.y, q.z, q.w);
     ImGui::End();
-#endif // IMGUI
 }
+#endif // DEBUG

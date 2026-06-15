@@ -27,7 +27,7 @@ void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::st
 	}
 }
 
-void ParticleEmitter::Update(Vector3 position)
+void ParticleEmitter::Update(Vector3)
 {
 	emitter.isActive = GlobalVariables::GetInstance().GetValueRef<bool>(emitter.name, "IsActive");
 

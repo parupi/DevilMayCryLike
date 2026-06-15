@@ -28,7 +28,7 @@ void PlayerStateAir::Exit(Player& player)
 	player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
 }
 
-void PlayerStateAir::ExecuteCommand(Player& player, const PlayerCommand& command)
+void PlayerStateAir::ExecuteCommand(Player&, const PlayerCommand&)
 {
 
 }

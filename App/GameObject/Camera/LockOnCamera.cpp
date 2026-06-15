@@ -31,8 +31,6 @@ void LockOnCamera::Update()
 		camToPlayer.y = 0.0f;
 		camToPlayer = Normalize(camToPlayer);
 
-		float angle = std::atan2(camToPlayer.x, camToPlayer.z);
-
 		// GameCamera に渡す
 		auto gameCam = static_cast<GameCamera*>(CameraManager::GetInstance().FindCamera("GameCamera"));
 

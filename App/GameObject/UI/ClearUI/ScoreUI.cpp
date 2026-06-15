@@ -8,7 +8,7 @@
 void ScoreUI::Initialize()
 {
 	targetScore_ = GameData::GetInstance().GetClearScore();
-	int32_t digits = std::to_string(std::abs(targetScore_)).size();
+	int32_t digits = static_cast<int32_t>(std::to_string(std::abs(targetScore_)).size());
 
 	for (int32_t i = 0; i < digits; i++) {
 		Sprite* num = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "num" + std::to_string(i), "Numbers.png");
@@ -17,7 +17,7 @@ void ScoreUI::Initialize()
 		scoreNums_.push_back(num);
 	}
 
-	countSpeed_ = targetScore_* 0.5;
+	countSpeed_ = targetScore_ * 0.5f;
 }
 
 void ScoreUI::Update()
@@ -46,7 +46,7 @@ void ScoreUI::Update()
 void ScoreUI::DrawScore(int32_t score)
 {
 	std::string score_str = std::to_string(score);
-	int32_t digits = score_str.size();
+	int32_t digits = static_cast<int32_t>(score_str.size());
 
 	for (int32_t i = 0; i < digits; i++) {
 		int digit = score_str.at(i) - '0';

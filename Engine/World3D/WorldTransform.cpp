@@ -1,4 +1,4 @@
-﻿#include "WorldTransform.h"
+#include "WorldTransform.h"
 #include "Math/MathUtils.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "World3D/Object/Object3dManager.h"
@@ -64,14 +64,14 @@ void WorldTransform::TransferMatrix(BaseCamera* camera) {
 
 	// ワールド行列を定数バッファに転送
 	if (constMap != nullptr) {
-		constMap->World = matWorld_; // 定数バッファに行列をコピー
-		//constMap->WorldInverseTranspose = Inverse(matWorld_);
+		// 定数バッファに行列をコピー
+		constMap->World = matWorld_;
+
 		constMap->WorldInverseTranspose = Transpose(Inverse(matWorld_));
 
-		auto* camera = CameraManager::GetInstance().GetActiveCamera();
 		if (camera) {
-			Matrix4x4 viewProj = CameraManager::GetInstance().GetActiveCamera()->GetViewProjectionMatrix(); // あなたの実装に合わせて
-			constMap->WVP = matWorld_ * viewProj; // row-vector版: W * V * P
+			Matrix4x4 viewProj = CameraManager::GetInstance().GetActiveCamera()->GetViewProjectionMatrix();
+			constMap->WVP = matWorld_ * viewProj;
 		}
 	}
 }

@@ -1,13 +1,11 @@
 #include "Material.h"
 #include "Graphics/Resource/TextureManager.h"
 
-Material::Material()
-{
+Material::Material() {
 
 }
 
-Material::~Material()
-{
+Material::~Material() {
 	//if (directXManager_) {
 	//	auto* resourceManager = directXManager_->GetResourceManager();
 	//	if (materialHandle_ != kInvalidBufferHandle) {
@@ -21,8 +19,7 @@ Material::~Material()
 	//}
 }
 
-void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData)
-{
+void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData) {
 	directXManager_ = directXManager;
 	srvManager_ = srvManager;
 	materialData_ = materialData;
@@ -31,8 +28,7 @@ void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager
 	CreateGBufferMaterialResource();
 }
 
-void Material::Update(const Vector3& objectScale)
-{
+void Material::Update(const Vector3& objectScale) {
 	Vector2 finalUVScale = uvData_.scale;
 
 	// TextureDensity維持
@@ -41,9 +37,9 @@ void Material::Update(const Vector3& objectScale)
 		finalUVScale.y = objectScale.x + objectScale.y + objectScale.z;
 	}
 	// uvTransformに値を適用
-	uvTransform_.translate = { uvData_.position.x, uvData_.position.y, 0.0f };
-	uvTransform_.rotate = { 0.0f, 0.0f, uvData_.rotation };
-	uvTransform_.scale = { finalUVScale.x, finalUVScale.y, 1.0f };
+	uvTransform_.translate = {uvData_.position.x, uvData_.position.y, 0.0f};
+	uvTransform_.rotate = {0.0f, 0.0f, uvData_.rotation};
+	uvTransform_.scale = {finalUVScale.x, finalUVScale.y, 1.0f};
 	// Transform情報を作る
 	Matrix4x4 uvTransformMatrix = MakeIdentity4x4();
 	uvTransformMatrix *= MakeScaleMatrix(uvTransform_.scale);
@@ -54,8 +50,7 @@ void Material::Update(const Vector3& objectScale)
 	gBufferMaterialParam_->uvTransform = uvTransformMatrix;
 }
 
-void Material::Bind(UINT RootParameterIndex)
-{
+void Material::Bind(UINT RootParameterIndex) {
 	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialHandle_);
 	// マテリアルCBufferの場所を指定
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
@@ -63,16 +58,14 @@ void Material::Bind(UINT RootParameterIndex)
 	srvManager_->SetGraphicsRootDescriptorTable(RootParameterIndex, materialData_.textureIndex);
 }
 
-void Material::BindForGBuffer()
-{
+void Material::BindForGBuffer() {
 	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialGBufferHandle_);
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
 }
 
 #ifdef _DEBUG
-void Material::DebugGui(uint32_t index)
-{
+void Material::DebugGui(uint32_t index) {
 
 	std::string label = "Material" + std::to_string(index);
 	if (ImGui::TreeNode(label.c_str())) {
@@ -99,19 +92,18 @@ void Material::DebugGui(uint32_t index)
 #endif // _DEBUG
 
 
-void Material::CreateMaterialResource()
-{
+void Material::CreateMaterialResource() {
 	auto* resourceManager = directXManager_->GetResourceManager();
 	// マテリアル用のリソースを作る。今回はFcolor1つ分のサイズを用意する
 	materialHandle_ = resourceManager->CreateUploadBuffer(sizeof(MaterialForGPU), L"Material");
 	void* ptr = resourceManager->Map(materialHandle_);
 	assert(ptr);
 	materialForGPU_ = reinterpret_cast<MaterialForGPU*>(ptr);
-	materialForGPU_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	materialForGPU_->color = {1.0f, 1.0f, 1.0f, 1.0f};
 	materialForGPU_->enableLighting = true;
 	materialForGPU_->uvTransform = MakeIdentity4x4();
 	materialForGPU_->shininess = 50.0f;
-	materialForGPU_->environmentIntensity = 0.01f; 
+	materialForGPU_->environmentIntensity = 0.01f;
 
 	// MaterialData から反映
 	//materialForGPU_->color.x = materialData_.Kd.r;                 // 拡散反射色を使用
@@ -122,8 +114,7 @@ void Material::CreateMaterialResource()
 	//materialForGPU_->shininess = materialData_.Ns;             // 鏡面反射強度を反映
 }
 
-void Material::CreateGBufferMaterialResource()
-{
+void Material::CreateGBufferMaterialResource() {
 	auto* resourceManager = directXManager_->GetResourceManager();
 
 	materialGBufferHandle_ = resourceManager->CreateUploadBuffer(sizeof(GBufferMaterialParam), L"MaterialGBuffer");

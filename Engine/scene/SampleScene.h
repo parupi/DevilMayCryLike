@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <World3D/Object/Object3d.h>
 #include <Graphics/Rendering/Sprite/Sprite.h>
 #include <World3D/Object/Model/Model.h>
@@ -63,16 +63,13 @@ private:
 
 	LightManager* lightManager_ = &LightManager::GetInstance();
 
-	Object3d* object_;
-	Object3d* object2_;
+	Object3d* object_ = nullptr;
+	Object3d* object2_ = nullptr;
 
-	Sprite* sprite_;
+	Sprite* sprite_ = nullptr;
 
-	DirectionalLight* dirLight_;
+	DirectionalLight* dirLight_ = nullptr;
 
-	ParticleEmitter* emitter_;
-
-
-
+	ParticleEmitter* emitter_ = nullptr;
 };
 

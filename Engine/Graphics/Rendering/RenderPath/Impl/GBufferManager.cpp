@@ -120,8 +120,6 @@ void GBufferManager::CreateRTVs()
 
 void GBufferManager::CreateSRVs()
 {
-	auto device = dxManager_->GetDevice();
-
 	for (size_t i = 0; i < (size_t)GBufferType::Count; i++) {
 		UINT idx = dxManager_->GetSrvManager()->Allocate();
 

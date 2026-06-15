@@ -5,13 +5,12 @@
 #include "GameObject/Character/Enemy/Component/EnemyMovementComponent.h"
 #include <cstdlib>
 
-BossStateCombatIdle::BossStateCombatIdle(EnemySensorComponent* sensor,
-	EnemyMovementComponent* movement,
+BossStateCombatIdle::BossStateCombatIdle(EnemySensorComponent* sensor, EnemyMovementComponent* movement,
 	float maxHp)
 	: sensor_(sensor), movement_(movement), maxHp_(maxHp) {}
 
-void BossStateCombatIdle::Enter(Enemy& enemy) { cooldown_ = 0.0f; }
-void BossStateCombatIdle::Exit(Enemy& enemy) {}
+void BossStateCombatIdle::Enter(Enemy&) { cooldown_ = 0.0f; }
+void BossStateCombatIdle::Exit(Enemy&) {}
 
 int BossStateCombatIdle::GetPhase(float hp) const {
 	float ratio = hp / maxHp_;

@@ -178,7 +178,7 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 	return req;
 }
 
-void PlayerStateAttack::OnInterrupted(Player& player) {
+void PlayerStateAttack::OnInterrupted(Player&) {
 	// 割り込みされたので攻撃を終了させる
 	isFinish_ = true;
 }
