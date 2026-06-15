@@ -170,15 +170,15 @@ void GameScene::Update()
 
 	tutorial_->Update();
 
-	TutorialService* service = tutorial_.get();
+	//TutorialService* service = tutorial_.get();
 
-	if (Input::GetInstance().TriggerKey(DIK_N)) {
-		service->StartTutorial(TutorialState::AttackA);
-	}
+	//if (Input::GetInstance().TriggerKey(DIK_N)) {
+	//	service->StartTutorial(TutorialState::AttackA);
+	//}
 
-	if (Input::GetInstance().TriggerKey(DIK_B)) {
-		service->StepTutorial();
-	}
+	//if (Input::GetInstance().TriggerKey(DIK_B)) {
+	//	service->StepTutorial();
+	//}
 
 	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
 
@@ -195,12 +195,6 @@ void GameScene::Draw() {
 		player_->DrawEffect();
 	}
 
-	//gameUI_->Draw();
-
-	//musk_->Draw();
-
-	//menuUI_->Draw();
-
 	// 全パーティクルの描画
 	ParticleManager::GetInstance().Draw();
 }
@@ -212,8 +206,6 @@ void GameScene::DebugUpdate() {
 	if (player_) {
 		player_->DebugGui();
 	}
-
-	//Object3dManager::GetInstance().FindObject("HellKaina")->DebugGui();
 }
 #endif // _DEBUG
 
