@@ -33,7 +33,7 @@ private:
 	// プレイヤーの参照
 	Player* player_ = nullptr;
 	// レティクル描画用のスプライト
-	Sprite* reticle_;
+	Sprite* reticle_ = nullptr;
 
 	std::vector<LockOnTarget*> targets_;
 	LockOnTarget* currentTarget_ = nullptr;

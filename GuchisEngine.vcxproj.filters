@@ -955,7 +955,9 @@
       <Filter>Externals\imgui</Filter>
     </ClInclude>
     <ClInclude Include="App\Tutorial\Tutorial.h" />
-    <ClInclude Include="App\Tutorial\TutorialSystem.h" />
+    <ClInclude Include="App\Tutorial\System\TutorialSystem.h" />
+    <ClInclude Include="App\Tutorial\Service\TutorialService.h" />
+    <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp">
@@ -1581,6 +1583,7 @@
     </ClCompile>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="App\Tutorial\Tutorial.cpp" />
-    <ClCompile Include="App\Tutorial\TutorialSystem.cpp" />
+    <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp" />
+    <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
   </ItemGroup>
 </Project>

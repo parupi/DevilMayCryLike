@@ -66,8 +66,20 @@ void Tutorial::Update() {
 
 void Tutorial::Start() {
 	state_ = State::Start;
+	// 進行度を戻しておく
+	counter_ = 0;
 }
 
 void Tutorial::End() {
 	state_ = State::End;
+}
+
+bool Tutorial::StepTutorial() {
+	// 進行度を加算
+	counter_++;
+	// 最大以上ならTrue
+	if (counter_ >= maxCounter_) {
+		return true;
+	}
+	return false;
 }

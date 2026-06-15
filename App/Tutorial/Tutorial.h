@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 class Sprite;
 
@@ -16,7 +17,8 @@ public:
 	void End();
 	// チュートリアルが終了中かどうか
 	bool IsEnding() const { return state_ == State::End; }
-
+	// 進行度を進める
+	bool StepTutorial();
 private:
 	// チュートリアルの状態
 	enum class State {
@@ -29,7 +31,8 @@ private:
 	// スプライト
 	Sprite* tutorialImage = nullptr;
 	Sprite* tutorialText = nullptr;
-
-	//uint32_t counter_ = 0; // カウンター
-	//const uint32_t maxCounter_ = 3; // カウンターの最大値
+	// 進行度のカウンター
+	uint32_t counter_ = 0;
+	// カウンターの最大値
+	const uint32_t maxCounter_ = 3;
 };

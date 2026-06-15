@@ -1,19 +1,11 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
-#include "Tutorial.h"
+#include "../Tutorial.h"
+#include "../Service/TutorialService.h"
+#include "Tutorial/Decoration/TutorialDecoration.h"
 
-enum class TutorialState {
-	Move, // 移動のチュートリアル
-	AttackA, // 攻撃Aコンボのチュートリアル
-	AttackB, // 攻撃Bコンボのチュートリアル
-	LockOn, // ロックオンのチュートリアル
-	RoundUpAttack, // 切り上げ攻撃のチュートリアル
-
-	Count, // チュートリアルの種類の数
-};
-
-class TutorialSystem {
+class TutorialSystem : public TutorialService {
 public:
 	TutorialSystem() = default;
 	~TutorialSystem() = default;
@@ -22,14 +14,12 @@ public:
 	// 更新
 	void Update();
 	// チュートリアルの開始
-	void StartTutorial(TutorialState state);
-	// 次のチュートリアルに進む
-	//void NextTutorial();
+	void StartTutorial(TutorialState state) override;
 	// チュートリアルの終了
 	void EndTutorial();
+	// 進行度を進める
+	void StepTutorial() override;
 private:
-	// チュートリアルを切り替える為の更新関数
-	//void ChangeTutorialUpdate();
 	TutorialState state_ = TutorialState::Move; // 現在のチュートリアルの状態
 
 	// チュートリアルのマップ
@@ -38,5 +28,7 @@ private:
 	Tutorial* currentTutorial_ = nullptr;
 	// 切り替え用のフラグ
 	bool isTutorialChanging_ = false;
+	// 装飾表示用のクラス
+	std::unique_ptr<TutorialDecoration> decoration_ = nullptr;
 };
 

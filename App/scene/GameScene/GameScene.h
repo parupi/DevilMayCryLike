@@ -11,7 +11,7 @@
 #include "GameObject/UI/Menu/MenuUI.h"
 #include <memory>
 #include "Input/InputContext.h"
-#include "Tutorial/TutorialSystem.h"
+#include "Tutorial/System/TutorialSystem.h"
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
