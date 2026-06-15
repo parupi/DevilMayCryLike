@@ -19,7 +19,6 @@ void GameSceneStateStart::Update(GameScene& scene)
 	}
 }
 
-void GameSceneStateStart::Exit(GameScene& scene)
+void GameSceneStateStart::Exit(GameScene&)
 {
-
 }

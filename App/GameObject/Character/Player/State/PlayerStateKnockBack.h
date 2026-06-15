@@ -11,7 +11,7 @@ public:
     void Enter(Player& player) override;
     void Update(Player& player, float deltaTime) override;
     void Exit(Player& player) override;
-    void ExecuteCommand(Player& player, const PlayerCommand& command) override {}
+    void ExecuteCommand(Player&, const PlayerCommand&) override {}
     const char* GetDebugName() const override { return "Knockback"; }
 
 private:

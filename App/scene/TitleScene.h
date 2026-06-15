@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include "World3D/Camera/BaseCamera.h"
 #include <Scene/BaseScene.h>
 #include "Scene/SceneManager.h"
@@ -75,14 +75,14 @@ private:
 	// ==========================
 	// パーティクルエフェクト
 	// ==========================
-	ParticleEmitter* smokeEmitter_;  ///< 煙パーティクルエミッター①
-	ParticleEmitter* smokeEmitter2_; ///< 煙パーティクルエミッター②
-	ParticleEmitter* sphereEmitter_; ///< 球状パーティクルエミッター
+	ParticleEmitter* smokeEmitter_ = nullptr;  ///< 煙パーティクルエミッター①
+	ParticleEmitter* smokeEmitter2_ = nullptr; ///< 煙パーティクルエミッター②
+	ParticleEmitter* sphereEmitter_ = nullptr; ///< 球状パーティクルエミッター
 
 	// ==========================
 	// ライト・遷移・UI
 	// ==========================
 	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 	SceneTransitionController* controller = &SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
-	std::unique_ptr<TitleUI> titleUI_; ///< タイトル画面のUI要素管理
+	std::unique_ptr<TitleUI> titleUI_ = nullptr; ///< タイトル画面のUI要素管理
 };

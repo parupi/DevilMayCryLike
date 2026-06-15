@@ -7,19 +7,16 @@ void PlayerStateJump::Enter(Player& player)
 	player.GetVelocity().y = 8.0f;
 }
 
-void PlayerStateJump::Update(Player& player, float deltaTime)
+void PlayerStateJump::Update(Player& player, float)
 {
 	// 縦軸の移動を設定したらすぐに空中状態に遷移する
 	player.ChangeState("Air");
 }
 
-void PlayerStateJump::Exit(Player& player)
+void PlayerStateJump::Exit(Player&)
 {
-	// ジャンプ状態から出るときは特に処理しない
-	player;
 }
 
-void PlayerStateJump::ExecuteCommand(Player& player, const PlayerCommand& command)
+void PlayerStateJump::ExecuteCommand(Player&, const PlayerCommand&)
 {
-	// ジャンプ中のコマンドは特に処理しない
 }

@@ -6,7 +6,7 @@
 BossStateApproach::BossStateApproach(EnemyMovementComponent* movement)
 	: movement_(movement) {}
 
-void BossStateApproach::Enter(Enemy& enemy) { timer_ = 0.0f; }
+void BossStateApproach::Enter(Enemy&) { timer_ = 0.0f; }
 
 void BossStateApproach::Update(Enemy& enemy, float deltaTime) {
 	timer_ += deltaTime;

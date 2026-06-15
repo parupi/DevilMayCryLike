@@ -47,7 +47,7 @@ void PlayerStateDeath::Enter(Player& player)
 	currentTime_ = 0.0f;
 }
 
-void PlayerStateDeath::Update(Player& player, float deltaTime)
+void PlayerStateDeath::Update(Player& player, float)
 {
 	if (currentTime_ <= 0.0f) {
 		CameraManager::GetInstance().SetActiveCamera("DeathCamera");
@@ -78,16 +78,15 @@ void PlayerStateDeath::Update(Player& player, float deltaTime)
 	}
 }
 
-void PlayerStateDeath::Exit(Player& player)
+void PlayerStateDeath::Exit(Player&)
 {
 	// シーン遷移を設定
 	TransitionManager::GetInstance().SetTransition("Death");
 
 	// シーンを変える
 	SceneTransitionController::GetInstance().RequestSceneChange("GAMEPLAY");
-	player;
 }
 
-void PlayerStateDeath::ExecuteCommand(Player& player, const PlayerCommand& command)
+void PlayerStateDeath::ExecuteCommand(Player&, const PlayerCommand&)
 {
 }

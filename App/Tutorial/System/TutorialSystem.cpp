@@ -24,6 +24,7 @@ void TutorialSystem::Update() {
 
 void TutorialSystem::StartTutorial(TutorialState state) {
 	// 背景マスクの表示など、チュートリアル開始時の共通処理をここに記述
+	decoration_->Start();
 
 	// チュートリアルの状態を設定
 	currentTutorial_ = tutorials_[state].get();
@@ -36,6 +37,7 @@ void TutorialSystem::StartTutorial(TutorialState state) {
 
 void TutorialSystem::EndTutorial() {
 	// 背景マスクの非表示など、チュートリアル終了時の共通処理をここに記述
+	decoration_->End();
 	
 	// 現在のチュートリアルを終了
 	currentTutorial_->End();

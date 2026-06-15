@@ -27,14 +27,14 @@ void HellkainaWeapon::DebugGui()
 }
 #endif // DEBUG
 
-void HellkainaWeapon::OnCollisionEnter(BaseCollider* other)
+void HellkainaWeapon::OnCollisionEnter(BaseCollider*)
 {
 }
 
-void HellkainaWeapon::OnCollisionStay(BaseCollider* other)
+void HellkainaWeapon::OnCollisionStay(BaseCollider*)
 {
 }
 
-void HellkainaWeapon::OnCollisionExit(BaseCollider* other)
+void HellkainaWeapon::OnCollisionExit(BaseCollider*)
 {
 }

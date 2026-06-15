@@ -219,7 +219,7 @@ Vector3 Player::GetMoveDirection() const {
 	return Normalize(moveDir);
 }
 
-void Player::Move(Vector3 moveDir, float deltaTime) {
+void Player::Move(Vector3 moveDir, float) {
 	// y軸の速度はそのままにしておく
 	float velocityY = velocity_.y;
 
@@ -264,7 +264,7 @@ void Player::TakeDamage(const DamageInfo& info) {
 	if (cur && std::string(cur->GetDebugName()) == "Death") return;
 	if (invincibleTimer_ > 0.0f) return;
 
-	hp_ -= info.damage;
+	hp_ -= static_cast<int32_t>(info.damage);
 	invincibleTimer_ = 1.2f;
 
 	pendingDamageInfo_ = info;

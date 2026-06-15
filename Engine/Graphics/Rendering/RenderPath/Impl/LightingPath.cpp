@@ -49,7 +49,7 @@ void LightingPath::CreateFullScreenVB()
 	fullScreenVBV_.StrideInBytes = sizeof(FullScreenVertex);
 }
 
-void LightingPath::Begin(uint32_t rtvIndex, uint32_t shadowSrvIndex)
+void LightingPath::Begin(uint32_t rtvIndex, uint32_t)
 {
 	auto cmd = dxManager_->GetCommandList();
 	auto* commandContext = dxManager_->GetCommandContext();
@@ -75,7 +75,6 @@ void LightingPath::Begin(uint32_t rtvIndex, uint32_t shadowSrvIndex)
 void LightingPath::End()
 {
 	auto cmd = dxManager_->GetCommandList();
-	auto* commandContext = dxManager_->GetCommandContext();
 
 	// FullScreenQuad 描画
 	cmd->IASetVertexBuffers(0, 1, &fullScreenVBV_);

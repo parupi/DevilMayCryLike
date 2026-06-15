@@ -151,7 +151,6 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 			AddState(req.nextAttack);
 			break;
 		case AttackRequest::None:
-			int a = 0;
 			break;
 		}
 	}

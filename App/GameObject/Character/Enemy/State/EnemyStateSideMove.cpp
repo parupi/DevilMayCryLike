@@ -4,7 +4,7 @@
 #include "GameObject/Character/Player/Player.h"
 #include <cstdlib>
 
-void EnemyStateSideMove::Enter(Enemy& enemy)
+void EnemyStateSideMove::Enter(Enemy&)
 {
     timer_ = 0.0f;
     sideDir_ = (std::rand() % 2 == 0) ? -1.0f : 1.0f;

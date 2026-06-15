@@ -24,7 +24,7 @@ void Object3d::Initialize() {
 	camera_ = objectManager_->GetDefaultCamera();
 }
 
-void Object3d::Update(float deltaTime) {
+void Object3d::Update(float) {
 	camera_ = CameraManager::GetInstance().GetCurrentCamera();
 
 	transform_->TransferMatrix(camera_);
