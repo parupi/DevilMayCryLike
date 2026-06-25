@@ -135,9 +135,6 @@ void GameScene::Initialize() {
 
 	tutorial_ = std::make_unique<TutorialSystem>();
 	tutorial_->Initialize();
-
-	//testSprite_ = SpriteManager::GetInstance().CreateAnimatedSprite(SpriteLayer::UI, "test", "Test.gif");
-	//testSprite_->GetSprite()->GetRenderState().blendMode = BlendMode::kNormal;
 }
 
 void GameScene::Finalize() {
@@ -184,21 +181,10 @@ void GameScene::Update()
 		service->StepTutorial();
 	}
 
-	//float dissolve = testSprite_->GetSprite()->GetDissolveThreshold();
-
-	//ImGui::Begin("gifTexture");
-	//ImGui::DragFloat("Dissolve", &dissolve, 0.01f);
-	//ImGui::End();
-
-	//testSprite_->GetSprite()->SetDissolveThreshold(dissolve);
-	//testSprite_->Update();
-
 	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
 }
 
 void GameScene::Draw() {
-	// スプライトの描画前処理
-	//SpriteManager::GetInstance().DrawSet();
 	// プレイヤーのスプライト描画
 	if (player_) {
 		player_->DrawEffect();
