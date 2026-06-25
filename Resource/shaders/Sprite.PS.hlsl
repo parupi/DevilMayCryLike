@@ -1,34 +1,42 @@
-#include"Sprite.hlsli"
+#include "Sprite.hlsli"
+#include "Dissolve.hlsli"
 
-struct Material
+cbuffer SpriteMaterial : register(b0)
 {
     float4 color;
     float4x4 uvTransform;
+    float dissolveThreshold; // -1.0 = disabled, 0.0-1.0 = dissolve amount
+    float dissolveEdgeWidth; // edge glow width in noise space
+    float2 padding;
+    float4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
 };
+
+Texture2D<float4> gTexture : register(t0);
+Texture2D<float> gDissolveNoise : register(t1);
+SamplerState gSampler : register(s0);
 
 struct PixelShaderOutput
 {
     float4 color : SV_TARGET0;
 };
 
-ConstantBuffer<Material> gMaterial : register(b0);
-Texture2D<float4> gTexture : register(t0);
-SamplerState gSampler : register(s0);
-
 PixelShaderOutput main(VertexShaderOutput input)
 {
-    float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), gMaterial.uvTransform);
+    float4 transformedUV = mul(float4(input.texcoord, 0.0f, 1.0f), uvTransform);
     float4 textureColor = gTexture.Sample(gSampler, transformedUV.xy);
-    PixelShaderOutput output;
-    output.color = gMaterial.color * textureColor;
+
     if (textureColor.a == 0.0f)
-    {
         discard;
-    }
+
+    // ------- Dissolve -------
+    float3 edgeEmissive = ApplyDissolve(gDissolveNoise, gSampler, input.texcoord, dissolveThreshold, dissolveEdgeWidth, dissolveEdgeColor);
+
+    PixelShaderOutput output;
+    output.color = color * textureColor;
+    output.color.rgb += edgeEmissive;
+
     if (output.color.a == 0.0f)
-    {
         discard;
-    }
-    
+
     return output;
 }

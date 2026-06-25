@@ -180,10 +180,12 @@ struct MaterialForGPU {
 
 struct GBufferMaterialParam
 {
-	float roughness;  
+	float roughness;
 	float metal;
-	float padding[2];
+	float dissolveThreshold; // -1.0 = disabled, 0.0-1.0 = dissolve amount
+	float dissolveEdgeWidth; // width of edge emissive glow in noise space
 	Matrix4x4 uvTransform;
+	Vector4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
 };
 
 struct UVData {

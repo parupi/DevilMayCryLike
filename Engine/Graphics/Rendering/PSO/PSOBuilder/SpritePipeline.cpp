@@ -7,12 +7,18 @@
 Microsoft::WRL::ComPtr<ID3D12RootSignature> SpritePipeline::CreateRootSignature(DirectXManager* dxManager)
 {
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	descriptorRange[0].BaseShaderRegister = 0;
+	descriptorRange[0].BaseShaderRegister = 0; // t0
 	descriptorRange[0].NumDescriptors = 1;
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	D3D12_DESCRIPTOR_RANGE descriptorRangeNoise[1] = {};
+	descriptorRangeNoise[0].BaseShaderRegister = 1; // t1
+	descriptorRangeNoise[0].NumDescriptors = 1;
+	descriptorRangeNoise[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeNoise[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParameters[4] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
@@ -23,6 +29,10 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> SpritePipeline::CreateRootSignature(
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[3].DescriptorTable.pDescriptorRanges = descriptorRangeNoise;
+	rootParameters[3].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeNoise);
 
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;

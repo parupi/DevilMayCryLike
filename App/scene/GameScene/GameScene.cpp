@@ -170,21 +170,17 @@ void GameScene::Update()
 
 	tutorial_->Update();
 
-	//TutorialService* service = tutorial_.get();
+	TutorialService* service = tutorial_.get();
 
-	//if (Input::GetInstance().TriggerKey(DIK_N)) {
-	//	service->StartTutorial(TutorialState::AttackA);
-	//}
+	if (Input::GetInstance().TriggerKey(DIK_N)) {
+		service->StartTutorial(TutorialState::AttackA);
+	}
 
-	//if (Input::GetInstance().TriggerKey(DIK_B)) {
-	//	service->StepTutorial();
-	//}
+	if (Input::GetInstance().TriggerKey(DIK_B)) {
+		service->StepTutorial();
+	}
 
 	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
-
-#ifdef _DEBUG
-	//DebugUpdate();
-#endif
 }
 
 void GameScene::Draw() {

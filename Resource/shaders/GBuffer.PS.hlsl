@@ -1,30 +1,35 @@
 #include "GBuffer.hlsli"
+#include "Dissolve.hlsli"
 
 Texture2D baseColorMap : register(t0);
+Texture2D<float> gDissolveNoise : register(t1);
 SamplerState samLinear : register(s0);
 
 cbuffer MaterialParam : register(b0)
 {
     float roughness;
     float metal;
-    float2 padding;
-    
+    float dissolveThreshold; // -1.0 = disabled, 0.0-1.0 = dissolve amount
+    float dissolveEdgeWidth; // edge glow width in noise space
+
     float4x4 uvTransform;
+
+    float4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
 };
 
 GBufferOutput main(VSOutput input)
 {
     GBufferOutput output;
-    
-    // UV Transform
+
     float2 uv = input.uv_and_pad.xy;
-    
     float2 transformedUV = mul(float4(uv, 0.0f, 1.0f), uvTransform).xy;
+
+    // ------- Dissolve -------
+    float3 edgeEmissive = ApplyDissolve(gDissolveNoise, samLinear, uv, dissolveThreshold, dissolveEdgeWidth, dissolveEdgeColor);
 
     // ------- Albedo -------
     float4 baseColor = baseColorMap.Sample(samLinear, transformedUV);
-
-    output.baseColor_Roughness = float4(baseColor.rgb, roughness);
+    output.baseColor_Roughness = float4(baseColor.rgb + edgeEmissive, roughness);
 
     // ------- Normal -------
     float3 normalWS = normalize(input.normalWS.xyz);
@@ -33,6 +38,6 @@ GBufferOutput main(VSOutput input)
 
     // ------- World Pos -------
     output.worldPos_Padding = input.worldPosWS;
-    
+
     return output;
 }

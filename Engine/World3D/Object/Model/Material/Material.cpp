@@ -62,6 +62,7 @@ void Material::BindForGBuffer() {
 	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialGBufferHandle_);
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
+	srvManager_->SetGraphicsRootDescriptorTable(3, TextureManager::GetInstance().GetDissolveNoiseSrvIndex());
 }
 
 #ifdef _DEBUG
@@ -86,6 +87,12 @@ void Material::DebugGui(uint32_t index) {
 		ImGui::SliderAngle("UVRotate", &uvData_.rotation);
 		ImGui::ColorEdit4("color", &materialForGPU_->color.x);
 		ImGui::SliderFloat("environmentIntensity", &materialForGPU_->environmentIntensity, 0.0f, 1.0f);
+		ImGui::Separator();
+		ImGui::Text("--- Dissolve ---");
+		ImGui::SliderFloat("dissolveThreshold", &gBufferMaterialParam_->dissolveThreshold, -1.0f, 1.0f);
+		ImGui::SliderFloat("dissolveEdgeWidth", &gBufferMaterialParam_->dissolveEdgeWidth, 0.0f, 0.3f);
+		ImGui::ColorEdit3("dissolveEdgeColor", &gBufferMaterialParam_->dissolveEdgeColor.x);
+		ImGui::SliderFloat("dissolveEdgeIntensity", &gBufferMaterialParam_->dissolveEdgeColor.w, 0.0f, 20.0f);
 		ImGui::TreePop();
 	}
 }
@@ -123,4 +130,7 @@ void Material::CreateGBufferMaterialResource() {
 	gBufferMaterialParam_ = reinterpret_cast<GBufferMaterialParam*>(ptr);
 	gBufferMaterialParam_->metal = 0.0f;
 	gBufferMaterialParam_->roughness = 1.0f;
+	gBufferMaterialParam_->dissolveThreshold = -1.0f;
+	gBufferMaterialParam_->dissolveEdgeWidth = 0.05f;
+	gBufferMaterialParam_->dissolveEdgeColor = { 1.0f, 0.3f, 0.0f, 8.0f };
 }

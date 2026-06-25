@@ -203,7 +203,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\Stage\SceneBuilder.h" />
     <ClInclude Include="App\Stage\SceneLoader.h" />
+    <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
     <ClInclude Include="App\Tutorial\Service\TutorialService.h" />
+    <ClInclude Include="App\Tutorial\System\TutorialSystem.h" />
+    <ClInclude Include="App\Tutorial\Tutorial.h" />
     <ClInclude Include="Engine\Application\MyGameTitle.h" />
     <ClInclude Include="Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Core\EngineContext.h" />
@@ -350,9 +353,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_rectpack.h" />
     <ClInclude Include="Externals\imgui\imstb_textedit.h" />
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
-    <ClInclude Include="App\Tutorial\Tutorial.h" />
-    <ClInclude Include="App\Tutorial\System\TutorialSystem.h" />
-    <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App\GameData\GameData.cpp" />
@@ -443,6 +443,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\Stage\SceneBuilder.cpp" />
     <ClCompile Include="App\Stage\SceneLoader.cpp" />
+    <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
+    <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp" />
+    <ClCompile Include="App\Tutorial\Tutorial.cpp" />
     <ClCompile Include="Engine\Application\MyGameTitle.cpp" />
     <ClCompile Include="Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Core\GuchisFramework.cpp" />
@@ -563,9 +566,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
     <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="App\Tutorial\Tutorial.cpp" />
-    <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp" />
-    <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
