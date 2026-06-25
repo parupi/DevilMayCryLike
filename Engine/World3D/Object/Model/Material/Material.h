@@ -64,5 +64,12 @@ public:
 	void SetEnvironmentIntensity(float intensity) {materialForGPU_->environmentIntensity = intensity; }
 
 	UVData& GetUVData() { return uvData_; }
+
+	// Dissolve
+	void SetDissolveThreshold(float t) { gBufferMaterialParam_->dissolveThreshold = t; }
+	float GetDissolveThreshold() const { return gBufferMaterialParam_->dissolveThreshold; }
+	void SetDissolveEdgeWidth(float w) { gBufferMaterialParam_->dissolveEdgeWidth = w; }
+	void SetDissolveEdgeColor(const Vector4& color) { gBufferMaterialParam_->dissolveEdgeColor = color; }
+	const Vector4& GetDissolveEdgeColor() const { return gBufferMaterialParam_->dissolveEdgeColor; }
 };
 

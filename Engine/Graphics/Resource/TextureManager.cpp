@@ -1,4 +1,6 @@
 ﻿#include "TextureManager.h"
+#include <cmath>
+#include <algorithm>
 
 
 // ImGuiで0番を使うため、1番から使用
@@ -17,6 +19,8 @@ void TextureManager::Initialize(DirectXManager* dxManager)
 
 	dxManager_ = dxManager;
 	srvManager_ = dxManager_->GetSrvManager();
+
+	CreateDissolveNoiseTexture();
 }
 
 void TextureManager::Finalize()
@@ -229,4 +233,109 @@ uint32_t TextureManager::CreateWhiteTexture()
 	whiteTextureIndex_ = texData.srvIndex;
 
 	return texData.srvIndex;
+}
+
+// ---------------------------------------------------------------------------
+// CPU側ノイズ実装（Dissolve.hlsli の Hash21/ValueNoise と同一アルゴリズム）
+// ---------------------------------------------------------------------------
+namespace {
+	static float NoiseFrac(float v) { return v - std::floor(v); }
+
+	static float NoiseHash21(float px, float py) {
+		float qx = NoiseFrac(px * 127.1f);
+		float qy = NoiseFrac(py * 311.7f);
+		float d  = qx * (qx + 45.32f) + qy * (qy + 45.32f);
+		return NoiseFrac(NoiseFrac(qx + d) * NoiseFrac(qy + d));
+	}
+
+	static float NoiseValue(float ux, float uy) {
+		float ix = std::floor(ux), iy = std::floor(uy);
+		float fx = NoiseFrac(ux),  fy = NoiseFrac(uy);
+		float sx = fx * fx * (3.0f - 2.0f * fx);
+		float sy = fy * fy * (3.0f - 2.0f * fy);
+		float a = NoiseHash21(ix,       iy);
+		float b = NoiseHash21(ix + 1.f, iy);
+		float c = NoiseHash21(ix,       iy + 1.f);
+		float d = NoiseHash21(ix + 1.f, iy + 1.f);
+		return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+	}
+
+	// 3オクターブ合成（シェーダの DissolveNoise と同一）
+	static float DissolveNoiseCPU(float ux, float uy) {
+		return NoiseValue(ux * 5.f,  uy * 5.f)  * 0.50f
+			 + NoiseValue(ux * 10.f, uy * 10.f) * 0.30f
+			 + NoiseValue(ux * 20.f, uy * 20.f) * 0.20f;
+	}
+} // namespace
+
+// 中心(x=0.5)が低値、左右端が高値のノイズテクスチャを生成
+// → dissolveThreshold を 0→1 と上げると中心から端へ向かって消えていく
+uint32_t TextureManager::CreateDissolveNoiseTexture()
+{
+	const std::string key = "__DISSOLVE_NOISE__";
+	if (textureData_.contains(key)) {
+		return textureData_[key].srvIndex;
+	}
+
+	constexpr uint32_t W = 256;
+	constexpr uint32_t H = 256;
+
+	DirectX::TexMetadata metadata{};
+	metadata.width     = W;
+	metadata.height    = H;
+	metadata.arraySize = 1;
+	metadata.mipLevels = 1;
+	metadata.format    = DXGI_FORMAT_R8_UNORM;
+	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+
+	DirectX::ScratchImage image{};
+	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8_UNORM, W, H, 1, 1);
+	assert(SUCCEEDED(hr));
+
+	const DirectX::Image* img = image.GetImage(0, 0, 0);
+	uint8_t* pixels  = img->pixels;
+	size_t rowPitch  = img->rowPitch;
+
+	for (uint32_t y = 0; y < H; ++y) {
+		for (uint32_t x = 0; x < W; ++x) {
+			float uvx  = static_cast<float>(x) / static_cast<float>(W - 1);
+			float uvy  = static_cast<float>(y) / static_cast<float>(H - 1);
+			float base  = std::abs(uvx - 0.5f) * 2.0f; // 0 at center, 1 at edges
+			float noise = DissolveNoiseCPU(uvx, uvy);
+			float value = std::clamp(base * 0.60f + noise * 0.40f, 0.0f, 1.0f);
+			pixels[y * rowPitch + x] = static_cast<uint8_t>(value * 255.0f);
+		}
+	}
+
+	TextureData texData{};
+	texData.srvIndex = srvManager_->Allocate();
+	texData.metadata = metadata;
+	texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
+
+	dxManager_->UploadTextureData(texData.resource.Get(), image);
+
+	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);
+	texData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(texData.srvIndex);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping     = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format                      = DXGI_FORMAT_R8_UNORM;
+	srvDesc.ViewDimension               = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip   = 0;
+	srvDesc.Texture2D.MipLevels         = 1;
+	srvDesc.Texture2D.PlaneSlice        = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	dxManager_->GetDevice()->CreateShaderResourceView(texData.resource.Get(), &srvDesc, texData.srvHandleCPU);
+
+	textureData_[key] = texData;
+	dissolveNoiseIndex_ = texData.srvIndex;
+
+	return texData.srvIndex;
+}
+
+D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDissolveNoiseSrvHandleGPU()
+{
+	assert(textureData_.contains("__DISSOLVE_NOISE__"));
+	return textureData_["__DISSOLVE_NOISE__"].srvHandleGPU;
 }

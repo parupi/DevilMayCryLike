@@ -16,15 +16,22 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateRootSignatur
 	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_DESCRIPTOR_RANGE descriptorRange[1] = {};
-	descriptorRange[0].BaseShaderRegister = 0;
+	descriptorRange[0].BaseShaderRegister = 0; // t0
 	descriptorRange[0].NumDescriptors = 1;
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_ROOT_PARAMETER rootParams[3];
+	D3D12_DESCRIPTOR_RANGE descriptorRangeNoise[1] = {};
+	descriptorRangeNoise[0].BaseShaderRegister = 1; // t1
+	descriptorRangeNoise[0].NumDescriptors = 1;
+	descriptorRangeNoise[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeNoise[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	CD3DX12_ROOT_PARAMETER rootParams[4];
 	rootParams[0].InitAsConstantBufferView(0); // b0
 	rootParams[1].InitAsConstantBufferView(1); // b1
 	rootParams[2].InitAsDescriptorTable(1, &descriptorRange[0]); // t0
+	rootParams[3].InitAsDescriptorTable(1, &descriptorRangeNoise[0]); // t1
 
 	CD3DX12_ROOT_SIGNATURE_DESC rsDesc;
 	rsDesc.Init(_countof(rootParams), rootParams,
