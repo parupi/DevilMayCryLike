@@ -138,7 +138,8 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Finalize() {
-	SpriteManager::GetInstance().DeleteAllSprite();
+	states_.clear();
+	SpriteManager::GetInstance().DeleteNonPersistentSprite();
 	Object3dManager::GetInstance().DeleteAllObject();
 	CollisionManager::GetInstance().DeleteAllCollider();
 	RendererManager::GetInstance().DeleteAllRenderer();
@@ -184,8 +185,6 @@ void GameScene::Update()
 }
 
 void GameScene::Draw() {
-	// スプライトの描画前処理
-	//SpriteManager::GetInstance().DrawSet();
 	// プレイヤーのスプライト描画
 	if (player_) {
 		player_->DrawEffect();

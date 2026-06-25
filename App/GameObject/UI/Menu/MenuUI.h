@@ -26,6 +26,8 @@ private:
 	std::unique_ptr<MenuChoices> choices_ = nullptr;
 	std::unique_ptr<MenuController> controller_ = nullptr;
 
+	bool isActive_ = false;
 	bool isExit_ = false;
+	bool isDecision_ = false;
 };
 

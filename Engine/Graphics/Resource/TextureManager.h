@@ -23,6 +23,8 @@ public:
 	void Finalize();
 
 	void LoadTexture(const std::string& filePath);
+	// メモリ上のRGBAピクセルデータからテクスチャを登録する (GifLoader から呼ばれる)
+	void LoadTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height);
 
 	uint32_t GetTextureIndexByFilePath(const std::string& filePath);
 	// テクスチャ番号からGPUハンドルを取得

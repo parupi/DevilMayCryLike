@@ -21,6 +21,7 @@ enum class SpriteLayer {
 	Background,
 	Game,
 	UI,
+	Persistent, // シーン切り替えで削除されない常駐スプライト用
 	Debug,
 	Count,
 };

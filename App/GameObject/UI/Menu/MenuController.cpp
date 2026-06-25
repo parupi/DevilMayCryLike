@@ -1,214 +1,145 @@
-﻿#include "MenuController.h"
+#include "MenuController.h"
 #include <imgui.h>
 #include <Input/Input.h>
 #include <Utility/DeltaTime.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
-void MenuController::Initialize()
-{
+void MenuController::Initialize() {
 	TextureManager::GetInstance().LoadTexture("SelectArrow2.png");
 
 	rightArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rightArrow", "SelectArrow2.png");
-	rightArrow_->SetSize({ -64.0f, 64.0f });
-	rightArrow_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
+	rightArrow_->SetSize({-64.0f, 64.0f});
+	rightArrow_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
 	leftArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "leftArrow", "SelectArrow2.png");
-	leftArrow_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
-	leftArrow_->SetSize({ 64.0f, 64.0f });
+	leftArrow_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
+	leftArrow_->SetSize({64.0f, 64.0f});
 
-	rightArrow_->SetPosition({ 820.0f, 300.0f });
-	leftArrow_->SetPosition({ 450.0f, 300.0f });
-
-	musk_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rightArrow", "white.png");
-	musk_->SetSize({330.0f, 64.0f});
+	rightArrow_->SetPosition({820.0f, 300.0f});
+	leftArrow_->SetPosition({450.0f, 300.0f});
 }
 
-void MenuController::Enter()
-{
+void MenuController::Enter() {
 	states_ = MenuStates::Enter;
+	alpha_ = 0.0f;
+	muskAlpha_ = 0.0f;
+	currentY_ = 300.0f;
+	arrowTargetY_ = 300.0f;
 }
 
-void MenuController::Exit()
-{
+void MenuController::Exit() {
 	states_ = MenuStates::Exit;
 }
 
-//void MenuController::Update()
-//{
-//	switch (states_) {
-//	case MenuStates::Enter:
-//		alpha_ += DeltaTime::GetDeltaTime();
-//
-//		if (alpha_ > 1.0f) {
-//			alpha_ = 1.0f;
-//			states_ = MenuStates::SelectFirst;
-//		}
-//	
-//		break;
-//	case MenuStates::SelectFirst:
-//		rightArrow_->SetPosition({820.0f, 300.0f});
-//		leftArrow_->SetPosition({ 450.0f, 300.0f });
-//		musk_->SetPosition({ 470.0f, 300.0f });
-//
-//		if (Input::GetInstance().TriggerKey(DIK_W) || Input::GetInstance().TriggerKey(DIK_S)/* || Input::GetInstance().PushButton(ButtonStart)*/) {
-//			states_ = MenuStates::SelectSecond;
-//		}
-//
-//		if (Input::GetInstance().TriggerKey(DIK_SPACE)) {
-//			states_ = MenuStates::Exit;
-//		}
-//		break;
-//	case MenuStates::SelectSecond:
-//		rightArrow_->SetPosition({ 820.0f, 450.0f });
-//		leftArrow_->SetPosition({ 450.0f, 450.0f });
-//		musk_->SetPosition({ 470.0f, 450.0f });
-//
-//		if (Input::GetInstance().TriggerKey(DIK_W) || Input::GetInstance().TriggerKey(DIK_S)) {
-//			states_ = MenuStates::SelectFirst;
-//		}
-//
-//		if (Input::GetInstance().TriggerKey(DIK_SPACE)) {
-//			states_ = MenuStates::Decision;
-//		}
-//		break;
-//	case MenuStates::Decision:
-//		muskAlpha_ += DeltaTime::GetDeltaTime() * 3.0f;
-//		if (muskAlpha_ > 1.0f) {
-//			muskAlpha_ = 1.0f;
-//			states_ = MenuStates::SetUp;
-//		}
-//		
-//		break;
-//	case MenuStates::Exit:
-//		muskAlpha_ += DeltaTime::GetDeltaTime();
-//		if (muskAlpha_ > 0.1f) {
-//			muskAlpha_ = 0.1f;
-//		}
-//
-//		alpha_ -= DeltaTime::GetDeltaTime() * 1.5f;
-//
-//		if (alpha_ < 0.0f) {
-//			alpha_ = 0.0f;
-//			states_ = MenuStates::SetUp;
-//		}
-//
-//		break;
-//	}
-//
-//	rightArrow_->SetColor({ 1.0f, 1.0f, 1.0f, alpha_ });
-//	leftArrow_->SetColor({ 1.0f, 1.0f, 1.0f, alpha_ });
-//	musk_->SetColor({ 1.0f, 1.0f, 1.0f, muskAlpha_ });
-//
-//	rightArrow_->Update();
-//	leftArrow_->Update();
-//	musk_->Update();
-//}
+void MenuController::Update() {
+	Input* input = &Input::GetInstance();
 
-void MenuController::Update()
-{
-    Input* input = &Input::GetInstance();
+	// ===== 入力取得 =====
+	static bool stickNeutral = true;
+	float stickY = input->GetLeftStickY();
 
-    // ===== 入力取得 =====
-    static bool stickNeutral = true;
-    float stickY = input->GetLeftStickY();
+	bool stickUp = false;
+	bool stickDown = false;
 
-    bool stickUp = false;
-    bool stickDown = false;
-
-    if (stickNeutral) {
-        if (stickY > 0.5f) {
-            stickUp = true;
-            stickNeutral = false;
-        } else if (stickY < -0.5f) {
-            stickDown = true;
-            stickNeutral = false;
-        }
-    }
-
-    if (abs(stickY) < 0.3f) {
-        stickNeutral = true;
-    }
-
-    bool up = input->TriggerKey(DIK_W) || stickUp;
-    bool down = input->TriggerKey(DIK_S) || stickDown;
-    bool decide = input->TriggerKey(DIK_SPACE) || input->TriggerButton(ButtonA);
-
-    // ===== ステート処理 =====
-    switch (states_) {
-    case MenuStates::Enter:
-        alpha_ += DeltaTime::GetDeltaTime();
-
-        if (alpha_ > 1.0f) {
-            alpha_ = 1.0f;
-            states_ = MenuStates::SelectFirst;
-        }
-        break;
-
-    case MenuStates::SelectFirst:
-        rightArrow_->SetPosition({ 820.0f, 300.0f });
-        leftArrow_->SetPosition({ 450.0f, 300.0f });
-        musk_->SetPosition({ 470.0f, 300.0f });
-
-        if (up || down) {
-            states_ = MenuStates::SelectSecond;
-        }
-
-        if (decide) {
-            states_ = MenuStates::Exit;
-        }
-        break;
-
-    case MenuStates::SelectSecond:
-        rightArrow_->SetPosition({ 820.0f, 450.0f });
-        leftArrow_->SetPosition({ 450.0f, 450.0f });
-        musk_->SetPosition({ 470.0f, 450.0f });
-
-        if (up || down) {
-            states_ = MenuStates::SelectFirst;
-        }
-
-        if (decide) {
-            states_ = MenuStates::Decision;
-        }
-        break;
-
-    case MenuStates::Decision:
-        muskAlpha_ += DeltaTime::GetDeltaTime() * 3.0f;
-        if (muskAlpha_ > 1.0f) {
-            muskAlpha_ = 1.0f;
-            states_ = MenuStates::SetUp;
-        }
-        break;
-
-    case MenuStates::Exit:
-        muskAlpha_ += DeltaTime::GetDeltaTime();
-        if (muskAlpha_ > 0.1f) {
-            muskAlpha_ = 0.1f;
-        }
-
-        alpha_ -= DeltaTime::GetDeltaTime() * 1.5f;
-
-        if (alpha_ < 0.0f) {
-            alpha_ = 0.0f;
-            states_ = MenuStates::SetUp;
-        }
-        break;
-    }
-
-    rightArrow_->SetColor({ 1.0f, 1.0f, 1.0f, alpha_ });
-    leftArrow_->SetColor({ 1.0f, 1.0f, 1.0f, alpha_ });
-    musk_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
-
-    rightArrow_->Update();
-    leftArrow_->Update();
-    musk_->Update();
-}
-
-void MenuController::Draw()
-{
-	if (states_ == MenuStates::Decision || states_ == MenuStates::Exit) {
-		//musk_->Draw();
+	if (stickNeutral) {
+		if (stickY > 0.5f) {
+			stickUp = true;
+			stickNeutral = false;
+		} else if (stickY < -0.5f) {
+			stickDown = true;
+			stickNeutral = false;
+		}
 	}
 
-	rightArrow_->Draw();
-	leftArrow_->Draw();
+	if (abs(stickY) < 0.3f) {
+		stickNeutral = true;
+	}
+
+	bool up = input->TriggerKey(DIK_W) || stickUp;
+	bool down = input->TriggerKey(DIK_S) || stickDown;
+	bool decide = input->TriggerKey(DIK_SPACE) || input->TriggerButton(ButtonA);
+	bool cancel = input->TriggerKey(DIK_ESCAPE) || input->TriggerButton(ButtonB);
+
+	// ===== ステート処理 =====
+	switch (states_) {
+	case MenuStates::Enter:
+		alpha_ += DeltaTime::GetDeltaTime();
+
+		if (alpha_ > 1.0f) {
+			alpha_ = 1.0f;
+			states_ = MenuStates::SelectFirst;
+		}
+		break;
+
+	case MenuStates::SelectFirst:
+		arrowTargetY_ = 300.0f;
+
+		if (up || down) {
+			states_ = MenuStates::SelectSecond;
+		}
+
+		if (decide) {
+			states_ = MenuStates::Exit;
+		}
+		break;
+
+	case MenuStates::SelectSecond:
+		arrowTargetY_ = 450.0f;
+
+		if (up || down) {
+			states_ = MenuStates::SelectFirst;
+		}
+
+		if (decide) {
+			states_ = MenuStates::Confirm;
+		}
+		break;
+
+	case MenuStates::Confirm:
+		arrowTargetY_ = 450.0f;
+
+		if (cancel) {
+			states_ = MenuStates::SelectSecond;
+		}
+
+		if (decide) {
+			states_ = MenuStates::Decision;
+		}
+		break;
+
+	case MenuStates::Decision:
+		muskAlpha_ += DeltaTime::GetDeltaTime() * 3.0f;
+		if (muskAlpha_ > 1.0f) {
+			muskAlpha_ = 1.0f;
+			states_ = MenuStates::SetUp;
+		}
+		break;
+
+	case MenuStates::Exit:
+		muskAlpha_ += DeltaTime::GetDeltaTime();
+		if (muskAlpha_ > 0.1f) {
+			muskAlpha_ = 0.1f;
+		}
+
+		alpha_ -= DeltaTime::GetDeltaTime() * 1.5f;
+
+		if (alpha_ < 0.0f) {
+			alpha_ = 0.0f;
+			states_ = MenuStates::SetUp;
+		}
+		break;
+	}
+
+	// カーソルY座標を補間
+	float t = 12.0f * DeltaTime::GetDeltaTime();
+	if (t > 1.0f) t = 1.0f;
+	currentY_ += (arrowTargetY_ - currentY_) * t;
+
+	rightArrow_->SetPosition({820.0f, currentY_});
+	leftArrow_->SetPosition({450.0f, currentY_});
+
+	rightArrow_->SetColor({1.0f, 1.0f, 1.0f, alpha_});
+	leftArrow_->SetColor({1.0f, 1.0f, 1.0f, alpha_});
+
+	rightArrow_->Update();
+	leftArrow_->Update();
 }
