@@ -37,6 +37,8 @@ public:
 	void BindCameraToShader();
 	// 今ある全てのカメラを消す
 	void DeleteAllCamera();
+	// 指定した名前のカメラを消す
+	void RemoveCamera(const std::string& name);
 
 	// 今カメラ切り替えをしているかどうかの判定
 	bool IsTransition() const { return isTransitioning_; }

@@ -269,11 +269,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowTypes.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Sky\SkySystem.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Sprite\AnimatedSprite.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Sprite\Sprite.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Sprite\SpriteManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Sprite\SpriteStruct.h" />
     <ClInclude Include="Engine\Graphics\Resource\DescriptorRange.h" />
     <ClInclude Include="Engine\Graphics\Resource\DsvManager.h" />
+    <ClInclude Include="Engine\Graphics\Resource\GifLoader.h" />
     <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h" />
     <ClInclude Include="Engine\Graphics\Resource\ResourceManager.h" />
     <ClInclude Include="Engine\Graphics\Resource\RtvManager.h" />
@@ -500,9 +502,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\ShadowPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Sky\SkySystem.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Sprite\AnimatedSprite.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Sprite\Sprite.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Sprite\SpriteManager.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Resource\GifLoader.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\ResourceManager.cpp" />
     <ClCompile Include="Engine\Graphics\Resource\RtvManager.cpp" />

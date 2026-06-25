@@ -12,6 +12,7 @@
 #include <memory>
 #include "Input/InputContext.h"
 #include "Tutorial/System/TutorialSystem.h"
+#include "Graphics/Rendering/Sprite/AnimatedSprite.h"
 
 /// <summary>
 /// ゲーム本編のシーンを管理するクラス  
@@ -107,4 +108,6 @@ private:
 	float sceneDeltaTime_ = 0.0f;
 
 	std::unique_ptr<TutorialSystem> tutorial_ = nullptr;
+
+	AnimatedSprite* testSprite_ = nullptr;
 };

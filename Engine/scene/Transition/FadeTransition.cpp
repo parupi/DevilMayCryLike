@@ -5,7 +5,7 @@ FadeTransition::FadeTransition(const std::string& transitionName)
 {
 	TextureManager::GetInstance().LoadTexture("white1x1.png");
 	name = transitionName;
-	sprite_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "fadeMask", "white1x1.png");
+	sprite_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Persistent, "fadeMask", "white1x1.png");
 	sprite_->SetSize({ 1280.0f, 720.0f });
 }
 

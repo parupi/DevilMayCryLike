@@ -726,6 +726,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\Sky\SkySystem.h">
       <Filter>Engine\Graphics\Rendering\Sky</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Sprite\AnimatedSprite.h">
+      <Filter>Engine\Graphics\Rendering\Sprite</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Sprite\Sprite.h">
       <Filter>Engine\Graphics\Rendering\Sprite</Filter>
     </ClInclude>
@@ -739,6 +742,9 @@
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Resource\DsvManager.h">
+      <Filter>Engine\Graphics\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Resource\GifLoader.h">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h">
@@ -1415,6 +1421,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\Sky\SkySystem.cpp">
       <Filter>Engine\Graphics\Rendering\Sky</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Sprite\AnimatedSprite.cpp">
+      <Filter>Engine\Graphics\Rendering\Sprite</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Sprite\Sprite.cpp">
       <Filter>Engine\Graphics\Rendering\Sprite</Filter>
     </ClCompile>
@@ -1422,6 +1431,9 @@
       <Filter>Engine\Graphics\Rendering\Sprite</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp">
+      <Filter>Engine\Graphics\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Resource\GifLoader.cpp">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp">

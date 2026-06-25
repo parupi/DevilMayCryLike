@@ -7,6 +7,7 @@
 #include <array>
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Sprite.h"
+#include "AnimatedSprite.h"
 
 class DirectXManager;
 class PSOManager;
@@ -32,18 +33,22 @@ public:
 	void Finalize();
 	// スプライトの生成
 	Sprite* CreateSprite(SpriteLayer layer, const std::string& spriteName, const std::string& textureFilePath);
+	// GIF アニメーションスプライトの生成
+	// gifFilePath: "Resource/Images/" からの相対パス (例: "UI/animation.gif")
+	AnimatedSprite* CreateAnimatedSprite(SpriteLayer layer, const std::string& name, const std::string& gifFilePath);
 	// レイヤーの切り替え
 	void ChangeLayer(Sprite* sprite, SpriteLayer newLayer);
-	// スプライトの削除
+	// シーンをまたがないスプライトの削除
+	void DeleteNonPersistentSprite();
+	// 全スプライトの削除
 	void DeleteAllSprite();
 private:
 	// DirectXのポインタ
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
 
-	//std::vector<std::unique_ptr<Sprite>> sprites_;
-
 	std::array<std::vector<std::unique_ptr<Sprite>>, static_cast<int32_t>(SpriteLayer::Count)> layers_;
+	std::vector<std::unique_ptr<AnimatedSprite>> animatedSprites_;
 public:
 	DirectXManager* GetDxManager() const { return dxManager_; }
 };

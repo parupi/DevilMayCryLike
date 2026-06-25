@@ -1,4 +1,4 @@
-﻿#include "ClearScene.h"
+#include "ClearScene.h"
 #include <World3D/Camera/BaseCamera.h>
 #include <World3D/Camera/CameraManager.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
@@ -39,7 +39,7 @@ void ClearScene::Initialize()
 
 void ClearScene::Finalize()
 {
-	SpriteManager::GetInstance().DeleteAllSprite();
+	SpriteManager::GetInstance().DeleteNonPersistentSprite();
 	Object3dManager::GetInstance().DeleteAllObject();
 	CollisionManager::GetInstance().DeleteAllCollider();
 	RendererManager::GetInstance().DeleteAllRenderer();

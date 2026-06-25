@@ -12,6 +12,8 @@ public:
 	bool IsComplete() const { return isComplete_; }
 
 private:
+	void Complete();
+
 	bool isComplete_ = false;
 };
 

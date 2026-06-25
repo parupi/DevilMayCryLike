@@ -136,7 +136,7 @@ public:
 	// 名前を取得
 	std::string GetName() { return name_; }
 	// 描画の設定を取得
-	const SpriteRenderState& GetRenderState() { return renderState_; }
+	SpriteRenderState& GetRenderState() { return renderState_; }
 	// レイヤーを取得
 	SpriteLayer GetLayer() const { return layer_; }
 

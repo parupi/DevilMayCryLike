@@ -135,10 +135,14 @@ void GameScene::Initialize() {
 
 	tutorial_ = std::make_unique<TutorialSystem>();
 	tutorial_->Initialize();
+
+	//testSprite_ = SpriteManager::GetInstance().CreateAnimatedSprite(SpriteLayer::UI, "test", "Test.gif");
+	//testSprite_->GetSprite()->GetRenderState().blendMode = BlendMode::kNormal;
 }
 
 void GameScene::Finalize() {
-	SpriteManager::GetInstance().DeleteAllSprite();
+	states_.clear();
+	SpriteManager::GetInstance().DeleteNonPersistentSprite();
 	Object3dManager::GetInstance().DeleteAllObject();
 	CollisionManager::GetInstance().DeleteAllCollider();
 	RendererManager::GetInstance().DeleteAllRenderer();
@@ -179,6 +183,15 @@ void GameScene::Update()
 	if (Input::GetInstance().TriggerKey(DIK_B)) {
 		service->StepTutorial();
 	}
+
+	//float dissolve = testSprite_->GetSprite()->GetDissolveThreshold();
+
+	//ImGui::Begin("gifTexture");
+	//ImGui::DragFloat("Dissolve", &dissolve, 0.01f);
+	//ImGui::End();
+
+	//testSprite_->GetSprite()->SetDissolveThreshold(dissolve);
+	//testSprite_->Update();
 
 	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
 }

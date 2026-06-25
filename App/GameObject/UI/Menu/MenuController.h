@@ -7,6 +7,7 @@ enum class MenuStates {
 	Enter,
 	SelectFirst,
 	SelectSecond,
+	Confirm,
 	Decision,
 	Exit,
 };
@@ -21,7 +22,6 @@ public:
 	void Enter();
 	void Exit();
 	void Update();
-	void Draw();
 private:
 	Sprite* rightArrow_ = nullptr;
 	Sprite* leftArrow_ = nullptr;
@@ -32,6 +32,9 @@ private:
 
 	float alpha_ = 0.0f;
 	float muskAlpha_ = 0.0f;
+
+	float currentY_ = 300.0f;
+	float arrowTargetY_ = 300.0f;
 
 public:
 	MenuStates GetStates() const { return states_; }

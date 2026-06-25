@@ -1,8 +1,9 @@
 #include "SpriteManager.h"
+#include "Graphics/Resource/GifLoader.h"
+#include <algorithm>
 #include <cassert>
 
-SpriteManager& SpriteManager::GetInstance()
-{
+SpriteManager& SpriteManager::GetInstance() {
 	static SpriteManager instance;
 	return instance;
 }
@@ -13,15 +14,13 @@ void SpriteManager::Initialize(DirectXManager* directXManager, PSOManager* psoMa
 	psoManager_ = psoManager;
 }
 
-void SpriteManager::DrawSet(BlendMode blendMode)
-{
+void SpriteManager::DrawSet(BlendMode blendMode) {
 	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetSpritePSO(blendMode));			// PSOを設定
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetSpriteSignature());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SpriteManager::DrawAllSprite()
-{
+void SpriteManager::DrawAllSprite() {
 	for (auto& layer : layers_) {
 		for (auto& sprite : layer) {
 			if (!sprite->GetRenderState().isVisible) continue;
@@ -32,15 +31,14 @@ void SpriteManager::DrawAllSprite()
 	}
 }
 
-void SpriteManager::Finalize()
-{
+void SpriteManager::Finalize() {
+	DeleteAllSprite();
+	GifLoader::ClearCache();
 	dxManager_ = nullptr;
 	psoManager_ = nullptr;
-
 }
 
-Sprite* SpriteManager::CreateSprite(SpriteLayer layer, const std::string& spriteName, const std::string& textureFilePath)
-{
+Sprite* SpriteManager::CreateSprite(SpriteLayer layer, const std::string& spriteName, const std::string& textureFilePath) {
 	auto sprite = std::make_unique<Sprite>(spriteName, textureFilePath, layer);
 
 	Sprite* ptr = sprite.get();
@@ -49,8 +47,16 @@ Sprite* SpriteManager::CreateSprite(SpriteLayer layer, const std::string& sprite
 	return ptr;
 }
 
-void SpriteManager::ChangeLayer(Sprite* sprite, SpriteLayer newLayer)
-{
+AnimatedSprite* SpriteManager::CreateAnimatedSprite(SpriteLayer layer, const std::string& name, const std::string& gifFilePath) {
+	GifInfo info = GifLoader::Load(gifFilePath);
+	Sprite* sprite = CreateSprite(layer, name, gifFilePath);
+	auto anim = std::make_unique<AnimatedSprite>(sprite, info);
+	AnimatedSprite* ptr = anim.get();
+	animatedSprites_.push_back(std::move(anim));
+	return ptr;
+}
+
+void SpriteManager::ChangeLayer(Sprite* sprite, SpriteLayer newLayer) {
 	if (!sprite) return;
 
 	auto oldLayer = sprite->layer_;
@@ -77,12 +83,27 @@ void SpriteManager::ChangeLayer(Sprite* sprite, SpriteLayer newLayer)
 	sprite->layer_ = newLayer;
 }
 
-void SpriteManager::DeleteAllSprite()
-{
+void SpriteManager::DeleteNonPersistentSprite() {
+	// Persistent レイヤーはシーン切り替えをまたいで生存するためスキップする
+	constexpr size_t kPersistentIndex = static_cast<size_t>(SpriteLayer::Persistent);
+	for (size_t i = 0; i < layers_.size(); ++i) {
+		if (i == kPersistentIndex) continue;
+		layers_[i].clear();
+	}
+
+	// AnimatedSprite は対応する Sprite が削除されるものだけ除去する
+	animatedSprites_.erase(
+		std::remove_if(animatedSprites_.begin(), animatedSprites_.end(),
+			[](const std::unique_ptr<AnimatedSprite>& anim) {
+				return anim->GetSprite()->GetLayer() != SpriteLayer::Persistent;
+			}),
+		animatedSprites_.end());
+}
+
+void SpriteManager::DeleteAllSprite() {
+	// AnimatedSprite を先に全削除（Sprite より先に破棄して dangling pointer を避ける）
+	animatedSprites_.clear();
 	for (auto& layer : layers_) {
-		for (auto& sprite : layer) {
-			sprite.release();
-		}
 		layer.clear();
 	}
 }

@@ -1,4 +1,4 @@
-﻿#include "TitleScene.h"
+#include "TitleScene.h"
 #include "Graphics/Resource/TextureManager.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
@@ -79,7 +79,7 @@ void TitleScene::Initialize()
 
 void TitleScene::Finalize()
 {
-	SpriteManager::GetInstance().DeleteAllSprite();
+	SpriteManager::GetInstance().DeleteNonPersistentSprite();
 	Object3dManager::GetInstance().DeleteAllObject();
 	CollisionManager::GetInstance().DeleteAllCollider();
 	RendererManager::GetInstance().DeleteAllRenderer();
