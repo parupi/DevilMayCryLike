@@ -26,8 +26,14 @@ void PlayerCombat::Update(float deltaTime) {
 	DrawAttackDerivativeEditorUI();
 
 	DrawAttackDataEditorUI();
-	for (auto& state : states_) {
-		state.second->UpdateAttackData();
+	for (auto& [name, state] : states_) {
+		state->UpdateAttackData();
+		auto& node = attackGraph_[name];
+		node.isRootAttack = global_->GetValueRef<bool>(name, "RootAttackFlag");
+		node.isAir = global_->GetValueRef<bool>(name, "IsAir");
+		node.condition.button = static_cast<InputButton>(global_->GetValueRef<int32_t>(name, "ButtonIndex"));
+		node.condition.requireLockOn = global_->GetValueRef<bool>(name, "LockOnFlag");
+		node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(name, "DirIndex"));
 	}
 	// コンボのリセット処理
 	if (waitingForNextCombo_) {
@@ -107,36 +113,60 @@ void PlayerCombat::AddState(const std::string& stateName) {
 }
 
 void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
-	// 攻撃の入力か確認
 	if (command.action != PlayerAction::Attack) return;
-	// 次段入力された
 	waitingForNextCombo_ = false;
 
-	// 攻撃がない場合一段目攻撃を設定 存在したらその攻撃を派生させる
 	if (currentState_.empty()) {
-		if (player_->IsLockOn()) {
-			if (player_->GetOnGround()) {
-				if (command.stickDir.y <= -0.7f) {
-					AddState("AttackHighTime");
-					return;
-				}
-				if (command.stickDir.y >= 0.7f) {
-					AddState("Stinger");
-					return;
-				}
+		bool onGround = player_->GetOnGround();
+		bool lockedOn = player_->IsLockOn();
+
+		const AttackNode* bestMatch = nullptr;
+		int bestScore = -1;
+
+		for (auto& [name, node] : attackGraph_) {
+			if (!node.isRootAttack) continue;
+
+			// 地上/空中が一致しなければスキップ
+			if (node.isAir == onGround) continue;
+
+			// ロックオン必須なのにロックオンしていなければスキップ
+			if (node.condition.requireLockOn && !lockedOn) continue;
+
+			// ボタンが指定されていてコマンドと違えばスキップ
+			if (node.condition.button != InputButton::None && node.condition.button != command.button) continue;
+
+			// スティック方向チェック
+			bool stickMatch = false;
+			switch (node.condition.stick) {
+			case StickDirection::ToEnemy:
+				stickMatch = command.stickDir.y >= 0.7f;
+				break;
+			case StickDirection::AwayFromEnemy:
+				stickMatch = command.stickDir.y <= -0.7f;
+				break;
+			case StickDirection::None:
+			case StickDirection::Any:
+				stickMatch = true;
+				break;
+			}
+			if (!stickMatch) continue;
+
+			// 条件が多いほど優先度が高い
+			int score = 0;
+			if (node.condition.requireLockOn) score += 4;
+			if (node.condition.stick == StickDirection::ToEnemy || node.condition.stick == StickDirection::AwayFromEnemy) score += 2;
+			if (node.condition.button != InputButton::None) score += 1;
+
+			if (score > bestScore) {
+				bestScore = score;
+				bestMatch = &node;
 			}
 		}
 
-		// ここまで来て攻撃が見つからなかったら通常
-		if (player_->GetOnGround()) {
-			AddState("AttackComboA1");
+		if (bestMatch) {
+			AddState(bestMatch->name);
 		}
-		else {
-			AddState("AttackAerialRave1");
-		}
-	}
-	else {
-		// 一段目じゃなければ
+	} else {
 		auto& top = currentState_.back();
 		auto req = top->ExecuteCommand(*player_, command);
 
@@ -310,7 +340,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 
 	ImGui::Separator();
 
-	const char* buttonLabels[] = { "None", "X", "Y" };
+	const char* buttonLabels[] = {"None", "X", "Y"};
 	ImGui::Combo("Button", &global_->GetValueRef<int32_t>(attackName, "ButtonIndex"), buttonLabels, IM_ARRAYSIZE(buttonLabels));
 
 	ImGui::Checkbox("RequireLockOn", &global_->GetValueRef<bool>(attackName, "LockOnFlag"));
@@ -356,7 +386,7 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 	// 攻撃時に地上にいるかの判定
 	ImGui::Separator();
 
-	ImGui::Text("Posture:");
+	ImGui::Text("AttackPosture:");
 	ImGui::SameLine();
 	ImGui::RadioButton("Stand", &global_->GetValueRef<int32_t>(attackName, "AttackPosture"), 0);
 	ImGui::SameLine();
@@ -377,9 +407,13 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName) {
 	AttackNode node;
 	node.name = attackName;
+	node.isRootAttack = global_->GetValueRef<bool>(attackName, "RootAttackFlag");
+	node.isAir = global_->GetValueRef<bool>(attackName, "IsAir");
+	node.condition.button = static_cast<InputButton>(global_->GetValueRef<int32_t>(attackName, "ButtonIndex"));
+	node.condition.requireLockOn = global_->GetValueRef<bool>(attackName, "LockOnFlag");
+	node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(attackName, "DirIndex"));
 
 	int count = global_->GetValueRef<int>(attackName, "NextAttackCount");
-
 	for (int i = 0; i < count; ++i) {
 		std::string key = "NextAttack_" + std::to_string(i);
 		node.nextAttacks.push_back(global_->GetValueRef<std::string>(attackName, key));
@@ -439,8 +473,7 @@ void PlayerCombat::DrawAttackDerivativeEditorUI() {
 			if (ImGui::Checkbox(targetName.c_str(), &hasLink)) {
 				if (hasLink) {
 					node.nextAttacks.push_back(targetName);
-				}
-				else {
+				} else {
 					std::erase(node.nextAttacks, targetName);
 				}
 			}

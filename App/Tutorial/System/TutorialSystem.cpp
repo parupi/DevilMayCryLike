@@ -5,7 +5,7 @@ void TutorialSystem::Initialize() {
 	for (int i = 0; i < static_cast<int>(TutorialState::Count); ++i) {
 		TutorialState state = static_cast<TutorialState>(i);
 		tutorials_[state] = std::make_unique<Tutorial>();
-		tutorials_[state]->Initialize();
+		tutorials_[state]->Initialize("PlayerWalk");
 	}
 	// 最初のチュートリアルを設定
 	currentTutorial_ = tutorials_[TutorialState::Move].get();

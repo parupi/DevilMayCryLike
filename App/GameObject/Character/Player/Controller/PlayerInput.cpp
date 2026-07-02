@@ -79,6 +79,7 @@ void PlayerInput::Update()
 		if (input_->TriggerButton(ButtonY)) {
 			PlayerCommand command{};
 			command.action = PlayerAction::Attack;
+			command.button = InputButton::Y;
 			command.stickDir = { input_->GetLeftStickX(), input_->GetLeftStickY() };
 			commands_.push_back(command);
 		}
@@ -86,6 +87,7 @@ void PlayerInput::Update()
 		if (input_->TriggerKey(DIK_J)) {
 			PlayerCommand command{};
 			command.action = PlayerAction::Attack;
+			command.button = InputButton::Y;
 			command.stickDir = { 0.0f, 0.0f };
 			commands_.push_back(command);
 		}

@@ -32,8 +32,6 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	// ダメージなどの汎用パラメータ
 	gv->AddItem(name_, "Damage", float());
 
-	gv->AddItem(name_, "Posture", int32_t());
-
 	// 派生先インデックスの個数
 	gv->AddItem(name_, "NextAttackCount", int32_t(0));
 
