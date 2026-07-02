@@ -11,8 +11,15 @@ enum class PlayerAction {
 	LockOn,
 };
 
+enum class InputButton {
+	None = 0,
+	X    = 1,
+	Y    = 2,
+};
+
 struct PlayerCommand {
 	PlayerAction action;
+	InputButton button = InputButton::None;
 	Vector2 stickDir = {0.0f, 0.0f};
 };
 

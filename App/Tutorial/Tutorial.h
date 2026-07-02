@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <Graphics/Rendering/Sprite/AnimatedSprite.h>
 
 class Sprite;
 
@@ -8,7 +9,7 @@ public:
 	Tutorial() = default;
 	~Tutorial() = default;
 	// 初期化
-	void Initialize();
+	void Initialize(const std::string& name);
 	// 更新
 	void Update();
 	// 起動
@@ -29,7 +30,7 @@ private:
 	}state_ = State::Inactive;
 
 	// スプライト
-	Sprite* tutorialImage = nullptr;
+	AnimatedSprite* tutorialImage = nullptr;
 	Sprite* tutorialText = nullptr;
 	// 進行度のカウンター
 	uint32_t counter_ = 0;

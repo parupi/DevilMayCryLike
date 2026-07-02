@@ -1,19 +1,19 @@
 #include "Tutorial.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
-void Tutorial::Initialize() {
+void Tutorial::Initialize(const std::string& name) {
 	// チュートリアルの初期化処理
 	state_ = State::Inactive;
 	// スプライトの生成と初期設定
-	tutorialImage = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialImage", "white.png");
-	tutorialImage->SetAnchorPoint({0.5f, 0.5f});
-	tutorialImage->SetPosition({400.0f, 300.0f});
-	tutorialImage->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
-	// スプライトの生成と初期設定
-	tutorialText = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialText", "white.png");
-	tutorialText->SetAnchorPoint({0.5f, 0.5f});
-	tutorialText->SetPosition({400.0f, 400.0f});
-	tutorialText->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
+	tutorialImage = SpriteManager::GetInstance().CreateAnimatedSprite(SpriteLayer::UI, "TutorialImage", "Tutorial/" + name + ".gif");
+	tutorialImage->GetSprite()->SetAnchorPoint({0.5f, 0.5f});
+	tutorialImage->GetSprite()->SetPosition({400.0f, 300.0f});
+	tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
+	//// スプライトの生成と初期設定
+	//tutorialText = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialText", "Tutorial/" + name + ".png");
+	//tutorialText->SetAnchorPoint({0.5f, 0.5f});
+	//tutorialText->SetPosition({400.0f, 400.0f});
+	//tutorialText->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
 }
 
 void Tutorial::Update() {
@@ -24,7 +24,7 @@ void Tutorial::Update() {
 	case State::Start:
 		// 開始中の処理
 	{
-		float alpha = tutorialImage->GetColor().w;
+		float alpha = tutorialImage->GetSprite()->GetColor().w;
 		// アルファ値を徐々に増加させる
 		alpha += 0.01f;
 
@@ -34,8 +34,8 @@ void Tutorial::Update() {
 		}
 
 		// スプライトのカラーにアルファ値を適用
-		tutorialImage->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		tutorialText->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		//tutorialText->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	}
 	break;
 	case State::Active:
@@ -44,7 +44,7 @@ void Tutorial::Update() {
 	case State::End:
 		// 終了中の処理
 	{
-		float alpha = tutorialImage->GetColor().w;
+		float alpha = tutorialImage->GetSprite()->GetColor().w;
 		// アルファ値を徐々に減少させる
 		alpha -= 0.01f;
 
@@ -54,14 +54,14 @@ void Tutorial::Update() {
 		}
 
 		// スプライトのカラーにアルファ値を適用
-		tutorialImage->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		tutorialText->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		//tutorialText->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	}
 	break;
 	}
 
 	tutorialImage->Update();
-	tutorialText->Update();
+	//tutorialText->Update();
 }
 
 void Tutorial::Start() {
