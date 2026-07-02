@@ -53,6 +53,24 @@ void PlayerCombat::Update(float deltaTime) {
 	auto& top = currentState_.back();
 
 	top->Update(*player_, deltaTime);
+
+	// 先行入力が Cancel フェーズ突入時に発火していたら処理する
+	if (top->HasPendingRequest()) {
+		auto req = top->ConsumePendingRequest();
+		if (req.type == AttackRequest::ChangeAttack && states_.count(req.nextAttack)) {
+			// AddState を使うと push_back 後も top が旧ステートを指すため
+			// pop_back が新ステートを誤って消す。直接 Exit→pop→Enter→push する。
+			top->Exit(*player_);
+			currentState_.pop_back();
+			auto* next = states_[req.nextAttack].get();
+			next->Enter(*player_);
+			currentState_.push_back(next);
+		} else if (req.type == AttackRequest::Jump) {
+			player_->ChangeState("Jump");
+		}
+		return; // top は無効になるので IsFinished チェックをスキップ
+	}
+
 	// 攻撃が終了していたらスタックから抜ける
 	if (top->IsFinished()) {
 		// スタックから抜ける前に、もしこの攻撃が派生可能だったら、次の攻撃を待つ状態に入る

@@ -87,7 +87,14 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 	stateTime_.current += deltaTime;
 
 	// 攻撃フェーズの更新処理
+	AttackPhase prevPhase = attackPhase_;
 	UpdatePhase(stateTime_.current);
+
+	// Cancel フェーズに入った瞬間に先行入力を発火
+	if (prevPhase != AttackPhase::Cancel && attackPhase_ == AttackPhase::Cancel && hasPendingBuffer_) {
+		pendingRequest_ = BuildRequestFromNode(player);
+		hasPendingBuffer_ = false;
+	}
 
 	// フェーズごとの処理を追加
 	switch (attackPhase_) {
@@ -128,6 +135,25 @@ void PlayerStateAttack::Exit(Player& player) {
 	stateTime_.max = attackData_.totalDuration;
 
 	attackChangeTimer_.current = 0.0f;
+	hasPendingBuffer_ = false;
+	pendingRequest_ = {};
+}
+
+AttackRequestData PlayerStateAttack::BuildRequestFromNode(Player& player) {
+	AttackRequestData req{};
+	req.type = AttackRequest::None;
+
+	const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
+	int nextCount = static_cast<int>(node.nextAttacks.size());
+
+	if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
+		float segment = attackChangeTimer_.max / static_cast<float>(nextCount);
+		int derivedIndex = std::clamp(static_cast<int>(attackChangeTimer_.current / segment), 0, nextCount - 1);
+		req.nextAttack = node.nextAttacks[derivedIndex];
+		req.type = AttackRequest::ChangeAttack;
+	}
+
+	return req;
 }
 
 AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const PlayerCommand& command) {
@@ -137,38 +163,17 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 
 	if (command.action == PlayerAction::Attack) {
 		if (attackPhase_ != AttackPhase::Cancel) {
+			// Cancel フェーズ前の入力をバッファに保存（上書きで最新入力を保持）
+			hasPendingBuffer_ = true;
+			bufferedCommand_ = command;
 			return req;
 		}
-
-		const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
-
-		int nextCount = static_cast<int>(node.nextAttacks.size());
-
-		if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
-
-			float segment = attackChangeTimer_.max / static_cast<float>(nextCount);
-			float elapsed = attackChangeTimer_.current;
-
-			// どの派生か（0 ～ nextCount-1）
-			int derivedIndex = static_cast<int>(elapsed / segment);
-
-			// 範囲外防止
-			derivedIndex = std::clamp(derivedIndex, 0, nextCount - 1);
-
-			// 次の派生の名前を取得
-			const std::string& nextAttackName = node.nextAttacks[derivedIndex];
-
-			req.nextAttack = nextAttackName;
-			req.type = AttackRequest::ChangeAttack;
-			return req;
-		}
-
+		return BuildRequestFromNode(player);
 	}
 	else if (command.action == PlayerAction::Jump) {
 		if (attackPhase_ != AttackPhase::Cancel || gv->GetValueRef<int32_t>(name_, "AttackPosture") == 1) {
 			return req;
 		}
-
 		req.type = AttackRequest::Jump;
 		return req;
 	}
