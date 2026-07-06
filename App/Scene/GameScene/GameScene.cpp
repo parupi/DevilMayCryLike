@@ -17,7 +17,6 @@
 #include "Scene/Transition/TransitionManager.h"
 #include "Scene/Transition/SceneTransitionController.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
-#include "GameObject/Camera/LockOnCamera.h"
 #include "Scene/GameScene/State/GameSceneStatePlay.h"
 #include "State/GameSceneStateMenu.h"
 #include "State/GameSceneStateStart.h"
@@ -46,8 +45,6 @@ void GameScene::Initialize() {
 	camera->GetRotate() = { 0.5f, -0.005f, 0.0f };
 	gameCamera_ = camera.get();
 	cameraManager_->AddCamera(std::move(camera));
-
-	std::unique_ptr<LockOnCamera> lockOnCamera = std::make_unique<LockOnCamera>("LockOnCamera");
 
 	// カメラの生成
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
@@ -115,11 +112,6 @@ void GameScene::Initialize() {
 			enemy->SetupLockOn(lockOnSystem_.get());
 		}
 	}
-
-	// カメラにプレイヤーとロックオンを受け渡す
-	lockOnCamera->Initialize(player_, lockOnSystem_.get());
-	// 生成が終わったカメラをマネージャに渡す
-	cameraManager_->AddCamera(std::move(lockOnCamera));
 
 	gameCamera_->Initialize(player_, lockOnSystem_.get(), inputContext_->GetCameraInput());
 

@@ -264,9 +264,6 @@
     <ClInclude Include="App\GameObject\Camera\GameCamera.h">
       <Filter>App\GameObject\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Camera\LockOnCamera.h">
-      <Filter>App\GameObject\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h">
       <Filter>App\GameObject\Camera</Filter>
     </ClInclude>
@@ -999,9 +996,6 @@
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
-      <Filter>App\GameObject\Camera</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp">
