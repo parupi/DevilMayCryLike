@@ -61,6 +61,26 @@ Vector2 BaseCamera::WorldToScreen(const Vector3& worldPos, int screenWidth, int 
 	return screenPos;
 }
 
+bool BaseCamera::IsInView(const Vector3& worldPos, Vector3* outNdcPos) const
+{
+	Vector4 clipPos = Vector4(worldPos.x, worldPos.y, worldPos.z, 1.0f) * viewMatrix_ * projectionMatrix_;
+
+	// カメラの後方にある場合は視野外
+	if (clipPos.w <= 0.0f) {
+		return false;
+	}
+
+	Vector3 ndcPos = { clipPos.x / clipPos.w, clipPos.y / clipPos.w, clipPos.z / clipPos.w };
+
+	if (outNdcPos) {
+		*outNdcPos = ndcPos;
+	}
+
+	return ndcPos.x >= -1.0f && ndcPos.x <= 1.0f
+		&& ndcPos.y >= -1.0f && ndcPos.y <= 1.0f
+		&& ndcPos.z >= 0.0f && ndcPos.z <= 1.0f;
+}
+
 // カメラの前方向を取得
 Vector3 BaseCamera::GetForward() const {
 	float pitch = transform_.rotate.x;
