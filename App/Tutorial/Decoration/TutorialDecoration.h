@@ -14,6 +14,8 @@ public:
 	void Start();
 	// 表示終了
 	void End();
+	// 非アクティブな状態かどうか（表示中に再度Startさせないための判定に使う）
+	bool IsInactive() const { return state_ == State::Inactive; }
 private:
 	// チュートリアルの状態
 	enum class State {

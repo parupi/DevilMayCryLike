@@ -59,6 +59,11 @@ public:
 	const AttackNode& GetAttackNode(const std::string& name) const{ return attackGraph_.at(name); }
 	// プレイヤーからのコマンドを受け取って処理する
 	void ExecuteCommand(const PlayerCommand& command);
+	// 現在アクティブな攻撃の名前を取得（攻撃中でなければ空文字）
+	const std::string& GetCurrentAttackName() const {
+		static const std::string kEmpty;
+		return currentState_.empty() ? kEmpty : currentState_.back()->GetAttackName();
+	}
 private:
 	// Jsonの名前からステートを生成
 	void CreateState();

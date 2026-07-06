@@ -18,14 +18,19 @@ public:
 	// チュートリアルの終了
 	void EndTutorial();
 	// 進行度を進める
-	void StepTutorial() override;
+	void StepTutorial(TutorialState state) override;
 private:
+	// 現在のチュートリアルを終了し、次のチュートリアルへ自動的に進める
+	void AdvanceTutorial();
+
 	TutorialState state_ = TutorialState::Move; // 現在のチュートリアルの状態
 
 	// チュートリアルのマップ
 	std::unordered_map<TutorialState, std::unique_ptr<Tutorial>> tutorials_;
 	// 現在のチュートリアル
 	Tutorial* currentTutorial_ = nullptr;
+	// フェードアウト中の直前のチュートリアル（消えきるまで更新を続ける）
+	Tutorial* previousTutorial_ = nullptr;
 	// 切り替え用のフラグ
 	bool isTutorialChanging_ = false;
 	// 装飾表示用のクラス

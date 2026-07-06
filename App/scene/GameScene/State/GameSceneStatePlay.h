@@ -16,5 +16,7 @@ private:
 	}state_ = PlayState::Enter;
 
 	float muskAlpha_ = 0.0f;
+	// チュートリアルを開始済みかどうか（メニューからの復帰時などに再発火させないため）
+	bool tutorialStarted_ = false;
 };
 

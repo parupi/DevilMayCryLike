@@ -4,6 +4,16 @@
 #include "Scene/Transition/TransitionManager.h"
 #include "Math/MathUtils.h"
 
+namespace {
+	// 攻撃名からチュートリアルの種類を判定する（該当しない攻撃はCountを返す）
+	TutorialState ResolveTutorialState(const std::string& attackName) {
+		if (attackName.rfind("AttackComboA", 0) == 0) return TutorialState::AttackA;
+		if (attackName.rfind("AttackComboB", 0) == 0) return TutorialState::AttackB;
+		if (attackName == "AttackHighTime") return TutorialState::RoundUpAttack;
+		return TutorialState::Count;
+	}
+}
+
 PlayerWeapon::PlayerWeapon(std::string objectName) : Object3d(objectName) {}
 
 void PlayerWeapon::Initialize() {
@@ -66,6 +76,12 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		scoreManager_->AddScore(50);
 		// 攻撃のパラメータを参照してヒットストップ起動
 		player_->GetHitStop()->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity);
+
+		// チュートリアル対象の攻撃であれば進行させる
+		TutorialState tutorialState = ResolveTutorialState(player_->GetCombat()->GetCurrentAttackName());
+		if (tutorialState != TutorialState::Count) {
+			player_->GetTutorialService()->StepTutorial(tutorialState);
+		}
 	}
 
 	if (other->category_ == CollisionCategory::Ground) {

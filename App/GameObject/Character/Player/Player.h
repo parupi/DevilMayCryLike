@@ -18,6 +18,7 @@
 #include "GameObject/Effect/HitVignetteEffect.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
+#include "Tutorial/Service/TutorialService.h"
 
 class PlayerInput;
 
@@ -143,6 +144,8 @@ public:
 
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
+	void SetTutorialService(TutorialService* tutorialService) { tutorialService_ = tutorialService; }
+	TutorialService* GetTutorialService() const { return tutorialService_; }
 private:
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
@@ -151,6 +154,9 @@ private:
 	PlayerInput* input_ = nullptr;
 
 	LockOnSystem* lockOn_ = nullptr;
+
+	// チュートリアルへゲームプレイのイベントを伝えるためのサービス
+	TutorialService* tutorialService_ = nullptr;
 
 	GlobalVariables* gv = &GlobalVariables::GetInstance(); ///< グローバル変数管理
 
