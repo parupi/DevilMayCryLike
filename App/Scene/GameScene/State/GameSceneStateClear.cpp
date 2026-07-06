@@ -12,7 +12,7 @@ void GameSceneStateClear::Enter(GameScene& scene) {
 	requested_ = false;
 }
 
-void GameSceneStateClear::Update(GameScene& scene) {
+void GameSceneStateClear::Update(GameScene&) {
 	if (requested_) return;
 
 	waitTime_ += DeltaTime::GetDeltaTime();
@@ -22,6 +22,5 @@ void GameSceneStateClear::Update(GameScene& scene) {
 	}
 }
 
-void GameSceneStateClear::Exit(GameScene& scene) {
-	scene;
+void GameSceneStateClear::Exit(GameScene&) {
 }

@@ -1,6 +1,8 @@
 ﻿#include "ModelLoader.h"
 #include <cassert>
+#include <sstream>
 #include "Graphics/Resource/TextureManager.h"
+#include "Utility/Logger.h"
 
 void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
 {
@@ -15,8 +17,10 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 	Assimp::Importer importer;
 	std::string filePath = "Resource/Models/" + filename + "/" + filename + ".obj";
 
+	Logger::Log("[ModelLoader] Loading: " + filePath);
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
-	assert(scene && scene->HasMeshes());
+	ASSERT_MSG(scene && scene->HasMeshes(),
+		("[ModelLoader] モデルの読み込みに失敗しました。\n  パス: " + filePath + "\n  Assimp: " + importer.GetErrorString()).c_str());
 
 	// --- マテリアルの読み込み ---
 	modelData.materials.resize(scene->mNumMaterials);
@@ -46,8 +50,8 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 		MeshData meshData;
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 
-		assert(mesh->HasNormals());
-		assert(mesh->HasTextureCoords(0));
+		ASSERT_MSG(mesh->HasNormals(), ("[ModelLoader] メッシュに法線がありません: " + std::string(mesh->mName.C_Str())).c_str());
+		ASSERT_MSG(mesh->HasTextureCoords(0), ("[ModelLoader] メッシュに UV がありません: " + std::string(mesh->mName.C_Str())).c_str());
 
 		meshData.vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
@@ -92,8 +96,10 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 
 	std::string filePath = "Resource/Models/" + filename + "/" + filename + ".gltf";
 
+	Logger::Log("[ModelLoader] Loading skinned: " + filePath);
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
-	assert(scene && scene->HasMeshes());
+	ASSERT_MSG(scene && scene->HasMeshes(),
+		("[ModelLoader] スキンモデルの読み込みに失敗しました。\n  パス: " + filePath + "\n  Assimp: " + importer.GetErrorString()).c_str());
 
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
@@ -138,7 +144,7 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 	modelData.meshes.resize(scene->mNumMeshes);
 	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
 		aiMesh* mesh = scene->mMeshes[meshIndex];
-		assert(mesh->HasNormals());
+		ASSERT_MSG(mesh->HasNormals(), ("[ModelLoader] スキンメッシュに法線がありません: " + std::string(mesh->mName.C_Str())).c_str());
 		bool hasUV = mesh->HasTextureCoords(0);  // UVの有無を確認
 
 		SkinnedMeshData SkinnedMeshData;

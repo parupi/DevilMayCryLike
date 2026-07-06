@@ -45,4 +45,4 @@ void BossStateHeavySword::Update(Enemy& enemy, float deltaTime)
     }
 }
 
-void BossStateHeavySword::Exit(Enemy& enemy) {}
+void BossStateHeavySword::Exit(Enemy&) {}

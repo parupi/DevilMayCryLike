@@ -6,7 +6,7 @@ ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType
 	Object3d::Initialize();
 }
 
-void ClearEvent::Update(float deltaTime) {
+void ClearEvent::Update(float) {
 	if (currentFrame_ < skipFrames_) {
 		currentFrame_++;
 	}

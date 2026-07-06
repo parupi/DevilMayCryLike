@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "GameObject/Character/Player/State/PlayerStateBase.h"
+#include "GameObject/Character/Player/Controller/PlayerInput.h"
 #include "Debugger/GlobalVariables.h"
 #include "World3D/Object/Object3d.h"
 #include "GameObject/Character/CharacterStructs.h"
@@ -35,7 +36,13 @@ public:
 	bool HasBranch(Player& player) const;
 	// 攻撃の名前を取得
 	const std::string& GetAttackName() const { return name_; }
+	// 先行入力バッファから発火したリクエストがあるか
+	bool HasPendingRequest() const { return pendingRequest_.type != AttackRequest::None; }
+	// 先行入力リクエストを取り出す（消費）
+	AttackRequestData ConsumePendingRequest() { auto r = pendingRequest_; pendingRequest_ = {}; return r; }
 private:
+	// タイミングに基づいて次の攻撃リクエストを生成する
+	AttackRequestData BuildRequestFromNode(Player& player);
 	// フェーズの更新
 	void UpdatePhase(float time);
 	// 予備動作の更新
@@ -64,5 +71,9 @@ private:
 
 	//std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
 	bool isFinish_ = false;
+	// 先行入力バッファ
+	bool hasPendingBuffer_ = false;
+	PlayerCommand bufferedCommand_{};
+	AttackRequestData pendingRequest_{};
 };
 

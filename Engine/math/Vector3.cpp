@@ -145,7 +145,7 @@ bool IsValidVector3(const Vector3& v)
         std::isfinite(v.z);
 }
 
-void PrintOnImGui(const Vector3& v, const char* label)
+void PrintOnImGui([[maybe_unused]] const Vector3& v, [[maybe_unused]] const char* label)
 {
 #ifdef USE_IMGUI
     ImGui::Begin(label);
@@ -163,7 +163,7 @@ Vector3 Min(const Vector3& a, const Vector3& b)
     };
 }
 
-Vector3 Max(const Vector3& a, const Vector3& b)
+Vector3 Max(const Vector3&, const Vector3&)
 {
     return Vector3();
 }

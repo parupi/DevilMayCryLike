@@ -1,4 +1,4 @@
-﻿#include "StageStart.h"
+#include "StageStart.h"
 #include <memory>
 #include <World3D/Camera/CameraManager.h>
 #include "World3D/Camera/BaseCamera.h"
@@ -38,6 +38,18 @@ void StageStart::Initialize()
 	CameraManager::GetInstance().AddCamera(std::move(cam));
 }
 
+void StageStart::Complete()
+{
+	//static const std::string kCameraNames[] = {
+	//	"StartCamera1", "StartCamera2", "StartCamera3",
+	//	"StartCamera4", "StartCamera5", "StartCamera6",
+	//};
+	//for (const auto& name : kCameraNames) {
+	//	CameraManager::GetInstance().RemoveCamera(name);
+	//}
+	isComplete_ = true;
+}
+
 void StageStart::Update()
 {
 	// スタート処理が終わってたら何もせずにreturn
@@ -47,12 +59,12 @@ void StageStart::Update()
 	if (Input::GetInstance().IsConnected()) {
 		if (Input::GetInstance().PushButton(PadNumber::ButtonA)) {
 			CameraManager::GetInstance().SetActiveCamera("GameCamera", 0.3f);
-			isComplete_ = true;
+			Complete();
 			return;
 		}
-	}else if (Input::GetInstance().TriggerKey(DIK_SPACE) || Input::GetInstance().TriggerKey(DIK_R)) {
+	} else if (Input::GetInstance().TriggerKey(DIK_SPACE) || Input::GetInstance().TriggerKey(DIK_R)) {
 		CameraManager::GetInstance().SetActiveCamera("GameCamera", 0.3f);
-		isComplete_ = true;
+		Complete();
 		return;
 	}
 
@@ -80,5 +92,5 @@ void StageStart::Update()
 	}
 
 	// ここまで来たら完了
-	isComplete_ = true;
+	Complete();
 }

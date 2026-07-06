@@ -22,15 +22,11 @@ void CameraManager::Initialize(DirectXManager* dxManager)
 
 void CameraManager::Finalize()
 {
-	// カメラリストを解放（unique_ptr なので明示的に clear）
 	cameras_.clear();
 	activeCameraName_.clear();
-
+	transitionCamera_.reset();
 	cameraData_ = nullptr;
-
 	dxManager_ = nullptr;
-
-
 	Logger::Log("CameraManager finalized.\n");
 }
 
@@ -147,6 +143,20 @@ void CameraManager::DeleteAllCamera()
 {
 	cameras_.clear();
 	activeCameraName_.clear();
+}
+
+void CameraManager::RemoveCamera(const std::string& name)
+{
+	auto it = cameras_.find(name);
+	if (it == cameras_.end()) {
+		Logger::Log("[CameraManager] Warning: RemoveCamera: \"" + name + "\" が見つかりません。\n");
+		return;
+	}
+	if (activeCameraName_ == name) {
+		Logger::Log("[CameraManager] Warning: RemoveCamera: アクティブカメラ \"" + name + "\" を削除します。\n");
+		activeCameraName_.clear();
+	}
+	cameras_.erase(it);
 }
 
 void CameraManager::TransitionUpdate()

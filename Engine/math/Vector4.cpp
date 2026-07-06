@@ -98,7 +98,7 @@ Vector4 Lerp(const Vector4& start, const Vector4& end, float t) {
     return start * (1.0f - t) + end * t;
 }
 
-void PrintOnImGui(const Vector4& v, const char* label) {
+void PrintOnImGui([[maybe_unused]] const Vector4& v, [[maybe_unused]] const char* label) {
 #ifdef USE_IMGUI
     ImGui::Begin(label);
     ImGui::Text("%s: (x: %.2f, y: %.2f, z: %.2f, w: %.2f)", "Vector4", v.x, v.y, v.z, v.w);

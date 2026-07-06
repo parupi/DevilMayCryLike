@@ -67,6 +67,7 @@ void Sprite::Draw()
 	commandList->SetGraphicsRootConstantBufferView(0, resourceManager->GetGPUVirtualAddress(materialHandle_));
 
 	commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance().GetSrvHandleGPU(textureFilePath_));
+	commandList->SetGraphicsRootDescriptorTable(3, TextureManager::GetInstance().GetDissolveNoiseSrvHandleGPU());
 
 	//// 描画!（DrawCall/ドローコール）。3頂点で1つのインスタンス。インスタンスについては今後
 	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
@@ -112,14 +113,16 @@ void Sprite::CreateIndexResource()
 void Sprite::CreateMaterialResource()
 {
 	// Sprite用のマテリアルリソースを作る
-	materialHandle_ = spriteManager_->GetDxManager()->GetResourceManager()->CreateUploadBuffer(sizeof(Material), L"SpriteMaterial");
+	materialHandle_ = spriteManager_->GetDxManager()->GetResourceManager()->CreateUploadBuffer(sizeof(SpriteMaterial), L"SpriteMaterial");
 	// 書き込むためのアドレスを取得
 	void* ptr = spriteManager_->GetDxManager()->GetResourceManager()->Map(materialHandle_);
 	assert(ptr);
-	materialData_ = reinterpret_cast<Material*>(ptr);
-	// 今回は白を書き込んで置く
+	materialData_ = reinterpret_cast<SpriteMaterial*>(ptr);
 	materialData_->color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	materialData_->uvTransform = MakeIdentity4x4();
+	materialData_->dissolveThreshold = -1.0f;
+	materialData_->dissolveEdgeWidth = 0.05f;
+	materialData_->dissolveEdgeColor = { 1.0f, 0.3f, 0.0f, 8.0f };
 }
 
 void Sprite::CreateTransformationResource()

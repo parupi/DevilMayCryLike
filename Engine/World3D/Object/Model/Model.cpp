@@ -1,4 +1,4 @@
-﻿#include "Model.h"
+#include "Model.h"
 #include "Math/MathUtils.h"
 #include "Graphics/Resource/TextureManager.h"
 #include <Math/Vector4.h>
@@ -12,15 +12,13 @@
 #include <World3D/Object/Renderer/ModelRenderer.h>
 #include <World3D/Light/LightManager.h>
 
-Model::~Model()
-{
+Model::~Model() {
 	modelLoader_ = nullptr;
 	meshes_.clear();
 	materials_.clear();
 }
 
-void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
-{
+void Model::Initialize(ModelLoader* modelManager, const std::string& fileName) {
 	modelLoader_ = modelManager;
 
 	// モデルの読み込み
@@ -41,8 +39,7 @@ void Model::Initialize(ModelLoader* modelManager, const std::string& fileName)
 	}
 }
 
-void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData)
-{
+void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData) {
 	modelLoader_ = ModelManager::GetInstance().GetModelLoader();
 
 	// Meshの生成と初期化
@@ -56,15 +53,13 @@ void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& mat
 	materials_.push_back(std::move(material));
 }
 
-void Model::Update(const Vector3& objectScale)
-{
+void Model::Update(const Vector3& objectScale) {
 	for (size_t i = 0; i < materials_.size(); i++) {
 		materials_[i]->Update(objectScale);
 	}
 }
 
-void Model::Draw()
-{
+void Model::Draw() {
 	for (const auto& mesh : meshes_) {
 		// このメッシュに対応するマテリアルを設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
@@ -79,10 +74,8 @@ void Model::Draw()
 	}
 }
 
-void Model::DrawGBuffer()
-{
-	for (auto& mesh : meshes_)
-	{
+void Model::DrawGBuffer() {
+	for (auto& mesh : meshes_) {
 		auto* mat = materials_[mesh->GetMeshData().materialIndex].get();
 		auto cmd = modelLoader_->GetDxManager()->GetCommandList();
 		// マテリアルの情報をくっつける
@@ -94,10 +87,8 @@ void Model::DrawGBuffer()
 	}
 }
 
-void Model::DrawShadow()
-{
-	for (auto& mesh : meshes_)
-	{
+void Model::DrawShadow() {
+	for (auto& mesh : meshes_) {
 		auto cmd = modelLoader_->GetDxManager()->GetCommandList();
 		// メッシュをバインド（頂点バッファなど）
 		mesh->Bind();
@@ -106,8 +97,7 @@ void Model::DrawShadow()
 	}
 }
 
-std::vector<Material*> Model::GetMaterials()
-{
+std::vector<Material*> Model::GetMaterials() {
 	std::vector<Material*> materials;
 
 	for (auto& material : materials_) {
@@ -117,21 +107,19 @@ std::vector<Material*> Model::GetMaterials()
 	return materials;
 }
 
-void Model::Bind()
-{
-	    for (const auto& mesh : meshes_) {
-        // メッシュに対応するマテリアルをバインド
-        assert(mesh->GetMeshData().materialIndex < materials_.size());
-        materials_[mesh->GetMeshData().materialIndex]->Bind(5);
+void Model::Bind() {
+	for (const auto& mesh : meshes_) {
+		// メッシュに対応するマテリアルをバインド
+		assert(mesh->GetMeshData().materialIndex < materials_.size());
+		materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
-        // メッシュをバインド（頂点バッファなど）
-        mesh->Bind();
-    }
+		// メッシュをバインド（頂点バッファなど）
+		mesh->Bind();
+	}
 }
 
 #ifdef _DEBUG
-void Model::DebugGui(ModelRenderer* render)
-{
+void Model::DebugGui(ModelRenderer* render) {
 	if (ImGui::TreeNode("Models")) {
 		auto& modelMap = ModelManager::GetInstance().models;
 		static std::vector<std::string> modelNames;
@@ -144,7 +132,7 @@ void Model::DebugGui(ModelRenderer* render)
 			}
 		}
 
-		if (!modelNames.empty()) { 
+		if (!modelNames.empty()) {
 			const char* currentItem = modelNames[selectedIndex].c_str();
 
 			if (ImGui::BeginCombo("Model List", currentItem)) {
@@ -172,8 +160,7 @@ void Model::DebugGui(ModelRenderer* render)
 	}
 }
 
-void Model::DebugGuiPrimitive()
-{
+void Model::DebugGuiPrimitive() {
 	materials_[0]->DebugGui(static_cast<uint32_t>(1));
 }
 

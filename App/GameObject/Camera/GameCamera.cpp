@@ -7,7 +7,8 @@
 static constexpr float kCameraBaseHeight = 3.0f;
 
 GameCamera::GameCamera(std::string cameraName)
-	: BaseCamera(cameraName) {}
+	: BaseCamera(cameraName) {
+}
 
 void GameCamera::Initialize(Player* player, LockOnSystem* lockOn, CameraInput* cameraInput) {
 	player_ = player;

@@ -1,17 +1,17 @@
 #include "PlayerStateClear.h"
 
-void PlayerStateClear::Enter(Player& player)
+void PlayerStateClear::Enter(Player&)
 {
 }
 
-void PlayerStateClear::Update(Player& player, float deltaTime)
+void PlayerStateClear::Update(Player&, float)
 {
 }
 
-void PlayerStateClear::Exit(Player& player)
+void PlayerStateClear::Exit(Player&)
 {
 }
 
-void PlayerStateClear::ExecuteCommand(Player& player, const PlayerCommand& command)
+void PlayerStateClear::ExecuteCommand(Player&, const PlayerCommand&)
 {
 }

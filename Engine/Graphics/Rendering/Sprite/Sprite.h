@@ -74,14 +74,6 @@ private:
 	};
 
 	/// <summary>
-	/// マテリアル構造体
-	/// </summary>
-	struct Material {
-		Vector4 color;          ///< カラー情報(RGBA)
-		Matrix4x4 uvTransform;  ///< UV変換行列
-	};
-
-	/// <summary>
 	/// 変換行列構造体
 	/// </summary>
 	struct TransformationMatrix {
@@ -100,7 +92,7 @@ private:
 	// GPUリソース内データへのポインタ
 	VertexData* vertexData_ = nullptr;               ///< 頂点データ
 	uint32_t* indexData_ = nullptr;                  ///< インデックスデータ
-	Material* materialData_ = nullptr;               ///< マテリアルデータ
+	SpriteMaterial* materialData_ = nullptr;          ///< マテリアルデータ
 	TransformationMatrix* transformationMatrixData_ = nullptr; ///< 行列データ
 
 	// バッファビュー
@@ -144,7 +136,7 @@ public:
 	// 名前を取得
 	std::string GetName() { return name_; }
 	// 描画の設定を取得
-	const SpriteRenderState& GetRenderState() { return renderState_; }
+	SpriteRenderState& GetRenderState() { return renderState_; }
 	// レイヤーを取得
 	SpriteLayer GetLayer() const { return layer_; }
 
@@ -267,4 +259,11 @@ public:
 	/// UV拡縮を設定する
 	/// </summary>
 	void SetUVSize(const Vector2& size) { uvSize_ = size; }
+
+	// Dissolve
+	void SetDissolveThreshold(float t) { materialData_->dissolveThreshold = t; }
+	float GetDissolveThreshold() const { return materialData_->dissolveThreshold; }
+	void SetDissolveEdgeWidth(float w) { materialData_->dissolveEdgeWidth = w; }
+	void SetDissolveEdgeColor(const Vector4& color) { materialData_->dissolveEdgeColor = color; }
+	const Vector4& GetDissolveEdgeColor() const { return materialData_->dissolveEdgeColor; }
 };

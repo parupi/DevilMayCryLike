@@ -45,4 +45,4 @@ void BossStateRush::Update(Enemy& enemy, float deltaTime)
     }
 }
 
-void BossStateRush::Exit(Enemy& enemy) {}
+void BossStateRush::Exit(Enemy&) {}

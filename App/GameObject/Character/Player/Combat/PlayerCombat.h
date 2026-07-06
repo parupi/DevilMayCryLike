@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <unordered_map>
 #include <GameObject/Character/Player/State/Attack/PlayerStateAttack.h>
+#include "GameObject/Character/Player/Controller/PlayerInput.h"
 #include "AttackPlayer.h"
 #include <memory>
 #include <string>
@@ -13,12 +14,6 @@ enum class AttackType {
 	Air,
 };
 
-enum class InputButton {
-	X,
-	Y,
-	None
-};
-
 enum class StickDirection {
 	None,
 	ToEnemy,
@@ -28,14 +23,17 @@ enum class StickDirection {
 
 struct AttackInputCondition
 {
-	InputButton button;          // X / Y
-	bool requireLockOn;    // ロックオン必須か
-	StickDirection stick;            // 敵基準のスティック方向
+	InputButton button = InputButton::None;
+	bool requireLockOn = false;
+	StickDirection stick = StickDirection::None;
 };
 
 struct AttackNode
 {
 	std::string name;
+	bool isRootAttack = false;
+	bool isAir = false;
+	AttackInputCondition condition;
 	// 派生先（攻撃名で管理）
 	std::vector<std::string> nextAttacks;
 };

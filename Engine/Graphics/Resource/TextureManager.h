@@ -23,6 +23,8 @@ public:
 	void Finalize();
 
 	void LoadTexture(const std::string& filePath);
+	// メモリ上のRGBAピクセルデータからテクスチャを登録する (GifLoader から呼ばれる)
+	void LoadTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height);
 
 	uint32_t GetTextureIndexByFilePath(const std::string& filePath);
 	// テクスチャ番号からGPUハンドルを取得
@@ -35,8 +37,14 @@ public:
 	uint32_t CreateWhiteTexture();
 	uint32_t GetWhiteTextureIndex() const { return whiteTextureIndex_; }
 
+	// 中心→左右に広がるDissolveノイズテクスチャを生成（初期化時に自動生成）
+	uint32_t CreateDissolveNoiseTexture();
+	uint32_t GetDissolveNoiseSrvIndex() const { return dissolveNoiseIndex_; }
+	D3D12_GPU_DESCRIPTOR_HANDLE GetDissolveNoiseSrvHandleGPU();
+
 private:
 	uint32_t whiteTextureIndex_ = 0;
+	uint32_t dissolveNoiseIndex_ = 0;
 
 	// テクスチャ1枚分のデータ
 	struct TextureData {

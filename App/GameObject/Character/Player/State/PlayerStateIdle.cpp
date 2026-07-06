@@ -8,7 +8,7 @@ void PlayerStateIdle::Enter(Player& player)
 	player.GetVelocity().y = 0.0f;
 }
 
-void PlayerStateIdle::Update(Player& player, float deltaTime)
+void PlayerStateIdle::Update(Player& player, float)
 {
 	player.GetAcceleration().y = 0.0f;
 	player.GetVelocity().y = 0.0f;
@@ -20,9 +20,8 @@ void PlayerStateIdle::Update(Player& player, float deltaTime)
 	}
 }
 
-void PlayerStateIdle::Exit(Player& player)
+void PlayerStateIdle::Exit(Player&)
 {
-	player;
 }
 
 void PlayerStateIdle::ExecuteCommand(Player& player, const PlayerCommand& command)

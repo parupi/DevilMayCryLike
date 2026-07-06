@@ -112,6 +112,18 @@
     <Filter Include="App\Stage">
       <UniqueIdentifier>{69A0BE03-D50A-737A-1E49-24208AF250CF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Tutorial">
+      <UniqueIdentifier>{E9F91B11-D55C-ABB5-7EE2-E36B6A247738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Tutorial\Decoration">
+      <UniqueIdentifier>{003479E0-6C6B-C177-7575-259BE12BE870}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Tutorial\Service">
+      <UniqueIdentifier>{490C6A54-359B-F31D-DEB9-0719CA2704C4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Tutorial\System">
+      <UniqueIdentifier>{DD8C1061-49EE-ED6E-D25B-34213EBC242E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine">
       <UniqueIdentifier>{DBC7D3B0-C769-FE86-B024-12DB9C6585D7}</UniqueIdentifier>
     </Filter>
@@ -516,6 +528,18 @@
     <ClInclude Include="App\Stage\SceneLoader.h">
       <Filter>App\Stage</Filter>
     </ClInclude>
+    <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h">
+      <Filter>App\Tutorial\Decoration</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Tutorial\Service\TutorialService.h">
+      <Filter>App\Tutorial\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Tutorial\System\TutorialSystem.h">
+      <Filter>App\Tutorial\System</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Tutorial\Tutorial.h">
+      <Filter>App\Tutorial</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Application\MyGameTitle.h">
       <Filter>Engine\Application</Filter>
     </ClInclude>
@@ -702,6 +726,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\Sky\SkySystem.h">
       <Filter>Engine\Graphics\Rendering\Sky</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Sprite\AnimatedSprite.h">
+      <Filter>Engine\Graphics\Rendering\Sprite</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Sprite\Sprite.h">
       <Filter>Engine\Graphics\Rendering\Sprite</Filter>
     </ClInclude>
@@ -715,6 +742,9 @@
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Resource\DsvManager.h">
+      <Filter>Engine\Graphics\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Resource\GifLoader.h">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Resource\GpuResourceFactory.h">
@@ -1220,6 +1250,15 @@
     <ClCompile Include="App\Stage\SceneLoader.cpp">
       <Filter>App\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
+      <Filter>App\Tutorial\Decoration</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp">
+      <Filter>App\Tutorial\System</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Tutorial\Tutorial.cpp">
+      <Filter>App\Tutorial</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Application\MyGameTitle.cpp">
       <Filter>Engine\Application</Filter>
     </ClCompile>
@@ -1382,6 +1421,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\Sky\SkySystem.cpp">
       <Filter>Engine\Graphics\Rendering\Sky</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Sprite\AnimatedSprite.cpp">
+      <Filter>Engine\Graphics\Rendering\Sprite</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Sprite\Sprite.cpp">
       <Filter>Engine\Graphics\Rendering\Sprite</Filter>
     </ClCompile>
@@ -1389,6 +1431,9 @@
       <Filter>Engine\Graphics\Rendering\Sprite</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Resource\DsvManager.cpp">
+      <Filter>Engine\Graphics\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Resource\GifLoader.cpp">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Resource\GpuResourceFactory.cpp">
