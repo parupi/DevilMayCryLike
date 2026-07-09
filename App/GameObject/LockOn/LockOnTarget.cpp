@@ -16,13 +16,13 @@ void LockOnTarget::Finalize() {
 	}
 }
 
-Vector3 LockOnTarget::GetWorldPosition() const {
+const Vector3& LockOnTarget::GetWorldPosition() const {
 	return owner_->GetWorldTransform()->GetTranslation();
 }
 
 bool LockOnTarget::IsLockable() const {
 	bool flag = true;
-	// 敵が死亡している場合はロックオン対象から除外する
+	// 敵が死亡している場合と待機状態の場合ロックオン対象から除外する
 	if (auto* enemy = dynamic_cast<Enemy*>(owner_)) {
 		if (!enemy->IsActive()) {
 			flag = false;

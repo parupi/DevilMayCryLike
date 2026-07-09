@@ -14,8 +14,6 @@ public:
 	void Initialize() override;
 	void Update() override;
 	void DrawDebug() override;
-	// 法線から位置関係を取得
-	static Vector3 CalculateCollisionNormal(AABBCollider* thisCollider, AABBCollider* otherCollider);
 
 	CollisionShapeType GetShapeType() const override { return CollisionShapeType::AABB; }
 

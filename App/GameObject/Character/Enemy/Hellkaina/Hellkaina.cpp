@@ -2,6 +2,7 @@
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/AABBCollider.h>
+#include <World3D/Collider/OBBCollider.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
 #include "../State/EnemyStateIdle.h"
 #include "../State/EnemyStateAir.h"
@@ -71,9 +72,8 @@ Hellkaina::Hellkaina(std::string objectName) : Enemy(objectName)
 void Hellkaina::Initialize()
 {
     // コライダーのサイズ調整
-    auto* col = static_cast<AABBCollider*>(GetCollider(name_));
-    col->GetColliderData().offsetMax *= 0.5f;
-    col->GetColliderData().offsetMin *= 0.5f;
+    auto* col = static_cast<OBBCollider*>(GetCollider(name_));
+    col->GetColliderData().halfExtents *= 0.5f;
 
     // 武器の生成（ステート生成より先に行う）
     RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "HellkainaWeapon", "Sword"));

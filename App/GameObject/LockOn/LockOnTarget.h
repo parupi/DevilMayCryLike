@@ -12,7 +12,7 @@ public:
 	// 終了
 	void Finalize();
 
-	Vector3 GetWorldPosition() const;
+	const Vector3& GetWorldPosition() const;
 	bool IsLockable() const;
 
 private:

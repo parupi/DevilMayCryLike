@@ -1,6 +1,8 @@
 #include "CollisionManager.h"
 #include "Utility/Logger.h"
+#include "Math/MathUtils.h"
 #include <cmath>
+#include <limits>
 
 
 CollisionManager& CollisionManager::GetInstance()
@@ -278,6 +280,130 @@ bool CollisionManager::CheckOBBToOBBCollision(OBBCollider* a, OBBCollider* b)
     }
 
     return true;
+}
+
+PenetrationResult CollisionManager::CalculatePenetration(BaseCollider* mover, BaseCollider* blocker)
+{
+    if (!mover || !blocker) return PenetrationResult{};
+
+    static const Vector3 kIdentityAxes[3] = {
+        { 1.0f, 0.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 0.0f, 1.0f },
+    };
+
+    const CollisionShapeType typeA = mover->GetShapeType();
+    const CollisionShapeType typeB = blocker->GetShapeType();
+
+    if (typeA == CollisionShapeType::AABB && typeB == CollisionShapeType::AABB) {
+        auto* a = static_cast<AABBCollider*>(mover);
+        auto* b = static_cast<AABBCollider*>(blocker);
+        if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return PenetrationResult{};
+
+        Vector3 centerA = (a->GetMin() + a->GetMax()) * 0.5f;
+        Vector3 halfA = (a->GetMax() - a->GetMin()) * 0.5f;
+        Vector3 centerB = (b->GetMin() + b->GetMax()) * 0.5f;
+        Vector3 halfB = (b->GetMax() - b->GetMin()) * 0.5f;
+
+        return CalculateBoxPenetration(centerA, kIdentityAxes, halfA, centerB, kIdentityAxes, halfB);
+    }
+
+    if (typeA == CollisionShapeType::OBB && typeB == CollisionShapeType::OBB) {
+        auto* a = static_cast<OBBCollider*>(mover);
+        auto* b = static_cast<OBBCollider*>(blocker);
+        if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return PenetrationResult{};
+
+        Vector3 axesA[3] = { a->GetAxis(0), a->GetAxis(1), a->GetAxis(2) };
+        Vector3 axesB[3] = { b->GetAxis(0), b->GetAxis(1), b->GetAxis(2) };
+
+        return CalculateBoxPenetration(a->GetCenter(), axesA, a->GetWorldHalfExtents(), b->GetCenter(), axesB, b->GetWorldHalfExtents());
+    }
+
+    if (typeA == CollisionShapeType::OBB && typeB == CollisionShapeType::AABB) {
+        auto* a = static_cast<OBBCollider*>(mover);
+        auto* b = static_cast<AABBCollider*>(blocker);
+        if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return PenetrationResult{};
+
+        Vector3 axesA[3] = { a->GetAxis(0), a->GetAxis(1), a->GetAxis(2) };
+        Vector3 centerB = (b->GetMin() + b->GetMax()) * 0.5f;
+        Vector3 halfB = (b->GetMax() - b->GetMin()) * 0.5f;
+
+        return CalculateBoxPenetration(a->GetCenter(), axesA, a->GetWorldHalfExtents(), centerB, kIdentityAxes, halfB);
+    }
+
+    if (typeA == CollisionShapeType::AABB && typeB == CollisionShapeType::OBB) {
+        auto* a = static_cast<AABBCollider*>(mover);
+        auto* b = static_cast<OBBCollider*>(blocker);
+        if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return PenetrationResult{};
+
+        Vector3 centerA = (a->GetMin() + a->GetMax()) * 0.5f;
+        Vector3 halfA = (a->GetMax() - a->GetMin()) * 0.5f;
+        Vector3 axesB[3] = { b->GetAxis(0), b->GetAxis(1), b->GetAxis(2) };
+
+        return CalculateBoxPenetration(centerA, kIdentityAxes, halfA, b->GetCenter(), axesB, b->GetWorldHalfExtents());
+    }
+
+    return PenetrationResult{};
+}
+
+PenetrationResult CollisionManager::CalculateBoxPenetration(
+    const Vector3& centerA, const Vector3 axesA[3], const Vector3& halfA,
+    const Vector3& centerB, const Vector3 axesB[3], const Vector3& halfB)
+{
+    // 分離軸の候補: Aの3軸 + Bの3軸 + それぞれのクロス積9本（最大15本）
+    Vector3 candidateAxes[15];
+    int axisCount = 0;
+
+    for (int i = 0; i < 3; ++i) candidateAxes[axisCount++] = axesA[i];
+    for (int i = 0; i < 3; ++i) candidateAxes[axisCount++] = axesB[i];
+    for (int i = 0; i < 3; ++i) {
+        for (int j = 0; j < 3; ++j) {
+            Vector3 cross = Cross(axesA[i], axesB[j]);
+            float len = Length(cross);
+            if (len > 1e-6f) {
+                candidateAxes[axisCount++] = cross / len;
+            }
+        }
+    }
+
+    const Vector3 centerDelta = centerA - centerB;
+
+    float minOverlap = (std::numeric_limits<float>::max)();
+    Vector3 bestAxis{};
+    bool found = false;
+
+    for (int i = 0; i < axisCount; ++i) {
+        const Vector3& axis = candidateAxes[i];
+
+        float ra = std::abs(Dot(axesA[0], axis)) * halfA.x
+                 + std::abs(Dot(axesA[1], axis)) * halfA.y
+                 + std::abs(Dot(axesA[2], axis)) * halfA.z;
+        float rb = std::abs(Dot(axesB[0], axis)) * halfB.x
+                 + std::abs(Dot(axesB[1], axis)) * halfB.y
+                 + std::abs(Dot(axesB[2], axis)) * halfB.z;
+
+        float dist = Dot(centerDelta, axis);
+        float overlap = (ra + rb) - std::abs(dist);
+
+        if (overlap <= 0.0f) {
+            // 分離軸が見つかった -> 衝突していない
+            return PenetrationResult{};
+        }
+
+        if (overlap < minOverlap) {
+            minOverlap = overlap;
+            bestAxis = (dist < 0.0f) ? -axis : axis;
+            found = true;
+        }
+    }
+
+    if (!found) return PenetrationResult{};
+
+    PenetrationResult result;
+    result.hit = true;
+    result.normal = bestAxis;
+    result.depth = minOverlap;
+    return result;
 }
 
 bool CollisionManager::CheckOBBToAABBCollision(OBBCollider* obb, AABBCollider* aabb)

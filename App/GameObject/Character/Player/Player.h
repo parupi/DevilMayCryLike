@@ -144,6 +144,9 @@ public:
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
+	// Ground/Enemyコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
+	void ResolveGroundCollision(BaseCollider* other);
+
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
 	std::unique_ptr<PlayerCombat> combat_ = nullptr;
