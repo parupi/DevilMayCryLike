@@ -2,7 +2,6 @@
 #include "Graphics/Device/DirectXManager.h"
 #include "GBufferManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
-#include <Scene/SceneManager.h>
 #include <Math/MathUtils.h>
 
 GBufferPath::~GBufferPath()

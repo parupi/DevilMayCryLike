@@ -123,7 +123,6 @@ void OffScreenManager::BeginDrawToPingPong() {
 
 	// set RTV & DSV
 	dxManager_->GetCommandContext()->SetRenderTarget(rtvHandles_[ping_], dxManager_->GetDsvManager()->GetDsvHandle());
-	//dxManager_->GetCommandContext()->ClearRenderTarget(rtvHandles_[ping_], clearValue_.Color);
 	dxManager_->GetCommandContext()->SetViewportAndScissor(viewport_, scissorRect_);
 }
 

@@ -21,12 +21,6 @@ void ForwardRenderPath::BeginDraw(uint32_t rtvIndex, uint32_t dsvIndex)
 	// 描画ターゲットの設定
 	commandContext->SetRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndex), dxManager_->GetDsvManager()->GetDsvHandle(dsvIndex));
 
-	// depthのクリア
-	//commandContext->ClearDepth(dxManager_->GetDsvManager()->GetDsvHandle(dsvIndex));
-	// rtvのクリア
-	//float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
-	//commandContext->ClearRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndex), clearColor);
-
 	ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
 	dxManager_->GetCommandList()->SetDescriptorHeaps(_countof(heaps), heaps);
 }

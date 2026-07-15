@@ -10,7 +10,6 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "InstanceData.h"
 #include "Particle.h"
-#include <World3D/Object/Renderer/InstancingRenderer.h>
 #include "ParticleUpdateSystem.h"
 #include "ParticleRenderSystem.h"
 #include "ParticleGroup.h"
@@ -18,7 +17,6 @@
 #include "ParticleEmitter.h"
 #include <memory>
 #include "ParticleEditor.h"
-#include <World3D/Object/Renderer/PrimitiveRenderer.h>
 
 struct ParticleForGPU {
 	Matrix4x4 WVP;
@@ -118,8 +116,6 @@ private:
 	Particle MakeNewParticle(const std::string name_, const Vector3& translate);
 
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
-
-	void DrawEditor(GlobalVariables* global, const std::string& groupName);
 
 	void CreateParticleGPU(const std::string& name, PrimitiveType shape);
 

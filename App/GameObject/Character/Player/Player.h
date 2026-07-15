@@ -9,7 +9,6 @@
 #include "PlayerWeapon.h"
 #include "Math/Vector3.h"
 #include "Math/MathUtils.h"
-#include <Debugger/GlobalVariables.h>
 #include <GameData/Score/StylishScoreManager.h>
 #include <Graphics/Rendering/Sprite/Sprite.h>
 #include <GameObject/Effect/HitStop.h>
@@ -31,7 +30,7 @@ struct PlayerCommand;
 /// </summary>
 class Player : public Object3d {
 public:
-	Player(std::string objectNama);
+	Player(std::string objectName);
 	~Player() override = default;
 
 	/// <summary>
@@ -109,8 +108,6 @@ public:
 	/// ロックオン処理  
 	void LockOn();
 
-	const Vector3& GetMoveVector() { return moveVector_; }
-
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
 
@@ -129,9 +126,6 @@ public:
 	/// </summary>
 	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
-	// 攻撃派生UI
-	//AttackBranchUI* GetAttackBranchUI() { return attackBranchUI_.get(); }
-
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
@@ -144,6 +138,9 @@ public:
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 private:
+	// Ground/Enemyコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
+	void ResolveGroundCollision(BaseCollider* other);
+
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
 	std::unique_ptr<PlayerCombat> combat_ = nullptr;
@@ -151,8 +148,6 @@ private:
 	PlayerInput* input_ = nullptr;
 
 	LockOnSystem* lockOn_ = nullptr;
-
-	GlobalVariables* gv = &GlobalVariables::GetInstance(); ///< グローバル変数管理
 
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
@@ -166,12 +161,8 @@ private:
 	std::unique_ptr<PlayerWeapon> weapon_; ///< 武器クラス
 	// 接地判定フラグ
 	bool onGround_ = false;
-	// ロックオン時のレティクル
-	//Sprite* reticle_;
 	// HPのハートのスプライト
 	std::vector<Sprite*> hearts_;
-	// 1フレームの移動距離を保持
-	Vector3 moveVector_;
 	// 移動速度
 	const float moveSpeed_ = 10.0f;
 	// 回転速度

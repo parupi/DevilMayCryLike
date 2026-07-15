@@ -26,12 +26,10 @@ private:
 	Sprite* rightArrow_ = nullptr;
 	Sprite* leftArrow_ = nullptr;
 
-	Sprite* musk_ = nullptr;
-
 	MenuStates states_ = MenuStates::SetUp;
 
 	float alpha_ = 0.0f;
-	float muskAlpha_ = 0.0f;
+	float maskAlpha_ = 0.0f;
 
 	float currentY_ = 300.0f;
 	float arrowTargetY_ = 300.0f;

@@ -30,7 +30,7 @@ public:
 	// 初期化
 	void Initialize(ParticleManager* particleManager, const std::string& name, const std::string& dataName = "");
 	// 更新
-	void Update(Vector3 position = { 0.0f, 0.0f, 0.0f });
+	void Update();
 	// 発生
 	void Emit();
 	// パーティクルを追加

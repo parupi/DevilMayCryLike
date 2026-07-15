@@ -8,7 +8,7 @@ class Material;
 class BaseModel
 {
 public:
-	//virtual ~BaseModel() = default;
+	virtual ~BaseModel() = default;
 	virtual void Update(const Vector3& objectScale) = 0;
 	virtual void Draw() = 0;
 	virtual void DrawGBuffer() = 0;

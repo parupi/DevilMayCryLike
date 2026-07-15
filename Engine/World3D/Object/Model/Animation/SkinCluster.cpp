@@ -1,6 +1,5 @@
 #include "SkinCluster.h"
 #include "Graphics/Device/DirectXManager.h"
-//#include "base/SrvManager.h"
 #include "Graphics/Resource/ResourceManager.h"
 
 SkinCluster::~SkinCluster()

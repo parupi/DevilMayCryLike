@@ -34,7 +34,6 @@ void Audio::SetBGMVolume(int resourceNum, float volume) {
 }
 
 void Audio::SoundLoadWave(const char* filename) {
-	//HRESULT result;
 	if (soundDataMap.count(filename)) {
 		// キーが存在する場合、処理を中断
 		return;
@@ -115,9 +114,6 @@ void Audio::SoundLoadWave(const char* filename) {
 	soundData.playSoundLength = data.size / format.fmt.nBlockAlign;
 
 	soundDataMap[filename] = std::move(soundData);
-
-	// 読み込んだ音声データをreturn
-	//return soundData;
 }
 
 void Audio::SoundUnload(const char* filename) {

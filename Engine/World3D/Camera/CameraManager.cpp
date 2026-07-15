@@ -40,10 +40,6 @@ void CameraManager::AddCamera(std::unique_ptr<BaseCamera> camera)
 
 void CameraManager::Update()
 {
-	//for (auto& cam : cameras_) {
-	//	cam.second->Update();
-	//}
-
 	BaseCamera* camera = nullptr;
 
 	if (isTransitioning_) {

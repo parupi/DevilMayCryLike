@@ -3,6 +3,7 @@
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
 #include <World3D/Collider/AABBCollider.h>
+#include <World3D/Collider/OBBCollider.h>
 #include <World3D/Collider/CollisionManager.h>
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
@@ -25,9 +26,8 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 
 void BossKnight::Initialize() {
 	// ── 自コライダーの調整 ──
-	auto* col = static_cast<AABBCollider*>(GetCollider(name_));
-	col->GetColliderData().offsetMax *= 0.65f;
-	col->GetColliderData().offsetMin *= 0.65f;
+	auto* col = static_cast<OBBCollider*>(GetCollider(name_));
+	col->GetColliderData().halfExtents *= 0.65f;
 
 	// ── 武器の生成 ──
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));

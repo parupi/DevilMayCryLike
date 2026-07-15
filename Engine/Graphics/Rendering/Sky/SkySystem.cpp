@@ -63,7 +63,6 @@ void SkySystem::Draw()
   
 	commandList->IASetIndexBuffer(&indexBufferView_);
 
-	//commandList->SetGraphicsRootConstantBufferView(1, transform_->GetConstBuffer()->GetGPUVirtualAddress());
 	transform_->BindToShader(commandList, 1);
 	// SRV（キューブマップ）バインド
 	material_->Bind(2);

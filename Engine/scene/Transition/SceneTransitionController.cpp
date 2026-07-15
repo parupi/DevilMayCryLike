@@ -1,7 +1,6 @@
 ﻿#include "SceneTransitionController.h"
 #include "Scene/Transition/TransitionManager.h"
 #include <Scene/SceneManager.h>
-#include <Graphics/Rendering/Sprite/SpriteManager.h>
 
 
 SceneTransitionController& SceneTransitionController::GetInstance()
@@ -49,12 +48,6 @@ void SceneTransitionController::Update()
         break;
     }
 
-}
-
-void SceneTransitionController::Draw()
-{
-    SpriteManager::GetInstance().DrawSet(BlendMode::kNormal);
-    TransitionManager::GetInstance().Draw();
 }
 
 void SceneTransitionController::Finalize()

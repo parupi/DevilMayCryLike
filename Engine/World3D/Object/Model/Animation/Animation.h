@@ -8,8 +8,6 @@
 #include <optional>
 #include "World3D/Object/Model/ModelStructs.h"
 
-//#include <Skeleton.h>
-
 class SkinnedModel;
 class Skeleton;
 

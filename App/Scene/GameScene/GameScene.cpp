@@ -23,6 +23,7 @@
 #include "State/GameSceneStateClear.h"
 #include <GameObject/Character/Enemy/Enemy.h>
 #include "World3D/Object/Object3dManager.h"
+#include "Input/Input.h"
 
 void GameScene::Initialize() {
 	// ステートの生成
@@ -48,7 +49,6 @@ void GameScene::Initialize() {
 
 	// カメラの生成
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
-	clearCamera_ = clearCamera.get();
 	cameraManager_->AddCamera(std::move(clearCamera));
 
 	ModelManager::GetInstance().LoadModel("PlayerBody");
@@ -118,9 +118,9 @@ void GameScene::Initialize() {
 	gameUI_ = std::make_unique<GameUI>();
 	gameUI_->Initialize();
 
-	musk_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "menuMusk", "white.png");
-	musk_->SetSize({ 1280.0f, 720.0f });
-	musk_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
+	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "menuMask", "white.png");
+	mask_->SetSize({ 1280.0f, 720.0f });
+	mask_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
 
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
@@ -150,10 +150,8 @@ void GameScene::Update()
 		currentState_->Update(*this);
 	}
 
-	musk_->SetColor({ 0.0f, 0.0f, 0.0f, muskAlpha_ });
-	musk_->Update();
-
-	//deathText_->Update();
+	mask_->SetColor({ 0.0f, 0.0f, 0.0f, maskAlpha_ });
+	mask_->Update();
 
 	menuUI_->Update();
 
@@ -185,8 +183,6 @@ void GameScene::Draw() {
 	// 全パーティクルの描画
 	ParticleManager::GetInstance().Draw();
 }
-
-void GameScene::DrawRTV() {}
 
 #ifdef _DEBUG
 void GameScene::DebugUpdate() {

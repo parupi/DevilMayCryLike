@@ -1,6 +1,5 @@
 #pragma once
 #include "World3D/Object/Object3d.h"
-#include <Graphics/Rendering/Particle/ParticleEmitter.h>
 class Ground : public Object3d
 {
 public:
@@ -16,9 +15,5 @@ public:
 #ifdef _DEBUG
 	void DebugGui() override;
 #endif // _DEBUG
-
-private:
-	std::unique_ptr<ParticleEmitter> smokeEmitter_;
-	std::unique_ptr<ParticleEmitter> circleEmitter_;
 };
 

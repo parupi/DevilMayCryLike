@@ -43,7 +43,6 @@ public:
 private:
 	void CalculateCascadeSplits();
 	void CalculateLightMatrices();
-	void GetFrustumCornersViewSpace(float fovY, float aspect, float nearZ, float farZ, Vector3 outCorners[8]);
 	void CreateDSV();
 
 	struct LightVPConstants
@@ -76,7 +75,6 @@ private:
 	std::array<CascadeData, kCascadeCount> cascades_;
 
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kCascadeCount> shadowMaps_;
-	//std::array<D3D12_CPU_DESCRIPTOR_HANDLE, kCascadeCount> dsvHandles_;
 
 	std::array<Microsoft::WRL::ComPtr<ID3D12Resource>, kCascadeCount> lightVPBuffers_;
 	std::array<uint32_t, kCascadeCount> lightVPIndex_;

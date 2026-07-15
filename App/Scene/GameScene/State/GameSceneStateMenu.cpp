@@ -15,14 +15,14 @@ void GameSceneStateMenu::Update(GameScene& scene)
 {
 	scene.SetSceneTime(0.0f);
 
-	float muskAlpha = scene.GetMuskAlpha();
+	float maskAlpha = scene.GetMaskAlpha();
 
 	switch (menuState_) {
 	case MenuState::Enter:
-		muskAlpha += DeltaTime::GetDeltaTime() * 1.5f;
+		maskAlpha += DeltaTime::GetDeltaTime() * 1.5f;
 
-		if (muskAlpha >= 0.8f) {
-			muskAlpha = 0.8f;
+		if (maskAlpha >= 0.8f) {
+			maskAlpha = 0.8f;
 			scene.GetMenuUI()->Enter();
 			menuState_ = MenuState::Normal;
 		}
@@ -33,7 +33,7 @@ void GameSceneStateMenu::Update(GameScene& scene)
 		}
 		break;
 	}
-	scene.SetMuskAlpha(muskAlpha);
+	scene.SetMaskAlpha(maskAlpha);
 }
 
 void GameSceneStateMenu::Exit(GameScene& scene)

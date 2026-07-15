@@ -1,6 +1,5 @@
 #include "RendererManager.h"
 #include "World3D/Object/Model/BaseModel.h"
-//#include "Graphics/Rendering/RenderPath/Impl/GBufferManager.h"
 
 RendererManager& RendererManager::GetInstance() {
 	static RendererManager instance;
@@ -22,10 +21,6 @@ void RendererManager::Finalize() {
 }
 
 void RendererManager::Update() {
-
-}
-
-void RendererManager::RenderGBufferPass() {
 
 }
 

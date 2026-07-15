@@ -22,8 +22,7 @@ public:
 	/// スコアを加算する
 	/// </summary>
 	/// <param name="scoreNum">加算するスコア値</param>
-	/// <param name="attackName">スコアを発生させた攻撃名（任意）</param>
-	void AddScore(int32_t scoreNum, std::string attackName = "");
+	void AddScore(int32_t scoreNum);
 
 	/// <summary>
 	/// プレイヤーがダメージを受けた際の処理

@@ -21,7 +21,7 @@ void LightingRenderPass::Execute()
 	commandCtx->TransitionResource(sharedRT_.depthBuffer,
 		D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-	lightingPath_->Begin(sharedRT_.rtvIndex, 0);
+	lightingPath_->Begin(sharedRT_.rtvIndex);
 
 	ctx_.lightManager->GetCSM()->BindSrv();
 	ctx_.lightManager->GetCSM()->BindCascadeCB(5);

@@ -27,7 +27,7 @@ void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::st
 	}
 }
 
-void ParticleEmitter::Update(Vector3)
+void ParticleEmitter::Update()
 {
 	emitter.isActive = GlobalVariables::GetInstance().GetValueRef<bool>(emitter.name, "IsActive");
 
@@ -185,8 +185,6 @@ void ParticleEmitter::Load(const std::string& path)
 			emitter.transform.scale.y = t["Scale"][1];
 			emitter.transform.scale.z = t["Scale"][2];
 		}
-
-		//emitter.transform.TransferMatrix(particleManager_->GetCamera());
 	}
 
 	// ===== Particles =====

@@ -29,5 +29,4 @@ public:
 	OBBData& GetColliderData() { return obbData_; }
 
 private:
-	BaseCamera* camera_ = CameraManager::GetInstance().GetActiveCamera();
 };

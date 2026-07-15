@@ -2,9 +2,10 @@
 #include "SceneBuilder.h"
 #include "World3D/Object/Object3d.h"
 #include "World3D/WorldTransform.h"
-#include "World3D/Collider/AABBCollider.h"
 #include "World3D/Collider/SphereCollider.h"
+#include "World3D/Collider/OBBCollider.h"
 #include "World3D/Collider/CollisionManager.h"
+#include "Math/Quaternion.h"
 #include "Scene/Object3dFactory.h"
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Event/EventManager.h"
@@ -26,6 +27,11 @@ void SceneBuilder::ApplyTransform(WorldTransform* transform, const EulerTransfor
 	std::swap(translate.y, translate.z);
 	transform->GetTranslation() = translate;
 
+	// 度数法, Blenderのローカルオイラー角(XYZ順)
+	Vector3 rotate = src.rotate;
+	std::swap(rotate.y, rotate.z);
+	transform->GetRotation() = EulerDegree(rotate);
+
 	Vector3 scale = src.scale;
 	std::swap(scale.y, scale.z);
 	transform->GetScale() = scale;
@@ -35,10 +41,24 @@ void SceneBuilder::ApplyCollider(Object3d* object, const std::string& name, cons
 	const Vector3 scale = object->GetWorldTransform()->GetScale();
 
 	if (col.type == ColliderType::AABB) {
-		auto collider = std::make_unique<AABBCollider>(name);
-		AABBData data = col.aabb;
-		data.offsetMin *= scale * 2.0f;
-		data.offsetMax *= scale * 2.0f;
+		// Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
+		// offsetMin/offsetMaxはSceneLoaderで既にローカル空間での真の最小/最大コーナーとして計算済み。
+		// スケールはOBBCollider::Update()がオーナーのWorldTransformから自動で適用するため、ここでは掛けない。
+		Vector3 offsetMin = col.aabb.offsetMin;
+		std::swap(offsetMin.y, offsetMin.z);
+		Vector3 offsetMax = col.aabb.offsetMax;
+		std::swap(offsetMax.y, offsetMax.z);
+
+		// Blenderの collider_size 単位とエンジン側で期待するコライダー単位に2倍のズレがあるため補正
+		offsetMin *= 2.0f;
+		offsetMax *= 2.0f;
+
+		// 回転しても正しく機能するようOBBコライダーとして生成する
+		auto collider = std::make_unique<OBBCollider>(name);
+		OBBData data;
+		data.offset = (offsetMin + offsetMax) * 0.5f;
+		data.halfExtents = (offsetMax - offsetMin) * 0.5f;
+		data.isActive = col.aabb.isActive;
 		collider->GetColliderData() = data;
 		BaseCollider* ptr = collider.get();
 		CollisionManager::GetInstance().AddCollider(std::move(collider));
@@ -47,6 +67,7 @@ void SceneBuilder::ApplyCollider(Object3d* object, const std::string& name, cons
 	} else if (col.type == ColliderType::Sphere) {
 		auto collider = std::make_unique<SphereCollider>(name);
 		SphereData data = col.sphere;
+		std::swap(data.offset.y, data.offset.z);
 		data.offset *= scale;
 		collider->GetColliderData() = data;
 		BaseCollider* ptr = collider.get();

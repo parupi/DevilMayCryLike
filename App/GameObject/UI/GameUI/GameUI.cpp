@@ -22,15 +22,6 @@ void GameUI::Initialize()
 
 void GameUI::Update()
 {
-	//Vector2 spritePos = attackUI_->GetPosition();
-	//Vector2 spriteSize = attackUI_->GetSize();
-	//ImGui::Begin("Sprite");;
-	//ImGui::DragFloat2("pos", &spritePos.x);
-	//ImGui::DragFloat2("size", &spriteSize.x);
-	//ImGui::End();
-	//attackUI_->SetPosition(spritePos);
-	//attackUI_->SetSize(spriteSize);
-
 	attackUI_->Update();
 	jumpUI_->Update();
 	lockOnUI_->Update();

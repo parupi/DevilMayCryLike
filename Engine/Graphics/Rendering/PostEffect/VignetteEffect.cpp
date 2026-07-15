@@ -56,7 +56,7 @@ void VignetteEffect::CreateEffectResource()
 {
 	auto* resourceManager = dxManager_->GetResourceManager();
 	// ヴィネット用のリソースを作る
-	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(VignetteEffectData), L"GaussianEffect");
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(VignetteEffectData), L"VignetteEffect");
 	// 書き込むためのアドレスを取得
 	effectDataPtr_ = reinterpret_cast<VignetteEffectData*>(resourceManager->Map(effectHandle_));
 	// 初期値を設定

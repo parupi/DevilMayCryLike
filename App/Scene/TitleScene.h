@@ -47,12 +47,6 @@ public:
 	/// </summary>
 	void Draw() override;
 
-	/// <summary>
-	/// RTVへの描画処理  
-	/// シーンレンダリング結果をRender Target Viewに出力する。
-	/// </summary>
-	void DrawRTV() override;
-
 #ifdef _DEBUG
 	/// <summary>
 	/// デバッグ用更新処理  
@@ -83,6 +77,5 @@ private:
 	// ライト・遷移・UI
 	// ==========================
 	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
-	SceneTransitionController* controller = &SceneTransitionController::GetInstance(); ///< シーン遷移コントローラ
 	std::unique_ptr<TitleUI> titleUI_ = nullptr; ///< タイトル画面のUI要素管理
 };

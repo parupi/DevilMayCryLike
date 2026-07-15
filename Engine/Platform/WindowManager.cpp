@@ -6,10 +6,10 @@
 #pragma comment(lib, "winmm.lib")
 
 #ifdef _DEBUG
-extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPatam);
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 #endif // IMGUI
 
-// ウィンドウプロシ―ジャ
+// ウィンドウプロシージャ
 LRESULT CALLBACK WindowManager::WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
 #ifdef _DEBUG
@@ -74,7 +74,7 @@ void WindowManager::Initialize()
 	// ウィンドウを表示する
 	ShowWindow(hwnd_, SW_SHOW);
 
-	// システムタイマーの制度を上げる
+	// システムタイマーの精度を上げる
 	timeBeginPeriod(1);
 }
 

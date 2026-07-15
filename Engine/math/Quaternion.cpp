@@ -225,10 +225,8 @@ Quaternion QuaternionFromMatrix(const Matrix4x4& m)
 
 Quaternion FromToRotation(const Vector3& from, const Vector3& to)
 {
-    Vector3 f = from;
-    Vector3 t = to;
-    Normalize(f);
-    Normalize(t);
+    Vector3 f = Normalize(from);
+    Vector3 t = Normalize(to);
 
     float dot = Dot(f, t);
 
@@ -244,7 +242,7 @@ Quaternion FromToRotation(const Vector3& from, const Vector3& to)
         if (Length(axis) < 0.0001f) {
             axis = Cross(Vector3(0.0f, 1.0f, 0.0f), f);
         }
-        Normalize(axis);
+        axis = Normalize(axis);
         return MakeRotateAxisAngleQuaternion(axis, static_cast<float>(std::numbers::pi));
     }
 

@@ -37,7 +37,6 @@ private:
 	std::vector<std::unique_ptr<Material>> materials_;
 	std::unique_ptr<Animation> animation_;
 	std::unique_ptr<Skeleton> skeleton_;
-	//std::vector<std::unique_ptr<SkinCluster>> skinClusters_;
 
 	ModelLoader* modelLoader_ = nullptr;
 

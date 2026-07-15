@@ -1,5 +1,4 @@
 #include "MenuChoices.h"
-#include <imgui.h>
 #include <cmath>
 #include <Utility/DeltaTime.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"

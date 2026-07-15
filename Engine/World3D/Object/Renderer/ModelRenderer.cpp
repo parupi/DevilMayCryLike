@@ -27,7 +27,6 @@ void ModelRenderer::Update(WorldTransform* parentTransform) {
 }
 
 void ModelRenderer::Draw() {
-	//RendererManager::GetInstance().GetDxManager()->GetCommandList()->SetGraphicsRootConstantBufferView(1, localTransform_->GetConstBuffer()->GetGPUVirtualAddress());
 	localTransform_->BindToShader(RendererManager::GetInstance().GetDxManager()->GetCommandList(), 4);
 	// 環境マップバインド
 	int envMapIndex = SkySystem::GetInstance().GetEnvironmentMapIndex();
