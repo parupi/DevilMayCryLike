@@ -9,11 +9,6 @@ void Tutorial::Initialize(const std::string& name) {
 	tutorialImage->GetSprite()->SetAnchorPoint({0.5f, 0.5f});
 	tutorialImage->GetSprite()->SetPosition({400.0f, 300.0f});
 	tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
-	//// スプライトの生成と初期設定
-	//tutorialText = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialText", "Tutorial/" + name + ".png");
-	//tutorialText->SetAnchorPoint({0.5f, 0.5f});
-	//tutorialText->SetPosition({400.0f, 400.0f});
-	//tutorialText->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
 }
 
 void Tutorial::Update() {
@@ -35,7 +30,6 @@ void Tutorial::Update() {
 
 		// スプライトのカラーにアルファ値を適用
 		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		//tutorialText->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	}
 	break;
 	case State::Active:
@@ -55,13 +49,11 @@ void Tutorial::Update() {
 
 		// スプライトのカラーにアルファ値を適用
 		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
-		//tutorialText->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	}
 	break;
 	}
 
 	tutorialImage->Update();
-	//tutorialText->Update();
 }
 
 void Tutorial::Start() {

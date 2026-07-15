@@ -42,11 +42,6 @@ public:
 
 private:
 
-	// タイトルのUI群
-	Sprite* titleWord_;
-	Sprite* titleUnder_;
-	Sprite* titleUp_;
-
 	// セレクトのUI群
 	std::array<Sprite*, 2> selectArrows_;
 	Sprite* gameStart_;

@@ -6,17 +6,6 @@ Material::Material() {
 }
 
 Material::~Material() {
-	//if (directXManager_) {
-	//	auto* resourceManager = directXManager_->GetResourceManager();
-	//	if (materialHandle_ != kInvalidBufferHandle) {
-	//		resourceManager->ReleaseBuffer(materialHandle_);
-	//		materialHandle_ = kInvalidBufferHandle;
-	//	}
-	//	if (materialGBufferHandle_ != kInvalidBufferHandle) {
-	//		resourceManager->ReleaseBuffer(materialGBufferHandle_);
-	//		materialGBufferHandle_ = kInvalidBufferHandle;
-	//	}
-	//}
 }
 
 void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager, MaterialData materialData) {
@@ -111,14 +100,6 @@ void Material::CreateMaterialResource() {
 	materialForGPU_->uvTransform = MakeIdentity4x4();
 	materialForGPU_->shininess = 50.0f;
 	materialForGPU_->environmentIntensity = 0.01f;
-
-	// MaterialData から反映
-	//materialForGPU_->color.x = materialData_.Kd.r;                 // 拡散反射色を使用
-	//materialForGPU_->color.y = materialData_.Kd.g;                 // 拡散反射色を使用
-	//materialForGPU_->color.z = materialData_.Kd.r;                 // 拡散反射色を使用
-	//materialForGPU_->enableLighting = true;
-	//materialForGPU_->uvTransform = MakeIdentity4x4();
-	//materialForGPU_->shininess = materialData_.Ns;             // 鏡面反射強度を反映
 }
 
 void Material::CreateGBufferMaterialResource() {

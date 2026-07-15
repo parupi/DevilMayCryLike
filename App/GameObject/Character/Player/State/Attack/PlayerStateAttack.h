@@ -51,9 +51,7 @@ private:
 	void UpdateActive(Player& player);
 	// 後隙状態の更新
 	void UpdateRecovery(Player& player);
-	// 入力受付状態の更新
-	AttackRequestData UpdateCancel(Player& player);
-	
+
 	TimeData stateTime_{};
 
 	enum class AttackPhase {
@@ -69,11 +67,9 @@ private:
 	// 派生先を管理するためのタイマー
 	TimeData attackChangeTimer_{};
 
-	//std::vector<AttackBranch> branches_;   // 派生定義（UI & 判定共通）
 	bool isFinish_ = false;
 	// 先行入力バッファ
 	bool hasPendingBuffer_ = false;
-	PlayerCommand bufferedCommand_{};
 	AttackRequestData pendingRequest_{};
 };
 

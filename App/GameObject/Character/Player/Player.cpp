@@ -22,7 +22,7 @@
 
 #include "Input/Input.h"
 
-Player::Player(std::string objectNama) : Object3d(objectNama) {
+Player::Player(std::string objectName) : Object3d(objectName) {
 	Object3d::Initialize();
 
 	// レンダラーの生成
@@ -51,7 +51,6 @@ void Player::Initialize() {
 
 	GetCollider(name_)->category_ = CollisionCategory::Player;
 	static_cast<OBBCollider*>(GetCollider(name_))->GetColliderData().halfExtents *= 0.5f;
-	//static_cast<AABBCollider*>(GetCollider(name_))->transform_->GetTranslation().y += 0.1f;
 	// 武器のレンダラー生成
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
@@ -165,10 +164,6 @@ void Player::DebugGui() {
 	ImGui::Begin("Player");
 	Object3d::DebugGui();
 	ImGui::End();
-
-	//ImGui::Begin("Weapon");
-	//weapon_->DebugGui();
-	//ImGui::End();
 }
 
 #endif // _DEBUG

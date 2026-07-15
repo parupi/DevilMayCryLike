@@ -19,6 +19,6 @@ void InputContext::Update() {
 		lockOnInput_->Update();
 	}
 	if (canCameraMove_) {
-		cameraInput_->Updata();
+		cameraInput_->Update();
 	}
 }

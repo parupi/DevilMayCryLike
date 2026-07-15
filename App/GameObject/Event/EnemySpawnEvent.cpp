@@ -25,7 +25,6 @@ void EnemySpawnEvent::Update(float deltaTime) {
 void EnemySpawnEvent::Execute() {
 	isTriggered_ = true;
 	for (auto& enemy : enemies_) {
-		//enemy->SetActive(true);
 		enemy->Spawn();
 	}
 }

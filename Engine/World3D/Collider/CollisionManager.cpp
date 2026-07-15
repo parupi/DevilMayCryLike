@@ -218,9 +218,9 @@ bool CollisionManager::CheckSphereToSphereCollision(SphereCollider* a, SphereCol
     // コライダーがどちらもactiveになってるか確認
     if (!a->GetColliderData().isActive || !b->GetColliderData().isActive) return false;
 
-    float distSq = Length(a->GetCenter() - b->GetCenter());
+    float dist = Length(a->GetCenter() - b->GetCenter());
     float radiusSum = a->GetRadius() + b->GetRadius();
-    return distSq <= (radiusSum * radiusSum);
+    return dist <= radiusSum;
 }
 
 bool CollisionManager::CheckOBBToOBBCollision(OBBCollider* a, OBBCollider* b)

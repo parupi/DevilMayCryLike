@@ -163,7 +163,11 @@ Vector3 Min(const Vector3& a, const Vector3& b)
     };
 }
 
-Vector3 Max(const Vector3&, const Vector3&)
+Vector3 Max(const Vector3& a, const Vector3& b)
 {
-    return Vector3();
+    return {
+    std::max(a.x, b.x),
+    std::max(a.y, b.y),
+    std::max(a.z, b.z)
+    };
 }

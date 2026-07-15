@@ -15,7 +15,6 @@ public:
 	void Update() override;
 	// 描画
 	void Draw() override;
-	void DrawRTV() override;
 
 #ifdef _DEBUG
 	void DebugUpdate() override;

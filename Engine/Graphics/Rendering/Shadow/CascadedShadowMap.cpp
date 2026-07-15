@@ -213,27 +213,6 @@ void CascadedShadowMap::CalculateLightMatrices() {
 	}
 }
 
-void CascadedShadowMap::GetFrustumCornersViewSpace(float fovY, float aspect, float nearZ, float farZ, Vector3 outCorners[8]) {
-	float tanFov = tanf(fovY * 0.5f);
-
-	float nearH = nearZ * tanFov;
-	float nearW = nearH * aspect;
-	float farH = farZ * tanFov;
-	float farW = farH * aspect;
-
-	// Near
-	outCorners[0] = { -nearW,  nearH, nearZ };
-	outCorners[1] = { nearW,  nearH, nearZ };
-	outCorners[2] = { nearW, -nearH, nearZ };
-	outCorners[3] = { -nearW, -nearH, nearZ };
-
-	// Far
-	outCorners[4] = { -farW,  farH, farZ };
-	outCorners[5] = { farW,  farH, farZ };
-	outCorners[6] = { farW, -farH, farZ };
-	outCorners[7] = { -farW, -farH, farZ };
-}
-
 void CascadedShadowMap::CreateDSV() {
 	for (uint32_t i = 0; i < kCascadeCount; ++i) {
 		GpuResourceFactory::TextureDesc desc{};

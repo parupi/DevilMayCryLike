@@ -29,36 +29,3 @@ float easeInOutElastic(float x);
 float easeOutBounce(float x);
 float easeInBounce(float x);
 float easeInOutBounce(float x);
-enum easename {
-	InSine,
-	OutSine,
-	InOutSine,
-	InQuad,
-	OutQuad,
-	InOutQuad,
-	InCubic,
-	OutCubic,
-	InOutCubic,
-	InQuart,
-	OutQuart,
-	InOutQuart,
-	InQuint,
-	OutQuint,
-	InOutQuint,
-	InExpo,
-	OutExpo,
-	InOutExpo,
-	InCirc,
-	OutCirc,
-	InOutCirc,
-	InBack,
-	OutBack,
-	InOutBack,
-	InElastic,
-	OutElastic,
-	InOutElastic,
-	InBounce,
-	OutBounce,
-	InOutBounce,
-};
-void Easeing(easename EaseName, float& PlayerPos, const float& StartPos, const float& EndPos, float& x);

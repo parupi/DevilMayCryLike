@@ -39,9 +39,6 @@ void Input::Initialize() {
 	devMouse_->SetDataFormat(&c_dfDIMouse2);
 	devMouse_->SetCooperativeLevel(hwnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE);
 	devMouse_->Acquire();
-
-	// ジョイスティックの初期化
-	SetupJoysticks();
 }
 
 void Input::Finalize() {
@@ -53,18 +50,7 @@ void Input::Finalize() {
 		devMouse_->Unacquire();
 		devMouse_.Reset();
 	}
-	for (auto& joy : devJoysticks_) {
-		if (joy.device_) {
-			joy.device_->Unacquire();
-		}
-	}
-	devJoysticks_.clear();
 	dInput_.Reset();
-}
-
-// ジョイスティックのセットアップ
-void Input::SetupJoysticks() {
-	dInput_->EnumDevices(DI8DEVCLASS_GAMECTRL, EnumJoysticksCallback, this, DIEDFL_ATTACHEDONLY);
 }
 
 float Input::ProcessDeadZone(float value) const {
@@ -97,20 +83,6 @@ void Input::Update() {
 	if (dwResult != ERROR_SUCCESS) {
 		ZeroMemory(&gamepadStates, sizeof(XINPUT_STATE));
 	}
-
-	//// ジョイスティック状態の更新
-	//for (auto& joystick : devJoysticks_) {
-	//    joystick.statePre_ = joystick.state_;
-
-	//    if (joystick.type_ == PadType::XInput) {
-	//        XInputGetState(0, &joystick.state_.xInput_);
-	//    }
-	//    else {
-	//        joystick.device_->Poll();
-	//        joystick.device_->GetDeviceState(sizeof(DIJOYSTATE2), &joystick.state_.directInput_);
-	//    }
-	//}
-
 }
 
 // キーが押されているかのチェック
@@ -154,45 +126,6 @@ const Vector2& Input::GetMousePosition() const {
 	return mousePosition_;
 }
 
-// ジョイスティック状態の取得 (DirectInput)
-bool Input::GetJoystickState(int32_t stickNo, DIJOYSTATE2& out) const {
-	if (stickNo >= devJoysticks_.size()) return false;
-	out = devJoysticks_[stickNo].state_.directInput_;
-	return true;
-}
-
-// 前回のジョイスティック状態の取得 (DirectInput)
-bool Input::GetJoystickStatePrevious(int32_t stickNo, DIJOYSTATE2& out) const {
-	if (stickNo >= devJoysticks_.size()) return false;
-	out = devJoysticks_[stickNo].statePre_.directInput_;
-	return true;
-}
-
-// ジョイスティック状態の取得 (XInput)
-bool Input::GetJoystickState(int32_t stickNo, XINPUT_STATE& out) const {
-	if (stickNo >= devJoysticks_.size()) return false;
-	out = devJoysticks_[stickNo].state_.xInput_;
-	return true;
-}
-
-// 前回のジョイスティック状態の取得 (XInput)
-bool Input::GetJoystickStatePrevious(int32_t stickNo, XINPUT_STATE& out) const {
-	if (stickNo >= devJoysticks_.size()) return false;
-	out = devJoysticks_[stickNo].statePre_.xInput_;
-	return true;
-}
-
-// ジョイスティックのデッドゾーン設定
-void Input::SetJoystickDeadZone(int32_t stickNo, int32_t deadZoneL, int32_t deadZoneR) {
-	if (stickNo >= devJoysticks_.size()) return;
-	devJoysticks_[stickNo].deadZoneL_ = deadZoneL;
-	devJoysticks_[stickNo].deadZoneR_ = deadZoneR;
-}
-
-// 接続されているジョイスティックの数を取得
-size_t Input::GetNumberOfJoysticks() {
-	return devJoysticks_.size();
-}
 bool Input::IsXInputAPressed(int32_t stickNo) const {
 	XINPUT_STATE state{};
 	if (XInputGetState(stickNo, &state) == ERROR_SUCCESS) {
@@ -262,24 +195,4 @@ float Input::GetRightStickX() const {
 float Input::GetRightStickY() const {
 	float rawValue = gamepadStates.Gamepad.sThumbRY / 32767.0f;
 	return ProcessDeadZone(rawValue);
-}
-
-
-// ジョイスティック列挙のコールバック
-BOOL CALLBACK Input::EnumJoysticksCallback(const DIDEVICEINSTANCE* pdidInstance, VOID* pContext) noexcept {
-	auto input = static_cast<Input*>(pContext);
-	Microsoft::WRL::ComPtr<IDirectInputDevice8> joystick;
-
-	// ジョイスティックデバイスを作成
-	if (FAILED(input->dInput_->CreateDevice(pdidInstance->guidInstance, &joystick, nullptr))) {
-		return DIENUM_CONTINUE;
-	}
-
-	// デバイスをリストに追加
-	Joystick newJoystick = {};
-	newJoystick.device_ = joystick;
-	newJoystick.type_ = PadType::DirectInput;
-	input->devJoysticks_.push_back(newJoystick);
-
-	return DIENUM_CONTINUE;
 }

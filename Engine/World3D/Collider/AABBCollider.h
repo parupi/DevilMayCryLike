@@ -24,8 +24,6 @@ public:
 	AABBData& GetColliderData() { return aabbData_; }
 
 private:
-	BaseCamera* camera_ = CameraManager::GetInstance().GetActiveCamera();
-
 	Vector3 max_;
 	Vector3 min_;
 

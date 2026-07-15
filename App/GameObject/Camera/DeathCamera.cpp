@@ -12,7 +12,6 @@ DeathCamera::DeathCamera(const std::string& cameraName, BaseCamera* sourceCamera
     GetRotate() = sourceCamera->GetRotate();
 
     basePos_ = GetTranslate();
-    baseLookAt_ = player_->GetWorldTransform()->GetTranslation();
 
     // 乱数エンジン初期化
     randomEngine_ = std::mt19937(seedGenerator_());

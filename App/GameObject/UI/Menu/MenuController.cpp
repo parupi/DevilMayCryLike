@@ -1,5 +1,4 @@
 #include "MenuController.h"
-#include <imgui.h>
 #include <Input/Input.h>
 #include <Utility/DeltaTime.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
@@ -21,7 +20,7 @@ void MenuController::Initialize() {
 void MenuController::Enter() {
 	states_ = MenuStates::Enter;
 	alpha_ = 0.0f;
-	muskAlpha_ = 0.0f;
+	maskAlpha_ = 0.0f;
 	currentY_ = 300.0f;
 	arrowTargetY_ = 300.0f;
 }
@@ -107,17 +106,17 @@ void MenuController::Update() {
 		break;
 
 	case MenuStates::Decision:
-		muskAlpha_ += DeltaTime::GetDeltaTime() * 3.0f;
-		if (muskAlpha_ > 1.0f) {
-			muskAlpha_ = 1.0f;
+		maskAlpha_ += DeltaTime::GetDeltaTime() * 3.0f;
+		if (maskAlpha_ > 1.0f) {
+			maskAlpha_ = 1.0f;
 			states_ = MenuStates::SetUp;
 		}
 		break;
 
 	case MenuStates::Exit:
-		muskAlpha_ += DeltaTime::GetDeltaTime();
-		if (muskAlpha_ > 0.1f) {
-			muskAlpha_ = 0.1f;
+		maskAlpha_ += DeltaTime::GetDeltaTime();
+		if (maskAlpha_ > 0.1f) {
+			maskAlpha_ = 0.1f;
 		}
 
 		alpha_ -= DeltaTime::GetDeltaTime() * 1.5f;

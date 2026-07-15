@@ -21,9 +21,6 @@ void ImGuiManager::Initialize(WindowManager* winManager, DirectXManager* directX
 	// ImGuiのコンテキストを生成
 	ImGui::CreateContext();
 
-	//ImGuiIO& io = ImGui::GetIO();
-	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
 	// ImGuiのスタイルを設定
 	ImGui::StyleColorsDark();
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "BaseOffscreen.h"
+#include "BaseOffScreen.h"
 #include <Math/Vector2.h>
 class GaussianEffect : public BaseOffScreen
 {
@@ -25,7 +25,6 @@ private:
 		Vector2 uvClampMax;     // UV Clamp最大値（例：1.0f, 1.0f）
 	};
 
-	//Microsoft::WRL::ComPtr<ID3D12Resource> effectResource_ = nullptr;
 	uint32_t effectHandle_ = 0;
 	GaussianEffectData* effectData_ = nullptr;
 };

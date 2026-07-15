@@ -15,7 +15,7 @@ void EnemyStateKnockBack::Enter(Enemy& enemy) {
 	case ReactionType::HitStun:
 		stunTimer_ = info.stunTime;
 		velocity_ *= 0.25f;
-		tiltAmount_ = 15.0f;
+		targetTilt_ = 15.0f;
 		break;
 
 	case ReactionType::Knockback:

@@ -20,7 +20,7 @@ public:
 	// 初期化
 	void Initialize(Input* input);
 	// 入力の更新
-	void Updata();
+	void Update();
 	// スティックの方向を取得
 	const Vector2& GetStickDirection() const { return context_.stickDirection; }
 	// スティックの傾きの大きさを取得

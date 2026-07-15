@@ -34,7 +34,7 @@ class MYADDON_OT_add_object(bpy.types.Operator):
     ) # type: ignore
 
     def execute(self, context):
-        model_base_dir = r"C:\Program Files\Blender Foundation\Blender 4.5\4.5\scripts\addons_core\level_editor\models"
+        model_base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
 
         new_obj = None
 

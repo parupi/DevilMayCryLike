@@ -1,6 +1,6 @@
 ﻿#include "ClearEvent.h"
 #include <Scene/Transition/TransitionManager.h>
-#include <Utility/DeltaTime.h>
+#include <World3D/Camera/CameraManager.h>
 
 ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear) {
 	Object3d::Initialize();

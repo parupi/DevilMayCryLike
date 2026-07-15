@@ -45,7 +45,7 @@ void AABBCollider::DrawDebug()
     };
 
     PrimitiveLineDrawer* drawer = &PrimitiveLineDrawer::GetInstance();
-    Vector4 color = { 0.0f, 1.0f, 0.0f, 1.0f }; // 黄色
+    Vector4 color = { 0.0f, 1.0f, 0.0f, 1.0f }; // 緑
 
     // 底面
     drawer->DrawLine(p[0], p[1], color);

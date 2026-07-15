@@ -40,13 +40,6 @@ void StageStart::Initialize()
 
 void StageStart::Complete()
 {
-	//static const std::string kCameraNames[] = {
-	//	"StartCamera1", "StartCamera2", "StartCamera3",
-	//	"StartCamera4", "StartCamera5", "StartCamera6",
-	//};
-	//for (const auto& name : kCameraNames) {
-	//	CameraManager::GetInstance().RemoveCamera(name);
-	//}
 	isComplete_ = true;
 }
 

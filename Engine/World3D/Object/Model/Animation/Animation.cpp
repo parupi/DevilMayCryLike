@@ -9,7 +9,6 @@
 void Animation::Initialize(SkinnedModel* model, const std::string& filename)
 {
 	model_ = model;
-	//animation_ = LoadAnimationFile(filename);
 	LoadAnimations(filename);
 }
 
@@ -34,8 +33,7 @@ void Animation::Update()
 	}
 
 	// Skeleton側で全ボーンに対して適用（ブレンドも含む）
-	//model_->GetSkeleton()->ApplyAnimation(currentAnimation_, prevAnimation_, animationTime, blendTime_, blendTimer_);
-	model_->GetSkeleton()->ApplyAnimation(currentAnimation_, animationTime);
+	model_->GetSkeleton()->ApplyNextAnimation(currentAnimation_, prevAnimation_, animationTime, blendTime_, blendTimer_);
 }
 
 

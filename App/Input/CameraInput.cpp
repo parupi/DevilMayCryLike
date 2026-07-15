@@ -1,12 +1,12 @@
 #include "CameraInput.h"
-#include "Input/input.h" 
+#include "Input/Input.h"
 
 void CameraInput::Initialize(Input* input)
 {
 	input_ = input;
 }
 
-void CameraInput::Updata()
+void CameraInput::Update()
 {
 	context_.stickDirection = { 0.0f, 0.0f };
 	context_.stickMagnitude = 0.0f;

@@ -20,8 +20,6 @@ public:
 	void Finalize();
 	// 更新処理
 	void Update();
-	// GBufferに描画する準備
-	void RenderGBufferPass();
 	//
 	void DeleteAllRenderer();
 	// オブジェクト削除
@@ -35,8 +33,6 @@ public:
 	SrvManager* GetSrvManager() { return srvManager_; }
 	PSOManager* GetPsoManager() { return psoManager_; }
 private:
-	//std::unique_ptr<GBufferPass> gBufferPass = nullptr;
-
 	DirectXManager* dxManager_ = nullptr;
 	SrvManager* srvManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;

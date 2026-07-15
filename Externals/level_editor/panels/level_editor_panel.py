@@ -2,7 +2,6 @@ import bpy # type: ignore
 from ..operators.add_collider import MYADDON_OT_add_collider
 from ..operators.add_file_name import MYADDON_OT_add_file_name
 from ..operators.add_class_name import MYADDON_OT_add_class_name
-from ..operators.load_model import MYADDON_OT_load_and_replace_model
 
 class OBJECT_PT_level_editor(bpy.types.Panel):
     bl_idname = "OBJECT_PT_level_editor"
@@ -10,10 +9,28 @@ class OBJECT_PT_level_editor(bpy.types.Panel):
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
     bl_context = "object"
-    
+
     def draw(self, context):
         layout = self.layout
         obj = context.object
+
+
+        # --- ClassName ---
+        box = layout.box()
+        box.label(text="ClassName")
+        if "class_name" in obj:
+            box.prop(obj, '["class_name"]', text="ClassName")
+        else:
+            box.operator(MYADDON_OT_add_class_name.bl_idname, text="Add ClassName")
+
+
+        # --- FileName ---
+        box = layout.box()
+        box.label(text="FileName")
+        if "file_name" in obj:
+            box.prop(obj, '["file_name"]', text="FileName")
+        else:
+            box.operator(MYADDON_OT_add_file_name.bl_idname, text="Add FileName")
 
 
         # --- Collider ---
@@ -31,4 +48,3 @@ class OBJECT_PT_level_editor(bpy.types.Panel):
         box = layout.box()
         box.label(text="Disabled")
         box.prop(obj, "disabled", text="無効にする")
-        

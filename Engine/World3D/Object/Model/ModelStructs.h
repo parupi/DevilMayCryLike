@@ -54,33 +54,6 @@ struct SkinningInformation {
 	uint32_t padding[3];
 };
 
-struct SkinClusterData {
-	std::vector<Matrix4x4> inverseBindPoseMatrices;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> influenceResource;
-	std::span<VertexInfluence> mappedInfluence;
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> influenceSrvHandle;
-	uint32_t influenceIndex;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> paletteResource;
-	std::span<WellForGPU> mappedPalette;
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> paletteSrvHandle;
-	uint32_t paletteIndex;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> inputVertexResource;
-	std::span<VertexData> mappedInputVertex;
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> inputVertexSrvHandle;
-	uint32_t inputVertexIndex;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> outputVertexResource;
-	D3D12_VERTEX_BUFFER_VIEW mappedOutputVertex;
-	std::pair<D3D12_CPU_DESCRIPTOR_HANDLE, D3D12_GPU_DESCRIPTOR_HANDLE> outputVertexSrvHandle;
-	uint32_t outputVertexIndex;
-
-	Microsoft::WRL::ComPtr<ID3D12Resource> skinningInfoResource;
-	SkinningInformation* skinningInfoData;
-};
-
 struct Node {
 	QuaternionTransform transform;
 	Matrix4x4 localMatrix;

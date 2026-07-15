@@ -40,15 +40,6 @@ void PlayerWeapon::Update(float deltaTime) {
 	trail_->Update(deltaTime);
 
 	Object3d::Update(deltaTime);
-
-	//ImGui::Begin("Weapon Debug");
-	//ImGui::DragFloat3("Position", &defaultPosition_.x, 0.1f);
-	//ImGui::DragFloat3("Rotation", &defaultRotation_.x, 0.1f);
-	//ImGui::End();
-
-
-	//GetWorldTransform()->GetTranslation() = defaultPosition_;
-	//GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
 }
 
 void PlayerWeapon::Draw() {
@@ -66,10 +57,6 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		scoreManager_->AddScore(50);
 		// 攻撃のパラメータを参照してヒットストップ起動
 		player_->GetHitStop()->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity);
-	}
-
-	if (other->category_ == CollisionCategory::Ground) {
-		//smokeEmitter_->Emit();
 	}
 }
 

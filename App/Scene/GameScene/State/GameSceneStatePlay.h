@@ -15,6 +15,6 @@ private:
 		Play,
 	}state_ = PlayState::Enter;
 
-	float muskAlpha_ = 0.0f;
+	float maskAlpha_ = 0.0f;
 };
 

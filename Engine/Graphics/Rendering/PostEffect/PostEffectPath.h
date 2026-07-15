@@ -14,8 +14,6 @@ public:
 	PostEffectPath(BaseOffScreen* effect);
 	~PostEffectPath() = default;
 
-	// 初期化
-	//void Initialize(std::unique_ptr<BaseOffScreen> effect);
 	// 描画実行
 	void Execute();
 

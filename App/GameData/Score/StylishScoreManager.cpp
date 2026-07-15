@@ -26,7 +26,7 @@ void StylishScoreManager::Update()
 #endif // DEBUG
 }
 
-void StylishScoreManager::AddScore(int32_t scoreNum, std::string)
+void StylishScoreManager::AddScore(int32_t scoreNum)
 {
     if (scoreNum > 0) {
         currentScore_ += scoreNum;

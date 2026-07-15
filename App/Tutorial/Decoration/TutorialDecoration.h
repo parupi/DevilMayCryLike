@@ -23,7 +23,7 @@ private:
 		End, // 終了中
 	}state_ = State::Inactive;
 
-	Sprite* musk_ = nullptr;
+	Sprite* mask_ = nullptr;
 	Sprite* upDivider_ = nullptr;
 	Sprite* underDivider_ = nullptr;
 };

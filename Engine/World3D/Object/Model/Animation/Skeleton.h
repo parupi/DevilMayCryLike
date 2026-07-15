@@ -14,8 +14,6 @@ public:
 	// アニメーションを適用
 	void ApplyNextAnimation(AnimationData* current, AnimationData* prev, float time, float blendTime, float blendProgress);
 
-	void ApplyAnimation(AnimationData* animation, float animationTime);
-
 	const Matrix4x4& GetJointMatrix(const std::string& name) const;
 private:
 	// Nodeの階層からSkeletonを作る

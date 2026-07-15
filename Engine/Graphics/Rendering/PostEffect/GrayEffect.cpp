@@ -48,7 +48,7 @@ void GrayEffect::Draw()
 void GrayEffect::CreateEffectResource()
 {
 	auto* resourceManager = dxManager_->GetResourceManager();
-	// ヴィネット用のリソースを作る
+	// グレー用のリソースを作る
 	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(GrayEffectData), L"GrayEffect");
 	// 書き込むためのアドレスを取得
 	effectData_ = reinterpret_cast<GrayEffectData*>(resourceManager->Map(effectHandle_));

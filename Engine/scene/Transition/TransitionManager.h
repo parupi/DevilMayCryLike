@@ -19,10 +19,6 @@ public:
 	bool AddTransition(std::unique_ptr<BaseTransition> transition);
 	// 使う遷移を名前から設定
 	void SetTransition(const std::string& transitionName);
-	// 遷移を取得
-	BaseTransition* GetTransition(const std::string& transitionName);
-	// 全てのシーン遷移の削除
-	void DeleteAllTransition();
 	// 再生
 	void Play(bool isFadeOut);
 	// 更新

@@ -108,7 +108,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> animationGraphicsPipelineState_;
 	// オフスクリーン
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> offScreenSignature_;
-	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 7> offScreenGraphicsPipelineState_;
+	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> offScreenGraphicsPipelineState_;
 	// プリミティブ
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> primitiveSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> primitiveGraphicsPipelineState_;

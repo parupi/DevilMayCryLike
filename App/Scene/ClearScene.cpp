@@ -30,9 +30,6 @@ void ClearScene::Initialize()
 
 	SkySystem::GetInstance().CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
 
-	// ============ライト=================//
-	//LightManager::GetInstance().CreateDirectionalLight("gameDir");
-
 	clearUI_ = std::make_unique<ClearUI>();
 	clearUI_->Initialize();
 }
@@ -66,16 +63,9 @@ void ClearScene::Update()
 
 void ClearScene::Draw()
 {
-	// 全オブジェクトの描画
-	//Object3dManager::GetInstance().DrawSet();
-
 	SpriteManager::GetInstance().DrawSet();
 	clearUI_->Draw();
 
-}
-
-void ClearScene::DrawRTV()
-{
 }
 
 #ifdef _DEBUG

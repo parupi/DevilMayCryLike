@@ -169,7 +169,6 @@ protected:
 	bool onGround_ = false;
 	bool isActive_ = true;
 	bool isAlive_ = true;
-	int deathTimer_ = 0;
 
 	bool isAttack_ = false;
 

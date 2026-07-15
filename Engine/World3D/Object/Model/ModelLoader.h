@@ -17,8 +17,6 @@ public: // メンバ関数
 
 	// ノードをモデルデータに変換する関数
 	static Node ReadNode(aiNode* node);
-	// ボーンの保持を確認する
-	static bool HasBones(const aiScene* scene);
 private:
 
 	DirectXManager* dxManager_ = nullptr;

@@ -4,7 +4,7 @@
 class EnemyMeleeAttackComponent;
 
 /// <summary>
-/// 速い縦斬り攻撃。予備動作0.4秒→振り0.25秒。
+/// 速い縦斬り攻撃。予備動作0.45秒→振り0.22秒。
 /// </summary>
 class BossStateSlash : public EnemyStateBase
 {

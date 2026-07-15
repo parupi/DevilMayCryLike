@@ -22,7 +22,6 @@ public:
 	UINT GetCurrentBackBufferIndex() const;
 	ID3D12Resource* GetBackBuffer(UINT index) const;
 	size_t GetBackBufferCount() const;
-	//DXGI_FORMAT GetFormat() const { return format_; }
 private:
 	bool CreateSwapChain();
 	bool RetrieveBackBuffers();
@@ -36,6 +35,5 @@ private:
 	DXGI_SWAP_CHAIN_DESC1 swapChainDesc_{};
 
 	std::vector<Microsoft::WRL::ComPtr<ID3D12Resource>> backBuffers_;
-	//DXGI_FORMAT format_ = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 };
 

@@ -235,24 +235,3 @@ Node ModelLoader::ReadNode(aiNode* node)
 
 	return result;
 }
-
-bool ModelLoader::HasBones(const aiScene* scene)
-{
-	// メッシュがなければボーンもない
-	if (!scene->HasMeshes()) {
-		return false;
-	}
-
-	// 各メッシュをチェック
-	for (uint32_t meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex) {
-		aiMesh* mesh = scene->mMeshes[meshIndex];
-
-		// ボーン数が0でなければボーンがあると判断
-		if (mesh->mNumBones > 0) {
-			return true;
-		}
-	}
-
-	// どのメッシュにもボーンが含まれていない場合
-	return false;
-}

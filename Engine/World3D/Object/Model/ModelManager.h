@@ -29,7 +29,6 @@ public:
 	void LoadSkinnedModel(const std::string& filePath);
 	// モデルの検索
 	BaseModel* FindModel(const std::string& fileName);
-	//SkinnedModel* FindSkinnedModel(const std::string& filePath);
 	// モデルデータ
 	std::map<std::string, std::unique_ptr<Model>> models;
 	std::map<std::string, std::unique_ptr<SkinnedModel>> skinnedModels;

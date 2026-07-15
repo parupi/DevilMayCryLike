@@ -60,7 +60,6 @@ private:
 private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
-	//SrvManager* srvManager_ = nullptr;
 
 	// Ping/Pong buffers
 	static constexpr UINT kPingPongCount = 2;
