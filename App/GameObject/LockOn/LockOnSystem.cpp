@@ -2,7 +2,6 @@
 #include "Input/LockOnInput.h"
 #include "World3D/Camera/CameraManager.h"
 #include "GameObject/Character/Player/Player.h"
-#include "World3D/Primitive/PrimitiveLineDrawer.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
@@ -15,7 +14,6 @@ void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 }
 
 void LockOnSystem::Update() {
-	FindBestTarget();
 	// ロックオン入力
 	if (input_->PushLockOnKey()) {
 		if (!currentTarget_) {
@@ -28,8 +26,8 @@ void LockOnSystem::Update() {
 		currentTarget_ = nullptr;
 	}
 
-	// 無効チェック
-	if (currentTarget_ && !currentTarget_->IsLockable()) {
+	// 無効チェック：対象が消滅した、または画面外に出た場合は解除する
+	if (currentTarget_ && (!currentTarget_->IsLockable() || !IsTargetVisible(currentTarget_))) {
 		currentTarget_ = nullptr;
 	}
 
@@ -83,48 +81,26 @@ LockOnTarget* LockOnSystem::FindBestTarget() {
 	return best;
 }
 
+bool LockOnSystem::IsTargetVisible(LockOnTarget* target) const {
+	auto* camera = CameraManager::GetInstance().GetCurrentCamera();
+	return camera->IsInView(target->GetWorldPosition());
+}
+
 float LockOnSystem::CalculateScore(LockOnTarget* target) {
 	auto* camera = CameraManager::GetInstance().GetCurrentCamera();
 
-	Vector3 camPos = camera->GetTranslate();
 	Vector3 targetPos = target->GetWorldPosition();
 
-	Vector3 toTarget = targetPos - camPos;
-	toTarget.y = 0.0f;
-	Vector3 dir = Normalize(toTarget);
-
-	Vector3 forward = camera->GetForward();
-	forward.y = 0.0f;
-	forward = Normalize(forward);
-
-	float dot = Dot(forward, dir);
-
-	float distance = Length(toTarget);
-
-	//PrimitiveLineDrawer::GetInstance().DrawWireSphere(targetPos, 1.0f, Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-	//Vector3 f = camera->GetForward();
-	//ImGui::Begin("Debug");
-	//ImGui::Text("Forward: %f %f %f\n", f.x, f.y, f.z);
-	//ImGui::End();
-
-	// ===== 背面除外 =====
-	if (dot < 0.0f) {
+	// ===== 視野内チェック（前方かつ画面内、水平・垂直とも判定する） =====
+	Vector3 ndcPos;
+	if (!camera->IsInView(targetPos, &ndcPos)) {
 		return FLT_MAX;
 	}
 
-	// ===== 視野角チェック =====
-	float fov = camera->GetFovY();
-	float cosHalfFov = cos(fov * 0.5f);
+	float distance = Length(targetPos - camera->GetTranslate());
 
-	if (dot < cosHalfFov) {
-		return FLT_MAX;
-	}
-
-	// ===== 画面中心からのズレ =====
-	float angle = acos(dot); // ラジアン
-
-	// 正規化（0〜1）
-	float screenDist = angle / (fov * 0.5f);
+	// ===== 画面中心からのズレ（NDC原点からの距離。0〜1程度） =====
+	float screenDist = Length(Vector3(ndcPos.x, ndcPos.y, 0.0f));
 
 	// ===== スコア =====
 	return distance * 0.3f + screenDist * 0.7f;

@@ -8,8 +8,6 @@ GaussianEffect::GaussianEffect()
 	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
-
-	//isActive_ = true;
 }
 
 GaussianEffect::~GaussianEffect()
@@ -52,7 +50,7 @@ void GaussianEffect::Draw()
 void GaussianEffect::CreateEffectResource()
 {
 	auto* resourceManager = dxManager_->GetResourceManager();
-	// ヴィネット用のリソースを作る
+	// ガウス用のリソースを作る
 	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(GaussianEffectData), L"GaussianEffect");
 	// 書き込むためのアドレスを取得
 	effectData_ = reinterpret_cast<GaussianEffectData*>(resourceManager->Map(effectHandle_));

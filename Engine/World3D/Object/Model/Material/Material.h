@@ -32,9 +32,6 @@ private:
 	void CreateGBufferMaterialResource();
 
 private:
-	//Microsoft::WRL::ComPtr<ID3D12Resource> materialResource_ = nullptr;
-	//Microsoft::WRL::ComPtr<ID3D12Resource> materialGBufferResource_ = nullptr;
-
 	uint32_t materialHandle_ = kInvalidBufferHandle;
 	uint32_t materialGBufferHandle_ = kInvalidBufferHandle;
 

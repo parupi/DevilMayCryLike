@@ -1,7 +1,6 @@
 ﻿#define NOMINMAX
 #include "ClearUI.h"
 #ifdef _DEBUG
-#include <imgui.h>
 #endif // DEBUG
 #include "Utility/DeltaTime.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"

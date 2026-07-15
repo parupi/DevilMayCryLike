@@ -16,5 +16,4 @@ enum class OffScreenEffectType {
 	kSmooth,
 	kGauss,
 	kOutLine,
-	kDepth
 };

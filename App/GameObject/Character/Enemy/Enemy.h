@@ -169,11 +169,15 @@ protected:
 	bool onGround_ = false;
 	bool isActive_ = true;
 	bool isAlive_ = true;
-	int deathTimer_ = 0;
 
 	bool isAttack_ = false;
 
 	DamageInfo pendingDamageInfo_;
 
 	std::unique_ptr<HitStop> hitStop_;
+
+private:
+	// Groundコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
+	// resetVelocity: 接地面に押し出した際にvelocity_.yを0にリセットするか
+	void ResolveGroundCollision(BaseCollider* other, bool resetVelocity);
 };

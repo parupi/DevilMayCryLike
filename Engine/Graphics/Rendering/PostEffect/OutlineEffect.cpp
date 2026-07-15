@@ -45,8 +45,8 @@ void OutlineEffect::Draw()
 void OutlineEffect::CreateEffectResource()
 {
 	auto* resourceManager = dxManager_->GetResourceManager();
-	// ヴィネット用のリソースを作る
-	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(OutlineEffectData), L"GaussianEffect");
+	// アウトライン用のリソースを作る
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(OutlineEffectData), L"OutlineEffect");
 	// 書き込むためのアドレスを取得
 	effectData_ = reinterpret_cast<OutlineEffectData*>(resourceManager->Map(effectHandle_));
 }

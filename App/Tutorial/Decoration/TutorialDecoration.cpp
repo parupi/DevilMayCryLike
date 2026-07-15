@@ -2,9 +2,9 @@
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void TutorialDecoration::Initialize() {
-	musk_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialMusk", "white.png");
-	musk_->SetColor({0.0f, 0.0f, 0.0f, 0.0f});
-	musk_->SetSize({426.0f, 720.0f});
+	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialMask", "white.png");
+	mask_->SetColor({0.0f, 0.0f, 0.0f, 0.0f});
+	mask_->SetSize({426.0f, 720.0f});
 
 	upDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "upperDivider", "UI/Menu/UpperDivider.png");
 	upDivider_->SetPosition({200.0f, 580.0f});
@@ -25,7 +25,7 @@ void TutorialDecoration::Update() {
 	switch (state_) {
 	case State::Start:
 	{
-		float alpha = musk_->GetColor().w;
+		float alpha = mask_->GetColor().w;
 		// ディゾルブの強さを取得
 		float threshold = upDivider_->GetDissolveThreshold();
 		// アルファ値を徐々に増加させる
@@ -43,14 +43,14 @@ void TutorialDecoration::Update() {
 		}
 
 		// スプライトのカラーにアルファ値を適用
-		musk_->SetColor({0.0f, 0.0f, 0.0f, alpha});
+		mask_->SetColor({0.0f, 0.0f, 0.0f, alpha});
 		upDivider_->SetDissolveThreshold(threshold);
 		underDivider_->SetDissolveThreshold(threshold);
 	}
 	break;
 	case State::End:
 	{
-		float alpha = musk_->GetColor().w;
+		float alpha = mask_->GetColor().w;
 		// ディゾルブの強さを取得
 		float threshold = upDivider_->GetDissolveThreshold();
 		// アルファ値を徐々に減少させる
@@ -65,7 +65,7 @@ void TutorialDecoration::Update() {
 		}
 
 		// スプライトのカラーにアルファ値を適用
-		musk_->SetColor({0.0f, 0.0f, 0.0f, alpha});
+		mask_->SetColor({0.0f, 0.0f, 0.0f, alpha});
 		upDivider_->SetDissolveThreshold(threshold);
 		underDivider_->SetDissolveThreshold(threshold);
 	}
@@ -75,7 +75,7 @@ void TutorialDecoration::Update() {
 		break;
 	}
 
-	musk_->Update();
+	mask_->Update();
 	upDivider_->Update();
 	underDivider_->Update();
 }

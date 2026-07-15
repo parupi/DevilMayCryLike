@@ -45,6 +45,20 @@ void GameCamera::SetMode(Mode mode) {
 	mode_ = mode;
 }
 
+void GameCamera::ApplySmoothLookAt(const Vector3& lookTarget) {
+	if (!lookTargetInitialized_) {
+		// 初回は遅延させず現在の注視点をそのまま採用する
+		smoothedLookTarget_ = lookTarget;
+		lookTargetInitialized_ = true;
+	} else {
+		// Free/LockOnの切り替え等で注視点が急に変わっても瞬間的に視点が飛ばないよう追従させる
+		float t = 1.0f - std::exp(-8.0f * DeltaTime::GetDeltaTime());
+		smoothedLookTarget_ = Lerp(smoothedLookTarget_, lookTarget, t);
+	}
+
+	LookAt(smoothedLookTarget_);
+}
+
 void GameCamera::Update() {
 	if (!player_) return;
 
@@ -91,9 +105,9 @@ void GameCamera::UpdateFree() {
 	}
 
 	// プレイヤー前方への注視オフセットを遅延追従させる
-	// ・k=2.5f で約0.27秒遅れ → 小さな動きを吸収しつつ持続した移動方向に追従
+	// 小さな動きを吸収しつつ持続した移動方向に追従
 	Vector3 forward = Normalize(player_->GetWorldTransform()->GetForward());
-	float lookT = 1.0f - std::exp(-1.0f * DeltaTime::GetDeltaTime());
+	float lookT = 1.0f - std::exp(-2.5f * DeltaTime::GetDeltaTime());
 	smoothedLookOffset_ = Lerp(smoothedLookOffset_, forward * 3.0f, lookT);
 
 	Vector3 lookTarget = playerPos + Vector3(0, 2.0f, 0) + smoothedLookOffset_ - Vector3(0, sin(pitch_) * 4.0f, 0);
@@ -101,7 +115,7 @@ void GameCamera::UpdateFree() {
 	float t = 1.0f - std::exp(-5.0f * DeltaTime::GetDeltaTime());
 	GetTranslate() = Lerp(GetTranslate(), desiredPos, t);
 
-	LookAt(lookTarget);
+	ApplySmoothLookAt(lookTarget);
 }
 
 void GameCamera::UpdateLockOn() {
@@ -134,7 +148,7 @@ void GameCamera::UpdateLockOn() {
 	float t = 1.0f - std::exp(-5.0f * DeltaTime::GetDeltaTime());
 	GetTranslate() = Lerp(GetTranslate(), cameraPos, t);
 
-	LookAt(lookTarget);
+	ApplySmoothLookAt(lookTarget);
 
 	// Free復帰用
 	yaw_ = std::atan2(toEnemy.x, toEnemy.z);

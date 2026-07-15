@@ -1,4 +1,4 @@
-#include "PsoManager.h"
+#include "PSOManager.h"
 #include "PSOBuilder/SpritePipeline.h"
 #include "PSOBuilder/ParticlePipeline.h"
 #include "PSOBuilder/ObjectPipeline.h"

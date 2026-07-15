@@ -1,5 +1,4 @@
 #include "Logger.h"
-#include <dxgidebug.h>
 #include <cassert>
 #include <Windows.h>        // OutputDebugStringA
 #include <sstream>          // std::stringstream
@@ -8,7 +7,6 @@
 
 std::string Logger::imguiLog_;
 
-//namespace Logger {
 void Logger::Log(const std::string& message)
 {
 	// デバッグ出力

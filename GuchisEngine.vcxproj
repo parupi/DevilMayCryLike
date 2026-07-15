@@ -115,7 +115,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Camera\ClearCamera.h" />
     <ClInclude Include="App\GameObject\Camera\DeathCamera.h" />
     <ClInclude Include="App\GameObject\Camera\GameCamera.h" />
-    <ClInclude Include="App\GameObject\Camera\LockOnCamera.h" />
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
     <ClInclude Include="App\GameObject\Character\CharacterStructs.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
@@ -148,7 +147,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
@@ -211,7 +209,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Audio\Audio.h" />
     <ClInclude Include="Engine\Core\EngineContext.h" />
     <ClInclude Include="Engine\Core\GuchisFramework.h" />
-    <ClInclude Include="Engine\Debugger\DebugSphere.h" />
     <ClInclude Include="Engine\Debugger\GlobalVariables.h" />
     <ClInclude Include="Engine\Debugger\ImGuiManager.h" />
     <ClInclude Include="Engine\Debugger\LeakChecker.h" />
@@ -362,7 +359,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\ClearCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
-    <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.cpp" />
@@ -392,7 +388,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Controller\PlayerInput.cpp" />
@@ -451,7 +446,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Application\MyGameTitle.cpp" />
     <ClCompile Include="Engine\Audio\Audio.cpp" />
     <ClCompile Include="Engine\Core\GuchisFramework.cpp" />
-    <ClCompile Include="Engine\Debugger\DebugSphere.cpp" />
     <ClCompile Include="Engine\Debugger\GlobalVariables.cpp" />
     <ClCompile Include="Engine\Debugger\ImGuiManager.cpp" />
     <ClCompile Include="Engine\Debugger\LeakChecker.cpp" />

@@ -165,7 +165,6 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 		if (attackPhase_ != AttackPhase::Cancel) {
 			// Cancel フェーズ前の入力をバッファに保存（上書きで最新入力を保持）
 			hasPendingBuffer_ = true;
-			bufferedCommand_ = command;
 			return req;
 		}
 		return BuildRequestFromNode(player);
@@ -319,9 +318,4 @@ void PlayerStateAttack::UpdateRecovery(Player& player) {
 	player.GetWeapon()->SetIsAttack(false);
 
 	player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
-}
-
-AttackRequestData PlayerStateAttack::UpdateCancel(Player& player) {
-	player;
-	return AttackRequestData();
 }

@@ -35,16 +35,6 @@ void TransitionManager::SetTransition(const std::string& transitionName)
 	current_ = transitions_[transitionName].get();
 }
 
-BaseTransition* TransitionManager::GetTransition(const std::string& transitionName)
-{
-	return transitions_[transitionName].get();
-}
-
-void TransitionManager::DeleteAllTransition()
-{
-	transitions_.clear();
-}
-
 void TransitionManager::Play(bool isFadeOut)
 {
 	if (current_) {

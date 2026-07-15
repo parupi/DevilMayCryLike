@@ -1,5 +1,4 @@
 #include "MenuDivider.h"
-#include <imgui.h>
 #include "Utility/DeltaTime.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 

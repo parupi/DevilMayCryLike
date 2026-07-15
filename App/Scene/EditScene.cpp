@@ -8,6 +8,7 @@
 #include <World3D/Light/LightManager.h>
 #include "World3D/Object/Object3dManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include <Input/Input.h>
 
 void EditScene::Initialize() {
 	// カメラの生成
@@ -76,25 +77,16 @@ void EditScene::Initialize() {
 	player->Initialize();
 	player->SetInput(inputContext_->GetPlayerInput());
 	Object3dManager::GetInstance().AddObject(std::move(player));
-
-	//LightManager::GetInstance().CreateDirectionalLight("Directional");
-	//ParticleManager::GetInstance().CreateParticleGroup("EnemyDamageEffect")
 }
 
 void EditScene::Finalize() {
 }
 
 void EditScene::Update() {
-	//ParticleManager::GetInstance().CreateParticleGroup("EnemyDamageEffect", "white.png");
 	LightManager::GetInstance().Update();
 }
 
 void EditScene::Draw() {
-	// 全オブジェクトの描画
-	//Object3dManager::GetInstance().Draw
-}
-
-void EditScene::DrawRTV() {
 }
 
 #ifdef _DEBUG

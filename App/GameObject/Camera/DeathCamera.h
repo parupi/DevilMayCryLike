@@ -21,9 +21,7 @@ private:
 	Player* player_ = nullptr;
 
 	Vector3 basePos_;        // ゲームカメラの初期位置
-	Vector3 baseLookAt_;     // 注視点
 
-	float shakeTime_ = 0.0f; // 揺れの時間経過
 	float zoomTime_ = 0.0f;  // ズームの進行
 	float totalTime_ = 2.0f; // ズーム演出全体の時間
 

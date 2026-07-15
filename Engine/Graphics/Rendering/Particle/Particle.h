@@ -13,7 +13,6 @@ enum class FadeType {
 struct Particle {
 	EulerTransform transform;
 	Vector3 velocity;
-	Vector3 acc;
 	Vector4 color;
 	float lifeTime;
 	float currentTime;

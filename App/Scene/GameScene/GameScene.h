@@ -51,12 +51,6 @@ public:
 	/// </summary>
 	void Draw() override;
 
-	/// <summary>
-	/// RTVへの描画処理  
-	/// Render Target Viewに対してシーンの描画を実行する。
-	/// </summary>
-	void DrawRTV() override;
-
 #ifdef _DEBUG
 	/// <summary>
 	/// デバッグ用更新処理  
@@ -70,9 +64,8 @@ public:
 
 	void SetSceneTime(float time) { sceneDeltaTime_ = time; }
 
-	Sprite* GetMuskSprite() { return musk_; }
-	float GetMuskAlpha() const { return muskAlpha_; }
-	void SetMuskAlpha(float alpha) { muskAlpha_ = alpha; }
+	float GetMaskAlpha() const { return maskAlpha_; }
+	void SetMaskAlpha(float alpha) { maskAlpha_ = alpha; }
 
 	// メニューのUIをまとめたクラスを取得
 	MenuUI* GetMenuUI() { return menuUI_.get(); }
@@ -88,7 +81,6 @@ private:
 
 	CameraManager* cameraManager_ = &CameraManager::GetInstance(); ///< カメラ管理クラス
 	GameCamera* gameCamera_ = nullptr; ///< ゲームシーン専用カメラ
-	ClearCamera* clearCamera_ = nullptr;
 
 	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 
@@ -97,10 +89,8 @@ private:
 	std::unique_ptr<GameUI> gameUI_;
 
 	// マスクを掛けるためのスプライト
-	Sprite* musk_ = nullptr;
-	float muskAlpha_ = 0.0f;
-
-	Sprite* deathText_ = nullptr;
+	Sprite* mask_ = nullptr;
+	float maskAlpha_ = 0.0f;
 
 	// メニューのスプライト
 	std::unique_ptr<MenuUI> menuUI_ = nullptr;

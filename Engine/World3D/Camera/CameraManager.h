@@ -64,7 +64,6 @@ private:
 
 	DirectXManager* dxManager_ = nullptr;
 
-	//Microsoft::WRL::ComPtr<ID3D12Resource> cameraResource_ = nullptr;
 	uint32_t cameraHandle_ = 0;
 
 	CameraForGPU* cameraData_ = nullptr;

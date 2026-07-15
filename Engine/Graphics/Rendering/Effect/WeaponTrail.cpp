@@ -8,7 +8,6 @@
 #include "Math/MathUtils.h"
 #include <DirectXTex/DirectXTex.h>
 #include <cassert>
-#include <cstring>
 #include <cmath>
 
 WeaponTrail::~WeaponTrail() {

@@ -164,9 +164,6 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 	ifs.open(filePath);
 	// ファイルオープン失敗
 	if (ifs.fail()) {
-		//string message = "Failed open data file for write";
-		//MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
-		//assert(0);
 		return;
 	}
 
@@ -185,7 +182,7 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 
 	// 各アイテムについて
 	for (json::iterator itItem = itGroup->begin(); itItem != itGroup->end(); ++itItem) {
-		// アイテム名そ取得
+		// アイテム名を取得
 		const string& itemName = itItem.key();
 		// int32_t型の値を保持していれば
 		if (itItem->is_number_integer()) {

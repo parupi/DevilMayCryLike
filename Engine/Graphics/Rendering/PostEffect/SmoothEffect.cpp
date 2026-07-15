@@ -8,8 +8,6 @@ SmoothEffect::SmoothEffect()
 	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 
 	CreateEffectResource();
-
-	//isActive_ = true;
 }
 
 SmoothEffect::~SmoothEffect()
@@ -47,8 +45,8 @@ void SmoothEffect::Draw()
 void SmoothEffect::CreateEffectResource()
 {
 	auto* resourceManager = dxManager_->GetResourceManager();
-	// ヴィネット用のリソースを作る
-	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(SmoothEffectData), L"GaussianEffect");
+	// スムース用のリソースを作る
+	effectHandle_ = resourceManager->CreateUploadBuffer(sizeof(SmoothEffectData), L"SmoothEffect");
 	// 書き込むためのアドレスを取得
 	effectData_ = reinterpret_cast<SmoothEffectData*>(resourceManager->Map(effectHandle_));
 	// 初期値を設定

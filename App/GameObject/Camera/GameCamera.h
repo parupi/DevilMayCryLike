@@ -1,6 +1,5 @@
 #pragma once
 #include "World3D/Camera/BaseCamera.h"
-#include "Input/Input.h"
 
 class Player;
 class LockOnSystem;
@@ -25,6 +24,8 @@ public:
 private:
 	void UpdateFree();
 	void UpdateLockOn();
+	// 注視点を滑らかに追従させてからLookAtする（モード切替時の視点飛びを防ぐ）
+	void ApplySmoothLookAt(const Vector3& lookTarget);
 
 private:
 	Player* player_ = nullptr;
@@ -38,6 +39,9 @@ private:
 	float distance_ = 18.0f;
 
 	Vector3 smoothedLookOffset_ = Vector3(0.0f, 0.0f, 0.0f);
+
+	Vector3 smoothedLookTarget_ = Vector3(0.0f, 0.0f, 0.0f);
+	bool lookTargetInitialized_ = false;
 
 	Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
 

@@ -87,7 +87,7 @@ void PlayerCombat::Update(float deltaTime) {
 			waitingForNextCombo_ = true;
 			comboResetTimer_ = 0.3f;
 		} else {
-			//// 納刀モーションでなければ
+			// 納刀モーションでなければ
 			if (currentAttackName != "Sheathe") {
 				// 少し待ってから納刀モーションに遷移する
 				waitingForNextCombo_ = true;

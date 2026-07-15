@@ -22,7 +22,7 @@
 
 #include "Input/Input.h"
 
-Player::Player(std::string objectNama) : Object3d(objectNama) {
+Player::Player(std::string objectName) : Object3d(objectName) {
 	Object3d::Initialize();
 
 	// レンダラーの生成
@@ -50,9 +50,7 @@ void Player::Initialize() {
 	combat_->Initialize(this);
 
 	GetCollider(name_)->category_ = CollisionCategory::Player;
-	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMax *= 0.5f;
-	static_cast<AABBCollider*>(GetCollider(name_))->GetColliderData().offsetMin *= 0.5f;
-	//static_cast<AABBCollider*>(GetCollider(name_))->transform_->GetTranslation().y += 0.1f;
+	static_cast<OBBCollider*>(GetCollider(name_))->GetColliderData().halfExtents *= 0.5f;
 	// 武器のレンダラー生成
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
@@ -114,8 +112,7 @@ void Player::Update(float deltaTime) {
 	weapon_->Update(dt);
 
 	// ノックバック中は戦闘状態に関わらず常にステートを更新する
-	bool isKnockbackState = (stateMachine_->GetCurrentState() &&
-		std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
+	bool isKnockbackState = (stateMachine_->GetCurrentState() && std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
 	if (isKnockbackState) {
 		stateMachine_->UpdateCurrentState(*this, dt);
 	} else if (!combat_->IsAttacking()) {
@@ -167,10 +164,6 @@ void Player::DebugGui() {
 	ImGui::Begin("Player");
 	Object3d::DebugGui();
 	ImGui::End();
-
-	//ImGui::Begin("Weapon");
-	//weapon_->DebugGui();
-	//ImGui::End();
 }
 
 #endif // _DEBUG
@@ -309,81 +302,29 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 	}
 
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
-
-		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
-
-		AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
-
-		Vector3 outNormal = AABBCollider::CalculateCollisionNormal(playerCollider, blockCollider);
-
-		Vector3 playerMin = playerCollider->GetMin();
-		Vector3 playerMax = playerCollider->GetMax();
-
-		float playerOffset = (playerMax.x - playerMin.x) * 0.5f;
-
-		if (outNormal.x == 1.0f) {
-			// 右に当たってる
-			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
-			// 左に当たってる
-			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
-			// 上に当たってる
-			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
-			GetWorldTransform()->GetTranslation().y -= 0.1f;
-			//velocity_.y = 0.0f;
-			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
-			// 下に当たってる
-			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
-			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
-			// 奥に当たってる
-			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
-			// 手前に当たってる
-			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
-		}
+		ResolveGroundCollision(other);
 	}
 }
 
 void Player::OnCollisionStay(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
+		ResolveGroundCollision(other);
+	}
+}
 
-		AABBCollider* playerCollider = static_cast<AABBCollider*>(GetCollider("Player"));
+void Player::ResolveGroundCollision(BaseCollider* other) {
+	BaseCollider* playerCollider = GetCollider("Player");
 
-		AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
+	PenetrationResult result = CollisionManager::GetInstance().CalculatePenetration(playerCollider, other);
+	if (!result.hit) return;
 
-		Vector3 outNormal = AABBCollider::CalculateCollisionNormal(playerCollider, blockCollider);
+	GetWorldTransform()->GetTranslation() += result.normal * result.depth;
 
-		Vector3 playerMin = playerCollider->GetMin();
-		Vector3 playerMax = playerCollider->GetMax();
-
-		float playerOffset = (playerMax.x - playerMin.x) * 0.5f;
-
-		if (outNormal.x == 1.0f) {
-			// 右に当たってる
-			GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + playerOffset;
-		} else if (outNormal.x == -1.0f) {
-			// 左に当たってる
-			GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - playerOffset;
-		} else if (outNormal.y == 1.0f) {
-			// 上に当たってる
-			GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + playerOffset;
-			GetWorldTransform()->GetTranslation().y -= 0.1f;
-			//velocity_.y = 0.0f;
-			onGround_ = true;
-		} else if (outNormal.y == -1.0f) {
-			// 下に当たってる
-			GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - playerOffset;
-			//velocity_ *= -1.0f;
-		} else if (outNormal.z == 1.0f) {
-			// 奥に当たってる
-			GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + playerOffset;
-		} else if (outNormal.z == -1.0f) {
-			// 手前に当たってる
-			GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - playerOffset;
-		}
+	if (result.normal.y > 0.5f) {
+		// 上に当たってる（接地）
+		GetWorldTransform()->GetTranslation().y -= 0.1f;
+		//velocity_.y = 0.0f;
+		onGround_ = true;
 	}
 }
 

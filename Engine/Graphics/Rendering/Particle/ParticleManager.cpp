@@ -1,16 +1,11 @@
 ﻿#define NOMINMAX
 #include "ParticleManager.h"
 #include "Math/MathUtils.h"
-#include <numbers>
 #include <Debugger/ImGuiManager.h>
 #include <algorithm>
 #include <Utility/DeltaTime.h>
 #include "Graphics/Resource/TextureManager.h"
 #include <World3D/Object/Renderer/MeshGenerator.h>
-
-std::random_device seedGenerator;
-std::mt19937 randomEngine(seedGenerator());
-
 
 ParticleManager& ParticleManager::GetInstance()
 {
@@ -72,6 +67,10 @@ void ParticleManager::Initialize(DirectXManager* dxManager, PSOManager* psoManag
 	dxManager_ = dxManager;
 	srvManager_ = dxManager_->GetSrvManager();
 	psoManager_ = psoManager;
+
+	// 乱数エンジン初期化
+	std::random_device seedGenerator;
+	randomEngine.seed(seedGenerator());
 
 	// リソースの生成と値の設定
 	CreateParticleResource();
@@ -485,127 +484,6 @@ ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* glob
 	params.isBillboard = global->GetValueRef<bool>(groupName, "IsBillboard");
 
 	return params;
-}
-
-void ParticleManager::DrawEditor(GlobalVariables* global, const std::string& groupName)
-{
-#ifdef _DEBUG
-	ImGui::Begin(groupName.c_str());
-
-	if (ImGui::TreeNode("Particle")) {
-		// ====== Translate ======
-		Vector3& minTranslate = global->GetValueRef<Vector3>(groupName, "minTranslate");
-		Vector3& maxTranslate = global->GetValueRef<Vector3>(groupName, "maxTranslate");
-		if (ImGui::TreeNode("Translate")) {
-			ImGui::DragFloat3("Min Translate", &minTranslate.x, 0.1f);
-			ImGui::DragFloat3("Max Translate", &maxTranslate.x, 0.1f);
-			ImGui::TreePop();
-		}
-
-		// ====== Rotate ======
-		Vector3& minRotate = global->GetValueRef<Vector3>(groupName, "minRotate");
-		Vector3& maxRotate = global->GetValueRef<Vector3>(groupName, "maxRotate");
-		if (ImGui::TreeNode("Rotate")) {
-			ImGui::DragFloat3("Min Rotate", &minRotate.x, 0.1f);
-			ImGui::DragFloat3("Max Rotate", &maxRotate.x, 0.1f);
-			ImGui::TreePop();
-		}
-
-		// ====== Scale ======
-		Vector3& minScale = global->GetValueRef<Vector3>(groupName, "minScale");
-		Vector3& maxScale = global->GetValueRef<Vector3>(groupName, "maxScale");
-		if (ImGui::TreeNode("Scale")) {
-			ImGui::DragFloat3("Min Scale", &minScale.x, 0.1f);
-			ImGui::DragFloat3("Max Scale", &maxScale.x, 0.1f);
-			ImGui::TreePop();
-		}
-
-		// ====== Velocity ======
-		Vector3& minVelocity = global->GetValueRef<Vector3>(groupName, "minVelocity");
-		Vector3& maxVelocity = global->GetValueRef<Vector3>(groupName, "maxVelocity");
-		if (ImGui::TreeNode("Velocity")) {
-			ImGui::DragFloat3("Min Velocity", &minVelocity.x, 0.1f);
-			ImGui::DragFloat3("Max Velocity", &maxVelocity.x, 0.1f);
-			ImGui::TreePop();
-		}
-
-		// ====== LifeTime ======
-		float& minLifeTime = global->GetValueRef<float>(groupName, "minLifeTime");
-		float& maxLifeTime = global->GetValueRef<float>(groupName, "maxLifeTime");
-		if (ImGui::TreeNode("LifeTime")) {
-			ImGui::DragFloat("Min LifeTime", &minLifeTime, 0.1f, 0.0f, 9999.0f);
-			ImGui::DragFloat("Max LifeTime", &maxLifeTime, 0.1f, 0.0f, 9999.0f);
-			ImGui::TreePop();
-		}
-
-		// ====== Color ======
-		Vector3& minColor = global->GetValueRef<Vector3>(groupName, "minColor");
-		Vector3& maxColor = global->GetValueRef<Vector3>(groupName, "maxColor");
-		if (ImGui::TreeNode("Color")) {
-			ImGui::ColorEdit3("Min Color", &minColor.x);
-			ImGui::ColorEdit3("Max Color", &maxColor.x);
-			ImGui::TreePop();
-		}
-
-		bool& isBillboard = global->GetValueRef<bool>(groupName, "IsBillboard");
-		if (ImGui::TreeNode("Billboard")) {
-			ImGui::Checkbox("IsBillboard", &isBillboard);
-			ImGui::TreePop();
-		}
-
-		// ====== FadeType ======
-		if (ImGui::TreeNode("Fade Settings")) {
-
-			int& fadeTypeInt = global->GetValueRef<int>(groupName, "FadeType");
-			const char* fadeTypeNames[] = {
-				"None", "Alpha", "ScaleShrink"
-			};
-
-			// コンボで選択
-			ImGui::Combo("Fade Type", &fadeTypeInt, fadeTypeNames, IM_ARRAYSIZE(fadeTypeNames));
-
-			FadeType fadeType = static_cast<FadeType>(fadeTypeInt);
-
-			// フェードタイプごとに個別パラメータを出す
-			switch (fadeType) {
-			case FadeType::Alpha:
-
-				break;
-			case FadeType::ScaleShrink: {
-				// このフェードタイプ専用のパラメータ
-				float& shrinkStart = global->GetValueRef<float>(groupName, "ShrinkStartRatio");
-
-				ImGui::SliderFloat("Shrink Start Ratio", &shrinkStart, 0.0f, 1.0f);
-				break;
-			}
-			case FadeType::None:
-			default:
-
-				break;
-			}
-			ImGui::TreePop();
-		}
-
-		// ===== Blend Settings =====
-		if (ImGui::TreeNode("Blend Mode")) {
-			int& blendModeInt = global->GetValueRef<int>(groupName, "BlendMode");
-			const char* blendNames[] = { "None", "Normal", "Add", "Subtract", "Multiply", "Screen" };
-			ImGui::Combo("Blend Mode", &blendModeInt, blendNames, IM_ARRAYSIZE(blendNames));
-			ImGui::TreePop();
-		}
-
-		// ====== Save ======
-		if (ImGui::Button("Save")) {
-			GlobalVariables::GetInstance().SaveFile("Particle", groupName);
-			std::string message = std::format("{}.json saved.", groupName);
-			MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
-		}
-
-		ImGui::TreePop();
-	}
-
-	ImGui::End();
-#endif // DEBUG
 }
 
 void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)

@@ -83,18 +83,6 @@ void Skeleton::ApplyNextAnimation(
     }
 }
 
-void Skeleton::ApplyAnimation(AnimationData* animation, float animationTime)
-{
-    for (Joint& joint : skeletonData_.joints) {
-        if (auto it = animation->nodeAnimations.find(joint.name); it != animation->nodeAnimations.end()) {
-            const NodeAnimation& rootNodeAnimation = (*it).second;
-            joint.transform.translate = Animation::CalculateValue(rootNodeAnimation.translate.keyframes, animationTime);
-            joint.transform.rotate = Animation::CalculateValue(rootNodeAnimation.rotate.keyframes, animationTime);
-            joint.transform.scale = Animation::CalculateValue(rootNodeAnimation.scale.keyframes, animationTime);
-        }
-    }
-}
-
 const Matrix4x4& Skeleton::GetJointMatrix(const std::string& name) const
 {
     for (const auto& joint : skeletonData_.joints) {

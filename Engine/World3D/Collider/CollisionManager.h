@@ -32,6 +32,11 @@ public:
 	void RemoveDeadObjects();
 
 	const std::vector<BaseCollider*>& GetCurrentHits(BaseCollider* collider) const;
+
+	// mover を blocker から押し出すためのMTV(最小移動ベクトル)を計算する
+	// AABB/OBBの組み合わせに対応（Sphereは非対応）
+	PenetrationResult CalculatePenetration(BaseCollider* mover, BaseCollider* blocker);
+
 private:
 	using ColliderPair = std::pair<BaseCollider*, BaseCollider*>;
 
@@ -52,6 +57,12 @@ private:
 	bool CheckSphereToSphereCollision(SphereCollider* a, SphereCollider* b);
 	bool CheckOBBToOBBCollision(OBBCollider* a, OBBCollider* b);
 	bool CheckOBBToAABBCollision(OBBCollider* obb, AABBCollider* aabb);
+
+	// 分離軸定理(SAT)による、有向ボックス同士のMTV計算の共通実装
+	// axesA/axesBはそれぞれ3要素の正規直交基底
+	PenetrationResult CalculateBoxPenetration(
+		const Vector3& centerA, const Vector3 axesA[3], const Vector3& halfA,
+		const Vector3& centerB, const Vector3 axesB[3], const Vector3& halfB);
 
 private:
 	std::vector<std::unique_ptr<BaseCollider>> colliders_;

@@ -22,7 +22,6 @@ private:
 	Vector3 velocity_;
 
 	float stunTimer_ = 0.0f;
-	float tiltAmount_ = 0.0f;
 	float angularVel_ = 0.0f;
 
 	float currentTilt_ = 0.0f;

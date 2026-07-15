@@ -69,7 +69,7 @@ void Sprite::Draw()
 	commandList->SetGraphicsRootDescriptorTable(2, TextureManager::GetInstance().GetSrvHandleGPU(textureFilePath_));
 	commandList->SetGraphicsRootDescriptorTable(3, TextureManager::GetInstance().GetDissolveNoiseSrvHandleGPU());
 
-	//// 描画!（DrawCall/ドローコール）。3頂点で1つのインスタンス。インスタンスについては今後
+	// 描画!（DrawCall/ドローコール）。6インデックス(2三角形)で1つのスプライトを描画。
 	commandList->DrawIndexedInstanced(6, 1, 0, 0, 0);
 }
 

@@ -35,7 +35,6 @@ void TitleScene::Initialize()
 	TextureManager::GetInstance().LoadTexture("black.png");
 	TextureManager::GetInstance().LoadTexture("SelectMask.png");
 
-	//TextureManager::GetInstance().LoadTexture("GameStart.png");
 	TextureManager::GetInstance().LoadTexture("TitleUI.png");
 
 	// カメラの生成
@@ -95,8 +94,6 @@ void TitleScene::Update()
 
 	sphereEmitter_->Update();
 
-	//lightManager_->Update();
-
 	titleUI_->Update();
 
 	ChangePhase();
@@ -109,16 +106,9 @@ void TitleScene::Update()
 
 void TitleScene::Draw()
 {
-	//Object3dManager::GetInstance().DrawSet();
-	//Object3dManager::GetInstance().DrawForGBuffer();
-
 	ParticleManager::GetInstance().Draw();
 
-	//titleUI_->Draw();
-}
-
-void TitleScene::DrawRTV()
-{
+	titleUI_->Draw();
 }
 
 #ifdef _DEBUG

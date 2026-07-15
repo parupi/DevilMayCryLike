@@ -140,10 +140,6 @@ void SampleScene::Draw() {
 	ParticleManager::GetInstance().Draw();
 }
 
-void SampleScene::DrawRTV() {
-
-
-}
 
 #ifdef _DEBUG
 void SampleScene::DebugUpdate() {

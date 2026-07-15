@@ -264,9 +264,6 @@
     <ClInclude Include="App\GameObject\Camera\GameCamera.h">
       <Filter>App\GameObject\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Camera\LockOnCamera.h">
-      <Filter>App\GameObject\Camera</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h">
       <Filter>App\GameObject\Camera</Filter>
     </ClInclude>
@@ -361,9 +358,6 @@
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
@@ -551,9 +545,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Core\GuchisFramework.h">
       <Filter>Engine\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Debugger\DebugSphere.h">
-      <Filter>Engine\Debugger</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Debugger\GlobalVariables.h">
       <Filter>Engine\Debugger</Filter>
@@ -1001,9 +992,6 @@
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Camera\LockOnCamera.cpp">
-      <Filter>App\GameObject\Camera</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
@@ -1089,9 +1077,6 @@
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackB.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
@@ -1267,9 +1252,6 @@
     </ClCompile>
     <ClCompile Include="Engine\Core\GuchisFramework.cpp">
       <Filter>Engine\Core</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Debugger\DebugSphere.cpp">
-      <Filter>Engine\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Debugger\GlobalVariables.cpp">
       <Filter>Engine\Debugger</Filter>

@@ -19,6 +19,9 @@ public: // メンバ関数
 	void LookAt(const Vector3& target);
 	// ワールド座標をスクリーン座標に変換
 	Vector2 WorldToScreen(const Vector3& worldPos, int screenWidth, int screenHeight) const;
+	// ワールド座標がカメラの視錐台内（前方かつ画面内）にあるかどうかを判定する
+	// outNdcPos: NDC座標を受け取りたい場合に指定する（x,yは[-1,1]、zは[0,1]が画面内）
+	bool IsInView(const Vector3& worldPos, Vector3* outNdcPos = nullptr) const;
 
 protected:
 	EulerTransform transform_;

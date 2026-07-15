@@ -31,7 +31,6 @@ void PostEffectPath::Execute()
 
     // RTVセット
     context->SetRenderTarget(rtvHandle_);
-    //context->ClearRenderTarget(rtvHandle_, offscreen_->GetClearColor());
     context->SetViewportAndScissor(viewport_, scissorRect_);
 
     // 実際の描画

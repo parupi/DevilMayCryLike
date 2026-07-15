@@ -21,8 +21,6 @@ public:
 	void Update();
 	// 描画
 	void Draw();
-	// RTVに描画する
-	void DrawRTV();
 	// シーンの変更
 	void ChangeScene(const std::string& sceneName);
 

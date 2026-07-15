@@ -3,6 +3,7 @@
 #include <Utility/DeltaTime.h>
 #include <GameObject/Event/EventManager.h>
 #include <GameObject/Event/ClearEvent.h>
+#include <Input/Input.h>
 
 void GameSceneStatePlay::Enter(GameScene& scene) {
 	state_ = PlayState::Enter;
@@ -14,15 +15,15 @@ void GameSceneStatePlay::Enter(GameScene& scene) {
 void GameSceneStatePlay::Update(GameScene& scene) {
 	scene.SetSceneTime(DeltaTime::GetDeltaTime());
 
-	float muskAlpha = scene.GetMuskAlpha();
+	float maskAlpha = scene.GetMaskAlpha();
 
 	switch (state_) {
 	case PlayState::Enter:
 
-		muskAlpha -= DeltaTime::GetDeltaTime() * 2.0f;
+		maskAlpha -= DeltaTime::GetDeltaTime() * 2.0f;
 
-		if (muskAlpha < 0.0f) {
-			muskAlpha = 0.0f;
+		if (maskAlpha < 0.0f) {
+			maskAlpha = 0.0f;
 			state_ = PlayState::Play;
 		}
 
@@ -41,7 +42,7 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 		}
 		break;
 	}
-	scene.SetMuskAlpha(muskAlpha);
+	scene.SetMaskAlpha(maskAlpha);
 }
 
 void GameSceneStatePlay::Exit(GameScene&) {}

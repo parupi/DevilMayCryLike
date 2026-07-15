@@ -32,8 +32,6 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Resource> instanceBuffer_;
     InstanceData* mappedInstanceData_ = nullptr;
 
-    uint32_t instanceHandle_ = 0;
-
     D3D12_VERTEX_BUFFER_VIEW vbView_;
 
     std::unique_ptr<Model> model_;

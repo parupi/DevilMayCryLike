@@ -22,7 +22,7 @@ public:
 
 	void CreateFullScreenVB();
 
-	void Begin(uint32_t rtvIndex, uint32_t shadowSrvIndex);
+	void Begin(uint32_t rtvIndex);
 	void End();
 
 	void CreateGBufferSRVs();

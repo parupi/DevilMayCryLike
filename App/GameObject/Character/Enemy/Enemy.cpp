@@ -110,52 +110,26 @@ void Enemy::DebugGui() {
 
 void Enemy::OnCollisionEnter(BaseCollider* other) {
 	if (other->category_ != CollisionCategory::Ground) return;
-
-	AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name_));
-	AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
-
-	Vector3 outNormal = AABBCollider::CalculateCollisionNormal(enemyCollider, blockCollider);
-	float enemyOffset = (enemyCollider->GetMax().x - enemyCollider->GetMin().x) * 0.5f;
-
-	if (outNormal.x == 1.0f) {
-		GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + enemyOffset;
-	} else if (outNormal.x == -1.0f) {
-		GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - enemyOffset;
-	} else if (outNormal.y == 1.0f) {
-		GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + enemyOffset - 0.1f;
-		velocity_.y = 0.0f;
-		onGround_ = true;
-	} else if (outNormal.y == -1.0f) {
-		GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - enemyOffset;
-	} else if (outNormal.z == 1.0f) {
-		GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + enemyOffset;
-	} else if (outNormal.z == -1.0f) {
-		GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - enemyOffset;
-	}
+	ResolveGroundCollision(other, /*resetVelocity=*/true);
 }
 
 void Enemy::OnCollisionStay(BaseCollider* other) {
 	if (other->category_ != CollisionCategory::Ground) return;
+	ResolveGroundCollision(other, /*resetVelocity=*/false);
+}
 
-	AABBCollider* enemyCollider = static_cast<AABBCollider*>(GetCollider(name_));
-	AABBCollider* blockCollider = static_cast<AABBCollider*>(other);
+void Enemy::ResolveGroundCollision(BaseCollider* other, bool resetVelocity) {
+	BaseCollider* enemyCollider = GetCollider(name_);
 
-	Vector3 outNormal = AABBCollider::CalculateCollisionNormal(enemyCollider, blockCollider);
-	float enemyOffset = (enemyCollider->GetMax().x - enemyCollider->GetMin().x) * 0.5f;
+	PenetrationResult result = CollisionManager::GetInstance().CalculatePenetration(enemyCollider, other);
+	if (!result.hit) return;
 
-	if (outNormal.x == 1.0f) {
-		GetWorldTransform()->GetTranslation().x = blockCollider->GetMax().x + enemyOffset;
-	} else if (outNormal.x == -1.0f) {
-		GetWorldTransform()->GetTranslation().x = blockCollider->GetMin().x - enemyOffset;
-	} else if (outNormal.y == 1.0f) {
-		GetWorldTransform()->GetTranslation().y = blockCollider->GetMax().y + enemyOffset - 0.1f;
+	GetWorldTransform()->GetTranslation() += result.normal * result.depth;
+
+	if (result.normal.y > 0.5f) {
+		GetWorldTransform()->GetTranslation().y -= 0.1f;
+		if (resetVelocity) velocity_.y = 0.0f;
 		onGround_ = true;
-	} else if (outNormal.y == -1.0f) {
-		GetWorldTransform()->GetTranslation().y = blockCollider->GetMin().y - enemyOffset;
-	} else if (outNormal.z == 1.0f) {
-		GetWorldTransform()->GetTranslation().z = blockCollider->GetMax().z + enemyOffset;
-	} else if (outNormal.z == -1.0f) {
-		GetWorldTransform()->GetTranslation().z = blockCollider->GetMin().z - enemyOffset;
 	}
 }
 

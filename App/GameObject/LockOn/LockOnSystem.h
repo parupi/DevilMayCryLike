@@ -39,7 +39,9 @@ private:
 	LockOnTarget* currentTarget_ = nullptr;
 	// 最適なターゲットを探す
 	LockOnTarget* FindBestTarget();
-	// 各ターゲットのスコア計算
+	// 各ターゲットのスコア計算（画面内に無ければFLT_MAXを返す）
 	float CalculateScore(LockOnTarget* target);
+	// 現在のカメラから見て画面内にいるかどうか
+	bool IsTargetVisible(LockOnTarget* target) const;
 };
 
