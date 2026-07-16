@@ -12,8 +12,14 @@ public:
 	// 描画
 	void Draw() override;
 
+	// 使用するモデル名を設定する(Initialize()より前に呼ぶこと。未設定時は"Cube")
+	void SetModelName(const std::string& modelName) { modelName_ = modelName; }
+
 #ifdef _DEBUG
 	void DebugGui() override;
 #endif // _DEBUG
+
+private:
+	std::string modelName_ = "Cube";
 };
 
