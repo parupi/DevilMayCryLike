@@ -71,6 +71,8 @@ public:
 	MenuUI* GetMenuUI() { return menuUI_.get(); }
 	// 入力の受付状態を管理するクラスを取得
 	InputContext* GetInputContext() { return inputContext_.get(); }
+	// チュートリアルの制御に使うサービスを取得
+	TutorialService* GetTutorialService() { return tutorial_.get(); }
 private:
 	std::unordered_map<std::string, std::unique_ptr<GameSceneStateBase>> states_;
 	GameSceneStateBase* currentState_ = nullptr;

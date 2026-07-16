@@ -127,6 +127,7 @@ void GameScene::Initialize() {
 
 	tutorial_ = std::make_unique<TutorialSystem>();
 	tutorial_->Initialize();
+	player_->SetTutorialService(tutorial_.get());
 }
 
 void GameScene::Finalize() {
@@ -160,16 +161,6 @@ void GameScene::Update()
 	lockOnSystem_->Update();
 
 	tutorial_->Update();
-
-	TutorialService* service = tutorial_.get();
-
-	if (Input::GetInstance().TriggerKey(DIK_N)) {
-		service->StartTutorial(TutorialState::AttackA);
-	}
-
-	if (Input::GetInstance().TriggerKey(DIK_B)) {
-		service->StepTutorial();
-	}
 
 	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
 }

@@ -9,7 +9,7 @@ public:
 	Tutorial() = default;
 	~Tutorial() = default;
 	// 初期化
-	void Initialize(const std::string& name);
+	void Initialize(const std::string& name, uint32_t maxCounter);
 	// 更新
 	void Update();
 	// 起動
@@ -33,6 +33,6 @@ private:
 	AnimatedSprite* tutorialImage = nullptr;
 	// 進行度のカウンター
 	uint32_t counter_ = 0;
-	// カウンターの最大値
-	const uint32_t maxCounter_ = 3;
+	// カウンターの最大値（チュートリアルの種類ごとにInitializeで指定）
+	uint32_t maxCounter_ = 3;
 };

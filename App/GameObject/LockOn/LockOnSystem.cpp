@@ -14,6 +14,10 @@ void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 }
 
 void LockOnSystem::Update() {
+	// ロックオンが成立した瞬間を検知するため、更新前の状態を保持しておく
+	bool hadTarget = currentTarget_ != nullptr;
+
+	FindBestTarget();
 	// ロックオン入力
 	if (input_->PushLockOnKey()) {
 		if (!currentTarget_) {
@@ -29,6 +33,11 @@ void LockOnSystem::Update() {
 	// 無効チェック：対象が消滅した、または画面外に出た場合は解除する
 	if (currentTarget_ && (!currentTarget_->IsLockable() || !IsTargetVisible(currentTarget_))) {
 		currentTarget_ = nullptr;
+	}
+
+	// ロックオンが成立した瞬間にチュートリアルを進める
+	if (!hadTarget && currentTarget_) {
+		player_->GetTutorialService()->StepTutorial(TutorialState::LockOn);
 	}
 
 	if (IsLockOn()) {

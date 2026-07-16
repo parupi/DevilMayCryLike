@@ -3,14 +3,15 @@
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 #include <numbers>
 
-void PlayerStateMove::Enter(Player& player)
-{
+void PlayerStateMove::Enter(Player& player) {
 	// 接地している状態で移動状態に入るので、y軸の速度は0にしておく
 	player.GetAcceleration().y = 0.0f;
 }
 
-void PlayerStateMove::Update(Player& player, float deltaTime)
-{
+void PlayerStateMove::Update(Player& player, float deltaTime) {
+	// 移動できていることをチュートリアルに伝える
+	player.GetTutorialService()->StepTutorial(TutorialState::Move);
+
 	// 移動方向を取得
 	Vector3 moveDir = player.GetMoveDirection();
 	// 移動と回転を実行
@@ -32,15 +33,13 @@ void PlayerStateMove::Update(Player& player, float deltaTime)
 	}
 }
 
-void PlayerStateMove::Exit(Player& player)
-{
+void PlayerStateMove::Exit(Player& player) {
 	// 移動状態から出るときは水平速度を0にしておく
 	player.GetVelocity().x = 0.0f;
 	player.GetVelocity().z = 0.0f;
 }
 
-void PlayerStateMove::ExecuteCommand(Player& player, const PlayerCommand& command)
-{
+void PlayerStateMove::ExecuteCommand(Player& player, const PlayerCommand& command) {
 	// ジャンプを要求されたら飛ぶ
 	if (command.action == PlayerAction::Jump) {
 		player.ChangeState("Jump");
