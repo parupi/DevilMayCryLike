@@ -92,12 +92,16 @@ void GameScene::Initialize() {
 	// 敵の出現演出（収束する黒い粒子）・死亡演出（拡散する黒い粒子）
 	ParticleManager::GetInstance().CreateParticleGroup("EnemySpawnParticle", "smoke.png");
 	ParticleManager::GetInstance().CreateParticleGroup("EnemyDeathParticle", "smoke.png");
+	// ボスのスーパーアーマー中（ノックバック無効）に体から立ち上る紫のオーラ
+	ParticleManager::GetInstance().CreateParticleGroup("BossArmorAura", "smoke.png");
+	// スーパーアーマー中の被弾で弾かれたことを示す紫の硬い火花
+	ParticleManager::GetInstance().CreateParticleGroup("BossArmorHitSpark", "white.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");
 
 	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
+	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Test.json"));
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
@@ -118,8 +122,8 @@ void GameScene::Initialize() {
 
 	gameCamera_->Initialize(player_, lockOnSystem_.get(), inputContext_->GetCameraInput());
 
-	gameUI_ = std::make_unique<GameUI>();
-	gameUI_->Initialize();
+	//gameUI_ = std::make_unique<GameUI>();
+	//gameUI_->Initialize();
 
 	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "menuMask", "white.png");
 	mask_->SetSize({ 1280.0f, 720.0f });
@@ -150,7 +154,7 @@ void GameScene::Finalize() {
 void GameScene::Update()
 {
 	//lightManager_->Update();
-	gameUI_->Update();
+	//gameUI_->Update();
 
 	if (currentState_) {
 		currentState_->Update(*this);

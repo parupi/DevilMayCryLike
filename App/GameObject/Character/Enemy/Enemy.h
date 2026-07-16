@@ -4,6 +4,7 @@
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "GameObject/Character/Enemy/Effect/EnemyAppearanceEffect.h"
+#include "GameObject/Effect/CharacterLight.h"
 #include <GameObject/LockOn/LockOnTarget.h>
 
 class Player;
@@ -95,6 +96,20 @@ public:
 	/// </summary>
 	virtual bool CanDie() const { return true; }
 
+	/// <summary>
+	/// ノックバック無効（スーパーアーマー）中かどうか。
+	/// 通常の敵は常に false。ボスなどがオーバーライドする。
+	/// ロックオンレティクルの色変化など、プレイヤーへの状態表示に使う。
+	/// </summary>
+	virtual bool IsKnockbackImmune() const { return false; }
+
+	/// <summary>
+	/// 攻撃行動をしてよいかを返す。
+	/// 通常は常に true。チュートリアル用の敵（練習台）などが攻撃を封じるためにオーバーライドする。
+	/// 意思決定ステート（CombatIdleなど）が攻撃を選ぶ前にこれを確認する。
+	/// </summary>
+	virtual bool CanAttack() const { return true; }
+
 	bool IsAlive() const { return isAlive_; }
 
 	/// <summary>
@@ -105,6 +120,11 @@ public:
 
 	/// <summary>出現・死亡演出を取得する（武器のレンダラー登録などに使う）</summary>
 	EnemyAppearanceEffect* GetAppearanceFx() { return appearanceFx_.get(); }
+
+	/// <summary>
+	/// 追従ライトをひときわ強く光らせる。攻撃がヒットした瞬間に呼ぶ。
+	/// </summary>
+	void FlashLight() { if (characterLight_) characterLight_->Flash(); }
 
 	/// <summary>
 	/// KnockBack ステートが Enter() で参照するダメージ情報をセットする。
@@ -191,6 +211,9 @@ protected:
 
 	// 出現・死亡演出（粒子 + ディゾルブ）
 	std::unique_ptr<EnemyAppearanceEffect> appearanceFx_;
+
+	// 敵に追従するポイントライト（被弾時にフラッシュ）
+	std::unique_ptr<CharacterLight> characterLight_;
 
 	LockOnTarget lockOnTarget_;
 

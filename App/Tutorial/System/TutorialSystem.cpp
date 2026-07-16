@@ -15,11 +15,12 @@ void TutorialSystem::Initialize() {
 
 	// チュートリアルの種類ごとの、表示画像と完了に必要な回数
 	static const std::unordered_map<TutorialState, TutorialConfig> kTutorialConfigs = {
-		{ TutorialState::Move,           { "PlayerWalk", 120 } }, // 120フレーム移動し続けたら完了
-		{ TutorialState::AttackA,        { "PlayerWalk", 3 } },   // 攻撃Aを3回当てたら完了
-		{ TutorialState::AttackB,        { "PlayerWalk", 3 } },   // 攻撃Bを3回当てたら完了
-		{ TutorialState::LockOn,         { "PlayerWalk", 1 } },   // ロックオンを1回行ったら完了
-		{ TutorialState::RoundUpAttack,  { "PlayerWalk", 3 } },   // 切り上げ攻撃を3回当てたら完了
+		{ TutorialState::Move,           { "PlayerWalk", 50 } }, // 120フレーム移動し続けたら完了
+		{ TutorialState::Jump,           { "PlayerJump", 1 } }, // 1度ジャンプしたら完了
+		{ TutorialState::AttackA,        { "AttackA", 3 } },   // 攻撃Aを3回当てたら完了
+		{ TutorialState::AttackB,        { "AttackB", 2 } },   // 攻撃Bを3回当てたら完了
+		{ TutorialState::LockOn,         { "LockOn", 1 } },   // ロックオンを1回行ったら完了
+		{ TutorialState::RoundUpAttack,  { "RoundUp", 2 } },   // 切り上げ攻撃を3回当てたら完了
 	};
 
 	// チュートリアルの初期化処理

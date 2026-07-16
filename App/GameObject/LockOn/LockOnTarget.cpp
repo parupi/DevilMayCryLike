@@ -27,6 +27,13 @@ float LockOnTarget::GetHpRatio() const {
 	return 1.0f;
 }
 
+bool LockOnTarget::IsKnockbackImmune() const {
+	if (auto* enemy = dynamic_cast<Enemy*>(owner_)) {
+		return enemy->IsKnockbackImmune();
+	}
+	return false;
+}
+
 bool LockOnTarget::IsLockable() const {
 	bool flag = true;
 	// 敵が死亡している場合と待機状態の場合ロックオン対象から除外する

@@ -40,6 +40,21 @@ void SceneLoader::ParseObject(const json& j, SceneObject& out) {
 		out.collider = ParseCollider(j["collider"]);
 	}
 
+	if (j.contains("light")) {
+		const auto& l = j["light"];
+		LightInfo info;
+		if (l.contains("color") && l["color"].size() >= 3) {
+			info.color = { l["color"][0], l["color"][1], l["color"][2] };
+		}
+		if (l.contains("offset") && l["offset"].size() >= 3) {
+			info.offset = { l["offset"][0], l["offset"][1], l["offset"][2] };
+		}
+		info.intensity = l.value("intensity", 1.5f);
+		info.radius = l.value("radius", 10.0f);
+		info.decay = l.value("decay", 1.0f);
+		out.lightInfo = info;
+	}
+
 	if (j.contains("event")) {
 		EventInfo info;
 		const auto& ev = j["event"];

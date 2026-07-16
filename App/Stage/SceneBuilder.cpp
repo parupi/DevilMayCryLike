@@ -15,6 +15,8 @@
 #include "GameObject/Event/ForceBattleEvent.h"
 #include "GameObject/Event/BossSpawnEvent.h"
 #include "GameObject/Ground/Ground.h"
+#include "GameObject/Prop/Prop.h"
+#include "GameObject/Light/StagePointLight.h"
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -31,8 +33,13 @@ void SceneBuilder::ApplyTransform(WorldTransform* transform, const EulerTransfor
 	transform->GetTranslation() = translate;
 
 	// 度数法, Blenderのローカルオイラー角(XYZ順)
+	// Blender(右手系Z-up)→エンジン(左手系Y-up)のY/Z入れ替えは鏡映変換(行列式-1)なので、
+	// 回転は軸を入れ替えた上で全軸の回転方向(符号)を反転する必要がある
 	Vector3 rotate = src.rotate;
 	std::swap(rotate.y, rotate.z);
+	rotate.x = -rotate.x;
+	rotate.y = -rotate.y;
+	rotate.z = -rotate.z;
 	transform->GetRotation() = EulerDegree(rotate);
 
 	Vector3 scale = src.scale;
@@ -47,14 +54,13 @@ void SceneBuilder::ApplyCollider(Object3d* object, const std::string& name, cons
 		// Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
 		// offsetMin/offsetMaxはSceneLoaderで既にローカル空間での真の最小/最大コーナーとして計算済み。
 		// スケールはOBBCollider::Update()がオーナーのWorldTransformから自動で適用するため、ここでは掛けない。
+		// これによりゲーム内のコライダーはBlenderのギズモ表示(collider_size)と完全に一致する。
+		// ※以前あった「×2補正」は旧ワークフロー(半分サイズのキューブプレビュー)向けの補正で、
+		//   実モデルプレビューではコライダーが2倍になり向きがズレて見える原因だったため撤廃した。
 		Vector3 offsetMin = col.aabb.offsetMin;
 		std::swap(offsetMin.y, offsetMin.z);
 		Vector3 offsetMax = col.aabb.offsetMax;
 		std::swap(offsetMax.y, offsetMax.z);
-
-		// Blenderの collider_size 単位とエンジン側で期待するコライダー単位に2倍のズレがあるため補正
-		offsetMin *= 2.0f;
-		offsetMax *= 2.0f;
 
 		// 回転しても正しく機能するようOBBコライダーとして生成する
 		auto collider = std::make_unique<OBBCollider>(name);
@@ -113,6 +119,30 @@ void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObj
 	if (sceneObj.fileName.has_value()) {
 		if (auto* ground = dynamic_cast<Ground*>(object.get())) {
 			ground->SetModelName(sceneObj.fileName.value());
+		}
+	}
+
+	// 小物(Prop): モデル名とオプションのポイントライト（ランタンなど）を反映
+	if (auto* prop = dynamic_cast<Prop*>(object.get())) {
+		if (sceneObj.fileName.has_value()) {
+			prop->SetModelName(sceneObj.fileName.value());
+		}
+		if (sceneObj.lightInfo.has_value()) {
+			const LightInfo& li = sceneObj.lightInfo.value();
+			// Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
+			Vector3 offset = li.offset;
+			std::swap(offset.y, offset.z);
+			prop->SetLight(li.color, offset, li.intensity, li.radius, li.decay);
+		}
+	}
+
+	// レベルエディタで配置したポイントライト
+	if (auto* stageLight = dynamic_cast<StagePointLight*>(object.get())) {
+		if (sceneObj.lightInfo.has_value()) {
+			const LightInfo& li = sceneObj.lightInfo.value();
+			Vector3 offset = li.offset;
+			std::swap(offset.y, offset.z);
+			stageLight->SetLight(li.color, offset, li.intensity, li.radius, li.decay);
 		}
 	}
 

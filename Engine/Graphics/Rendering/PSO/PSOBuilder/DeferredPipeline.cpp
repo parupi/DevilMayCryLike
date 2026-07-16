@@ -32,9 +32,9 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateRootSignatur
 	rootParams[1].InitAsConstantBufferView(1); // b1
 	rootParams[2].InitAsDescriptorTable(1, &descriptorRange[0]); // t0
 	rootParams[3].InitAsDescriptorTable(1, &descriptorRangeNoise[0]); // t1
-	// b2: レンダラー単位のDissolve上書き（float4 x2 = 8DWORD のルート定数）
+	// b2: レンダラー単位のDissolve上書き + エミッシブティント（float4 x3 = 12DWORD のルート定数）
 	// 共有マテリアルのCBではフレーム内の per-draw 差し替えができないため、ルート定数で渡す
-	rootParams[4].InitAsConstants(8, 2); // b2
+	rootParams[4].InitAsConstants(12, 2); // b2
 
 	CD3DX12_ROOT_SIGNATURE_DESC rsDesc;
 	rsDesc.Init(_countof(rootParams), rootParams,

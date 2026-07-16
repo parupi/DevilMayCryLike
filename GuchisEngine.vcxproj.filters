@@ -76,8 +76,14 @@
     <Filter Include="App\GameObject\Ground">
       <UniqueIdentifier>{246AB890-90D6-738B-59CA-0BE9C5F595F3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Light">
+      <UniqueIdentifier>{2D99C742-1928-510C-C246-6507AEB461B2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\LockOn">
       <UniqueIdentifier>{BB28259C-2795-E096-F088-78F45CB402FF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Prop">
+      <UniqueIdentifier>{763E6D95-E29F-4AA3-6B0D-9155D76D8162}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
@@ -402,6 +408,9 @@
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -432,11 +441,17 @@
     <ClInclude Include="App\GameObject\Ground\Ground.h">
       <Filter>App\GameObject\Ground</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Light\StagePointLight.h">
+      <Filter>App\GameObject\Light</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h">
       <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h">
       <Filter>App\GameObject\LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Prop\Prop.h">
+      <Filter>App\GameObject\Prop</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -625,6 +640,9 @@
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\InstanceData.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\Particle.h">
@@ -841,6 +859,9 @@
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Light\DirectionalLight.h">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Light\DynamicPointLight.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Light\LightManager.h">
@@ -1112,6 +1133,9 @@
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
@@ -1142,11 +1166,17 @@
     <ClCompile Include="App\GameObject\Ground\Ground.cpp">
       <Filter>App\GameObject\Ground</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Light\StagePointLight.cpp">
+      <Filter>App\GameObject\Light</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp">
       <Filter>App\GameObject\LockOn</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp">
       <Filter>App\GameObject\LockOn</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Prop\Prop.cpp">
+      <Filter>App\GameObject\Prop</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -1325,6 +1355,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp">
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEditor.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
@@ -1500,6 +1533,9 @@
       <Filter>Engine\World3D\Collider</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Light\DirectionalLight.cpp">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Light\DynamicPointLight.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Light\LightManager.cpp">

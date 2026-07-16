@@ -24,6 +24,16 @@ struct EventInfo {
     std::string bossName;                   // BossSpawn 用（出現させるボスのオブジェクト名）
 };
 
+// レベルエディタで配置したポイントライトの情報（PointLight / ライト付きProp 用）
+// offset は Blender ローカル座標のまま保持する（Y/Z の入れ替えは SceneBuilder が行う）
+struct LightInfo {
+    Vector3 color = { 1.0f, 1.0f, 1.0f };
+    Vector3 offset = { 0.0f, 0.0f, 0.0f };
+    float intensity = 1.5f;
+    float radius = 10.0f;
+    float decay = 1.0f;
+};
+
 enum class ColliderType {
     None,
     AABB,
@@ -43,6 +53,7 @@ struct SceneObject {
     std::optional<std::string> fileName;
     std::optional<Collider> collider;
     std::optional<EventInfo> eventInfo;
+    std::optional<LightInfo> lightInfo;
 };
 
 

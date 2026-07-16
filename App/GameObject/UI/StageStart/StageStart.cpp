@@ -12,7 +12,7 @@ void StageStart::Initialize()
 	cam->GetRotate() = { 0.58f, 2.0f, 0.0f };
 
 	CameraManager::GetInstance().AddCamera(std::move(cam));
-	CameraManager::GetInstance().SetActiveCamera("StartCamera1");
+	//CameraManager::GetInstance().SetActiveCamera("StartCamera1");
 
 	cam = std::make_unique<BaseCamera>("StartCamera2");
 	cam->GetTranslate() = { -80.0f, 60.0f, 35.0f };
@@ -36,6 +36,8 @@ void StageStart::Initialize()
 
 	cam = std::make_unique<BaseCamera>("StartCamera6");
 	CameraManager::GetInstance().AddCamera(std::move(cam));
+
+	CameraManager::GetInstance().SetActiveCamera("StartCamera6");
 }
 
 void StageStart::Complete()
@@ -64,7 +66,7 @@ void StageStart::Update()
 	// 「シーン遷移が終わっていないか」「カメラの移動が行われているか」で早期リターン
 	if (!TransitionManager::GetInstance().IsFinished() || CameraManager::GetInstance().IsTransition()) return;
 
-	if (CameraManager::GetInstance().GetActiveCamera()->name_ == "StartCamera1") {
+/*	if (CameraManager::GetInstance().GetActiveCamera()->name_ == "StartCamera1") {
 		CameraManager::GetInstance().SetActiveCamera("StartCamera2", 2.0f);
 		return;
 	} else if (CameraManager::GetInstance().GetActiveCamera()->name_ == "StartCamera2") {
@@ -79,7 +81,7 @@ void StageStart::Update()
 	} else if (CameraManager::GetInstance().GetActiveCamera()->name_ == "StartCamera5") {
 		CameraManager::GetInstance().SetActiveCamera("StartCamera6");
 		return;
-	} else if (CameraManager::GetInstance().GetActiveCamera()->name_ == "StartCamera6") {
+	} else */if (CameraManager::GetInstance().GetActiveCamera()->name_ == "StartCamera6") {
 		CameraManager::GetInstance().SetActiveCamera("GameCamera", 2.0f);
 		return;
 	}

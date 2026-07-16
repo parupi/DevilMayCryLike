@@ -27,7 +27,10 @@ public:
 	void Finalize();
 
 	void Update();
-	void AddLight(std::unique_ptr<BaseLight> light);
+	// ライトを追加し、追加したライトへのポインタを返す（所有権はLightManager）
+	BaseLight* AddLight(std::unique_ptr<BaseLight> light);
+	// 指定したライトだけを削除する（見つからなければ何もしない）
+	void RemoveLight(BaseLight* light);
 	void DeleteAllLight();
 
 	void BindLightsToShader();

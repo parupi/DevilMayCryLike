@@ -67,6 +67,8 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		scoreManager_->AddScore(50);
 		// 攻撃のパラメータを参照してヒットストップ起動
 		player_->GetHitStop()->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity);
+		// 攻撃がヒットしたのでプレイヤーのライトを強く光らせる
+		player_->GetCharacterLight()->Flash();
 
 		// チュートリアル対象の攻撃であれば進行させる
 		TutorialState tutorialState = ResolveTutorialState(player_->GetCombat()->GetCurrentAttackName());

@@ -15,6 +15,7 @@
 #include "ParticleGroup.h"
 #include "ParticleRenderer.h"
 #include "ParticleEmitter.h"
+#include "MeshShapeSampler.h"
 #include <memory>
 #include "ParticleEditor.h"
 
@@ -129,6 +130,10 @@ public:
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
 	void Emit(const std::string name_, const Vector3& position, uint32_t count);
 
+	// モデルのメッシュ表面からパーティクルを発生させる関数
+	// worldMatrix でモデルローカル座標→ワールド座標に変換する（回転・スケール込み）
+	void EmitFromMesh(const std::string& groupName, const std::string& modelName, const Matrix4x4& worldMatrix, uint32_t count);
+
 private:
 	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
 	// パーティクル用リソースの宣言
@@ -166,10 +171,14 @@ private:
 	// ランダム用変数宣言
 	std::mt19937 randomEngine;
 
+	// モデル名→メッシュ表面サンプラーのキャッシュ（初回要求時に構築、有効なものだけ保持）
+	MeshShapeSampler* GetMeshSampler(const std::string& modelName);
+
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
 	std::unordered_map<std::string, ParticleGroupGPU> particleGPU_;
 	std::unordered_map<std::string, ParticleRenderState> renderStates_;
 	std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>> emitters_;
+	std::unordered_map<std::string, std::unique_ptr<MeshShapeSampler>> meshSamplers_;
 
 public:
 	DirectXManager* GetDxManager() { return dxManager_; }

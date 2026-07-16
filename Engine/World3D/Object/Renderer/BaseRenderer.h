@@ -29,6 +29,12 @@ public:
 	void SetDissolveEdgeWidth(float w) { dissolveEdgeWidth_ = w; }
 	void SetDissolveEdgeColor(const Vector4& color) { dissolveEdgeColor_ = color; }
 
+	// ── レンダラー単位のエミッシブティント ──
+	// rgb = 加算する発光色、a = 強度（0で無効）。
+	// スーパーアーマー中の紫発光など、個別オブジェクトの一時的な色変化に使う。
+	void SetEmissiveTint(const Vector4& color) { emissiveTint_ = color; }
+	const Vector4& GetEmissiveTint() const { return emissiveTint_; }
+
 	std::string name_;
 	bool isAlive = true;
 
@@ -38,5 +44,6 @@ protected:
 	float dissolveThreshold_ = -1.0f;
 	float dissolveEdgeWidth_ = 0.05f;
 	Vector4 dissolveEdgeColor_ = { 1.0f, 0.3f, 0.0f, 8.0f };
+	Vector4 emissiveTint_ = { 0.0f, 0.0f, 0.0f, 0.0f };
 };
 

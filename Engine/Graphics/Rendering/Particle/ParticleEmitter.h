@@ -50,6 +50,9 @@ private:
 	// 発生対象のパーティクル
 	std::vector<EmitterParticle> particles_;
 
+	// メッシュ形状エミット用のモデル名（空なら通常の点エミット）
+	std::string shapeModelName_;
+
 	std::unique_ptr<WorldTransform> transform_;
 public:
 	void SetFrequency(float time) { emitter.frequency = time; }
@@ -57,4 +60,17 @@ public:
 	void SetParent(WorldTransform* transform) { transform_->SetParent(transform); }
 	void SetTranslate(const Vector3& translate) { emitter.transform.translate = translate; }
 
+	// ======================
+	// メッシュ形状エミット
+	// ======================
+
+	/// <summary>
+	/// エミッターの形状を ModelManager に読み込み済みのモデルにする。
+	/// 設定するとモデルのメッシュ表面からパーティクルが発生する。
+	/// SetParent した親のワールド行列（回転・スケール込み）で形状が追従する。
+	/// </summary>
+	void SetShapeModel(const std::string& modelName) { shapeModelName_ = modelName; }
+	/// <summary>メッシュ形状エミットを解除して通常の点エミットに戻す</summary>
+	void ClearShapeModel() { shapeModelName_.clear(); }
+	const std::string& GetShapeModelName() const { return shapeModelName_; }
 };

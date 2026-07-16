@@ -9,6 +9,9 @@ void PlayerStateJump::Enter(Player& player)
 
 void PlayerStateJump::Update(Player& player, float)
 {
+	// ジャンプのチュートリアルを進める
+	player.GetTutorialService()->StepTutorial(TutorialState::Jump);
+
 	// 縦軸の移動を設定したらすぐに空中状態に遷移する
 	player.ChangeState("Air");
 }

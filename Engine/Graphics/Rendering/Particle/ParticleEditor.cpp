@@ -225,6 +225,30 @@ void ParticleEditor::DrawEmitterWindow()
         ImGui::Checkbox("Active",     &act);
     }
 
+    // ── メッシュ形状エミット（モデル表面から発生させる）──────────
+    if (ImGui::CollapsingHeader("Shape (Mesh Emit)", ImGuiTreeNodeFlags_DefaultOpen)) {
+        static char shapeBuf[128] = "";
+        static std::string lastShapeEmitter;
+
+        // 選択エミッターが変わったら入力バッファを現在値で更新する
+        if (lastShapeEmitter != eName) {
+            lastShapeEmitter = eName;
+            strncpy_s(shapeBuf, emitterPtr->GetShapeModelName().c_str(), sizeof(shapeBuf) - 1);
+        }
+
+        if (ImGui::InputText("Shape Model", shapeBuf, IM_ARRAYSIZE(shapeBuf))) {
+            emitterPtr->SetShapeModel(shapeBuf);
+        }
+        ImGui::TextDisabled("Loaded model name. Empty = point emit.");
+
+        if (!emitterPtr->GetShapeModelName().empty()) {
+            if (ImGui::SmallButton("Clear Shape")) {
+                emitterPtr->ClearShapeModel();
+                shapeBuf[0] = '\0';
+            }
+        }
+    }
+
     // ── 接続済みパーティクル (count/spawnRate の調整) ──────────────
     if (ImGui::CollapsingHeader("Connected Particles", ImGuiTreeNodeFlags_DefaultOpen)) {
         auto& particles = emitterPtr->GetParticles();

@@ -21,6 +21,9 @@ void ParticleManager::Finalize()
 	}
 	particleGroups_.clear();
 
+	// メッシュ表面サンプラーのキャッシュを解放
+	meshSamplers_.clear();
+
 	// グループごとの頂点・インデックスバッファを解放
 	if (dxManager_) {
 		auto* rm = dxManager_->GetResourceManager();
@@ -529,5 +532,41 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 	for (uint32_t i = 0; i < count; ++i) {
 		particles.emplace_back(MakeNewParticle(name, position));
+	}
+}
+
+MeshShapeSampler* ParticleManager::GetMeshSampler(const std::string& modelName)
+{
+	auto it = meshSamplers_.find(modelName);
+	if (it != meshSamplers_.end()) {
+		return it->second.get();
+	}
+
+	// 初回要求時に構築する。モデルが未ロードなら構築失敗として何も返さない
+	// （キャッシュしないので、あとからロードされれば次回の要求で構築される）
+	auto sampler = std::make_unique<MeshShapeSampler>();
+	if (!sampler->Build(modelName)) {
+		return nullptr;
+	}
+
+	MeshShapeSampler* raw = sampler.get();
+	meshSamplers_.emplace(modelName, std::move(sampler));
+	return raw;
+}
+
+void ParticleManager::EmitFromMesh(const std::string& groupName, const std::string& modelName, const Matrix4x4& worldMatrix, uint32_t count)
+{
+	MeshShapeSampler* sampler = GetMeshSampler(modelName);
+	if (!sampler) return;
+
+	auto& particles = particleGroups_[groupName].particles;
+
+	particles.reserve(particles.size() + count);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		// メッシュ表面上の点（モデルローカル）をワールドへ変換して発生させる
+		Vector3 localPos = sampler->Sample(randomEngine);
+		Vector3 worldPos = Transform(localPos, worldMatrix);
+		particles.emplace_back(MakeNewParticle(groupName, worldPos));
 	}
 }

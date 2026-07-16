@@ -30,6 +30,14 @@ void Enemy::Initialize() {
 		}
 	}
 
+	// 敵に追従するポイントライト（被弾時にフラッシュする）
+	if (!characterLight_) {
+		characterLight_ = std::make_unique<CharacterLight>();
+		characterLight_->Initialize(name_ + "Light", Vector4{ 1.0f, 0.3f, 0.15f, 1.0f });
+		// 出現前に光らないよう消灯しておく（Update内で状態に応じて点灯する）
+		characterLight_->SetEnabled(false);
+	}
+
 	auto it = states_.find("Air");
 	if (it != states_.end()) {
 		currentState_ = it->second.get();
@@ -44,6 +52,7 @@ void Enemy::Update(float deltaTime) {
 
 	// 起動する前だったら動かない
 	if (!isActive_) {
+		if (characterLight_) characterLight_->SetEnabled(false);
 		return;
 	}
 
@@ -51,7 +60,14 @@ void Enemy::Update(float deltaTime) {
 		isAlive = false;
 		GetCollider(name_)->isAlive = false;
 		GetRenderer(name_)->isAlive = false;
+		if (characterLight_) characterLight_->SetEnabled(false);
 		return;
+	}
+
+	// キャラクター追従ライトの更新（出現・死亡演出中も含めて追従させる）
+	if (characterLight_) {
+		characterLight_->SetEnabled(true);
+		characterLight_->Update(GetWorldTransform()->GetTranslation(), deltaTime);
 	}
 
 	// ── 出現・死亡演出 ──

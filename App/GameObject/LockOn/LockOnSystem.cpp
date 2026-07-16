@@ -72,8 +72,14 @@ void LockOnSystem::Update() {
 	}
 
 	if (IsLockOn()) {
-		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
-		hpRing_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		// ノックバック無効（スーパーアーマー）中の敵はレティクルを紫にして知らせる
+		if (currentTarget_->IsKnockbackImmune()) {
+			reticle_->SetColor({ 0.75f, 0.4f, 1.0f, 1.0f });
+			hpRing_->SetColor({ 0.75f, 0.4f, 1.0f, 1.0f });
+		} else {
+			reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+			hpRing_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		}
 		// 敵の残りHP割合に応じて、リングが上から時計回りに欠けていく（DMC風のHP表示）
 		hpRing_->SetRadialFill(currentTarget_->GetHpRatio());
 	} else {

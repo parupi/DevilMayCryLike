@@ -1,4 +1,4 @@
-﻿#include "GruntMelee.h"
+#include "GruntMelee.h"
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
@@ -28,8 +28,8 @@ GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
 }
 
 void GruntMelee::Initialize() {
-	auto* col = static_cast<OBBCollider*>(GetCollider(name_));
-	col->GetColliderData().halfExtents *= 0.5f;
+	// レベルデータのコライダーサイズをそのまま使う
+	// （旧: レベル側の×2補正を打ち消すための *0.5f があったが、×2補正の撤廃に伴い削除。実効サイズは変わらない）
 
 	// 武器の生成
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
@@ -101,8 +101,13 @@ void GruntMelee::Update(float deltaTime) {
 		return;
 	}
 
-	// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
-	weapon_->SetIsDraw(true);
+	if (isActive_) {
+		// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
+		weapon_->SetIsDraw(true);
+	} else {
+		weapon_->SetIsDraw(false);
+	}
+
 
 	if (meleeAttack_->IsFinished()) {
 		weapon_->GetWorldTransform()->GetTranslation() = { 0.0f, 0.1f, -0.5f };
@@ -146,6 +151,9 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	if (!player_ || !player_->IsAttack()) return;
 	// 出現・死亡演出中は被弾処理をしない
 	if (IsAppearanceEffectPlaying()) return;
+
+	// 攻撃がヒットしたのでライトを強く光らせる
+	FlashLight();
 
 	if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
 		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);

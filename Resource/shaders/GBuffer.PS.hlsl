@@ -17,13 +17,14 @@ cbuffer MaterialParam : register(b0)
     float4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
 };
 
-// レンダラー単位のDissolve上書き（ルート定数）。
+// レンダラー単位のDissolve上書き + エミッシブティント（ルート定数）。
 // マテリアル(=モデル)は複数オブジェクトで共有されるため、
-// 個別オブジェクトを溶かす場合はこちらをドロー毎に設定する。
+// 個別オブジェクトを溶かしたり発光させたりする場合はこちらをドロー毎に設定する。
 cbuffer DissolveOverride : register(b2)
 {
     float4 gDissolveOverrideParam;     // x: threshold (-0.5未満で無効=マテリアル値を使用), y: edgeWidth
     float4 gDissolveOverrideEdgeColor; // rgb = emissive color, a = intensity multiplier
+    float4 gEmissiveTint;              // rgb = 加算する発光色, a = 強度(0で無効)
 };
 
 GBufferOutput main(VSOutput input)
@@ -48,7 +49,9 @@ GBufferOutput main(VSOutput input)
 
     // ------- Albedo -------
     float4 baseColor = baseColorMap.Sample(samLinear, transformedUV);
-    output.baseColor_Roughness = float4(baseColor.rgb + edgeEmissive, roughness);
+    // エミッシブティント（スーパーアーマーの紫発光など、レンダラー単位の一時発光）
+    float3 tintEmissive = gEmissiveTint.rgb * gEmissiveTint.a;
+    output.baseColor_Roughness = float4(baseColor.rgb + edgeEmissive + tintEmissive, roughness);
 
     // ------- Normal -------
     float3 normalWS = normalize(input.normalWS.xyz);

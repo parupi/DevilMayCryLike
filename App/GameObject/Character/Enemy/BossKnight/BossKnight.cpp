@@ -1,4 +1,5 @@
-﻿#include "BossKnight.h"
+#include "BossKnight.h"
+#include <cmath>
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
@@ -20,7 +21,7 @@
 BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
-	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 1.5f, 1.5f, 1.5f };
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = {1.5f, 1.5f, 1.5f};
 
 	hp_ = kMaxHp;
 	maxHp_ = kMaxHp;
@@ -28,8 +29,9 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 
 void BossKnight::Initialize() {
 	// ── 自コライダーの調整 ──
+	// レベル側の×2補正の撤廃に伴い 0.65f → 1.3f に変更（実効サイズは従来と同じ）
 	auto* col = static_cast<OBBCollider*>(GetCollider(name_));
-	col->GetColliderData().halfExtents *= 0.65f;
+	col->GetColliderData().halfExtents *= 1.3f;
 
 	// ── 武器の生成 ──
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
@@ -83,6 +85,22 @@ void BossKnight::Initialize() {
 	chargeEmitter_->SetParent(GetWorldTransform());
 	chargeEmitter_->AddParticle("EnemyChargeRing");
 
+	// ── パーティクル: スーパーアーマー中に体から立ち上る紫のオーラ ──
+	// レンダラーのトランスフォーム（スケール1.5込み）を親にして、体のメッシュ表面から発生させる
+	ParticleManager::GetInstance().CreateEmitter(name_ + "ArmorAura");
+	auraEmitter_ = ParticleManager::GetInstance().GetEmitters().at(name_ + "ArmorAura").get();
+	auraEmitter_->SetParent(GetRenderer(name_)->GetWorldTransform());
+	auraEmitter_->SetShapeModel("PlayerBody"); // 本体と同じモデルの表面からエミット
+	auraEmitter_->AddParticle("BossArmorAura");
+	auraEmitter_->GetParticles()[0].count = 50; // 1回のEmitで4粒ずつ出して体の形が読める密度にする
+
+	// ── パーティクル: スーパーアーマー中の被弾で弾かれたことを示す紫の火花 ──
+	ParticleManager::GetInstance().CreateEmitter(name_ + "ArmorHitSpark");
+	armorHitEmitter_ = ParticleManager::GetInstance().GetEmitters().at(name_ + "ArmorHitSpark").get();
+	armorHitEmitter_->SetParent(GetWorldTransform());
+	armorHitEmitter_->AddParticle("BossArmorHitSpark");
+	armorHitEmitter_->GetParticles()[0].count = 16; // 1ヒットで16粒の火花を散らす
+
 	Enemy::Initialize();
 
 	// 出現・死亡演出のディゾルブ対象に武器も含める
@@ -105,15 +123,15 @@ void BossKnight::Update(float deltaTime) {
 	bool isKnockBack = (currentState_ == states_.at(EnemyStateName::KnockBack).get())
 		|| (currentState_ == states_.at(BossStateName::KnockBack).get());
 	if (!isKnockBack) {
-		SetAcceleration({ 0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f });
+		SetAcceleration({0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f});
 	}
 
 	// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
 	weapon_->SetIsDraw(true);
 
 	if (meleeAttack_->IsFinished()) {
-		weapon_->GetWorldTransform()->GetTranslation() = { 0.0f, 0.1f, 0.5f };
-		weapon_->GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 90.0f, 150.0f });
+		weapon_->GetWorldTransform()->GetTranslation() = {0.0f, 0.1f, 0.5f};
+		weapon_->GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 90.0f, 150.0f});
 	}
 
 	// 攻撃フェーズのみ武器コライダーを有効化（出現/死亡演出中は無効）
@@ -131,10 +149,12 @@ void BossKnight::Update(float deltaTime) {
 			chargeEmitter_->Emit();
 			chargeEmitTimer_ = 0.0f;
 		}
-	}
-	else {
+	} else {
 		chargeEmitTimer_ = 0.0f;
 	}
+
+	// ノックバック無効中の視覚表示（紫オーラ・紫ライト・体の発光）をまとめて更新
+	UpdateArmorVisual(deltaTime);
 
 	Enemy::Update(deltaTime);
 }
@@ -148,6 +168,70 @@ void BossKnight::DebugGui() {
 	ImGui::End();
 }
 #endif
+
+bool BossKnight::IsKnockbackImmune() const {
+	// 吹き飛び(BossKnockBack)中、および着地後の突進攻撃(Rush)が終わるまで
+	return (currentState_ == states_.at(BossStateName::KnockBack).get())
+		|| (currentState_ == states_.at(BossStateName::Rush).get());
+}
+
+void BossKnight::UpdateArmorVisual(float deltaTime) {
+	// アーマー中被弾フラッシュのタイマーを進める（アーマー解除後も残光が消えるまで減衰させる）
+	if (armorHitFlashTimer_ > 0.0f) {
+		armorHitFlashTimer_ -= deltaTime;
+		if (armorHitFlashTimer_ < 0.0f) armorHitFlashTimer_ = 0.0f;
+	}
+
+	const bool armorActive = IsKnockbackImmune() && !IsAppearanceEffectPlaying();
+
+	if (armorActive) {
+		// ── 紫オーラ（体のメッシュ表面から発生）──
+		auraEmitTimer_ += deltaTime;
+		while (auraEmitTimer_ >= kAuraEmitInterval) {
+			auraEmitter_->Emit();
+			auraEmitTimer_ -= kAuraEmitInterval;
+		}
+
+		// ── 追従ライトを紫+増光にして周囲へ状態を知らせる ──
+		if (characterLight_) {
+			characterLight_->SetColorOverride({ 0.65f, 0.3f, 1.0f, 1.0f });
+			characterLight_->SetIntensityScale(2.0f);
+		}
+
+		// ── 体と武器を紫に発光させる（ゆっくり脈動 + 被弾時に一瞬強く光る）──
+		armorTintPhase_ += deltaTime;
+		float pulse = 0.30f + 0.15f * std::sin(armorTintPhase_ * 10.0f);
+		pulse += (armorHitFlashTimer_ / kArmorHitFlashDuration) * 0.6f; // 被弾フラッシュ
+		const Vector4 tint = { 0.45f, 0.15f, 0.8f, pulse };
+
+		if (auto* bodyRenderer = GetRenderer(name_)) {
+			bodyRenderer->SetEmissiveTint(tint);
+		}
+		if (weapon_) {
+			if (auto* weaponRenderer = weapon_->GetRenderer(name_ + "Weapon")) {
+				weaponRenderer->SetEmissiveTint(tint);
+			}
+		}
+	} else {
+		// アーマー解除: すべての表示を通常状態に戻す
+		auraEmitTimer_ = 0.0f;
+		armorTintPhase_ = 0.0f;
+
+		if (characterLight_) {
+			characterLight_->ClearColorOverride();
+			characterLight_->SetIntensityScale(1.0f);
+		}
+
+		if (auto* bodyRenderer = GetRenderer(name_)) {
+			bodyRenderer->SetEmissiveTint({ 0.0f, 0.0f, 0.0f, 0.0f });
+		}
+		if (weapon_) {
+			if (auto* weaponRenderer = weapon_->GetRenderer(name_ + "Weapon")) {
+				weaponRenderer->SetEmissiveTint({ 0.0f, 0.0f, 0.0f, 0.0f });
+			}
+		}
+	}
+}
 
 void BossKnight::OnDeathEffectFinished() {
 	// 武器を後始末する（本体は Enemy::Update の !isAlive_ 側で後始末される）
@@ -169,23 +253,31 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 	const float damage = atk.damage;
 
-	// 常にヒットストップとエフェクトは再生する
-	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f);
-	hitEmitter_->Emit();
+	// 攻撃がヒットしたのでライトを強く光らせる
+	FlashLight();
 
 	// ── スーパーアーマー ───────────────────────────────────────────────
 	// 吹き飛び中(BossKnockBack)とダッシュ攻撃中(Rush)は、ダメージは通すが
 	// ひるみ・再ノックバックはさせない。
 	// → 「ノックバックが始まったら飛び切る」「Rushが終わるまでひるまない」を保証する。
-	const bool inFlyKnockback = (currentState_ == states_.at(BossStateName::KnockBack).get());
-	const bool inRush         = (currentState_ == states_.at(BossStateName::Rush).get());
-	if (inFlyKnockback || inRush) {
+	//    この間は Update() で紫のオーラ・ライト・体の発光が表示される。
+	if (IsKnockbackImmune()) {
+		// 「弾かれた」感を出す: 通常より短いヒットストップ + 紫の硬い火花 + 体の紫フラッシュ
+		// （通常のヒットエフェクトはあえて出さず、攻撃が通っていないことを伝える）
+		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity);
+		armorHitEmitter_->Emit();
+		armorHitFlashTimer_ = kArmorHitFlashDuration;
+
 		hp_ -= damage;
 		if (hp_ <= 0.0f) OnDeath();
 		return;
 	}
 
 	// ── 通常の被弾（CombatIdle・通常攻撃中・のけぞり中）────────────────
+	// 通常時のヒットストップとヒットエフェクト
+	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f);
+	hitEmitter_->Emit();
+
 	hp_ -= damage;
 	hitAccumulation_ += damage;
 
