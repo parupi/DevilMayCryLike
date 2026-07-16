@@ -411,6 +411,9 @@
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Event\BossSpawnEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Event\ClearEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
@@ -1116,6 +1119,9 @@
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\BossSpawnEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp">

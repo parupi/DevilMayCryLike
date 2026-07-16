@@ -7,7 +7,8 @@
 enum class EventType {
 	EnemySpawn,	// 敵出現イベント
 	Clear,		// ステージクリアイベント
-	ForceBattle	// 強制戦闘イベント（エリアに閉じ込めて敵を出現させる）
+	ForceBattle,	// 強制戦闘イベント（エリアに閉じ込めて敵を出現させる）
+	BossSpawn	// ボス出現イベント（カメラでボスをアップにしてゆっくりディゾルブ出現）
 };
 
 /// <summary>

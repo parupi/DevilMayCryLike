@@ -29,6 +29,12 @@ public:
 	/// <summary>出現演出を開始する（粒子収束 + ディゾルブイン）</summary>
 	void StartAppear();
 
+	/// <summary>出現演出の長さ[s]を設定する（ボス出現イベントなどでゆっくり出したいとき用）</summary>
+	void SetAppearDuration(float seconds) { appearDuration_ = seconds; }
+
+	/// <summary>収束粒子の1回あたり発生数を設定する（ボスなど大型の敵で濃くしたいとき用）</summary>
+	void SetAppearEmitCount(int count) { appearEmitCount_ = count; }
+
 	/// <summary>死亡演出を開始する（粒子拡散 + ディゾルブアウト）</summary>
 	void StartDeath();
 
@@ -56,10 +62,10 @@ private:
 	float emitTimer_ = 0.0f;
 
 	// ── 調整パラメータ ──
-	static constexpr float kAppearDuration = 1.2f; // 出現演出の長さ[s]
+	float appearDuration_ = 1.2f;                  // 出現演出の長さ[s]（Setterで変更可）
+	int appearEmitCount_ = 3;                      // 収束粒子の1回あたり発生数（Setterで変更可）
 	static constexpr float kDeathDuration = 0.9f;  // 死亡演出の長さ[s]
 	static constexpr float kEmitInterval = 0.05f;  // 粒子の発生間隔[s]
-	static constexpr int kAppearEmitCount = 3;     // 収束粒子の1回あたり発生数
 	static constexpr int kDeathEmitCount = 3;      // 拡散粒子の1回あたり発生数
 	static constexpr int kDeathBurstCount = 24;    // 死亡直後に一気に撒く粒子数
 	static constexpr float kEdgeWidth = 0.08f;     // ディゾルブ縁の太さ

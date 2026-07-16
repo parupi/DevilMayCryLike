@@ -55,10 +55,13 @@ class MYADDON_OT_add_object(bpy.types.Operator):
         items=[
             ('PLAYER', "Player", "プレイヤーを生成"),
             ('TUTORIAL_DUMMY', "TutorialDummy", "チュートリアル用の敵(練習台)を生成"),
+            ('GRUNT_MELEE', "GruntMelee", "近接攻撃型の敵を生成"),
+            ('BOSS_KNIGHT', "BossKnight", "ボス敵を生成"),
             ('GROUND', "Ground", "地面を生成"),
             ('EVENT_ENEMY_SPAWN', "敵出現イベント", "敵出現イベントを生成"),
             ('EVENT_FORCE_BATTLE', "強制戦闘イベント", "強制戦闘イベントを生成"),
             ('EVENT_CLEAR', "クリアイベント", "クリアイベントを生成"),
+            ('EVENT_BOSS_SPAWN', "ボス出現イベント", "ボス出現イベント(カメラアップ演出)を生成"),
         ]
     ) # type: ignore
 
@@ -88,6 +91,22 @@ class MYADDON_OT_add_object(bpy.types.Operator):
             new_obj["class_name"] = "TutorialDummy"
             new_obj.name = get_unique_name("TutorialDummy")
 
+        elif self.object_type == 'GRUNT_MELEE':
+            # 配置プレビュー用にHellKainaのモデルを流用（ゲーム内モデルはC++クラス側で決まる）
+            model_path = os.path.join(model_base_dir, "Enemy", "HellKaina.fbx")
+            bpy.ops.import_scene.fbx(filepath=model_path)
+            new_obj = context.selected_objects[0]
+            new_obj["class_name"] = "GruntMelee"
+            new_obj.name = get_unique_name("GruntMelee")
+
+        elif self.object_type == 'BOSS_KNIGHT':
+            # 配置プレビュー用にHellKainaのモデルを流用（ゲーム内モデルはC++クラス側で決まる）
+            model_path = os.path.join(model_base_dir, "Enemy", "HellKaina.fbx")
+            bpy.ops.import_scene.fbx(filepath=model_path)
+            new_obj = context.selected_objects[0]
+            new_obj["class_name"] = "BossKnight"
+            new_obj.name = get_unique_name("BossKnight")
+
         elif self.object_type == 'GROUND':
             bpy.ops.mesh.primitive_cube_add(size = 1)
             new_obj = context.active_object
@@ -113,6 +132,12 @@ class MYADDON_OT_add_object(bpy.types.Operator):
             new_obj["class_name"] = "Event_Clear"
             new_obj.name = get_unique_name("Event_Clear")
 
+        elif self.object_type == 'EVENT_BOSS_SPAWN':
+            bpy.ops.object.empty_add()
+            new_obj = context.active_object
+            new_obj["class_name"] = "Event_BossSpawn"
+            new_obj.name = get_unique_name("Event_BossSpawn")
+
         return {'FINISHED'}
 
 
@@ -124,6 +149,8 @@ class TOPBAR_MT_enemy_menu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         layout.operator(MYADDON_OT_add_object.bl_idname, text="TutorialDummy").object_type = 'TUTORIAL_DUMMY'
+        layout.operator(MYADDON_OT_add_object.bl_idname, text="GruntMelee").object_type = 'GRUNT_MELEE'
+        layout.operator(MYADDON_OT_add_object.bl_idname, text="BossKnight").object_type = 'BOSS_KNIGHT'
 
 
 # ==== Eventサブメニュー ====
@@ -136,6 +163,7 @@ class TOPBAR_MT_event_menu(bpy.types.Menu):
         layout.operator(MYADDON_OT_add_object.bl_idname, text="敵出現").object_type = 'EVENT_ENEMY_SPAWN'
         layout.operator(MYADDON_OT_add_object.bl_idname, text="強制戦闘").object_type = 'EVENT_FORCE_BATTLE'
         layout.operator(MYADDON_OT_add_object.bl_idname, text="クリア").object_type = 'EVENT_CLEAR'
+        layout.operator(MYADDON_OT_add_object.bl_idname, text="ボス出現").object_type = 'EVENT_BOSS_SPAWN'
 
 
 # ==== Groundサブメニュー ====

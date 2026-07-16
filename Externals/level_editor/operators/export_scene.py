@@ -85,6 +85,14 @@ class MYADDON_OT_export_scene(bpy.types.Operator, bpy_extras.io_utils.ExportHelp
                         "name": e.enemy.name if e.enemy else None
                     })
 
+        elif obj.get("class_name") == "Event_BossSpawn":
+            # boss 未設定時はキーを出力しない（C++側で null をパースしないため）
+            json_object["event"] = {
+                "type": "BossSpawn"
+            }
+            if hasattr(obj, "boss_spawn_event") and obj.boss_spawn_event.boss:
+                json_object["event"]["boss"] = obj.boss_spawn_event.boss.name
+
         elif obj.get("class_name") == "Event_Clear":
             if hasattr(obj, "clear_event"):
                 props = obj.clear_event

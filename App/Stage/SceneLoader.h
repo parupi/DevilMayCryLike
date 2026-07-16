@@ -21,6 +21,7 @@ struct EventInfo {
     std::string trigger;
     std::vector<EnemySpawnInfo> enemies;    // EnemySpawn 用
     std::vector<EventCondition> conditions; // ClearEvent 用
+    std::string bossName;                   // BossSpawn 用（出現させるボスのオブジェクト名）
 };
 
 enum class ColliderType {

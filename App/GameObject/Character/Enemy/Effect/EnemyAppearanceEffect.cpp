@@ -34,7 +34,7 @@ void EnemyAppearanceEffect::Update(float deltaTime) {
 	switch (phase_) {
 	case Phase::Appearing: {
 		timer_ += deltaTime;
-		float t = timer_ / kAppearDuration;
+		float t = timer_ / appearDuration_;
 
 		if (t >= 1.0f) {
 			// 実体化完了。ディゾルブ上書きを解除して通常描画に戻す
@@ -46,7 +46,7 @@ void EnemyAppearanceEffect::Update(float deltaTime) {
 		// 収束する粒子を一定間隔で発生させる
 		emitTimer_ += deltaTime;
 		while (emitTimer_ >= kEmitInterval) {
-			EmitParticle("EnemySpawnParticle", kAppearEmitCount);
+			EmitParticle("EnemySpawnParticle", appearEmitCount_);
 			emitTimer_ -= kEmitInterval;
 		}
 

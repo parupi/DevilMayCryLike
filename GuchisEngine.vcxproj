@@ -163,6 +163,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
     <ClInclude Include="App\GameObject\Effect\HitVignetteEffect.h" />
     <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
+    <ClInclude Include="App\GameObject\Event\BossSpawnEvent.h" />
     <ClInclude Include="App\GameObject\Event\ClearEvent.h" />
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
     <ClInclude Include="App\GameObject\Event\EventFactory.h" />
@@ -400,6 +401,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitVignetteEffect.cpp" />
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
+    <ClCompile Include="App\GameObject\Event\BossSpawnEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />

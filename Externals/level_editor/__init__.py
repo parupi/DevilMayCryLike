@@ -64,6 +64,11 @@ from .operators.force_battle_event import(
     FORCEBATTLE_PT_panel,
 )
 
+from .operators.boss_spawn_event import(
+    BossSpawnEventProperty,
+    BOSSSPAWN_PT_panel,
+)
+
 from .panels.level_editor_panel import OBJECT_PT_level_editor
 
 from .draw.draw_collider import DrawCollider
@@ -85,6 +90,8 @@ def register():
     bpy.types.Object.clear_event = bpy.props.PointerProperty(type=ClearEventProperty)
 
     bpy.types.Object.force_battle_event = bpy.props.PointerProperty(type=ForceBattleEventProperty)
+
+    bpy.types.Object.boss_spawn_event = bpy.props.PointerProperty(type=BossSpawnEventProperty)
 
     # 3Dビューに描画関数を追加
     DrawCollider.handle = bpy.types.SpaceView3D.draw_handler_add(
@@ -110,6 +117,8 @@ def unregister():
     del bpy.types.Object.clear_event
 
     del bpy.types.Object.force_battle_event
+
+    del bpy.types.Object.boss_spawn_event
 
     del bpy.types.Object.disabled
 
@@ -152,6 +161,9 @@ classes = (
     FORCEBATTLE_OT_add_enemy,
     FORCEBATTLE_OT_remove_enemy,
     FORCEBATTLE_PT_panel,
+
+    BossSpawnEventProperty,
+    BOSSSPAWN_PT_panel,
 
     MYADDON_OT_add_object,
     TOPBAR_MT_my_object_menu,

@@ -13,6 +13,7 @@
 #include "GameObject/Event/EnemySpawnEvent.h"
 #include "GameObject/Event/ClearEvent.h"
 #include "GameObject/Event/ForceBattleEvent.h"
+#include "GameObject/Event/BossSpawnEvent.h"
 #include "GameObject/Ground/Ground.h"
 
 // ---------------------------------------------------------------------------
@@ -170,6 +171,16 @@ void SceneBuilder::BuildEvent(const SceneObject& sceneObj) {
 						enemy->SetActive(false); // 発動まで待機させる
 						battleEvent->AddEnemy(enemy);
 					}
+				}
+			}
+		} else if (info.type == "BossSpawn") {
+			auto* bossEvent = dynamic_cast<BossSpawnEvent*>(eventObject.get());
+			if (bossEvent) {
+				auto* boss = dynamic_cast<Enemy*>(
+					Object3dManager::GetInstance().FindObject(info.bossName));
+				if (boss) {
+					boss->SetActive(false); // 発動まで待機させる
+					bossEvent->SetBossName(info.bossName);
 				}
 			}
 		}

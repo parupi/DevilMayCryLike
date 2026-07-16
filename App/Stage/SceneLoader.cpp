@@ -51,6 +51,8 @@ void SceneLoader::ParseObject(const json& j, SceneObject& out) {
 			for (const auto& e : ev["enemies"]) {
 				info.enemies.push_back({e.value("name", ""), e.value("delay", 0.0f)});
 			}
+		} else if (info.type == "BossSpawn") {
+			info.bossName = ev.value("boss", "");
 		} else if (info.type == "Clear" && ev.contains("conditions")) {
 			for (const auto& c : ev["conditions"]) {
 				EventCondition cond;

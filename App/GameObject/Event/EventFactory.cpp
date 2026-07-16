@@ -2,6 +2,7 @@
 #include "EnemySpawnEvent.h"
 #include "ClearEvent.h"
 #include "ForceBattleEvent.h"
+#include "BossSpawnEvent.h"
 
 std::unique_ptr<BaseEvent> EventFactory::Create(const std::string& className, const std::string& objectName)
 {
@@ -11,6 +12,8 @@ std::unique_ptr<BaseEvent> EventFactory::Create(const std::string& className, co
 		return std::make_unique<ClearEvent>(objectName);
 	} else if (className == "Event_ForceBattle") {
 		return std::make_unique<ForceBattleEvent>(objectName);
+	} else if (className == "Event_BossSpawn") {
+		return std::make_unique<BossSpawnEvent>(objectName);
 	} else {
 		return nullptr;
 	}
