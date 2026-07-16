@@ -15,6 +15,6 @@ class TutorialService {
 public:
 	// チュートリアルの開始
 	virtual void StartTutorial(TutorialState state) = 0;
-	// 進行度を進める
-	virtual void StepTutorial() = 0;
+	// 進行度を進める（引数は発生したイベントの種類。現在表示中のチュートリアルと一致する場合のみ進行する）
+	virtual void StepTutorial(TutorialState state) = 0;
 };

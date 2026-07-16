@@ -39,6 +39,7 @@ void SpriteManager::Finalize() {
 }
 
 Sprite* SpriteManager::CreateSprite(SpriteLayer layer, const std::string& spriteName, const std::string& textureFilePath) {
+	TextureManager::GetInstance().LoadTexture(textureFilePath);
 	auto sprite = std::make_unique<Sprite>(spriteName, textureFilePath, layer);
 
 	Sprite* ptr = sprite.get();

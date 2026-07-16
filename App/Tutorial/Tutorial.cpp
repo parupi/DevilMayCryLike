@@ -1,14 +1,23 @@
 #include "Tutorial.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
-void Tutorial::Initialize(const std::string& name) {
+void Tutorial::Initialize(const std::string& name, uint32_t maxCounter) {
 	// チュートリアルの初期化処理
 	state_ = State::Inactive;
+	// 進行度の最大値を設定
+	maxCounter_ = maxCounter;
 	// スプライトの生成と初期設定
 	tutorialImage = SpriteManager::GetInstance().CreateAnimatedSprite(SpriteLayer::UI, "TutorialImage", "Tutorial/" + name + ".gif");
 	tutorialImage->GetSprite()->SetAnchorPoint({0.5f, 0.5f});
-	tutorialImage->GetSprite()->SetPosition({400.0f, 300.0f});
+	tutorialImage->GetSprite()->SetPosition({210.0f, 340.0f});
+	tutorialImage->GetSprite()->SetSize({350.0f, 240.0f});
 	tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
+	tutorialImage->GetSprite()->GetRenderState().blendMode = BlendMode::kNormal;
+	// スプライトの生成と初期設定
+	tutorialText_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialText", "Tutorial/" + name + ".png");
+	tutorialText_->SetAnchorPoint({0.5f, 0.5f});
+	tutorialText_->SetPosition({200.0f, 520.0f});
+	tutorialText_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
 }
 
 void Tutorial::Update() {
@@ -30,6 +39,7 @@ void Tutorial::Update() {
 
 		// スプライトのカラーにアルファ値を適用
 		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		tutorialText_->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	}
 	break;
 	case State::Active:
@@ -49,11 +59,22 @@ void Tutorial::Update() {
 
 		// スプライトのカラーにアルファ値を適用
 		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
+		tutorialText_->SetColor({1.0f, 1.0f, 1.0f, alpha});
 	}
 	break;
 	}
 
+	Vector2 pos = tutorialText_->GetPosition();
+	Vector2 size = tutorialText_->GetSize();
+	ImGui::Begin("TutorialSprite");
+	ImGui::DragFloat2("Pos", &pos.x, 0.1f);
+	ImGui::DragFloat2("Size", &size.x, 0.1f);
+	ImGui::End();
+	tutorialText_->SetPosition(pos);
+	tutorialText_->SetSize(size);
+
 	tutorialImage->Update();
+	tutorialText_->Update();
 }
 
 void Tutorial::Start() {

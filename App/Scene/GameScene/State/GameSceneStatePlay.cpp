@@ -25,6 +25,12 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 		if (maskAlpha < 0.0f) {
 			maskAlpha = 0.0f;
 			state_ = PlayState::Play;
+
+			// 開始演出と被らないよう、演出が終わってからチュートリアルを開始する（一度だけ）
+			if (!tutorialStarted_) {
+				tutorialStarted_ = true;
+				scene.GetTutorialService()->StartTutorial(TutorialState::Move);
+			}
 		}
 
 		break;

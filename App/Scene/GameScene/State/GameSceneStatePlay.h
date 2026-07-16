@@ -15,6 +15,8 @@ private:
 		Play,
 	}state_ = PlayState::Enter;
 
-	float maskAlpha_ = 0.0f;
+	float muskAlpha_ = 0.0f;
+	// チュートリアルを開始済みかどうか（メニューからの復帰時などに再発火させないため）
+	bool tutorialStarted_ = false;
 };
 
