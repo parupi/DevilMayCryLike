@@ -438,6 +438,9 @@
     <ClInclude Include="App\GameObject\Event\EventManager.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Ground\Ground.h">
       <Filter>App\GameObject\Ground</Filter>
     </ClInclude>
@@ -1155,6 +1158,9 @@
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\EventManager.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Ground\Ground.cpp">

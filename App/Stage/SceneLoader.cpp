@@ -47,7 +47,7 @@ void SceneLoader::ParseObject(const json& j, SceneObject& out) {
 		info.type = ev.value("type", "");
 		info.trigger = ev.value("trigger", "");
 
-		if (info.type == "EnemySpawn" && ev.contains("enemies")) {
+		if ((info.type == "EnemySpawn" || info.type == "ForceBattle") && ev.contains("enemies")) {
 			for (const auto& e : ev["enemies"]) {
 				info.enemies.push_back({e.value("name", ""), e.value("delay", 0.0f)});
 			}

@@ -12,6 +12,7 @@
 #include "GameObject/Event/EventFactory.h"
 #include "GameObject/Event/EnemySpawnEvent.h"
 #include "GameObject/Event/ClearEvent.h"
+#include "GameObject/Event/ForceBattleEvent.h"
 #include "GameObject/Ground/Ground.h"
 
 // ---------------------------------------------------------------------------
@@ -156,6 +157,18 @@ void SceneBuilder::BuildEvent(const SceneObject& sceneObj) {
 								clearEvent->AddTargetEnemy(enemy);
 							}
 						}
+					}
+				}
+			}
+		} else if (info.type == "ForceBattle") {
+			auto* battleEvent = dynamic_cast<ForceBattleEvent*>(eventObject.get());
+			if (battleEvent) {
+				for (const auto& enemyInfo : info.enemies) {
+					auto* enemy = dynamic_cast<Enemy*>(
+						Object3dManager::GetInstance().FindObject(enemyInfo.name));
+					if (enemy) {
+						enemy->SetActive(false); // 発動まで待機させる
+						battleEvent->AddEnemy(enemy);
 					}
 				}
 			}

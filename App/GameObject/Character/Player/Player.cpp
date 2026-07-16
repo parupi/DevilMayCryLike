@@ -130,6 +130,15 @@ void Player::Update(float deltaTime) {
 
 	Object3d::Update(dt);
 
+	// 強制戦闘エリアなどで移動範囲が設定されている場合はXZを範囲内にクランプする
+	if (hasMovementBounds_) {
+		Vector3& pos = GetWorldTransform()->GetTranslation();
+		if (pos.x < movementBoundsMin_.x) pos.x = movementBoundsMin_.x;
+		else if (pos.x > movementBoundsMax_.x) pos.x = movementBoundsMax_.x;
+		if (pos.z < movementBoundsMin_.z) pos.z = movementBoundsMin_.z;
+		else if (pos.z > movementBoundsMax_.z) pos.z = movementBoundsMax_.z;
+	}
+
 	// 接地フラグを毎フレーム切っておく
 	onGround_ = false;
 

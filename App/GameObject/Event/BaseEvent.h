@@ -6,7 +6,8 @@
 /// </summary>
 enum class EventType {
 	EnemySpawn,	// 敵出現イベント
-	Clear		// ステージクリアイベント
+	Clear,		// ステージクリアイベント
+	ForceBattle	// 強制戦闘イベント（エリアに閉じ込めて敵を出現させる）
 };
 
 /// <summary>

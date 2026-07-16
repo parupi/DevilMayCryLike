@@ -172,6 +172,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
     <ClInclude Include="App\GameObject\Event\EventFactory.h" />
     <ClInclude Include="App\GameObject\Event\EventManager.h" />
+    <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h" />
     <ClInclude Include="App\GameObject\Ground\Ground.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
@@ -413,6 +414,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />
     <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
+    <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp" />
     <ClCompile Include="App\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />

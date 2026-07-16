@@ -75,10 +75,15 @@ class MYADDON_OT_export_scene(bpy.types.Operator, bpy_extras.io_utils.ExportHelp
                 }
 
         elif obj.get("class_name") == "Event_ForceBattle":
-            # TODO: 強制戦闘イベントのパラメータが増えたらここに出力処理を書く
             json_object["event"] = {
-                "type": "ForceBattle"
+                "type": "ForceBattle",
+                "enemies": []
             }
+            if hasattr(obj, "force_battle_event"):
+                for e in obj.force_battle_event.enemies:
+                    json_object["event"]["enemies"].append({
+                        "name": e.enemy.name if e.enemy else None
+                    })
 
         elif obj.get("class_name") == "Event_Clear":
             if hasattr(obj, "clear_event"):
