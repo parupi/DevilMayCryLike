@@ -42,9 +42,15 @@ public:
 	uint32_t GetDissolveNoiseSrvIndex() const { return dissolveNoiseIndex_; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDissolveNoiseSrvHandleGPU();
 
+	// 方向性のない全面ランダムなDissolveノイズテクスチャを生成（初期化時に自動生成）
+	// 3Dモデルのディゾルブ（ランダムにちぎれて消える見た目）に使う
+	uint32_t CreateRandomDissolveNoiseTexture();
+	uint32_t GetRandomDissolveNoiseSrvIndex() const { return randomDissolveNoiseIndex_; }
+
 private:
 	uint32_t whiteTextureIndex_ = 0;
 	uint32_t dissolveNoiseIndex_ = 0;
+	uint32_t randomDissolveNoiseIndex_ = 0;
 
 	// テクスチャ1枚分のデータ
 	struct TextureData {

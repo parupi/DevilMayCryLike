@@ -15,6 +15,9 @@ public:
 	const Vector3& GetWorldPosition() const;
 	bool IsLockable() const;
 
+	// 対象の残りHP割合（0〜1）。敵でなければ1を返す（レティクルのHP表示用）
+	float GetHpRatio() const;
+
 private:
 	LockOnSystem* system_ = nullptr;
 	Object3d* owner_ = nullptr;

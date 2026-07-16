@@ -148,6 +148,16 @@ void ParticleEditor::DrawParticleWindow()
         }
     }
 
+    if (ImGui::CollapsingHeader("Radial")) {
+        int& radialMode = global_->GetValueRef<int>(gName, "RadialMode");
+        const char* radialNames[] = { "None", "Converge", "Diverge" };
+        ImGui::Combo("Radial Mode", &radialMode, radialNames, IM_ARRAYSIZE(radialNames));
+        if (radialMode != 0) {
+            float& radialSpeed = global_->GetValueRef<float>(gName, "RadialSpeed");
+            ImGui::DragFloat("Radial Speed", &radialSpeed, 0.1f, 0.0f, 100.0f);
+        }
+    }
+
     if (ImGui::CollapsingHeader("Blend Mode")) {
         int& blend = global_->GetValueRef<int>(gName, "BlendMode");
         const char* blendNames[] = { "None", "Normal", "Add", "Subtract", "Multiply", "Screen" };

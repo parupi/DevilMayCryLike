@@ -89,6 +89,9 @@ void GameScene::Initialize() {
 	ParticleManager::GetInstance().CreateParticleGroup("EnemyDamageEffect", "white.png");
 	ParticleManager::GetInstance().CreateParticleGroup("PlayerSlashEffect", "circle.png");
 	ParticleManager::GetInstance().CreateParticleGroup("EnemyChargeRing", "white.png", PrimitiveType::Ring);
+	// 敵の出現演出（収束する黒い粒子）・死亡演出（拡散する黒い粒子）
+	ParticleManager::GetInstance().CreateParticleGroup("EnemySpawnParticle", "smoke.png");
+	ParticleManager::GetInstance().CreateParticleGroup("EnemyDeathParticle", "smoke.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");

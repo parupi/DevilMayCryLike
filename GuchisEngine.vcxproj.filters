@@ -34,14 +34,14 @@
     <Filter Include="App\GameObject\Character\Enemy\Component">
       <UniqueIdentifier>{310D60B6-1D8A-53F9-4607-540D32E3EF8C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\Effect">
+      <UniqueIdentifier>{EB566711-571B-6601-2081-96CB8C040237}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Character\Enemy\GruntMelee">
       <UniqueIdentifier>{D61070C1-422B-D362-8B4D-E3F6F7A6FA69}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Enemy\GruntMelee\State">
       <UniqueIdentifier>{A6882C86-12C4-8C49-1BB9-09D98773117A}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="App\GameObject\Character\Enemy\Hellkaina">
-      <UniqueIdentifier>{27A09D6B-131D-91AE-3C9A-91C228762D42}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Enemy\State">
       <UniqueIdentifier>{9FD40F11-8BBB-D108-340C-382620D24A6F}</UniqueIdentifier>
@@ -309,6 +309,9 @@
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.h">
+      <Filter>App\GameObject\Character\Enemy\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClInclude>
@@ -342,28 +345,10 @@
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.h">
       <Filter>App\GameObject\Character\Enemy\GruntMelee\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.h">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h">
@@ -1040,6 +1025,9 @@
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClCompile>
@@ -1070,28 +1058,10 @@
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.cpp">
       <Filter>App\GameObject\Character\Enemy\GruntMelee\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.cpp">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateAir.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.cpp">

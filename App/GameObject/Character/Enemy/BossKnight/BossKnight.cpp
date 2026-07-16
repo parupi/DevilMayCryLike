@@ -23,6 +23,7 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 1.5f, 1.5f, 1.5f };
 
 	hp_ = kMaxHp;
+	maxHp_ = kMaxHp;
 }
 
 void BossKnight::Initialize() {
@@ -84,11 +85,22 @@ void BossKnight::Initialize() {
 
 	Enemy::Initialize();
 
+	// 出現・死亡演出のディゾルブ対象に武器も含める
+	if (appearanceFx_) {
+		appearanceFx_->AddRenderer(RendererManager::GetInstance().FindRender(name_ + "Weapon"));
+	}
+
 	// 初期ステートを CombatIdle に設定（Enemy::Initialize は "Air" にセットする）
 	ChangeState(BossStateName::CombatIdle);
 }
 
 void BossKnight::Update(float deltaTime) {
+	// 死亡演出終了後は武器が後始末済みのため、本体の後始末だけ行う
+	if (!IsAlive()) {
+		Enemy::Update(deltaTime);
+		return;
+	}
+
 	// KnockBack は velocity_.y を直接操作するため重力の二重適用を避ける（のけぞり・吹き飛び両方）
 	bool isKnockBack = (currentState_ == states_.at(EnemyStateName::KnockBack).get())
 		|| (currentState_ == states_.at(BossStateName::KnockBack).get());
@@ -104,8 +116,9 @@ void BossKnight::Update(float deltaTime) {
 		weapon_->GetWorldTransform()->GetRotation() = EulerDegree({ 0.0f, 90.0f, 150.0f });
 	}
 
-	// 攻撃フェーズのみ武器コライダーを有効化
-	bool isAttackPhase = !meleeAttack_->IsFinished() && !meleeAttack_->IsWindingUp();
+	// 攻撃フェーズのみ武器コライダーを有効化（出現/死亡演出中は無効）
+	bool isAttackPhase = !meleeAttack_->IsFinished() && !meleeAttack_->IsWindingUp()
+		&& !IsAppearanceEffectPlaying();
 	auto* weaponCol = static_cast<AABBCollider*>(weapon_->GetCollider(name_ + "Weapon"));
 	if (weaponCol) {
 		weaponCol->GetColliderData().isActive = isAttackPhase;
@@ -136,11 +149,22 @@ void BossKnight::DebugGui() {
 }
 #endif
 
+void BossKnight::OnDeathEffectFinished() {
+	// 武器を後始末する（本体は Enemy::Update の !isAlive_ 側で後始末される）
+	if (weapon_) {
+		weapon_->isAlive = false;
+		weapon_->ResetObject();
+		weapon_ = nullptr;
+	}
+}
+
 void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	Enemy::OnCollisionEnter(other);
 
 	if (other->category_ != CollisionCategory::PlayerWeapon) return;
 	if (!player_ || !player_->IsAttack()) return;
+	// 出現・死亡演出中は被弾処理をしない
+	if (IsAppearanceEffectPlaying()) return;
 
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 	const float damage = atk.damage;
@@ -164,16 +188,22 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	// ── 通常の被弾（CombatIdle・通常攻撃中・のけぞり中）────────────────
 	hp_ -= damage;
 	hitAccumulation_ += damage;
-	if (hp_ <= 0.0f) {
-		OnDeath();
-		return;
-	}
 
 	DamageInfo info;
 	info.damage = damage;
 	info.hitPosition = GetWorldTransform()->GetTranslation();
 	info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
 	info.direction = Normalize(info.hitPosition - info.attackerPosition);
+
+	if (hp_ <= 0.0f) {
+		OnDeath();
+		// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
+		Vector3 deathVelocity = info.direction * atk.impulseForce;
+		deathVelocity.y += atk.impulseForce * atk.upwardRatio;
+		SetVelocity(deathVelocity);
+		SetOnGround(false);
+		return;
+	}
 
 	// ノックバック優先: ノックバック/打ち上げ系の攻撃、または蓄積ダメージが閾値を超えたら吹き飛ばす。
 	// のけぞり(共有KnockBack)中でもこの分岐に入るため、フィニッシュのノックバックがのけぞりに潰されない。

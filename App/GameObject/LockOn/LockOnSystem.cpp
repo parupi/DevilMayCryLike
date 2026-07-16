@@ -3,6 +3,10 @@
 #include "World3D/Camera/CameraManager.h"
 #include "GameObject/Character/Player/Player.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Graphics/Resource/TextureManager.h"
+#include <algorithm>
+#include <cmath>
+#include <vector>
 
 void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 	input_ = input;
@@ -11,6 +15,33 @@ void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 	reticle_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "reticle", "reticle.png");
 	reticle_->SetSize({ 32.0f, 32.0f });
 	reticle_->SetAnchorPoint({ 0.5f, 0.5f });
+
+	// HPリング用のテクスチャをプロシージャル生成する（白いドーナツ型・縁は1pxで滑らか）
+	constexpr uint32_t kRingTexSize = 64;
+	constexpr float kOuterRadius = 30.0f; // 外周半径[px]
+	constexpr float kInnerRadius = 24.0f; // 内周半径[px]（差がリングの太さ）
+	std::vector<uint8_t> ringPixels(kRingTexSize * kRingTexSize * 4);
+	const float center = (kRingTexSize - 1) * 0.5f;
+	for (uint32_t y = 0; y < kRingTexSize; ++y) {
+		for (uint32_t x = 0; x < kRingTexSize; ++x) {
+			float dx = static_cast<float>(x) - center;
+			float dy = static_cast<float>(y) - center;
+			float dist = std::sqrt(dx * dx + dy * dy);
+			float alpha = std::clamp(kOuterRadius - dist, 0.0f, 1.0f) * std::clamp(dist - kInnerRadius, 0.0f, 1.0f);
+			size_t index = (static_cast<size_t>(y) * kRingTexSize + x) * 4;
+			ringPixels[index + 0] = 255;
+			ringPixels[index + 1] = 255;
+			ringPixels[index + 2] = 255;
+			ringPixels[index + 3] = static_cast<uint8_t>(alpha * 255.0f);
+		}
+	}
+	TextureManager::GetInstance().LoadTextureFromMemory("__LOCKON_HP_RING__.png", ringPixels.data(), kRingTexSize, kRingTexSize);
+
+	// レティクルより一回り大きいリングとして表示する
+	hpRing_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "lockOnHpRing", "__LOCKON_HP_RING__.png");
+	hpRing_->SetSize({ 48.0f, 48.0f });
+	hpRing_->SetAnchorPoint({ 0.5f, 0.5f });
+	hpRing_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 }
 
 void LockOnSystem::Update() {
@@ -42,13 +73,20 @@ void LockOnSystem::Update() {
 
 	if (IsLockOn()) {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		hpRing_->SetColor({ 1.0f, 1.0f, 1.0f, 1.0f });
+		// 敵の残りHP割合に応じて、リングが上から時計回りに欠けていく（DMC風のHP表示）
+		hpRing_->SetRadialFill(currentTarget_->GetHpRatio());
 	} else {
 		reticle_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
+		hpRing_->SetColor({ 1.0f, 1.0f, 1.0f, 0.0f });
 	}
 
 	if (IsLockOn()) {
-		reticle_->SetPosition(CameraManager::GetInstance().GetCurrentCamera()->WorldToScreen(currentTarget_->GetWorldPosition(), 1280, 720));
+		auto screenPos = CameraManager::GetInstance().GetCurrentCamera()->WorldToScreen(currentTarget_->GetWorldPosition(), 1280, 720);
+		reticle_->SetPosition(screenPos);
 		reticle_->Update();
+		hpRing_->SetPosition(screenPos);
+		hpRing_->Update();
 	}
 }
 

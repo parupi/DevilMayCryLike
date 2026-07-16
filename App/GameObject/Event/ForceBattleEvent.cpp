@@ -16,7 +16,9 @@ void ForceBattleEvent::Initialize() {
 }
 
 void ForceBattleEvent::AddEnemy(Enemy* enemy) {
-	enemies_.push_back(enemy);
+	if (enemy) {
+		enemyNames_.push_back(enemy->name_);
+	}
 }
 
 void ForceBattleEvent::Update(float deltaTime) {
@@ -46,8 +48,10 @@ void ForceBattleEvent::Execute() {
 	isBattleActive_ = true;
 
 	// 関連付けられた敵を出現させる
-	for (auto* enemy : enemies_) {
-		if (enemy) enemy->Spawn();
+	for (const auto& enemyName : enemyNames_) {
+		if (auto* obj = Object3dManager::GetInstance().FindObject(enemyName)) {
+			static_cast<Enemy*>(obj)->Spawn();
+		}
 	}
 
 	// プレイヤーをエリア範囲内に閉じ込める（エリアはこのイベントのコライダー範囲）
@@ -73,8 +77,10 @@ void ForceBattleEvent::EndBattle() {
 }
 
 bool ForceBattleEvent::AreAllEnemiesDefeated() const {
-	for (auto* enemy : enemies_) {
-		if (enemy && enemy->IsAlive()) {
+	for (const auto& enemyName : enemyNames_) {
+		// 削除済み（FindObjectで見つからない）＝撃破済み
+		auto* obj = Object3dManager::GetInstance().FindObject(enemyName);
+		if (obj && static_cast<Enemy*>(obj)->IsAlive()) {
 			return false;
 		}
 	}

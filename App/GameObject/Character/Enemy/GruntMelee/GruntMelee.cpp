@@ -24,6 +24,7 @@ GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
 
 	hp_ = 8.0f;
+	maxHp_ = hp_;
 }
 
 void GruntMelee::Initialize() {
@@ -84,11 +85,22 @@ void GruntMelee::Initialize() {
 
 	Enemy::Initialize();
 
+	// 出現・死亡演出のディゾルブ対象に武器も含める
+	if (appearanceFx_) {
+		appearanceFx_->AddRenderer(RendererManager::GetInstance().FindRender(name_ + "Weapon"));
+	}
+
 	// 初期ステートを Patrol へ上書き（Enemy::Initialize() は "Air" にセットする）
 	ChangeState(GruntMeleeStateName::Patrol);
 }
 
 void GruntMelee::Update(float deltaTime) {
+	// 死亡演出終了後は武器が後始末済みのため、本体の後始末だけ行う
+	if (!IsAlive()) {
+		Enemy::Update(deltaTime);
+		return;
+	}
+
 	// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
 	weapon_->SetIsDraw(true);
 
@@ -97,8 +109,9 @@ void GruntMelee::Update(float deltaTime) {
 		weapon_->GetWorldTransform()->GetRotation()    = EulerDegree({ 0.0f, 90.0f, 150.0f });
 	}
 
-	// 攻撃フェーズのみ武器コライダーを有効化（予備動作・非攻撃時は無効）
-	bool isAttackPhase = !meleeAttack_->IsFinished() && !meleeAttack_->IsWindingUp();
+	// 攻撃フェーズのみ武器コライダーを有効化（予備動作・非攻撃時・出現/死亡演出中は無効）
+	bool isAttackPhase = !meleeAttack_->IsFinished() && !meleeAttack_->IsWindingUp()
+		&& !IsAppearanceEffectPlaying();
 	auto* weaponCol = static_cast<AABBCollider*>(weapon_->GetCollider(name_ + "Weapon"));
 	if (weaponCol) {
 		weaponCol->GetColliderData().isActive = isAttackPhase;
@@ -131,6 +144,8 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 
 	if (other->category_ != CollisionCategory::PlayerWeapon) return;
 	if (!player_ || !player_->IsAttack()) return;
+	// 出現・死亡演出中は被弾処理をしない
+	if (IsAppearanceEffectPlaying()) return;
 
 	if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
 		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
@@ -138,32 +153,51 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 		return;
 	}
 
-	hp_ -= player_->GetAttackData().damage;
+	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
+
+	hp_ -= atk.damage;
+
+	DamageInfo info;
+	info.damage = atk.damage;
+	info.hitPosition = GetWorldTransform()->GetTranslation();
+	info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
+	info.direction = Normalize(info.hitPosition - info.attackerPosition);
+	info.type = atk.type;
+	info.impulseForce = atk.impulseForce;
+	info.upwardRatio = atk.upwardRatio;
+	info.torqueForce = atk.torqueForce;
+	info.stunTime = atk.stunTime;
+
 	if (hp_ <= 0.0f) {
 		if (CanDie()) {
 			OnDeath();
+			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
+			Vector3 deathVelocity = info.direction * atk.impulseForce;
+			deathVelocity.y += atk.impulseForce * atk.upwardRatio;
+			SetVelocity(deathVelocity);
+			SetOnGround(false);
+			emitter_->Emit();
+			return;
 		} else {
 			// まだ死亡できない（チュートリアル中など）ので生存を維持する
 			hp_ = 1.0f;
 		}
 	}
 
-	DamageInfo info;
-	info.damage = player_->GetAttackData().damage;
-	info.hitPosition = GetWorldTransform()->GetTranslation();
-	info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
-	info.direction = Normalize(info.hitPosition - info.attackerPosition);
-	info.type = player_->GetAttackData().type;
-	info.impulseForce = player_->GetAttackData().impulseForce;
-	info.upwardRatio = player_->GetAttackData().upwardRatio;
-	info.torqueForce = player_->GetAttackData().torqueForce;
-	info.stunTime = player_->GetAttackData().stunTime;
-
 	SetPendingDamageInfo(info);
 	ChangeState(EnemyStateName::KnockBack);
 
-	hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
+	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f);
 	emitter_->Emit();
+}
+
+void GruntMelee::OnDeathEffectFinished() {
+	// 武器を後始末する（本体は Enemy::Update の !isAlive_ 側で後始末される）
+	if (weapon_) {
+		weapon_->isAlive = false;
+		weapon_->ResetObject();
+		weapon_ = nullptr;
+	}
 }
 
 void GruntMelee::OnCollisionStay(BaseCollider* other) {

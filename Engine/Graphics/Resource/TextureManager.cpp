@@ -19,6 +19,7 @@ void TextureManager::Initialize(DirectXManager* dxManager) {
 	srvManager_ = dxManager_->GetSrvManager();
 
 	CreateDissolveNoiseTexture();
+	CreateRandomDissolveNoiseTexture();
 }
 
 void TextureManager::Finalize() {
@@ -321,6 +322,74 @@ uint32_t TextureManager::CreateDissolveNoiseTexture() {
 
 	textureData_[key] = texData;
 	dissolveNoiseIndex_ = texData.srvIndex;
+
+	return texData.srvIndex;
+}
+
+// 方向性のない全面ランダムなノイズテクスチャを生成
+// → dissolveThreshold を上げると、モデル全体がランダムにちぎれるように消えていく
+uint32_t TextureManager::CreateRandomDissolveNoiseTexture() {
+	const std::string key = "__DISSOLVE_NOISE_RANDOM__";
+	if (textureData_.contains(key)) {
+		return textureData_[key].srvIndex;
+	}
+
+	constexpr uint32_t W = 256;
+	constexpr uint32_t H = 256;
+
+	DirectX::TexMetadata metadata{};
+	metadata.width = W;
+	metadata.height = H;
+	metadata.arraySize = 1;
+	metadata.mipLevels = 1;
+	metadata.format = DXGI_FORMAT_R8_UNORM;
+	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
+
+	DirectX::ScratchImage image{};
+	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8_UNORM, W, H, 1, 1);
+	assert(SUCCEEDED(hr));
+
+	const DirectX::Image* img = image.GetImage(0, 0, 0);
+	uint8_t* pixels = img->pixels;
+	size_t rowPitch = img->rowPitch;
+
+	for (uint32_t y = 0; y < H; ++y) {
+		for (uint32_t x = 0; x < W; ++x) {
+			float uvx = static_cast<float>(x) / static_cast<float>(W - 1);
+			float uvy = static_cast<float>(y) / static_cast<float>(H - 1);
+			// 高周波の3オクターブ合成（グラデーション無しの純ノイズ）
+			float noise = NoiseValue(uvx * 8.0f, uvy * 8.0f) * 0.50f
+				+ NoiseValue(uvx * 16.0f, uvy * 16.0f) * 0.30f
+				+ NoiseValue(uvx * 32.0f, uvy * 32.0f) * 0.20f;
+			// コントラストを広げて 0〜1 の閾値スイープ全体で満遍なく消えるようにする
+			float value = std::clamp((noise - 0.2f) / 0.6f, 0.0f, 1.0f);
+			pixels[y * rowPitch + x] = static_cast<uint8_t>(value * 255.0f);
+		}
+	}
+
+	TextureData texData{};
+	texData.srvIndex = srvManager_->Allocate();
+	texData.metadata = metadata;
+	texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
+
+	dxManager_->UploadTextureData(texData.resource.Get(), image);
+
+	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);
+	texData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(texData.srvIndex);
+
+	D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+	srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+	srvDesc.Format = DXGI_FORMAT_R8_UNORM;
+	srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+	srvDesc.Texture2D.MostDetailedMip = 0;
+	srvDesc.Texture2D.MipLevels = 1;
+	srvDesc.Texture2D.PlaneSlice = 0;
+	srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+	dxManager_->GetDevice()->CreateShaderResourceView(texData.resource.Get(), &srvDesc, texData.srvHandleCPU);
+
+	textureData_[key] = texData;
+	randomDissolveNoiseIndex_ = texData.srvIndex;
 
 	return texData.srvIndex;
 }

@@ -129,6 +129,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMovementComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\EnemyStateNames.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.h" />
@@ -140,14 +141,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRetreat.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRushAttack.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h" />
-    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
@@ -374,6 +369,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMovementComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMeleeWeapon.cpp" />
@@ -384,14 +380,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRetreat.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateRushAttack.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateAir.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp" />
-    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\Combat\PlayerCombat.cpp" />

@@ -51,7 +51,8 @@ void Material::BindForGBuffer() {
 	D3D12_GPU_VIRTUAL_ADDRESS addr = directXManager_->GetResourceManager()->GetGPUVirtualAddress(materialGBufferHandle_);
 	directXManager_->GetCommandList()->SetGraphicsRootConstantBufferView(0, addr);
 	srvManager_->SetGraphicsRootDescriptorTable(2, materialData_.textureIndex);
-	srvManager_->SetGraphicsRootDescriptorTable(3, TextureManager::GetInstance().GetDissolveNoiseSrvIndex());
+	// モデルのディゾルブは方向性のないランダムノイズを使う（中心→端のノイズはスプライト用）
+	srvManager_->SetGraphicsRootDescriptorTable(3, TextureManager::GetInstance().GetRandomDissolveNoiseSrvIndex());
 }
 
 #ifdef _DEBUG

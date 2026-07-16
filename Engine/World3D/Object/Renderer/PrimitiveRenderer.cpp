@@ -48,7 +48,16 @@ void PrimitiveRenderer::Draw() {
 }
 
 void PrimitiveRenderer::DrawGBuffer() {
-	localTransform_->BindToShader(RendererManager::GetInstance().GetDxManager()->GetCommandList(), 1);
+	auto* cmd = RendererManager::GetInstance().GetDxManager()->GetCommandList();
+	localTransform_->BindToShader(cmd, 1);
+
+	// レンダラー単位のDissolve上書き（b2ルート定数）。無効時(-1)も毎ドロー設定して前の値が残らないようにする
+	const float dissolveConstants[8] = {
+		dissolveThreshold_, dissolveEdgeWidth_, 0.0f, 0.0f,
+		dissolveEdgeColor_.x, dissolveEdgeColor_.y, dissolveEdgeColor_.z, dissolveEdgeColor_.w,
+	};
+	cmd->SetGraphicsRoot32BitConstants(4, 8, dissolveConstants, 0);
+
 	model_->DrawGBuffer(); // Model側へ委譲
 }
 

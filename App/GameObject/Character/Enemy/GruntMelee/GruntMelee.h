@@ -26,6 +26,10 @@ public:
     void OnCollisionStay(BaseCollider* other) override;
     void OnCollisionExit(BaseCollider* other) override;
 
+protected:
+    /// <summary>死亡演出終了時に武器を後始末する</summary>
+    void OnDeathEffectFinished() override;
+
 private:
     GruntMeleeWeapon* weapon_        = nullptr;
     ParticleEmitter*  emitter_       = nullptr;

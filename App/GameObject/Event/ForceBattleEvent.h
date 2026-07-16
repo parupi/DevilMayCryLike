@@ -40,7 +40,9 @@ private:
 	/// <summary>全ての対象敵が撃破されたか</summary>
 	bool AreAllEnemiesDefeated() const;
 
-	std::vector<Enemy*> enemies_;
+	// 敵は死亡後 Object3dManager から削除されるため、ポインタではなく名前で保持し
+	// 毎回 FindObject で解決する（削除済み＝撃破済みとみなす）
+	std::vector<std::string> enemyNames_;
 	Player* player_ = nullptr;
 
 	bool isBattleActive_ = false;

@@ -72,6 +72,11 @@ void GBufferPath::Begin(uint32_t dsvIndex)
 	cmd->SetPipelineState(psoManager_->GetDeferredPSO());
 	cmd->SetGraphicsRootSignature(psoManager_->GetDeferredSignature());
 
+	// b2(Dissolve上書きルート定数)を無効値で初期化しておく
+	// （設定しないレンダラーが未定義値を読まないようにするため）
+	const float dissolveDefaults[8] = { -1.0f, 0.05f, 0.0f, 0.0f, 1.0f, 0.3f, 0.0f, 8.0f };
+	cmd->SetGraphicsRoot32BitConstants(4, 8, dissolveDefaults, 0);
+
 	//srvHeapをセット
 	ID3D12DescriptorHeap* heaps[] = { dxManager_->GetSrvManager()->GetHeap() };
 	cmd->SetDescriptorHeaps(1, heaps);
