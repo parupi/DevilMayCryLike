@@ -33,6 +33,7 @@ from .menus.topbar_menu import (
     TOPBAR_MT_my_object_menu,
     MYADDON_OT_add_object,
     TOPBAR_MT_enemy_menu,
+    TOPBAR_MT_ground_menu,
     TOPBAR_MT_event_menu
 )
 
@@ -115,6 +116,7 @@ classes = (
     
     # Object生成関連
     TOPBAR_MT_enemy_menu,
+    TOPBAR_MT_ground_menu,
     TOPBAR_MT_event_menu,
 
     EnemySpawnItem,

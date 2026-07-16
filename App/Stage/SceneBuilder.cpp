@@ -12,6 +12,7 @@
 #include "GameObject/Event/EventFactory.h"
 #include "GameObject/Event/EnemySpawnEvent.h"
 #include "GameObject/Event/ClearEvent.h"
+#include "GameObject/Ground/Ground.h"
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -105,6 +106,13 @@ void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObj
 	}
 
 	auto object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
+
+	// レベルエディタで指定されたモデル名(file_name)をGroundへ反映
+	if (sceneObj.fileName.has_value()) {
+		if (auto* ground = dynamic_cast<Ground*>(object.get())) {
+			ground->SetModelName(sceneObj.fileName.value());
+		}
+	}
 
 	ApplyTransform(object->GetWorldTransform(), sceneObj.transform);
 

@@ -2,6 +2,35 @@ import os
 import bpy # type: ignore
 from ..operators.export_scene import MYADDON_OT_export_scene
 
+# Enum items用にPythonが解放してしまわないよう参照を保持しておく(Blenderの既知の注意事項)
+_ground_model_items_cache = []
+
+def get_ground_models_dir() -> str:
+    """Resource/Models の絶対パスを返す(アドオンからリポジトリルート相対で解決)"""
+    addon_menus_dir = os.path.dirname(os.path.abspath(__file__))          # .../Externals/level_editor/menus
+    repo_root = os.path.dirname(os.path.dirname(os.path.dirname(addon_menus_dir)))  # .../menus -> level_editor -> Externals -> repo root
+    return os.path.join(repo_root, "Resource", "Models")
+
+
+def get_ground_model_items(self, context):
+    """Resource/Models 配下の <name>/<name>.obj を持つフォルダを列挙し、Groundとして選択できるモデル一覧を返す"""
+    global _ground_model_items_cache
+
+    items = []
+    models_dir = get_ground_models_dir()
+    if os.path.isdir(models_dir):
+        for entry in sorted(os.listdir(models_dir)):
+            entry_dir = os.path.join(models_dir, entry)
+            if os.path.isfile(os.path.join(entry_dir, entry + ".obj")):
+                items.append((entry, entry, f"{entry} を使用してGroundを生成"))
+
+    if not items:
+        items = [("Cube", "Cube", "")]
+
+    _ground_model_items_cache = items
+    return _ground_model_items_cache
+
+
 def get_unique_name(base_name: str) -> str:
     """既存のオブジェクト名と被らない名前を返す"""
     existing_names = {obj.name for obj in bpy.data.objects}
@@ -33,6 +62,12 @@ class MYADDON_OT_add_object(bpy.types.Operator):
         ]
     ) # type: ignore
 
+    model_name: bpy.props.StringProperty(
+        name="Model Name",
+        description="Groundが使用するモデル名(file_nameに設定される。Resource/Models/<名前>/<名前>.obj に対応)",
+        default="Cube"
+    ) # type: ignore
+
     def execute(self, context):
         model_base_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "models")
 
@@ -56,6 +91,7 @@ class MYADDON_OT_add_object(bpy.types.Operator):
             bpy.ops.mesh.primitive_cube_add(size = 1)
             new_obj = context.active_object
             new_obj["class_name"] = "Ground"
+            new_obj["file_name"] = self.model_name
             new_obj.name = get_unique_name("Ground")
 
         elif self.object_type == 'EVENT_ENEMY_SPAWN':
@@ -101,6 +137,19 @@ class TOPBAR_MT_event_menu(bpy.types.Menu):
         layout.operator(MYADDON_OT_add_object.bl_idname, text="クリア").object_type = 'EVENT_CLEAR'
 
 
+# ==== Groundサブメニュー ====
+class TOPBAR_MT_ground_menu(bpy.types.Menu):
+    bl_idname = "TOPBAR_MT_ground_menu"
+    bl_label = "Ground生成"
+
+    def draw(self, context):
+        layout = self.layout
+        for identifier, name, _description in get_ground_model_items(None, context):
+            op = layout.operator(MYADDON_OT_add_object.bl_idname, text=name)
+            op.object_type = 'GROUND'
+            op.model_name = identifier
+
+
 # ==== Object生成サブメニュー ====
 class TOPBAR_MT_my_object_menu(bpy.types.Menu):
     bl_idname = "TOPBAR_MT_my_object_menu"
@@ -110,7 +159,7 @@ class TOPBAR_MT_my_object_menu(bpy.types.Menu):
         layout = self.layout
         layout.operator(MYADDON_OT_add_object.bl_idname, text="Player").object_type = 'PLAYER'
         layout.menu(TOPBAR_MT_enemy_menu.bl_idname, icon='ARMATURE_DATA')
-        layout.operator(MYADDON_OT_add_object.bl_idname, text="Ground").object_type = 'GROUND'
+        layout.menu(TOPBAR_MT_ground_menu.bl_idname, icon='MESH_CUBE')
         layout.menu(TOPBAR_MT_event_menu.bl_idname, icon='EXPORT')
 
 
