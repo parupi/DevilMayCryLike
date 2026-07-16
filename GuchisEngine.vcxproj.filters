@@ -46,6 +46,9 @@
     <Filter Include="App\GameObject\Character\Enemy\State">
       <UniqueIdentifier>{9FD40F11-8BBB-D108-340C-382620D24A6F}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\TutorialDummy">
+      <UniqueIdentifier>{DEC70D66-CADA-0DBF-73C4-EAAB5FB6AA0C}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Character\Player">
       <UniqueIdentifier>{3E65711F-AA48-805F-B34B-AE9B1FAE46B0}</UniqueIdentifier>
     </Filter>
@@ -359,6 +362,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h">
+      <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
@@ -1078,6 +1084,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.cpp">
+      <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
       <Filter>App\GameObject\Character\Player\Combat</Filter>

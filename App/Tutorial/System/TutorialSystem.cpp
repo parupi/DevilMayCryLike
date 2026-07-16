@@ -99,5 +99,7 @@ void TutorialSystem::AdvanceTutorial() {
 	} else {
 		// 最後まで完了したら背景マスクもフェードアウトさせる
 		decoration_->End();
+		// 全チュートリアル完了。チュートリアル用の敵などが参照する
+		isAllFinished_ = true;
 	}
 }

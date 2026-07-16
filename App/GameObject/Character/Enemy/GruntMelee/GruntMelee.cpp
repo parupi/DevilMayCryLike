@@ -140,7 +140,12 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 
 	hp_ -= player_->GetAttackData().damage;
 	if (hp_ <= 0.0f) {
-		OnDeath();
+		if (CanDie()) {
+			OnDeath();
+		} else {
+			// まだ死亡できない（チュートリアル中など）ので生存を維持する
+			hp_ = 1.0f;
+		}
 	}
 
 	DamageInfo info;

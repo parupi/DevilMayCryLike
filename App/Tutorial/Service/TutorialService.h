@@ -17,4 +17,6 @@ public:
 	virtual void StartTutorial(TutorialState state) = 0;
 	// 進行度を進める（引数は発生したイベントの種類。現在表示中のチュートリアルと一致する場合のみ進行する）
 	virtual void StepTutorial(TutorialState state) = 0;
+	// 全チュートリアルが完了したか（最後の種類まで進み切ったか）
+	virtual bool IsAllFinished() const = 0;
 };

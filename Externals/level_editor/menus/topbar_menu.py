@@ -55,6 +55,7 @@ class MYADDON_OT_add_object(bpy.types.Operator):
         items=[
             ('PLAYER', "Player", "プレイヤーを生成"),
             ('HELLKAINA', "HellKaina", "ヘルカイナを生成"),
+            ('TUTORIAL_DUMMY', "TutorialDummy", "チュートリアル用の敵(練習台)を生成"),
             ('GROUND', "Ground", "地面を生成"),
             ('EVENT_ENEMY_SPAWN', "敵出現イベント", "敵出現イベントを生成"),
             ('EVENT_FORCE_BATTLE', "強制戦闘イベント", "強制戦闘イベントを生成"),
@@ -86,6 +87,14 @@ class MYADDON_OT_add_object(bpy.types.Operator):
             new_obj = context.selected_objects[0]
             new_obj["class_name"] = "HellKaina"
             new_obj.name = get_unique_name("HellKaina")
+
+        elif self.object_type == 'TUTORIAL_DUMMY':
+            # 配置プレビュー用にHellKainaのモデルを流用（ゲーム内モデルはC++クラス側で決まる）
+            model_path = os.path.join(model_base_dir, "Enemy", "HellKaina.fbx")
+            bpy.ops.import_scene.fbx(filepath=model_path)
+            new_obj = context.selected_objects[0]
+            new_obj["class_name"] = "TutorialDummy"
+            new_obj.name = get_unique_name("TutorialDummy")
 
         elif self.object_type == 'GROUND':
             bpy.ops.mesh.primitive_cube_add(size = 1)
@@ -123,6 +132,7 @@ class TOPBAR_MT_enemy_menu(bpy.types.Menu):
     def draw(self, context):
         layout = self.layout
         layout.operator(MYADDON_OT_add_object.bl_idname, text="HellKaina").object_type = 'HELLKAINA'
+        layout.operator(MYADDON_OT_add_object.bl_idname, text="TutorialDummy").object_type = 'TUTORIAL_DUMMY'
 
 
 # ==== Eventサブメニュー ====

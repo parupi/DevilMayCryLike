@@ -19,6 +19,8 @@ public:
 	void EndTutorial();
 	// 進行度を進める
 	void StepTutorial(TutorialState state) override;
+	// 全チュートリアルが完了したか
+	bool IsAllFinished() const override { return isAllFinished_; }
 private:
 	// 現在のチュートリアルを終了し、次のチュートリアルへ自動的に進める
 	void AdvanceTutorial();
@@ -33,6 +35,8 @@ private:
 	Tutorial* previousTutorial_ = nullptr;
 	// 切り替え用のフラグ
 	bool isTutorialChanging_ = false;
+	// 全チュートリアルを完了したか（最後の種類まで進み切ったら true）
+	bool isAllFinished_ = false;
 	// 装飾表示用のクラス
 	std::unique_ptr<TutorialDecoration> decoration_ = nullptr;
 };

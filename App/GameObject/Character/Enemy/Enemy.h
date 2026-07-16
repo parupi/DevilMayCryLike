@@ -88,6 +88,12 @@ public:
 	/// </summary>
 	void OnDeath();
 
+	/// <summary>
+	/// HP が 0 になったときに実際に死亡してよいかを返す。
+	/// 通常は常に true。チュートリアル用の敵などが条件付きで死亡を抑制するためにオーバーライドする。
+	/// </summary>
+	virtual bool CanDie() const { return true; }
+
 	bool IsAlive() const { return isAlive_; }
 
 	/// <summary>
