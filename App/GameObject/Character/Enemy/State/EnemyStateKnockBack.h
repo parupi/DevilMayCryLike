@@ -14,6 +14,11 @@ public:
 	void Update(Enemy& enemy, float deltaTime) override;
 	void Exit(Enemy& enemy) override;
 
+protected:
+	// ノックバック／のけぞり終了後に遷移するステート名。
+	// 既定は Idle。派生クラスで上書きして別のステート（例: ボスの Rush）へ繋げられる。
+	virtual const char* NextState() const;
+
 private:
 	void OnLand(Enemy& enemy);
 

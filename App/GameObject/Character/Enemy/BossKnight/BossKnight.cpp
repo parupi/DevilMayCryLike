@@ -15,6 +15,7 @@
 #include "State/BossStateSlash.h"
 #include "State/BossStateHeavySword.h"
 #include "State/BossStateRush.h"
+#include "State/BossStateKnockBack.h"
 
 BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
@@ -50,7 +51,10 @@ void BossKnight::Initialize() {
 
 	// ── ステート登録 ──
 	states_[EnemyStateName::Air] = std::make_unique<EnemyStateAir>();
+	// 共有の KnockBack は軽いのけぞり(HitStun)用。着地後は CombatIdle へ戻る。
 	states_[EnemyStateName::KnockBack] = std::make_unique<EnemyStateKnockBack>();
+	// ボス専用の吹き飛び。着地後すぐ Rush(ダッシュ攻撃)へ移行する。
+	states_[BossStateName::KnockBack] = std::make_unique<BossStateKnockBack>();
 
 	// EnemyStateKnockBack が着地後に "Idle" へ、EnemyStateAir が着地後に "Move" へ遷移する。
 	// どちらも BossStateCombatIdle にマップして動作を引き継ぐ。
@@ -85,8 +89,9 @@ void BossKnight::Initialize() {
 }
 
 void BossKnight::Update(float deltaTime) {
-	// KnockBack は velocity_.y を直接操作するため重力の二重適用を避ける
-	bool isKnockBack = (currentState_ == states_.at(EnemyStateName::KnockBack).get());
+	// KnockBack は velocity_.y を直接操作するため重力の二重適用を避ける（のけぞり・吹き飛び両方）
+	bool isKnockBack = (currentState_ == states_.at(EnemyStateName::KnockBack).get())
+		|| (currentState_ == states_.at(BossStateName::KnockBack).get());
 	if (!isKnockBack) {
 		SetAcceleration({ 0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f });
 	}
@@ -137,56 +142,64 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	if (other->category_ != CollisionCategory::PlayerWeapon) return;
 	if (!player_ || !player_->IsAttack()) return;
 
-	// KnockBack 中に追加ヒットしても演出のみ（蓄積はリセット済み）
-	if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
-		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-		hitEmitter_->Emit();
+	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
+	const float damage = atk.damage;
+
+	// 常にヒットストップとエフェクトは再生する
+	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f);
+	hitEmitter_->Emit();
+
+	// ── スーパーアーマー ───────────────────────────────────────────────
+	// 吹き飛び中(BossKnockBack)とダッシュ攻撃中(Rush)は、ダメージは通すが
+	// ひるみ・再ノックバックはさせない。
+	// → 「ノックバックが始まったら飛び切る」「Rushが終わるまでひるまない」を保証する。
+	const bool inFlyKnockback = (currentState_ == states_.at(BossStateName::KnockBack).get());
+	const bool inRush         = (currentState_ == states_.at(BossStateName::Rush).get());
+	if (inFlyKnockback || inRush) {
+		hp_ -= damage;
+		if (hp_ <= 0.0f) OnDeath();
 		return;
 	}
 
-	const float damage = player_->GetAttackData().damage;
+	// ── 通常の被弾（CombatIdle・通常攻撃中・のけぞり中）────────────────
 	hp_ -= damage;
 	hitAccumulation_ += damage;
-
-	// 常にヒットストップとエフェクトは再生する
-	hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-	hitEmitter_->Emit();
-
 	if (hp_ <= 0.0f) {
 		OnDeath();
 		return;
 	}
 
-	// ── 蓄積ダメージが閾値を超えたら本ノックバック ────────────────
-	if (hitAccumulation_ >= kKnockbackThreshold) {
+	DamageInfo info;
+	info.damage = damage;
+	info.hitPosition = GetWorldTransform()->GetTranslation();
+	info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
+	info.direction = Normalize(info.hitPosition - info.attackerPosition);
+
+	// ノックバック優先: ノックバック/打ち上げ系の攻撃、または蓄積ダメージが閾値を超えたら吹き飛ばす。
+	// のけぞり(共有KnockBack)中でもこの分岐に入るため、フィニッシュのノックバックがのけぞりに潰されない。
+	const bool wantKnockback =
+		(atk.type != ReactionType::HitStun) || (hitAccumulation_ >= kKnockbackThreshold);
+
+	if (wantKnockback) {
 		hitAccumulation_ = 0.0f;
 
-		DamageInfo info;
-		info.damage = damage;
-		info.hitPosition = GetWorldTransform()->GetTranslation();
-		info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
-		info.direction = Normalize(info.hitPosition - info.attackerPosition);
-		info.type = player_->GetAttackData().type;
-		info.impulseForce = player_->GetAttackData().impulseForce;
-		info.upwardRatio = player_->GetAttackData().upwardRatio;
-		info.torqueForce = player_->GetAttackData().torqueForce;
-		info.stunTime = player_->GetAttackData().stunTime;
+		// HitStun系の攻撃でも閾値ブレイク時は確実に飛ばすため Knockback に昇格する
+		info.type = (atk.type == ReactionType::HitStun) ? ReactionType::Knockback : atk.type;
+		info.impulseForce = atk.impulseForce;
+		info.upwardRatio = atk.upwardRatio;
+		info.torqueForce = atk.torqueForce;
+		info.stunTime = atk.stunTime;
 
 		SetPendingDamageInfo(info);
-		ChangeState(EnemyStateName::KnockBack);
+		ChangeState(BossStateName::KnockBack); // 吹き飛び → 着地後すぐ Rush(ダッシュ攻撃)
 	} else {
 		// ── 閾値未満: 短いのけぞり（HitStun）のみ ─────────────────
-		DamageInfo stunInfo;
-		stunInfo.damage = damage;
-		stunInfo.hitPosition = GetWorldTransform()->GetTranslation();
-		stunInfo.attackerPosition = player_->GetWorldTransform()->GetTranslation();
-		stunInfo.direction = Normalize(stunInfo.hitPosition - stunInfo.attackerPosition);
-		stunInfo.type = ReactionType::HitStun;
-		stunInfo.impulseForce = player_->GetAttackData().impulseForce * 0.2f;
-		stunInfo.stunTime = 0.15f; // 短い硬直で次の攻撃を入れやすくする
+		info.type = ReactionType::HitStun;
+		info.impulseForce = atk.impulseForce * 0.2f;
+		info.stunTime = 0.15f; // 短い硬直で次の攻撃を入れやすくする
 
-		SetPendingDamageInfo(stunInfo);
-		ChangeState(EnemyStateName::KnockBack);
+		SetPendingDamageInfo(info);
+		ChangeState(EnemyStateName::KnockBack); // 共有のけぞり → CombatIdle
 	}
 }
 

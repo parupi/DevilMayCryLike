@@ -47,7 +47,7 @@ void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
 		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ currentTilt_, 0.0f, 0.0f });
 
 		if ((stunTimer_ -= deltaTime) <= 0.0f) {
-			enemy.ChangeState(EnemyStateName::Idle);
+			enemy.ChangeState(NextState());
 			return;
 		}
 	}
@@ -61,8 +61,12 @@ void EnemyStateKnockBack::OnLand(Enemy& enemy) {
 	if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
 		velocity_ *= 0.3f;
 		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = { 0.0f, 0.0f, 0.0f };
-		enemy.ChangeState(EnemyStateName::Idle);
+		enemy.ChangeState(NextState());
 	}
+}
+
+const char* EnemyStateKnockBack::NextState() const {
+	return EnemyStateName::Idle;
 }
 
 void EnemyStateKnockBack::Exit(Enemy& enemy) {

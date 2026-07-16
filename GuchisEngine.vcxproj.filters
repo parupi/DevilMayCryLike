@@ -291,6 +291,9 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
@@ -1014,6 +1017,9 @@
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp">

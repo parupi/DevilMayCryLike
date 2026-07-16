@@ -29,4 +29,5 @@ namespace BossStateName {
 	constexpr const char* Slash       = "BossSlash";       // 速い縦斬り
 	constexpr const char* HeavySword  = "BossHeavySword";  // 遅い強力な叩きつけ
 	constexpr const char* Rush        = "BossRush";        // 突進攻撃
+	constexpr const char* KnockBack   = "BossKnockBack";   // 吹き飛び（着地後すぐ Rush へ移行）
 }

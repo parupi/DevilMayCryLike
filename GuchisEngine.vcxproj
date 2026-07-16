@@ -123,6 +123,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h" />
@@ -366,6 +367,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp" />
