@@ -31,6 +31,7 @@ private:
 
 	// スプライト
 	AnimatedSprite* tutorialImage = nullptr;
+	Sprite* tutorialText_ = nullptr;
 	// 進行度のカウンター
 	uint32_t counter_ = 0;
 	// カウンターの最大値（チュートリアルの種類ごとにInitializeで指定）

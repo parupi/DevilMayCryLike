@@ -9,8 +9,10 @@ void PlayerStateMove::Enter(Player& player) {
 }
 
 void PlayerStateMove::Update(Player& player, float deltaTime) {
-	// 移動できていることをチュートリアルに伝える
-	player.GetTutorialService()->StepTutorial(TutorialState::Move);
+	// 移動できていることをチュートリアルに伝える(チュートリアル未設定のシーンでも落ちないよう保護)
+	if (auto* tutorial = player.GetTutorialService()) {
+		tutorial->StepTutorial(TutorialState::Move);
+	}
 
 	// 移動方向を取得
 	Vector3 moveDir = player.GetMoveDirection();

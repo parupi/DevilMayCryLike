@@ -127,6 +127,8 @@ void GameScene::Initialize() {
 
 	tutorial_ = std::make_unique<TutorialSystem>();
 	tutorial_->Initialize();
+	// PlayerのチュートリアルサービスをGameSceneのものに接続する
+	// (これが無いとPlayer側のGetTutorialService()がnullptrを返しクラッシュする)
 	player_->SetTutorialService(tutorial_.get());
 }
 
