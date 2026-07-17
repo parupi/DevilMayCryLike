@@ -119,6 +119,13 @@ void BossKnight::Update(float deltaTime) {
 		return;
 	}
 
+	// 未出現時は武器を隠し、非アクティブ時の共通処理（消灯など）だけ行う
+	if (!isActive_) {
+		weapon_->SetIsDraw(false);
+		Enemy::Update(deltaTime);
+		return;
+	}
+
 	// KnockBack は velocity_.y を直接操作するため重力の二重適用を避ける（のけぞり・吹き飛び両方）
 	bool isKnockBack = (currentState_ == states_.at(EnemyStateName::KnockBack).get())
 		|| (currentState_ == states_.at(BossStateName::KnockBack).get());

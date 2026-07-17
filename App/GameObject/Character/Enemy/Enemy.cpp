@@ -50,11 +50,13 @@ void Enemy::Update(float deltaTime) {
 		GetCollider(name_)->category_ = CollisionCategory::Enemy;
 	}
 
-	// 起動する前だったら動かない
+	// 起動する前だったら動かない（描画・影も止める）
 	if (!isActive_) {
+		SetIsDraw(false);
 		if (characterLight_) characterLight_->SetEnabled(false);
 		return;
 	}
+	SetIsDraw(true);
 
 	if (!isAlive_) {
 		isAlive = false;

@@ -105,7 +105,10 @@ void GruntMelee::Update(float deltaTime) {
 		// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
 		weapon_->SetIsDraw(true);
 	} else {
+		// 未出現時は武器を隠し、非アクティブ時の共通処理（消灯など）だけ行う
 		weapon_->SetIsDraw(false);
+		Enemy::Update(deltaTime);
+		return;
 	}
 
 

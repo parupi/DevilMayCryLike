@@ -61,9 +61,9 @@ private:
 	static constexpr int kAppearEmitCount = 6;        // 収束粒子の密度（通常の敵より濃く）
 	static constexpr float kHoldTime = 0.8f;          // 出現完了後にボスを見せておく時間[s]
 	static constexpr float kMaxCutsceneTime = 8.0f;   // 演出の最大時間[s]（保険）
-	static constexpr float kCameraDistance = 5.0f;    // ボスからカメラまでの距離[m]
-	static constexpr float kCameraSideOffset = 1.2f;  // カメラの横ずらし[m]（構図用）
-	static constexpr float kCameraHeight = 2.0f;      // カメラの高さオフセット[m]
+	static constexpr float kCameraDistance = 8.5f;    // ボスからカメラまでの距離[m]
+	static constexpr float kCameraSideOffset = 1.8f;  // カメラの横ずらし[m]（構図用）
+	static constexpr float kCameraHeight = 2.5f;      // カメラの高さオフセット[m]
 	static constexpr float kLookAtHeight = 1.8f;      // 注視点の高さ（ボスの上半身）[m]
 	static constexpr float kCameraInTransition = 0.5f;  // 演出カメラへの切り替え時間[s]
 	static constexpr float kCameraOutTransition = 1.2f; // ゲームカメラへ戻る時間[s]

@@ -91,6 +91,8 @@ void Player::Initialize() {
 	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュする）
 	characterLight_ = std::make_unique<CharacterLight>();
 	characterLight_->Initialize("PlayerLight", Vector4{ 0.45f, 0.65f, 1.0f, 1.0f });
+
+	GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 3.14, 0.0f});
 }
 
 void Player::Update(float deltaTime) {

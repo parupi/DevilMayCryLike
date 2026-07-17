@@ -37,9 +37,6 @@ void GameScene::Initialize() {
 	inputContext_ = std::make_unique<InputContext>();
 	inputContext_->Initialize(&Input::GetInstance());
 
-	// 最初のシーンに入る処理
-	currentState_->Enter(*this);
-
 	// カメラの生成
 	std::unique_ptr<GameCamera> camera = std::make_unique<GameCamera>("GameCamera");
 	camera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
@@ -137,6 +134,10 @@ void GameScene::Initialize() {
 	// PlayerのチュートリアルサービスをGameSceneのものに接続する
 	// (これが無いとPlayer側のGetTutorialService()がnullptrを返しクラッシュする)
 	player_->SetTutorialService(tutorial_.get());
+
+	// 最初のステートに入る処理
+	// ※必ずプレイヤー生成(BuildScene)後に呼ぶ。StageStartがプレイヤー位置を参照してアップのカメラを作るため
+	currentState_->Enter(*this);
 }
 
 void GameScene::Finalize() {

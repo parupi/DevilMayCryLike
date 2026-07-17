@@ -35,6 +35,8 @@ void Object3d::Update(float) {
 }
 
 void Object3d::Draw() {
+	// 非表示設定なら描画しない
+	if (!isDraw) return;
 	switch (drawOption_.drawPath) {
 	case DrawPath::Forward:
 		for (size_t i = 0; i < renders_.size(); i++) {
@@ -56,6 +58,8 @@ void Object3d::Draw() {
 }
 
 void Object3d::DrawShadow() {
+	// 非表示のオブジェクトは影も落とさない
+	if (!isDraw) return;
 	if (drawOption_.drawPath != DrawPath::Deferred) return;
 	for (auto* s : shadowCasters_) {
 		s->DrawShadow();

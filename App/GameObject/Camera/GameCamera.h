@@ -26,6 +26,8 @@ private:
 	void UpdateLockOn();
 	// 注視点を滑らかに追従させてからLookAtする（モード切替時の視点飛びを防ぐ）
 	void ApplySmoothLookAt(const Vector3& lookTarget);
+	// ピボット→希望位置の間にGroundコライダー（壁・床）があれば、カメラを遮蔽物の手前へ引き寄せる
+	Vector3 ResolveCameraCollision(const Vector3& pivot, const Vector3& desiredPos) const;
 
 private:
 	Player* player_ = nullptr;
