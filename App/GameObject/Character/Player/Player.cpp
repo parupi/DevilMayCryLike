@@ -91,8 +91,6 @@ void Player::Initialize() {
 	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュする）
 	characterLight_ = std::make_unique<CharacterLight>();
 	characterLight_->Initialize("PlayerLight", Vector4{ 0.45f, 0.65f, 1.0f, 1.0f });
-
-	GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 3.14, 0.0f});
 }
 
 void Player::Update(float deltaTime) {
@@ -137,13 +135,12 @@ void Player::Update(float deltaTime) {
 
 	Object3d::Update(dt);
 
-	// 強制戦闘エリアなどで移動範囲が設定されている場合はXZを範囲内にクランプする
+	// 強制戦闘エリアなどで移動範囲が設定されている場合は水平方向を範囲内にクランプする
+	// （範囲は床の向きに合わせて回転していることがあるので、軸に沿って押し戻す）
 	if (hasMovementBounds_) {
 		Vector3& pos = GetWorldTransform()->GetTranslation();
-		if (pos.x < movementBoundsMin_.x) pos.x = movementBoundsMin_.x;
-		else if (pos.x > movementBoundsMax_.x) pos.x = movementBoundsMax_.x;
-		if (pos.z < movementBoundsMin_.z) pos.z = movementBoundsMin_.z;
-		else if (pos.z > movementBoundsMax_.z) pos.z = movementBoundsMax_.z;
+		Vector3 inwardNormal{};
+		movementBounds_.ClampPosition(pos, inwardNormal);
 	}
 
 	// キャラクター追従ライトの更新（ヒットストップ中はフラッシュの減衰も止まる）

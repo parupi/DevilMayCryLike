@@ -156,6 +156,49 @@ void GameCamera::Update() {
 	BaseCamera::Update();
 }
 
+Vector3 GameCamera::CalcDesiredPosition(const Vector3& playerPos) const {
+	Vector3 offset;
+	offset.x = std::cos(pitch_) * std::sin(yaw_) * distance_;
+	offset.y = kCameraBaseHeight + std::sin(pitch_) * distance_;
+	offset.z = std::cos(pitch_) * std::cos(yaw_) * distance_;
+
+	Vector3 desiredPos = playerPos + offset;
+
+	// プレイヤーに寄りすぎないよう最低距離を確保する
+	constexpr float kMinDist = 5.0f;
+	Vector3 toCamera = desiredPos - playerPos;
+	if (Length(toCamera) < kMinDist) {
+		desiredPos = playerPos + Normalize(toCamera) * kMinDist;
+	}
+	return desiredPos;
+}
+
+void GameCamera::SnapToFollow(const Vector3& playerForward) {
+	if (!player_) return;
+
+	const Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+
+	// 追従位置は playerPos + (sin(yaw), *, cos(yaw)) * distance なので、
+	// 背後（-forward）を向くような yaw を逆算する
+	Vector3 forward = playerForward;
+	forward.y = 0.0f;
+	if (Length(forward) > 1e-4f) {
+		forward = Normalize(forward);
+		yaw_ = std::atan2(-forward.x, -forward.z);
+	}
+	pitch_ = 0.0f;
+
+	const Vector3 pivot = playerPos + Vector3(0.0f, 2.0f, 0.0f);
+	GetTranslate() = ResolveCameraCollision(pivot, CalcDesiredPosition(playerPos));
+
+	// 補間の途中状態を捨てて、この位置・注視点をそのまま採用させる
+	smoothedLookOffset_ = Vector3(0.0f, 0.0f, 0.0f);
+	lookTargetInitialized_ = false;
+	ApplySmoothLookAt(pivot);
+
+	BaseCamera::Update();
+}
+
 void GameCamera::UpdateFree() {
 	if (lockOn_->IsLockOn()) {
 		SetMode(Mode::LockOn);
@@ -172,18 +215,7 @@ void GameCamera::UpdateFree() {
 	float pitchLimit = 1.2f;
 	pitch_ = std::clamp(pitch_, -pitchLimit, pitchLimit);
 
-	Vector3 offset;
-	offset.x = cos(pitch_) * sin(yaw_) * distance_;
-	offset.y = kCameraBaseHeight + sin(pitch_) * distance_;
-	offset.z = cos(pitch_) * cos(yaw_) * distance_;
-
-	Vector3 desiredPos = playerPos + offset;
-
-	float minDist = 5.0f;
-	Vector3 toCamera = desiredPos - playerPos;
-	if (Length(toCamera) < minDist) {
-		desiredPos = playerPos + Normalize(toCamera) * minDist;
-	}
+	Vector3 desiredPos = CalcDesiredPosition(playerPos);
 
 	// プレイヤー前方への注視オフセットを遅延追従させる
 	// 小さな動きを吸収しつつ持続した移動方向に追従

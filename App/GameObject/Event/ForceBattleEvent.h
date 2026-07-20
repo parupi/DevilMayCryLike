@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseEvent.h"
+#include "Effect/BattleAreaWallEffect.h"
 #include <GameObject/Character/Enemy/Enemy.h>
 #include <Math/Vector3.h>
 #include <vector>
@@ -39,6 +40,19 @@ private:
 
 	/// <summary>全ての対象敵が撃破されたか</summary>
 	bool AreAllEnemiesDefeated() const;
+
+	/// <summary>
+	/// コライダーからエリア範囲を取得する。BOXコライダーが無ければ false。
+	/// エリアは床に合わせて回転しているため、軸平行のAABBではなく回転した箱として返す。
+	/// </summary>
+	bool TryGetAreaBounds(MovementBounds& outBounds);
+
+	// 敵の移動範囲をエリア境界からどれだけ内側に寄せるか(m)。
+	// 敵には体積があるので、境界ぴったりまで許すと壁から半身がはみ出して見える
+	static constexpr float kEnemyBoundsMargin = 1.0f;
+
+	// 戦闘中にエリアの範囲を格子状の光の壁で見せる演出
+	BattleAreaWallEffect areaWall_;
 
 	// 敵は死亡後 Object3dManager から削除されるため、ポインタではなく名前で保持し
 	// 毎回 FindObject で解決する（削除済み＝撃破済みとみなす）

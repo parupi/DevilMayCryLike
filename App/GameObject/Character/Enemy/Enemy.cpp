@@ -90,6 +90,7 @@ void Enemy::Update(float deltaTime) {
 			velocity_.x *= damp;
 			velocity_.z *= damp;
 			GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
+			ClampToMovementBounds();
 			Object3d::Update(deltaTime);
 			onGround_ = false;
 			return;
@@ -111,6 +112,9 @@ void Enemy::Update(float deltaTime) {
 
 	GetWorldTransform()->GetTranslation() += velocity_ * dt;
 	velocity_ += acceleration_ * dt;
+
+	// 追跡・突進・ノックバックのどれで動いた場合もここを通るので、まとめて範囲内に収める
+	ClampToMovementBounds();
 
 	if (!player_) {
 		return;
@@ -156,6 +160,21 @@ void Enemy::Spawn() {
 	// 出現演出（黒い粒子が収束 + ディゾルブイン）を開始する
 	if (appearanceFx_) {
 		appearanceFx_->StartAppear();
+	}
+}
+
+void Enemy::ClampToMovementBounds() {
+	if (!hasMovementBounds_) return;
+
+	Vector3& pos = GetWorldTransform()->GetTranslation();
+	Vector3 inwardNormal{};
+	if (!movementBounds_.ClampPosition(pos, inwardNormal)) return;
+
+	// 壁の外を向いている速度成分を取り除く。
+	// （残すとノックバックの慣性で壁に押し付けられ続けてしまう）
+	const float outwardSpeed = Dot(velocity_, inwardNormal);
+	if (outwardSpeed < 0.0f) {
+		velocity_ -= inwardNormal * outwardSpeed;
 	}
 }
 

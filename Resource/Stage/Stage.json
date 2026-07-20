@@ -2,24 +2,58 @@
     "name": "scene",
     "objects": [
         {
-            "type": "MESH",
+            "name": "Ground",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    0.0,
+                    20.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    20.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.200000047683716,
+                    2.0,
+                    30.0
+                ]
+            }
+        },
+        {
             "name": "Ground2",
             "class": "Ground",
             "transform": {
                 "translation": [
                     0.0,
                     0.0,
-                    0.0
+                    -6.0
                 ],
                 "rotation": [
-                    0.0,
+                    90.00000762939453,
                     -0.0,
                     0.0
                 ],
                 "scaling": [
-                    6.0,
-                    6.0,
-                    1.0
+                    20.0,
+                    1.0,
+                    20.0
                 ]
             },
             "file_name": "Cube",
@@ -38,23 +72,487 @@
             }
         },
         {
-            "type": "MESH",
-            "name": "Ground",
+            "name": "Ground3",
             "class": "Ground",
             "transform": {
                 "translation": [
                     0.0,
-                    24.0,
-                    -2.0
+                    -20.0,
+                    0.0
                 ],
                 "rotation": [
                     0.0,
                     -0.0,
+                    -179.99998474121094
+                ],
+                "scaling": [
+                    20.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Player",
+            "class": "Player",
+            "transform": {
+                "translation": [
+                    42.724544525146484,
+                    0.0,
+                    -2.498964786529541
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    90
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "PlayerHead",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "TutorialDummy",
+            "class": "TutorialDummy",
+            "transform": {
+                "translation": [
+                    -0.661137580871582,
+                    0.0,
+                    -2.329710006713867
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
                     0.0
                 ],
                 "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "PlayerBody",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Ground4",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    21.84842872619629,
+                    -16.964210510253906,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -159.10061645507812
+                ],
+                "scaling": [
                     12.0,
-                    32.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    30.0
+                ]
+            }
+        },
+        {
+            "name": "Ground5",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    23.028676986694336,
+                    15.890348434448242,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    -20.861295700073242
+                ],
+                "scaling": [
+                    15.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    30.0
+                ]
+            }
+        },
+        {
+            "name": "Ground6",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -29.925214767456055,
+                    0.0,
+                    -5.9342756271362305
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    10.0,
+                    3.0,
+                    15.0
+                ]
+            },
+            "file_name": "Cube",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Ground7",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -45.49497604370117,
+                    -3.5235307216644287,
+                    -1.6825783252716064
+                ],
+                "rotation": [
+                    89.99999237060547,
+                    -3.235268479784281e-07,
+                    -60.0
+                ],
+                "scaling": [
+                    15.0,
+                    1.0,
+                    10.639999389648438
+                ]
+            },
+            "file_name": "Cube",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Ground8",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -59.05631637573242,
+                    -16.393320083618164,
+                    -3.0936543941497803
+                ],
+                "rotation": [
+                    89.99999237060547,
+                    1.8936308379124966e-06,
+                    49.999996185302734
+                ],
+                "scaling": [
+                    13.710000038146973,
+                    0.9022964239120483,
+                    15.0
+                ]
+            },
+            "file_name": "Cube",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Ground9",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -79.06663513183594,
+                    -38.11664581298828,
+                    -7.056903839111328
+                ],
+                "rotation": [
+                    90.0,
+                    -0.0,
+                    45.0
+                ],
+                "scaling": [
+                    20.0,
+                    1.0,
+                    20.0
+                ]
+            },
+            "file_name": "Cube",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "GruntMelee2",
+            "class": "GruntMelee",
+            "transform": {
+                "translation": [
+                    -59.1220817565918,
+                    -20.543813705444336,
+                    7.650994300842285
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "PlayerBody",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "GruntMelee3",
+            "class": "GruntMelee",
+            "transform": {
+                "translation": [
+                    -84.80840301513672,
+                    -39.045989990234375,
+                    -2.3273136615753174
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "PlayerBody",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "GruntMelee4",
+            "class": "GruntMelee",
+            "transform": {
+                "translation": [
+                    -77.50274658203125,
+                    -43.526458740234375,
+                    -2.5429673194885254
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "PlayerBody",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Event_ForceBattle",
+            "class": "Event_ForceBattle",
+            "transform": {
+                "translation": [
+                    -81.94418334960938,
+                    -39.04000473022461,
+                    2.073087692260742
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    45.0
+                ],
+                "scaling": [
+                    15.0,
+                    20.0,
+                    20.0
+                ]
+            },
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            },
+            "event": {
+                "type": "ForceBattle",
+                "enemies": [
+                    {
+                        "name": "GruntMelee3"
+                    },
+                    {
+                        "name": "GruntMelee4"
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Ground10",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -70.92784881591797,
+                    -25.461652755737305,
+                    -5.016504764556885
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    50.000003814697266
+                ],
+                "scaling": [
+                    1.0,
+                    20.0,
                     1.0
                 ]
             },
@@ -74,14 +572,258 @@
             }
         },
         {
-            "type": "MESH",
-            "name": "Player",
-            "class": "Player",
+            "name": "Ground11",
+            "class": "Ground",
             "transform": {
                 "translation": [
+                    -15.95531177520752,
+                    -20.852384567260742,
+                    -0.20236647129058838
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    138.15084838867188
+                ],
+                "scaling": [
+                    8.299999237060547,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
                     0.0,
                     0.0,
-                    3.0
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground12",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -15.568082809448242,
+                    17.313779830932617,
+                    0.0015157610177993774
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -154.00001525878906
+                ],
+                "scaling": [
+                    4.649999141693115,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground13",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -29.91985321044922,
+                    -14.933425903320312,
+                    1.6644545793533325
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    178.0
+                ],
+                "scaling": [
+                    10.289999961853027,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground14",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -29.899259567260742,
+                    9.299421310424805,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    19.9999942779541
+                ],
+                "scaling": [
+                    48.30999755859375,
+                    0.9999999403953552,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground15",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -49.12195587158203,
+                    -26.36239242553711,
+                    1.674707293510437
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -129.0
+                ],
+                "scaling": [
+                    17.39999771118164,
+                    0.9999999403953552,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground16",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -84.97411346435547,
+                    -19.236814498901367,
+                    -1.1069269180297852
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    45.999996185302734
+                ],
+                "scaling": [
+                    30.579999923706055,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground17",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -62.40683364868164,
+                    -45.982337951660156,
+                    -1.4557993412017822
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -126.0
+                ],
+                "scaling": [
+                    28.639999389648438,
+                    0.9999999403953552,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground18",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -100.0,
+                    -60.0,
+                    -8.0
                 ],
                 "rotation": [
                     0.0,
@@ -89,12 +831,12 @@
                     0.0
                 ],
                 "scaling": [
-                    1.0,
-                    1.0,
+                    20.0,
+                    20.0,
                     1.0
                 ]
             },
-            "file_name": "",
+            "file_name": "Cube",
             "collider": {
                 "type": "BOX",
                 "center": [
@@ -110,14 +852,13 @@
             }
         },
         {
-            "type": "MESH",
-            "name": "Enemy1",
-            "class": "Enemy",
+            "name": "Ground19",
+            "class": "Ground",
             "transform": {
                 "translation": [
-                    5.0,
-                    5.0,
-                    2.0
+                    -100.0,
+                    -104.36000061035156,
+                    -9.22010612487793
                 ],
                 "rotation": [
                     0.0,
@@ -125,12 +866,12 @@
                     0.0
                 ],
                 "scaling": [
-                    1.0,
-                    1.0,
+                    10.0,
+                    27.48999786376953,
                     1.0
                 ]
             },
-            "file_name": "",
+            "file_name": "Cube",
             "collider": {
                 "type": "BOX",
                 "center": [
@@ -146,14 +887,13 @@
             }
         },
         {
-            "type": "MESH",
-            "name": "Enemy2",
-            "class": "Enemy",
+            "name": "Ground20",
+            "class": "Ground",
             "transform": {
                 "translation": [
-                    -5.0,
-                    5.0,
-                    2.0
+                    -100.0,
+                    -150.0,
+                    -11.118489265441895
                 ],
                 "rotation": [
                     0.0,
@@ -161,12 +901,12 @@
                     0.0
                 ],
                 "scaling": [
-                    1.0,
-                    1.0,
+                    20.0,
+                    20.0,
                     1.0
                 ]
             },
-            "file_name": "",
+            "file_name": "Cube",
             "collider": {
                 "type": "BOX",
                 "center": [
@@ -182,14 +922,47 @@
             }
         },
         {
-            "type": "MESH",
-            "name": "Enemy3",
-            "class": "Enemy",
+            "name": "BossKnight",
+            "class": "BossKnight",
+            "transform": {
+                "translation": [
+                    -99.64753723144531,
+                    -161.4461669921875,
+                    -8.897500038146973
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Event_Clear",
+            "class": "Event_Clear",
             "transform": {
                 "translation": [
                     0.0,
-                    24.0,
-                    0.0
+                    0.0,
+                    33.49636459350586
                 ],
                 "rotation": [
                     0.0,
@@ -202,7 +975,38 @@
                     1.0
                 ]
             },
-            "file_name": "",
+            "event": {
+                "type": "Clear",
+                "conditions": [
+                    {
+                        "type": "DEFEAT_ENEMIES",
+                        "targets": [
+                            "BossKnight"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            "name": "Event_BossSpawn",
+            "class": "Event_BossSpawn",
+            "transform": {
+                "translation": [
+                    -100.0,
+                    -150.0,
+                    -4.1184892654418945
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    20.0,
+                    15.0,
+                    20.0
+                ]
+            },
             "collider": {
                 "type": "BOX",
                 "center": [
@@ -214,6 +1018,507 @@
                     2.0,
                     2.0,
                     2.0
+                ]
+            },
+            "event": {
+                "type": "BossSpawn",
+                "boss": "BossKnight"
+            }
+        },
+        {
+            "name": "Ground21",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -109.32787322998047,
+                    -56.19821548461914,
+                    -2.323777437210083
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    81.0
+                ],
+                "scaling": [
+                    26.259998321533203,
+                    0.9999999403953552,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground22",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -85.53105926513672,
+                    -72.93121337890625,
+                    -2.153911590576172
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -130.0
+                ],
+                "scaling": [
+                    12.050000190734863,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground23",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -91.16873168945312,
+                    -107.63960266113281,
+                    -4.582863807678223
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    -89.99999237060547
+                ],
+                "scaling": [
+                    29.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground24",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -109.64606475830078,
+                    -107.07875061035156,
+                    -3.0107955932617188
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    90.00000762939453
+                ],
+                "scaling": [
+                    28.81999969482422,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground25",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -101.71922302246094,
+                    -169.9751434326172,
+                    -6.076613426208496
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    179.99998474121094
+                ],
+                "scaling": [
+                    36.37000274658203,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground26",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -119.09693908691406,
+                    -152.22100830078125,
+                    -4.5090742111206055
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    90.00000762939453
+                ],
+                "scaling": [
+                    26.959999084472656,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground27",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -81.31913757324219,
+                    -150.3411865234375,
+                    -6.324206352233887
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -90.00000762939453
+                ],
+                "scaling": [
+                    29.029998779296875,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground28",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -81.80699920654297,
+                    -138.78933715820312,
+                    -5.116055488586426
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    -41.0
+                ],
+                "scaling": [
+                    13.170000076293945,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground29",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    -119.9981689453125,
+                    -141.0880126953125,
+                    -4.336022853851318
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    37.0
+                ],
+                "scaling": [
+                    14.24000072479248,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    10.0
+                ]
+            }
+        },
+        {
+            "name": "Ground30",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    40.0,
+                    0.0,
+                    -6.0
+                ],
+                "rotation": [
+                    90.00000762939453,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    20.0,
+                    1.0,
+                    15.0
+                ]
+            },
+            "file_name": "Cube",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            }
+        },
+        {
+            "name": "Ground31",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    51.91067886352539,
+                    10.74394702911377,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    15.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    30.0
+                ]
+            }
+        },
+        {
+            "name": "Ground32",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    46.75006103515625,
+                    -12.961703300476074,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -179.99998474121094
+                ],
+                "scaling": [
+                    14.420000076293945,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    30.0
+                ]
+            }
+        },
+        {
+            "name": "Ground33",
+            "class": "Ground",
+            "transform": {
+                "translation": [
+                    60.3114128112793,
+                    -0.4098736345767975,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    -90.00000762939453
+                ],
+                "scaling": [
+                    14.769999504089355,
+                    1.0,
+                    1.0
+                ]
+            },
+            "file_name": "Wall",
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    30.0
+                ]
+            }
+        },
+        {
+            "name": "Event_ForceBattle2",
+            "class": "Event_ForceBattle",
+            "transform": {
+                "translation": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.0,
+                    -0.0,
+                    0.0
+                ],
+                "scaling": [
+                    15.0,
+                    15.0,
+                    15.0
+                ]
+            },
+            "collider": {
+                "type": "BOX",
+                "center": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "size": [
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+            },
+            "event": {
+                "type": "ForceBattle",
+                "enemies": [
+                    {
+                        "name": "TutorialDummy"
+                    }
                 ]
             }
         }

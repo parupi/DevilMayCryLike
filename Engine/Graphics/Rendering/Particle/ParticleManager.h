@@ -124,7 +124,7 @@ private:
 
 	void RegisterEditorParameters(const std::string& name);
 
-	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList);
+	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList, size_t instanceCount);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
@@ -135,7 +135,10 @@ public:
 	void EmitFromMesh(const std::string& groupName, const std::string& modelName, const Matrix4x4& worldMatrix, uint32_t count);
 
 private:
-	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
+	// 1グループあたりの最大インスタンス数。
+	// 格子状の壁のように「細かい粒を面で敷き詰める」表現は512では足りないため引き上げてある。
+	// 1グループあたり 2048 * 144byte ≒ 288KB のアップロードバッファを確保する。
+	const uint32_t kNumMaxInstance = 2048;
 	// パーティクル用リソースの宣言
 	uint32_t instancingHandle_ = 0;
 	uint32_t materialHandle_ = 0;

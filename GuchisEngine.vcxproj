@@ -144,6 +144,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h" />
+    <ClInclude Include="App\GameObject\Character\MovementBounds.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h" />
     <ClInclude Include="App\GameObject\Character\Player\Combat\PlayerCombat.h" />
     <ClInclude Include="App\GameObject\Character\Player\Controller\PlayerInput.h" />
@@ -166,6 +167,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
     <ClInclude Include="App\GameObject\Event\BossSpawnEvent.h" />
     <ClInclude Include="App\GameObject\Event\ClearEvent.h" />
+    <ClInclude Include="App\GameObject\Event\Effect\BattleAreaWallEffect.h" />
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
     <ClInclude Include="App\GameObject\Event\EventFactory.h" />
     <ClInclude Include="App\GameObject\Event\EventManager.h" />
@@ -409,6 +411,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\BossSpawnEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp" />
+    <ClCompile Include="App\GameObject\Event\Effect\BattleAreaWallEffect.cpp" />
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />
     <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
