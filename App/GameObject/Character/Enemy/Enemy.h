@@ -3,6 +3,8 @@
 #include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Character/Enemy/Effect/EnemyAppearanceEffect.h"
+#include "GameObject/Effect/CharacterLight.h"
 #include <GameObject/LockOn/LockOnTarget.h>
 
 class Player;
@@ -88,7 +90,41 @@ public:
 	/// </summary>
 	void OnDeath();
 
+	/// <summary>
+	/// HP が 0 になったときに実際に死亡してよいかを返す。
+	/// 通常は常に true。チュートリアル用の敵などが条件付きで死亡を抑制するためにオーバーライドする。
+	/// </summary>
+	virtual bool CanDie() const { return true; }
+
+	/// <summary>
+	/// ノックバック無効（スーパーアーマー）中かどうか。
+	/// 通常の敵は常に false。ボスなどがオーバーライドする。
+	/// ロックオンレティクルの色変化など、プレイヤーへの状態表示に使う。
+	/// </summary>
+	virtual bool IsKnockbackImmune() const { return false; }
+
+	/// <summary>
+	/// 攻撃行動をしてよいかを返す。
+	/// 通常は常に true。チュートリアル用の敵（練習台）などが攻撃を封じるためにオーバーライドする。
+	/// 意思決定ステート（CombatIdleなど）が攻撃を選ぶ前にこれを確認する。
+	/// </summary>
+	virtual bool CanAttack() const { return true; }
+
 	bool IsAlive() const { return isAlive_; }
+
+	/// <summary>
+	/// 出現・死亡演出の再生中かどうか。
+	/// 演出中は被弾処理を行わない（派生クラスの OnCollisionEnter でガードする）。
+	/// </summary>
+	bool IsAppearanceEffectPlaying() const { return appearanceFx_ && appearanceFx_->IsPlaying(); }
+
+	/// <summary>出現・死亡演出を取得する（武器のレンダラー登録などに使う）</summary>
+	EnemyAppearanceEffect* GetAppearanceFx() { return appearanceFx_.get(); }
+
+	/// <summary>
+	/// 追従ライトをひときわ強く光らせる。攻撃がヒットした瞬間に呼ぶ。
+	/// </summary>
+	void FlashLight() { if (characterLight_) characterLight_->Flash(); }
 
 	/// <summary>
 	/// KnockBack ステートが Enter() で参照するダメージ情報をセットする。
@@ -147,6 +183,15 @@ public:
 	/// </summary>
 	void SetHp(float hp) { hp_ = hp; }
 
+	/// <summary>
+	/// 残りHPの割合（0〜1）を取得する。ロックオンレティクルのHP表示などに使う。
+	/// </summary>
+	float GetHpRatio() const {
+		if (maxHp_ <= 0.0f) return 0.0f;
+		float ratio = hp_ / maxHp_;
+		return ratio < 0.0f ? 0.0f : (ratio > 1.0f ? 1.0f : ratio);
+	}
+
 	bool IsActive() const { return isActive_; }
 	void SetActive(bool flag) { isActive_ = flag; }
 
@@ -155,8 +200,20 @@ public:
 	void SetupLockOn(LockOnSystem* lockOnSystem);
 
 protected:
+	/// <summary>
+	/// 死亡演出（ディゾルブアウト）が終わった直後に一度だけ呼ばれる。
+	/// 武器など本体以外の後始末を派生クラスで行う。
+	/// </summary>
+	virtual void OnDeathEffectFinished() {}
+
 	std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
 	EnemyStateBase* currentState_ = nullptr;
+
+	// 出現・死亡演出（粒子 + ディゾルブ）
+	std::unique_ptr<EnemyAppearanceEffect> appearanceFx_;
+
+	// 敵に追従するポイントライト（被弾時にフラッシュ）
+	std::unique_ptr<CharacterLight> characterLight_;
 
 	LockOnTarget lockOnTarget_;
 
@@ -166,6 +223,7 @@ protected:
 	Vector3 acceleration_{0.0f, 0.0f, 0.0f};
 
 	float hp_ = 3.0f;
+	float maxHp_ = 3.0f; // 派生クラスで hp_ を変えるときは一緒に設定する（GetHpRatio用）
 	bool onGround_ = false;
 	bool isActive_ = true;
 	bool isAlive_ = true;
@@ -180,4 +238,8 @@ private:
 	// Groundコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
 	// resetVelocity: 接地面に押し出した際にvelocity_.yを0にリセットするか
 	void ResolveGroundCollision(BaseCollider* other, bool resetVelocity);
+
+	// 真下の地面まで即座に降ろす（Spawn時用）。
+	// 空中に配置された敵が出現後に落下してくるのを防ぐ。地面が見つからなければ元の位置のまま。
+	void SnapToGround();
 };

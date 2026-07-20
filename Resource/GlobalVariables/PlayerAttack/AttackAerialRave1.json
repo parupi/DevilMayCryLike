@@ -2,7 +2,7 @@
     "AttackAerialRave1": {
         "AttackDuration": 0.14000000059604645,
         "AttackPosture": 1,
-        "ButtonIndex": 0,
+        "ButtonIndex": 2,
         "ControlPoint_0": [
             1.0,
             -0.20000000298023224,
@@ -79,7 +79,7 @@
         "HitStopIntensity": 0.03999999910593033,
         "HitStopTime": 0.03999999910593033,
         "ImpulseForce": 0.0,
-        "IsAir": false,
+        "IsAir": true,
         "IsMove": false,
         "KnockBackSpeed": [
             0.0,
@@ -106,7 +106,7 @@
         "PostDelay": 0.03999999910593033,
         "PreDelay": 0.029999999329447746,
         "ReactionType": 0,
-        "RootAttackFlag": false,
+        "RootAttackFlag": true,
         "StunTime": 0.0,
         "TorqueForce": 0.0,
         "TotalDuration": 0.699999988079071,

@@ -16,8 +16,6 @@ public:
 	void Start();
 	// 終了
 	void End();
-	// チュートリアルが終了中かどうか
-	bool IsEnding() const { return state_ == State::End; }
 	// 進行度を進める
 	bool StepTutorial();
 private:

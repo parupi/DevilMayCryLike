@@ -1,26 +1,35 @@
-﻿#include "ModelLoader.h"
+#include "ModelLoader.h"
 #include <cassert>
+#include <filesystem>
 #include <sstream>
 #include "Graphics/Resource/TextureManager.h"
 #include "Utility/Logger.h"
 
-void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager)
-{
+void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager) {
 	dxManager_ = dxManager;
 	srvManager_ = srvManager;
 }
 
-ModelData ModelLoader::LoadModelFile(const std::string& filename)
-{
+ModelData ModelLoader::LoadModelFile(const std::string& filename) {
 	ModelData modelData;
 
 	Assimp::Importer importer;
-	std::string filePath = "Resource/Models/" + filename + "/" + filename + ".obj";
+	// 拡張子を自動判別する（.obj が無ければ .gltf → .fbx の順に探す）
+	const std::string basePath = "Resource/Models/" + filename + "/" + filename;
+	std::string filePath = basePath + ".obj";
+	if (!std::filesystem::exists(filePath)) {
+		for (const char* ext : {".gltf", ".fbx"}) {
+			if (std::filesystem::exists(basePath + ext)) {
+				filePath = basePath + ext;
+				break;
+			}
+		}
+	}
 
 	Logger::Log("[ModelLoader] Loading: " + filePath);
-	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
-	ASSERT_MSG(scene && scene->HasMeshes(),
-		("[ModelLoader] モデルの読み込みに失敗しました。\n  パス: " + filePath + "\n  Assimp: " + importer.GetErrorString()).c_str());
+	// Triangulate: FBXなどに含まれる5角形以上の面も三角形化して取りこぼさないようにする
+	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs | aiProcess_Triangulate);
+	ASSERT_MSG(scene && scene->HasMeshes(), ("[ModelLoader] モデルの読み込みに失敗しました。\n  パス: " + filePath + "\n  Assimp: " + importer.GetErrorString()).c_str());
 
 	// --- マテリアルの読み込み ---
 	modelData.materials.resize(scene->mNumMaterials);
@@ -29,17 +38,26 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 		MaterialData matData;
 		matData.name = material->GetName().C_Str();
 
+		std::string texPath;
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			matData.textureFilePath = textureFilePath.C_Str();
-			TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
-			matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
-		} else {
-			matData.textureFilePath = "white.png";
-			TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
-			matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
+			texPath = textureFilePath.C_Str();
+
+			// 壊れたマテリアル対策: 空・"." や Resource/Images に実在しないテクスチャは白にフォールバックする
+			// （Blenderが画像を持たないテクスチャノードを "map_Kd ." として書き出すことがある）
+			if (texPath.empty() || !std::filesystem::is_regular_file("Resource/Images/" + texPath)) {
+				Logger::Log("[ModelLoader] 無効なテクスチャパスのため white.png を使用します: \"" + texPath + "\" (" + filename + ")\n");
+				texPath.clear();
+			}
 		}
+		if (texPath.empty()) {
+			texPath = "white.png";
+		}
+
+		matData.textureFilePath = texPath;
+		TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
+		matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
 
 		modelData.materials[i] = matData;
 	}
@@ -51,17 +69,22 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 		aiMesh* mesh = scene->mMeshes[meshIndex];
 
 		ASSERT_MSG(mesh->HasNormals(), ("[ModelLoader] メッシュに法線がありません: " + std::string(mesh->mName.C_Str())).c_str());
-		ASSERT_MSG(mesh->HasTextureCoords(0), ("[ModelLoader] メッシュに UV がありません: " + std::string(mesh->mName.C_Str())).c_str());
+		// UVを持たないモデル（FBXの壁モデルなど）はダミーUVで読み込む
+		const bool hasUV = mesh->HasTextureCoords(0);
 
 		meshData.vertices.resize(mesh->mNumVertices);
 		for (uint32_t vertexIndex = 0; vertexIndex < mesh->mNumVertices; ++vertexIndex) {
 			aiVector3D& pos = mesh->mVertices[vertexIndex];
 			aiVector3D& norm = mesh->mNormals[vertexIndex];
-			aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
 
-			meshData.vertices[vertexIndex].position = { -pos.x, pos.y, pos.z, 1.0f };
-			meshData.vertices[vertexIndex].normal = { -norm.x, norm.y, norm.z };
-			meshData.vertices[vertexIndex].texcoord = { uv.x, uv.y };
+			meshData.vertices[vertexIndex].position = {-pos.x, pos.y, pos.z, 1.0f};
+			meshData.vertices[vertexIndex].normal = {-norm.x, norm.y, norm.z};
+			if (hasUV) {
+				aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
+				meshData.vertices[vertexIndex].texcoord = {uv.x, uv.y};
+			} else {
+				meshData.vertices[vertexIndex].texcoord = {0.0f, 0.0f};
+			}
 		}
 
 		for (uint32_t faceIndex = 0; faceIndex < mesh->mNumFaces; ++faceIndex) {
@@ -71,7 +94,7 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 				int32_t i1 = face.mIndices[1];
 				int32_t i2 = face.mIndices[2];
 				int32_t i3 = face.mIndices[3];
-				meshData.indices.insert(meshData.indices.end(), { i0, i1, i2, i0, i2, i3 });
+				meshData.indices.insert(meshData.indices.end(), {i0, i1, i2, i0, i2, i3});
 			} else if (face.mNumIndices == 3) {
 				for (uint32_t i = 0; i < 3; ++i) {
 					meshData.indices.push_back(face.mIndices[i]);
@@ -88,8 +111,7 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename)
 	return modelData;
 }
 
-SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
-{
+SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename) {
 	SkinnedModelData modelData;
 
 	Assimp::Importer importer;
@@ -125,10 +147,21 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 			break;
 		}
 
+		std::string texPath;
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
 			aiString textureFilePath;
 			material->GetTexture(aiTextureType_DIFFUSE, 0, &textureFilePath);
-			matData.textureFilePath = textureFilePath.C_Str();
+			texPath = textureFilePath.C_Str();
+
+			// 壊れたマテリアル対策: 空・"." や Resource/Images に実在しないテクスチャは白にフォールバックする
+			if (texPath.empty() || !std::filesystem::is_regular_file("Resource/Images/" + texPath)) {
+				Logger::Log("[ModelLoader] 無効なテクスチャパスのため白テクスチャを使用します: \"" + texPath + "\" (" + filename + ")\n");
+				texPath.clear();
+			}
+		}
+
+		if (!texPath.empty()) {
+			matData.textureFilePath = texPath;
 			TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
 			matData.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(matData.textureFilePath);
 		} else {
@@ -154,14 +187,14 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 			aiVector3D& pos = mesh->mVertices[vertexIndex];
 			aiVector3D& norm = mesh->mNormals[vertexIndex];
 
-			SkinnedMeshData.vertices[vertexIndex].position = { -pos.x, pos.y, pos.z, 1.0f };
-			SkinnedMeshData.vertices[vertexIndex].normal = { -norm.x, norm.y, norm.z };
+			SkinnedMeshData.vertices[vertexIndex].position = {-pos.x, pos.y, pos.z, 1.0f};
+			SkinnedMeshData.vertices[vertexIndex].normal = {-norm.x, norm.y, norm.z};
 
 			if (hasUV) {
 				aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
-				SkinnedMeshData.vertices[vertexIndex].texcoord = { uv.x, uv.y };
+				SkinnedMeshData.vertices[vertexIndex].texcoord = {uv.x, uv.y};
 			} else {
-				SkinnedMeshData.vertices[vertexIndex].texcoord = { 0.0f, 0.0f }; // ダミー
+				SkinnedMeshData.vertices[vertexIndex].texcoord = {0.0f, 0.0f}; // ダミー
 			}
 		}
 
@@ -172,7 +205,7 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 				int32_t i1 = face.mIndices[1];
 				int32_t i2 = face.mIndices[2];
 				int32_t i3 = face.mIndices[3];
-				SkinnedMeshData.indices.insert(SkinnedMeshData.indices.end(), { i0, i1, i2, i0, i2, i3 });
+				SkinnedMeshData.indices.insert(SkinnedMeshData.indices.end(), {i0, i1, i2, i0, i2, i3});
 			} else if (face.mNumIndices == 3) {
 				for (uint32_t i = 0; i < 3; ++i) {
 					SkinnedMeshData.indices.push_back(face.mIndices[i]);
@@ -192,9 +225,9 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 			bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
 
 			Matrix4x4 bindPoseMatrix = MakeAffineMatrix(
-				{ scale.x, scale.y, scale.z },
-				{ rotate.x, -rotate.y, -rotate.z, rotate.w },
-				{ -translate.x, translate.y, translate.z }
+				{scale.x, scale.y, scale.z},
+				{rotate.x, -rotate.y, -rotate.z, rotate.w},
+				{-translate.x, translate.y, translate.z}
 			);
 			jointWeightData.inverseBindPoseMatrix = Inverse(bindPoseMatrix);
 
@@ -215,15 +248,14 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename)
 	return modelData;
 }
 
-Node ModelLoader::ReadNode(aiNode* node)
-{
+Node ModelLoader::ReadNode(aiNode* node) {
 	Node result;
 	aiVector3D scale, translate;
 	aiQuaternion rotate;
 	node->mTransformation.Decompose(scale, rotate, translate); // assimpの行列からSRTを抽出する関数
-	result.transform.scale = { scale.x, scale.y, scale.z }; // scaleはそのまま
-	result.transform.rotate = { rotate.x, -rotate.y, -rotate.z, rotate.w }; // xを反転、回転方向が逆なので軸も反転
-	result.transform.translate = { -translate.x, translate.y, translate.z }; // x軸を反転
+	result.transform.scale = {scale.x, scale.y, scale.z}; // scaleはそのまま
+	result.transform.rotate = {rotate.x, -rotate.y, -rotate.z, rotate.w}; // xを反転、回転方向が逆なので軸も反転
+	result.transform.translate = {-translate.x, translate.y, translate.z}; // x軸を反転
 	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
 
 	result.name = node->mName.C_Str(); // node名を格納

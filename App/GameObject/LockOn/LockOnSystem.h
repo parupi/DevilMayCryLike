@@ -34,6 +34,8 @@ private:
 	Player* player_ = nullptr;
 	// レティクル描画用のスプライト
 	Sprite* reticle_ = nullptr;
+	// レティクルの一回り外側に表示するHPリング（敵の残りHPで時計回りに欠ける）
+	Sprite* hpRing_ = nullptr;
 
 	std::vector<LockOnTarget*> targets_;
 	LockOnTarget* currentTarget_ = nullptr;

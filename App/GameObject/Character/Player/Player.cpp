@@ -50,7 +50,8 @@ void Player::Initialize() {
 	combat_->Initialize(this);
 
 	GetCollider(name_)->category_ = CollisionCategory::Player;
-	static_cast<OBBCollider*>(GetCollider(name_))->GetColliderData().halfExtents *= 0.5f;
+	// レベルデータのコライダーサイズをそのまま使う
+	// （旧: レベル側の×2補正を打ち消すための *0.5f があったが、×2補正の撤廃に伴い削除。実効サイズは変わらない）
 	// 武器のレンダラー生成
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
@@ -86,6 +87,12 @@ void Player::Initialize() {
 
 	hitVignette_ = std::make_unique<HitVignetteEffect>();
 	hitVignette_->Initialize();
+
+	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュする）
+	characterLight_ = std::make_unique<CharacterLight>();
+	characterLight_->Initialize("PlayerLight", Vector4{ 0.45f, 0.65f, 1.0f, 1.0f });
+
+	GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 3.14, 0.0f});
 }
 
 void Player::Update(float deltaTime) {
@@ -129,6 +136,18 @@ void Player::Update(float deltaTime) {
 	velocity_ += acceleration_ * dt;
 
 	Object3d::Update(dt);
+
+	// 強制戦闘エリアなどで移動範囲が設定されている場合はXZを範囲内にクランプする
+	if (hasMovementBounds_) {
+		Vector3& pos = GetWorldTransform()->GetTranslation();
+		if (pos.x < movementBoundsMin_.x) pos.x = movementBoundsMin_.x;
+		else if (pos.x > movementBoundsMax_.x) pos.x = movementBoundsMax_.x;
+		if (pos.z < movementBoundsMin_.z) pos.z = movementBoundsMin_.z;
+		else if (pos.z > movementBoundsMax_.z) pos.z = movementBoundsMax_.z;
+	}
+
+	// キャラクター追従ライトの更新（ヒットストップ中はフラッシュの減衰も止まる）
+	characterLight_->Update(GetWorldTransform()->GetTranslation(), dt);
 
 	// 接地フラグを毎フレーム切っておく
 	onGround_ = false;
@@ -264,6 +283,8 @@ void Player::TakeDamage(const DamageInfo& info) {
 
 	// 被弾ビネットフラッシュ
 	hitVignette_->Play();
+	// 敵の攻撃がヒットしたのでライトを強く光らせる
+	characterLight_->Flash();
 
 	// 攻撃を強制中断
 	combat_->InterruptCombat();

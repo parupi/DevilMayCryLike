@@ -58,6 +58,32 @@ class MYADDON_OT_export_scene(bpy.types.Operator, bpy_extras.io_utils.ExportHelp
                 "size": obj["collider_size"].to_list()
             }
 
+        # ========= ライト情報 =========
+        if obj.get("class_name") == "PointLight":
+            light_data = {"type": "Point"}
+            # 色はBlenderライトの色をそのまま使う（ビューポートプレビューと一致）
+            if obj.type == 'LIGHT':
+                light_data["color"] = [obj.data.color[0], obj.data.color[1], obj.data.color[2]]
+            if hasattr(obj, "point_light"):
+                p = obj.point_light
+                light_data["intensity"] = p.intensity
+                light_data["radius"] = p.radius
+                light_data["decay"] = p.decay
+            json_object["light"] = light_data
+
+        # 小物(Prop)のオプションライト（ランタンなど）
+        elif obj.get("class_name") == "Prop":
+            if hasattr(obj, "prop_object") and obj.prop_object.light_enabled:
+                p = obj.prop_object
+                json_object["light"] = {
+                    "type": "Point",
+                    "color": [p.light_color[0], p.light_color[1], p.light_color[2]],
+                    "offset": [p.light_offset[0], p.light_offset[1], p.light_offset[2]],
+                    "intensity": p.light_intensity,
+                    "radius": p.light_radius,
+                    "decay": p.light_decay,
+                }
+
         # ========= イベント固有の情報 =========
         if obj.get("class_name") == "Event_EnemySpawn":
             if hasattr(obj, "enemy_spawn_event"):
@@ -75,10 +101,23 @@ class MYADDON_OT_export_scene(bpy.types.Operator, bpy_extras.io_utils.ExportHelp
                 }
 
         elif obj.get("class_name") == "Event_ForceBattle":
-            # TODO: 強制戦闘イベントのパラメータが増えたらここに出力処理を書く
             json_object["event"] = {
-                "type": "ForceBattle"
+                "type": "ForceBattle",
+                "enemies": []
             }
+            if hasattr(obj, "force_battle_event"):
+                for e in obj.force_battle_event.enemies:
+                    json_object["event"]["enemies"].append({
+                        "name": e.enemy.name if e.enemy else None
+                    })
+
+        elif obj.get("class_name") == "Event_BossSpawn":
+            # boss 未設定時はキーを出力しない（C++側で null をパースしないため）
+            json_object["event"] = {
+                "type": "BossSpawn"
+            }
+            if hasattr(obj, "boss_spawn_event") and obj.boss_spawn_event.boss:
+                json_object["event"]["boss"] = obj.boss_spawn_event.boss.name
 
         elif obj.get("class_name") == "Event_Clear":
             if hasattr(obj, "clear_event"):

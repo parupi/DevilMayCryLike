@@ -266,4 +266,8 @@ public:
 	void SetDissolveEdgeWidth(float w) { materialData_->dissolveEdgeWidth = w; }
 	void SetDissolveEdgeColor(const Vector4& color) { materialData_->dissolveEdgeColor = color; }
 	const Vector4& GetDissolveEdgeColor() const { return materialData_->dissolveEdgeColor; }
+
+	// Radial fill（上から時計回りに欠ける円形ゲージ表示。-1で無効、0〜1で表示割合）
+	void SetRadialFill(float ratio) { materialData_->radialFill = ratio; }
+	float GetRadialFill() const { return materialData_->radialFill; }
 };

@@ -37,6 +37,9 @@ public:
 	// AABB/OBBの組み合わせに対応（Sphereは非対応）
 	PenetrationResult CalculatePenetration(BaseCollider* mover, BaseCollider* blocker);
 
+	// 全コライダーの一覧を取得する（地面スナップなどの空間クエリ用）
+	const std::vector<std::unique_ptr<BaseCollider>>& GetColliders() const { return colliders_; }
+
 private:
 	using ColliderPair = std::pair<BaseCollider*, BaseCollider*>;
 

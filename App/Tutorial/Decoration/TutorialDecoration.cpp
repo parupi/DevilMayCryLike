@@ -7,7 +7,7 @@ void TutorialDecoration::Initialize() {
 	mask_->SetSize({426.0f, 720.0f});
 
 	upDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "upperDivider", "UI/Menu/UpperDivider.png");
-	upDivider_->SetPosition({200.0f, 580.0f});
+	upDivider_->SetPosition({200.0f, 640.0f});
 	upDivider_->SetSize({360.0f, -190.0f});
 	upDivider_->SetAnchorPoint({0.5f, 0.5f});
 	upDivider_->SetDissolveThreshold(1.0f);

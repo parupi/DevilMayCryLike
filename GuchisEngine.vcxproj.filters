@@ -34,17 +34,20 @@
     <Filter Include="App\GameObject\Character\Enemy\Component">
       <UniqueIdentifier>{310D60B6-1D8A-53F9-4607-540D32E3EF8C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\Effect">
+      <UniqueIdentifier>{EB566711-571B-6601-2081-96CB8C040237}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Character\Enemy\GruntMelee">
       <UniqueIdentifier>{D61070C1-422B-D362-8B4D-E3F6F7A6FA69}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Enemy\GruntMelee\State">
       <UniqueIdentifier>{A6882C86-12C4-8C49-1BB9-09D98773117A}</UniqueIdentifier>
     </Filter>
-    <Filter Include="App\GameObject\Character\Enemy\Hellkaina">
-      <UniqueIdentifier>{27A09D6B-131D-91AE-3C9A-91C228762D42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="App\GameObject\Character\Enemy\State">
       <UniqueIdentifier>{9FD40F11-8BBB-D108-340C-382620D24A6F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\TutorialDummy">
+      <UniqueIdentifier>{DEC70D66-CADA-0DBF-73C4-EAAB5FB6AA0C}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Player">
       <UniqueIdentifier>{3E65711F-AA48-805F-B34B-AE9B1FAE46B0}</UniqueIdentifier>
@@ -73,8 +76,14 @@
     <Filter Include="App\GameObject\Ground">
       <UniqueIdentifier>{246AB890-90D6-738B-59CA-0BE9C5F595F3}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Light">
+      <UniqueIdentifier>{2D99C742-1928-510C-C246-6507AEB461B2}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\LockOn">
       <UniqueIdentifier>{BB28259C-2795-E096-F088-78F45CB402FF}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Prop">
+      <UniqueIdentifier>{763E6D95-E29F-4AA3-6B0D-9155D76D8162}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
@@ -288,6 +297,9 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
@@ -302,6 +314,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.h">
+      <Filter>App\GameObject\Character\Enemy\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h">
       <Filter>App\GameObject\Character\Enemy</Filter>
@@ -336,29 +351,14 @@
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.h">
       <Filter>App\GameObject\Character\Enemy\GruntMelee\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.h">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
+    <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h">
+      <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
@@ -408,6 +408,9 @@
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -415,6 +418,9 @@
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\BossSpawnEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\ClearEvent.h">
@@ -429,14 +435,23 @@
     <ClInclude Include="App\GameObject\Event\EventManager.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Ground\Ground.h">
       <Filter>App\GameObject\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Light\StagePointLight.h">
+      <Filter>App\GameObject\Light</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h">
       <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h">
       <Filter>App\GameObject\LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Prop\Prop.h">
+      <Filter>App\GameObject\Prop</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -625,6 +640,9 @@
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\InstanceData.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\Particle.h">
@@ -843,6 +861,9 @@
     <ClInclude Include="Engine\World3D\Light\DirectionalLight.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\World3D\Light\DynamicPointLight.h">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\World3D\Light\LightManager.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
@@ -1010,6 +1031,9 @@
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
@@ -1024,6 +1048,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp">
       <Filter>App\GameObject\Character\Enemy</Filter>
@@ -1055,29 +1082,14 @@
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.cpp">
       <Filter>App\GameObject\Character\Enemy\GruntMelee\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.cpp">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateAir.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
+    <ClCompile Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.cpp">
+      <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
@@ -1121,6 +1133,9 @@
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
@@ -1128,6 +1143,9 @@
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\BossSpawnEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp">
@@ -1142,14 +1160,23 @@
     <ClCompile Include="App\GameObject\Event\EventManager.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Ground\Ground.cpp">
       <Filter>App\GameObject\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Light\StagePointLight.cpp">
+      <Filter>App\GameObject\Light</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp">
       <Filter>App\GameObject\LockOn</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp">
       <Filter>App\GameObject\LockOn</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Prop\Prop.cpp">
+      <Filter>App\GameObject\Prop</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -1328,6 +1355,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp">
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEditor.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
@@ -1503,6 +1533,9 @@
       <Filter>Engine\World3D\Collider</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Light\DirectionalLight.cpp">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Light\DynamicPointLight.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Light\LightManager.cpp">

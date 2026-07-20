@@ -44,7 +44,17 @@ void ModelRenderer::Draw() {
 }
 
 void ModelRenderer::DrawGBuffer() {
-	localTransform_->BindToShader(RendererManager::GetInstance().GetDxManager()->GetCommandList(), 1);
+	auto* cmd = RendererManager::GetInstance().GetDxManager()->GetCommandList();
+	localTransform_->BindToShader(cmd, 1);
+
+	// レンダラー単位のDissolve上書き+エミッシブティント（b2ルート定数）。無効時も毎ドロー設定して前の値が残らないようにする
+	const float dissolveConstants[12] = {
+		dissolveThreshold_, dissolveEdgeWidth_, 0.0f, 0.0f,
+		dissolveEdgeColor_.x, dissolveEdgeColor_.y, dissolveEdgeColor_.z, dissolveEdgeColor_.w,
+		emissiveTint_.x, emissiveTint_.y, emissiveTint_.z, emissiveTint_.w,
+	};
+	cmd->SetGraphicsRoot32BitConstants(4, 12, dissolveConstants, 0);
+
 	model_->DrawGBuffer(); // Model側へ委譲
 }
 

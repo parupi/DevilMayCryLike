@@ -15,6 +15,7 @@
 #include "StateMachine/PlayerStateMachine.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "GameObject/Effect/HitVignetteEffect.h"
+#include "GameObject/Effect/CharacterLight.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 #include "Tutorial/Service/TutorialService.h"
@@ -130,6 +131,12 @@ public:
 	HitStop* GetHitStop() const { return hitStop_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
+	/// <summary>
+	/// プレイヤーに追従するポイントライトを取得する。
+	/// 攻撃ヒット時に Flash() を呼ぶとひときわ強く光る。
+	/// </summary>
+	CharacterLight* GetCharacterLight() const { return characterLight_.get(); }
+
 	// 被ダメージ処理
 	void TakeDamage(const DamageInfo& info);
 	const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
@@ -140,6 +147,13 @@ public:
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 	void SetTutorialService(TutorialService* tutorialService) { tutorialService_ = tutorialService; }
 	TutorialService* GetTutorialService() const { return tutorialService_; }
+
+	// 移動可能範囲(XZ)を設定する。強制戦闘イベントなどでプレイヤーをエリア内に閉じ込めるのに使う。
+	void SetMovementBounds(const Vector3& min, const Vector3& max) {
+		movementBoundsMin_ = min; movementBoundsMax_ = max; hasMovementBounds_ = true;
+	}
+	// 移動可能範囲の制限を解除する。
+	void ClearMovementBounds() { hasMovementBounds_ = false; }
 private:
 	// Ground/Enemyコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
 	void ResolveGroundCollision(BaseCollider* other);
@@ -185,4 +199,11 @@ private:
 	DamageInfo pendingDamageInfo_;
 	// 被弾時のビネットエフェクト
 	std::unique_ptr<HitVignetteEffect> hitVignette_;
+	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュ）
+	std::unique_ptr<CharacterLight> characterLight_;
+
+	// 移動可能範囲(XZ)。強制戦闘イベント発動中などに有効化される。
+	bool hasMovementBounds_ = false;
+	Vector3 movementBoundsMin_{};
+	Vector3 movementBoundsMax_{};
 };

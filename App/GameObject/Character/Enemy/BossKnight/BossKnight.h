@@ -30,13 +30,39 @@ public:
     void OnCollisionStay(BaseCollider* other) override;
     void OnCollisionExit(BaseCollider* other) override;
 
+    /// <summary>
+    /// ノックバック無効（スーパーアーマー）中かどうか。
+    /// 吹き飛ばされてから次の突進攻撃(Rush)を終えるまでが該当する。
+    /// レティクルの色変化などプレイヤーへの状態表示にも使われる。
+    /// </summary>
+    bool IsKnockbackImmune() const override;
+
+protected:
+    /// <summary>死亡演出終了時に武器を後始末する</summary>
+    void OnDeathEffectFinished() override;
+
 private:
+    // スーパーアーマーの視覚表示（紫オーラ・ライト・体の発光）をまとめて更新する
+    void UpdateArmorVisual(float deltaTime);
+
     BossWeapon*      weapon_        = nullptr;
     ParticleEmitter* hitEmitter_    = nullptr;
     ParticleEmitter* chargeEmitter_ = nullptr;
+    ParticleEmitter* auraEmitter_   = nullptr;
+    ParticleEmitter* armorHitEmitter_ = nullptr; // アーマー中被弾の弾かれ火花
 
     float chargeEmitTimer_ = 0.0f;
     static constexpr float kChargeEmitInterval = 0.08f;
+
+    // スーパーアーマー中の紫オーラの発生間隔
+    float auraEmitTimer_ = 0.0f;
+    static constexpr float kAuraEmitInterval = 0.04f;
+
+    // スーパーアーマー中の体の発光（脈動）用の経過時間
+    float armorTintPhase_ = 0.0f;
+    // アーマー中被弾時に体を一瞬強く光らせるタイマー
+    float armorHitFlashTimer_ = 0.0f;
+    static constexpr float kArmorHitFlashDuration = 0.15f;
 
     // ── ヒット蓄積ノックバック ──────────────────────────────────────
     // kKnockbackThreshold 分のダメージが溜まると初めて吹き飛ぶ

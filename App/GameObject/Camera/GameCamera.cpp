@@ -2,9 +2,43 @@
 #include "GameObject/Character/Player/Player.h"
 #include <Input/CameraInput.h>
 #include <Utility/DeltaTime.h>
+#include <World3D/Collider/CollisionManager.h>
+#include <World3D/Collider/AABBCollider.h>
+#include <World3D/Collider/OBBCollider.h>
+#include <GameData/CollisionCategory.h>
+#include <algorithm>
 #include <cmath>
 
 static constexpr float kCameraBaseHeight = 3.0f;
+
+namespace {
+// 線分(origin + dir*t, t∈(0, tMax])と原点中心スラブ領域(±halfExtents)の交差判定（スラブ法）
+// origin/dir は判定対象のローカル空間に変換済みであること。dir は単位ベクトル前提（tは距離）
+bool IntersectSegmentSlabs(const Vector3& origin, const Vector3& dir, float tMax, const Vector3& halfExtents, float& tHit) {
+	float tEnter = 0.0f;
+	float tExit = tMax;
+	const float o[3] = { origin.x, origin.y, origin.z };
+	const float d[3] = { dir.x, dir.y, dir.z };
+	const float h[3] = { halfExtents.x, halfExtents.y, halfExtents.z };
+	for (int i = 0; i < 3; ++i) {
+		if (std::abs(d[i]) < 1e-6f) {
+			// 軸に平行: スラブ範囲外なら交差しない
+			if (o[i] < -h[i] || o[i] > h[i]) return false;
+			continue;
+		}
+		float t1 = (-h[i] - o[i]) / d[i];
+		float t2 = (h[i] - o[i]) / d[i];
+		if (t1 > t2) std::swap(t1, t2);
+		tEnter = (std::max)(tEnter, t1);
+		tExit = (std::min)(tExit, t2);
+		if (tEnter > tExit) return false;
+	}
+	// 始点がすでに内部にある場合は引き寄せ先が無いので対象外
+	if (tEnter <= 0.0f) return false;
+	tHit = tEnter;
+	return true;
+}
+} // namespace
 
 GameCamera::GameCamera(std::string cameraName)
 	: BaseCamera(cameraName) {
@@ -57,6 +91,53 @@ void GameCamera::ApplySmoothLookAt(const Vector3& lookTarget) {
 	}
 
 	LookAt(smoothedLookTarget_);
+}
+
+Vector3 GameCamera::ResolveCameraCollision(const Vector3& pivot, const Vector3& desiredPos) const {
+	Vector3 seg = desiredPos - pivot;
+	float segLen = Length(seg);
+	if (segLen < 1e-4f) return desiredPos;
+	Vector3 dir = seg * (1.0f / segLen);
+
+	constexpr float kMargin = 0.4f;  // 遮蔽物の手前に確保する余白
+	constexpr float kMinDist = 1.0f; // ピボットに近づきすぎない最小距離
+
+	float nearestT = segLen;
+	bool hit = false;
+
+	for (const auto& col : CollisionManager::GetInstance().GetColliders()) {
+		if (!col->isAlive) continue;
+		// 壁・床などの静的地形のみを遮蔽物として扱う（敵やトリガーでカメラが動くのを防ぐ）
+		if (col->category_ != CollisionCategory::Ground) continue;
+
+		float tHit = 0.0f;
+		if (col->GetShapeType() == CollisionShapeType::AABB) {
+			auto* aabb = static_cast<AABBCollider*>(col.get());
+			if (!aabb->GetColliderData().isActive) continue;
+			Vector3 center = (aabb->GetMin() + aabb->GetMax()) * 0.5f;
+			Vector3 half = (aabb->GetMax() - aabb->GetMin()) * 0.5f;
+			if (IntersectSegmentSlabs(pivot - center, dir, nearestT, half, tHit)) {
+				nearestT = tHit;
+				hit = true;
+			}
+		} else if (col->GetShapeType() == CollisionShapeType::OBB) {
+			auto* obb = static_cast<OBBCollider*>(col.get());
+			if (!obb->GetColliderData().isActive) continue;
+			// OBBのローカル空間に射影してスラブ判定（axesは正規直交なのでtは距離のまま）
+			Vector3 rel = pivot - obb->GetCenter();
+			Vector3 localOrigin{ Dot(rel, obb->GetAxis(0)), Dot(rel, obb->GetAxis(1)), Dot(rel, obb->GetAxis(2)) };
+			Vector3 localDir{ Dot(dir, obb->GetAxis(0)), Dot(dir, obb->GetAxis(1)), Dot(dir, obb->GetAxis(2)) };
+			if (IntersectSegmentSlabs(localOrigin, localDir, nearestT, obb->GetWorldHalfExtents(), tHit)) {
+				nearestT = tHit;
+				hit = true;
+			}
+		}
+	}
+
+	if (!hit) return desiredPos;
+
+	float dist = (std::max)(nearestT - kMargin, kMinDist);
+	return pivot + dir * dist;
 }
 
 void GameCamera::Update() {
@@ -115,6 +196,9 @@ void GameCamera::UpdateFree() {
 	float t = 1.0f - std::exp(-5.0f * DeltaTime::GetDeltaTime());
 	GetTranslate() = Lerp(GetTranslate(), desiredPos, t);
 
+	// 壁にめり込まないよう、プレイヤーとの間に遮蔽物があれば手前へ引き寄せる
+	GetTranslate() = ResolveCameraCollision(playerPos + Vector3(0.0f, 2.0f, 0.0f), GetTranslate());
+
 	ApplySmoothLookAt(lookTarget);
 }
 
@@ -147,6 +231,9 @@ void GameCamera::UpdateLockOn() {
 
 	float t = 1.0f - std::exp(-5.0f * DeltaTime::GetDeltaTime());
 	GetTranslate() = Lerp(GetTranslate(), cameraPos, t);
+
+	// 壁にめり込まないよう、プレイヤーとの間に遮蔽物があれば手前へ引き寄せる
+	GetTranslate() = ResolveCameraCollision(playerPos + Vector3(0.0f, 2.0f, 0.0f), GetTranslate());
 
 	ApplySmoothLookAt(lookTarget);
 

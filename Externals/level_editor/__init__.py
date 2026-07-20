@@ -22,6 +22,8 @@ bl_info = {
     "category": "Object"
 }
 
+from .preferences import LevelEditorPreferences
+
 from .operators.add_collider import MYADDON_OT_add_collider
 from .operators.add_file_name import MYADDON_OT_add_file_name
 from .operators.add_class_name import MYADDON_OT_add_class_name
@@ -34,6 +36,7 @@ from .menus.topbar_menu import (
     MYADDON_OT_add_object,
     TOPBAR_MT_enemy_menu,
     TOPBAR_MT_ground_menu,
+    TOPBAR_MT_prop_menu,
     TOPBAR_MT_event_menu
 )
 
@@ -55,6 +58,30 @@ from .operators.clear_event import(
     CLEAREVENT_PT_panel,
 )
 
+from .operators.force_battle_event import(
+    ForceBattleEnemyItem,
+    ForceBattleEventProperty,
+    FORCEBATTLE_UL_enemy_list,
+    FORCEBATTLE_OT_add_enemy,
+    FORCEBATTLE_OT_remove_enemy,
+    FORCEBATTLE_PT_panel,
+)
+
+from .operators.boss_spawn_event import(
+    BossSpawnEventProperty,
+    BOSSSPAWN_PT_panel,
+)
+
+from .operators.point_light import(
+    PointLightProperty,
+    POINTLIGHT_PT_panel,
+)
+
+from .operators.prop_object import(
+    PropObjectProperty,
+    PROP_PT_panel,
+)
+
 from .panels.level_editor_panel import OBJECT_PT_level_editor
 
 from .draw.draw_collider import DrawCollider
@@ -74,6 +101,14 @@ def register():
     bpy.types.Object.enemy_spawn_event = bpy.props.PointerProperty(type=EnemySpawnEventProperty)
 
     bpy.types.Object.clear_event = bpy.props.PointerProperty(type=ClearEventProperty)
+
+    bpy.types.Object.force_battle_event = bpy.props.PointerProperty(type=ForceBattleEventProperty)
+
+    bpy.types.Object.boss_spawn_event = bpy.props.PointerProperty(type=BossSpawnEventProperty)
+
+    bpy.types.Object.point_light = bpy.props.PointerProperty(type=PointLightProperty)
+
+    bpy.types.Object.prop_object = bpy.props.PointerProperty(type=PropObjectProperty)
 
     # 3Dビューに描画関数を追加
     DrawCollider.handle = bpy.types.SpaceView3D.draw_handler_add(
@@ -98,6 +133,14 @@ def unregister():
 
     del bpy.types.Object.clear_event
 
+    del bpy.types.Object.force_battle_event
+
+    del bpy.types.Object.boss_spawn_event
+
+    del bpy.types.Object.point_light
+
+    del bpy.types.Object.prop_object
+
     del bpy.types.Object.disabled
 
     bpy.types.SpaceView3D.draw_handler_remove(DrawCollider.handle, "WINDOW")
@@ -110,6 +153,9 @@ def unregister():
 
 # Blenderに登録するクラスリスト
 classes = (
+    # アドオン設定（プロジェクトルートの指定）
+    LevelEditorPreferences,
+
     MYADDON_OT_add_file_name,
     MYADDON_OT_add_class_name,
     MYADDON_OT_add_collider,
@@ -117,6 +163,7 @@ classes = (
     # Object生成関連
     TOPBAR_MT_enemy_menu,
     TOPBAR_MT_ground_menu,
+    TOPBAR_MT_prop_menu,
     TOPBAR_MT_event_menu,
 
     EnemySpawnItem,
@@ -133,8 +180,24 @@ classes = (
     CLEAREVENT_OT_remove_condition,
     CLEAREVENT_PT_panel,
 
-    MYADDON_OT_add_object,        
-    TOPBAR_MT_my_object_menu,      
+    ForceBattleEnemyItem,
+    ForceBattleEventProperty,
+    FORCEBATTLE_UL_enemy_list,
+    FORCEBATTLE_OT_add_enemy,
+    FORCEBATTLE_OT_remove_enemy,
+    FORCEBATTLE_PT_panel,
+
+    BossSpawnEventProperty,
+    BOSSSPAWN_PT_panel,
+
+    PointLightProperty,
+    POINTLIGHT_PT_panel,
+
+    PropObjectProperty,
+    PROP_PT_panel,
+
+    MYADDON_OT_add_object,
+    TOPBAR_MT_my_object_menu,
 
 
 

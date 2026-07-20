@@ -16,7 +16,7 @@ void Tutorial::Initialize(const std::string& name, uint32_t maxCounter) {
 	// スプライトの生成と初期設定
 	tutorialText_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "TutorialText", "Tutorial/" + name + ".png");
 	tutorialText_->SetAnchorPoint({0.5f, 0.5f});
-	tutorialText_->SetPosition({200.0f, 520.0f});
+	tutorialText_->SetPosition({200.0f, 550.0f});
 	tutorialText_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
 }
 
@@ -63,15 +63,6 @@ void Tutorial::Update() {
 	}
 	break;
 	}
-
-	Vector2 pos = tutorialText_->GetPosition();
-	Vector2 size = tutorialText_->GetSize();
-	ImGui::Begin("TutorialSprite");
-	ImGui::DragFloat2("Pos", &pos.x, 0.1f);
-	ImGui::DragFloat2("Size", &size.x, 0.1f);
-	ImGui::End();
-	tutorialText_->SetPosition(pos);
-	tutorialText_->SetSize(size);
 
 	tutorialImage->Update();
 	tutorialText_->Update();

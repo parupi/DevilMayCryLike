@@ -65,8 +65,14 @@ void LightManager::Update() {
 #endif // DEBUG
 }
 
-void LightManager::AddLight(std::unique_ptr<BaseLight> light) {
+BaseLight* LightManager::AddLight(std::unique_ptr<BaseLight> light) {
 	lights_.push_back(std::move(light));
+	return lights_.back().get();
+}
+
+void LightManager::RemoveLight(BaseLight* light) {
+	if (!light) return;
+	std::erase_if(lights_, [light](const std::unique_ptr<BaseLight>& l) { return l.get() == light; });
 }
 
 void LightManager::DeleteAllLight() {

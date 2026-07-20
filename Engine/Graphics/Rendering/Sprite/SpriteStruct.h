@@ -8,7 +8,8 @@ struct SpriteMaterial {
 	Matrix4x4 uvTransform; // offset 16 (64 bytes)
 	float dissolveThreshold; // offset 80 : -1.0 = disabled, 0.0-1.0 = dissolve amount
 	float dissolveEdgeWidth; // offset 84 : edge glow width in noise space
-	float padding[2]; // offset 88 : HLSL float4 alignment
+	float radialFill; // offset 88 : -1.0 = disabled, 0.0-1.0 = 表示割合（上から時計回りに欠ける円形ゲージ）
+	float padding; // offset 92 : HLSL float4 alignment
 	Vector4 dissolveEdgeColor; // offset 96 : rgb = emissive color, a = intensity multiplier
 };
 

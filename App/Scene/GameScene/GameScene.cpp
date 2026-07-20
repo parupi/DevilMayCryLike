@@ -37,9 +37,6 @@ void GameScene::Initialize() {
 	inputContext_ = std::make_unique<InputContext>();
 	inputContext_->Initialize(&Input::GetInstance());
 
-	// 最初のシーンに入る処理
-	currentState_->Enter(*this);
-
 	// カメラの生成
 	std::unique_ptr<GameCamera> camera = std::make_unique<GameCamera>("GameCamera");
 	camera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
@@ -89,12 +86,19 @@ void GameScene::Initialize() {
 	ParticleManager::GetInstance().CreateParticleGroup("EnemyDamageEffect", "white.png");
 	ParticleManager::GetInstance().CreateParticleGroup("PlayerSlashEffect", "circle.png");
 	ParticleManager::GetInstance().CreateParticleGroup("EnemyChargeRing", "white.png", PrimitiveType::Ring);
+	// 敵の出現演出（収束する黒い粒子）・死亡演出（拡散する黒い粒子）
+	ParticleManager::GetInstance().CreateParticleGroup("EnemySpawnParticle", "smoke.png");
+	ParticleManager::GetInstance().CreateParticleGroup("EnemyDeathParticle", "smoke.png");
+	// ボスのスーパーアーマー中（ノックバック無効）に体から立ち上る紫のオーラ
+	ParticleManager::GetInstance().CreateParticleGroup("BossArmorAura", "smoke.png");
+	// スーパーアーマー中の被弾で弾かれたことを示す紫の硬い火花
+	ParticleManager::GetInstance().CreateParticleGroup("BossArmorHitSpark", "white.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");
 
 	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage1.json"));
+	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Test.json"));
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
@@ -115,8 +119,8 @@ void GameScene::Initialize() {
 
 	gameCamera_->Initialize(player_, lockOnSystem_.get(), inputContext_->GetCameraInput());
 
-	gameUI_ = std::make_unique<GameUI>();
-	gameUI_->Initialize();
+	//gameUI_ = std::make_unique<GameUI>();
+	//gameUI_->Initialize();
 
 	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "menuMask", "white.png");
 	mask_->SetSize({ 1280.0f, 720.0f });
@@ -130,6 +134,10 @@ void GameScene::Initialize() {
 	// PlayerのチュートリアルサービスをGameSceneのものに接続する
 	// (これが無いとPlayer側のGetTutorialService()がnullptrを返しクラッシュする)
 	player_->SetTutorialService(tutorial_.get());
+
+	// 最初のステートに入る処理
+	// ※必ずプレイヤー生成(BuildScene)後に呼ぶ。StageStartがプレイヤー位置を参照してアップのカメラを作るため
+	currentState_->Enter(*this);
 }
 
 void GameScene::Finalize() {
@@ -147,7 +155,7 @@ void GameScene::Finalize() {
 void GameScene::Update()
 {
 	//lightManager_->Update();
-	gameUI_->Update();
+	//gameUI_->Update();
 
 	if (currentState_) {
 		currentState_->Update(*this);

@@ -122,6 +122,7 @@ void Sprite::CreateMaterialResource()
 	materialData_->uvTransform = MakeIdentity4x4();
 	materialData_->dissolveThreshold = -1.0f;
 	materialData_->dissolveEdgeWidth = 0.05f;
+	materialData_->radialFill = -1.0f;
 	materialData_->dissolveEdgeColor = { 1.0f, 0.3f, 0.0f, 8.0f };
 }
 

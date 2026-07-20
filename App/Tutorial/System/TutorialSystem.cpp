@@ -15,11 +15,12 @@ void TutorialSystem::Initialize() {
 
 	// チュートリアルの種類ごとの、表示画像と完了に必要な回数
 	static const std::unordered_map<TutorialState, TutorialConfig> kTutorialConfigs = {
-		{ TutorialState::Move,           { "PlayerWalk", 120 } }, // 120フレーム移動し続けたら完了
-		{ TutorialState::AttackA,        { "PlayerWalk", 3 } },   // 攻撃Aを3回当てたら完了
-		{ TutorialState::AttackB,        { "PlayerWalk", 3 } },   // 攻撃Bを3回当てたら完了
-		{ TutorialState::LockOn,         { "PlayerWalk", 1 } },   // ロックオンを1回行ったら完了
-		{ TutorialState::RoundUpAttack,  { "PlayerWalk", 3 } },   // 切り上げ攻撃を3回当てたら完了
+		{ TutorialState::Move,           { "PlayerWalk", 50 } }, // 120フレーム移動し続けたら完了
+		{ TutorialState::Jump,           { "PlayerJump", 1 } }, // 1度ジャンプしたら完了
+		{ TutorialState::AttackA,        { "AttackA", 3 } },   // 攻撃Aを3回当てたら完了
+		{ TutorialState::AttackB,        { "AttackB", 2 } },   // 攻撃Bを3回当てたら完了
+		{ TutorialState::LockOn,         { "LockOn", 1 } },   // ロックオンを1回行ったら完了
+		{ TutorialState::RoundUpAttack,  { "RoundUp", 2 } },   // 切り上げ攻撃を3回当てたら完了
 	};
 
 	// チュートリアルの初期化処理
@@ -34,15 +35,10 @@ void TutorialSystem::Initialize() {
 }
 
 void TutorialSystem::Update() {
-	// 現在のチュートリアルの更新処理
-	currentTutorial_->Update();
-
-	// フェードアウト中の前のチュートリアルがあれば、消えきるまで更新を続ける
-	if (previousTutorial_) {
-		previousTutorial_->Update();
-		if (!previousTutorial_->IsEnding()) {
-			previousTutorial_ = nullptr;
-		}
+	// 全チュートリアルを更新する
+	// （フェードアウト中に次のチュートリアルが完了しても、消えきるまで更新が途切れないようにするため）
+	for (auto& [state, tutorial] : tutorials_) {
+		tutorial->Update();
 	}
 
 	// 装飾の更新
@@ -87,9 +83,8 @@ void TutorialSystem::StepTutorial(TutorialState state) {
 
 void TutorialSystem::AdvanceTutorial() {
 	// 現在のチュートリアルの表示のみ終了させる（背景マスクはここでは触らない）
-	// フェードアウトが完了するまではUpdateで更新を続ける必要があるため保持しておく
+	// フェードアウトはUpdateで全チュートリアルを更新しているため、消えきるまで自動で進む
 	currentTutorial_->End();
-	previousTutorial_ = currentTutorial_;
 
 	// enumの宣言順を進行順として扱い、次のチュートリアルへ進む
 	int nextState = static_cast<int>(state_) + 1;
@@ -99,5 +94,7 @@ void TutorialSystem::AdvanceTutorial() {
 	} else {
 		// 最後まで完了したら背景マスクもフェードアウトさせる
 		decoration_->End();
+		// 全チュートリアル完了。チュートリアル用の敵などが参照する
+		isAllFinished_ = true;
 	}
 }

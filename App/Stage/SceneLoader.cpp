@@ -40,6 +40,21 @@ void SceneLoader::ParseObject(const json& j, SceneObject& out) {
 		out.collider = ParseCollider(j["collider"]);
 	}
 
+	if (j.contains("light")) {
+		const auto& l = j["light"];
+		LightInfo info;
+		if (l.contains("color") && l["color"].size() >= 3) {
+			info.color = { l["color"][0], l["color"][1], l["color"][2] };
+		}
+		if (l.contains("offset") && l["offset"].size() >= 3) {
+			info.offset = { l["offset"][0], l["offset"][1], l["offset"][2] };
+		}
+		info.intensity = l.value("intensity", 1.5f);
+		info.radius = l.value("radius", 10.0f);
+		info.decay = l.value("decay", 1.0f);
+		out.lightInfo = info;
+	}
+
 	if (j.contains("event")) {
 		EventInfo info;
 		const auto& ev = j["event"];
@@ -47,10 +62,12 @@ void SceneLoader::ParseObject(const json& j, SceneObject& out) {
 		info.type = ev.value("type", "");
 		info.trigger = ev.value("trigger", "");
 
-		if (info.type == "EnemySpawn" && ev.contains("enemies")) {
+		if ((info.type == "EnemySpawn" || info.type == "ForceBattle") && ev.contains("enemies")) {
 			for (const auto& e : ev["enemies"]) {
 				info.enemies.push_back({e.value("name", ""), e.value("delay", 0.0f)});
 			}
+		} else if (info.type == "BossSpawn") {
+			info.bossName = ev.value("boss", "");
 		} else if (info.type == "Clear" && ev.contains("conditions")) {
 			for (const auto& c : ev["conditions"]) {
 				EventCondition cond;

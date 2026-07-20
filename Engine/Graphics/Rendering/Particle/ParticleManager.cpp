@@ -21,6 +21,9 @@ void ParticleManager::Finalize()
 	}
 	particleGroups_.clear();
 
+	// メッシュ表面サンプラーのキャッシュを解放
+	meshSamplers_.clear();
+
 	// グループごとの頂点・インデックスバッファを解放
 	if (dxManager_) {
 		auto* rm = dxManager_->GetResourceManager();
@@ -295,6 +298,10 @@ void ParticleManager::RegisterEditorParameters(const std::string& name)
 	global_->AddItem(name, "ShrinkStartRatio", float{});
 
 	global_->AddItem(name, "BlendMode", int{ 2 });
+
+	// 放射方向速度モード (0:None 1:Converge 2:Diverge)
+	global_->AddItem(name, "RadialMode", int{});
+	global_->AddItem(name, "RadialSpeed", float{ 1.0f });
 }
 
 void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList)
@@ -447,6 +454,33 @@ Particle ParticleManager::MakeNewParticle(const std::string name, const Vector3&
 	particle.currentTime = 0.0f;
 	particle.isBillboard = params.isBillboard;
 
+	// 放射方向速度モード（発生位置オフセットに応じた速度を与える）
+	switch (static_cast<RadialMode>(params.radialMode)) {
+	case RadialMode::Converge:
+		// 寿命が尽きる瞬間に発生中心へちょうど到達する速度（RadialSpeedは倍率）
+		if (particle.lifeTime > 0.0f) {
+			particle.velocity = randomTranslate * (-params.radialSpeed / particle.lifeTime);
+		}
+		break;
+	case RadialMode::Diverge: {
+		// 発生中心から外向きに RadialSpeed [m/s] で飛ばす（±50%のばらつき付き）
+		Vector3 dir = randomTranslate;
+		float len = Length(dir);
+		if (len < 0.0001f) {
+			// 中心ぴったりに湧いた場合はランダム方向へ
+			std::uniform_real_distribution<float> distDir(-1.0f, 1.0f);
+			dir = { distDir(randomEngine), distDir(randomEngine), distDir(randomEngine) };
+			len = Length(dir);
+			if (len < 0.0001f) { dir = { 0.0f, 1.0f, 0.0f }; len = 1.0f; }
+		}
+		std::uniform_real_distribution<float> distSpeedScale(0.5f, 1.5f);
+		particle.velocity = dir * (params.radialSpeed * distSpeedScale(randomEngine) / len);
+		break;
+	}
+	default:
+		break;
+	}
+
 	return particle;
 }
 
@@ -483,6 +517,10 @@ ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* glob
 
 	params.isBillboard = global->GetValueRef<bool>(groupName, "IsBillboard");
 
+	// Radial
+	params.radialMode = global->GetValueRef<int>(groupName, "RadialMode");
+	params.radialSpeed = global->GetValueRef<float>(groupName, "RadialSpeed");
+
 	return params;
 }
 
@@ -494,5 +532,41 @@ void ParticleManager::Emit(const std::string name, const Vector3& position, uint
 
 	for (uint32_t i = 0; i < count; ++i) {
 		particles.emplace_back(MakeNewParticle(name, position));
+	}
+}
+
+MeshShapeSampler* ParticleManager::GetMeshSampler(const std::string& modelName)
+{
+	auto it = meshSamplers_.find(modelName);
+	if (it != meshSamplers_.end()) {
+		return it->second.get();
+	}
+
+	// 初回要求時に構築する。モデルが未ロードなら構築失敗として何も返さない
+	// （キャッシュしないので、あとからロードされれば次回の要求で構築される）
+	auto sampler = std::make_unique<MeshShapeSampler>();
+	if (!sampler->Build(modelName)) {
+		return nullptr;
+	}
+
+	MeshShapeSampler* raw = sampler.get();
+	meshSamplers_.emplace(modelName, std::move(sampler));
+	return raw;
+}
+
+void ParticleManager::EmitFromMesh(const std::string& groupName, const std::string& modelName, const Matrix4x4& worldMatrix, uint32_t count)
+{
+	MeshShapeSampler* sampler = GetMeshSampler(modelName);
+	if (!sampler) return;
+
+	auto& particles = particleGroups_[groupName].particles;
+
+	particles.reserve(particles.size() + count);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		// メッシュ表面上の点（モデルローカル）をワールドへ変換して発生させる
+		Vector3 localPos = sampler->Sample(randomEngine);
+		Vector3 worldPos = Transform(localPos, worldMatrix);
+		particles.emplace_back(MakeNewParticle(groupName, worldPos));
 	}
 }
