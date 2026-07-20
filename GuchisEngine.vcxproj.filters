@@ -73,6 +73,9 @@
     <Filter Include="App\GameObject\Event">
       <UniqueIdentifier>{D7065042-C395-D90B-6CB4-ED065822EAB1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Event\Effect">
+      <UniqueIdentifier>{B396EB48-1FA4-192F-A88A-151A1497E5E5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Ground">
       <UniqueIdentifier>{246AB890-90D6-738B-59CA-0BE9C5F595F3}</UniqueIdentifier>
     </Filter>
@@ -360,6 +363,9 @@
     <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h">
       <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\MovementBounds.h">
+      <Filter>App\GameObject\Character</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
     </ClInclude>
@@ -425,6 +431,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\ClearEvent.h">
       <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\Effect\BattleAreaWallEffect.h">
+      <Filter>App\GameObject\Event\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h">
       <Filter>App\GameObject\Event</Filter>
@@ -1150,6 +1159,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\Effect\BattleAreaWallEffect.cpp">
+      <Filter>App\GameObject\Event\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp">
       <Filter>App\GameObject\Event</Filter>

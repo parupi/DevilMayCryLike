@@ -48,35 +48,6 @@ void GameScene::Initialize() {
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
 	cameraManager_->AddCamera(std::move(clearCamera));
 
-	ModelManager::GetInstance().LoadModel("PlayerBody");
-	ModelManager::GetInstance().LoadModel("PlayerHead");
-	ModelManager::GetInstance().LoadModel("PlayerLeftArm");
-	ModelManager::GetInstance().LoadModel("PlayerRightArm");
-	ModelManager::GetInstance().LoadModel("weapon");
-	ModelManager::GetInstance().LoadModel("Cube");
-	ModelManager::GetInstance().LoadModel("suzannu");
-	ModelManager::GetInstance().LoadModel("Sword");
-	ModelManager::GetInstance().LoadModel("spirit_knight");
-	TextureManager::GetInstance().LoadTexture("uvChecker.png");
-	TextureManager::GetInstance().LoadTexture("gradationLine.png");
-	TextureManager::GetInstance().LoadTexture("Terrain.png");
-	TextureManager::GetInstance().LoadTexture("gradationLine_brightened.png");
-	TextureManager::GetInstance().LoadTexture("MagicEffect.png");
-	TextureManager::GetInstance().LoadTexture("portal.png");
-	TextureManager::GetInstance().LoadTexture("DeathText.png");
-	TextureManager::GetInstance().LoadTexture("GameUI.png");
-	TextureManager::GetInstance().LoadTexture("reticle.png");
-	TextureManager::GetInstance().LoadTexture("hitSmoke.png");
-	TextureManager::GetInstance().LoadTexture("UI/Arrow.png");
-	TextureManager::GetInstance().LoadTexture("UI/plus.png");
-	TextureManager::GetInstance().LoadTexture("UI/RBButton.png");
-	TextureManager::GetInstance().LoadTexture("UI/SticDown.png");
-	TextureManager::GetInstance().LoadTexture("UI/YButton.png");
-	TextureManager::GetInstance().LoadTexture("circle.png");
-	TextureManager::GetInstance().LoadTexture("smoke.png");
-	TextureManager::GetInstance().LoadTexture("white.png");
-	TextureManager::GetInstance().LoadTexture("Heart.png");
-
 	ParticleManager::GetInstance().CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance().CreateParticleGroup("fire", "circle.png");
 	ParticleManager::GetInstance().CreateParticleGroup("smoke", "circle.png");
@@ -93,12 +64,14 @@ void GameScene::Initialize() {
 	ParticleManager::GetInstance().CreateParticleGroup("BossArmorAura", "smoke.png");
 	// スーパーアーマー中の被弾で弾かれたことを示す紫の硬い火花
 	ParticleManager::GetInstance().CreateParticleGroup("BossArmorHitSpark", "white.png");
+	// 強制戦闘エリアの境界を示す格子状の光の壁
+	ParticleManager::GetInstance().CreateParticleGroup("BattleAreaWall", "circle.png");
 
 	// スカイボックスを生成
 	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");
 
 	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Test.json"));
+	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage.json"));
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 

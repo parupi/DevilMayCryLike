@@ -1,4 +1,4 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "ParticleManager.h"
 #include "Math/MathUtils.h"
 #include <Debugger/ImGuiManager.h>
@@ -131,6 +131,10 @@ void ParticleManager::Draw()
 
 		if (instanceList.empty()) continue;
 
+		// インスタンシングバッファは kNumMaxInstance 個ぶんしか確保していないため、
+		// 溢れたぶんは描画しない（超過分を書き込むとバッファ外破壊になる）
+		const size_t instanceCount = (std::min)(instanceList.size(), static_cast<size_t>(kNumMaxInstance));
+
 		// ② PSO取得（globalから）
 		BlendMode blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
 
@@ -141,7 +145,7 @@ void ParticleManager::Draw()
 		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
 
 		// ③ GPU転送
-		UploadInstanceData(groupName, instanceList);
+		UploadInstanceData(groupName, instanceList, instanceCount);
 
 		// === 頂点・インデックスバッファ設定（グループごとの形状）===
 		auto& gpu = particleGPU_[groupName];
@@ -158,7 +162,7 @@ void ParticleManager::Draw()
 		srvManager_->SetGraphicsRootDescriptorTable(2, renderStates_[groupName].textureIndex);
 
 		// ④ 描画
-		particleRenderer_.Draw(commandList, instanceList.size(), gpu.indexCount);
+		particleRenderer_.Draw(commandList, instanceCount, gpu.indexCount);
 	}
 }
 
@@ -168,6 +172,8 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 		// 登録済みの名前なら早期リターン
 		return;
 	}
+
+	TextureManager::GetInstance().LoadTexture(textureFilePath);
 
 	ParticleGroup group{};
 	group.shape = shape;
@@ -304,13 +310,13 @@ void ParticleManager::RegisterEditorParameters(const std::string& name)
 	global_->AddItem(name, "RadialSpeed", float{ 1.0f });
 }
 
-void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList)
+void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList, size_t instanceCount)
 {
 	auto& gpuBuffer = particleGPU_[groupName];
 
 	auto* dst = reinterpret_cast<ParticleForGPU*>(gpuBuffer.mappedPtr);
 
-	for (size_t i = 0; i < instanceList.size(); ++i) {
+	for (size_t i = 0; i < instanceCount; ++i) {
 		dst[i].WVP = instanceList[i].wvp;
 		dst[i].World = instanceList[i].world;
 		dst[i].color = instanceList[i].color;

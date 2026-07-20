@@ -63,10 +63,11 @@ void BossSpawnEvent::Execute() {
 
 	player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
 
-	// 演出中はプレイヤーをその場に固定する（移動範囲を現在位置に制限）
+	// 演出中はプレイヤーをその場に固定する（移動範囲を現在位置の一点に潰す）
 	if (player_) {
-		const Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
-		player_->SetMovementBounds(playerPos, playerPos);
+		MovementBounds fixedPoint{};
+		fixedPoint.center = player_->GetWorldTransform()->GetTranslation();
+		player_->SetMovementBounds(fixedPoint);
 	}
 
 	// ボス出現開始（通常の敵よりゆっくり・濃い粒子で）
@@ -79,22 +80,22 @@ void BossSpawnEvent::Execute() {
 	// ── 演出カメラの生成 ──
 	// ボスの正面（プレイヤー側）から少し横にずらした位置で、ボスの上半身を注視する
 	const Vector3 bossPos = boss->GetWorldTransform()->GetTranslation(); // スナップ後の位置
-	Vector3 toPlayer = { 0.0f, 0.0f, -1.0f };
+	Vector3 toPlayer = {0.0f, 0.0f, -1.0f};
 	if (player_) {
 		toPlayer = player_->GetWorldTransform()->GetTranslation() - bossPos;
 		toPlayer.y = 0.0f;
 		if (Length(toPlayer) > 0.001f) {
 			toPlayer = Normalize(toPlayer);
 		} else {
-			toPlayer = { 0.0f, 0.0f, -1.0f };
+			toPlayer = {0.0f, 0.0f, -1.0f};
 		}
 	}
 	// toPlayer と直交する横方向（構図を少しずらすため）
-	const Vector3 side = { -toPlayer.z, 0.0f, toPlayer.x };
+	const Vector3 side = {-toPlayer.z, 0.0f, toPlayer.x};
 
 	auto camera = std::make_unique<BaseCamera>(name_ + "Camera");
-	camera->GetTranslate() = bossPos + toPlayer * kCameraDistance + side * kCameraSideOffset + Vector3{ 0.0f, kCameraHeight, 0.0f };
-	camera->LookAt(bossPos + Vector3{ 0.0f, kLookAtHeight, 0.0f });
+	camera->GetTranslate() = bossPos + toPlayer * kCameraDistance + side * kCameraSideOffset + Vector3{0.0f, kCameraHeight, 0.0f};
+	camera->LookAt(bossPos + Vector3{0.0f, kLookAtHeight, 0.0f});
 	CameraManager::GetInstance().AddCamera(std::move(camera));
 	CameraManager::GetInstance().SetActiveCamera(name_ + "Camera", kCameraInTransition);
 

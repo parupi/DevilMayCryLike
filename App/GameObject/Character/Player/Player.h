@@ -14,6 +14,7 @@
 #include <GameObject/Effect/HitStop.h>
 #include "StateMachine/PlayerStateMachine.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Effect/HitVignetteEffect.h"
 #include "GameObject/Effect/CharacterLight.h"
 #include "Combat/PlayerCombat.h"
@@ -148,9 +149,9 @@ public:
 	void SetTutorialService(TutorialService* tutorialService) { tutorialService_ = tutorialService; }
 	TutorialService* GetTutorialService() const { return tutorialService_; }
 
-	// 移動可能範囲(XZ)を設定する。強制戦闘イベントなどでプレイヤーをエリア内に閉じ込めるのに使う。
-	void SetMovementBounds(const Vector3& min, const Vector3& max) {
-		movementBoundsMin_ = min; movementBoundsMax_ = max; hasMovementBounds_ = true;
+	// 移動可能範囲(水平方向)を設定する。強制戦闘イベントなどでプレイヤーをエリア内に閉じ込めるのに使う。
+	void SetMovementBounds(const MovementBounds& bounds) {
+		movementBounds_ = bounds; hasMovementBounds_ = true;
 	}
 	// 移動可能範囲の制限を解除する。
 	void ClearMovementBounds() { hasMovementBounds_ = false; }
@@ -202,8 +203,7 @@ private:
 	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュ）
 	std::unique_ptr<CharacterLight> characterLight_;
 
-	// 移動可能範囲(XZ)。強制戦闘イベント発動中などに有効化される。
+	// 移動可能範囲(水平方向)。強制戦闘イベント発動中などに有効化される。
 	bool hasMovementBounds_ = false;
-	Vector3 movementBoundsMin_{};
-	Vector3 movementBoundsMax_{};
+	MovementBounds movementBounds_{};
 };

@@ -3,6 +3,7 @@
 #include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Character/Enemy/Effect/EnemyAppearanceEffect.h"
 #include "GameObject/Effect/CharacterLight.h"
 #include <GameObject/LockOn/LockOnTarget.h>
@@ -199,6 +200,17 @@ public:
 
 	void SetupLockOn(LockOnSystem* lockOnSystem);
 
+	/// <summary>
+	/// 移動できる範囲(水平方向)を制限する。強制戦闘イベントで敵がエリア外へ逃げるのを防ぐ。
+	/// Player と同じく水平方向だけを見る（落下を妨げないため Y は制限しない）。
+	/// </summary>
+	void SetMovementBounds(const MovementBounds& bounds) {
+		movementBounds_ = bounds; hasMovementBounds_ = true;
+	}
+
+	/// <summary>移動範囲の制限を解除する</summary>
+	void ClearMovementBounds() { hasMovementBounds_ = false; }
+
 protected:
 	/// <summary>
 	/// 死亡演出（ディゾルブアウト）が終わった直後に一度だけ呼ばれる。
@@ -234,7 +246,14 @@ protected:
 
 	std::unique_ptr<HitStop> hitStop_;
 
+	bool hasMovementBounds_ = false;
+	MovementBounds movementBounds_{};
+
 private:
+	// 現在位置を移動範囲(XZ)内に押し戻す。範囲外へ向かう速度も殺して張り付きを防ぐ。
+	// 位置を動かした直後（速度の積分後・ノックバックの慣性適用後）に呼ぶこと。
+	void ClampToMovementBounds();
+
 	// Groundコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
 	// resetVelocity: 接地面に押し出した際にvelocity_.yを0にリセットするか
 	void ResolveGroundCollision(BaseCollider* other, bool resetVelocity);
