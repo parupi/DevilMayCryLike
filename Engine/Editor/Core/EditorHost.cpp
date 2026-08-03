@@ -4,6 +4,7 @@
 #include "EditorDebugDraw.h"
 #include "EditorGizmo.h"
 #include "EditorMenuBar.h"
+#include "EditorPicking.h"
 #include "EditorStats.h"
 #include "Editor/Windows/AssetBrowserWindow.h"
 #include "Editor/Windows/AudioWindow.h"
@@ -77,6 +78,7 @@ void Editor::Initialize()
 	EditorWindow::LoadSettings();
 	EditorDebugDraw::LoadSettings();
 	EditorGizmo::LoadSettings();
+	EditorPicking::LoadSettings();
 
 	EditorLayout::RegisterBuiltinPresets();
 
@@ -104,6 +106,9 @@ void Editor::Finalize()
 	EditorWindow::SaveSettings();
 	EditorDebugDraw::SaveSettings();
 	EditorGizmo::SaveSettings();
+	EditorPicking::SaveSettings();
+	// 焼いたメッシュを抱えたままだと、ModelManager より後に解放されて分かりにくい
+	EditorPicking::ClearCache();
 	EditorStats::Finalize();
 
 	g_drawers.clear();

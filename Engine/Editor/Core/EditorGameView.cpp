@@ -3,6 +3,7 @@
 
 #include "Graphics/Device/DirectXManager.h"
 #include "Editor/Core/EditorGizmo.h"
+#include "Editor/Core/EditorPicking.h"
 #include "Editor/Core/EditorWindowRegistry.h"
 
 namespace {
@@ -129,7 +130,10 @@ void EditorGameView::DrawWindow()
 
 		// 絵の上に選択オブジェクトのギズモを重ねる。
 		// 位置合わせに画像の実際の左上が要るので、Image を出した直後に呼ぶこと
-		EditorGizmo::DrawOverlay(ImGui::GetItemRectMin(), imageSize);
+		const ImVec2 imagePos = ImGui::GetItemRectMin();
+		EditorGizmo::DrawOverlay(imagePos, imageSize);
+		// クリック選択はギズモの**後**。ギズモが掴んだクリックを横取りしないため
+		EditorPicking::HandleGameView(imagePos, imageSize);
 
 		EditorWindow::End();
 	} else {

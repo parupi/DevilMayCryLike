@@ -639,10 +639,16 @@
     <ClInclude Include="Engine\Editor\Core\EditorMenuBar.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorPicking.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorSelection.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorStats.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorViewMath.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h">
@@ -1490,10 +1496,16 @@
     <ClCompile Include="Engine\Editor\Core\EditorMenuBar.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorPicking.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorSelection.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorStats.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorViewMath.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp">

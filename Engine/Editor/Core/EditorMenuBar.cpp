@@ -5,6 +5,7 @@
 #include "EditorGizmo.h"
 #include "EditorHost.h"
 #include "EditorLayout.h"
+#include "EditorPicking.h"
 #include "EditorStats.h"
 #include "EditorWindowRegistry.h"
 #include "Debugger/GlobalVariables.h"
@@ -29,6 +30,7 @@ void SaveEditorSettings()
 	EditorWindow::SaveSettings();
 	EditorDebugDraw::SaveSettings();
 	EditorGizmo::SaveSettings();
+	EditorPicking::SaveSettings();
 	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
 }
 
@@ -234,6 +236,8 @@ void EditorMenuBar::Draw()
 		}
 		if (ImGui::BeginMenu("Gizmo")) {
 			EditorGizmo::DrawMenu();
+			ImGui::SeparatorText("クリック選択");
+			EditorPicking::DrawMenu();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Layout")) {

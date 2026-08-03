@@ -61,7 +61,9 @@ Engine/Editor/Core/
   EditorDebugDraw.*         コライダー/ライト/攻撃軌跡/グリッドの表示トグル
   EditorStats.*             FPS・VRAM・RAM
   EditorGameView.*          ゲーム画面を1280x720のRTへ描いて ImGui::Image で出す
+  EditorViewMath.*          ゲームビューに重ねるものの投影とレイ（ギズモと選択で共有）
   EditorGizmo.*             ゲームビュー上の移動／回転／拡縮ギズモ
+  EditorPicking.*           ゲームビューの絵をクリックして選ぶ
   EditorSelection.*         選択中の Object3d（名前で保持）
   EditorAssetUtil.*         モデルフォルダ走査・モデル名の逆引き
 
@@ -163,6 +165,7 @@ Windowメニューの「ゲーム」側へ自動的に並ぶ。呼ぶ側が意�
 | `Resource/GlobalVariables/Editor/EditorWindows.json` | ウィンドウの表示状態 | `Editor::Finalize()` / Windowメニュー |
 | `Resource/GlobalVariables/Editor/EditorDebugDraw.json` | デバッグ描画のトグル | 同上 |
 | `Resource/GlobalVariables/Editor/EditorGizmo.json` | ギズモの操作モード・スナップ設定 | 同上 |
+| `Resource/GlobalVariables/Editor/EditorPicking.json` | クリック選択・選択枠のトグル | 同上 |
 | `imgui.ini` | ドッキング配置・ウィンドウサイズ | ImGui が自動 / Layoutメニュー |
 | `Resource/GlobalVariables/<各グループ>/` | ゲーム・エンジンの調整値 | Ctrl+S / 各ウィンドウの Save |
 
@@ -179,6 +182,23 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 
 `DockBuilder` は DockSpace を作った直後の同フレームでないと正しく分割できないので、
 メニューからは `RequestPreset()` で予約して次フレームに適用する。
+
+### ゲームビューに重ねるもの
+
+`EditorGameView::DrawWindow()` の `ImGui::Image` の直後に、この順で呼ぶ。
+
+```cpp
+const ImVec2 imagePos = ImGui::GetItemRectMin();  // 画像の実際の左上
+EditorGizmo::DrawOverlay(imagePos, imageSize);
+EditorPicking::HandleGameView(imagePos, imageSize);  // ギズモの後
+```
+
+投影とレイは `EditorViewMath`（`EditorView::Build/WorldToScreen/ScreenToRay`）に集めてある。
+アクティブカメラと画像の矩形から `EditorView::Context` を作り、両者が同じ前提を共有する。
+
+**順番が意味を持つ**。`EditorPicking` は `EditorGizmo::IsOver()` を見て、
+ギズモを掴んだクリックを横取りしないようにしている。逆順にすると、
+ギズモの矢印をクリックした瞬間に後ろのオブジェクトへ選択が飛ぶ。
 
 ### ギズモ
 
@@ -209,6 +229,24 @@ ImGuizmo などの外部ライブラリは使わず、エンジンの `Matrix4x4
 
 W/E/R も使えるが、ゲームの移動入力と衝突するので既定はオフ（Gizmoメニューで有効化）。
 
+### クリックで選択
+
+ゲームビューの絵をクリックすると、その下にある `Object3d` が `EditorSelection` に入る。
+Hierarchy / Inspector / ギズモはそこを見ているので、そのまま追従する。
+
+- **判定はモデルのCPU側の頂点**。モデルごとに1度だけ三角形リストとローカルAABBに焼いて
+  `BaseModel*` をキーにキャッシュする（`Editor::Finalize()` で捨てる。
+  `ModelManager` はモデルを個別に解放しないのでキーは死なない）
+- **レイはモデルのローカル空間へ持っていく**。このとき向きを**正規化しない**のがコツで、
+  出てくる t がそのままワールドでの距離になり、スケールの違うオブジェクトどうしで前後を比べられる
+- **スキンモデルはAABBだけ**。CPU頂点がバインドポーズのままで、アニメ中の三角形は当てにならない
+- `GetIsDraw()` が false のオブジェクトは選べない。見えていないものを掴んでも混乱するだけ
+- **同じ場所を続けてクリックすると、重なった奥のオブジェクトへ順に送る**
+  （4px 以内なら同じ場所とみなす）。何も無いところをクリックすると選択解除
+- 選択中は本体に沿った箱（ローカルAABBの8隅をワールドへ運んだもの）で囲う
+
+重いのはクリックした瞬間だけで、毎フレーム走るのは選択枠の描画（キャッシュ引き）のみ。
+
 ### ショートカット
 
 | キー | 動作 |
@@ -235,6 +273,10 @@ W/E/R も使えるが、ゲームの移動入力と衝突するので既定は�
 - **`Object3dManager::FindObject()` / `CameraManager::FindCamera()` を毎フレーム呼ばない**。
   前者は見つからないとログを吐き、後者は `operator[]` で空要素を生やす
 - **`TextureManager::GetMetaData()` にも同じ副作用がある**。一覧を舐めるなら `TryGetMetaData()`
+- **`Model::GetModelData()` / `SkinnedModel::GetModelData()` は値を返す**（メッシュごと丸コピー）。
+  毎フレーム呼ぶと確実に落ちる。EditorPicking は焼くときの1回だけ呼んでいる
+- **`MathUtils` の `Transform()` は w=0 で assert する**。潰れた行列を通す可能性がある場所では
+  自前で座標変換すること（EditorPicking の `TransformPoint`）
 - **`ImGui::Image` に渡せるのは ImGui 自身のディスクリプタヒープの中だけ**。
   エンジンのSRVはシェーダ可視ヒープにあり `CopyDescriptors` もできないので、
   Asset Browser は ImGui のヒープに1枠だけ確保してSRVを作り直している

@@ -230,8 +230,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Editor\Core\EditorHost.h" />
     <ClInclude Include="Engine\Editor\Core\EditorLayout.h" />
     <ClInclude Include="Engine\Editor\Core\EditorMenuBar.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorPicking.h" />
     <ClInclude Include="Engine\Editor\Core\EditorSelection.h" />
     <ClInclude Include="Engine\Editor\Core\EditorStats.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorViewMath.h" />
     <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h" />
     <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\AudioWindow.h" />
@@ -515,8 +517,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Editor\Core\EditorHost.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorLayout.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorMenuBar.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorPicking.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorSelection.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorStats.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorViewMath.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp" />
     <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\AudioWindow.cpp" />

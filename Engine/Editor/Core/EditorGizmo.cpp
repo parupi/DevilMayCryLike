@@ -1,14 +1,11 @@
 #include "EditorGizmo.h"
 #ifdef _DEBUG
 
-#include "EditorContext.h"
 #include "EditorSelection.h"
+#include "EditorViewMath.h"
 
 #include "Debugger/GlobalVariables.h"
 #include "Math/MathUtils.h"
-#include "Math/Vector4.h"
-#include "World3D/Camera/BaseCamera.h"
-#include "World3D/Camera/CameraManager.h"
 #include "World3D/Object/Object3d.h"
 #include "World3D/WorldTransform.h"
 
@@ -148,11 +145,8 @@ ImVec2 Norm2(const ImVec2& v)
 	return (length > 1e-5f) ? ImVec2(v.x / length, v.y / length) : ImVec2(1.0f, 0.0f);
 }
 
-Vector3 SafeNormalize(const Vector3& v, const Vector3& fallback)
-{
-	const float length = Length(v);
-	return (length > 1e-6f) ? Vector3{ v.x / length, v.y / length, v.z / length } : fallback;
-}
+using EditorView::SafeNormalize;
+using EditorView::WorldToScreen;
 
 Quaternion SafeNormalizeQuat(const Quaternion& q)
 {
@@ -181,51 +175,8 @@ Vector3 AnyPerpendicular(const Vector3& axis)
 	return SafeNormalize(Cross(reference, axis), Vector3{ 1.0f, 0.0f, 0.0f });
 }
 
-/// <summary>画像の中のどこにギズモを描くかを決めるための、カメラと表示領域の情報</summary>
-struct ViewContext {
-	Matrix4x4 viewProjection;
-	Matrix4x4 inverseViewProjection;
-	Vector3 cameraPosition{};
-	Vector3 cameraRight{};
-	Vector3 cameraUp{};
-	Vector3 cameraForward{};
-	ImVec2 imagePos{};
-	ImVec2 imageSize{};
-};
-
-/// <summary>ワールド座標を画像上のスクリーン座標へ。カメラの後ろなら false</summary>
-bool WorldToScreen(const ViewContext& view, const Vector3& world, ImVec2& outScreen)
-{
-	const Vector4 clip = Vector4{ world.x, world.y, world.z, 1.0f } * view.viewProjection;
-	if (clip.w <= 1e-4f) {
-		return false;
-	}
-	const float ndcX = clip.x / clip.w;
-	const float ndcY = clip.y / clip.w;
-	outScreen.x = view.imagePos.x + (ndcX * 0.5f + 0.5f) * view.imageSize.x;
-	outScreen.y = view.imagePos.y + (0.5f - ndcY * 0.5f) * view.imageSize.y;
-	return true;
-}
-
-/// <summary>画像上のスクリーン座標からワールドのレイを作る</summary>
-void ScreenToRay(const ViewContext& view, const ImVec2& screen, Vector3& outOrigin, Vector3& outDirection)
-{
-	const float ndcX = ((screen.x - view.imagePos.x) / view.imageSize.x) * 2.0f - 1.0f;
-	const float ndcY = 1.0f - ((screen.y - view.imagePos.y) / view.imageSize.y) * 2.0f;
-
-	// D3D の深度は [0,1]。ニア面とファー面の2点を戻して結ぶ
-	const auto unproject = [&](float ndcZ) {
-		const Vector4 p = Vector4{ ndcX, ndcY, ndcZ, 1.0f } * view.inverseViewProjection;
-		const float invW = (std::abs(p.w) > 1e-8f) ? (1.0f / p.w) : 0.0f;
-		return Vector3{ p.x * invW, p.y * invW, p.z * invW };
-	};
-
-	outOrigin = unproject(0.0f);
-	outDirection = SafeNormalize(unproject(1.0f) - outOrigin, view.cameraForward);
-}
-
 /// <summary>ギズモの実寸（ワールド）。画面上でいつも同じ大きさに見えるようにする</summary>
-float ComputeGizmoWorldSize(const ViewContext& view, const Vector3& origin)
+float ComputeGizmoWorldSize(const EditorView::Context& view, const Vector3& origin)
 {
 	ImVec2 a{};
 	ImVec2 b{};
@@ -300,7 +251,7 @@ bool ClosestPointOnAxis(const Vector3& origin, const Vector3& axis,
 
 /// <summary>ギズモ1回ぶんの計算結果。ピック・描画で使い回す</summary>
 struct Frame {
-	ViewContext view;
+	EditorView::Context view;
 	Vector3 origin{};
 	Vector3 axes[3] = { kWorldAxis[0], kWorldAxis[1], kWorldAxis[2] };
 	float size = 1.0f;
@@ -978,33 +929,14 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 		return;
 	}
 
-	CameraManager* cameraManager = Editor::Ctx().cameraManager;
-	BaseCamera* camera = cameraManager ? cameraManager->GetActiveCamera() : nullptr;
-	if (!camera) {
-		CancelDrag();
-		return;
-	}
-
 	Frame frame;
-	frame.view.viewProjection = camera->GetViewProjectionMatrix();
-	frame.view.inverseViewProjection = Inverse(frame.view.viewProjection);
-	// Inverse() は行列式のゼロ割りを見ていない。潰れた行列だと NaN が伝播するので弾く
-	if (!std::isfinite(frame.view.inverseViewProjection.m[0][0])) {
+	if (!EditorView::Build(frame.view, imagePos, imageSize)) {
 		CancelDrag();
 		return;
 	}
-
-	// カメラのワールド行列は行ベクトル。0行目が右、1行目が上、2行目が前
-	const Matrix4x4& cameraWorld = camera->GetWorldMatrix();
-	frame.view.cameraRight = SafeNormalize({ cameraWorld.m[0][0], cameraWorld.m[0][1], cameraWorld.m[0][2] }, kWorldAxis[0]);
-	frame.view.cameraUp = SafeNormalize({ cameraWorld.m[1][0], cameraWorld.m[1][1], cameraWorld.m[1][2] }, kWorldAxis[1]);
-	frame.view.cameraForward = SafeNormalize({ cameraWorld.m[2][0], cameraWorld.m[2][1], cameraWorld.m[2][2] }, kWorldAxis[2]);
-	frame.view.cameraPosition = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
-	frame.view.imagePos = imagePos;
-	frame.view.imageSize = imageSize;
 
 	frame.mouse = ImGui::GetIO().MousePos;
-	ScreenToRay(frame.view, frame.mouse, frame.rayOrigin, frame.rayDirection);
+	EditorView::ScreenToRay(frame.view, frame.mouse, frame.rayOrigin, frame.rayDirection);
 
 	// 親の情報。ドラッグ中は開始時に固定したものを使うので、ここでは開始判定用
 	const bool hasParent = (transform->GetParent() != nullptr);
@@ -1058,9 +990,7 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 	}
 
 	// ツールバーのボタンに乗っているときはギズモを掴ませない
-	const bool insideImage = frame.mouse.x >= imagePos.x && frame.mouse.x <= imagePos.x + imageSize.x
-		&& frame.mouse.y >= imagePos.y && frame.mouse.y <= imagePos.y + imageSize.y;
-	frame.canInteract = !g_drag.active && insideImage
+	frame.canInteract = !g_drag.active && EditorView::IsInsideImage(frame.view, frame.mouse)
 		&& ImGui::IsWindowHovered(ImGuiHoveredFlags_ChildWindows)
 		&& !ImGui::IsAnyItemHovered();
 
