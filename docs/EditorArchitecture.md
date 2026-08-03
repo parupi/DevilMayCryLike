@@ -31,6 +31,8 @@ GuchisEngine のエディタ（`_DEBUG` ビルドのみ）の全体像。
 | `Engine/World3D/Collider/CollisionManager.cpp` | 同上（Collider） |
 | `Engine/Graphics/.../ForwardSceneRenderPass.cpp` | 同上（Grid） |
 | `App/.../PlayerStateAttack.cpp` | 同上（AttackTrail） |
+| `Engine/World3D/Camera/CameraManager.{h,cpp}` | デバッグカメラの割り込み（`SetDebugCamera`）。ポインタを預かるだけ |
+| `Engine/Input/Input.{h,cpp}` | 飛行中にゲームへの入力を止める `SetSuppressedForEditor` と Raw 系 |
 
 いずれも「描くかどうかのフラグを読む」だけで、UIは持たない。
 
@@ -61,6 +63,10 @@ Engine/Editor/Core/
   EditorDebugDraw.*         コライダー/ライト/攻撃軌跡/グリッドの表示トグル
   EditorStats.*             FPS・VRAM・RAM
   EditorGameView.*          ゲーム画面を1280x720のRTへ描いて ImGui::Image で出す
+  EditorViewMath.*          ゲームビューに重ねるものの投影とレイ（ギズモと選択で共有）
+  EditorGizmo.*             ゲームビュー上の移動／回転／拡縮ギズモ
+  EditorPicking.*           ゲームビューの絵をクリックして選ぶ
+  EditorCamera.*            F9 で割り込む自由飛行のデバッグカメラ
   EditorSelection.*         選択中の Object3d（名前で保持）
   EditorAssetUtil.*         モデルフォルダ走査・モデル名の逆引き
 
@@ -161,6 +167,9 @@ Windowメニューの「ゲーム」側へ自動的に並ぶ。呼ぶ側が意�
 |---|---|---|
 | `Resource/GlobalVariables/Editor/EditorWindows.json` | ウィンドウの表示状態 | `Editor::Finalize()` / Windowメニュー |
 | `Resource/GlobalVariables/Editor/EditorDebugDraw.json` | デバッグ描画のトグル | 同上 |
+| `Resource/GlobalVariables/Editor/EditorGizmo.json` | ギズモの操作モード・スナップ設定 | 同上 |
+| `Resource/GlobalVariables/Editor/EditorPicking.json` | クリック選択・選択枠のトグル | 同上 |
+| `Resource/GlobalVariables/Editor/EditorCamera.json` | デバッグカメラの速度・感度 | 同上 |
 | `imgui.ini` | ドッキング配置・ウィンドウサイズ | ImGui が自動 / Layoutメニュー |
 | `Resource/GlobalVariables/<各グループ>/` | ゲーム・エンジンの調整値 | Ctrl+S / 各ウィンドウの Save |
 
@@ -178,6 +187,102 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 `DockBuilder` は DockSpace を作った直後の同フレームでないと正しく分割できないので、
 メニューからは `RequestPreset()` で予約して次フレームに適用する。
 
+### ゲームビューに重ねるもの
+
+`EditorGameView::DrawWindow()` の `ImGui::Image` の直後に、この順で呼ぶ。
+
+```cpp
+const ImVec2 imagePos = ImGui::GetItemRectMin();  // 画像の実際の左上
+EditorGizmo::DrawOverlay(imagePos, imageSize);
+EditorPicking::HandleGameView(imagePos, imageSize);  // ギズモの後
+EditorCamera::DrawBadge(imagePos, imageSize);
+```
+
+`EditorCamera::Update(hovered_)` は `DrawWindow()` の**末尾で無条件に**呼ぶ
+（ウィンドウが閉じていても、掴んだままの飛行モードを解除させるため）。
+
+投影とレイは `EditorViewMath`（`EditorView::Build/WorldToScreen/ScreenToRay`）に集めてある。
+アクティブカメラと画像の矩形から `EditorView::Context` を作り、両者が同じ前提を共有する。
+
+**順番が意味を持つ**。`EditorPicking` は `EditorGizmo::IsOver()` を見て、
+ギズモを掴んだクリックを横取りしないようにしている。逆順にすると、
+ギズモの矢印をクリックした瞬間に後ろのオブジェクトへ選択が飛ぶ。
+
+### ギズモ
+
+Hierarchy / Inspector と同じ選択（`EditorSelection`）を、Game ウィンドウの絵の上で直接動かす。
+ImGuizmo などの外部ライブラリは使わず、エンジンの `Matrix4x4` / `Quaternion`
+（**行ベクトル・左手系**、`v * M`、平行移動は `m[3][*]`）に合わせて `EditorGizmo.cpp` が全部持っている。
+
+呼び出しは `EditorGameView::DrawWindow()` の `ImGui::Image` 直後の1箇所だけ。
+位置合わせに画像の実際の左上（`ImGui::GetItemRectMin()`）が要るので、必ずここで呼ぶ。
+
+- **編集するのは `WorldTransform` のローカル値**。親がいる場合はワールドでの操作量を
+  `TransformNormal(delta, Inverse(parentWorld))` で親のローカル空間へ落としてから書き戻すので、
+  子オブジェクト（キャラの武器など）でも見たとおりに動く
+- **表示に使う行列は毎フレーム組み直す**。`matWorld_` はゲーム側の更新でしか動かないため、
+  そのまま読むとポーズ中に追従しなくなる
+- **ドラッグ中は軸・原点・掴んだ位置をすべて開始時のもので固定する**。毎フレーム引き直すと
+  動かした結果が次の計算に混ざって暴走する
+- **拡縮は常にローカル軸**。ワールド/ローカルの切り替えは移動・回転にだけ効く
+- 大きさは画面上で一定。カメラ右方向に1m離れた点を投影して「1mが何ピクセルか」を測り、
+  そこから逆算している（透視でも正射影でも同じ式で足りる）
+
+| キー | 動作 |
+|---|---|
+| Ctrl+1 / 2 / 3 | 移動 / 回転 / 拡縮 |
+| Ctrl+L | ワールド軸 ⇔ ローカル軸 |
+| Ctrl+G | ギズモの表示切替 |
+| ドラッグ中の Ctrl | スナップの有無を一時的に反転 |
+
+W/E/R も使えるが、ゲームの移動入力と衝突するので既定はオフ（Gizmoメニューで有効化）。
+
+### クリックで選択
+
+ゲームビューの絵をクリックすると、その下にある `Object3d` が `EditorSelection` に入る。
+Hierarchy / Inspector / ギズモはそこを見ているので、そのまま追従する。
+
+- **判定はモデルのCPU側の頂点**。モデルごとに1度だけ三角形リストとローカルAABBに焼いて
+  `BaseModel*` をキーにキャッシュする（`Editor::Finalize()` で捨てる。
+  `ModelManager` はモデルを個別に解放しないのでキーは死なない）
+- **レイはモデルのローカル空間へ持っていく**。このとき向きを**正規化しない**のがコツで、
+  出てくる t がそのままワールドでの距離になり、スケールの違うオブジェクトどうしで前後を比べられる
+- **スキンモデルはAABBだけ**。CPU頂点がバインドポーズのままで、アニメ中の三角形は当てにならない
+- `GetIsDraw()` が false のオブジェクトは選べない。見えていないものを掴んでも混乱するだけ
+- **同じ場所を続けてクリックすると、重なった奥のオブジェクトへ順に送る**
+  （4px 以内なら同じ場所とみなす）。何も無いところをクリックすると選択解除
+- 選択中は本体に沿った箱（ローカルAABBの8隅をワールドへ運んだもの）で囲う
+
+重いのはクリックした瞬間だけで、毎フレーム走るのは選択枠の描画（キャッシュ引き）のみ。
+
+### デバッグカメラ
+
+**F9** でゲームのカメラに割り込み、マインクラフトのクリエイティブ飛行と同じ感覚で飛び回れる。
+
+| 操作 | 動き |
+|---|---|
+| 右ドラッグ | 視点。**押している間だけが「飛行モード」** |
+| W / A / S / D | 見ている方向へ前後・左右（ピッチも効く） |
+| Space / Shift | ワールドの上下 |
+| Ctrl | ダッシュ |
+| ホイール | 移動速度の増減 |
+
+- **カメラの実体はエディタ（`EditorCamera`）が持ち、`CameraManager` にはポインタだけ渡す**
+  （`SetDebugCamera()`）。`cameras_` に入れるとシーン切替の `DeleteAllCamera()` で消える
+- 立っている間、`GetActiveCamera()` / `GetCurrentCamera()` は無条件にデバッグカメラを返すので、
+  描画・パーティクル・ギズモ・クリック選択まで下流すべてが自動で追従する
+- **ゲーム側のカメラも裏で更新し続ける**。`CameraManager::Update()` は
+  `FindActiveCameraEntry()`（割り込みを見ない版）で実体を引いて更新してから差し替える。
+  そのため F9 で戻したときに画が飛ばない
+- ON にした瞬間に位置・向き・画角をコピーするので、入るときも飛ばない
+- **飛行モードの間だけ `Input::SetSuppressedForEditor(true)`**。同じ WASD / Space が
+  ゲームにも届いてプレイヤーが走り出すのを防ぐ。エディタ側は `PushKeyRaw()` など
+  Raw 付きで素のデバイス状態を読む。右ドラッグを離せばゲームは普通に操作できる
+- 時間は `DeltaTime::GetUnscaledDeltaTime()`。ポーズ中・スロー中でも同じ速さで飛べる
+- **`BaseCamera::GetRight()` は使わない**。あちらは `MakeRotateXYZMatrix`（Y*X*Z）で組んでいて、
+  `BaseCamera::Update()` が使う `MakeAffineMatrix`（X*Y*Z）と一致しない。
+  `EditorCamera` は Rx*Ry の行を直に書き下している
+
 ### ショートカット
 
 | キー | 動作 |
@@ -186,7 +291,10 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 | Ctrl+S | 全パラメータを保存 |
 | Ctrl+R | シーンをリロード |
 | F5 | 再生 / 一時停止 |
+| F9 | デバッグカメラ ON / OFF |
 | F10 | コマ送り（一時停止中） |
+
+ギズモのショートカットは上の「ギズモ」を参照。
 
 再生コントロールは `DeltaTime`（`SetPaused` / `RequestStep` / `SetDebugTimeScale`）に入っている。
 ここが唯一の絞り口で `TimeManager` を含む下流全部に効くので、ゲーム側は無改造。
@@ -202,10 +310,23 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 - **`Object3dManager::FindObject()` / `CameraManager::FindCamera()` を毎フレーム呼ばない**。
   前者は見つからないとログを吐き、後者は `operator[]` で空要素を生やす
 - **`TextureManager::GetMetaData()` にも同じ副作用がある**。一覧を舐めるなら `TryGetMetaData()`
+- **`Model::GetModelData()` / `SkinnedModel::GetModelData()` は値を返す**（メッシュごと丸コピー）。
+  毎フレーム呼ぶと確実に落ちる。EditorPicking は焼くときの1回だけ呼んでいる
+- **`MathUtils` の `Transform()` は w=0 で assert する**。潰れた行列を通す可能性がある場所では
+  自前で座標変換すること（EditorPicking の `TransformPoint`）
+- **オイラー角の合成順が2種類ある**。`MakeAffineMatrix(scale, Vector3 rotate, translate)` は
+  **X\*Y\*Z**、`MakeRotateXYZMatrix()` は **Y\*X\*Z**。カメラの姿勢は前者で作られているので、
+  前・右ベクトルを自分で出すときは前者に合わせること
 - **`ImGui::Image` に渡せるのは ImGui 自身のディスクリプタヒープの中だけ**。
   エンジンのSRVはシェーダ可視ヒープにあり `CopyDescriptors` もできないので、
   Asset Browser は ImGui のヒープに1枠だけ確保してSRVを作り直している
 - **ImGui のラベルはID元**。同じウィンドウ内でラジオとコンボに同じ文字列を使うと衝突する
-  （1.92 は画面に警告を出してくれる）
+  （1.92 は画面に警告を出してくれる）。ラベルが状態で変わるボタンは `##固定ID` を付ける
+- **`PushStyleColor` の判定はウィジェットを出す前に確定させる**。
+  `if (flag) Push; if (Button(...)) flag = !flag; if (flag) Pop;` は Push と Pop の数がずれて
+  `"Calling PopStyleColor() too many times!"` で落ちる
+- **`SetCursorPos`/`SetCursorScreenPos` で動かしたら、その後にアイテムを1つ出す**。
+  何も出さずに `End()` すると「境界を広げる意図か」と assert する。
+  ゲームビューに重ねたギズモのツールバーは `ImGui::Dummy(ImVec2(0,0))` で締めている
 - **`u8"..."` を使わない**。C++20 では `const char8_t*` になって `const char*` に渡せない。
   素の `"日本語"` でよい（`/utf-8` でビルドしている）

@@ -1,8 +1,11 @@
 #include "EditorHost.h"
 #ifdef _DEBUG
 
+#include "EditorCamera.h"
 #include "EditorDebugDraw.h"
+#include "EditorGizmo.h"
 #include "EditorMenuBar.h"
+#include "EditorPicking.h"
 #include "EditorStats.h"
 #include "Editor/Windows/AssetBrowserWindow.h"
 #include "Editor/Windows/AudioWindow.h"
@@ -75,6 +78,9 @@ void Editor::Initialize()
 	// ウィンドウ自体は初めて描かれたときに遅延登録されるので、ここでは値だけ用意しておけばよい
 	EditorWindow::LoadSettings();
 	EditorDebugDraw::LoadSettings();
+	EditorGizmo::LoadSettings();
+	EditorPicking::LoadSettings();
+	EditorCamera::LoadSettings();
 
 	EditorLayout::RegisterBuiltinPresets();
 
@@ -101,6 +107,13 @@ void Editor::Finalize()
 	// 次回起動時に同じ配置で開けるよう、終了時に必ず書き出しておく
 	EditorWindow::SaveSettings();
 	EditorDebugDraw::SaveSettings();
+	EditorGizmo::SaveSettings();
+	EditorPicking::SaveSettings();
+	EditorCamera::SaveSettings();
+	// 焼いたメッシュを抱えたままだと、ModelManager より後に解放されて分かりにくい
+	EditorPicking::ClearCache();
+	// CameraManager が握っているポインタを外してからカメラを捨てる
+	EditorCamera::Finalize();
 	EditorStats::Finalize();
 
 	g_drawers.clear();

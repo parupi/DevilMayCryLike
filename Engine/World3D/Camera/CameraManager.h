@@ -50,10 +50,28 @@ public:
 	// 登録済みカメラ名の一覧（昇順）
 	std::vector<std::string> GetCameraNames() const;
 	const std::string& GetActiveCameraName() const { return activeCameraName_; }
+
+#ifdef _DEBUG
+	/// <summary>
+	/// エディタのデバッグカメラを割り込ませる（nullptr で解除）。
+	///
+	/// 立っている間、GetActiveCamera() / GetCurrentCamera() は無条件にこれを返すので、
+	/// 描画・パーティクル・当たり判定まで下流すべてがデバッグカメラを見る。
+	/// ゲーム側のカメラも裏で更新され続けるため、解除したときに絵が飛ばない。
+	/// カメラの実体はエディタ（EditorCamera）が持つ。cameras_ には入れない
+	/// （DeleteAllCamera() でシーンごと消えてしまうため）。
+	/// </summary>
+	void SetDebugCamera(BaseCamera* camera);
+	BaseCamera* GetDebugCamera() const { return debugCamera_; }
+	bool IsDebugCameraActive() const { return debugCamera_ != nullptr; }
+#endif // _DEBUG
+
 private:
 	// 補間の更新
 	void TransitionUpdate();
 	void CreateCameraResource();
+	// activeCameraName_ が指すカメラ。デバッグカメラの割り込みは見ない
+	BaseCamera* FindActiveCameraEntry() const;
 
 	// カメラ座標
 	struct CameraForGPU {
@@ -75,6 +93,11 @@ private:
 
 	// 切り替え保管用のカメラ
 	std::unique_ptr<BaseCamera> transitionCamera_ = nullptr;
+
+#ifdef _DEBUG
+	// エディタが持つデバッグカメラ。所有はしない
+	BaseCamera* debugCamera_ = nullptr;
+#endif
 
 	// 補間関連
 	bool isTransitioning_ = false;

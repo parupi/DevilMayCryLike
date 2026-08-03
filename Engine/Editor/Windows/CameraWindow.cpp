@@ -1,6 +1,7 @@
 #include "CameraWindow.h"
 #ifdef _DEBUG
 
+#include "Editor/Core/EditorCamera.h"
 #include "Editor/Core/EditorHost.h"
 #include "Editor/Core/EditorMenuBar.h"
 
@@ -31,10 +32,19 @@ void Editor::DrawCameraWindow()
 		return;
 	}
 
+	if (ImGui::CollapsingHeader("デバッグカメラ", ImGuiTreeNodeFlags_DefaultOpen)) {
+		EditorCamera::DrawSettings();
+	}
+	ImGui::Separator();
+
 	const std::vector<std::string> names = manager->GetCameraNames();
 	const std::string& activeName = manager->GetActiveCameraName();
 
 	ImGui::Text("アクティブ: %s", activeName.empty() ? "(未設定)" : activeName.c_str());
+	if (EditorCamera::IsActive()) {
+		ImGui::SameLine();
+		ImGui::TextColored(ImVec4(1.0f, 0.75f, 0.2f, 1.0f), "(デバッグカメラが割り込み中)");
+	}
 	if (manager->IsTransition()) {
 		ImGui::SameLine();
 		ImGui::TextDisabled("(切り替え中)");

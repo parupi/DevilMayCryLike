@@ -2,6 +2,9 @@
 #ifdef _DEBUG
 
 #include "Graphics/Device/DirectXManager.h"
+#include "Editor/Core/EditorCamera.h"
+#include "Editor/Core/EditorGizmo.h"
+#include "Editor/Core/EditorPicking.h"
 #include "Editor/Core/EditorWindowRegistry.h"
 
 namespace {
@@ -125,12 +128,25 @@ void EditorGameView::DrawWindow()
 			cursor.y + (std::max)(0.0f, (avail.y - imageSize.y) * 0.5f)));
 
 		ImGui::Image(GetTextureID(), imageSize);
+
+		// 絵の上に選択オブジェクトのギズモを重ねる。
+		// 位置合わせに画像の実際の左上が要るので、Image を出した直後に呼ぶこと
+		const ImVec2 imagePos = ImGui::GetItemRectMin();
+		EditorGizmo::DrawOverlay(imagePos, imageSize);
+		// クリック選択はギズモの**後**。ギズモが掴んだクリックを横取りしないため
+		EditorPicking::HandleGameView(imagePos, imageSize);
+		EditorCamera::DrawBadge(imagePos, imageSize);
+
 		EditorWindow::End();
 	} else {
 		// 非表示にされたか折りたたまれている。どちらもEnd()は不要
 		hovered_ = false;
 		focused_ = false;
 	}
+
+	// ウィンドウが隠れていても必ず呼ぶ。掴んだままの飛行モードを解除させるため。
+	// ここは CameraManager::Update() より前なので、この場で動かした値がそのフレームの絵に乗る
+	EditorCamera::Update(hovered_);
 }
 
 #endif // _DEBUG
