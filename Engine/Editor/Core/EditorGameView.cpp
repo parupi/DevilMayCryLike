@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 
 #include "Graphics/Device/DirectXManager.h"
+#include "Editor/Core/EditorGizmo.h"
 #include "Editor/Core/EditorWindowRegistry.h"
 
 namespace {
@@ -125,6 +126,11 @@ void EditorGameView::DrawWindow()
 			cursor.y + (std::max)(0.0f, (avail.y - imageSize.y) * 0.5f)));
 
 		ImGui::Image(GetTextureID(), imageSize);
+
+		// 絵の上に選択オブジェクトのギズモを重ねる。
+		// 位置合わせに画像の実際の左上が要るので、Image を出した直後に呼ぶこと
+		EditorGizmo::DrawOverlay(ImGui::GetItemRectMin(), imageSize);
+
 		EditorWindow::End();
 	} else {
 		// 非表示にされたか折りたたまれている。どちらもEnd()は不要

@@ -627,6 +627,9 @@
     <ClInclude Include="Engine\Editor\Core\EditorGameView.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorGizmo.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorHost.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
@@ -1473,6 +1476,9 @@
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorGameView.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorGizmo.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorHost.cpp">

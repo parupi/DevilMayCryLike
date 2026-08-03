@@ -226,6 +226,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Editor\Core\EditorContext.h" />
     <ClInclude Include="Engine\Editor\Core\EditorDebugDraw.h" />
     <ClInclude Include="Engine\Editor\Core\EditorGameView.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorGizmo.h" />
     <ClInclude Include="Engine\Editor\Core\EditorHost.h" />
     <ClInclude Include="Engine\Editor\Core\EditorLayout.h" />
     <ClInclude Include="Engine\Editor\Core\EditorMenuBar.h" />
@@ -510,6 +511,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Editor\Core\EditorContext.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorDebugDraw.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorGameView.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorGizmo.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorHost.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorLayout.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorMenuBar.cpp" />

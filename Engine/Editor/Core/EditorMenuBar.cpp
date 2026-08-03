@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 
 #include "EditorDebugDraw.h"
+#include "EditorGizmo.h"
 #include "EditorHost.h"
 #include "EditorLayout.h"
 #include "EditorStats.h"
@@ -27,6 +28,7 @@ void SaveEditorSettings()
 {
 	EditorWindow::SaveSettings();
 	EditorDebugDraw::SaveSettings();
+	EditorGizmo::SaveSettings();
 	ImGui::SaveIniSettingsToDisk(ImGui::GetIO().IniFilename);
 }
 
@@ -99,6 +101,11 @@ void DrawHelpMenu()
 	ImGui::Text("Ctrl+R    シーンをリロード");
 	ImGui::Text("F5        再生 / 一時停止");
 	ImGui::Text("F10       コマ送り（一時停止中）");
+	ImGui::Separator();
+	ImGui::TextDisabled("ギズモ");
+	ImGui::Text("Ctrl+1/2/3  移動 / 回転 / 拡縮");
+	ImGui::Text("Ctrl+L    ワールド ⇔ ローカル");
+	ImGui::Text("Ctrl+G    ギズモの表示切替");
 }
 
 // --- 再生コントロール ---
@@ -142,6 +149,8 @@ void DrawPlayControls()
 
 void HandleShortcuts()
 {
+	EditorGizmo::HandleShortcuts();
+
 	if (ImGui::Shortcut(ImGuiKey_F5, ImGuiInputFlags_RouteGlobal)) {
 		DeltaTime::SetPaused(!DeltaTime::IsPaused());
 	}
@@ -221,6 +230,10 @@ void EditorMenuBar::Draw()
 		}
 		if (ImGui::BeginMenu("Debug Draw")) {
 			EditorDebugDraw::DrawMenu();
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Gizmo")) {
+			EditorGizmo::DrawMenu();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Layout")) {

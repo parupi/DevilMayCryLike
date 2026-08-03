@@ -61,6 +61,7 @@ Engine/Editor/Core/
   EditorDebugDraw.*         コライダー/ライト/攻撃軌跡/グリッドの表示トグル
   EditorStats.*             FPS・VRAM・RAM
   EditorGameView.*          ゲーム画面を1280x720のRTへ描いて ImGui::Image で出す
+  EditorGizmo.*             ゲームビュー上の移動／回転／拡縮ギズモ
   EditorSelection.*         選択中の Object3d（名前で保持）
   EditorAssetUtil.*         モデルフォルダ走査・モデル名の逆引き
 
@@ -161,6 +162,7 @@ Windowメニューの「ゲーム」側へ自動的に並ぶ。呼ぶ側が意�
 |---|---|---|
 | `Resource/GlobalVariables/Editor/EditorWindows.json` | ウィンドウの表示状態 | `Editor::Finalize()` / Windowメニュー |
 | `Resource/GlobalVariables/Editor/EditorDebugDraw.json` | デバッグ描画のトグル | 同上 |
+| `Resource/GlobalVariables/Editor/EditorGizmo.json` | ギズモの操作モード・スナップ設定 | 同上 |
 | `imgui.ini` | ドッキング配置・ウィンドウサイズ | ImGui が自動 / Layoutメニュー |
 | `Resource/GlobalVariables/<各グループ>/` | ゲーム・エンジンの調整値 | Ctrl+S / 各ウィンドウの Save |
 
@@ -178,6 +180,35 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 `DockBuilder` は DockSpace を作った直後の同フレームでないと正しく分割できないので、
 メニューからは `RequestPreset()` で予約して次フレームに適用する。
 
+### ギズモ
+
+Hierarchy / Inspector と同じ選択（`EditorSelection`）を、Game ウィンドウの絵の上で直接動かす。
+ImGuizmo などの外部ライブラリは使わず、エンジンの `Matrix4x4` / `Quaternion`
+（**行ベクトル・左手系**、`v * M`、平行移動は `m[3][*]`）に合わせて `EditorGizmo.cpp` が全部持っている。
+
+呼び出しは `EditorGameView::DrawWindow()` の `ImGui::Image` 直後の1箇所だけ。
+位置合わせに画像の実際の左上（`ImGui::GetItemRectMin()`）が要るので、必ずここで呼ぶ。
+
+- **編集するのは `WorldTransform` のローカル値**。親がいる場合はワールドでの操作量を
+  `TransformNormal(delta, Inverse(parentWorld))` で親のローカル空間へ落としてから書き戻すので、
+  子オブジェクト（キャラの武器など）でも見たとおりに動く
+- **表示に使う行列は毎フレーム組み直す**。`matWorld_` はゲーム側の更新でしか動かないため、
+  そのまま読むとポーズ中に追従しなくなる
+- **ドラッグ中は軸・原点・掴んだ位置をすべて開始時のもので固定する**。毎フレーム引き直すと
+  動かした結果が次の計算に混ざって暴走する
+- **拡縮は常にローカル軸**。ワールド/ローカルの切り替えは移動・回転にだけ効く
+- 大きさは画面上で一定。カメラ右方向に1m離れた点を投影して「1mが何ピクセルか」を測り、
+  そこから逆算している（透視でも正射影でも同じ式で足りる）
+
+| キー | 動作 |
+|---|---|
+| Ctrl+1 / 2 / 3 | 移動 / 回転 / 拡縮 |
+| Ctrl+L | ワールド軸 ⇔ ローカル軸 |
+| Ctrl+G | ギズモの表示切替 |
+| ドラッグ中の Ctrl | スナップの有無を一時的に反転 |
+
+W/E/R も使えるが、ゲームの移動入力と衝突するので既定はオフ（Gizmoメニューで有効化）。
+
 ### ショートカット
 
 | キー | 動作 |
@@ -187,6 +218,8 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 | Ctrl+R | シーンをリロード |
 | F5 | 再生 / 一時停止 |
 | F10 | コマ送り（一時停止中） |
+
+ギズモのショートカットは上の「ギズモ」を参照。
 
 再生コントロールは `DeltaTime`（`SetPaused` / `RequestStep` / `SetDebugTimeScale`）に入っている。
 ここが唯一の絞り口で `TimeManager` を含む下流全部に効くので、ゲーム側は無改造。
@@ -206,6 +239,12 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
   エンジンのSRVはシェーダ可視ヒープにあり `CopyDescriptors` もできないので、
   Asset Browser は ImGui のヒープに1枠だけ確保してSRVを作り直している
 - **ImGui のラベルはID元**。同じウィンドウ内でラジオとコンボに同じ文字列を使うと衝突する
-  （1.92 は画面に警告を出してくれる）
+  （1.92 は画面に警告を出してくれる）。ラベルが状態で変わるボタンは `##固定ID` を付ける
+- **`PushStyleColor` の判定はウィジェットを出す前に確定させる**。
+  `if (flag) Push; if (Button(...)) flag = !flag; if (flag) Pop;` は Push と Pop の数がずれて
+  `"Calling PopStyleColor() too many times!"` で落ちる
+- **`SetCursorPos`/`SetCursorScreenPos` で動かしたら、その後にアイテムを1つ出す**。
+  何も出さずに `End()` すると「境界を広げる意図か」と assert する。
+  ゲームビューに重ねたギズモのツールバーは `ImGui::Dummy(ImVec2(0,0))` で締めている
 - **`u8"..."` を使わない**。C++20 では `const char8_t*` になって `const char*` に渡せない。
   素の `"日本語"` でよい（`/utf-8` でビルドしている）

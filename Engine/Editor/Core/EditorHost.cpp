@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 
 #include "EditorDebugDraw.h"
+#include "EditorGizmo.h"
 #include "EditorMenuBar.h"
 #include "EditorStats.h"
 #include "Editor/Windows/AssetBrowserWindow.h"
@@ -75,6 +76,7 @@ void Editor::Initialize()
 	// ウィンドウ自体は初めて描かれたときに遅延登録されるので、ここでは値だけ用意しておけばよい
 	EditorWindow::LoadSettings();
 	EditorDebugDraw::LoadSettings();
+	EditorGizmo::LoadSettings();
 
 	EditorLayout::RegisterBuiltinPresets();
 
@@ -101,6 +103,7 @@ void Editor::Finalize()
 	// 次回起動時に同じ配置で開けるよう、終了時に必ず書き出しておく
 	EditorWindow::SaveSettings();
 	EditorDebugDraw::SaveSettings();
+	EditorGizmo::SaveSettings();
 	EditorStats::Finalize();
 
 	g_drawers.clear();
