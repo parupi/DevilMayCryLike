@@ -17,30 +17,59 @@ Prop::~Prop() {
 }
 
 void Prop::Initialize() {
-	// レベルエディタ(file_name)で指定されたモデルを未読み込みなら読み込む
-	ModelManager::GetInstance().LoadModel(modelName_);
+	// モデル未指定なら Cube。ここで確定させておけば保存にもそのまま出る
+	if (GetModelName().empty()) {
+		SetModelName("Cube");
+	}
+
+	// ステージデータで指定されたモデルを未読み込みなら読み込む
+	ModelManager::GetInstance().LoadModel(GetModelName());
 
 	// レンダラーの生成
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, modelName_));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, GetModelName()));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 
-	// コライダーはレベルエディタで付けた場合のみ存在する。
+	// コライダーはステージデータで付けた場合のみ存在する。
 	// 付いていればGroundカテゴリにして、プレイヤーが通り抜けないようにする
-	if (auto* collider = GetCollider(name_)) {
+	for (BaseCollider* collider : GetColliders()) {
 		collider->category_ = CollisionCategory::Ground;
 	}
 
 	// ランタンなど発光する小物用のポイントライト
 	if (hasLight_) {
-		auto light = std::make_unique<DynamicPointLight>(name_ + "Light");
-		light->SetColor({ lightColor_.x, lightColor_.y, lightColor_.z, 1.0f });
-		light->SetIntensity(lightIntensity_);
-		light->SetRadius(lightRadius_);
-		light->SetDecay(lightDecay_);
-		light->SetPosition(GetWorldTransform()->GetTranslation() + lightOffset_);
-
-		light_ = static_cast<DynamicPointLight*>(LightManager::GetInstance().AddLight(std::move(light)));
+		SetLightEnabled(true);
 	}
+}
+
+void Prop::SetLightEnabled(bool enabled) {
+	hasLight_ = enabled;
+
+	if (!enabled) {
+		LightManager::GetInstance().RemoveLight(light_);
+		light_ = nullptr;
+		return;
+	}
+	if (light_) {
+		ApplyLightParams();
+		return;
+	}
+
+	auto light = std::make_unique<DynamicPointLight>(name_ + "Light");
+	light_ = static_cast<DynamicPointLight*>(LightManager::GetInstance().AddLight(std::move(light)));
+	ApplyLightParams();
+	// 位置は Update() が毎フレーム入れるが、matWorld_ はまだ組まれていないので初回だけ直接置く
+	light_->SetPosition(GetWorldTransform()->GetTranslation() + lightOffset_);
+}
+
+void Prop::ApplyLightParams() {
+	if (!light_) {
+		return;
+	}
+	// 位置は Update() がトランスフォームから毎フレーム入れるのでここでは触らない
+	light_->SetColor({ lightColor_.x, lightColor_.y, lightColor_.z, 1.0f });
+	light_->SetIntensity(lightIntensity_);
+	light_->SetRadius(lightRadius_);
+	light_->SetDecay(lightDecay_);
 }
 
 void Prop::Update(float deltaTime) {

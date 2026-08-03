@@ -8,6 +8,7 @@
 #include "EditorLayout.h"
 #include "EditorPicking.h"
 #include "EditorStats.h"
+#include "EditorUndo.h"
 #include "EditorWindowRegistry.h"
 #include "Debugger/GlobalVariables.h"
 #include "Scene/SceneManager.h"
@@ -84,6 +85,8 @@ void DrawSceneMenu()
 		}
 		for (const std::string& name : names) {
 			if (ImGui::MenuItem(name.c_str(), nullptr, name == current, canChange)) {
+				// 履歴はオブジェクトを名前で覚えているので、作り直したら捨てる
+				EditorUndo::Clear();
 				sceneManager.ChangeScene(name);
 			}
 		}
@@ -91,6 +94,7 @@ void DrawSceneMenu()
 
 	ImGui::Separator();
 	if (ImGui::MenuItem("シーンをリロード", "Ctrl+R", false, canChange && !current.empty())) {
+		EditorUndo::Clear();
 		sceneManager.ReloadCurrentScene();
 	}
 }
@@ -99,6 +103,8 @@ void DrawHelpMenu()
 {
 	ImGui::TextDisabled("ショートカット");
 	ImGui::Separator();
+	ImGui::Text("Ctrl+Z    取り消し（トランスフォームのみ）");
+	ImGui::Text("Ctrl+Y    やり直し");
 	ImGui::Text("Ctrl+P    ウィンドウを検索して開く");
 	ImGui::Text("Ctrl+S    全パラメータを保存");
 	ImGui::Text("Ctrl+R    シーンをリロード");
@@ -159,6 +165,7 @@ void DrawPlayControls()
 void HandleShortcuts()
 {
 	EditorGizmo::HandleShortcuts();
+	EditorUndo::HandleShortcuts();
 
 	if (ImGui::Shortcut(ImGuiKey_F5, ImGuiInputFlags_RouteGlobal)) {
 		DeltaTime::SetPaused(!DeltaTime::IsPaused());
@@ -178,6 +185,7 @@ void HandleShortcuts()
 		EditorMenuBar::ShowToast("%zu グループを保存しました", count);
 	}
 	if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_R, ImGuiInputFlags_RouteGlobal)) {
+		EditorUndo::Clear();
 		SceneManager::GetInstance().ReloadCurrentScene();
 	}
 }
@@ -230,6 +238,10 @@ void EditorMenuBar::Draw()
 	if (ImGui::BeginMainMenuBar()) {
 		if (ImGui::BeginMenu("File")) {
 			DrawFileMenu();
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Edit")) {
+			EditorUndo::DrawMenu();
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Scene")) {

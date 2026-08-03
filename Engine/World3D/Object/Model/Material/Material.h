@@ -51,9 +51,14 @@ private:
 	float textureDensityScale_ = 1.0f;
 
 public:
-	// 色
+	// 色（前方描画とGBuffer(遅延描画)の両方に反映する）
 	Vector4& GetColor() const { return materialForGPU_->color; }
-	void SetColor(const Vector4& color) { materialForGPU_->color = color; }
+	void SetColor(const Vector4& color) {
+		materialForGPU_->color = color;
+		gBufferMaterialParam_->materialColor = color;
+	}
+	// mtlから読み込んだ色情報
+	const MaterialData& GetMaterialData() const { return materialData_; }
 	// Lighting
 	bool GetIsLighting() const { return materialForGPU_->enableLighting; }
 	void SetIsLighting(const bool isLighting) { materialForGPU_->enableLighting = isLighting; }

@@ -14,13 +14,21 @@ StagePointLight::~StagePointLight() {
 
 void StagePointLight::Initialize() {
 	auto light = std::make_unique<DynamicPointLight>(name_);
-	light->SetColor({ color_.x, color_.y, color_.z, 1.0f });
-	light->SetIntensity(intensity_);
-	light->SetRadius(radius_);
-	light->SetDecay(decay_);
-	light->SetPosition(GetWorldTransform()->GetTranslation() + offset_);
-
 	light_ = static_cast<DynamicPointLight*>(LightManager::GetInstance().AddLight(std::move(light)));
+	ApplyLightParams();
+	// 位置は Update() が毎フレーム入れるが、matWorld_ はまだ組まれていないので初回だけ直接置く
+	light_->SetPosition(GetWorldTransform()->GetTranslation() + offset_);
+}
+
+void StagePointLight::ApplyLightParams() {
+	if (!light_) {
+		return;
+	}
+	// 位置は Update() がトランスフォームから毎フレーム入れるのでここでは触らない
+	light_->SetColor({ color_.x, color_.y, color_.z, 1.0f });
+	light_->SetIntensity(intensity_);
+	light_->SetRadius(radius_);
+	light_->SetDecay(decay_);
 }
 
 void StagePointLight::Update(float deltaTime) {

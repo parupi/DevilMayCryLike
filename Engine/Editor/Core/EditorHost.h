@@ -25,9 +25,13 @@
 /// 呼ぶ場所は MyGameTitle::Initialize()。App と Engine の両方を知っている
 /// 唯一の合流点なので、依存の向き（App/Editor → Engine/Editor → Engine）を壊さずに済む。
 /// </summary>
+class Object3d;
+
 namespace Editor {
 
 using DrawFunc = std::function<void()>;
+using InspectorSectionFunc = std::function<void(Object3d*)>;
+using DuplicateFunc = std::function<void(Object3d* source, Object3d* created)>;
 
 // --- 拡張ポイント ---
 
@@ -50,6 +54,33 @@ void AddWindowDrawer(DrawFunc drawer, EditorWindow::Origin origin = EditorWindow
 /// </summary>
 void AddMenu(const char* label, DrawFunc drawMenuBody);
 
+/// <summary>
+/// Inspector の末尾に、選択中のオブジェクト向けの項目を足す。
+/// エンジンは App のクラスを知らないので、`dynamic_cast` して自分の型のときだけ描くのは App 側の仕事。
+///
+/// <code>
+/// Editor::AddInspectorSection([](Object3d* object) {
+///     if (auto* light = dynamic_cast<StagePointLight*>(object)) { ... }
+/// });
+/// </code>
+///
+/// object は選択中のもの（null にはならない）。登録した順に呼ばれる。
+/// </summary>
+void AddInspectorSection(InspectorSectionFunc section);
+
+/// <summary>
+/// オブジェクトを複製したときに呼ばれる処理を足す。
+/// エンジンが引き継げるのはトランスフォーム・モデル・コライダーまでなので、
+/// クラス固有の設定（ライトやイベントの対象など）は App がここでコピーする。
+///
+/// <code>
+/// Editor::AddDuplicateHandler([](Object3d* source, Object3d* created) {
+///     if (auto* s = dynamic_cast<Prop*>(source)) { ... }
+/// });
+/// </code>
+/// </summary>
+void AddDuplicateHandler(DuplicateFunc handler);
+
 // AddLayoutPreset は EditorLayout.h で宣言している
 
 // --- 駆動（ImGuiManager から呼ぶ。ゲーム側が触る必要はない） ---
@@ -68,6 +99,12 @@ void Draw();
 
 /// <summary>AddMenu で足されたメニューを描く。EditorMenuBar の内部用</summary>
 void DrawExtraMenus();
+
+/// <summary>AddInspectorSection で足された項目を描く。InspectorWindow の内部用</summary>
+void DrawInspectorSections(Object3d* object);
+
+/// <summary>AddDuplicateHandler で足された処理を呼ぶ。HierarchyWindow の内部用</summary>
+void NotifyObjectDuplicated(Object3d* source, Object3d* created);
 
 } // namespace Editor
 

@@ -1,4 +1,5 @@
 #include "Object3d.h"
+#include <algorithm>
 #include "Object3dManager.h"
 #include "Graphics/Resource/TextureManager.h"
 #include <World3D/WorldTransform.h>
@@ -18,8 +19,13 @@ Object3d::Object3d(std::string objectName) {
 void Object3d::Initialize() {
 	objectManager_ = &Object3dManager::GetInstance();
 
-	transform_ = std::make_unique<WorldTransform>();
-	transform_->Initialize();
+	// 派生クラスのコンストラクタからも呼ばれるため、二度目はトランスフォームを作り直さない。
+	// 作り直すと、生成後に設定した位置が消える（ステージデータからの生成順がこれ）うえ、
+	// 定数バッファも作り直しになる
+	if (!transform_) {
+		transform_ = std::make_unique<WorldTransform>();
+		transform_->Initialize();
+	}
 
 	camera_ = objectManager_->GetDefaultCamera();
 }
@@ -118,6 +124,17 @@ void Object3d::AddRenderer(BaseRenderer* renderer) {
 void Object3d::AddCollider(BaseCollider* collider) {
 	collider->SetOwner(this);
 	colliders_.push_back(collider);
+}
+
+void Object3d::RemoveCollider(BaseCollider* collider) {
+	if (!collider) {
+		return;
+	}
+	// 実体は CollisionManager が持っているので、生存フラグを落として自分の参照だけ外す。
+	// 参照を残したままだと RemoveDeadObjects() で解放された後にぶら下がる
+	collider->isAlive = false;
+	collider->owner_ = nullptr;
+	colliders_.erase(std::remove(colliders_.begin(), colliders_.end(), collider), colliders_.end());
 }
 
 BaseRenderer* Object3d::GetRenderer(std::string name) {

@@ -75,7 +75,10 @@ void Material::DebugGui(uint32_t index) {
 		ImGui::DragFloat2("uvPosition", &uvData_.position.x, 0.01f, -10.0f, 10.0f);
 		ImGui::DragFloat2("UVScale", &uvData_.scale.x, 0.01f, -10.0f, 10.0f);
 		ImGui::SliderAngle("UVRotate", &uvData_.rotation);
-		ImGui::ColorEdit4("color", &materialForGPU_->color.x);
+		// GBuffer(遅延描画)側にも同じ色を流さないと見た目が変わらないので両方に反映する
+		if (ImGui::ColorEdit4("color", &materialForGPU_->color.x)) {
+			gBufferMaterialParam_->materialColor = materialForGPU_->color;
+		}
 		ImGui::SliderFloat("environmentIntensity", &materialForGPU_->environmentIntensity, 0.0f, 1.0f);
 		ImGui::Separator();
 		ImGui::Text("--- Dissolve ---");
@@ -96,7 +99,8 @@ void Material::CreateMaterialResource() {
 	void* ptr = resourceManager->Map(materialHandle_);
 	assert(ptr);
 	materialForGPU_ = reinterpret_cast<MaterialForGPU*>(ptr);
-	materialForGPU_->color = {1.0f, 1.0f, 1.0f, 1.0f};
+	// mtl等から読んだ基本色（テクスチャ無しならKd、テクスチャ付きなら白）
+	materialForGPU_->color = materialData_.baseColor;
 	materialForGPU_->enableLighting = true;
 	materialForGPU_->uvTransform = MakeIdentity4x4();
 	materialForGPU_->shininess = 50.0f;
@@ -115,4 +119,5 @@ void Material::CreateGBufferMaterialResource() {
 	gBufferMaterialParam_->dissolveThreshold = -1.0f;
 	gBufferMaterialParam_->dissolveEdgeWidth = 0.05f;
 	gBufferMaterialParam_->dissolveEdgeColor = { 1.0f, 0.3f, 0.0f, 8.0f };
+	gBufferMaterialParam_->materialColor = materialData_.baseColor;
 }

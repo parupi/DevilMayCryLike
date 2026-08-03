@@ -15,6 +15,8 @@ cbuffer MaterialParam : register(b0)
     float4x4 uvTransform;
 
     float4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
+
+    float4 materialColor; // baseColorテクスチャに乗算する色（mtlのKdなど）
 };
 
 // レンダラー単位のDissolve上書き + エミッシブティント（ルート定数）。
@@ -48,7 +50,7 @@ GBufferOutput main(VSOutput input)
     float3 edgeEmissive = ApplyDissolve(gDissolveNoise, samLinear, uv, threshold, edgeWidth, edgeColor);
 
     // ------- Albedo -------
-    float4 baseColor = baseColorMap.Sample(samLinear, transformedUV);
+    float4 baseColor = baseColorMap.Sample(samLinear, transformedUV) * materialColor;
     // エミッシブティント（スーパーアーマーの紫発光など、レンダラー単位の一時発光）
     float3 tintEmissive = gEmissiveTint.rgb * gEmissiveTint.a;
     output.baseColor_Roughness = float4(baseColor.rgb + edgeEmissive + tintEmissive, roughness);

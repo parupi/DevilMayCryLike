@@ -11,15 +11,24 @@ Ground::Ground(std::string objectName) : Object3d(objectName)
 
 void Ground::Initialize()
 {
-	// レベルエディタ(file_name)で指定されたモデルを未読み込みなら読み込む
-	ModelManager::GetInstance().LoadModel(modelName_);
+	// モデル未指定なら Cube。ここで確定させておけば保存にもそのまま出る
+	if (GetModelName().empty()) {
+		SetModelName("Cube");
+	}
+
+	// ステージデータで指定されたモデルを未読み込みなら読み込む
+	ModelManager::GetInstance().LoadModel(GetModelName());
 
 	// レンダラーの生成
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, modelName_));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, GetModelName()));
 
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 
-	GetCollider(name_)->category_ = CollisionCategory::Ground;
+	// コライダーはステージデータで付けた場合のみ存在する。
+	// エディタで作った直後は無いので、付いているものだけ Ground カテゴリにする
+	for (BaseCollider* collider : GetColliders()) {
+		collider->category_ = CollisionCategory::Ground;
+	}
 
 	// uvサイズをオブジェクトの大きさに合わせる(モデルによってはマテリアルが1つしか無いので安全にアクセスする)
 	std::vector<Material*> materials = GetRenderer(name_)->GetModel()->GetMaterials();

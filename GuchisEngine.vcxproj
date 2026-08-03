@@ -174,7 +174,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Event\ClearEvent.h" />
     <ClInclude Include="App\GameObject\Event\Effect\BattleAreaWallEffect.h" />
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h" />
-    <ClInclude Include="App\GameObject\Event\EventFactory.h" />
     <ClInclude Include="App\GameObject\Event\EventManager.h" />
     <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h" />
     <ClInclude Include="App\GameObject\Ground\Ground.h" />
@@ -205,12 +204,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateMenu.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStatePlay.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h" />
-    <ClInclude Include="App\Scene\Object3dFactory.h" />
     <ClInclude Include="App\Scene\SceneFactory.h" />
     <ClInclude Include="App\Scene\TitleScene.h" />
     <ClInclude Include="App\Scene\Transition\VignetteExpandTransition.h" />
     <ClInclude Include="App\Stage\SceneBuilder.h" />
     <ClInclude Include="App\Stage\SceneLoader.h" />
+    <ClInclude Include="App\Stage\SceneSaver.h" />
+    <ClInclude Include="App\Stage\StageDocument.h" />
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
     <ClInclude Include="App\Tutorial\Service\TutorialService.h" />
     <ClInclude Include="App\Tutorial\System\TutorialSystem.h" />
@@ -234,6 +234,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Editor\Core\EditorPicking.h" />
     <ClInclude Include="Engine\Editor\Core\EditorSelection.h" />
     <ClInclude Include="Engine\Editor\Core\EditorStats.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorUndo.h" />
     <ClInclude Include="Engine\Editor\Core\EditorViewMath.h" />
     <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h" />
     <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h" />
@@ -334,6 +335,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Platform\WindowManager.h" />
     <ClInclude Include="Engine\Scene\AbstractSceneFactory.h" />
     <ClInclude Include="Engine\Scene\BaseScene.h" />
+    <ClInclude Include="Engine\Scene\Object3dFactory.h" />
     <ClInclude Include="Engine\Scene\SampleScene.h" />
     <ClInclude Include="Engine\Scene\SceneManager.h" />
     <ClInclude Include="Engine\Scene\Transition\BaseTransition.h" />
@@ -464,7 +466,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp" />
     <ClCompile Include="App\GameObject\Event\Effect\BattleAreaWallEffect.cpp" />
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp" />
-    <ClCompile Include="App\GameObject\Event\EventFactory.cpp" />
     <ClCompile Include="App\GameObject\Event\EventManager.cpp" />
     <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp" />
     <ClCompile Include="App\GameObject\Ground\Ground.cpp" />
@@ -495,12 +496,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateMenu.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStatePlay.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp" />
-    <ClCompile Include="App\Scene\Object3dFactory.cpp" />
     <ClCompile Include="App\Scene\SceneFactory.cpp" />
     <ClCompile Include="App\Scene\TitleScene.cpp" />
     <ClCompile Include="App\Scene\Transition\VignetteExpandTransition.cpp" />
     <ClCompile Include="App\Stage\SceneBuilder.cpp" />
     <ClCompile Include="App\Stage\SceneLoader.cpp" />
+    <ClCompile Include="App\Stage\SceneSaver.cpp" />
+    <ClCompile Include="App\Stage\StageDocument.cpp" />
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
     <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp" />
     <ClCompile Include="App\Tutorial\Tutorial.cpp" />
@@ -522,6 +524,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Editor\Core\EditorPicking.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorSelection.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorStats.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorUndo.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorViewMath.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp" />
     <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp" />
@@ -611,6 +614,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Math\Vector4.cpp" />
     <ClCompile Include="Engine\Platform\WindowManager.cpp" />
     <ClCompile Include="Engine\Scene\BaseScene.cpp" />
+    <ClCompile Include="Engine\Scene\Object3dFactory.cpp" />
     <ClCompile Include="Engine\Scene\SampleScene.cpp" />
     <ClCompile Include="Engine\Scene\SceneManager.cpp" />
     <ClCompile Include="Engine\Scene\Transition\FadeTransition.cpp" />

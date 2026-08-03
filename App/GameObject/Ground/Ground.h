@@ -12,13 +12,6 @@ public:
 	// 描画
 	void Draw() override;
 
-	// 使用するモデル名を設定する(Initialize()より前に呼ぶこと。未設定時は"Cube")
-	void SetModelName(const std::string& modelName) { modelName_ = modelName; }
-
-#ifdef _DEBUG
-#endif // _DEBUG
-
-private:
-	std::string modelName_ = "Cube";
+	// 使用するモデル名は Object3d::SetModelName()。未設定なら Initialize() で "Cube" になる
 };
 

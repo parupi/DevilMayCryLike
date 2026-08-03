@@ -27,9 +27,14 @@ public:
 	void Finalize();
 
 	/// <summary>
-	/// イベントの登録
+	/// イベントの登録。BaseEvent のコンストラクタが自分で呼ぶ
 	/// </summary>
 	void AddEvent(BaseEvent* event);
+
+	/// <summary>
+	/// イベントの登録解除。BaseEvent のデストラクタが自分で呼ぶ
+	/// </summary>
+	void RemoveEvent(BaseEvent* event);
 
 	/// <summary>
 	/// イベント名からイベントを検索

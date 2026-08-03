@@ -37,6 +37,8 @@ struct DrawerEntry {
 
 std::vector<DrawerEntry> g_drawers;
 std::vector<MenuEntry> g_menus;
+std::vector<Editor::InspectorSectionFunc> g_inspectorSections;
+std::vector<Editor::DuplicateFunc> g_duplicateHandlers;
 
 // Editor::Initialize() の実行中だけ true。ここで登録された drawer がエンジン標準になる
 bool g_registeringEngineDefaults = false;
@@ -70,6 +72,42 @@ void Editor::AddMenu(const char* label, DrawFunc drawMenuBody)
 	entry.label = label;
 	entry.bodies.push_back(std::move(drawMenuBody));
 	g_menus.push_back(std::move(entry));
+}
+
+void Editor::AddInspectorSection(InspectorSectionFunc section)
+{
+	if (!section) {
+		return;
+	}
+	g_inspectorSections.push_back(std::move(section));
+}
+
+void Editor::DrawInspectorSections(Object3d* object)
+{
+	if (!object) {
+		return;
+	}
+	for (InspectorSectionFunc& section : g_inspectorSections) {
+		section(object);
+	}
+}
+
+void Editor::AddDuplicateHandler(DuplicateFunc handler)
+{
+	if (!handler) {
+		return;
+	}
+	g_duplicateHandlers.push_back(std::move(handler));
+}
+
+void Editor::NotifyObjectDuplicated(Object3d* source, Object3d* created)
+{
+	if (!source || !created) {
+		return;
+	}
+	for (DuplicateFunc& handler : g_duplicateHandlers) {
+		handler(source, created);
+	}
 }
 
 void Editor::Initialize()
@@ -118,6 +156,8 @@ void Editor::Finalize()
 
 	g_drawers.clear();
 	g_menus.clear();
+	g_inspectorSections.clear();
+	g_duplicateHandlers.clear();
 }
 
 void Editor::DrawExtraMenus()

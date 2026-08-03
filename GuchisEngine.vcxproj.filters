@@ -471,9 +471,6 @@
     <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Event\EventFactory.h">
-      <Filter>App\GameObject\Event</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Event\EventManager.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
@@ -564,9 +561,6 @@
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\Scene\Object3dFactory.h">
-      <Filter>App\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="App\Scene\SceneFactory.h">
       <Filter>App\Scene</Filter>
     </ClInclude>
@@ -580,6 +574,12 @@
       <Filter>App\Stage</Filter>
     </ClInclude>
     <ClInclude Include="App\Stage\SceneLoader.h">
+      <Filter>App\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Stage\SceneSaver.h">
+      <Filter>App\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Stage\StageDocument.h">
       <Filter>App\Stage</Filter>
     </ClInclude>
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h">
@@ -649,6 +649,9 @@
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorStats.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorUndo.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorViewMath.h">
@@ -949,6 +952,9 @@
       <Filter>Engine\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\BaseScene.h">
+      <Filter>Engine\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Scene\Object3dFactory.h">
       <Filter>Engine\Scene</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Scene\SampleScene.h">
@@ -1337,9 +1343,6 @@
     <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Event\EventFactory.cpp">
-      <Filter>App\GameObject\Event</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Event\EventManager.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
@@ -1430,9 +1433,6 @@
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\Scene\Object3dFactory.cpp">
-      <Filter>App\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="App\Scene\SceneFactory.cpp">
       <Filter>App\Scene</Filter>
     </ClCompile>
@@ -1446,6 +1446,12 @@
       <Filter>App\Stage</Filter>
     </ClCompile>
     <ClCompile Include="App\Stage\SceneLoader.cpp">
+      <Filter>App\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Stage\SceneSaver.cpp">
+      <Filter>App\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Stage\StageDocument.cpp">
       <Filter>App\Stage</Filter>
     </ClCompile>
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
@@ -1509,6 +1515,9 @@
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorStats.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorUndo.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorViewMath.cpp">
@@ -1776,6 +1785,9 @@
       <Filter>Engine\Platform</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene\BaseScene.cpp">
+      <Filter>Engine\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Scene\Object3dFactory.cpp">
       <Filter>Engine\Scene</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Scene\SampleScene.cpp">

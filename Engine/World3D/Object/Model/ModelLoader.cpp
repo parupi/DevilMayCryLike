@@ -1,9 +1,133 @@
 #include "ModelLoader.h"
 #include <cassert>
 #include <filesystem>
+#include <fstream>
+#include <set>
 #include <sstream>
 #include "Graphics/Resource/TextureManager.h"
 #include "Utility/Logger.h"
+
+namespace {
+	// mtl(や glTF/FBX のマテリアル)からKa/Kd/Ks/Ns/Ni/dを読み取る。
+	// 項目が無いモデルもあるので、取得できなかったものはMaterialDataの既定値のままにする。
+	void ReadMaterialParameters(const aiMaterial* material, MaterialData& matData) {
+		aiColor3D color;
+		if (material->Get(AI_MATKEY_COLOR_AMBIENT, color) == AI_SUCCESS) {
+			matData.Ka = {color.r, color.g, color.b};
+		}
+		if (material->Get(AI_MATKEY_COLOR_DIFFUSE, color) == AI_SUCCESS) {
+			matData.Kd = {color.r, color.g, color.b};
+		}
+		if (material->Get(AI_MATKEY_COLOR_SPECULAR, color) == AI_SUCCESS) {
+			matData.Ks = {color.r, color.g, color.b};
+		}
+		float value = 0.0f;
+		if (material->Get(AI_MATKEY_SHININESS, value) == AI_SUCCESS) {
+			matData.Ns = value;
+		}
+		if (material->Get(AI_MATKEY_REFRACTI, value) == AI_SUCCESS) {
+			matData.Ni = value;
+		}
+		if (material->Get(AI_MATKEY_OPACITY, value) == AI_SUCCESS) {
+			matData.d = value;
+		}
+	}
+
+	// 拡散色をmtlから採用してよいマテリアルの判定。
+	// AssimpはKdの記述が無いmtlにも既定色(0.6のグレー)を返すため、そのまま使うと
+	// これまで白かったモデル(Kdを書いていないmtl)が勝手に暗くなってしまう。
+	// そこでobjの場合だけ、mtlに実際にKdが書かれているマテリアルに限定する。
+	struct DiffuseColorFilter {
+		bool restrictToExplicit = false;	// objのときのみtrue
+		std::set<std::string> explicitNames;
+
+		bool Allows(const std::string& materialName) const {
+			return !restrictToExplicit || explicitNames.contains(materialName);
+		}
+	};
+
+	// mtlを走査して「Kd」が明記されているマテリアル名を集める
+	void CollectExplicitKdNames(const std::filesystem::path& mtlPath, std::set<std::string>& names) {
+		std::ifstream file(mtlPath);
+		if (!file) {
+			return;
+		}
+		std::string line;
+		std::string currentName;
+		while (std::getline(file, line)) {
+			std::istringstream iss(line);
+			std::string token;
+			if (!(iss >> token)) {
+				continue;
+			}
+			if (token == "newmtl") {
+				// マテリアル名は空白を含み得るので行末まで取る
+				iss >> std::ws;
+				std::getline(iss, currentName);
+				while (!currentName.empty() && (currentName.back() == '\r' || currentName.back() == ' ')) {
+					currentName.pop_back();
+				}
+			} else if (token == "Kd" && !currentName.empty()) {
+				names.insert(currentName);
+			}
+		}
+	}
+
+	// objが参照しているmtlを調べてフィルタを作る（obj以外はAssimpの値をそのまま信用する）
+	DiffuseColorFilter MakeDiffuseColorFilter(const std::string& filePath) {
+		DiffuseColorFilter filter;
+		std::filesystem::path objPath(filePath);
+		if (objPath.extension() != ".obj") {
+			return filter;
+		}
+		filter.restrictToExplicit = true;
+
+		// mtllib の指定を探す。頂点データが始まったらそれ以降には無いので打ち切る
+		bool foundMtllib = false;
+		std::ifstream objFile(objPath);
+		std::string line;
+		while (std::getline(objFile, line)) {
+			std::istringstream iss(line);
+			std::string token;
+			if (!(iss >> token)) {
+				continue;
+			}
+			if (token == "mtllib") {
+				std::string mtlName;
+				iss >> std::ws;
+				std::getline(iss, mtlName);
+				while (!mtlName.empty() && (mtlName.back() == '\r' || mtlName.back() == ' ')) {
+					mtlName.pop_back();
+				}
+				if (!mtlName.empty()) {
+					CollectExplicitKdNames(objPath.parent_path() / mtlName, filter.explicitNames);
+					foundMtllib = true;
+				}
+			} else if (token == "v" || token == "f") {
+				break;
+			}
+		}
+		// mtllibが書かれていないobjのために <モデル名>.mtl も見ておく
+		if (!foundMtllib) {
+			std::filesystem::path fallback = objPath;
+			fallback.replace_extension(".mtl");
+			CollectExplicitKdNames(fallback, filter.explicitNames);
+		}
+		return filter;
+	}
+
+	// シェーダーに渡す基本色を決める。
+	// テクスチャ付きマテリアルはBlenderが既定で Kd 0.8 を書き出してしまい、
+	// 掛けるとテクスチャが暗くなるだけなので白のままにする。
+	// テクスチャを持たないマテリアルはKdが唯一の色情報なのでそれを採用する。
+	void ResolveBaseColor(MaterialData& matData, const DiffuseColorFilter& filter) {
+		if (matData.hasTexture || !filter.Allows(matData.name)) {
+			matData.baseColor = {1.0f, 1.0f, 1.0f, matData.d};
+		} else {
+			matData.baseColor = {matData.Kd.r, matData.Kd.g, matData.Kd.b, matData.d};
+		}
+	}
+}
 
 void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager) {
 	dxManager_ = dxManager;
@@ -32,11 +156,13 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename) {
 	ASSERT_MSG(scene && scene->HasMeshes(), ("[ModelLoader] モデルの読み込みに失敗しました。\n  パス: " + filePath + "\n  Assimp: " + importer.GetErrorString()).c_str());
 
 	// --- マテリアルの読み込み ---
+	const DiffuseColorFilter diffuseFilter = MakeDiffuseColorFilter(filePath);
 	modelData.materials.resize(scene->mNumMaterials);
 	for (uint32_t i = 0; i < scene->mNumMaterials; ++i) {
 		aiMaterial* material = scene->mMaterials[i];
 		MaterialData matData;
 		matData.name = material->GetName().C_Str();
+		ReadMaterialParameters(material, matData);
 
 		std::string texPath;
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
@@ -51,9 +177,12 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename) {
 				texPath.clear();
 			}
 		}
+		matData.hasTexture = !texPath.empty();
 		if (texPath.empty()) {
 			texPath = "white.png";
 		}
+		// テクスチャが無い場合はmtlのKdを色として使う
+		ResolveBaseColor(matData, diffuseFilter);
 
 		matData.textureFilePath = texPath;
 		TextureManager::GetInstance().LoadTexture(matData.textureFilePath);
@@ -146,6 +275,7 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename) {
 		if (matData.name == "") {
 			break;
 		}
+		ReadMaterialParameters(material, matData);
 
 		std::string texPath;
 		if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
@@ -159,6 +289,10 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename) {
 				texPath.clear();
 			}
 		}
+
+		matData.hasTexture = !texPath.empty();
+		// テクスチャが無い場合はマテリアルのKdを色として使う（gltfなので制限なし）
+		ResolveBaseColor(matData, DiffuseColorFilter{});
 
 		if (!texPath.empty()) {
 			matData.textureFilePath = texPath;

@@ -28,6 +28,17 @@ void EventManager::AddEvent(BaseEvent* event)
     }
 }
 
+void EventManager::RemoveEvent(BaseEvent* event)
+{
+    if (!event) return;
+
+    // 同名で上書きされている可能性があるので、ポインタが一致するときだけ消す
+    auto it = events_.find(event->GetName());
+    if (it != events_.end() && it->second == event) {
+        events_.erase(it);
+    }
+}
+
 BaseEvent* EventManager::FindEvent(std::string eventName)
 {
 	return events_[eventName];

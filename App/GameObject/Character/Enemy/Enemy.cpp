@@ -58,7 +58,10 @@ void Enemy::Initialize() {
 void Enemy::Update(float deltaTime) {
 	if (!player_) {
 		player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
-		GetCollider(name_)->category_ = CollisionCategory::Enemy;
+		// コライダーはステージデータ側で付ける。エディタで付け忘れても落ちないようにする
+		for (BaseCollider* collider : GetColliders()) {
+			collider->category_ = CollisionCategory::Enemy;
+		}
 	}
 
 	// 起動する前だったら動かない（描画・影も止める）
@@ -71,8 +74,12 @@ void Enemy::Update(float deltaTime) {
 
 	if (!isAlive_) {
 		isAlive = false;
-		GetCollider(name_)->isAlive = false;
-		GetRenderer(name_)->isAlive = false;
+		for (BaseCollider* collider : GetColliders()) {
+			collider->isAlive = false;
+		}
+		for (BaseRenderer* renderer : GetRenderers()) {
+			renderer->isAlive = false;
+		}
 		if (characterLight_) characterLight_->SetEnabled(false);
 		return;
 	}

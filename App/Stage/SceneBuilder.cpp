@@ -5,11 +5,12 @@
 #include "World3D/Collider/SphereCollider.h"
 #include "World3D/Collider/OBBCollider.h"
 #include "World3D/Collider/CollisionManager.h"
+#include "World3D/Object/Model/ModelManager.h"
+#include "World3D/Object/Renderer/ModelRenderer.h"
+#include "World3D/Object/Renderer/RendererManager.h"
 #include "Math/Quaternion.h"
 #include "Scene/Object3dFactory.h"
 #include "GameObject/Character/Enemy/Enemy.h"
-#include "GameObject/Event/EventManager.h"
-#include "GameObject/Event/EventFactory.h"
 #include "GameObject/Event/EnemySpawnEvent.h"
 #include "GameObject/Event/ClearEvent.h"
 #include "GameObject/Event/ForceBattleEvent.h"
@@ -26,58 +27,34 @@ bool SceneBuilder::IsEvent(const SceneObject& obj) {
 	return obj.className.rfind("Event_", 0) == 0;
 }
 
-void SceneBuilder::ApplyTransform(WorldTransform* transform, const EulerTransform& src) {
-	// Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
-	Vector3 translate = src.translate;
-	std::swap(translate.y, translate.z);
-	transform->GetTranslation() = translate;
-
-	// 度数法, Blenderのローカルオイラー角(XYZ順)
-	// Blender(右手系Z-up)→エンジン(左手系Y-up)のY/Z入れ替えは鏡映変換(行列式-1)なので、
-	// 回転は軸を入れ替えた上で全軸の回転方向(符号)を反転する必要がある
-	Vector3 rotate = src.rotate;
-	std::swap(rotate.y, rotate.z);
-	rotate.x = -rotate.x;
-	rotate.y = -rotate.y;
-	rotate.z = -rotate.z;
-	transform->GetRotation() = EulerDegree(rotate);
-
-	Vector3 scale = src.scale;
-	std::swap(scale.y, scale.z);
-	transform->GetScale() = scale;
+void SceneBuilder::ApplyTransform(WorldTransform* transform, const SceneObject& src) {
+	// ステージデータはエンジン空間で保存されているので変換は不要
+	transform->GetTranslation() = src.translate;
+	transform->GetRotation() = src.rotate;
+	transform->GetScale() = src.scale;
 }
 
-void SceneBuilder::ApplyCollider(Object3d* object, const std::string& name, const Collider& col) {
-	const Vector3 scale = object->GetWorldTransform()->GetScale();
-
-	if (col.type == ColliderType::AABB) {
-		// Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
-		// offsetMin/offsetMaxはSceneLoaderで既にローカル空間での真の最小/最大コーナーとして計算済み。
-		// スケールはOBBCollider::Update()がオーナーのWorldTransformから自動で適用するため、ここでは掛けない。
-		// これによりゲーム内のコライダーはBlenderのギズモ表示(collider_size)と完全に一致する。
-		// ※以前あった「×2補正」は旧ワークフロー(半分サイズのキューブプレビュー)向けの補正で、
-		//   実モデルプレビューではコライダーが2倍になり向きがズレて見える原因だったため撤廃した。
-		Vector3 offsetMin = col.aabb.offsetMin;
-		std::swap(offsetMin.y, offsetMin.z);
-		Vector3 offsetMax = col.aabb.offsetMax;
-		std::swap(offsetMax.y, offsetMax.z);
-
-		// 回転しても正しく機能するようOBBコライダーとして生成する
+void SceneBuilder::ApplyCollider(Object3d* object, const std::string& name, const ColliderInfo& col) {
+	if (col.shape == ColliderShape::OBB) {
+		// 回転しても正しく機能するようOBBコライダーとして生成する。
+		// スケールは OBBCollider::Update() がオーナーの WorldTransform から自動で掛けるので
+		// ここでは掛けない
 		auto collider = std::make_unique<OBBCollider>(name);
 		OBBData data;
-		data.offset = (offsetMin + offsetMax) * 0.5f;
-		data.halfExtents = (offsetMax - offsetMin) * 0.5f;
-		data.isActive = col.aabb.isActive;
+		data.offset = col.offset;
+		data.halfExtents = col.halfExtents;
+		data.isActive = col.isActive;
 		collider->GetColliderData() = data;
 		BaseCollider* ptr = collider.get();
 		CollisionManager::GetInstance().AddCollider(std::move(collider));
 		object->AddCollider(ptr);
 
-	} else if (col.type == ColliderType::Sphere) {
+	} else if (col.shape == ColliderShape::Sphere) {
 		auto collider = std::make_unique<SphereCollider>(name);
-		SphereData data = col.sphere;
-		std::swap(data.offset.y, data.offset.z);
-		data.offset *= scale;
+		SphereData data;
+		data.offset = col.offset;
+		data.radius = col.radius;
+		data.isActive = col.isActive;
 		collider->GetColliderData() = data;
 		BaseCollider* ptr = collider.get();
 		CollisionManager::GetInstance().AddCollider(std::move(collider));
@@ -114,39 +91,31 @@ void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObj
 	}
 
 	auto object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
+	// ステージから作ったものは保存対象
+	object->SetStageObject(true);
 
-	// レベルエディタで指定されたモデル名(file_name)をGroundへ反映
-	if (sceneObj.fileName.has_value()) {
-		if (auto* ground = dynamic_cast<Ground*>(object.get())) {
-			ground->SetModelName(sceneObj.fileName.value());
-		}
+	// 使用するモデル名（Ground / Prop などモデルを差し替えられるクラスにだけ効く）
+	if (sceneObj.modelName.has_value()) {
+		object->SetModelName(sceneObj.modelName.value());
 	}
 
-	// 小物(Prop): モデル名とオプションのポイントライト（ランタンなど）を反映
+	// 小物(Prop)のオプションのポイントライト（ランタンなど）
 	if (auto* prop = dynamic_cast<Prop*>(object.get())) {
-		if (sceneObj.fileName.has_value()) {
-			prop->SetModelName(sceneObj.fileName.value());
-		}
 		if (sceneObj.lightInfo.has_value()) {
 			const LightInfo& li = sceneObj.lightInfo.value();
-			// Blenderエクスポート(Y-up)からエンジン座標系(Z-up)への変換
-			Vector3 offset = li.offset;
-			std::swap(offset.y, offset.z);
-			prop->SetLight(li.color, offset, li.intensity, li.radius, li.decay);
+			prop->SetLight(li.color, li.offset, li.intensity, li.radius, li.decay);
 		}
 	}
 
-	// レベルエディタで配置したポイントライト
+	// ステージに配置したポイントライト
 	if (auto* stageLight = dynamic_cast<StagePointLight*>(object.get())) {
 		if (sceneObj.lightInfo.has_value()) {
 			const LightInfo& li = sceneObj.lightInfo.value();
-			Vector3 offset = li.offset;
-			std::swap(offset.y, offset.z);
-			stageLight->SetLight(li.color, offset, li.intensity, li.radius, li.decay);
+			stageLight->SetLight(li.color, li.offset, li.intensity, li.radius, li.decay);
 		}
 	}
 
-	ApplyTransform(object->GetWorldTransform(), sceneObj.transform);
+	ApplyTransform(object->GetWorldTransform(), sceneObj);
 
 	if (sceneObj.collider) {
 		ApplyCollider(object.get(), sceneObj.name, sceneObj.collider.value());
@@ -154,22 +123,40 @@ void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObj
 
 	object->Initialize();
 
+	// Ground / Prop は Initialize() の中でレンダラーを作るが、
+	// 素の Object3d は作らない。エディタでモデルを貼ったものはここで復元する
+	if (object->GetRenderers().empty() && !object->GetModelName().empty()) {
+		const std::string& modelName = object->GetModelName();
+		ModelManager::GetInstance().LoadModel(modelName);
+
+		auto renderer = std::make_unique<ModelRenderer>(sceneObj.name, modelName);
+		BaseRenderer* rawRenderer = renderer.get();
+		RendererManager::GetInstance().AddRenderer(std::move(renderer));
+		object->AddRenderer(rawRenderer);
+	}
+
 	Object3dManager::GetInstance().AddObject(std::move(object));
 }
 
 void SceneBuilder::BuildEvent(const SceneObject& sceneObj) {
-	auto eventObject = EventFactory::Create(sceneObj.className, sceneObj.name);
+	auto object = Object3dFactory::Create(sceneObj.className, sceneObj.name);
+	// "Event_" で始まるのにイベントクラスとして登録されていない場合はここで弾く
+	auto* eventObject = dynamic_cast<BaseEvent*>(object.get());
 	if (!eventObject) return;
+
+	eventObject->SetStageObject(true);
 
 	if (sceneObj.eventInfo.has_value()) {
 		const EventInfo& info = sceneObj.eventInfo.value();
+		// 保存時に書き戻すための対象名。実行中の状態には左右されない
+		eventObject->SetTargetNames(info.targets);
 
 		if (info.type == "EnemySpawn") {
-			auto* spawnEvent = dynamic_cast<EnemySpawnEvent*>(eventObject.get());
+			auto* spawnEvent = dynamic_cast<EnemySpawnEvent*>(eventObject);
 			if (spawnEvent) {
-				for (const auto& enemyInfo : info.enemies) {
+				for (const auto& targetName : info.targets) {
 					auto* enemy = dynamic_cast<Enemy*>(
-						Object3dManager::GetInstance().FindObject(enemyInfo.name));
+						Object3dManager::GetInstance().FindObject(targetName));
 					if (enemy) {
 						enemy->SetActive(false);
 						spawnEvent->AddEnemy(enemy);
@@ -177,26 +164,22 @@ void SceneBuilder::BuildEvent(const SceneObject& sceneObj) {
 				}
 			}
 		} else if (info.type == "Clear") {
-			auto* clearEvent = dynamic_cast<ClearEvent*>(eventObject.get());
+			auto* clearEvent = dynamic_cast<ClearEvent*>(eventObject);
 			if (clearEvent) {
-				for (const auto& cond : info.conditions) {
-					if (cond.type == "DEFEAT_ENEMIES") {
-						for (const auto& targetName : cond.targets) {
-							auto* enemy = dynamic_cast<Enemy*>(
-								Object3dManager::GetInstance().FindObject(targetName));
-							if (enemy) {
-								clearEvent->AddTargetEnemy(enemy);
-							}
-						}
+				for (const auto& targetName : info.targets) {
+					auto* enemy = dynamic_cast<Enemy*>(
+						Object3dManager::GetInstance().FindObject(targetName));
+					if (enemy) {
+						clearEvent->AddTargetEnemy(enemy);
 					}
 				}
 			}
 		} else if (info.type == "ForceBattle") {
-			auto* battleEvent = dynamic_cast<ForceBattleEvent*>(eventObject.get());
+			auto* battleEvent = dynamic_cast<ForceBattleEvent*>(eventObject);
 			if (battleEvent) {
-				for (const auto& enemyInfo : info.enemies) {
+				for (const auto& targetName : info.targets) {
 					auto* enemy = dynamic_cast<Enemy*>(
-						Object3dManager::GetInstance().FindObject(enemyInfo.name));
+						Object3dManager::GetInstance().FindObject(targetName));
 					if (enemy) {
 						enemy->SetActive(false); // 発動まで待機させる
 						battleEvent->AddEnemy(enemy);
@@ -204,26 +187,25 @@ void SceneBuilder::BuildEvent(const SceneObject& sceneObj) {
 				}
 			}
 		} else if (info.type == "BossSpawn") {
-			auto* bossEvent = dynamic_cast<BossSpawnEvent*>(eventObject.get());
-			if (bossEvent) {
+			auto* bossEvent = dynamic_cast<BossSpawnEvent*>(eventObject);
+			if (bossEvent && !info.targets.empty()) {
+				const std::string& bossName = info.targets.front();
 				auto* boss = dynamic_cast<Enemy*>(
-					Object3dManager::GetInstance().FindObject(info.bossName));
+					Object3dManager::GetInstance().FindObject(bossName));
 				if (boss) {
 					boss->SetActive(false); // 発動まで待機させる
-					bossEvent->SetBossName(info.bossName);
+					bossEvent->SetBossName(bossName);
 				}
 			}
 		}
-
-		EventManager::GetInstance().AddEvent(eventObject.get());
 	}
 
-	ApplyTransform(eventObject->GetWorldTransform(), sceneObj.transform);
+	ApplyTransform(eventObject->GetWorldTransform(), sceneObj);
 
 	if (sceneObj.collider) {
-		ApplyCollider(eventObject.get(), sceneObj.name, sceneObj.collider.value());
+		ApplyCollider(eventObject, sceneObj.name, sceneObj.collider.value());
 	}
 
 	eventObject->Initialize();
-	Object3dManager::GetInstance().AddObject(std::move(eventObject));
+	Object3dManager::GetInstance().AddObject(std::move(object));
 }
