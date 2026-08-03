@@ -1,22 +1,43 @@
 #pragma once
 #include "Math/Vector3.h"
+#include <cstdint>
 #include <random>
+
+// ヒットストップの強さ（攻撃の重さごとに止め方を変える）
+enum class HitStopStrength : int32_t {
+    Light,  // 弱攻撃：軽く引っかかる程度
+    Medium, // 中攻撃：しっかり減速する
+    Heavy,  // 大技・フィニッシュ：ほぼ完全停止
+    Count
+};
 
 class HitStop
 {
 public:
+    // 強さごとのヒットストップ中のタイムスケール(0.0f = 完全停止, 1.0f = 通常速度)
+    static constexpr float kTimeScaleTable[static_cast<size_t>(HitStopStrength::Count)] = {
+        0.35f, // Light
+        0.15f, // Medium
+        0.0f,  // Heavy
+    };
+
+    // 強さをタイムスケールに変換する
+    static float ToTimeScale(HitStopStrength strength);
+    // int32_t(GlobalVariables等)から安全に強さへ変換する
+    static HitStopStrength ToStrength(int32_t value);
+
     struct HitStopData {
         bool   isActive = false;
         Vector3 translate{};
-        float progress = 0.0f; 
-        float  timeScale = 1.0f; 
+        float progress = 0.0f;
+        float  timeScale = 1.0f;
     };
 
     HitStop() = default;
     ~HitStop() = default;
 
     void Update(float deltaTime);
-    void Start(float time, float intensity, float stopScale = 0.0f);
+    void Start(float time, float intensity, HitStopStrength strength = HitStopStrength::Heavy);
 
     HitStopData GetHitStopData() const { return hitStopData_; }
     bool IsActive() const { return hitStopData_.isActive; }

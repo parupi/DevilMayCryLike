@@ -21,7 +21,7 @@ public:
 
 	void Update();
 
-	void Draw();
+	// 描画は SpriteManager が UI レイヤーとして自動で行うため Draw() は持たない
 
 	float EaseOutBack(float t);
 

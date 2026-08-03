@@ -1,0 +1,10 @@
+{
+    "EditorDebugDraw": {
+        "AttackTrail": false,
+        "Collider": false,
+        "Grid": false,
+        "GridExtent": 20.0,
+        "GridSpacing": 1.0,
+        "LightGizmo": false
+    }
+}

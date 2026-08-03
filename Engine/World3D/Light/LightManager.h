@@ -36,6 +36,8 @@ public:
 	void BindLightsToShader();
 	// 全ライトの情報を取得
 	std::vector<LightData> GetAllLightData() { return gpuLightCache_; }
+	// ライトの実体一覧（エディタが個別編集・削除に使う）
+	const std::vector<std::unique_ptr<BaseLight>>& GetLights() const { return lights_; }
 
 	CascadedShadowMap* GetCSM() { return csm.get(); }
 
@@ -67,11 +69,5 @@ private:
 
 	std::unique_ptr<CascadedShadowMap> csm = nullptr;
 
-	// デバッグ用
-#ifdef _DEBUG
-	// エディターの描画
-	void DrawLightEditor();
-	int32_t selectedLightIndex_ = 0;
-#endif
 };
 

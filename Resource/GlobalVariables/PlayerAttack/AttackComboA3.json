@@ -2,7 +2,7 @@
     "AttackComboA3": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
-        "ButtonIndex": 0,
+        "ButtonIndex": 1,
         "ControlPoint_0": [
             0.0,
             1.0,
@@ -87,6 +87,7 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.0,
+        "HitStopStrength": 2,
         "HitStopTime": 0.0,
         "ImpulseForce": 8.0,
         "IsAir": false,

@@ -50,7 +50,8 @@ bool ResourceManager::IsValidHandle(BufferHandle h) const
     return (h != kInvalidBufferHandle) && (h < table_.size()) && table_[h].alive;
 }
 
-BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, const std::wstring& debugName)
+// debugName は Debug ビルドの SetName でしか使わないので maybe_unused
+BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, [[maybe_unused]] const std::wstring& debugName)
 {
     assert(desc_.device);
     BufferHandle h = AllocHandle();
@@ -77,6 +78,7 @@ BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, const std::
         IID_PPV_ARGS(&table_[h].resource)
     );
     assert(SUCCEEDED(hr));
+    (void)hr; // Release では assert が消えるため明示的に未使用にする
 
 #ifdef _DEBUG
     std::wstring assignedName = debugName.empty() ? (L"UploadBuffer_" + std::to_wstring(h)) : debugName;
@@ -95,7 +97,7 @@ BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, const std::
     return h;
 }
 
-BufferHandle ResourceManager::CreateDefaultBuffer(size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, const std::wstring& debugName)
+BufferHandle ResourceManager::CreateDefaultBuffer(size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, [[maybe_unused]] const std::wstring& debugName)
 {
     assert(desc_.device);
     BufferHandle h = AllocHandle();
@@ -122,6 +124,7 @@ BufferHandle ResourceManager::CreateDefaultBuffer(size_t sizeInBytes, D3D12_RESO
         IID_PPV_ARGS(&table_[h].resource)
     );
     assert(SUCCEEDED(hr));
+    (void)hr; // Release では assert が消えるため明示的に未使用にする
 
 #ifdef _DEBUG
     std::wstring assignedName = debugName.empty() ? (L"DefaultBuffer_" + std::to_wstring(h)) : debugName;
@@ -215,6 +218,7 @@ Microsoft::WRL::ComPtr<ID3D12Resource> ResourceManager::CreateUploadResource(uin
         IID_PPV_ARGS(&upload)
     );
     assert(SUCCEEDED(hr));
+    (void)hr; // Release では assert が消えるため明示的に未使用にする
 
 #ifdef _DEBUG
     static uint64_t uploadCounter = 0;

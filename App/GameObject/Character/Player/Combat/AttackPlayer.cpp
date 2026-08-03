@@ -1,5 +1,7 @@
 #include "AttackPlayer.h"
 #include <imgui.h>
+#ifdef _DEBUG
+#endif
 #include <GameObject/Character/Player/Player.h>
 #include <GameObject/Character/Player/State/Attack/PlayerStateAttack.h>
 #include <Utility/DeltaTime.h>
@@ -30,13 +32,9 @@ void AttackPlayer::Update(float deltaTime)
 	}
 }
 
-void AttackPlayer::DrawImGui()
+void AttackPlayer::DrawEditorContents()
 {
 #ifdef _DEBUG
-	if (!ImGui::Begin("Attack Player")) {
-		ImGui::End();
-		return;
-	}
 
 	// 攻撃選択
 	std::vector<const char*> names;
@@ -81,7 +79,6 @@ void AttackPlayer::DrawImGui()
 		ImGui::Text("Recovery %.2f", data.postDelay);
 	}
 
-	ImGui::End();
 #endif
 }
 

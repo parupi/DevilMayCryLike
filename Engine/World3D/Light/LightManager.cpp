@@ -3,6 +3,10 @@
 #include <mutex>
 #include <Math/MathUtils.h>
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
+#ifdef _DEBUG
+// デバッグ描画のON/OFFゲートだけ。ライトのUIは Engine/Editor/Windows/LightWindow.cpp にある
+#include "Editor/Core/EditorDebugDraw.h"
+#endif
 
 LightManager& LightManager::GetInstance() {
 	static LightManager instance;
@@ -58,11 +62,7 @@ void LightManager::Update() {
 	*mappedCountPtr_ = static_cast<UINT>(gpuLightCache_.size());
 
 	csm->Update();
-
-#ifdef _DEBUG
-	csm->DrawDebugUI();
-	DrawLightEditor();
-#endif // DEBUG
+	// ライトとCSMのUIは Engine/Editor/Windows/ 側（LightWindow / RenderWindow）が描く
 }
 
 BaseLight* LightManager::AddLight(std::unique_ptr<BaseLight> light) {
@@ -93,6 +93,10 @@ void LightManager::BindLightsToShader() {
 
 #ifdef _DEBUG
 void LightManager::DrawDebug() {
+	// 表示のON/OFFはエディタのDebug Drawメニューに集約している
+	if (!EditorDebugDraw::IsEnabled(EditorDebugDraw::Flag::LightGizmo)) {
+		return;
+	}
 	for (auto& light : lights_) {
 		if (!light) continue;
 		light->DrawDebug(&PrimitiveLineDrawer::GetInstance());
@@ -123,29 +127,3 @@ void LightManager::CreateLightBuffers() {
 	srv->CreateSRVforStructuredBuffer(srvIndex_, rm->GetResource(lightBufferHandle_), MaxLights, sizeof(LightData));
 }
 
-#ifdef _DEBUG
-void LightManager::DrawLightEditor() {
-	if (lights_.empty()) return;
-
-	ImGui::Begin("Light Manager");
-
-	// ---- Combo用の名前リスト生成 ----
-	std::vector<const char*> names;
-	names.reserve(lights_.size());
-
-	for (auto& light : lights_) {
-		names.push_back(light->GetName().c_str());
-	}
-
-	ImGui::Combo("Lights", &selectedLightIndex_, names.data(), static_cast<int>(names.size()));
-
-	ImGui::Separator();
-
-	// ---- 選択中ライトのInspector ----
-	if (selectedLightIndex_ < lights_.size()) {
-		lights_[selectedLightIndex_]->DrawLightEditor();
-	}
-
-	ImGui::End();
-}
-#endif // DEBUG

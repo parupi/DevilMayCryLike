@@ -19,7 +19,6 @@ public:
     void Update(float deltaTime) override;
 
 #ifdef _DEBUG
-    void DebugGui() override;
 #endif
 
     void OnCollisionEnter(BaseCollider* other) override;
@@ -32,7 +31,6 @@ protected:
 
 private:
     GruntMeleeWeapon* weapon_        = nullptr;
-    ParticleEmitter*  emitter_       = nullptr;
     ParticleEmitter*  chargeEmitter_ = nullptr;
 
     float chargeEmitTimer_ = 0.0f;

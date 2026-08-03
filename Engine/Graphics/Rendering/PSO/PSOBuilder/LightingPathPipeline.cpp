@@ -156,5 +156,6 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> LightingPathPipeline::CreatePSO(
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 	HRESULT hr = dxManager->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 	return pso;
 }

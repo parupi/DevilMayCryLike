@@ -21,7 +21,9 @@ void PSOManager::Initialize(DirectXManager* dxManager) {
 
 void PSOManager::Finalize() {
 	spriteSignature_.Reset();
-	for (auto& pso : spriteGraphicsPipelineState_) { pso.Reset(); }
+	for (auto& target : spriteGraphicsPipelineState_) {
+		for (auto& pso : target) { pso.Reset(); }
+	}
 
 	particleSignature_.Reset();
 	for (auto& pso : particleGraphicsPipelineState_) { pso.Reset(); }
@@ -68,11 +70,12 @@ void PSOManager::Finalize() {
 // ---------------------------------------------------------------------------
 // Sprite
 // ---------------------------------------------------------------------------
-ID3D12PipelineState* PSOManager::GetSpritePSO(BlendMode blendMode) {
-	if (!spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)]) {
-		CreateSpritePSO(blendMode);
+ID3D12PipelineState* PSOManager::GetSpritePSO(BlendMode blendMode, bool toBackBuffer) {
+	const UINT target = toBackBuffer ? 1u : 0u;
+	if (!spriteGraphicsPipelineState_[target][static_cast<UINT>(blendMode)]) {
+		CreateSpritePSO(blendMode, toBackBuffer);
 	}
-	return spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)].Get();
+	return spriteGraphicsPipelineState_[target][static_cast<UINT>(blendMode)].Get();
 }
 
 void PSOManager::CreateSpriteSignature() {
@@ -81,10 +84,10 @@ void PSOManager::CreateSpriteSignature() {
 	}
 }
 
-void PSOManager::CreateSpritePSO(BlendMode blendMode) {
+void PSOManager::CreateSpritePSO(BlendMode blendMode, bool toBackBuffer) {
 	CreateSpriteSignature();
-	spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)] =
-		SpritePipeline::CreatePSO(dxManager_, spriteSignature_.Get(), blendMode);
+	spriteGraphicsPipelineState_[toBackBuffer ? 1u : 0u][static_cast<UINT>(blendMode)] =
+		SpritePipeline::CreatePSO(dxManager_, spriteSignature_.Get(), blendMode, toBackBuffer);
 }
 
 // ---------------------------------------------------------------------------

@@ -1,6 +1,5 @@
 ﻿#include "SmoothEffect.h"
 #include "OffScreenManager.h"
-#include <imgui/imgui.h>
 
 SmoothEffect::SmoothEffect() 
 {
@@ -22,13 +21,6 @@ SmoothEffect::~SmoothEffect()
 
 void SmoothEffect::Update()
 {
-#ifdef _DEBUG
-	ImGui::Begin("SmoothEffect");
-	ImGui::Checkbox("isActive", &isActive_);
-	ImGui::DragFloat("blurStrength", &effectData_->blurStrength, 0.01f);
-	ImGui::DragInt("iterations", &effectData_->iterations);
-	ImGui::End();
-#endif // _DEBUG
 }
 
 void SmoothEffect::Draw()

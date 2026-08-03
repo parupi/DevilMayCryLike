@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <map>
 #include <imgui-node-editor/imgui_node_editor.h>
+#include "Graphics/Rendering/Particle/ParticleCurves.h"
 
 namespace ed = ax::NodeEditor;
 
@@ -20,10 +21,19 @@ public:
     void Draw();
 
 private:
-    // ─── 3 ウィンドウ ─────────────────────────────────────────────
+    // ─── 4 ウィンドウ ─────────────────────────────────────────────
     void DrawParticleWindow();
     void DrawEmitterWindow();
+    void DrawVFXWindow();
     void DrawNodeGraph();
+
+    // ─── Curve / Gradient 編集 ────────────────────────────────────
+    // 選択中グループのカーブ欄をまとめて描く
+    void DrawCurveSection(const std::string& groupName);
+    // 折れ線カーブエディタ。編集されたら true
+    bool DrawCurveEditor(const char* label, Curve& curve, float valueMin, float valueMax);
+    // グラデーションエディタ。編集されたら true
+    bool DrawGradientEditor(const char* label, Gradient& gradient);
 
     // ─── Node ID ─────────────────────────────────────────────────
     uintptr_t GetOrCreateEmitterNodeId(const std::string& name);
@@ -45,6 +55,10 @@ private:
 
     int selectedParticleIndex_ = 0;
     int selectedEmitterIndex_  = 0;
+    int selectedVFXIndex_      = 0;
+
+    // VFXウィンドウの操作結果（保存できたか等）を1行で出すための表示用メッセージ
+    std::string vfxStatus_;
 
     // ─── Node editor ─────────────────────────────────────────────
     ed::EditorContext* nodeCtx_ = nullptr;
@@ -61,6 +75,11 @@ private:
     uintptr_t nextLinkId_ = 300001;
 
     bool firstFrame_ = true;  // 初回フレームでノード位置を設定する
+
+    // ─── カーブ編集のドラッグ状態 ────────────────────────────────
+    // 同時に掴めるキーは1つだけなので、対象カーブとキー番号だけ覚えておく
+    const void* draggingCurve_ = nullptr;
+    int draggingKeyIndex_ = -1;
 };
 
 #endif

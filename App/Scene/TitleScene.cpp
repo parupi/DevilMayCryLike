@@ -89,11 +89,8 @@ void TitleScene::Finalize()
 
 void TitleScene::Update()
 {
-	smokeEmitter_->Update();
-	smokeEmitter2_->Update();
-
-	sphereEmitter_->Update();
-
+	// エミッターの更新は ParticleManager::Update() が登録済みの全エミッターに対して行うため、
+	// ここで呼ぶと二重更新になり発生頻度が倍になる（旧実装のなごり）。
 	titleUI_->Update();
 
 	ChangePhase();
@@ -108,7 +105,7 @@ void TitleScene::Draw()
 {
 	ParticleManager::GetInstance().Draw();
 
-	titleUI_->Draw();
+	// TitleUI のスプライトは SpriteManager が UI レイヤーとして自動描画する
 }
 
 #ifdef _DEBUG

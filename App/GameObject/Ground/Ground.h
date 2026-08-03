@@ -16,7 +16,6 @@ public:
 	void SetModelName(const std::string& modelName) { modelName_ = modelName; }
 
 #ifdef _DEBUG
-	void DebugGui() override;
 #endif // _DEBUG
 
 private:

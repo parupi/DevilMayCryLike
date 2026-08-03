@@ -11,7 +11,7 @@ void ScoreUI::Initialize()
 	int32_t digits = static_cast<int32_t>(std::to_string(std::abs(targetScore_)).size());
 
 	for (int32_t i = 0; i < digits; i++) {
-		Sprite* num = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "num" + std::to_string(i), "Numbers.png");
+		Sprite* num = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "num" + std::to_string(i), "Numbers.png");
 		num->SetSize({ 64.0f, 64.0f });
 		num->SetUVSize({ 0.1f, 1.0f });
 		scoreNums_.push_back(num);
@@ -55,13 +55,6 @@ void ScoreUI::DrawScore(int32_t score)
 		scoreNums_[i]->SetUVPosition({ u, 0.0f });
 		scoreNums_[i]->SetPosition({ 220.0f + i * 36.0f, 310.0f });
 		scoreNums_[i]->Update();
-	}
-}
-
-void ScoreUI::Draw()
-{
-	for (auto& num : scoreNums_) {
-		num->Draw();
 	}
 }
 

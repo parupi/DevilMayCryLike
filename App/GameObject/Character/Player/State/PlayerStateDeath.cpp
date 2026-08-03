@@ -7,6 +7,7 @@
 #include <Scene/Transition/VignetteExpandTransition.h>
 #include <Math/Easing.h>
 #include <GameObject/Camera/DeathCamera.h>
+#include <Graphics/Rendering/Sprite/SpriteManager.h>
 
 PlayerStateDeath::PlayerStateDeath()
 {
@@ -45,6 +46,10 @@ void PlayerStateDeath::Enter(Player& player)
 
 	// タイマー初期化
 	currentTime_ = 0.0f;
+
+	// 死亡時のビネット暗転はポストエフェクトなのでUIには乗らない。
+	// HUDが明るいまま残ってしまうため、ここでまとめて隠す（シーン切り替えで自動的に戻る）
+	SpriteManager::GetInstance().SetUILayerVisible(false);
 }
 
 void PlayerStateDeath::Update(Player& player, float)

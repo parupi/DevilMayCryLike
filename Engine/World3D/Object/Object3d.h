@@ -73,12 +73,17 @@ public: // ゲッター // セッター //
 
 	BaseRenderer* GetRenderer(std::string name_);
 	BaseCollider* GetCollider(std::string name_);
+
+	// エディタ（Hierarchy / Inspector）が中身を一覧するために使う。読むだけ
+	const std::vector<BaseRenderer*>& GetRenderers() const { return renders_; }
+	const std::vector<BaseCollider*>& GetColliders() const { return colliders_; }
 	// カメラ
 	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 
 	DrawOption& GetOption() { return drawOption_; }
 
 	void SetIsDraw(bool flag) { isDraw = flag; }
+	bool GetIsDraw() const { return isDraw; }
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }

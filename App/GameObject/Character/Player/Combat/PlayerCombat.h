@@ -64,11 +64,18 @@ public:
 		static const std::string kEmpty;
 		return currentState_.empty() ? kEmpty : currentState_.back()->GetAttackName();
 	}
+
+#ifdef _DEBUG
+	// 攻撃グラフと攻撃データはこのクラスの内部表現そのものなので、UIの中身はここに置いたまま。
+	// ただしウィンドウの開閉と描画タイミングは App/Editor/Windows/AttackEditorWindow.cpp が握る
+	void DrawAttackDataEditorUI();
+	void DrawAttackDerivativeEditorUI();
+	AttackPlayer* GetAttackPlayer() { return attackPlayer_.get(); }
+#endif // _DEBUG
+
 private:
 	// Jsonの名前からステートを生成
 	void CreateState();
-	// 攻撃データエディタのUIを描画
-	void DrawAttackDataEditorUI();
 	// 攻撃を追加
 	void AddAttackState(const std::string& attackName);
 	// 攻撃データエディタのUIを描画
@@ -77,8 +84,6 @@ private:
 	AttackNode LoadAttackNode(const std::string& attackName);
 
 	void DrawAttackNodeEditor(const std::string& attackName, AttackNode& node);
-
-	void DrawAttackDerivativeEditorUI();
 
 private:
 	std::unordered_map<std::string, AttackNode> attackGraph_;

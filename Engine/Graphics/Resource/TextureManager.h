@@ -5,6 +5,7 @@
 #include "Graphics/Resource/SrvManager.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <wrl.h>
 #include <mutex>
 #include <memory>
@@ -32,6 +33,17 @@ public:
 
 	// メタデータを取得
 	const DirectX::TexMetadata& GetMetaData(const std::string& fileName);
+
+	// ── エディタ用 ──
+	// 読み込み済みテクスチャのファイル名一覧（昇順）
+	std::vector<std::string> GetLoadedTextureNames() const;
+	// 見つからなければ nullptr。
+	// GetMetaData() は operator[] で引くので、未登録の名前を渡すと空要素が生えてしまう。
+	// 一覧を舐めるような用途ではこちらを使うこと
+	const DirectX::TexMetadata* TryGetMetaData(const std::string& fileName) const;
+	size_t GetLoadedTextureCount() const { return textureData_.size(); }
+	// プレビュー用にSRVを作り直したいときに使う。未読み込みなら nullptr
+	ID3D12Resource* GetResource(const std::string& filePath);
 
 	// 白テクスチャを生成して取得
 	uint32_t CreateWhiteTexture();

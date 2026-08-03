@@ -3,6 +3,7 @@
 #include <GameObjectRegister.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#include "Graphics/Rendering/PostEffect/BloomEffect.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -13,6 +14,11 @@
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
+#include <Utility/TimeManager.h>
+#ifdef _DEBUG
+#include <Editor/Core/EditorHost.h>
+#include <Editor/AppEditor.h>   // App側。SceneFactory.h と同じくAppのincludeディレクトリから引かれる
+#endif // _DEBUG
 
 void MyGameTitle::Initialize() {
 	GuchisFramework::Initialize();
@@ -33,6 +39,14 @@ void MyGameTitle::Initialize() {
 
 	OffScreenManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
+	// ブルームは全シーン共通の画作りなので、ここで一度だけ登録して常時有効にする。
+	// チェーンの先頭に入れて、この後に追加される演出用エフェクトより先に適用させる
+	{
+		auto bloom = std::make_unique<BloomEffect>("Bloom");
+		bloom->SetActive(true);
+		OffScreenManager::GetInstance().AddEffect(std::move(bloom));
+	}
+
 	PrimitiveLineDrawer::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
 	SkySystem::GetInstance().Initialize(dxManager.get(), psoManager.get());
@@ -50,10 +64,17 @@ void MyGameTitle::Initialize() {
 	// 最初のシーンを生成
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	SceneManager::GetInstance().SetSceneFactory(sceneFactory_.get());
+	// シーン初期化中のアップロードをスコープで囲めるようにする（ピークメモリ対策）
+	SceneManager::GetInstance().SetDXManager(GetDXManager());
 	SceneManager::GetInstance().ChangeScene("TITLE");
 
 	// EngineContext に全サービスを登録（GuchisFramework::Initialize でコアサービスは登録済み）
+	ctx_.winManager = winManager.get();
 	ctx_.object3dManager = &Object3dManager::GetInstance();
+	ctx_.modelManager = &ModelManager::GetInstance();
+	ctx_.textureManager = &TextureManager::GetInstance();
+	ctx_.particleManager = &ParticleManager::GetInstance();
+	ctx_.rendererManager = &RendererManager::GetInstance();
 	ctx_.lightManager = &LightManager::GetInstance();
 	ctx_.cameraManager = &CameraManager::GetInstance();
 	ctx_.skySystem = &SkySystem::GetInstance();
@@ -63,8 +84,17 @@ void MyGameTitle::Initialize() {
 	ctx_.transitionManager = &TransitionManager::GetInstance();
 	ctx_.collisionManager = &CollisionManager::GetInstance();
 	ctx_.primitiveLineDrawer = &PrimitiveLineDrawer::GetInstance();
+	ctx_.audio = &Audio::GetInstance();
+	ctx_.input = &Input::GetInstance();
 #ifdef _DEBUG
 	ctx_.imGuiManager = &ImGuiManager::GetInstance();
+
+	// ここでエディタにエンジンのサービス一覧を渡す。
+	// 以降、エディタのウィンドウは Editor::Ctx() 経由でエンジン機能を呼べる
+	Editor::SetContext(ctx_);
+	// App固有のエディタを差し込む。App と Engine の両方を知っているのはここだけなので、
+	// 依存の向き（App/Editor → Engine/Editor → Engine）を壊さずに合流させられる
+	AppEditor::Register();
 #endif
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
@@ -111,7 +141,8 @@ void MyGameTitle::Update() {
 #endif // DEBUG
 	GuchisFramework::Update();
 	CameraManager::GetInstance().Update();
-	ParticleManager::GetInstance().Update();
+	// パーティクルはVFX時間で動かす（ヒットストップ中はゆっくりになる）
+	ParticleManager::GetInstance().Update(TimeManager::GetVFXDelta());
 	SceneTransitionController::GetInstance().Update();
 	Object3dManager::GetInstance().Update();
 	RendererManager::GetInstance().Update();

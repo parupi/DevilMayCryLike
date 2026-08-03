@@ -60,6 +60,39 @@ public:
 
 	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
 		ID3D12Resource* texture, const DirectX::ScratchImage& mipImages);
+	// ScratchImage を介さない版。DirectX::Image は画素バッファを指すだけの記述子なので、
+	// 呼び出し元が既に持っている画素をそのまま渡せばフルサイズのコピーが1回減る。
+	// 数十MBになるアトラステクスチャで効く。
+	// images が指す画素は、この関数から戻るまで生きていること。
+	Microsoft::WRL::ComPtr<ID3D12Resource> UploadTextureData(
+		ID3D12Resource* texture, const DirectX::Image* images, size_t imageCount,
+		const DirectX::TexMetadata& metadata);
+
+	/// <summary>
+	/// ロード処理を囲むスコープ。
+	///
+	/// アップロード用のステージングバッファは通常 EndDraw() まで解放されないため、
+	/// シーン初期化のように1フレームで大量のテクスチャを読むとその全部が同時に生存し、
+	/// ピークメモリが跳ね上がる。このスコープの中では、貯まったステージングが
+	/// 一定量を超えるたびに GPU の完了を待って解放するので、ピークが頭打ちになる。
+	///
+	/// 【重要】内部で使う FlushAndWait() はコマンドリストを Close/Reset するため、
+	/// 記録済みのステート（RTV・ディスクリプタヒープ・PSO など）が失われる。
+	/// **描画中（BeginDraw〜EndDraw の間）に生存させてはいけない。**
+	/// 現在は SceneManager::Update() が scene_->Initialize() を囲むのに使っており、
+	/// そこは Draw より前なので安全。
+	///
+	/// dxManager に nullptr を渡した場合は何もしない（従来どおりの挙動になる）。
+	/// </summary>
+	class UploadScope {
+	public:
+		explicit UploadScope(DirectXManager* dxManager);
+		~UploadScope();
+		UploadScope(const UploadScope&) = delete;
+		UploadScope& operator=(const UploadScope&) = delete;
+	private:
+		DirectXManager* dxManager_ = nullptr;
+	};
 
 	D3D12_RECT GetMainScissorRect() const { return scissorRect_; }
 	D3D12_VIEWPORT GetMainViewport() const { return viewport_; }
@@ -76,6 +109,15 @@ private:
 	void CreateRenderTargetView();
 	void SetViewPort();
 	void SetScissor();
+
+	// 積んだアップロードを確定し、GPU の完了を待ってステージングを解放する
+	void FlushUploads();
+
+	// UploadScope の入れ子の深さ。0 のときは容量によるフラッシュを行わない
+	// （＝ロード中以外は従来どおり EndDraw まで貯める）
+	uint32_t uploadScopeDepth_ = 0;
+	// まだ解放していないステージングバッファの合計バイト数
+	uint64_t pendingUploadBytes_ = 0;
 
 	WindowManager* winManager_ = nullptr;
 

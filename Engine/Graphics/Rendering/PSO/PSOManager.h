@@ -13,7 +13,8 @@ public:
 public:
 	// スプライト
 	ID3D12RootSignature* GetSpriteSignature() { return spriteSignature_.Get(); }
-	ID3D12PipelineState* GetSpritePSO(BlendMode blendMode);
+	// toBackBuffer = true でポストエフェクト後のバックバッファ向けPSOを返す
+	ID3D12PipelineState* GetSpritePSO(BlendMode blendMode, bool toBackBuffer = false);
 
 	ID3D12RootSignature* GetParticleSignature() { return particleSignature_.Get(); }
 	ID3D12PipelineState* GetParticlePSO(BlendMode blendMode);
@@ -62,7 +63,7 @@ public:
 
 private:
 	void CreateSpriteSignature();
-	void CreateSpritePSO(BlendMode blendMode);
+	void CreateSpritePSO(BlendMode blendMode, bool toBackBuffer);
 	void CreateParticleSignature();
 	void CreateParticlePSO(BlendMode blendMode);
 	void CreateObjectSignature();
@@ -94,9 +95,9 @@ private:
 	DirectXManager* dxManager_ = nullptr;
 
 private:
-	// スプライト
+	// スプライト（[0] = シーン用RT向け, [1] = バックバッファ向け）
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> spriteSignature_;
-	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> spriteGraphicsPipelineState_;
+	std::array<std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6>, 2> spriteGraphicsPipelineState_;
 	// パーティクル
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> particleSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> particleGraphicsPipelineState_;
@@ -108,7 +109,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> animationGraphicsPipelineState_;
 	// オフスクリーン
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> offScreenSignature_;
-	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> offScreenGraphicsPipelineState_;
+	// OffScreenEffectType の要素数分（増やしたら合わせて広げること）
+	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 12> offScreenGraphicsPipelineState_;
 	// プリミティブ
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> primitiveSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> primitiveGraphicsPipelineState_;

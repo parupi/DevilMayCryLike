@@ -12,10 +12,6 @@ public:
 	// 描画
 	void Draw() override;
 
-private:
-	// エフェクトの情報を入れるためのリソース生成
-	void CreateEffectResource();
-
 	struct alignas(16) GaussianEffectData {
 		float sigma;           // ガウス分布のσ
 		float blurStrength;    // ブラーの強さ倍率
@@ -24,6 +20,12 @@ private:
 		Vector2 uvClampMin;     // UV Clamp最小値（例：0.0f, 0.0f）
 		Vector2 uvClampMax;     // UV Clamp最大値（例：1.0f, 1.0f）
 	};
+	// 定数バッファへの直書きポインタ。エディタが編集する
+	GaussianEffectData* GetEffectData() { return effectData_; }
+
+private:
+	// エフェクトの情報を入れるためのリソース生成
+	void CreateEffectResource();
 
 	uint32_t effectHandle_ = 0;
 	GaussianEffectData* effectData_ = nullptr;

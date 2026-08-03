@@ -1,5 +1,6 @@
 #include "GuchisFramework.h"
 #include "Utility/DeltaTime.h"
+#include "Utility/TimeManager.h"
 #include "Scene/SceneManager.h"
 
 void GuchisFramework::Initialize() {
@@ -37,6 +38,9 @@ void GuchisFramework::Finalize() {
 void GuchisFramework::Update() {
 	Input::GetInstance().Update();
 	DeltaTime::Update();
+	// 実時間を取り込み、タイムスケール要求を受け付ける状態に戻す。
+	// シーン更新（＝ヒットストップの要求元）より必ず前に呼ぶこと。
+	TimeManager::Update();
 	SceneManager::GetInstance().Update();
 }
 

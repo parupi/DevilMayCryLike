@@ -2,6 +2,7 @@
 #include <World3D/Object/Object3dManager.h>
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include <Utility/DeltaTime.h>
+#include <algorithm>
 
 CameraManager& CameraManager::GetInstance()
 {
@@ -176,7 +177,12 @@ void CameraManager::TransitionUpdate()
 
 	// 補間
 	Vector3 interpPos = Lerp(startPos_, endPos_, t);
-	Vector3 interpRot = Lerp(startRot_, endRot_, t);
+	// 回転はEuler角なので、各成分を最短経路で補間する。
+	// 単純なLerpだと yaw が ±π をまたぐとき（例: 3.0→-3.0）に反対回りしてしまう。
+	Vector3 interpRot;
+	interpRot.x = LerpAngle(startRot_.x, endRot_.x, t);
+	interpRot.y = LerpAngle(startRot_.y, endRot_.y, t);
+	interpRot.z = LerpAngle(startRot_.z, endRot_.z, t);
 
 	// 一時的なカメラに適用
 	transitionCamera_->GetTranslate() = interpPos;
@@ -209,4 +215,14 @@ void CameraManager::CreateCameraResource()
 	cameraData_ = reinterpret_cast<CameraForGPU*>(ptr);
 	// 初期値を入れる
 	cameraData_->worldPosition = { 1.0f, 1.0f, 1.0f };
+}
+
+std::vector<std::string> CameraManager::GetCameraNames() const {
+	std::vector<std::string> names;
+	names.reserve(cameras_.size());
+	for (const auto& [name, unused] : cameras_) {
+		names.push_back(name);
+	}
+	std::sort(names.begin(), names.end());
+	return names;
 }

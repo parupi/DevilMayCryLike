@@ -2,7 +2,7 @@
     "AttackComboA1": {
         "AttackDuration": 0.15000000596046448,
         "AttackPosture": 0,
-        "ButtonIndex": 2,
+        "ButtonIndex": 1,
         "ControlPoint_0": [
             -0.75,
             1.0,
@@ -67,6 +67,7 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.11999999731779099,
+        "HitStopStrength": 0,
         "HitStopTime": 0.009999999776482582,
         "ImpulseForce": 10.0,
         "IsAir": false,

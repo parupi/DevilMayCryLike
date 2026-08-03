@@ -2,7 +2,7 @@
     "AttackHighTime": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
-        "ButtonIndex": 2,
+        "ButtonIndex": 1,
         "ControlPoint_0": [
             0.0,
             -1.159999966621399,
@@ -87,6 +87,7 @@
         "DirIndex": 2,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.17499999701976776,
+        "HitStopStrength": 2,
         "HitStopTime": 0.17499999701976776,
         "ImpulseForce": 2.0,
         "IsAir": false,

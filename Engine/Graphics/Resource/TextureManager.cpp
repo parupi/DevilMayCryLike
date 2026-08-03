@@ -192,6 +192,7 @@ uint32_t TextureManager::CreateWhiteTexture() {
 		1  // mipLevels
 	);
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 
 	// ✅ ピクセルデータを書き込み
 	uint8_t* pixels = image.GetPixels();
@@ -283,6 +284,7 @@ uint32_t TextureManager::CreateDissolveNoiseTexture() {
 	DirectX::ScratchImage image{};
 	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8_UNORM, W, H, 1, 1);
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 
 	const DirectX::Image* img = image.GetImage(0, 0, 0);
 	uint8_t* pixels = img->pixels;
@@ -348,6 +350,7 @@ uint32_t TextureManager::CreateRandomDissolveNoiseTexture() {
 	DirectX::ScratchImage image{};
 	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8_UNORM, W, H, 1, 1);
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 
 	const DirectX::Image* img = image.GetImage(0, 0, 0);
 	uint8_t* pixels = img->pixels;
@@ -401,21 +404,34 @@ void TextureManager::LoadTextureFromMemory(const std::string& fileName, const ui
 	ASSERT_MSG(srvManager_->CanAllocate(),
 		"[TextureManager] SRV スロットが満杯です。テクスチャをこれ以上登録できません。");
 
-	DirectX::ScratchImage image{};
-	HRESULT hr = image.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, width, height, 1, 1);
-	ASSERT_MSG(SUCCEEDED(hr),
-		"[TextureManager] ScratchImage の初期化に失敗しました (LoadTextureFromMemory)。");
+	// ScratchImage を確保して全画素をコピーすると、ピークメモリがまるごと倍になる。
+	// GIF のアトラスは1枚で数十MBあるのでこれが効く。
+	// DirectX::Image は画素バッファを指すだけの記述子なので、
+	// 引数の pixels をそのまま参照させてコピーを省く。
+	DirectX::TexMetadata metadata{};
+	metadata.width = width;
+	metadata.height = height;
+	metadata.depth = 1;
+	metadata.arraySize = 1;
+	metadata.mipLevels = 1;
+	metadata.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	metadata.dimension = DirectX::TEX_DIMENSION_TEXTURE2D;
 
-	const DirectX::Image* img = image.GetImage(0, 0, 0);
-	for (uint32_t y = 0; y < height; ++y) {
-		std::memcpy(img->pixels + y * img->rowPitch, pixels + y * width * 4, width * 4);
-	}
+	DirectX::Image image{};
+	image.width = width;
+	image.height = height;
+	image.format = metadata.format;
+	image.rowPitch = static_cast<size_t>(width) * 4;
+	image.slicePitch = image.rowPitch * height;
+	// PrepareUpload / UpdateSubresources は読み取りしかしないが、
+	// DirectX::Image::pixels が非 const のため const_cast する
+	image.pixels = const_cast<uint8_t*>(pixels);
 
 	TextureData texData{};
 	texData.srvIndex = srvManager_->Allocate();
-	texData.metadata = image.GetMetadata();
-	texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(image.GetMetadata());
-	dxManager_->UploadTextureData(texData.resource.Get(), image);
+	texData.metadata = metadata;
+	texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
+	dxManager_->UploadTextureData(texData.resource.Get(), &image, 1, metadata);
 
 	texData.srvHandleCPU = srvManager_->GetCPUDescriptorHandle(texData.srvIndex);
 	texData.srvHandleGPU = srvManager_->GetGPUDescriptorHandle(texData.srvIndex);
@@ -436,4 +452,41 @@ void TextureManager::LoadTextureFromMemory(const std::string& fileName, const ui
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDissolveNoiseSrvHandleGPU() {
 	assert(textureData_.contains("__DISSOLVE_NOISE__"));
 	return textureData_["__DISSOLVE_NOISE__"].srvHandleGPU;
+}
+
+std::vector<std::string> TextureManager::GetLoadedTextureNames() const {
+	// キーは "Resource/Images/xxx.png" 形式。他のAPIはファイル名だけを受け取って
+	// 自分で接頭辞を足すので、ここでも剥がして返す（"__DISSOLVE_NOISE__" のような
+	// 内部生成テクスチャは接頭辞が無いのでそのまま）
+	constexpr std::string_view kPrefix = "Resource/Images/";
+
+	std::vector<std::string> names;
+	names.reserve(textureData_.size());
+	for (const auto& [key, unused] : textureData_) {
+		names.push_back(key.starts_with(kPrefix) ? key.substr(kPrefix.size()) : key);
+	}
+	std::sort(names.begin(), names.end());
+	return names;
+}
+
+ID3D12Resource* TextureManager::GetResource(const std::string& fileName) {
+	if (auto it = textureData_.find("Resource/Images/" + fileName); it != textureData_.end()) {
+		return it->second.resource.Get();
+	}
+	// 内部生成テクスチャ用に、キーそのままでも引けるようにしておく
+	if (auto it = textureData_.find(fileName); it != textureData_.end()) {
+		return it->second.resource.Get();
+	}
+	return nullptr;
+}
+
+const DirectX::TexMetadata* TextureManager::TryGetMetaData(const std::string& fileName) const {
+	if (auto it = textureData_.find("Resource/Images/" + fileName); it != textureData_.end()) {
+		return &it->second.metadata;
+	}
+	// 内部生成テクスチャ（"__DISSOLVE_NOISE__" など）は接頭辞を持たない
+	if (auto it = textureData_.find(fileName); it != textureData_.end()) {
+		return &it->second.metadata;
+	}
+	return nullptr;
 }

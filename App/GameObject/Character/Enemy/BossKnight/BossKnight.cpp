@@ -10,6 +10,8 @@
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "GameObject/Character/Enemy/State/EnemyStateKnockBack.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#ifdef _DEBUG
+#endif
 
 #include "State/BossStateCombatIdle.h"
 #include "State/BossStateApproach.h"
@@ -70,14 +72,8 @@ void BossKnight::Initialize() {
 	states_[BossStateName::HeavySword] = std::make_unique<BossStateHeavySword>(meleeAttack_.get());
 	states_[BossStateName::Rush] = std::make_unique<BossStateRush>(meleeAttack_.get());
 
-	// ── パーティクル: ヒットエフェクト ──
-	ParticleManager::GetInstance().CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-	auto& emitters = ParticleManager::GetInstance().GetEmitters();
-	hitEmitter_ = emitters.at(name_ + "HitEffect").get();
-	hitEmitter_->SetParent(GetWorldTransform());
-	hitEmitter_->AddParticle("EnemyDamageEffect");
-	hitEmitter_->AddParticle("PlayerSlashEffect");
-	hitEmitter_->SetActiveFlag(false);
+	// 被弾時のヒットエフェクトは HitEffectSystem の "HitImpact" に一本化したのでここでは持たない。
+	// （足元から出る旧エフェクトと違い、武器が実際に当たった位置へ火花とリングが出る）
 
 	// ── パーティクル: チャージエフェクト（予備動作中に収束するリング）──
 	ParticleManager::GetInstance().CreateEmitter(name_ + "ChargeEffect");
@@ -166,15 +162,6 @@ void BossKnight::Update(float deltaTime) {
 	Enemy::Update(deltaTime);
 }
 
-#ifdef _DEBUG
-void BossKnight::DebugGui() {
-	ImGui::Begin(name_.c_str());
-	ImGui::Text("HP: %.1f / %.1f", hp_, kMaxHp);
-	ImGui::Text("Phase: %d", (hp_ > kMaxHp * 0.66f) ? 1 : (hp_ > kMaxHp * 0.33f) ? 2 : 3);
-	Object3d::DebugGui();
-	ImGui::End();
-}
-#endif
 
 bool BossKnight::IsKnockbackImmune() const {
 	// 吹き飛び(BossKnockBack)中、および着地後の突進攻撃(Rush)が終わるまで
@@ -262,6 +249,10 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 
 	// 攻撃がヒットしたのでライトを強く光らせる
 	FlashLight();
+	// アーマーで弾いた場合は紫の発光（UpdateArmorVisual）で見せるので白フラッシュは出さない
+	if (!IsKnockbackImmune()) {
+		PlayHitFlash();
+	}
 
 	// ── スーパーアーマー ───────────────────────────────────────────────
 	// 吹き飛び中(BossKnockBack)とダッシュ攻撃中(Rush)は、ダメージは通すが
@@ -271,7 +262,7 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	if (IsKnockbackImmune()) {
 		// 「弾かれた」感を出す: 通常より短いヒットストップ + 紫の硬い火花 + 体の紫フラッシュ
 		// （通常のヒットエフェクトはあえて出さず、攻撃が通っていないことを伝える）
-		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity);
+		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
 		armorHitEmitter_->Emit();
 		armorHitFlashTimer_ = kArmorHitFlashDuration;
 
@@ -282,8 +273,7 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 
 	// ── 通常の被弾（CombatIdle・通常攻撃中・のけぞり中）────────────────
 	// 通常時のヒットストップとヒットエフェクト
-	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f);
-	hitEmitter_->Emit();
+	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 
 	hp_ -= damage;
 	hitAccumulation_ += damage;

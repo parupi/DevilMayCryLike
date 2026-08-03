@@ -9,6 +9,7 @@
 #include "GameObject/UI/GameUI/GameUI.h"
 #include "Scene/GameScene/State/GameSceneStateBase.h"
 #include "GameObject/UI/Menu/MenuUI.h"
+#include "GameObject/UI/StyleHUD/StyleHUD.h"
 #include <memory>
 #include "Input/InputContext.h"
 #include "Tutorial/System/TutorialSystem.h"
@@ -96,6 +97,8 @@ private:
 
 	// メニューのスプライト
 	std::unique_ptr<MenuUI> menuUI_ = nullptr;
+	// スタイリッシュランクのゲーム中HUD
+	std::unique_ptr<StyleHUD> styleHud_ = nullptr;
 	// シーン全体のデルタタイム
 	float sceneDeltaTime_ = 0.0f;
 

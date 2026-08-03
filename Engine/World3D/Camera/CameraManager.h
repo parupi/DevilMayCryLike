@@ -45,6 +45,11 @@ public:
 
 	// 名前からカメラを探す
 	BaseCamera* FindCamera(const std::string& name) { return cameras_[name].get(); }
+
+	// ── エディタ用 ──
+	// 登録済みカメラ名の一覧（昇順）
+	std::vector<std::string> GetCameraNames() const;
+	const std::string& GetActiveCameraName() const { return activeCameraName_; }
 private:
 	// 補間の更新
 	void TransitionUpdate();

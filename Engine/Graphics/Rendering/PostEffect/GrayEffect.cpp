@@ -2,7 +2,6 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "OffScreenManager.h"
 #include <algorithm>
-#include <imgui/imgui.h>
 
 GrayEffect::GrayEffect() : BaseOffScreen()
 {
@@ -25,12 +24,6 @@ GrayEffect::~GrayEffect()
 
 void GrayEffect::Update()
 {
-#ifdef _DEBUG
-	ImGui::Begin("GrayEffect");
-	ImGui::Checkbox("isActive", &isActive_);
-	ImGui::DragFloat("intensity", &effectData_->intensity, 0.01f);
-	ImGui::End();
-#endif // _DEBUG
 }
 
 void GrayEffect::Draw()

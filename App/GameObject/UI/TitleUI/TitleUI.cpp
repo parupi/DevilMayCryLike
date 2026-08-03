@@ -35,7 +35,7 @@ void TitleUI::Initialize()
 	Object3dManager::GetInstance().AddObject(std::move(object));
 
 	for (int32_t i = 0; i < 2; i++) {
-		selectArrows_[i] = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "selectArrow" + std::to_string(i), "SelectArrow.png");
+		selectArrows_[i] = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "selectArrow" + std::to_string(i), "SelectArrow.png");
 		selectArrows_[i]->SetAnchorPoint({ 0.5f, 0.5f });
 
 		if (i == 0) {
@@ -46,11 +46,11 @@ void TitleUI::Initialize()
 		}
 	}
 
-	gameStart_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "titleUI", "TitleUI.png");
+	gameStart_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "titleUI", "TitleUI.png");
 	gameStart_->SetPosition({ 640.0f, 520.0f });
 	gameStart_->SetAnchorPoint({ 0.5f, 0.5f });
 
-	selectMask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "selectMask", "circle.png");
+	selectMask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "selectMask", "circle.png");
 	selectMask_->SetPosition({ 640.0f, 520.0f });
 	selectMask_->SetSize({ 500.0f, 100.0f });
 	selectMask_->SetAnchorPoint({ 0.5f, 0.5f });
@@ -89,19 +89,6 @@ void TitleUI::Update()
 	selectMask_->Update();
 
 	ExitUpdate();
-}
-
-void TitleUI::Draw()
-{
-	SpriteManager::GetInstance().DrawSet();
-	gameStart_->Draw();
-
-	for (auto& arrow : selectArrows_) {
-		arrow->Draw();
-	}
-
-	SpriteManager::GetInstance().DrawSet(BlendMode::kAdd);
-	selectMask_->Draw();
 }
 
 void TitleUI::Exit()

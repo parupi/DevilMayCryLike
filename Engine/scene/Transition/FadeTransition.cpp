@@ -40,6 +40,6 @@ void FadeTransition::Update()
 
 void FadeTransition::Draw()
 {
-	SpriteManager::GetInstance().DrawSet();
-	sprite_->Draw();
+	// スプライトは Persistent レイヤーに登録済みで SpriteManager::DrawUILayers() が
+	// 自動描画するため、ここでは何もしない（描くと二重にブレンドされてしまう）。
 }

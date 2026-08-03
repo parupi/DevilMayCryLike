@@ -40,7 +40,6 @@ public:
         effectData_.colorB = b;
     }
 
-    void SetActive(bool flag) { isActive_ = flag; }
 
 private:
     void CreateEffectResource();

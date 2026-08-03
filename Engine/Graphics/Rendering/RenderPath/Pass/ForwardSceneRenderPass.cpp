@@ -9,6 +9,9 @@
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Scene/Transition/TransitionManager.h"
 #include "World3D/Primitive/PrimitiveLineDrawer.h"
+#ifdef _DEBUG
+#include "Editor/Core/EditorDebugDraw.h"
+#endif
 
 void ForwardSceneRenderPass::Initialize(const EngineContext& ctx, const SharedRenderTarget& sharedRT) {
 	ctx_ = ctx;
@@ -29,11 +32,12 @@ void ForwardSceneRenderPass::Execute() {
 	ctx_.skySystem->Draw();
 	ctx_.object3dManager->DrawForward();
 	ctx_.sceneManager->Draw();
-	ctx_.spriteManager->DrawAllSprite();
-	ctx_.transitionManager->Draw();
+	ctx_.spriteManager->DrawSceneLayers();
+	// UIレイヤーとトランジションはポストエフェクトの後（RenderPipeline::Execute）で描く
 	ctx_.collisionManager->Draw();
 #ifdef _DEBUG
 	ctx_.lightManager->DrawDebug();
+	EditorDebugDraw::DrawGrid();
 #endif
 	ctx_.primitiveLineDrawer->EndDraw();
 

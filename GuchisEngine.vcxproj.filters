@@ -4,6 +4,12 @@
     <Filter Include="App">
       <UniqueIdentifier>{46D6870B-B2DF-877C-3B5B-9E7CA763937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Editor">
+      <UniqueIdentifier>{BC88CD59-A840-0FA7-1148-E802FD1EAA97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Editor\Windows">
+      <UniqueIdentifier>{F62E4604-E212-075A-4B73-01AD3776F1DB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameData">
       <UniqueIdentifier>{E90015FD-D563-A4A1-7EE9-DC576A2B7024}</UniqueIdentifier>
     </Filter>
@@ -103,6 +109,9 @@
     <Filter Include="App\GameObject\UI\StageStart">
       <UniqueIdentifier>{A4ED4E8D-90A8-3E39-3960-B78325FA88C9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\StyleHUD">
+      <UniqueIdentifier>{B43DBF86-A04D-6B57-0907-D075F5355AF0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\TitleUI">
       <UniqueIdentifier>{62540C37-CE16-40C1-17C7-CE4D83C8189F}</UniqueIdentifier>
     </Filter>
@@ -150,6 +159,15 @@
     </Filter>
     <Filter Include="Engine\Debugger">
       <UniqueIdentifier>{8F10366A-FB9B-A32E-04AD-262370B7FF2E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor">
+      <UniqueIdentifier>{B1407138-1D01-ED6E-E63B-36EC52BB314B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor\Core">
+      <UniqueIdentifier>{A97B9311-955F-5467-FEBF-4EBAEAC23EE9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor\Windows">
+      <UniqueIdentifier>{EB0BC945-5778-8440-206C-1C9E8C97A6A8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Graphics">
       <UniqueIdentifier>{7B960115-E721-6FD9-F032-F2CD5C3DCBD9}</UniqueIdentifier>
@@ -258,6 +276,12 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\Editor\AppEditor.h">
+      <Filter>App\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Editor\Windows\AppEditorWindows.h">
+      <Filter>App\Editor\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameData\CollisionCategory.h">
       <Filter>App\GameData</Filter>
     </ClInclude>
@@ -417,6 +441,15 @@
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitEffectSystem.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitFlashComponent.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitPostEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -488,6 +521,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h">
       <Filter>App\GameObject\UI\StageStart</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h">
+      <Filter>App\GameObject\UI\StyleHUD</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
@@ -579,6 +615,72 @@
     <ClInclude Include="Engine\Debugger\LeakChecker.h">
       <Filter>Engine\Debugger</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorAssetUtil.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorContext.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorDebugDraw.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorGameView.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorHost.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorLayout.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorMenuBar.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorSelection.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorStats.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\AudioWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\CameraWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\DebugLogWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\HierarchyWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\InspectorWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\LightWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\ParticleEditor.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\ParticleEditorWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\ProfilerWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\RenderWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\TimeWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Device\CommandContext.h">
       <Filter>Engine\Graphics\Device</Filter>
     </ClInclude>
@@ -648,6 +750,12 @@
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h">
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\Curve.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\Gradient.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\InstanceData.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
@@ -657,7 +765,7 @@
     <ClInclude Include="Engine\Graphics\Rendering\Particle\Particle.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleEditor.h">
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleCurves.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleEmitter.h">
@@ -669,6 +777,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleManager.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleMath.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleRenderSystem.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
@@ -678,13 +789,25 @@
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleUpdateSystem.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\VFXFile.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BaseOffScreen.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.h">
@@ -694,6 +817,9 @@
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h">
@@ -838,6 +964,9 @@
       <Filter>Engine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Utility\StringUtility.h">
+      <Filter>Engine\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Utility\TimeManager.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Camera\BaseCamera.h">
@@ -1007,6 +1136,27 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\Editor\AppEditor.cpp">
+      <Filter>App\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\StylishWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameData\GameData.cpp">
       <Filter>App\GameData</Filter>
     </ClCompile>
@@ -1145,6 +1295,15 @@
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitEffectSystem.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitFlashComponent.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitPostEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
@@ -1216,6 +1375,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp">
       <Filter>App\GameObject\UI\StageStart</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp">
+      <Filter>App\GameObject\UI\StyleHUD</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
@@ -1301,6 +1463,72 @@
     <ClCompile Include="Engine\Debugger\LeakChecker.cpp">
       <Filter>Engine\Debugger</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorAssetUtil.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorContext.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorDebugDraw.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorGameView.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorHost.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorLayout.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorMenuBar.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorSelection.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorStats.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\AudioWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\CameraWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\DebugLogWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\HierarchyWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\InspectorWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\LightWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\ParticleEditor.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\ParticleEditorWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\ProfilerWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\RenderWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\TimeWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp">
       <Filter>Engine\Graphics\Device</Filter>
     </ClCompile>
@@ -1367,16 +1595,25 @@
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp">
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\Curve.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\Gradient.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEditor.cpp">
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleCurves.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEmitter.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleManager.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleMath.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleRenderSystem.cpp">
@@ -1388,10 +1625,22 @@
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleUpdateSystem.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\VFXFile.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.cpp">
@@ -1401,6 +1650,9 @@
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp">
@@ -1524,6 +1776,9 @@
       <Filter>Engine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Utility\StringUtility.cpp">
+      <Filter>Engine\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Utility\TimeManager.cpp">
       <Filter>Engine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Camera\BaseCamera.cpp">

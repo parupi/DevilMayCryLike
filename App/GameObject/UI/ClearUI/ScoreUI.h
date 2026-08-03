@@ -14,7 +14,7 @@ public:
 	// 描画用に数字を整える
 	void DrawScore(int32_t score);
 
-	void Draw();
+	// 描画は SpriteManager が UI レイヤーとして自動で行う
 
 	void Start();
 

@@ -52,10 +52,3 @@ void Prop::Update(float deltaTime) {
 	}
 }
 
-#ifdef _DEBUG
-void Prop::DebugGui() {
-	ImGui::Begin("Prop");
-	Object3d::DebugGui();
-	ImGui::End();
-}
-#endif // _DEBUG

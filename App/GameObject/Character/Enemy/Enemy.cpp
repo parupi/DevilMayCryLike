@@ -5,6 +5,9 @@
 #include <World3D/Object/Renderer/ModelRenderer.h>
 #include "GameObject/Character/Player/Player.h"
 #include <Scene/Transition/TransitionManager.h>
+#include "Utility/TimeManager.h"
+#ifdef _DEBUG
+#endif
 
 
 Enemy::Enemy(std::string objectName) : Object3d(objectName) {
@@ -27,6 +30,14 @@ void Enemy::Initialize() {
 		appearanceFx_->Initialize(this);
 		if (auto* renderer = GetRenderer(name_)) {
 			appearanceFx_->AddRenderer(renderer);
+		}
+	}
+
+	// 被弾時に体を白く光らせるコンポーネント（本体のレンダラーを対象に登録する）
+	if (!hitFlash_) {
+		hitFlash_ = std::make_unique<HitFlashComponent>();
+		if (auto* renderer = GetRenderer(name_)) {
+			hitFlash_->AddRenderer(renderer);
 		}
 	}
 
@@ -105,6 +116,15 @@ void Enemy::Update(float deltaTime) {
 
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
+	// パーティクルなど自分でヒットストップを持たない系統にも時間停止を伝える
+	TimeManager::RequestGameTimeScale(hitStop_->GetTimeScale());
+
+	// 被弾フラッシュ。派生クラスの見た目更新（ボスのアーマー発光など）より後に走らせる必要があるため、
+	// 派生の Update から Enemy::Update が呼ばれるこの位置で更新する。
+	// dt（ヒットストップ適用後）で進めるので、時間が止まっている間は白いまま保持される。
+	if (hitFlash_) {
+		hitFlash_->Update(dt);
+	}
 
 	if (currentState_) {
 		currentState_->Update(*this, dt);
@@ -221,14 +241,6 @@ void Enemy::SnapToGround() {
 	Object3d::Update(0.0f);
 }
 
-#ifdef _DEBUG
-
-void Enemy::DebugGui() {
-	ImGui::Begin("Enemy");
-	Object3d::DebugGui();
-	ImGui::End();
-}
-#endif // _DEBUG
 
 
 void Enemy::OnCollisionEnter(BaseCollider* other) {
@@ -271,6 +283,16 @@ void Enemy::ChangeState(const std::string& stateName) {
 }
 
 void Enemy::OnDeath() {
+	// 撃破スコアは一度だけ加算する（OnDeathは死亡演出中に複数回呼ばれ得る）
+	if (!killScored_) {
+		killScored_ = true;
+		if (player_) {
+			if (auto* score = player_->GetScoreManager()) {
+				score->OnEnemyKilled(GetStyleMultiplier());
+			}
+		}
+	}
+
 	// 死亡演出（黒い粒子を撒き散らし + ディゾルブアウト）を開始する。
 	// 演出終了後に Enemy::Update 側で isAlive_ が false になる。
 	if (appearanceFx_) {

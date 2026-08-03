@@ -9,6 +9,8 @@
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "GameObject/Character/Enemy/State/EnemyStateKnockBack.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#ifdef _DEBUG
+#endif
 
 #include "State/GruntStatePatrol.h"
 #include "State/GruntStateCombatIdle.h"
@@ -68,14 +70,8 @@ void GruntMelee::Initialize() {
 
 	currentState_ = states_[GruntMeleeStateName::Patrol].get();
 
-	// パーティクル: ヒットエフェクト
-	ParticleManager::GetInstance().CreateEmitter(name_ + "HitEffect", "EnemyDamageEmitter");
-	auto& emitters = ParticleManager::GetInstance().GetEmitters();
-	emitter_ = emitters.at(name_ + "HitEffect").get();
-	emitter_->SetParent(GetWorldTransform());
-	emitter_->AddParticle("EnemyDamageEffect");
-	emitter_->AddParticle("PlayerSlashEffect");
-	emitter_->SetActiveFlag(false);
+	// 被弾時のヒットエフェクトは HitEffectSystem の "HitImpact" に一本化したのでここでは持たない。
+	// （足元から出る旧エフェクトと違い、武器が実際に当たった位置へ火花とリングが出る）
 
 	// パーティクル: チャージエフェクト（予備動作中に収束するリング）
 	ParticleManager::GetInstance().CreateEmitter(name_ + "ChargeEffect");
@@ -139,13 +135,6 @@ void GruntMelee::Update(float deltaTime) {
 	Enemy::Update(deltaTime);
 }
 
-#ifdef _DEBUG
-void GruntMelee::DebugGui() {
-	ImGui::Begin(name_.c_str());
-	Object3d::DebugGui();
-	ImGui::End();
-}
-#endif
 
 void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	Enemy::OnCollisionEnter(other);
@@ -155,12 +144,13 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	// 出現・死亡演出中は被弾処理をしない
 	if (IsAppearanceEffectPlaying()) return;
 
-	// 攻撃がヒットしたのでライトを強く光らせる
+	// 攻撃がヒットしたのでライトを強く光らせ、体も一瞬白く光らせる
 	FlashLight();
+	PlayHitFlash();
 
 	if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
-		hitStop_->Start(player_->GetAttackData().hitStopTime, player_->GetAttackData().hitStopIntensity * 3.0f);
-		emitter_->Emit();
+		const AttackData knockBackAtk = player_->GetAttackData(); // 値返しなのでローカルにコピー
+		hitStop_->Start(knockBackAtk.hitStopTime, knockBackAtk.hitStopIntensity * 3.0f, knockBackAtk.hitStopStrength);
 		return;
 	}
 
@@ -187,7 +177,6 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 			deathVelocity.y += atk.impulseForce * atk.upwardRatio;
 			SetVelocity(deathVelocity);
 			SetOnGround(false);
-			emitter_->Emit();
 			return;
 		} else {
 			// まだ死亡できない（チュートリアル中など）ので生存を維持する
@@ -198,8 +187,7 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	SetPendingDamageInfo(info);
 	ChangeState(EnemyStateName::KnockBack);
 
-	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f);
-	emitter_->Emit();
+	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 }
 
 void GruntMelee::OnDeathEffectFinished() {

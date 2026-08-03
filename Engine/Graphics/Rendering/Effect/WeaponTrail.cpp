@@ -148,6 +148,7 @@ void WeaponTrail::CreateTrailTexture() {
 	DirectX::ScratchImage img;
 	HRESULT hr = img.Initialize2D(DXGI_FORMAT_R8G8B8A8_UNORM, W, H, 1, 1);
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 
 	uint8_t* pix = img.GetPixels();
 	for (UINT y = 0; y < H; y++) {

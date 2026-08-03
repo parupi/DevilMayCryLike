@@ -107,5 +107,8 @@ private:
 
 public:
 	auto GetSoundData() { return soundDataMap; }
+	// エディタ用。GetSoundData() は波形バッファごとコピーするので、
+	// 毎フレーム一覧を舐めるようなところではこちらを使うこと
+	const auto& GetSoundDataMap() const { return soundDataMap; }
 };
 
