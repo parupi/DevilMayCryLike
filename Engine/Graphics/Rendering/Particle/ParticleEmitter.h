@@ -29,10 +29,23 @@ public:
 
 	// 初期化
 	void Initialize(ParticleManager* particleManager, const std::string& name, const std::string& dataName = "");
-	// 更新
-	void Update();
+	/// <summary>更新</summary>
+	/// <param name="deltaTime">VFX用のデルタタイム（ParticleManager から渡される）</param>
+	void Update(float deltaTime);
 	// 発生
 	void Emit();
+
+	/// <summary>
+	/// 位置を指定して1回だけ発生させる（攻撃ヒット等のワンショット用）。
+	/// isActive / frequency とは無関係に必ず発生する。
+	/// </summary>
+	/// <param name="countScale">発生数の倍率。攻撃の強さで演出量を変えるのに使う</param>
+	void PlayOneShot(const Vector3& position, float countScale = 1.0f);
+	/// <summary>
+	/// 方向も指定して1回だけ発生させる。
+	/// 方向が効くのはパーティクルグループ側で UseDirectional を有効にした場合のみ。
+	/// </summary>
+	void PlayOneShot(const Vector3& position, const Vector3& direction, float countScale = 1.0f);
 	// パーティクルを追加
 	void AddParticle(const std::string& name);
 	// 発生対象から削除
@@ -44,6 +57,9 @@ public:
 	// 保存したエミッターのファイルを読み込む
 	void Load(const std::string& path);
 private:
+	// Emit / PlayOneShot の共通実装
+	void EmitAt(const Vector3& position, const Vector3* direction, float countScale);
+
 	ParticleManager* particleManager_;
 	bool emitAll_ = false;
 	Emitter emitter{};

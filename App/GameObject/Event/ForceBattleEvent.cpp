@@ -81,6 +81,13 @@ void ForceBattleEvent::Execute() {
 		areaWall_.Initialize(bounds);
 		areaWall_.Start();
 	}
+
+	// スタイルスコアの計測を開始する（この戦闘のスコアをゼロから計測）
+	if (player_) {
+		if (auto* score = player_->GetScoreManager()) {
+			score->BeginBattle();
+		}
+	}
 }
 
 bool ForceBattleEvent::TryGetAreaBounds(MovementBounds& outBounds) {
@@ -112,6 +119,14 @@ void ForceBattleEvent::EndBattle() {
 	isBattleActive_ = false;
 	isFinished_ = true;
 	areaWall_.Stop();
+
+	// この戦闘のスコア（ピーク値）を確定し、最終スコアの平均へ反映する
+	if (player_) {
+		if (auto* score = player_->GetScoreManager()) {
+			score->EndBattle();
+		}
+	}
+
 	if (player_) {
 		player_->ClearMovementBounds();
 	}

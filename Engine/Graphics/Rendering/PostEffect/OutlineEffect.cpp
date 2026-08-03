@@ -1,6 +1,5 @@
 ﻿#include "OutlineEffect.h"
 #include "OffScreenManager.h"
-#include <imgui.h>
 
 OutlineEffect::OutlineEffect()
 {
@@ -22,12 +21,6 @@ OutlineEffect::~OutlineEffect()
 
 void OutlineEffect::Update()
 {
-#ifdef _DEBUG
-	ImGui::Begin("OutlineEffect");
-	ImGui::Checkbox("isActive", &isActive_);
-
-	ImGui::End();
-#endif // _DEBUG
 }
 
 void OutlineEffect::Draw()

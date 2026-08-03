@@ -36,9 +36,13 @@ public:
 	// シャドウマップサイズを取得
 	uint32_t GetShadowMapSize() const { return shadowMapSize_; }
 
-#ifdef _DEBUG
-	void DrawDebugUI();
-#endif
+	// ── エディタ用（UIは Engine/Editor/Windows/RenderWindow.cpp にある）──
+	float& GetShadowDistance() { return shadowDistance_; }
+	float& GetShadowFar() { return shadowFar_; }
+	float& GetSplitLambda() { return splitLambda_; }
+	// Update() が LightManager から取り込んだライト。先頭が影を落とす平行光
+	const std::vector<LightData>& GetLights() const { return lights_; }
+	const BaseCamera* GetCamera() const { return camera_; }
 
 private:
 	void CalculateCascadeSplits();

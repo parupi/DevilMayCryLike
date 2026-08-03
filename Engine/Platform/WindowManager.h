@@ -4,9 +4,17 @@
 class WindowManager
 {
 public:
-	// クライアント領域のサイズ
-	static const uint32_t kClientWidth = 1280;
-	static const uint32_t kClientHeight = 720;
+	// クライアント領域（＝OSウィンドウ／バックバッファ）のサイズ
+	static const uint32_t kClientWidth = 1920;
+	static const uint32_t kClientHeight = 1080;
+
+	// ゲーム画面の描画解像度。UIスプライトの座標系もこれ。
+	// ウィンドウサイズとは独立させてある：
+	//   Debug   … この解像度のまま ImGui の Game ウィンドウへ等倍で表示する
+	//   Release … 最終合成でバックバッファ(kClientWidth x kClientHeight)へ引き伸ばす
+	// UIは1280x720前提の座標で組まれているので、ここを変えるとUIの配置が崩れる
+	static const uint32_t kGameWidth = 1280;
+	static const uint32_t kGameHeight = 720;
 
 public: // 静的メンバ変数
 
@@ -28,6 +36,17 @@ public: // メンバ変数
 	// 終了
 	void Finalize();
 
+	/// <summary>
+	/// 通常ウィンドウ ⇔ 全画面（ボーダーレス）を切り替える。F11で呼ばれる。
+	///
+	/// 枠を外してモニタいっぱいに広げるだけで、ディスプレイモードは変更しない。
+	/// クライアント領域がモニタと同じ大きさになるので、モニタが1920x1080なら
+	/// バックバッファ(kClientWidth x kClientHeight)と一致して等倍で出る。
+	/// それ以外の解像度のモニタではスワップチェインが引き伸ばされる。
+	/// </summary>
+	void ToggleFullscreen();
+	bool IsFullscreen() const { return isFullscreen_; }
+
 	// getter
 	HWND GetHwnd() const { return hwnd_; }
 	HINSTANCE GetHInstance() const { return wndClass_.hInstance; }
@@ -36,5 +55,13 @@ private:
 	HWND hwnd_ = nullptr;   // ウィンドウハンドル
 	WNDCLASS wndClass_{}; // ウィンドウクラス
 	MSG msg_{};
+
+	// 全画面中か
+	bool isFullscreen_ = false;
+	// 全画面にする直前の位置とサイズ。戻すときに使う
+	WINDOWPLACEMENT windowedPlacement_{ sizeof(WINDOWPLACEMENT) };
+
+	// WindowProcはstaticなのでインスタンスへ辿るために持っておく。ウィンドウは1つだけ
+	static inline WindowManager* instance_ = nullptr;
 };
 

@@ -57,6 +57,7 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.0,
+        "HitStopStrength": 2,
         "HitStopTime": 0.0,
         "ImpulseForce": 0.0,
         "IsAir": false,

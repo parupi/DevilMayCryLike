@@ -19,6 +19,8 @@ public:
 	void BeginDraw();
 	// SRVの確保が可能かどうかをチェックする関数
 	bool CanAllocate() const;
+	// 確保済みSRV数（エディタの統計表示用）
+	uint32_t GetUsedCount() const { return useIndex; }
 
 public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);

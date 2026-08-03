@@ -6,10 +6,10 @@
 void MenuController::Initialize() {
 	TextureManager::GetInstance().LoadTexture("SelectArrow2.png");
 
-	rightArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rightArrow", "SelectArrow2.png");
+	rightArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "rightArrow", "SelectArrow2.png");
 	rightArrow_->SetSize({-64.0f, 64.0f});
 	rightArrow_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
-	leftArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "leftArrow", "SelectArrow2.png");
+	leftArrow_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "leftArrow", "SelectArrow2.png");
 	leftArrow_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
 	leftArrow_->SetSize({64.0f, 64.0f});
 

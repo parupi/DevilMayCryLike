@@ -19,7 +19,6 @@ public:
 	void Update(float deltaTime) override;
 
 #ifdef _DEBUG
-	void DebugGui() override;
 #endif // _DEBUG
 
 	// 使用するモデル名を設定する(Initialize()より前に呼ぶこと。未設定時は"Cube")

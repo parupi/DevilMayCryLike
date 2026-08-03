@@ -14,18 +14,31 @@ void SpriteManager::Initialize(DirectXManager* directXManager, PSOManager* psoMa
 	psoManager_ = psoManager;
 }
 
-void SpriteManager::DrawSet(BlendMode blendMode) {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetSpritePSO(blendMode));			// PSOを設定
+void SpriteManager::DrawSet(BlendMode blendMode, bool toBackBuffer) {
+	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetSpritePSO(blendMode, toBackBuffer));	// PSOを設定
 	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetSpriteSignature());
 	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void SpriteManager::DrawAllSprite() {
-	for (auto& layer : layers_) {
-		for (auto& sprite : layer) {
+void SpriteManager::DrawSceneLayers() {
+	DrawLayerRange(SpriteLayer::Background, SpriteLayer::Game, false);
+}
+
+void SpriteManager::DrawUILayers() {
+	if (isUILayerVisible_) {
+		DrawLayerRange(SpriteLayer::UI, SpriteLayer::Debug, true);
+	} else {
+		// HUDを隠している間もフェードなどの常駐スプライトは描き続ける
+		DrawLayerRange(SpriteLayer::Persistent, SpriteLayer::Debug, true);
+	}
+}
+
+void SpriteManager::DrawLayerRange(SpriteLayer first, SpriteLayer last, bool toBackBuffer) {
+	for (size_t i = static_cast<size_t>(first); i <= static_cast<size_t>(last); ++i) {
+		for (auto& sprite : layers_[i]) {
 			if (!sprite->GetRenderState().isVisible) continue;
 
-			DrawSet(sprite->GetRenderState().blendMode);
+			DrawSet(sprite->GetRenderState().blendMode, toBackBuffer);
 			sprite->Draw();
 		}
 	}
@@ -85,6 +98,9 @@ void SpriteManager::ChangeLayer(Sprite* sprite, SpriteLayer newLayer) {
 }
 
 void SpriteManager::DeleteNonPersistentSprite() {
+	// シーンが切り替わるのでHUDの一括非表示（死亡演出など）は解除する
+	isUILayerVisible_ = true;
+
 	// Persistent レイヤーはシーン切り替えをまたいで生存するためスキップする
 	constexpr size_t kPersistentIndex = static_cast<size_t>(SpriteLayer::Persistent);
 	for (size_t i = 0; i < layers_.size(); ++i) {

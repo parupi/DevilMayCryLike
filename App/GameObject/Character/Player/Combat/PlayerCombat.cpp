@@ -2,6 +2,8 @@
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 #include <Utility/DeltaTime.h>
+#ifdef _DEBUG
+#endif
 
 void PlayerCombat::Initialize(Player* player) {
 	player_ = player;
@@ -21,11 +23,7 @@ void PlayerCombat::Initialize(Player* player) {
 void PlayerCombat::Update(float deltaTime) {
 	// 毎フレーム
 	attackPlayer_->Update(DeltaTime::GetDeltaTime());
-	attackPlayer_->DrawImGui();
-
-	DrawAttackDerivativeEditorUI();
-
-	DrawAttackDataEditorUI();
+	// エディタのUIは App/Editor/Windows/AttackEditorWindow.cpp から呼ばれる
 	for (auto& [name, state] : states_) {
 		state->UpdateAttackData();
 		auto& node = attackGraph_[name];
@@ -214,8 +212,8 @@ void PlayerCombat::CreateState() {
 	}
 }
 
-void PlayerCombat::DrawAttackDataEditorUI() {
 #ifdef _DEBUG
+void PlayerCombat::DrawAttackDataEditorUI() {
 	// 攻撃ステートを収集
 	std::vector<PlayerStateAttack*> attackStates;
 	std::vector<std::string> attackNames;
@@ -238,7 +236,6 @@ void PlayerCombat::DrawAttackDataEditorUI() {
 
 	static char newAttackName[64] = "";
 
-	ImGui::Begin("Attack Editor");
 
 	//-----------------------------
 	// 攻撃追加UI
@@ -265,9 +262,8 @@ void PlayerCombat::DrawAttackDataEditorUI() {
 		DrawAttackDataEditor(selectedAttack);
 	}
 
-	ImGui::End();
-#endif // IMGUI
 }
+#endif // _DEBUG
 
 void PlayerCombat::AddAttackState(const std::string& attackName) {
 	// すでに存在しているなら追加しない
@@ -285,7 +281,7 @@ void PlayerCombat::AddAttackState(const std::string& attackName) {
 	states_[attackName] = std::move(state);
 }
 
-void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
+void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* attack) {
 #ifdef _DEBUG
 	const char* attackName = attack->name_.c_str();
 
@@ -384,6 +380,17 @@ void PlayerCombat::DrawAttackDataEditor(PlayerStateAttack* attack) {
 	ImGui::DragFloat("HitStopTime", &global_->GetValueRef<float>(attackName, "HitStopTime"), 0.01f);
 	ImGui::DragFloat("HitStopIntensity", &global_->GetValueRef<float>(attackName, "HitStopIntensity"), 0.01f);
 
+	// 攻撃の強さでヒットストップ中のタイムスケールが変わる
+	int32_t& hitStopStrength = global_->GetValueRef<int32_t>(attackName, "HitStopStrength");
+	ImGui::Text("HitStopStrength:");
+	ImGui::SameLine();
+	ImGui::RadioButton("Light", &hitStopStrength, static_cast<int32_t>(HitStopStrength::Light));
+	ImGui::SameLine();
+	ImGui::RadioButton("Medium", &hitStopStrength, static_cast<int32_t>(HitStopStrength::Medium));
+	ImGui::SameLine();
+	ImGui::RadioButton("Heavy", &hitStopStrength, static_cast<int32_t>(HitStopStrength::Heavy));
+	ImGui::Text("  -> TimeScale: %.2f", HitStop::ToTimeScale(HitStop::ToStrength(hitStopStrength)));
+
 	// 攻撃を受けた側に送る情報
 	ImGui::Text("ReactionType:");
 	ImGui::SameLine();
@@ -456,11 +463,10 @@ void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNod
 	}
 }
 
-void PlayerCombat::DrawAttackDerivativeEditorUI() {
 #ifdef _DEBUG
+void PlayerCombat::DrawAttackDerivativeEditorUI() {
 	static std::string selectedAttack;
 
-	ImGui::Begin("Attack Derivative Editor");
 
 	// --- 左：攻撃一覧 ---
 	ImGui::BeginChild("AttackList", ImVec2(200, 0), true);
@@ -500,6 +506,5 @@ void PlayerCombat::DrawAttackDerivativeEditorUI() {
 
 	ImGui::EndChild();
 
-	ImGui::End();
-#endif // DEBUG
 }
+#endif // _DEBUG

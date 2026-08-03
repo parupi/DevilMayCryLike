@@ -113,20 +113,71 @@ ComPtr<ID3D12DescriptorHeap> DirectXManager::CreateDescriptorHeap(
 	return descriptorHeap;
 }
 
+namespace {
+// UploadScope 中に貯めてよいステージングの上限。
+// これを超えそうになったら、そこまでを確定して解放する。
+// 大きくすると GPU 待ちの回数が減る代わりにピークが増える。
+// 1枚がこれより大きいテクスチャは分割せずそのまま通すので、
+// 実際のピークは max(この値, 最大テクスチャ1枚分) になる。
+constexpr uint64_t kUploadFlushBudget = 64ull * 1024 * 1024;
+} // namespace
+
+DirectXManager::UploadScope::UploadScope(DirectXManager* dxManager)
+	: dxManager_(dxManager) {
+	if (dxManager_) {
+		++dxManager_->uploadScopeDepth_;
+	}
+}
+
+DirectXManager::UploadScope::~UploadScope() {
+	if (!dxManager_) return;
+
+	--dxManager_->uploadScopeDepth_;
+	// 一番外側を抜けるときに残りも解放する。
+	// ここを省くと最後のひと山が EndDraw までメモリに残ってしまう
+	if (dxManager_->uploadScopeDepth_ == 0 && dxManager_->pendingUploadBytes_ > 0) {
+		dxManager_->FlushUploads();
+	}
+}
+
+void DirectXManager::FlushUploads() {
+	// コマンドリストを確定して GPU の完了を待つ。
+	// 待ち終われば、そこまでのコピー元（ステージング）はもう誰も参照していないので解放できる
+	commandContext_->FlushAndWait();
+	resourceManager_->ReleasePendingUploads();
+	pendingUploadBytes_ = 0;
+}
+
 ComPtr<ID3D12Resource> DirectXManager::UploadTextureData(
 	ID3D12Resource* texture, const DirectX::ScratchImage& mipImages) {
+	return UploadTextureData(
+		texture, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata());
+}
+
+ComPtr<ID3D12Resource> DirectXManager::UploadTextureData(
+	ID3D12Resource* texture, const DirectX::Image* images, size_t imageCount,
+	const DirectX::TexMetadata& metadata) {
 	std::vector<D3D12_SUBRESOURCE_DATA> subresources;
 	DirectX::PrepareUpload(
 		GetDevice(),
-		mipImages.GetImages(),
-		mipImages.GetImageCount(),
-		mipImages.GetMetadata(),
+		images,
+		imageCount,
+		metadata,
 		subresources);
 
 	uint64_t uploadBufferSize = GetRequiredIntermediateSize(texture, 0, UINT(subresources.size()));
 
+	// ロード中は、貯まったぶんが上限を超えそうならここで一度吐き出す。
+	// 「今回のぶんを積む前」に解放するので、ピークが
+	// 「上限＋1枚」ではなく「上限と1枚の大きいほう」で収まる
+	if (uploadScopeDepth_ > 0 && pendingUploadBytes_ > 0 &&
+		pendingUploadBytes_ + uploadBufferSize > kUploadFlushBudget) {
+		FlushUploads();
+	}
+
 	ComPtr<ID3D12Resource> uploadBuffer = resourceManager_->CreateUploadResource(uploadBufferSize);
 	resourceManager_->AddPendingUpload(uploadBuffer);
+	pendingUploadBytes_ += uploadBufferSize;
 
 	UpdateSubresources(
 		GetCommandList(),
@@ -262,7 +313,9 @@ void DirectXManager::EndDraw() {
 
 	uint64_t completed = commandContext_->GetFence()->GetCompletedValue();
 	resourceManager_->ProcessPendingReleases(completed);
+	// 直前の Begin() がフェンスを待っているので、ここでの解放は安全
 	resourceManager_->ReleasePendingUploads();
+	pendingUploadBytes_ = 0;
 
 	frameTimer_->Update();
 }

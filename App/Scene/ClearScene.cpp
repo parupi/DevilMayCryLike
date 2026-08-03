@@ -63,9 +63,7 @@ void ClearScene::Update()
 
 void ClearScene::Draw()
 {
-	SpriteManager::GetInstance().DrawSet();
-	clearUI_->Draw();
-
+	// ClearUI のスプライトは SpriteManager が UI レイヤーとして自動描画する
 }
 
 #ifdef _DEBUG

@@ -37,7 +37,7 @@ void Sprite::Update()
 	// Transform情報を作る
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowManager::kClientWidth), float(WindowManager::kClientHeight), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowManager::kGameWidth), float(WindowManager::kGameHeight), 0.0f, 100.0f);
 	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	transformationMatrixData_->World = worldViewProjectionMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;

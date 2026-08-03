@@ -12,8 +12,8 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 	dxManager_ = dxManager;
 	psoManager_ = psoManager;
 
-	viewport_ = {0.0f, 0.0f, WindowManager::kClientWidth, WindowManager::kClientHeight, 0.0f, 1.0f};
-	scissorRect_ = {0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight};
+	viewport_ = {0.0f, 0.0f, WindowManager::kGameWidth, WindowManager::kGameHeight, 0.0f, 1.0f};
+	scissorRect_ = {0, 0, WindowManager::kGameWidth, WindowManager::kGameHeight};
 
 	clearValue_.Color[0] = 0.0f;
 	clearValue_.Color[1] = 0.0f;
@@ -90,6 +90,12 @@ void OffScreenManager::ExecutePostEffects() {
 }
 
 void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect) {
+	if (!effect) return;
+
+	// エフェクトはシーンをまたいで生き続けるので、シーンを作り直すたびに
+	// 同じ名前で追加されないよう弾く（登録側は FindEffect で既存のものを取得できる）
+	if (FindEffect(effect->GetName())) return;
+
 	paths_.push_back(std::make_unique<PostEffectPath>(effect.get()));
 	effects_.push_back(std::move(effect));
 }
@@ -203,4 +209,19 @@ uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Res
 	uint32_t index = dxManager_->GetSrvManager()->Allocate();
 	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM, 1);
 	return index;
+}
+
+void OffScreenManager::MoveEffect(size_t index, int direction) {
+	if (direction == 0) return;
+	const size_t count = effects_.size();
+	if (index >= count) return;
+
+	const size_t target = (direction < 0) ? index - 1 : index + 1;
+	if (direction < 0 && index == 0) return;
+	if (direction > 0 && target >= count) return;
+
+	// paths_ は effects_ と同じ順番で並んでいる（AddEffect が対で push している）。
+	// 実行順は paths_ の並びで決まるので、両方を同時に入れ替えないとズレる
+	std::swap(effects_[index], effects_[target]);
+	std::swap(paths_[index], paths_[target]);
 }

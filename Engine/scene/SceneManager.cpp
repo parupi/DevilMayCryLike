@@ -3,6 +3,7 @@
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/CollisionManager.h>
 #include <World3D/Object/Object3dManager.h>
+#include <Graphics/Device/DirectXManager.h>
 
 
 SceneManager& SceneManager::GetInstance() {
@@ -32,11 +33,18 @@ void SceneManager::Update() {
 
 		// シーンの切り替え
 		scene_ = std::move(nextScene_);
+		currentSceneName_ = nextSceneName_;
 
 		scene_->SetSceneManager(this);
 
-		// 次シーンを初期化する
-		scene_->Initialize();
+		// 次シーンを初期化する。
+		// ここは1フレームで大量のテクスチャを読むので、アップロード用のステージングが
+		// まるごと積み上がらないようスコープで囲む（一定量ごとに解放される）。
+		// Draw より前に呼ばれるので、スコープ内のコマンドリスト確定は安全。
+		{
+			DirectXManager::UploadScope uploadScope(dxManager_);
+			scene_->Initialize();
+		}
 	}
 
 	scene_->Update();
@@ -52,11 +60,19 @@ void SceneManager::ChangeScene(const std::string& sceneName) {
 
 	// 次シーンを生成
 	nextScene_ = sceneFactory_->CreateScene(sceneName);
+	nextSceneName_ = sceneName;
 }
 
 #ifdef _DEBUG
 void SceneManager::DebugUpdate() {
 	scene_->DebugUpdate();
+}
+
+void SceneManager::ReloadCurrentScene() {
+	if (currentSceneName_.empty() || IsSceneChangePending()) {
+		return;
+	}
+	ChangeScene(currentSceneName_);
 }
 #endif
 

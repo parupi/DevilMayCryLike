@@ -5,7 +5,7 @@ void GBufferManager::Initialize(DirectXManager* dxManager)
 {
 	dxManager_ = dxManager;
 
-	CreateResources(WindowManager::kClientWidth, WindowManager::kClientHeight);
+	CreateResources(WindowManager::kGameWidth, WindowManager::kGameHeight);
 	CreateRTVs();
 	CreateSRVs();
 

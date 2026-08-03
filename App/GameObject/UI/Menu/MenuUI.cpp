@@ -69,7 +69,3 @@ void MenuUI::Update() {
 	divider_->Update();
 }
 
-void MenuUI::Draw() {
-	choices_->Draw();
-	divider_->Draw();
-}

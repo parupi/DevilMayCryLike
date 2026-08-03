@@ -2,7 +2,7 @@
     "AttackAerialRave2": {
         "AttackDuration": 0.11999999731779099,
         "AttackPosture": 1,
-        "ButtonIndex": 2,
+        "ButtonIndex": 1,
         "ControlPoint_0": [
             -1.0,
             0.800000011920929,
@@ -67,6 +67,7 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.15000000596046448,
+        "HitStopStrength": 1,
         "HitStopTime": 0.15000000596046448,
         "ImpulseForce": 0.0,
         "IsAir": true,

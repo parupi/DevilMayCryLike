@@ -3,6 +3,9 @@
 #include "Math/MathUtils.h"
 #include <cmath>
 #include <limits>
+#ifdef _DEBUG
+#include "Editor/Core/EditorDebugDraw.h"
+#endif
 
 
 CollisionManager& CollisionManager::GetInstance()
@@ -45,6 +48,10 @@ void CollisionManager::DeleteAllCollider()
 void CollisionManager::Draw()
 {
 #ifdef _DEBUG
+    // 表示のON/OFFはエディタのDebug Drawメニューに集約している
+    if (!EditorDebugDraw::IsEnabled(EditorDebugDraw::Flag::Collider)) {
+        return;
+    }
     for (auto& collider : colliders_) {
         if (collider) {
             collider->DrawDebug();

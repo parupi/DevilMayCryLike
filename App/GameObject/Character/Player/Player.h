@@ -16,7 +16,9 @@
 #include "GameObject/Character/CharacterStructs.h"
 #include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Effect/HitVignetteEffect.h"
+#include "GameObject/Effect/HitPostEffect.h"
 #include "GameObject/Effect/CharacterLight.h"
+#include "GameObject/Effect/HitFlashComponent.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 #include "Tutorial/Service/TutorialService.h"
@@ -85,7 +87,6 @@ public:
 	/// デバッグ用GUI描画処理  
 	/// ImGuiを用いて内部情報（速度・ステートなど）を可視化する。
 	/// </summary>
-	void DebugGui() override;
 #endif // _DEBUG
 
 	/// <summary>
@@ -113,6 +114,8 @@ public:
 
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
+	StylishScoreManager* GetScoreManager() { return scoreManager.get(); }
+	PlayerStateMachine* GetStateMachine() { return stateMachine_.get(); }
 
 	// ======================
 	// アクセッサ
@@ -130,6 +133,10 @@ public:
 	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
 	HitStop* GetHitStop() const { return hitStop_.get(); }
+	/// <summary>
+	/// 攻撃ヒット時のポストエフェクト（放射状ブラー・色収差・フラッシュ）を取得する。
+	/// </summary>
+	HitPostEffect* GetHitPostEffect() const { return hitPostEffect_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
 	/// <summary>
@@ -200,8 +207,11 @@ private:
 	DamageInfo pendingDamageInfo_;
 	// 被弾時のビネットエフェクト
 	std::unique_ptr<HitVignetteEffect> hitVignette_;
+	std::unique_ptr<HitPostEffect> hitPostEffect_;
 	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュ）
 	std::unique_ptr<CharacterLight> characterLight_;
+	// 被弾時に体と武器を一瞬白く光らせるコンポーネント（EmissiveTintを使う）
+	std::unique_ptr<HitFlashComponent> hitFlash_;
 
 	// 移動可能範囲(水平方向)。強制戦闘イベント発動中などに有効化される。
 	bool hasMovementBounds_ = false;

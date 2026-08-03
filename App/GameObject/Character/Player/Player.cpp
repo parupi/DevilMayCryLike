@@ -7,10 +7,13 @@
 #include "World3D/Collider/OBBCollider.h"
 #include "World3D/Collider/CollisionManager.h"
 #include "Utility/DeltaTime.h"
+#include "Utility/TimeManager.h"
 #include "State/PlayerStateJump.h"
 #include "State/PlayerStateAir.h"
 #include "World3D/Primitive/PrimitiveLineDrawer.h"
 #include "State/Attack/PlayerStateAttack.h"
+#ifdef _DEBUG
+#endif
 #include "Scene/Transition/TransitionManager.h"
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
@@ -70,6 +73,7 @@ void Player::Initialize() {
 	weapon_->SetPlayer(this);
 
 	scoreManager = std::make_unique<StylishScoreManager>();
+	scoreManager->Initialize();
 
 	weapon_->SetScoreManager(scoreManager.get());
 
@@ -85,17 +89,28 @@ void Player::Initialize() {
 
 	hitStop_ = std::make_unique<HitStop>();
 
+	// 攻撃ヒット時のポストエフェクト。被弾ビネットより前にチェーンさせたいので先に登録する
+	hitPostEffect_ = std::make_unique<HitPostEffect>();
+	hitPostEffect_->Initialize();
+
 	hitVignette_ = std::make_unique<HitVignetteEffect>();
 	hitVignette_->Initialize();
 
 	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュする）
 	characterLight_ = std::make_unique<CharacterLight>();
 	characterLight_->Initialize("PlayerLight", Vector4{ 0.45f, 0.65f, 1.0f, 1.0f });
+
+	// 被弾時に体と武器を一瞬光らせる。体だけだと剣が暗いまま浮くので武器も対象に入れる
+	hitFlash_ = std::make_unique<HitFlashComponent>();
+	hitFlash_->AddRenderer(GetRenderer("PlayerHead"));
+	hitFlash_->AddRenderer(weapon_->GetRenderer("PlayerWeapon"));
 }
 
 void Player::Update(float deltaTime) {
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
+	// パーティクルなど自分でヒットストップを持たない系統にも時間停止を伝える
+	TimeManager::RequestGameTimeScale(hitStop_->GetTimeScale());
 
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance().TriggerKey(DIK_R)) {
@@ -113,6 +128,9 @@ void Player::Update(float deltaTime) {
 
 	// 被弾ビネットの更新
 	hitVignette_->Update(dt);
+
+	// ヒット時のポストエフェクトはヒットストップ中も実時間で減衰させる
+	hitPostEffect_->Update(deltaTime);
 
 	weapon_->Update(dt);
 
@@ -146,6 +164,9 @@ void Player::Update(float deltaTime) {
 	// キャラクター追従ライトの更新（ヒットストップ中はフラッシュの減衰も止まる）
 	characterLight_->Update(GetWorldTransform()->GetTranslation(), dt);
 
+	// 被弾フラッシュ。dt（ヒットストップ適用後）で進めるので、時間が止まっている間は白いまま保持される
+	hitFlash_->Update(dt);
+
 	// 接地フラグを毎フレーム切っておく
 	onGround_ = false;
 
@@ -174,15 +195,6 @@ void Player::DrawUI() {
 
 }
 
-#ifdef _DEBUG
-void Player::DebugGui() {
-	stateMachine_->DebugGui();
-	ImGui::Begin("Player");
-	Object3d::DebugGui();
-	ImGui::End();
-}
-
-#endif // _DEBUG
 
 void Player::ChangeState(const std::string& stateName) {
 	stateMachine_->ChangeState(*this, stateName);
@@ -278,10 +290,17 @@ void Player::TakeDamage(const DamageInfo& info) {
 
 	pendingDamageInfo_ = info;
 
+	// 被弾ペナルティ：スタイルポイントを減らしコンボを打ち切る
+	if (scoreManager) {
+		scoreManager->OnDamage();
+	}
+
 	// 被弾ビネットフラッシュ
 	hitVignette_->Play();
 	// 敵の攻撃がヒットしたのでライトを強く光らせる
 	characterLight_->Flash();
+	// 体と武器も一瞬光らせる（画面端のビネットだけだと、被弾した本人が分かりにくい）
+	hitFlash_->Start();
 
 	// 攻撃を強制中断
 	combat_->InterruptCombat();

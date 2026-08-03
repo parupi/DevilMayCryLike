@@ -23,7 +23,6 @@ public:
     void Update(float deltaTime) override;
 
 #ifdef _DEBUG
-    void DebugGui() override;
 #endif
 
     void OnCollisionEnter(BaseCollider* other) override;
@@ -37,6 +36,9 @@ public:
     /// </summary>
     bool IsKnockbackImmune() const override;
 
+    /// <summary>ボスは倒すのが難しいのでスタイルスコアを高めに補正する。</summary>
+    float GetStyleMultiplier() const override { return 2.0f; }
+
 protected:
     /// <summary>死亡演出終了時に武器を後始末する</summary>
     void OnDeathEffectFinished() override;
@@ -46,7 +48,6 @@ private:
     void UpdateArmorVisual(float deltaTime);
 
     BossWeapon*      weapon_        = nullptr;
-    ParticleEmitter* hitEmitter_    = nullptr;
     ParticleEmitter* chargeEmitter_ = nullptr;
     ParticleEmitter* auraEmitter_   = nullptr;
     ParticleEmitter* armorHitEmitter_ = nullptr; // アーマー中被弾の弾かれ火花

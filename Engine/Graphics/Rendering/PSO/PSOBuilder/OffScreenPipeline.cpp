@@ -89,6 +89,30 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> OffScreenPipeline::CreatePSO(
 		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
 		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/OutLine.PS.hlsl", L"ps_6_0");
 		break;
+	case OffScreenEffectType::kRadialBlur:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/RadialBlur.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kChromaticAberration:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/ChromaticAberration.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kHitFlash:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/HitFlash.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kBloomBright:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/BloomBright.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kBloomBlur:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/BloomBlur.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kBloomComposite:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/BloomComposite.PS.hlsl", L"ps_6_0");
+		break;
 	}
 	assert(pixelShaderBlob != nullptr);
 
@@ -101,6 +125,18 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> OffScreenPipeline::CreatePSO(
 	psoDesc.VS = { vertexShaderBlob->GetBufferPointer(), vertexShaderBlob->GetBufferSize() };
 	psoDesc.PS = { pixelShaderBlob->GetBufferPointer(), pixelShaderBlob->GetBufferSize() };
 	psoDesc.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	// ブルームの合成は元の絵の上に光を「足す」ので加算ブレンドにする
+	if (effectType == OffScreenEffectType::kBloomComposite) {
+		D3D12_RENDER_TARGET_BLEND_DESC& blend = psoDesc.BlendState.RenderTarget[0];
+		blend.BlendEnable = TRUE;
+		blend.SrcBlend = D3D12_BLEND_ONE;
+		blend.DestBlend = D3D12_BLEND_ONE;
+		blend.BlendOp = D3D12_BLEND_OP_ADD;
+		// アルファは元の値を維持する
+		blend.SrcBlendAlpha = D3D12_BLEND_ZERO;
+		blend.DestBlendAlpha = D3D12_BLEND_ONE;
+		blend.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	}
 	psoDesc.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	psoDesc.DepthStencilState = depthStencilDesc;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
@@ -113,5 +149,6 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> OffScreenPipeline::CreatePSO(
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 	HRESULT hr = dxManager->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 	return pso;
 }

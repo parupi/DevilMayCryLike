@@ -109,6 +109,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App\Editor\AppEditor.h" />
+    <ClInclude Include="App\Editor\Windows\AppEditorWindows.h" />
     <ClInclude Include="App\GameData\CollisionCategory.h" />
     <ClInclude Include="App\GameData\GameData.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
@@ -162,6 +164,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h" />
+    <ClInclude Include="App\GameObject\Effect\HitEffectSystem.h" />
+    <ClInclude Include="App\GameObject\Effect\HitFlashComponent.h" />
+    <ClInclude Include="App\GameObject\Effect\HitPostEffect.h" />
     <ClInclude Include="App\GameObject\Effect\HitStop.h" />
     <ClInclude Include="App\GameObject\Effect\HitVignetteEffect.h" />
     <ClInclude Include="App\GameObject\Event\BaseEvent.h" />
@@ -186,6 +191,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
+    <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
     <ClInclude Include="App\GameObjectRegister.h" />
     <ClInclude Include="App\Input\CameraInput.h" />
@@ -216,6 +222,28 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Debugger\GlobalVariables.h" />
     <ClInclude Include="Engine\Debugger\ImGuiManager.h" />
     <ClInclude Include="Engine\Debugger\LeakChecker.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorAssetUtil.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorContext.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorDebugDraw.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorGameView.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorHost.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorLayout.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorMenuBar.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorSelection.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorStats.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h" />
+    <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\AudioWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\CameraWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\DebugLogWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\HierarchyWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\InspectorWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\LightWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\ParticleEditor.h" />
+    <ClInclude Include="Engine\Editor\Windows\ParticleEditorWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\ProfilerWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\RenderWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\TimeWindow.h" />
     <ClInclude Include="Engine\Graphics\Device\CommandContext.h" />
     <ClInclude Include="Engine\Graphics\Device\DirectXManager.h" />
     <ClInclude Include="Engine\Graphics\Device\FrameTimer.h" />
@@ -239,22 +267,30 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\TrailPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOCommon.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\Curve.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\Gradient.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\InstanceData.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\Particle.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleEditor.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleCurves.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleEmitter.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleGroup.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleManager.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleMath.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleRenderSystem.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleRenderer.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleUpdateSystem.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\VFXFile.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BaseOffScreen.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\OutlineEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\IRenderPass.h" />
@@ -303,6 +339,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Utility\DeltaTime.h" />
     <ClInclude Include="Engine\Utility\Logger.h" />
     <ClInclude Include="Engine\Utility\StringUtility.h" />
+    <ClInclude Include="Engine\Utility\TimeManager.h" />
     <ClInclude Include="Engine\World3D\Camera\BaseCamera.h" />
     <ClInclude Include="Engine\World3D\Camera\CameraManager.h" />
     <ClInclude Include="Engine\World3D\Collider\AABBCollider.h" />
@@ -360,6 +397,13 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\Editor\AppEditor.cpp" />
+    <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\StylishWindow.cpp" />
     <ClCompile Include="App\GameData\GameData.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
     <ClCompile Include="App\GameObject\Camera\ClearCamera.cpp" />
@@ -406,6 +450,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp" />
+    <ClCompile Include="App\GameObject\Effect\HitEffectSystem.cpp" />
+    <ClCompile Include="App\GameObject\Effect\HitFlashComponent.cpp" />
+    <ClCompile Include="App\GameObject\Effect\HitPostEffect.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitVignetteEffect.cpp" />
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp" />
@@ -430,6 +477,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
+    <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
     <ClCompile Include="App\GameObjectRegister.cpp" />
     <ClCompile Include="App\Input\CameraInput.cpp" />
@@ -458,6 +506,28 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Debugger\GlobalVariables.cpp" />
     <ClCompile Include="Engine\Debugger\ImGuiManager.cpp" />
     <ClCompile Include="Engine\Debugger\LeakChecker.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorAssetUtil.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorContext.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorDebugDraw.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorGameView.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorHost.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorLayout.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorMenuBar.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorSelection.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorStats.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\AudioWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\CameraWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\DebugLogWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\HierarchyWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\InspectorWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\LightWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\ParticleEditor.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\ParticleEditorWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\ProfilerWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\RenderWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\TimeWindow.cpp" />
     <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp" />
     <ClCompile Include="Engine\Graphics\Device\DirectXManager.cpp" />
     <ClCompile Include="Engine\Graphics\Device\FrameTimer.cpp" />
@@ -480,18 +550,26 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\SpritePipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\TrailPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\Curve.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\Gradient.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEditor.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleCurves.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEmitter.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleManager.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleMath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleRenderSystem.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleRenderer.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleUpdateSystem.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\VFXFile.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\OutlineEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.cpp" />
@@ -533,6 +611,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Utility\DeltaTime.cpp" />
     <ClCompile Include="Engine\Utility\Logger.cpp" />
     <ClCompile Include="Engine\Utility\StringUtility.cpp" />
+    <ClCompile Include="Engine\Utility\TimeManager.cpp" />
     <ClCompile Include="Engine\World3D\Camera\BaseCamera.cpp" />
     <ClCompile Include="Engine\World3D\Camera\CameraManager.cpp" />
     <ClCompile Include="Engine\World3D\Collider\AABBCollider.cpp" />
@@ -563,17 +642,39 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\World3D\Object\Renderer\RendererManager.cpp" />
     <ClCompile Include="Engine\World3D\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="Engine\World3D\WorldTransform.cpp" />
-    <ClCompile Include="Externals\imgui-node-editor\crude_json.cpp" />
-    <ClCompile Include="Externals\imgui-node-editor\imgui_canvas.cpp" />
-    <ClCompile Include="Externals\imgui-node-editor\imgui_node_editor.cpp" />
-    <ClCompile Include="Externals\imgui-node-editor\imgui_node_editor_api.cpp" />
-    <ClCompile Include="Externals\imgui\imgui.cpp" />
-    <ClCompile Include="Externals\imgui\imgui_demo.cpp" />
-    <ClCompile Include="Externals\imgui\imgui_draw.cpp" />
-    <ClCompile Include="Externals\imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="Externals\imgui\imgui_tables.cpp" />
-    <ClCompile Include="Externals\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="Externals\imgui-node-editor\crude_json.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\imgui_canvas.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\imgui_node_editor.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui-node-editor\imgui_node_editor_api.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui_demo.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui_draw.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui_impl_dx12.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui_impl_win32.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui_tables.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
+    <ClCompile Include="Externals\imgui\imgui_widgets.cpp">
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+    </ClCompile>
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>

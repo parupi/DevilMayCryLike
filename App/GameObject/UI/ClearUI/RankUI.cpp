@@ -6,7 +6,7 @@
 
 void RankUI::Initialize()
 {
-    rank_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rankUI", "Ranks.png");
+    rank_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "rankUI", "Ranks.png");
     rank_->SetUVSize({ 0.2f, 1.0f });
     rank_->SetAnchorPoint({ 0.5f, 0.5f });
 
@@ -80,11 +80,6 @@ void RankUI::Update()
     rank_->Update();
 }
 
-
-void RankUI::Draw()
-{
-	rank_->Draw();
-}
 
 void RankUI::Start()
 {

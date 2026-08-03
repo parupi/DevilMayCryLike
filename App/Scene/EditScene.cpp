@@ -91,6 +91,7 @@ void EditScene::Draw() {
 
 #ifdef _DEBUG
 void EditScene::DebugUpdate() {
-	Object3dManager::GetInstance().FindObject("Ground")->DebugGui();
+	// エディタのウィンドウは App/Editor/ 側が Editor::AddWindowDrawer で登録している。
+	// オブジェクトの中身は Hierarchy / Inspector から触れるので、ここでは何もしない
 }
 #endif // DEBUG

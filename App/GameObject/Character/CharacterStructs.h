@@ -1,5 +1,6 @@
 #pragma once
 #include <Math/Vector3.h>
+#include "GameObject/Effect/HitStop.h"
 #include <vector>
 #include <string>
 
@@ -47,6 +48,7 @@ struct AttackData {
 	// HitStop
 	float hitStopTime = 0.0f;
 	float hitStopIntensity = 0.0f;
+	HitStopStrength hitStopStrength = HitStopStrength::Heavy; // 攻撃の強さ（止まり方の強弱）
 
 	// 攻撃を受けた側に送る情報
 	ReactionType type = ReactionType::HitStun;

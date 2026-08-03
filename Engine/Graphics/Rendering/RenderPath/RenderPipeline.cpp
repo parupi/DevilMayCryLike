@@ -6,6 +6,8 @@
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Scene/Transition/TransitionManager.h"
 #ifdef _DEBUG
 #include <Debugger/ImGuiManager.h>
 #endif
@@ -95,10 +97,25 @@ void RenderPipeline::Execute() {
 	ctx_.offScreenManager->EndDrawToPingPong();
 	ctx_.offScreenManager->ExecutePostEffects();
 
+#ifdef _DEBUG
+	// エディタ中はゲームの絵をバックバッファではなく専用のオフスクリーン(1280x720固定)へ描き、
+	// ImGuiのGameウィンドウに ImGui::Image で表示する
+	ctx_.imGuiManager->BeginGameViewRender();
+#else
 	ctx_.dxManager->BeginDraw();
+#endif
 	ctx_.dxManager->Render(ctx_.psoManager, ctx_.offScreenManager->GetFinalSrvIndex());
 
+	// UIはポストエフェクトの影響を受けないよう、合成後のバックバッファへ直接描く。
+	// フェードはPersistentレイヤーのスプライトとして DrawUILayers() 内で描かれる。
+	ctx_.spriteManager->DrawUILayers();
+	// スプライトを使わないトランジション用のフック
+	ctx_.transitionManager->Draw();
+
 #ifdef _DEBUG
+	// ゲームの絵を出し終えたのでSRVへ戻し、バックバッファにはImGuiだけを描く
+	ctx_.imGuiManager->EndGameViewRender();
+	ctx_.dxManager->BeginDraw();
 	ctx_.imGuiManager->Draw();
 #endif
 

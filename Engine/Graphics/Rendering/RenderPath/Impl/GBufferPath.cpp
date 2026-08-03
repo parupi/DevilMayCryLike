@@ -30,8 +30,8 @@ void GBufferPath::Begin(uint32_t dsvIndex)
 		gBuffer_->GetRTVHandle(GBufferManager::GBufferType::WorldPos)
 	};
 
-	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, WindowManager::kClientWidth, WindowManager::kClientHeight, 0.0f, 1.0f };
-	D3D12_RECT scissorRect{ 0, 0, WindowManager::kClientWidth, WindowManager::kClientHeight };
+	D3D12_VIEWPORT viewport{ 0.0f, 0.0f, WindowManager::kGameWidth, WindowManager::kGameHeight, 0.0f, 1.0f };
+	D3D12_RECT scissorRect{ 0, 0, WindowManager::kGameWidth, WindowManager::kGameHeight };
 
 	commandContext->SetViewportAndScissor(viewport, scissorRect);
 	// DSVのクリア

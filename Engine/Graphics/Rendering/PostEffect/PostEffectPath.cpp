@@ -33,6 +33,9 @@ void PostEffectPath::Execute()
     context->SetRenderTarget(rtvHandle_);
     context->SetViewportAndScissor(viewport_, scissorRect_);
 
+    // 自前のRTを使うエフェクトが最後に書き戻せるよう、出力先を渡しておく
+    effect_->SetOutputRTV(rtvHandle_);
+
     // 実際の描画
     effect_->Draw();
 

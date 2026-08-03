@@ -25,10 +25,7 @@ public:
 	/// </summary>
 	void Update();
 
-	/// <summary>
-	/// 描画処理
-	/// </summary>
-	void Draw();
+	// 描画は SpriteManager が UI レイヤーとして自動で行うため Draw() は持たない
 
 	/// <summary>
 	/// シーン遷移演出を始める

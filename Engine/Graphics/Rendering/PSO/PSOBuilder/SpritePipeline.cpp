@@ -67,7 +67,7 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> SpritePipeline::CreateRootSignature(
 }
 
 Microsoft::WRL::ComPtr<ID3D12PipelineState> SpritePipeline::CreatePSO(
-	DirectXManager* dxManager, ID3D12RootSignature* rootSignature, BlendMode blendMode)
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature, BlendMode blendMode, bool toBackBuffer)
 {
 	std::array<D3D12_INPUT_ELEMENT_DESC, 2> inputElementDescs{};
 	inputElementDescs[0].SemanticName = "POSITION";
@@ -127,8 +127,10 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> SpritePipeline::CreatePSO(
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/Sprite.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);
 
+	// バックバッファ版は深度バッファを持たないターゲットに描くため深度テストを切る。
+	// スプライトは全て z=0 で描画順だけで前後が決まっているため表示結果は変わらない。
 	D3D12_DEPTH_STENCIL_DESC depthStencilDesc{};
-	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthEnable = !toBackBuffer;
 	depthStencilDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 
@@ -140,9 +142,9 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> SpritePipeline::CreatePSO(
 	psoDesc.BlendState = blendDesc;
 	psoDesc.RasterizerState = rasterizerDesc;
 	psoDesc.DepthStencilState = depthStencilDesc;
-	psoDesc.DSVFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	psoDesc.DSVFormat = toBackBuffer ? DXGI_FORMAT_UNKNOWN : DXGI_FORMAT_D24_UNORM_S8_UINT;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT;
+	psoDesc.RTVFormats[0] = toBackBuffer ? DXGI_FORMAT_R8G8B8A8_UNORM_SRGB : DXGI_FORMAT_R16G16B16A16_FLOAT;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.SampleDesc.Count = 1;
 	psoDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
@@ -150,5 +152,6 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> SpritePipeline::CreatePSO(
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 	HRESULT hr = dxManager->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 	return pso;
 }

@@ -2,7 +2,7 @@
     "Stinger": {
         "AttackDuration": 0.15000000596046448,
         "AttackPosture": 0,
-        "ButtonIndex": 2,
+        "ButtonIndex": 1,
         "ControlPoint_0": [
             0.0,
             0.800000011920929,
@@ -97,6 +97,7 @@
         "DirIndex": 1,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.029999999329447746,
+        "HitStopStrength": 1,
         "HitStopTime": 0.029999999329447746,
         "ImpulseForce": 12.0,
         "IsAir": false,

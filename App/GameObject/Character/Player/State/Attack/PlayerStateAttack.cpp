@@ -6,6 +6,9 @@
 #include "World3D/Collider/AABBCollider.h"
 #include "Utility/DeltaTime.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
+#ifdef _DEBUG
+#include "Editor/Core/EditorDebugDraw.h"
+#endif
 
 PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	name_ = attackName;
@@ -45,6 +48,9 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "HitStopTime", float());
 
 	gv->AddItem(name_, "HitStopIntensity", float());
+
+	// 攻撃の強さ（0=Light, 1=Medium, 2=Heavy）。未設定の攻撃は従来通り完全停止のHeavy
+	gv->AddItem(name_, "HitStopStrength", int32_t(static_cast<int32_t>(HitStopStrength::Heavy)));
 
 	// 攻撃を受けた側に送る情報
 	gv->AddItem(name_, "ReactionType", int32_t(0));
@@ -214,6 +220,8 @@ void PlayerStateAttack::UpdateAttackData() {
 	attackData_.hitStopTime = GlobalVariables::GetInstance().GetValueRef<float>(name_, "HitStopTime");
 
 	attackData_.hitStopIntensity = GlobalVariables::GetInstance().GetValueRef<float>(name_, "HitStopIntensity");
+
+	attackData_.hitStopStrength = HitStop::ToStrength(GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "HitStopStrength"));
 	// 攻撃を受けた側に送る情報
 	attackData_.type = static_cast<ReactionType>(GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "ReactionType"));
 	// ノックバック＆打ち上げ共通
@@ -227,6 +235,10 @@ void PlayerStateAttack::UpdateAttackData() {
 
 void PlayerStateAttack::DrawControlPoints(Player& player) {
 	if (attackData_.pointCount < 4 || !attackData_.drawDebugControlPoints) return;
+#ifdef _DEBUG
+	// 攻撃ごとのフラグに加えて、エディタのDebug Drawメニューでも一括で消せるようにする
+	if (!EditorDebugDraw::IsEnabled(EditorDebugDraw::Flag::AttackTrail)) return;
+#endif
 
 	// 制御点の位置に球を描画
 	for (int32_t i = 0; i < attackData_.pointCount; ++i) {

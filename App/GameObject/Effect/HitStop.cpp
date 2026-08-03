@@ -1,4 +1,16 @@
 #include "HitStop.h"
+#include <algorithm>
+
+float HitStop::ToTimeScale(HitStopStrength strength)
+{
+	return kTimeScaleTable[static_cast<size_t>(ToStrength(static_cast<int32_t>(strength)))];
+}
+
+HitStopStrength HitStop::ToStrength(int32_t value)
+{
+	constexpr int32_t kMax = static_cast<int32_t>(HitStopStrength::Count) - 1;
+	return static_cast<HitStopStrength>(std::clamp(value, 0, kMax));
+}
 
 void HitStop::Update(float deltaTime)
 {
@@ -26,12 +38,25 @@ void HitStop::Update(float deltaTime)
 	}
 }
 
-void HitStop::Start(float time, float intensity, float stopScale)
+void HitStop::Start(float time, float intensity, HitStopStrength strength)
 {
-	// 新しいヒットストップと現在のを比べて長いほうを設定する
-	maxTime_ = std::max(maxTime_, time);
-	intensity_ = intensity;
-	stopScale_ = stopScale;
+	// ヒットストップ無しの攻撃は何もしない（発生中なら今のストップをそのまま継続させる）
+	if (time <= 0.0f) return;
+
+	// 攻撃の強さからヒットストップ中のタイムスケールを決める
+	const float timeScale = ToTimeScale(strength);
+
+	if (hitStopData_.isActive) {
+		// 発生中に重ねてヒットした場合は「長く・強く(より止まる方)」を優先する
+		maxTime_ = std::max(maxTime_, time);
+		intensity_ = std::max(intensity_, intensity);
+		stopScale_ = std::min(stopScale_, timeScale);
+	} else {
+		maxTime_ = time;
+		intensity_ = intensity;
+		stopScale_ = timeScale;
+	}
+
 	timer_ = 0.0f;
 
 	hitStopData_.isActive = true;

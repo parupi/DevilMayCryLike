@@ -6,6 +6,7 @@
 #include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Character/Enemy/Effect/EnemyAppearanceEffect.h"
 #include "GameObject/Effect/CharacterLight.h"
+#include "GameObject/Effect/HitFlashComponent.h"
 #include <GameObject/LockOn/LockOnTarget.h>
 
 class Player;
@@ -45,14 +46,6 @@ public:
 	virtual void DrawEffect();
 
 	void Spawn();
-
-#ifdef _DEBUG
-	/// <summary>
-	/// デバッグ用GUI描画処理  
-	/// 敵の内部状態（HP、速度、状態名など）を可視化する。
-	/// </summary>
-	virtual void DebugGui() override;
-#endif // _DEBUG
 
 	// ======================
 	// 衝突処理
@@ -105,6 +98,12 @@ public:
 	virtual bool IsKnockbackImmune() const { return false; }
 
 	/// <summary>
+	/// スタイルスコアの敵補正倍率。難しい敵ほど高くする（雑魚1.0 / ボス2.0 など）。
+	/// 攻撃ヒット・撃破時の加点に掛かる。
+	/// </summary>
+	virtual float GetStyleMultiplier() const { return 1.0f; }
+
+	/// <summary>
 	/// 攻撃行動をしてよいかを返す。
 	/// 通常は常に true。チュートリアル用の敵（練習台）などが攻撃を封じるためにオーバーライドする。
 	/// 意思決定ステート（CombatIdleなど）が攻撃を選ぶ前にこれを確認する。
@@ -126,6 +125,17 @@ public:
 	/// 追従ライトをひときわ強く光らせる。攻撃がヒットした瞬間に呼ぶ。
 	/// </summary>
 	void FlashLight() { if (characterLight_) characterLight_->Flash(); }
+
+	/// <summary>
+	/// 体を一瞬白く光らせる（設計書 §27 Hit Flash）。攻撃がヒットした瞬間に呼ぶ。
+	/// </summary>
+	void PlayHitFlash() { if (hitFlash_) hitFlash_->Start(); }
+
+	/// <summary>
+	/// ヒットフラッシュの対象レンダラーを追加する（武器など本体以外を足すとき用）。
+	/// 本体のレンダラーは Enemy::Initialize が自動で登録する。
+	/// </summary>
+	void AddHitFlashRenderer(BaseRenderer* renderer) { if (hitFlash_) hitFlash_->AddRenderer(renderer); }
 
 	/// <summary>
 	/// KnockBack ステートが Enter() で参照するダメージ情報をセットする。
@@ -242,9 +252,15 @@ protected:
 
 	bool isAttack_ = false;
 
+	// 撃破スコアを二重加算しないためのガード（OnDeathは演出中に複数回呼ばれ得る）
+	bool killScored_ = false;
+
 	DamageInfo pendingDamageInfo_;
 
 	std::unique_ptr<HitStop> hitStop_;
+
+	// 被弾時に体を白く光らせるコンポーネント（EmissiveTintを使う）
+	std::unique_ptr<HitFlashComponent> hitFlash_;
 
 	bool hasMovementBounds_ = false;
 	MovementBounds movementBounds_{};

@@ -26,9 +26,16 @@ public:
 	// 初期化
 	void Initialize(DirectXManager* directXManager, PSOManager* psoManager);
 	// 描画前処理
-	void DrawSet(BlendMode blendMode = BlendMode::kNormal);
-	// 全スプライトを描画
-	void DrawAllSprite();
+	void DrawSet(BlendMode blendMode = BlendMode::kNormal, bool toBackBuffer = false);
+	// シーンと一緒に描くレイヤー（Background / Game）を描画する。ポストエフェクトがかかる
+	void DrawSceneLayers();
+	// UIレイヤー（UI / Persistent / Debug）をバックバッファへ直接描画する。
+	// ポストエフェクトの後に呼ぶこと（RenderPipeline::Execute）
+	void DrawUILayers();
+	// HUD（UIレイヤー）の表示を一括で切り替える。死亡演出などで一時的に隠す用。
+	// フェードなどの Persistent レイヤーは隠さない。シーン切り替え時に表示へ戻る
+	void SetUILayerVisible(bool visible) { isUILayerVisible_ = visible; }
+	bool IsUILayerVisible() const { return isUILayerVisible_; }
 	// 終了
 	void Finalize();
 	// スプライトの生成
@@ -47,8 +54,13 @@ private:
 	DirectXManager* dxManager_ = nullptr;
 	PSOManager* psoManager_ = nullptr;
 
+	// first から last までのレイヤーを順番に描画する（last を含む）
+	void DrawLayerRange(SpriteLayer first, SpriteLayer last, bool toBackBuffer);
+
 	std::array<std::vector<std::unique_ptr<Sprite>>, static_cast<int32_t>(SpriteLayer::Count)> layers_;
 	std::vector<std::unique_ptr<AnimatedSprite>> animatedSprites_;
+
+	bool isUILayerVisible_ = true;
 public:
 	DirectXManager* GetDxManager() const { return dxManager_; }
 };

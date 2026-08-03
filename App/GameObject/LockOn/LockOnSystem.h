@@ -27,6 +27,8 @@ public:
 	LockOnTarget* GetCurrentTarget() const { return currentTarget_; }
 	// ターゲットがいるかどうかを確認
 	bool IsLockOn() { return currentTarget_ != nullptr; }
+	// 非ロックオン時でも、画面内で最も注目すべきターゲットを取得する（Enemy Framing用）。いなければnullptr
+	LockOnTarget* GetBestVisibleTarget() { return FindBestTarget(); }
 private:
 	// ロックオンの入力を判別するクラス
 	LockOnInput* input_ = nullptr;

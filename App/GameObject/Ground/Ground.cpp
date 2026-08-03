@@ -39,13 +39,5 @@ void Ground::Draw()
 }
 
 
-#ifdef _DEBUG
-void Ground::DebugGui()
-{
-	ImGui::Begin("Ground");
-	Object3d::DebugGui();
-	ImGui::End();
-}
-#endif // _DEBUG
 
 

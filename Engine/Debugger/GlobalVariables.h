@@ -61,6 +61,39 @@ public:
 	void LoadFile(const std::string& directoryName, const std::string& groupName);
 	void LoadFiles(const std::string& directoryName);
 
+	/// <summary>
+	/// 一度でも SaveFile / LoadFile したことのあるグループを、すべて元のディレクトリへ書き出す。
+	/// グループごとの保存先はコード側の慣習でバラバラなので、
+	/// 「どこに保存するか」は入出力したときの実績から覚えている。
+	/// </summary>
+	/// <returns>書き出したグループ数</returns>
+	size_t SaveAllFiles();
+
+	/// <summary>
+	/// SaveAllFiles と同じ対象を、ファイルから読み直す。
+	/// 編集した内容は破棄されるので注意。
+	/// </summary>
+	/// <returns>読み直したグループ数</returns>
+	size_t ReloadAllFiles();
+
+	/// <summary>グループ名 → 保存先ディレクトリ名。エディタが一覧を出すのに使う</summary>
+	const std::map<std::string, std::string>& GetGroupDirectories() const { return groupDirectories_; }
+
+	/// <summary>
+	/// グループの全項目を { キー: 値 } の json オブジェクトにする。
+	/// 未登録のグループなら空オブジェクトを返す。
+	/// 個々の項目名を知らなくても丸ごと持ち運べるので、
+	/// .vfx.json のように別形式のファイルへ埋め込みたいときに使う。
+	/// </summary>
+	json ExportGroup(const std::string& groupName) const;
+
+	/// <summary>
+	/// json オブジェクトの各項目をグループへ流し込む（既存の値は上書きされる）。
+	/// **オブジェクトに無いキーは触らない**ので、後から増えたパラメータは
+	/// AddItem の既定値のまま残る（古いファイルを読んでも壊れない）。
+	/// </summary>
+	void ImportGroup(const std::string& groupName, const json& object);
+
 	// アイテムの存在確認
 	bool HasItem(const std::string& groupName, const std::string& key) const;
 
@@ -73,6 +106,8 @@ private:
 	GlobalVariables& operator=(const GlobalVariables&) = delete;
 
 	std::map<std::string, Group> datas_;
+	// グループごとの保存先ディレクトリ。SaveFile / LoadFile が呼ばれるたびに記録する
+	std::map<std::string, std::string> groupDirectories_;
 	const std::string kDirectoryPath = "Resource/GlobalVariables/";
 };
 

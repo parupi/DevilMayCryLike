@@ -16,13 +16,17 @@
 #include "ParticleRenderer.h"
 #include "ParticleEmitter.h"
 #include "MeshShapeSampler.h"
+#include "ParticleMath.h"
+#include "VFXFile.h"
 #include <memory>
-#include "ParticleEditor.h"
+#include "Editor/Windows/ParticleEditor.h"
 
+// StructuredBuffer の要素。Particle.VS.hlsl の同名構造体と並び順を合わせること
 struct ParticleForGPU {
 	Matrix4x4 WVP;
 	Matrix4x4 World;
 	Vector4 color;
+	Vector4 uvOffsetScale; // xy=UVオフセット / zw=UVスケール（スプライトシートのコマ）
 };
 
 struct ParticleGroupGPU
@@ -57,8 +61,12 @@ public:
 	void Finalize();
 	// 初期化
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
-	// 更新
-	void Update();
+	/// <summary>更新</summary>
+	/// <param name="deltaTime">
+	/// VFX用のデルタタイム（TimeManager::GetVFXDelta()）を渡すこと。
+	/// 実時間を渡すとヒットストップ中もパーティクルだけ通常速度で動いてしまう。
+	/// </param>
+	void Update(float deltaTime);
 	// 描画
 	void Draw();
 	// パーティクルグループを登録する
@@ -68,7 +76,8 @@ public:
 	// 全てのエミッターを削除する関数
 	void DeleteAllEmitters();
 #ifdef _DEBUG
-	void DebugGui();
+	// パーティクル用エディタ。描画は Engine/Editor/Windows/ が回すので、ここでは実体を貸すだけ
+	ParticleEditor* GetEditor() { return editor_.get(); }
 #endif // DEBUG
 
 public: // 構造体
@@ -114,7 +123,11 @@ private:
 	// WVP用のリソースを生成 
 	void CreateMaterialResource();
 	// パーティクルを生成する関数
-	Particle MakeNewParticle(const std::string name_, const Vector3& translate);
+	// direction に nullptr 以外を渡すと、useDirectional が有効なグループでは方向付きの速度になる
+	Particle MakeNewParticle(const std::string& name_, const Vector3& translate, const Vector3* direction);
+
+	// Emit / EmitFromMesh の共通実装
+	void EmitInternal(const std::string& name, const Vector3& position, uint32_t count, const Vector3* direction);
 
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
 
@@ -129,6 +142,22 @@ public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
 	void Emit(const std::string name_, const Vector3& position, uint32_t count);
+
+	/// <summary>
+	/// 方向を指定してパーティクルを発生させる（ヒット方向へ火花を飛ばす等）。
+	/// グループの useDirectional が false の場合、方向は無視され通常の Emit と同じ挙動になる。
+	/// </summary>
+	void Emit(const std::string& name, const Vector3& position, uint32_t count, const Vector3& direction);
+
+	/// <summary>
+	/// 登録済みエミッターをワンショットで再生する。
+	/// エミッターは複数のパーティクルグループを束ねられるので、
+	/// 「火花＋煙＋リング」のような複合VFXを Resource/Emitter/*.json の1定義で扱える。
+	/// </summary>
+	/// <param name="countScale">発生数の倍率（攻撃の強さで演出量を変えるのに使う）</param>
+	/// <returns>そのエミッターが登録されていれば true</returns>
+	bool PlayVFX(const std::string& emitterName, const Vector3& position, float countScale = 1.0f);
+	bool PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale = 1.0f);
 
 	// モデルのメッシュ表面からパーティクルを発生させる関数
 	// worldMatrix でモデルローカル座標→ワールド座標に変換する（回転・スケール込み）
@@ -191,5 +220,51 @@ public:
 
 	const std::unordered_map<std::string, ParticleGroup>& GetParticleGroups() { return particleGroups_; }
 	const std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>>& GetEmitters() { return emitters_; }
-	
+
+	/// <summary>
+	/// カーブを編集するための可変アクセス（エディタ用）。存在しないグループ名なら nullptr。
+	/// カーブは GlobalVariables ではなく別ファイル管理なので、変更後は SaveParticleCurves() を呼ぶこと。
+	/// </summary>
+	ParticleCurves* GetParticleCurves(const std::string& groupName);
+	/// <summary>カーブを Resource/Particle/&lt;groupName&gt;.curve.json へ保存する</summary>
+	void SaveParticleCurves(const std::string& groupName);
+
+	// ======================
+	// VFX ファイル（設計書 §21-22）
+	// ======================
+
+	/// <summary>
+	/// Resource/VFX/&lt;vfxName&gt;.vfx.json を読み、パーティクルグループとエミッターをまとめて登録する。
+	///
+	/// テクスチャ・形状もファイルに入っているので、**新しいVFXを足すのに C++ の変更が要らない**。
+	/// パラメータは GlobalVariables へ流し込むため、エディタの編集経路は従来のまま使える。
+	/// </summary>
+	/// <returns>ファイルが無い・壊れている場合は false（呼び出し側で従来の登録へ落とせる）</returns>
+	bool LoadVFX(const std::string& vfxName);
+
+	/// <summary>
+	/// 読み込み済みのVFXを現在の値で .vfx.json へ書き戻す。
+	/// エディタで調整した内容（パラメータ・カーブ・エミッターの構成）がそのまま保存される。
+	/// </summary>
+	bool SaveVFX(const std::string& vfxName);
+
+	/// <summary>
+	/// 既存のエミッター（Resource/Emitter/*.json 経路で作ったもの）と、
+	/// それが束ねているパーティクルグループを1つの .vfx.json に書き出す移行用。
+	/// </summary>
+	bool ExportEmitterAsVFX(const std::string& emitterName, const std::string& vfxName);
+
+	/// <summary>そのグループがどのVFXに属しているか。属していなければ nullptr</summary>
+	const std::string* GetOwningVFX(const std::string& groupName) const;
+
+	/// <summary>Resource/VFX/ にある .vfx.json の一覧</summary>
+	std::vector<std::string> ListVFXNames() const;
+
+private:
+	/// <summary>VFX定義を組み立てる（SaveVFX / ExportEmitterAsVFX の共通処理）</summary>
+	bool BuildVFXDefinition(const std::string& vfxName, const std::string& emitterName, VFXDefinition& outDefinition);
+
+	// パーティクルグループ名 → それを定義している .vfx.json の名前。
+	// エディタの保存先をどちらにするか決めるのに使う
+	std::unordered_map<std::string, std::string> groupOwnerVFX_;
 };

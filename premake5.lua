@@ -62,6 +62,12 @@ project "GuchisEngine"
    buildoptions { "/utf-8" }
    flags { "MultiProcessorCompile" }
 
+   -- vendored な外部ライブラリ(imgui / imgui-node-editor)は上流のコードなので手を入れない。
+   -- 自前コードの警告0を維持するため、これらのファイルだけ警告を切る
+   filter "files:Externals/**"
+      warnings "Off"
+   filter {}
+
    postbuildcommands {
       'copy "$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"',
       'copy "$(WindowsSdkDir)bin\\$(TargetPlatformVersion)\\x64\\dxil.dll" "$(TargetDir)dxil.dll"'
