@@ -223,6 +223,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Debugger\ImGuiManager.h" />
     <ClInclude Include="Engine\Debugger\LeakChecker.h" />
     <ClInclude Include="Engine\Editor\Core\EditorAssetUtil.h" />
+    <ClInclude Include="Engine\Editor\Core\EditorCamera.h" />
     <ClInclude Include="Engine\Editor\Core\EditorContext.h" />
     <ClInclude Include="Engine\Editor\Core\EditorDebugDraw.h" />
     <ClInclude Include="Engine\Editor\Core\EditorGameView.h" />
@@ -510,6 +511,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Debugger\ImGuiManager.cpp" />
     <ClCompile Include="Engine\Debugger\LeakChecker.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorAssetUtil.cpp" />
+    <ClCompile Include="Engine\Editor\Core\EditorCamera.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorContext.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorDebugDraw.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorGameView.cpp" />

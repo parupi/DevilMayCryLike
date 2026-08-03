@@ -31,6 +31,8 @@ GuchisEngine のエディタ（`_DEBUG` ビルドのみ）の全体像。
 | `Engine/World3D/Collider/CollisionManager.cpp` | 同上（Collider） |
 | `Engine/Graphics/.../ForwardSceneRenderPass.cpp` | 同上（Grid） |
 | `App/.../PlayerStateAttack.cpp` | 同上（AttackTrail） |
+| `Engine/World3D/Camera/CameraManager.{h,cpp}` | デバッグカメラの割り込み（`SetDebugCamera`）。ポインタを預かるだけ |
+| `Engine/Input/Input.{h,cpp}` | 飛行中にゲームへの入力を止める `SetSuppressedForEditor` と Raw 系 |
 
 いずれも「描くかどうかのフラグを読む」だけで、UIは持たない。
 
@@ -64,6 +66,7 @@ Engine/Editor/Core/
   EditorViewMath.*          ゲームビューに重ねるものの投影とレイ（ギズモと選択で共有）
   EditorGizmo.*             ゲームビュー上の移動／回転／拡縮ギズモ
   EditorPicking.*           ゲームビューの絵をクリックして選ぶ
+  EditorCamera.*            F9 で割り込む自由飛行のデバッグカメラ
   EditorSelection.*         選択中の Object3d（名前で保持）
   EditorAssetUtil.*         モデルフォルダ走査・モデル名の逆引き
 
@@ -166,6 +169,7 @@ Windowメニューの「ゲーム」側へ自動的に並ぶ。呼ぶ側が意�
 | `Resource/GlobalVariables/Editor/EditorDebugDraw.json` | デバッグ描画のトグル | 同上 |
 | `Resource/GlobalVariables/Editor/EditorGizmo.json` | ギズモの操作モード・スナップ設定 | 同上 |
 | `Resource/GlobalVariables/Editor/EditorPicking.json` | クリック選択・選択枠のトグル | 同上 |
+| `Resource/GlobalVariables/Editor/EditorCamera.json` | デバッグカメラの速度・感度 | 同上 |
 | `imgui.ini` | ドッキング配置・ウィンドウサイズ | ImGui が自動 / Layoutメニュー |
 | `Resource/GlobalVariables/<各グループ>/` | ゲーム・エンジンの調整値 | Ctrl+S / 各ウィンドウの Save |
 
@@ -191,7 +195,11 @@ App が バトル調整 / カメラ調整 / VFX作業(ゲーム) を登録する
 const ImVec2 imagePos = ImGui::GetItemRectMin();  // 画像の実際の左上
 EditorGizmo::DrawOverlay(imagePos, imageSize);
 EditorPicking::HandleGameView(imagePos, imageSize);  // ギズモの後
+EditorCamera::DrawBadge(imagePos, imageSize);
 ```
+
+`EditorCamera::Update(hovered_)` は `DrawWindow()` の**末尾で無条件に**呼ぶ
+（ウィンドウが閉じていても、掴んだままの飛行モードを解除させるため）。
 
 投影とレイは `EditorViewMath`（`EditorView::Build/WorldToScreen/ScreenToRay`）に集めてある。
 アクティブカメラと画像の矩形から `EditorView::Context` を作り、両者が同じ前提を共有する。
@@ -247,6 +255,34 @@ Hierarchy / Inspector / ギズモはそこを見ているので、そのまま�
 
 重いのはクリックした瞬間だけで、毎フレーム走るのは選択枠の描画（キャッシュ引き）のみ。
 
+### デバッグカメラ
+
+**F9** でゲームのカメラに割り込み、マインクラフトのクリエイティブ飛行と同じ感覚で飛び回れる。
+
+| 操作 | 動き |
+|---|---|
+| 右ドラッグ | 視点。**押している間だけが「飛行モード」** |
+| W / A / S / D | 見ている方向へ前後・左右（ピッチも効く） |
+| Space / Shift | ワールドの上下 |
+| Ctrl | ダッシュ |
+| ホイール | 移動速度の増減 |
+
+- **カメラの実体はエディタ（`EditorCamera`）が持ち、`CameraManager` にはポインタだけ渡す**
+  （`SetDebugCamera()`）。`cameras_` に入れるとシーン切替の `DeleteAllCamera()` で消える
+- 立っている間、`GetActiveCamera()` / `GetCurrentCamera()` は無条件にデバッグカメラを返すので、
+  描画・パーティクル・ギズモ・クリック選択まで下流すべてが自動で追従する
+- **ゲーム側のカメラも裏で更新し続ける**。`CameraManager::Update()` は
+  `FindActiveCameraEntry()`（割り込みを見ない版）で実体を引いて更新してから差し替える。
+  そのため F9 で戻したときに画が飛ばない
+- ON にした瞬間に位置・向き・画角をコピーするので、入るときも飛ばない
+- **飛行モードの間だけ `Input::SetSuppressedForEditor(true)`**。同じ WASD / Space が
+  ゲームにも届いてプレイヤーが走り出すのを防ぐ。エディタ側は `PushKeyRaw()` など
+  Raw 付きで素のデバイス状態を読む。右ドラッグを離せばゲームは普通に操作できる
+- 時間は `DeltaTime::GetUnscaledDeltaTime()`。ポーズ中・スロー中でも同じ速さで飛べる
+- **`BaseCamera::GetRight()` は使わない**。あちらは `MakeRotateXYZMatrix`（Y*X*Z）で組んでいて、
+  `BaseCamera::Update()` が使う `MakeAffineMatrix`（X*Y*Z）と一致しない。
+  `EditorCamera` は Rx*Ry の行を直に書き下している
+
 ### ショートカット
 
 | キー | 動作 |
@@ -255,6 +291,7 @@ Hierarchy / Inspector / ギズモはそこを見ているので、そのまま�
 | Ctrl+S | 全パラメータを保存 |
 | Ctrl+R | シーンをリロード |
 | F5 | 再生 / 一時停止 |
+| F9 | デバッグカメラ ON / OFF |
 | F10 | コマ送り（一時停止中） |
 
 ギズモのショートカットは上の「ギズモ」を参照。
@@ -277,6 +314,9 @@ Hierarchy / Inspector / ギズモはそこを見ているので、そのまま�
   毎フレーム呼ぶと確実に落ちる。EditorPicking は焼くときの1回だけ呼んでいる
 - **`MathUtils` の `Transform()` は w=0 で assert する**。潰れた行列を通す可能性がある場所では
   自前で座標変換すること（EditorPicking の `TransformPoint`）
+- **オイラー角の合成順が2種類ある**。`MakeAffineMatrix(scale, Vector3 rotate, translate)` は
+  **X\*Y\*Z**、`MakeRotateXYZMatrix()` は **Y\*X\*Z**。カメラの姿勢は前者で作られているので、
+  前・右ベクトルを自分で出すときは前者に合わせること
 - **`ImGui::Image` に渡せるのは ImGui 自身のディスクリプタヒープの中だけ**。
   エンジンのSRVはシェーダ可視ヒープにあり `CopyDescriptors` もできないので、
   Asset Browser は ImGui のヒープに1枠だけ確保してSRVを作り直している

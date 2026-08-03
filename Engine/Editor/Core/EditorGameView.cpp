@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 
 #include "Graphics/Device/DirectXManager.h"
+#include "Editor/Core/EditorCamera.h"
 #include "Editor/Core/EditorGizmo.h"
 #include "Editor/Core/EditorPicking.h"
 #include "Editor/Core/EditorWindowRegistry.h"
@@ -134,6 +135,7 @@ void EditorGameView::DrawWindow()
 		EditorGizmo::DrawOverlay(imagePos, imageSize);
 		// クリック選択はギズモの**後**。ギズモが掴んだクリックを横取りしないため
 		EditorPicking::HandleGameView(imagePos, imageSize);
+		EditorCamera::DrawBadge(imagePos, imageSize);
 
 		EditorWindow::End();
 	} else {
@@ -141,6 +143,10 @@ void EditorGameView::DrawWindow()
 		hovered_ = false;
 		focused_ = false;
 	}
+
+	// ウィンドウが隠れていても必ず呼ぶ。掴んだままの飛行モードを解除させるため。
+	// ここは CameraManager::Update() より前なので、この場で動かした値がそのフレームの絵に乗る
+	EditorCamera::Update(hovered_);
 }
 
 #endif // _DEBUG

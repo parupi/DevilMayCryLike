@@ -1,6 +1,7 @@
 #include "EditorHost.h"
 #ifdef _DEBUG
 
+#include "EditorCamera.h"
 #include "EditorDebugDraw.h"
 #include "EditorGizmo.h"
 #include "EditorMenuBar.h"
@@ -79,6 +80,7 @@ void Editor::Initialize()
 	EditorDebugDraw::LoadSettings();
 	EditorGizmo::LoadSettings();
 	EditorPicking::LoadSettings();
+	EditorCamera::LoadSettings();
 
 	EditorLayout::RegisterBuiltinPresets();
 
@@ -107,8 +109,11 @@ void Editor::Finalize()
 	EditorDebugDraw::SaveSettings();
 	EditorGizmo::SaveSettings();
 	EditorPicking::SaveSettings();
+	EditorCamera::SaveSettings();
 	// 焼いたメッシュを抱えたままだと、ModelManager より後に解放されて分かりにくい
 	EditorPicking::ClearCache();
+	// CameraManager が握っているポインタを外してからカメラを捨てる
+	EditorCamera::Finalize();
 	EditorStats::Finalize();
 
 	g_drawers.clear();

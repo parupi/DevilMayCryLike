@@ -47,11 +47,23 @@ void CameraManager::Update()
 		TransitionUpdate();
 		camera = transitionCamera_.get();
 	} else {
-		camera = GetActiveCamera();
+		// ここは GetActiveCamera() ではなく実体側を引く。
+		// デバッグカメラが割り込んでいてもゲーム側のカメラを更新し続けたいため
+		camera = FindActiveCameraEntry();
 		if (camera) {
 			camera->Update();
 		}
 	}
+
+#ifdef _DEBUG
+	// デバッグカメラが立っていれば、絵に使うのはそちら。
+	// SetActiveCamera() を挟まれても毎フレームここで引き戻す
+	if (debugCamera_) {
+		debugCamera_->Update();
+		camera = debugCamera_;
+		ParticleManager::GetInstance().SetCamera(camera);
+	}
+#endif
 
 	if (camera) {
 		cameraData_->worldPosition = camera->GetTranslate();
@@ -107,12 +119,8 @@ void CameraManager::SetActiveCamera(const std::string& cameraName, float transit
 	Logger::Log("[CameraManager] Transition started from \"" + activeCameraName_ + "\" to \"" + nextCameraName_ + "\" (" + std::to_string(transitionTime) + "s)\n");
 }
 
-BaseCamera* CameraManager::GetActiveCamera() const
+BaseCamera* CameraManager::FindActiveCameraEntry() const
 {
-	if (isTransitioning_) {
-		return transitionCamera_.get();
-	}
-
 	if (activeCameraName_.empty()) return nullptr;
 
 	auto it = cameras_.find(activeCameraName_);
@@ -122,13 +130,40 @@ BaseCamera* CameraManager::GetActiveCamera() const
 	return nullptr;
 }
 
-BaseCamera* CameraManager::GetCurrentCamera() const
+BaseCamera* CameraManager::GetActiveCamera() const
 {
+#ifdef _DEBUG
+	// デバッグカメラが最優先。切り替え補間中でもこちらを見せる
+	if (debugCamera_) {
+		return debugCamera_;
+	}
+#endif
+
 	if (isTransitioning_) {
 		return transitionCamera_.get();
 	}
+
+	return FindActiveCameraEntry();
+}
+
+BaseCamera* CameraManager::GetCurrentCamera() const
+{
 	return GetActiveCamera();
 }
+
+#ifdef _DEBUG
+void CameraManager::SetDebugCamera(BaseCamera* camera)
+{
+	debugCamera_ = camera;
+
+	// 下流が握っているポインタを今すぐ付け替える。
+	// 次の Update() を待たずに1フレーム目から正しい絵になる
+	if (BaseCamera* target = GetActiveCamera()) {
+		Object3dManager::GetInstance().SetDefaultCamera(target);
+		ParticleManager::GetInstance().SetCamera(target);
+	}
+}
+#endif // _DEBUG
 
 void CameraManager::BindCameraToShader()
 {

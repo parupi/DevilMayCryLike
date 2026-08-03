@@ -85,13 +85,21 @@ void Input::Update() {
 	}
 }
 
+// 以下の問い合わせは suppressedForEditor_ が立っている間「何も押されていない」を返す。
+// エディタがデバッグカメラを飛ばしている最中で、同じ WASD がゲームにも届くと困るため。
+// key_ / keyPre_ 自体は Update() で普通に更新され続けるので、解除した瞬間に
+// 押しっぱなしのキーがトリガー扱いで暴発することはない。
+// エディタ自身は Raw が付いたほうを読む（Input.h）。Release では常に false なので素通り。
+
 // キーが押されているかのチェック
 bool Input::PushKey(BYTE keyNumber) const {
+	if (suppressedForEditor_) return false;
 	return key_[keyNumber] & 0x80;
 }
 
 // キーがトリガーかのチェック
 bool Input::TriggerKey(BYTE keyNumber) const {
+	if (suppressedForEditor_) return false;
 	return (key_[keyNumber] & 0x80) && !(keyPre_[keyNumber] & 0x80);
 }
 
@@ -102,22 +110,26 @@ const DIMOUSESTATE2& Input::GetAllMouse() const {
 
 // マウスボタンが押されているかのチェック
 bool Input::IsPressMouse(int32_t buttonNumber) const {
+	if (suppressedForEditor_) return false;
 	return mouse_.rgbButtons[buttonNumber] & 0x80;
 }
 
 // マウスボタンがトリガーかのチェック
 bool Input::IsTriggerMouse(int32_t buttonNumber) const {
+	if (suppressedForEditor_) return false;
 	return (mouse_.rgbButtons[buttonNumber] & 0x80) && !(mousePre_.rgbButtons[buttonNumber] & 0x80);
 }
 
 // マウス移動量の取得
 Input::MouseMove Input::GetMouseMove() {
+	if (suppressedForEditor_) return MouseMove{ 0, 0, 0 };
 	MouseMove move = {mouse_.lX, mouse_.lY, mouse_.lZ};
 	return move;
 }
 
 // ホイールスクロール量の取得
 int32_t Input::GetWheel() const {
+	if (suppressedForEditor_) return 0;
 	return mouse_.lZ;
 }
 

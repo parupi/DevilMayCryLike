@@ -1,6 +1,7 @@
 #include "EditorMenuBar.h"
 #ifdef _DEBUG
 
+#include "EditorCamera.h"
 #include "EditorDebugDraw.h"
 #include "EditorGizmo.h"
 #include "EditorHost.h"
@@ -102,7 +103,13 @@ void DrawHelpMenu()
 	ImGui::Text("Ctrl+S    全パラメータを保存");
 	ImGui::Text("Ctrl+R    シーンをリロード");
 	ImGui::Text("F5        再生 / 一時停止");
+	ImGui::Text("F9        デバッグカメラ ON / OFF");
 	ImGui::Text("F10       コマ送り（一時停止中）");
+	ImGui::Separator();
+	ImGui::TextDisabled("デバッグカメラ（F9で入ったあと）");
+	ImGui::Text("右ドラッグ  視点を回す（押している間だけ操作を受ける）");
+	ImGui::Text("W/A/S/D   前後左右   Space 上昇   Shift 下降");
+	ImGui::Text("Ctrl      ダッシュ   ホイール 速度の増減");
 	ImGui::Separator();
 	ImGui::TextDisabled("ギズモ");
 	ImGui::Text("Ctrl+1/2/3  移動 / 回転 / 拡縮");
@@ -155,6 +162,9 @@ void HandleShortcuts()
 
 	if (ImGui::Shortcut(ImGuiKey_F5, ImGuiInputFlags_RouteGlobal)) {
 		DeltaTime::SetPaused(!DeltaTime::IsPaused());
+	}
+	if (ImGui::Shortcut(ImGuiKey_F9, ImGuiInputFlags_RouteGlobal)) {
+		EditorCamera::Toggle();
 	}
 	if (ImGui::Shortcut(ImGuiKey_F10, ImGuiInputFlags_RouteGlobal)) {
 		// 止まっていなければ、まず止めてから1コマ進める

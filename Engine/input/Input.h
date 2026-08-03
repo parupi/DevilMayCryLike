@@ -146,6 +146,21 @@ public: // メンバ関数
 	float GetLeftStickY() const;
 	float GetRightStickX() const;
 	float GetRightStickY() const;
+
+#ifdef _DEBUG
+	// ── エディタ専用 ──
+	// デバッグカメラを飛ばしている間、同じ WASD でプレイヤーまで動いてしまうので、
+	// その間だけゲームへの入力を止める。止まるのは下の Raw が付かない問い合わせだけで、
+	// エディタ自身は Raw 版で素のデバイス状態を読む。
+	void SetSuppressedForEditor(bool suppressed) { suppressedForEditor_ = suppressed; }
+	bool IsSuppressedForEditor() const { return suppressedForEditor_; }
+
+	bool PushKeyRaw(BYTE keyNumber) const { return (key_[keyNumber] & 0x80) != 0; }
+	bool IsPressMouseRaw(int32_t buttonNumber) const { return (mouse_.rgbButtons[buttonNumber] & 0x80) != 0; }
+	MouseMove GetMouseMoveRaw() const { return { mouse_.lX, mouse_.lY, mouse_.lZ }; }
+	int32_t GetWheelRaw() const { return mouse_.lZ; }
+#endif // _DEBUG
+
 private:
 	float ProcessDeadZone(float value) const;
 
@@ -165,4 +180,8 @@ private: // メンバ変数
 
 	// スティックの遊び
 	int deadZone_ = 25;
+
+	// エディタがゲームへの入力を止めているか。
+	// 立てられるのは Debug ビルドの SetSuppressedForEditor() からだけで、Release では常に false
+	bool suppressedForEditor_ = false;
 };

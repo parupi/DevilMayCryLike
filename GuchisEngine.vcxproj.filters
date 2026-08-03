@@ -618,6 +618,9 @@
     <ClInclude Include="Engine\Editor\Core\EditorAssetUtil.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorCamera.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Editor\Core\EditorContext.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
@@ -1473,6 +1476,9 @@
       <Filter>Engine\Debugger</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorAssetUtil.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorCamera.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Core\EditorContext.cpp">
