@@ -18,7 +18,7 @@
         "HitPostEffect": false,
         "HitVignette": false,
         "Inspector": true,
-        "Light Manager": false,
+        "Light Manager": true,
         "Particle Groups": false,
         "Particle Node Graph": false,
         "Player": false,

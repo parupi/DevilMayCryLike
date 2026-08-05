@@ -1,584 +1,890 @@
 {
-  "format": "GuchisStage",
-  "version": 2,
-  "objects": [
-    {
-      "name": "Ground2",
-      "class": "Ground",
-      "translate": [
-        8.0,
-        0.0,
-        0.0
-      ],
-      "rotate": [
-        0.0,
-        -0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        10.0,
-        15.0
-      ],
-      "model": "Cube",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground3",
-      "class": "Ground",
-      "translate": [
-        -8.0,
-        0.0,
-        0.0
-      ],
-      "rotate": [
-        0.0,
-        -0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        1.0,
-        10.0,
-        15.0
-      ],
-      "model": "Cube",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground4",
-      "class": "Ground",
-      "translate": [
-        0.0,
-        -1.0,
-        -12.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground5",
-      "class": "Ground",
-      "translate": [
-        0.0,
-        -1.0,
-        -6.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground6",
-      "class": "Ground",
-      "translate": [
-        0.0,
-        -1.0,
-        0.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground7",
-      "class": "Ground",
-      "translate": [
-        0.0,
-        -1.0,
-        6.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground8",
-      "class": "Ground",
-      "translate": [
-        0.0,
-        -1.0,
-        12.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground9",
-      "class": "Ground",
-      "translate": [
-        -6.0,
-        -1.0,
-        0.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground10",
-      "class": "Ground",
-      "translate": [
-        -6.0,
-        -1.0,
-        6.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground11",
-      "class": "Ground",
-      "translate": [
-        -6.0,
-        -1.0,
-        12.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground12",
-      "class": "Ground",
-      "translate": [
-        -6.0,
-        -1.0,
-        -6.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground13",
-      "class": "Ground",
-      "translate": [
-        -6.0,
-        -1.0,
-        -12.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground14",
-      "class": "Ground",
-      "translate": [
-        6.0,
-        -1.0,
-        -12.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground15",
-      "class": "Ground",
-      "translate": [
-        6.0,
-        -1.0,
-        -6.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground16",
-      "class": "Ground",
-      "translate": [
-        6.0,
-        -1.0,
-        0.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground17",
-      "class": "Ground",
-      "translate": [
-        6.0,
-        -1.0,
-        6.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        0.0,
-        1.0
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    },
-    {
-      "name": "Ground18",
-      "class": "Ground",
-      "translate": [
-        6.0,
-        -1.0,
-        12.0
-      ],
-      "rotate": [
-        0.0,
-        0.0,
-        -0.0026179912965744734,
-        0.9999966025352478
-      ],
-      "scale": [
-        3.0,
-        3.0,
-        3.0
-      ],
-      "model": "ModularFloor",
-      "collider": {
-        "shape": "OBB",
-        "offset": [
-          0.0,
-          0.0,
-          0.0
-        ],
-        "halfExtents": [
-          1.0,
-          1.0,
-          1.0
-        ]
-      }
-    }
-  ]
+    "format": "GuchisStage",
+    "version": 2,
+    "objects": [
+        {
+            "name": "Ground3",
+            "class": "Ground",
+            "translate": [
+                -8.0,
+                0.0,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                -0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                10.0,
+                15.0
+            ],
+            "model": "Cube",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground4",
+            "class": "Ground",
+            "translate": [
+                0.0,
+                -1.0,
+                -12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground5",
+            "class": "Ground",
+            "translate": [
+                0.0,
+                -1.0,
+                -6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground6",
+            "class": "Ground",
+            "translate": [
+                0.0,
+                -1.0,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground7",
+            "class": "Ground",
+            "translate": [
+                0.0,
+                -1.0,
+                6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground8",
+            "class": "Ground",
+            "translate": [
+                0.0,
+                -1.0,
+                12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground9",
+            "class": "Ground",
+            "translate": [
+                -6.0,
+                -1.0,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground10",
+            "class": "Ground",
+            "translate": [
+                -6.0,
+                -1.0,
+                6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground11",
+            "class": "Ground",
+            "translate": [
+                -6.0,
+                -1.0,
+                12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground12",
+            "class": "Ground",
+            "translate": [
+                -6.0,
+                -1.0,
+                -6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground13",
+            "class": "Ground",
+            "translate": [
+                -6.0,
+                -1.0,
+                -12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground14",
+            "class": "Ground",
+            "translate": [
+                6.0,
+                -1.0,
+                -12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground15",
+            "class": "Ground",
+            "translate": [
+                6.0,
+                -1.0,
+                -6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground16",
+            "class": "Ground",
+            "translate": [
+                6.0,
+                -1.0,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground17",
+            "class": "Ground",
+            "translate": [
+                6.0,
+                -1.0,
+                6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Ground18",
+            "class": "Ground",
+            "translate": [
+                6.0,
+                -1.0,
+                12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                -0.0026179912965744734,
+                0.9999966025352478
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularFloor",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall1",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                1.0,
+                -12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall2",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                1.0,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall3",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                1.0,
+                6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall4",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                1.0,
+                12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall5",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                1.0,
+                -6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall6",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                7.0,
+                -6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall_top",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall7",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                7.0,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall_top",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall8",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                7.0,
+                6.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall_top",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall9",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                7.0,
+                12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall_top",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
+            "name": "Wall10",
+            "class": "Ground",
+            "translate": [
+                8.0,
+                7.0,
+                -12.0
+            ],
+            "rotate": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                3.0,
+                3.0,
+                3.0
+            ],
+            "model": "ModularStoneWall_top",
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    ]
 }
