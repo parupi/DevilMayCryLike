@@ -8,6 +8,20 @@
 #include <cmath>
 #include <vector>
 
+LockOnSystem::~LockOnSystem() {
+	// 残っているターゲットに「もうこのシステムは無い」と伝えてから死ぬ。
+	// これをしないと、後から破棄される敵の ~Enemy が解放済みの this へ
+	// UnregisterTarget() を呼びに来る（解放済みメモリの std::vector を読むので、
+	// targets_ の要素数が数千に化けたり落ちたりする）
+	for (auto* target : targets_) {
+		if (target) {
+			target->DetachSystem();
+		}
+	}
+	targets_.clear();
+	currentTarget_ = nullptr;
+}
+
 void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 	input_ = input;
 	player_ = player;
@@ -97,6 +111,14 @@ void LockOnSystem::Update() {
 }
 
 void LockOnSystem::RegisterTarget(LockOnTarget* target) {
+	if (!target) return;
+
+	// 二重登録を弾く。同じ敵が何度も並ぶと FindBestTarget が無駄に回り、
+	// 解除漏れの温床にもなる
+	if (std::find(targets_.begin(), targets_.end(), target) != targets_.end()) {
+		return;
+	}
+
 	targets_.push_back(target);
 }
 
