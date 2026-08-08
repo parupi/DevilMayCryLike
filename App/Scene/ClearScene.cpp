@@ -11,9 +11,12 @@
 #include <Scene/Transition/SceneTransitionController.h>
 #include <GameData/GameData.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include <Audio/SoundManager.h>
 
 void ClearScene::Initialize()
 {
+	SoundManager::GetInstance().PlayBGM("ClearBGM", 0.8f);
+
 	TextureManager::GetInstance().LoadTexture("ClearUI.png");
 	TextureManager::GetInstance().LoadTexture("Result.png");
 	TextureManager::GetInstance().LoadTexture("Numbers.png");

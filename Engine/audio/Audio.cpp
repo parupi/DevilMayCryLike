@@ -17,19 +17,23 @@ void Audio::Initialize() {
 
 }
 void Audio::StopBGM(int resourceNum) {
+	if (!IsValidVoice(resourceNum)) { return; }
 	pSourceVoices_[resourceNum]->Stop();
 	pSourceVoices_[resourceNum]->FlushSourceBuffers();
 }
 
 void Audio::PauseBGM(int resourceNum) {
+	if (!IsValidVoice(resourceNum)) { return; }
 	pSourceVoices_[resourceNum]->Stop();
 }
 
 void Audio::ReStartBGM(int resourceNum) {
+	if (!IsValidVoice(resourceNum)) { return; }
 	pSourceVoices_[resourceNum]->Start();
 }
 
 void Audio::SetBGMVolume(int resourceNum, float volume) {
+	if (!IsValidVoice(resourceNum)) { return; }
 	pSourceVoices_[resourceNum]->SetVolume(std::clamp(volume, 0.0f, 1.0f));
 }
 
@@ -126,7 +130,11 @@ void Audio::SoundUnload(const char* filename) {
 int Audio::SoundPlayWave(const char* filename, const bool isLoop) {
 	HRESULT result;
 
-	SoundData& soundData = soundDataMap[filename];
+	// 読み込んでいない音を operator[] で引くと空の波形フォーマットが出来てしまい、
+	// そのまま CreateSourceVoice に渡して落ちる。見つからなければ鳴らさずに抜ける
+	auto itSound = soundDataMap.find(filename);
+	if (itSound == soundDataMap.end()) { return -1; }
+	SoundData& soundData = itSound->second;
 
 	// 今回使うサウンドデータ
 	int sourceNum = -1;
@@ -137,10 +145,14 @@ int Audio::SoundPlayWave(const char* filename, const bool isLoop) {
 	// 使用できるリソースがない場合は-1を返す
 	if (sourceNum == -1) { return -1; }
 
-	// 再生停止中、もしくは残りの再生数が最小のリソースを使用
+	// 再生停止中、もしくは残りの再生数が最小のリソースを使用。
+	// 下で作り直すので、古いボイスはここで破棄しておく
+	// （破棄せずに上書きすると再生のたびに IXAudio2SourceVoice が漏れる）
 	if (pSourceVoices_[sourceNum] != nullptr) {
 		pSourceVoices_[sourceNum]->Stop();
 		pSourceVoices_[sourceNum]->FlushSourceBuffers();
+		pSourceVoices_[sourceNum]->DestroyVoice();
+		pSourceVoices_[sourceNum] = nullptr;
 	}
 
 	// 波形フォーマットをもとにSourceVoiceの生成
@@ -200,6 +212,11 @@ int Audio::SearchSourceVoice(IXAudio2SourceVoice** sourceVoices) {
 	}
 
 	return sourceVoiceNum;
+}
+
+bool Audio::IsValidVoice(int resourceNum) const {
+	if (resourceNum < 0 || resourceNum >= static_cast<int>(kMaxPlayWave)) { return false; }
+	return pSourceVoices_[resourceNum] != nullptr;
 }
 
 XAUDIO2_BUFFER Audio::SetBuffer(bool loop, const SoundData& sound) {

@@ -151,6 +151,15 @@ public:
 
 	int32_t GetHp() const { return hp_; }
 
+	/// <summary>
+	/// 死亡演出が終わったことを知らせる。PlayerStateDeath から呼ぶ。
+	///
+	/// シーンを切り替えるのはプレイヤーの仕事ではないので、
+	/// ここで印を付けておいて GameScene 側に拾ってもらう
+	/// </summary>
+	void NotifyDeathFinished() { isDeathFinished_ = true; }
+	bool IsDeathFinished() const { return isDeathFinished_; }
+
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 	void SetTutorialService(TutorialService* tutorialService) { tutorialService_ = tutorialService; }
@@ -203,6 +212,8 @@ private:
 	int32_t hp_ = 5;
 	// 無敵時間（被弾直後の連続ヒット防止）
 	float invincibleTimer_ = 0.0f;
+	// 死亡演出を最後まで再生し終えたか
+	bool isDeathFinished_ = false;
 	// 被ダメージ情報（ノックバックステートで参照）
 	DamageInfo pendingDamageInfo_;
 	// 被弾時のビネットエフェクト

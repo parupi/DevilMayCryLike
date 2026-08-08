@@ -2,8 +2,11 @@
 #include "Scene/GameScene/GameScene.h"
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Utility/DeltaTime.h>
+#include <Audio/SoundManager.h>
 
 void GameSceneStateClear::Enter(GameScene& scene) {
+	// クリア演出に入ったら戦闘中のBGMを引かせる（CLEARシーンで ClearBGM に切り替わる）
+	SoundManager::GetInstance().StopBGM(1.0f);
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);
 	scene.GetInputContext()->SetCanCameraMove(false);

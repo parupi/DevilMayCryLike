@@ -5,6 +5,7 @@
 #include "Scene/Transition/TransitionManager.h"
 #include "Math/MathUtils.h"
 #include "GameObject/Effect/HitEffectSystem.h"
+#include "Audio/SoundManager.h"
 
 namespace {
 	// 攻撃名からチュートリアルの種類を判定する（該当しない攻撃はCountを返す）
@@ -107,6 +108,9 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		// 「攻撃が通っていない」ことは敵側の紫の火花（BossArmorHitSpark）が伝える
 		fx.vfxName = fx.isArmorHit ? "" : "HitImpact";
 		HitEffectSystem::GetInstance().Play(fx);
+
+		// 手応えの音。弾かれたヒットは通っていないので控えめに鳴らす
+		SoundManager::GetInstance().PlaySE("SwordHit", fx.isArmorHit ? 0.5f : 0.9f);
 
 		// チュートリアル対象の攻撃であれば進行させる
 		TutorialState tutorialState = ResolveTutorialState(player_->GetCombat()->GetCurrentAttackName());

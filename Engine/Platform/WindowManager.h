@@ -47,6 +47,16 @@ public: // メンバ変数
 	void ToggleFullscreen();
 	bool IsFullscreen() const { return isFullscreen_; }
 
+	/// <summary>
+	/// アプリの終了を要求する。タイトルの QUIT など、ゲーム側から抜けたいときに呼ぶ。
+	///
+	/// 次の ProcessMessage() が true を返すようになり、メインループが素直に抜けて
+	/// 通常の Finalize を通る。メッセージキューに積まずに自前のフラグで見ているのは、
+	/// PeekMessage が1フレームに1件しか捌かないため、WM_QUIT の到着が遅れうるから
+	/// </summary>
+	static void RequestQuit() { quitRequested_ = true; }
+	static bool IsQuitRequested() { return quitRequested_; }
+
 	// getter
 	HWND GetHwnd() const { return hwnd_; }
 	HINSTANCE GetHInstance() const { return wndClass_.hInstance; }
@@ -63,5 +73,8 @@ private:
 
 	// WindowProcはstaticなのでインスタンスへ辿るために持っておく。ウィンドウは1つだけ
 	static inline WindowManager* instance_ = nullptr;
+
+	// ゲーム側から終了を要求されたか
+	static inline bool quitRequested_ = false;
 };
 

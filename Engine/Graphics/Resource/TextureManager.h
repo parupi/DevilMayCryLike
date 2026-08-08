@@ -27,6 +27,15 @@ public:
 	// メモリ上のRGBAピクセルデータからテクスチャを登録する (GifLoader から呼ばれる)
 	void LoadTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height);
 
+	/// <summary>
+	/// 登録済みテクスチャの中身をRGBAピクセルデータで差し替える。未登録なら新規登録する。
+	///
+	/// フォントのグリフアトラスのように、実行中に描き足されていく絵のためのもの。
+	/// コマンドリストへコピーを積むので、**そのフレームでそれを読む描画より前に**呼ぶこと。
+	/// 大きさが変わる場合はリソースを作り直して同じSRVスロットへ張り直す
+	/// </summary>
+	void UpdateTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height);
+
 	uint32_t GetTextureIndexByFilePath(const std::string& filePath);
 	// テクスチャ番号からGPUハンドルを取得
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(const std::string& filePath);

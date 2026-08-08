@@ -10,6 +10,9 @@ public:
 	void Update(GameScene& scene) override;
 	void Exit(GameScene& scene) override;
 private:
+	// 戦闘中かどうかでBGMを差し替える
+	void UpdateBattleBGM(GameScene& scene);
+
 	enum class PlayState {
 		Enter,
 		Play,

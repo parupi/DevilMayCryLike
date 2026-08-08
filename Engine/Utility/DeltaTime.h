@@ -11,6 +11,15 @@ public:
 	// 取得
 	static float GetDeltaTime() {return deltaTime_;}
 
+	// 実測の経過秒。エディタの一時停止や速度倍率の影響を受けない。
+	// 止まっていても動かしたいもの（エディタ自身の計測、メニューの演出、音のフェード）はこちらを使う。
+	// Release にはデバッグ用のスケールが無いので GetDeltaTime と同じ値になる
+#ifdef _DEBUG
+	static float GetUnscaledDeltaTime() { return unscaledDeltaTime_; }
+#else
+	static float GetUnscaledDeltaTime() { return deltaTime_; }
+#endif // _DEBUG
+
 #ifdef _DEBUG
 	// --- エディタの再生コントロール ---
 	// ここで時間を止めたり伸ばしたりすると、TimeManager を含む下流すべてに効く。
@@ -24,11 +33,13 @@ public:
 	// 通常再生時の速度倍率
 	static void SetDebugTimeScale(float scale) { debugTimeScale_ = scale; }
 	static float GetDebugTimeScale() { return debugTimeScale_; }
-	// 実測の経過秒。ポーズ中も動き続けるので、エディタ自身の計測はこちらを使う
-	static float GetUnscaledDeltaTime() { return unscaledDeltaTime_; }
 #endif // _DEBUG
 
 private:
+	// 1フレームで進める時間の上限（秒）。
+	// これより長く止まっていた場合でも、ゲーム側にはここまでしか渡さない
+	static constexpr float kMaxDeltaTime = 0.1f;
+
 	static std::chrono::high_resolution_clock::time_point preTime_;
 	static float deltaTime_;
 

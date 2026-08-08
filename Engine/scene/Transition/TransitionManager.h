@@ -19,6 +19,8 @@ public:
 	bool AddTransition(std::unique_ptr<BaseTransition> transition);
 	// 使う遷移を名前から設定
 	void SetTransition(const std::string& transitionName);
+	// 登録済みかどうか。生成前に確認して二重生成を避けるために使う
+	bool HasTransition(const std::string& transitionName) const;
 	BaseTransition* GetTransition(const std::string& transitionName);
 	void DeleteAllTransition();
 	// 再生

@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 
 #include "Audio/Audio.h"
+#include "Audio/SoundManager.h"
 #include "Editor/Core/EditorHost.h"
 #include "Editor/Core/EditorMenuBar.h"
 
@@ -64,6 +65,38 @@ void Editor::DrawAudioWindow()
 	if (!g_diskSoundsScanned) {
 		ScanSounds();
 	}
+
+	// --- ゲーム本編の音量（SoundManager 側。試聴の音量とは別物） ---
+	if (ImGui::CollapsingHeader("ゲーム音量", ImGuiTreeNodeFlags_DefaultOpen)) {
+		SoundManager& sound = SoundManager::GetInstance();
+
+		float master = sound.GetMasterVolume();
+		if (ImGui::SliderFloat("マスター", &master, 0.0f, 1.0f)) {
+			sound.SetMasterVolume(master);
+		}
+		float bgm = sound.GetBGMVolume();
+		if (ImGui::SliderFloat("BGM", &bgm, 0.0f, 1.0f)) {
+			sound.SetBGMVolume(bgm);
+		}
+		float se = sound.GetSEVolume();
+		if (ImGui::SliderFloat("SE", &se, 0.0f, 1.0f)) {
+			sound.SetSEVolume(se);
+		}
+
+		if (ImGui::Button("音量を保存")) {
+			sound.SaveVolumes();
+			EditorMenuBar::ShowToast("音量設定を保存しました");
+		}
+		ImGui::SameLine();
+		const std::string& playingBgm = sound.GetCurrentBGMName();
+		if (playingBgm.empty()) {
+			ImGui::TextDisabled("BGM: なし");
+		} else {
+			ImGui::TextDisabled("BGM: %s%s", playingBgm.c_str(), sound.IsPaused() ? "（一時停止中）" : "");
+		}
+	}
+
+	ImGui::SeparatorText("試聴");
 
 	if (ImGui::Button("再スキャン")) {
 		ScanSounds();
