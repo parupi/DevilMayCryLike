@@ -12,8 +12,9 @@ public:
 
 private:
 	enum class MenuState {
-		Enter,
-		Normal,
+		Enter,   // 暗転しながらメニューを出す
+		Normal,  // 操作を受け付けている
+		Leaving, // シーンの切り替えを要求済み。あとは暗転を待つだけ
 	}menuState_ = MenuState::Enter;
 };
 

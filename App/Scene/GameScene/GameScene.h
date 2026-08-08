@@ -9,6 +9,7 @@
 #include "GameObject/UI/GameUI/GameUI.h"
 #include "Scene/GameScene/State/GameSceneStateBase.h"
 #include "GameObject/UI/Menu/MenuUI.h"
+#include "GameObject/UI/Menu/GameOverUI.h"
 #include "GameObject/UI/StyleHUD/StyleHUD.h"
 #include <memory>
 #include "Input/InputContext.h"
@@ -70,10 +71,13 @@ public:
 
 	// メニューのUIをまとめたクラスを取得
 	MenuUI* GetMenuUI() { return menuUI_.get(); }
+	GameOverUI* GetGameOverUI() { return gameOverUI_.get(); }
 	// 入力の受付状態を管理するクラスを取得
 	InputContext* GetInputContext() { return inputContext_.get(); }
 
 	TutorialService* GetTutorialService() { return tutorial_.get(); }
+	// プレイヤーを取得（ステート側からスコア・戦闘状態を引くのに使う）
+	Player* GetPlayer() { return player_; }
 private:
 	std::unordered_map<std::string, std::unique_ptr<GameSceneStateBase>> states_;
 	GameSceneStateBase* currentState_ = nullptr;
@@ -97,6 +101,7 @@ private:
 
 	// メニューのスプライト
 	std::unique_ptr<MenuUI> menuUI_ = nullptr;
+	std::unique_ptr<GameOverUI> gameOverUI_ = nullptr;
 	// スタイリッシュランクのゲーム中HUD
 	std::unique_ptr<StyleHUD> styleHud_ = nullptr;
 	// シーン全体のデルタタイム

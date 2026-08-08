@@ -100,6 +100,9 @@
     <Filter Include="App\GameObject\UI\ClearUI">
       <UniqueIdentifier>{07855820-7347-8CAA-BCF7-1A3728F96488}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\Common">
+      <UniqueIdentifier>{4BC41685-37E9-6505-6034-4B954CB86423}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\GameUI">
       <UniqueIdentifier>{3AEA6D8D-260F-BD0D-4F5A-A29D3BDEBB2B}</UniqueIdentifier>
     </Filter>
@@ -214,6 +217,9 @@
     <Filter Include="Engine\Graphics\Resource">
       <UniqueIdentifier>{F2F242EB-DE17-926B-0763-77FBF3E69089}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics\Text">
+      <UniqueIdentifier>{6F28DC65-5BB7-652F-04D6-792AF04376D5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{1AB06895-0613-F839-AF98-30F09BDAC3BC}</UniqueIdentifier>
     </Filter>
@@ -286,6 +292,9 @@
       <Filter>App\GameData</Filter>
     </ClInclude>
     <ClInclude Include="App\GameData\GameData.h">
+      <Filter>App\GameData</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameData\GameSettings.h">
       <Filter>App\GameData</Filter>
     </ClInclude>
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h">
@@ -501,13 +510,25 @@
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\ConfirmDialog.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\ControlsPanel.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\MenuItemList.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\MenuNavigator.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\OptionPanel.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\UI\GameUI\GameUI.h">
       <Filter>App\GameObject\UI\GameUI</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h">
-      <Filter>App\GameObject\UI\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\UI\Menu\MenuController.h">
+    <ClInclude Include="App\GameObject\UI\Menu\GameOverUI.h">
       <Filter>App\GameObject\UI\Menu</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h">
@@ -521,6 +542,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h">
       <Filter>App\GameObject\UI\StyleHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\TitleUI\TitleMenu.h">
+      <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
@@ -550,6 +574,9 @@
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateClear.h">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateGameOver.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateMenu.h">
@@ -598,6 +625,9 @@
       <Filter>Engine\Application</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Audio\Audio.h">
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SoundManager.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Core\EngineContext.h">
@@ -921,6 +951,18 @@
     <ClInclude Include="Engine\Graphics\Resource\TextureManager.h">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\Font.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\FontManager.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\TextEncoding.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\TextLabel.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Input\Input.h">
       <Filter>Engine\Input</Filter>
     </ClInclude>
@@ -1178,6 +1220,9 @@
     <ClCompile Include="App\GameData\GameData.cpp">
       <Filter>App\GameData</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameData\GameSettings.cpp">
+      <Filter>App\GameData</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
       <Filter>App\GameData\Score</Filter>
     </ClCompile>
@@ -1373,13 +1418,25 @@
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\ConfirmDialog.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\ControlsPanel.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\MenuItemList.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\MenuNavigator.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\OptionPanel.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\UI\GameUI\GameUI.cpp">
       <Filter>App\GameObject\UI\GameUI</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp">
-      <Filter>App\GameObject\UI\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp">
+    <ClCompile Include="App\GameObject\UI\Menu\GameOverUI.cpp">
       <Filter>App\GameObject\UI\Menu</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp">
@@ -1393,6 +1450,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp">
       <Filter>App\GameObject\UI\StyleHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\TitleUI\TitleMenu.cpp">
+      <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
@@ -1422,6 +1482,9 @@
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateClear.cpp">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateGameOver.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateMenu.cpp">
@@ -1467,6 +1530,9 @@
       <Filter>Engine\Application</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Audio\Audio.cpp">
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SoundManager.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Core\GuchisFramework.cpp">
@@ -1759,6 +1825,21 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp">
       <Filter>Engine\Graphics\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\Font.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\FontManager.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\StbTrueType.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\TextEncoding.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\TextLabel.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>

@@ -3,6 +3,7 @@
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
+#include <World3D/Object/Model/ModelManager.h>
 #include <World3D/Collider/AABBCollider.h>
 #include <World3D/Collider/OBBCollider.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -21,6 +22,11 @@
 #include "State/BossStateKnockBack.h"
 
 BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
+	// ModelRenderer は FindModel するだけで読み込みはしないので、ここで読んでおく。
+	// 以前は TitleScene が先読みしていたが、他シーンの読み込みに依存すると
+	// そちらを整理したときに静かに壊れるので、Ground / Prop と同じく自分で読む
+	ModelManager::GetInstance().LoadModel("PlayerBody");
+	ModelManager::GetInstance().LoadModel("Sword");
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = {1.5f, 1.5f, 1.5f};

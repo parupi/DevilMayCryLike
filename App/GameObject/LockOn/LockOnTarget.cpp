@@ -4,8 +4,15 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 
 void LockOnTarget::Initialize(LockOnSystem* system, Object3d* owner) {
+	// 別のシステムに登録済みのまま繋ぎ替えると、前のシステムに自分が残り続ける
+	if (system_ && system_ != system) {
+		system_->UnregisterTarget(this);
+	}
+
 	system_ = system;
-	system_->RegisterTarget(this);
+	if (system_) {
+		system_->RegisterTarget(this);
+	}
 
 	owner_ = owner;
 }
@@ -13,6 +20,8 @@ void LockOnTarget::Initialize(LockOnSystem* system, Object3d* owner) {
 void LockOnTarget::Finalize() {
 	if (system_) {
 		system_->UnregisterTarget(this);
+		// 二重に呼ばれても解放済みのシステムを触らないようにする
+		system_ = nullptr;
 	}
 }
 

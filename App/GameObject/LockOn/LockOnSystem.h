@@ -11,7 +11,7 @@ class LockOnSystem
 {
 public:
 	LockOnSystem() = default;
-	~LockOnSystem() = default;
+	~LockOnSystem();
 
 	// 初期化
 	void Initialize(LockOnInput* input, Player* player);

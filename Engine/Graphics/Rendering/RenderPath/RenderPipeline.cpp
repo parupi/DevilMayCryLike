@@ -7,6 +7,7 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Graphics/Text/FontManager.h"
 #include "Scene/Transition/TransitionManager.h"
 #ifdef _DEBUG
 #include <Debugger/ImGuiManager.h>
@@ -86,6 +87,10 @@ void RenderPipeline::Finalize() {
 }
 
 void RenderPipeline::Execute() {
+	// このフレームで新しく出てきた文字をアトラスへ上げる。
+	// アトラスを読む描画より前で、かつフレームに1回で済むのがここ
+	FontManager::GetInstance().FlushAtlases();
+
 	// 各描画パスを順番に実行
 	for (auto& pass : passes_) {
 		pass->Execute();

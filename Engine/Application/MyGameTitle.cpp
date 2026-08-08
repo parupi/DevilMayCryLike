@@ -14,6 +14,7 @@
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
+#include <Graphics/Text/FontManager.h>
 #include <Utility/TimeManager.h>
 #ifdef _DEBUG
 #include <Editor/Core/EditorHost.h>
@@ -34,6 +35,9 @@ void MyGameTitle::Initialize() {
 	ParticleManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 	// スプライト共通部の初期化
 	SpriteManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
+	// 文字描画用のフォント。焼く大きさは、UIで使う一番大きい文字に合わせてある。
+	// ここより大きく表示するとぼやけるので、必要になったら値を上げること
+	FontManager::GetInstance().LoadFont("Main", "Font/Noto_Sans_JP/static/NotoSansJP-Bold.ttf", 64.0f);
 	// オブジェクト共通部
 	Object3dManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
@@ -118,7 +122,9 @@ void MyGameTitle::Finalize() {
 	TransitionManager::GetInstance().Finalize();
 	SceneTransitionController::GetInstance().Finalize();
 	ParticleManager::GetInstance().Finalize();
+	// 文字列は SpriteManager が持っているので、フォントより先に消えるようにする
 	SpriteManager::GetInstance().Finalize();
+	FontManager::GetInstance().Finalize();
 	Object3dManager::GetInstance().Finalize();
 	ModelManager::GetInstance().Finalize();
 

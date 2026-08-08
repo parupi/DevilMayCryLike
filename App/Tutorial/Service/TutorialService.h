@@ -20,4 +20,8 @@ public:
 	virtual void StepTutorial(TutorialState state) = 0;
 	// 全チュートリアルが完了したか（最後の種類まで進み切ったか）
 	virtual bool IsAllFinished() const = 0;
+	// チュートリアルを流さずに完了扱いにする。
+	// TutorialDummy が IsAllFinished() を倒せる条件にしているので、
+	// OPTION でチュートリアルを切った場合はここを通さないと進行が止まる
+	virtual void SkipAllTutorials() = 0;
 };

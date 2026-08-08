@@ -12,6 +12,13 @@ public:
 	// 終了
 	void Finalize();
 
+	/// <summary>
+	/// システム側から「自分が破棄される」と伝えられたときに呼ばれる。
+	/// LockOnSystem のデストラクタ専用。以降 Finalize() は何もしない
+	/// （＝解放済みの LockOnSystem を触りに行かない）
+	/// </summary>
+	void DetachSystem() { system_ = nullptr; }
+
 	const Vector3& GetWorldPosition() const;
 	bool IsLockable() const;
 

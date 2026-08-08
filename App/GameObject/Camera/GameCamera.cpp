@@ -6,6 +6,7 @@
 #include <World3D/Collider/AABBCollider.h>
 #include <World3D/Collider/OBBCollider.h>
 #include <GameData/CollisionCategory.h>
+#include <GameData/GameSettings.h>
 #include <Debugger/GlobalVariables.h>
 #include <algorithm>
 #include <cmath>
@@ -428,8 +429,15 @@ void GameCamera::UpdateFree() {
 
 	Vector2 stick = cameraInput_->GetStickDirection();
 
-	yaw_ += stick.x * sensitivityX_;
-	pitch_ -= stick.y * sensitivityY_;
+	// 感度と上下反転はタイトルの OPTION から触れる。
+	// GlobalVariables 側の sensitivityX_ / Y_ はカメラの作り込みの値なので、
+	// プレイヤーの好みはそこへ掛ける倍率として持たせている
+	const GameSettings& settings = GameSettings::GetInstance();
+	const float sensitivityScale = settings.GetCameraSensitivity();
+	const float verticalSign = settings.IsInvertCameraY() ? -1.0f : 1.0f;
+
+	yaw_ += stick.x * sensitivityX_ * sensitivityScale;
+	pitch_ -= stick.y * sensitivityY_ * sensitivityScale * verticalSign;
 
 	pitch_ = std::clamp(pitch_, -pitchLimit_, pitchLimit_);
 

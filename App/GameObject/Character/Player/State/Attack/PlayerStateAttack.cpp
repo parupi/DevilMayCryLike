@@ -6,6 +6,7 @@
 #include "World3D/Collider/AABBCollider.h"
 #include "Utility/DeltaTime.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
+#include "Audio/SoundManager.h"
 #ifdef _DEBUG
 #include "Editor/Core/EditorDebugDraw.h"
 #endif
@@ -85,6 +86,12 @@ void PlayerStateAttack::Enter(Player& player) {
 	}
 	// 今回の攻撃のパラメータを送っておく
 	player.SetAttackData(attackData_);
+
+	// 振り始めに剣風の音を鳴らす。
+	// 納刀モーションも同じ仕組みで流れてくるが、あれは攻撃ではないので鳴らさない
+	if (name_ != "Sheathe") {
+		SoundManager::GetInstance().PlaySE("SwordSlash", 0.55f);
+	}
 
 	isFinish_ = false;
 }
