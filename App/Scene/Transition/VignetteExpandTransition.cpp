@@ -1,6 +1,7 @@
 ﻿#include "VignetteExpandTransition.h"
 #include <Graphics/Rendering/PostEffect/VignetteEffect.h>
 #include <Graphics/Rendering/PostEffect/OffScreenManager.h>
+#include <Utility/DeltaTime.h>
 
 VignetteExpandTransition::VignetteExpandTransition(const std::string& transitionName)
 {
@@ -32,7 +33,8 @@ void VignetteExpandTransition::Start(bool isFadeOut)
 
 void VignetteExpandTransition::Update()
 {
-    const float speed = 0.05f; // 変化速度
+    // フレーム数ではなく経過秒で進める（高リフレッシュレートでも同じ速さになる）
+    const float speed = (2.0f / kTransitionTime) * DeltaTime::GetDeltaTime();
 
     if (isFadeOut_) {
         // 2.0 → 0.0 に減少（暗転していく）

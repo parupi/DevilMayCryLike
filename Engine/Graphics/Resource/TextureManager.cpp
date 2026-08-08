@@ -449,6 +449,63 @@ void TextureManager::LoadTextureFromMemory(const std::string& fileName, const ui
 	textureData_[filePath] = std::move(texData);
 }
 
+void TextureManager::UpdateTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height) {
+	const std::string filePath = "Resource/Images/" + fileName;
+
+	auto it = textureData_.find(filePath);
+	if (it == textureData_.end()) {
+		// まだ無ければ普通の登録と同じ
+		LoadTextureFromMemory(fileName, pixels, width, height);
+		return;
+	}
+
+	TextureData& texData = it->second;
+
+	DirectX::TexMetadata metadata = texData.metadata;
+	metadata.width = width;
+	metadata.height = height;
+
+	// 大きさが変わったならリソースごと作り直す。SRVは同じスロットへ張り直すので、
+	// すでにこのテクスチャを指している側のハンドルはそのまま使える
+	const bool needsRecreate = (texData.metadata.width != width || texData.metadata.height != height);
+	if (needsRecreate) {
+		texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
+	} else {
+		// UploadTextureData は COPY_DEST から始まる前提なので、読み取り状態から戻してやる
+		D3D12_RESOURCE_BARRIER barrier{};
+		barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
+		barrier.Transition.pResource = texData.resource.Get();
+		barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
+		barrier.Transition.StateBefore = D3D12_RESOURCE_STATE_GENERIC_READ;
+		barrier.Transition.StateAfter = D3D12_RESOURCE_STATE_COPY_DEST;
+		dxManager_->GetCommandList()->ResourceBarrier(1, &barrier);
+	}
+
+	// LoadTextureFromMemory と同じく、引数の画素をそのまま参照させてコピーを省く
+	DirectX::Image image{};
+	image.width = width;
+	image.height = height;
+	image.format = metadata.format;
+	image.rowPitch = static_cast<size_t>(width) * 4;
+	image.slicePitch = image.rowPitch * height;
+	image.pixels = const_cast<uint8_t*>(pixels);
+
+	dxManager_->UploadTextureData(texData.resource.Get(), &image, 1, metadata);
+	texData.metadata = metadata;
+
+	if (needsRecreate) {
+		D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+		srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+		srvDesc.Format = metadata.format;
+		srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		srvDesc.Texture2D.MostDetailedMip = 0;
+		srvDesc.Texture2D.MipLevels = 1;
+		srvDesc.Texture2D.ResourceMinLODClamp = 0.0f;
+
+		dxManager_->GetDevice()->CreateShaderResourceView(texData.resource.Get(), &srvDesc, texData.srvHandleCPU);
+	}
+}
+
 D3D12_GPU_DESCRIPTOR_HANDLE TextureManager::GetDissolveNoiseSrvHandleGPU() {
 	assert(textureData_.contains("__DISSOLVE_NOISE__"));
 	return textureData_["__DISSOLVE_NOISE__"].srvHandleGPU;

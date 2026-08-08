@@ -128,6 +128,11 @@ void WindowManager::ToggleFullscreen()
 
 bool WindowManager::ProcessMessage()
 {
+	// ゲーム側（タイトルの QUIT など）からの終了要求
+	if (quitRequested_) {
+		return true;
+	}
+
 	if (PeekMessage(&msg_, NULL, 0, 0, PM_REMOVE)) {
 		TranslateMessage(&msg_);
 		DispatchMessage(&msg_);

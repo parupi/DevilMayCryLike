@@ -22,11 +22,17 @@ void DeltaTime::Update()
 {
 	auto currentTime = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> elapsed = currentTime - preTime_;
-	const float measured = static_cast<float>(elapsed.count()); // 秒で保持
+	const float rawMeasured = static_cast<float>(elapsed.count()); // 秒で保持
 	preTime_ = currentTime;
 
+	// シーンのロードやブレークポイントで数秒止まると、その分が丸ごと次の1フレームに乗る。
+	// そのまま流すと演出が一瞬で終わったり、当たり判定がすり抜けたりするので上限を設ける。
+	// 通常のフレーム(16ms程度)には影響しない
+	const float measured = (rawMeasured > kMaxDeltaTime) ? kMaxDeltaTime : rawMeasured;
+
 #ifdef _DEBUG
-	unscaledDeltaTime_ = measured;
+	// 実測値はエディタの計測用なので、こちらは丸めない
+	unscaledDeltaTime_ = rawMeasured;
 
 	if (stepFrames_ > 0) {
 		// コマ送り。止まっていた実時間ではなく固定量だけ進める

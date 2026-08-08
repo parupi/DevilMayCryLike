@@ -22,12 +22,16 @@ void GuchisFramework::Initialize() {
 	Input::GetInstance().Initialize();
 	// Audioの初期化
 	Audio::GetInstance().Initialize();
+	// BGM/SE を扱う層。Audio の初期化後に呼ぶこと
+	SoundManager::GetInstance().Initialize();
 	// DeltaTime
 	DeltaTime::Initialize();
 }
 
 void GuchisFramework::Finalize() {
 	Input::GetInstance().Finalize();
+	// 鳴っているボイスを返してから Audio を落とす
+	SoundManager::GetInstance().Finalize();
 	Audio::GetInstance().Finalize();
 	psoManager->Finalize();
 	winManager->Finalize();
@@ -38,6 +42,9 @@ void GuchisFramework::Finalize() {
 void GuchisFramework::Update() {
 	Input::GetInstance().Update();
 	DeltaTime::Update();
+	// BGMのフェードを進める。シーン更新より前でも後でも構わないが、
+	// DeltaTime::Update() の後であること
+	SoundManager::GetInstance().Update();
 	// 実時間を取り込み、タイムスケール要求を受け付ける状態に戻す。
 	// シーン更新（＝ヒットストップの要求元）より必ず前に呼ぶこと。
 	TimeManager::Update();

@@ -8,6 +8,7 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Sprite.h"
 #include "AnimatedSprite.h"
+#include "Graphics/Text/TextLabel.h"
 
 class DirectXManager;
 class PSOManager;
@@ -43,6 +44,13 @@ public:
 	// GIF アニメーションスプライトの生成
 	// gifFilePath: "Resource/Images/" からの相対パス (例: "UI/animation.gif")
 	AnimatedSprite* CreateAnimatedSprite(SpriteLayer layer, const std::string& name, const std::string& gifFilePath);
+	/// <summary>
+	/// 文字列の生成。スプライトと同じレイヤーに並び、同じ流儀で自動描画される。
+	///
+	/// 表示の更新は持ち主が毎フレーム TextLabel::Update() を呼ぶこと（スプライトと同じ）
+	/// </summary>
+	/// <param name="fontName">空なら FontManager の既定フォントを使う</param>
+	TextLabel* CreateTextLabel(SpriteLayer layer, const std::string& name, const std::string& fontName = "");
 	// レイヤーの切り替え
 	void ChangeLayer(Sprite* sprite, SpriteLayer newLayer);
 	// シーンをまたがないスプライトの削除
@@ -58,7 +66,21 @@ private:
 	void DrawLayerRange(SpriteLayer first, SpriteLayer last, bool toBackBuffer);
 
 	std::array<std::vector<std::unique_ptr<Sprite>>, static_cast<int32_t>(SpriteLayer::Count)> layers_;
+	std::array<std::vector<std::unique_ptr<TextLabel>>, static_cast<int32_t>(SpriteLayer::Count)> textLayers_;
 	std::vector<std::unique_ptr<AnimatedSprite>> animatedSprites_;
+
+	/// <summary>
+	/// レイヤー内の描画順。スプライトと文字を作った順のまま混ぜて並べる。
+	///
+	/// スプライトを先にまとめて描いてしまうと、あとから作った暗幕（スプライト）で
+	/// 先に作った文字を覆えなくなる。確認ダイアログのように「上に被せる」ものが作れなくなるので、
+	/// 生成順をそのまま描画順にしている
+	/// </summary>
+	struct LayerEntry {
+		Sprite* sprite = nullptr;
+		TextLabel* label = nullptr;
+	};
+	std::array<std::vector<LayerEntry>, static_cast<int32_t>(SpriteLayer::Count)> drawOrder_;
 
 	bool isUILayerVisible_ = true;
 public:

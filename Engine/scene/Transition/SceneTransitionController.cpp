@@ -1,6 +1,7 @@
 ﻿#include "SceneTransitionController.h"
 #include "Scene/Transition/TransitionManager.h"
 #include <Scene/SceneManager.h>
+#include <Platform/WindowManager.h>
 
 
 SceneTransitionController& SceneTransitionController::GetInstance()
@@ -25,6 +26,23 @@ void SceneTransitionController::RequestSceneChange(const std::string& nextScene,
     }
 }
 
+void SceneTransitionController::BeginFadeIn()
+{
+    // 通常のシーン遷移の途中なら、そちらのフェードインに任せる
+    if (state_ != State::Idle) return;
+
+    TransitionManager::GetInstance().Play(false);
+    state_ = State::FadeIn;
+}
+
+void SceneTransitionController::RequestApplicationQuit()
+{
+    if (state_ != State::Idle) return;
+
+    TransitionManager::GetInstance().Play(true);
+    state_ = State::Quitting;
+}
+
 void SceneTransitionController::Update()
 {
     TransitionManager* tm = &TransitionManager::GetInstance();
@@ -42,6 +60,14 @@ void SceneTransitionController::Update()
         tm->Update();
         if (tm->IsFinished()) {
             state_ = State::Idle;
+        }
+        break;
+    case State::Quitting:
+        tm->Update();
+        if (tm->IsFinished()) {
+            // 暗転したまま、次の ProcessMessage でメインループを抜ける。
+            // Idle へ戻さないのは、この後に別の遷移を走らせないため
+            WindowManager::RequestQuit();
         }
         break;
     default:

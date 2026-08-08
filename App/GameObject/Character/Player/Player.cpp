@@ -3,6 +3,7 @@
 #include "State/PlayerStateMove.h"
 #include "World3D/Object/Renderer/RendererManager.h"
 #include "World3D/Object/Renderer/PrimitiveRenderer.h"
+#include "World3D/Object/Model/ModelManager.h"
 #include "World3D/Collider/AABBCollider.h"
 #include "World3D/Collider/OBBCollider.h"
 #include "World3D/Collider/CollisionManager.h"
@@ -27,6 +28,11 @@
 
 Player::Player(std::string objectName) : Object3d(objectName) {
 	Object3d::Initialize();
+
+	// ModelRenderer は FindModel するだけで読み込みはしないので、使うモデルはここで読んでおく。
+	// TitleScene の先読みに頼っていると、そちらを整理したときに静かに壊れる
+	ModelManager::GetInstance().LoadModel("PlayerHead");
+	ModelManager::GetInstance().LoadModel("Sword");
 
 	// レンダラーの生成
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));

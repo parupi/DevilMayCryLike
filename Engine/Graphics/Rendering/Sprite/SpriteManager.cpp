@@ -1,5 +1,7 @@
 #include "SpriteManager.h"
 #include "Graphics/Resource/GifLoader.h"
+#include "Graphics/Text/FontManager.h"
+#include "Utility/Logger.h"
 #include <algorithm>
 #include <cassert>
 
@@ -34,12 +36,20 @@ void SpriteManager::DrawUILayers() {
 }
 
 void SpriteManager::DrawLayerRange(SpriteLayer first, SpriteLayer last, bool toBackBuffer) {
+	// スプライトと文字を作った順のまま描く。詳細は drawOrder_ のコメントを参照
 	for (size_t i = static_cast<size_t>(first); i <= static_cast<size_t>(last); ++i) {
-		for (auto& sprite : layers_[i]) {
-			if (!sprite->GetRenderState().isVisible) continue;
+		for (const LayerEntry& entry : drawOrder_[i]) {
+			if (entry.sprite) {
+				if (!entry.sprite->GetRenderState().isVisible) continue;
 
-			DrawSet(sprite->GetRenderState().blendMode, toBackBuffer);
-			sprite->Draw();
+				DrawSet(entry.sprite->GetRenderState().blendMode, toBackBuffer);
+				entry.sprite->Draw();
+			} else if (entry.label) {
+				if (!entry.label->GetRenderState().isVisible) continue;
+
+				DrawSet(entry.label->GetRenderState().blendMode, toBackBuffer);
+				entry.label->Draw();
+			}
 		}
 	}
 }
@@ -57,6 +67,22 @@ Sprite* SpriteManager::CreateSprite(SpriteLayer layer, const std::string& sprite
 
 	Sprite* ptr = sprite.get();
 	layers_[static_cast<size_t>(layer)].push_back(std::move(sprite));
+	drawOrder_[static_cast<size_t>(layer)].push_back(LayerEntry{ ptr, nullptr });
+
+	return ptr;
+}
+
+TextLabel* SpriteManager::CreateTextLabel(SpriteLayer layer, const std::string& name, const std::string& fontName) {
+	FontManager& fontManager = FontManager::GetInstance();
+	Font* font = fontName.empty() ? fontManager.GetDefaultFont() : fontManager.Find(fontName);
+	ASSERT_MSG(font != nullptr,
+		"[SpriteManager] フォントが読み込まれていません。FontManager::LoadFont を先に呼んでください。");
+
+	auto label = std::make_unique<TextLabel>(name, font, layer);
+
+	TextLabel* ptr = label.get();
+	textLayers_[static_cast<size_t>(layer)].push_back(std::move(label));
+	drawOrder_[static_cast<size_t>(layer)].push_back(LayerEntry{ nullptr, ptr });
 
 	return ptr;
 }
@@ -94,6 +120,14 @@ void SpriteManager::ChangeLayer(Sprite* sprite, SpriteLayer newLayer) {
 		}
 	}
 
+	// 描画順の並びも移す。移動先では末尾＝一番手前になる
+	auto& oldOrder = drawOrder_[static_cast<size_t>(oldLayer)];
+	oldOrder.erase(
+		std::remove_if(oldOrder.begin(), oldOrder.end(),
+			[sprite](const LayerEntry& entry) { return entry.sprite == sprite; }),
+		oldOrder.end());
+	drawOrder_[static_cast<size_t>(newLayer)].push_back(LayerEntry{ sprite, nullptr });
+
 	sprite->layer_ = newLayer;
 }
 
@@ -106,6 +140,8 @@ void SpriteManager::DeleteNonPersistentSprite() {
 	for (size_t i = 0; i < layers_.size(); ++i) {
 		if (i == kPersistentIndex) continue;
 		layers_[i].clear();
+		textLayers_[i].clear();
+		drawOrder_[i].clear();
 	}
 
 	// AnimatedSprite は対応する Sprite が削除されるものだけ除去する
@@ -122,5 +158,11 @@ void SpriteManager::DeleteAllSprite() {
 	animatedSprites_.clear();
 	for (auto& layer : layers_) {
 		layer.clear();
+	}
+	for (auto& layer : textLayers_) {
+		layer.clear();
+	}
+	for (auto& order : drawOrder_) {
+		order.clear();
 	}
 }

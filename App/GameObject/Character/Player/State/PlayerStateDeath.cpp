@@ -8,6 +8,7 @@
 #include <Math/Easing.h>
 #include <GameObject/Camera/DeathCamera.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
+#include <Audio/SoundManager.h>
 
 PlayerStateDeath::PlayerStateDeath()
 {
@@ -22,6 +23,9 @@ PlayerStateDeath::PlayerStateDeath()
 
 void PlayerStateDeath::Enter(Player& player)
 {
+	// 死亡演出の間にBGMを引かせる（この後 GAMEPLAY を読み直して鳴り始める）
+	SoundManager::GetInstance().StopBGM(0.8f);
+
 	auto* cameraManager = &CameraManager::GetInstance();
 
 	// 現在のゲームカメラを取得
@@ -79,17 +83,15 @@ void PlayerStateDeath::Update(Player& player, float)
 
 	// 完了チェック
 	if (t >= 1.0f) {
+		// ここでシーンを切り替えてしまうと、やり直すかタイトルへ戻るかを選ぶ余地が無くなる。
+		// 印だけ付けて、あとは GameScene（GameOver ステート）に任せる
+		player.NotifyDeathFinished();
 		player.ChangeState("Idle");
 	}
 }
 
 void PlayerStateDeath::Exit(Player&)
 {
-	// シーン遷移を設定
-	TransitionManager::GetInstance().SetTransition("Death");
-
-	// シーンを変える
-	SceneTransitionController::GetInstance().RequestSceneChange("GAMEPLAY");
 }
 
 void PlayerStateDeath::ExecuteCommand(Player&, const PlayerCommand&)

@@ -21,18 +21,27 @@
 #include "State/GameSceneStateMenu.h"
 #include "State/GameSceneStateStart.h"
 #include "State/GameSceneStateClear.h"
+#include "State/GameSceneStateGameOver.h"
 #include <GameObject/Character/Enemy/Enemy.h>
 #include "GameObject/Effect/HitEffectSystem.h"
 #include "World3D/Object/Object3dManager.h"
 #include "Input/Input.h"
+#include "Audio/SoundManager.h"
 #include <cmath>
 
 void GameScene::Initialize() {
+	// 戦闘中に差し替えるぶんも含めて先に読み込んでおく。
+	// BGM は1曲で数十MBあり、戦闘が始まってから読むと確実に引っかかる
+	SoundManager::GetInstance().Preload("GamePlayBGM");
+	SoundManager::GetInstance().Preload("BattleBGM");
+	SoundManager::GetInstance().PlayBGM("GamePlayBGM", 1.5f);
+
 	// ステートの生成
 	states_["Start"] = std::make_unique<GameSceneStateStart>();
 	states_["Play"] = std::make_unique<GameSceneStatePlay>();
 	states_["Menu"] = std::make_unique<GameSceneStateMenu>();
 	states_["Clear"] = std::make_unique<GameSceneStateClear>();
+	states_["GameOver"] = std::make_unique<GameSceneStateGameOver>();
 	currentState_ = states_["Start"].get();
 
 	// 入力の受付状態を管理するクラス生成
@@ -123,6 +132,10 @@ void GameScene::Initialize() {
 	styleHud_ = std::make_unique<StyleHUD>();
 	styleHud_->Initialize();
 
+	// 死亡時の選択肢。ゲーム中のHUDより後に作って、暗幕がHUDの上に来るようにする
+	gameOverUI_ = std::make_unique<GameOverUI>();
+	gameOverUI_->Initialize();
+
 	tutorial_ = std::make_unique<TutorialSystem>();
 	tutorial_->Initialize();
 	// PlayerのチュートリアルサービスをGameSceneのものに接続する
@@ -181,6 +194,7 @@ void GameScene::Update()
 	mask_->Update();
 
 	menuUI_->Update();
+	gameOverUI_->Update();
 
 	// スタイルランクHUDは戦闘中のみ表示する
 	if (player_ && styleHud_) {

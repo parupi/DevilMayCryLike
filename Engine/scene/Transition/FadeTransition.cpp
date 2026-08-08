@@ -1,5 +1,6 @@
 ﻿#include "FadeTransition.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Utility/DeltaTime.h"
 
 FadeTransition::FadeTransition(const std::string& transitionName)
 {
@@ -18,7 +19,8 @@ void FadeTransition::Start(bool isFadeOut)
 
 void FadeTransition::Update()
 {
-	const float speed = 0.025f;
+	// フレーム数ではなく経過秒で進める（高リフレッシュレートでも同じ速さになる）
+	const float speed = DeltaTime::GetDeltaTime() / kFadeTime;
 
 	if (isFadeOut_) {
 		alpha_ += speed;

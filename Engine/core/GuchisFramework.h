@@ -8,6 +8,7 @@
 
 #include <Scene/AbstractSceneFactory.h>
 #include <Audio/Audio.h>
+#include <Audio/SoundManager.h>
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/RenderPath/RenderPipeline.h"
 #include "Core/EngineContext.h"

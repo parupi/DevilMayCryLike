@@ -21,6 +21,8 @@ public:
 	void StepTutorial(TutorialState state) override;
 	// 全チュートリアルが完了したか
 	bool IsAllFinished() const override { return isAllFinished_; }
+	// チュートリアルを流さずに完了扱いにする
+	void SkipAllTutorials() override { isAllFinished_ = true; }
 private:
 	// 現在のチュートリアルを終了し、次のチュートリアルへ自動的に進める
 	void AdvanceTutorial();

@@ -28,11 +28,19 @@ bool TransitionManager::AddTransition(std::unique_ptr<BaseTransition> transition
 }
 
 void TransitionManager::SetTransition(const std::string& transitionName) {
-	current_ = transitions_[transitionName].get();
+	// operator[] だと未登録の名前で空の要素を作ってしまい、
+	// 以降 AddTransition が「登録済み」と誤判定するので find で引く
+	auto it = transitions_.find(transitionName);
+	current_ = (it != transitions_.end()) ? it->second.get() : nullptr;
+}
+
+bool TransitionManager::HasTransition(const std::string& transitionName) const {
+	return transitions_.find(transitionName) != transitions_.end();
 }
 
 BaseTransition* TransitionManager::GetTransition(const std::string& transitionName) {
-	return transitions_[transitionName].get();
+	auto it = transitions_.find(transitionName);
+	return (it != transitions_.end()) ? it->second.get() : nullptr;
 }
 
 void TransitionManager::DeleteAllTransition() {

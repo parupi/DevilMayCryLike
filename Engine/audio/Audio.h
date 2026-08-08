@@ -95,6 +95,10 @@ private:
 	// 利用可能なソースボイスを検索
 	int SearchSourceVoice(IXAudio2SourceVoice** sourceVoices);
 
+	// 再生リソース番号が有効か。SoundPlayWave が失敗して返す -1 や、
+	// まだ生成していないスロットをそのまま使うと落ちるので必ずここを通す
+	bool IsValidVoice(int resourceNum) const;
+
 	XAUDIO2_BUFFER SetBuffer(bool loop, const SoundData& sound);
 
 private:
