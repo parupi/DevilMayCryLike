@@ -66,10 +66,19 @@ private: // メンバ変数
 	// 描画するかどうかの設定
 	bool isDraw = true;
 
+	// ステージデータに書き出す型名。Object3dFactory::Create が入れる
+	std::string className_ = "Object3d";
+	// ステージデータとして保存する対象か
+	bool isStageObject_ = false;
+	// 使用するモデル名（ステージデータの "model"）
+	std::string modelName_;
+
 public: // ゲッター // セッター // 
 	// レンダー追加処理
 	void AddRenderer(BaseRenderer* render);
 	void AddCollider(BaseCollider* collider);
+	// コライダーを外す。CollisionManager 側の実体も次のフレームで破棄される
+	void RemoveCollider(BaseCollider* collider);
 
 	BaseRenderer* GetRenderer(std::string name_);
 	BaseCollider* GetCollider(std::string name_);
@@ -87,6 +96,26 @@ public: // ゲッター // セッター //
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }
+
+	// --- ステージデータ（保存 / 読み込み）用 ---
+
+	// "Ground" などの型名。Object3dFactory::Create が入れる
+	const std::string& GetClassName() const { return className_; }
+	void SetClassName(const std::string& className) { className_ = className; }
+
+	// ステージデータとして保存する対象か。
+	// 敵の武器のように実行中に生えるオブジェクトまで保存しないよう、
+	// SceneBuilder とエディタの生成経路だけが true にする
+	bool IsStageObject() const { return isStageObject_; }
+	void SetStageObject(bool isStageObject) { isStageObject_ = isStageObject; }
+
+	// 使用するモデル名（ステージデータの "model"）。
+	// Ground / Prop は Initialize() でこれを読んでレンダラーを作る。
+	// 素の Object3d でも、エディタでモデルを貼った場合はここに入る。
+	// 生成時に指定する場合は Initialize() より前に呼ぶこと
+	// （実行中の差し替えは Inspector が ModelRenderer::SetModel と併せて行う）
+	const std::string& GetModelName() const { return modelName_; }
+	void SetModelName(const std::string& modelName) { modelName_ = modelName; }
 
 	std::string name_;
 

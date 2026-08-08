@@ -4,36 +4,65 @@
 
 using json = nlohmann::json;
 
+namespace {
+
+	Vector3 ReadVector3(const json& j, const Vector3& fallback) {
+		if (!j.is_array() || j.size() < 3) {
+			return fallback;
+		}
+		return { j[0].get<float>(), j[1].get<float>(), j[2].get<float>() };
+	}
+
+	Quaternion ReadQuaternion(const json& j) {
+		if (!j.is_array() || j.size() < 4) {
+			return Quaternion(); // 単位クォータニオン
+		}
+		return Quaternion(j[0].get<float>(), j[1].get<float>(), j[2].get<float>(), j[3].get<float>());
+	}
+
+} // namespace
+
 std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
 	std::ifstream file(path);
 	if (!file) {
-		throw std::runtime_error("Failed to open JSON file: " + path);
+		throw std::runtime_error("ステージデータを開けませんでした: " + path);
 	}
 
 	json root;
 	file >> root;
 
-	std::vector<SceneObject> objects;
-	for (const auto& obj : root["objects"]) {
-		SceneObject sceneObj;
-		ParseObject(obj, sceneObj);
-		objects.push_back(sceneObj);
+	// 旧フォーマット（Blenderのレベルエディタが吐いていたもの）を黙って読むと
+	// 座標系が違うまま生成されて原因が分かりにくいので、はっきり弾く
+	const std::string format = root.value("format", "");
+	const int version = root.value("version", 0);
+	if (format != kFormatName || version != kFormatVersion) {
+		throw std::runtime_error(
+			"ステージデータの形式が違います: " + path +
+			" (format=\"" + format + "\" version=" + std::to_string(version) +
+			" / 期待: format=\"" + kFormatName + "\" version=" + std::to_string(kFormatVersion) + ")");
 	}
 
+	std::vector<SceneObject> objects;
+	if (!root.contains("objects")) {
+		return objects;
+	}
+	for (const auto& objectJson : root["objects"]) {
+		objects.push_back(ParseObject(objectJson));
+	}
 	return objects;
 }
 
-void SceneLoader::ParseObject(const json& j, SceneObject& out) {
-	out.name = j["name"];
+SceneObject SceneLoader::ParseObject(const json& j) {
+	SceneObject out;
+	out.name = j.value("name", "");
 	out.className = j.value("class", "Object3d");
 
-	const auto& t = j["transform"];
-	out.transform.translate = {t["translation"][0], t["translation"][1], t["translation"][2]};
-	out.transform.rotate = {t["rotation"][0],    t["rotation"][1],    t["rotation"][2]};
-	out.transform.scale = {t["scaling"][0],     t["scaling"][1],     t["scaling"][2]};
+	out.translate = ReadVector3(j.value("translate", json::array()), { 0.0f, 0.0f, 0.0f });
+	out.rotate = ReadQuaternion(j.value("rotate", json::array()));
+	out.scale = ReadVector3(j.value("scale", json::array()), { 1.0f, 1.0f, 1.0f });
 
-	if (j.contains("file_name")) {
-		out.fileName = j["file_name"].get<std::string>();
+	if (j.contains("model")) {
+		out.modelName = j["model"].get<std::string>();
 	}
 
 	if (j.contains("collider")) {
@@ -43,66 +72,43 @@ void SceneLoader::ParseObject(const json& j, SceneObject& out) {
 	if (j.contains("light")) {
 		const auto& l = j["light"];
 		LightInfo info;
-		if (l.contains("color") && l["color"].size() >= 3) {
-			info.color = { l["color"][0], l["color"][1], l["color"][2] };
-		}
-		if (l.contains("offset") && l["offset"].size() >= 3) {
-			info.offset = { l["offset"][0], l["offset"][1], l["offset"][2] };
-		}
-		info.intensity = l.value("intensity", 1.5f);
-		info.radius = l.value("radius", 10.0f);
-		info.decay = l.value("decay", 1.0f);
+		info.color = ReadVector3(l.value("color", json::array()), info.color);
+		info.offset = ReadVector3(l.value("offset", json::array()), info.offset);
+		info.intensity = l.value("intensity", info.intensity);
+		info.radius = l.value("radius", info.radius);
+		info.decay = l.value("decay", info.decay);
 		out.lightInfo = info;
 	}
 
 	if (j.contains("event")) {
+		const auto& e = j["event"];
 		EventInfo info;
-		const auto& ev = j["event"];
-
-		info.type = ev.value("type", "");
-		info.trigger = ev.value("trigger", "");
-
-		if ((info.type == "EnemySpawn" || info.type == "ForceBattle") && ev.contains("enemies")) {
-			for (const auto& e : ev["enemies"]) {
-				info.enemies.push_back({e.value("name", ""), e.value("delay", 0.0f)});
-			}
-		} else if (info.type == "BossSpawn") {
-			info.bossName = ev.value("boss", "");
-		} else if (info.type == "Clear" && ev.contains("conditions")) {
-			for (const auto& c : ev["conditions"]) {
-				EventCondition cond;
-				cond.type = c.value("type", "");
-				if (c.contains("targets")) {
-					for (const auto& target : c["targets"]) {
-						cond.targets.push_back(target.get<std::string>());
-					}
-				}
-				info.conditions.push_back(cond);
+		info.type = e.value("type", "");
+		if (e.contains("targets")) {
+			for (const auto& target : e["targets"]) {
+				info.targets.push_back(target.get<std::string>());
 			}
 		}
-
 		out.eventInfo = info;
 	}
+
+	return out;
 }
 
-Collider SceneLoader::ParseCollider(const json& j) {
-	Collider col;
-	const std::string type = j["type"];
+ColliderInfo SceneLoader::ParseCollider(const json& j) {
+	ColliderInfo info;
 
-	if (type == "BOX") {
-		col.type = ColliderType::AABB;
-
-		const Vector3 center = {j["center"][0], j["center"][1], j["center"][2]};
-		const Vector3 half = {j["size"][0] * 0.5f, j["size"][1] * 0.5f, j["size"][2] * 0.5f};
-
-		col.aabb.offsetMin = center - half;
-		col.aabb.offsetMax = center + half;
-
-	} else if (type == "SPHERE") {
-		col.type = ColliderType::Sphere;
-		col.sphere.offset = {j["center"][0], j["center"][1], j["center"][2]};
-		col.sphere.radius = j["size"][0] * 0.5f;
+	const std::string shape = j.value("shape", "OBB");
+	if (shape == "Sphere") {
+		info.shape = ColliderShape::Sphere;
+		info.radius = j.value("radius", info.radius);
+	} else {
+		info.shape = ColliderShape::OBB;
+		info.halfExtents = ReadVector3(j.value("halfExtents", json::array()), info.halfExtents);
 	}
 
-	return col;
+	info.offset = ReadVector3(j.value("offset", json::array()), info.offset);
+	info.isActive = j.value("isActive", true);
+
+	return info;
 }

@@ -11,8 +11,8 @@ BossSpawnEvent::BossSpawnEvent(std::string objectName)
 void BossSpawnEvent::Initialize() {
 	// トリガー専用。押し出し対象(Ground/Enemy)にならないよう明示的に None を設定しておく
 	// （BaseCollider::category_ は未初期化のため必須）
-	if (auto* col = GetCollider(name_)) {
-		col->category_ = CollisionCategory::None;
+	for (BaseCollider* collider : GetColliders()) {
+		collider->category_ = CollisionCategory::None;
 	}
 }
 

@@ -20,6 +20,12 @@ namespace Editor {
 std::vector<std::string> ScanModelFolders();
 
 /// <summary>
+/// ScanModelFolders() の結果をキャッシュして返す。毎フレーム呼んでよい。
+/// モデルを足したときは rescan = true で掘り直す。
+/// </summary>
+const std::vector<std::string>& CachedModelFolders(bool rescan = false);
+
+/// <summary>
 /// 読み込み済みモデルの実体から、その登録名を逆引きする。
 /// BaseRenderer が持っているのはポインタだけなので、表示や複製にはこれが要る。
 /// 見つからなければ空文字。

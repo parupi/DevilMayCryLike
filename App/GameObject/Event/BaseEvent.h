@@ -1,5 +1,7 @@
 #pragma once
 #include "World3D/Object/Object3d.h"
+#include <string>
+#include <vector>
 
 /// <summary>
 /// イベントの種類を識別する列挙体
@@ -28,7 +30,7 @@ public:
 	/// <summary>
 	/// デストラクタ
 	/// </summary>
-	virtual ~BaseEvent() = default;
+	virtual ~BaseEvent();
 
 	/// <summary>
 	/// イベントを発動する純粋仮想関数  
@@ -51,7 +53,21 @@ public:
 	/// </summary>
 	EventType GetType() const { return type_; }
 
+	/// <summary>
+	/// このイベントが対象にするオブジェクト名（出現させる敵・撃破対象など）。
+	/// 実行中の状態（撃破されて消えたか等）に左右されない「ステージに書かれた値」で、
+	/// SceneBuilder が設定し SceneSaver が読む。
+	/// </summary>
+	void SetTargetNames(std::vector<std::string> names) { targetNames_ = std::move(names); }
+	const std::vector<std::string>& GetTargetNames() const { return targetNames_; }
+	// エディタが直接編集する用。書き換えても実行中のイベントには効かない（次のシーン読み込みから）
+	std::vector<std::string>& GetTargetNamesRef() { return targetNames_; }
+
 protected:
 	EventType type_;
 	bool isTriggered_ = false;
+
+private:
+	// ステージデータに書き戻すための対象名。実行中のロジックはここを見ない
+	std::vector<std::string> targetNames_;
 };

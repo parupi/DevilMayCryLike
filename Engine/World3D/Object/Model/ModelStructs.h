@@ -79,20 +79,24 @@ struct MeshData {
 };
 
 struct Color {
-	float r, g, b;
+	float r = 1.0f, g = 1.0f, b = 1.0f;
 };
 
 struct MaterialData {
 	std::string name;
-	float Ns;
-	Color Ka;	// 環境光色
-	Color Kd;	// 拡散反射色
-	Color Ks;	// 鏡面反射光
-	float Ni;
-	float d;
-	uint32_t illum;
+	float Ns = 50.0f;			// 光沢度
+	Color Ka{};					// 環境光色
+	Color Kd{};					// 拡散反射色
+	Color Ks{};					// 鏡面反射光
+	float Ni = 1.0f;
+	float d = 1.0f;				// 不透明度
+	uint32_t illum = 2;
 	std::string textureFilePath;
 	uint32_t textureIndex = 0;
+	bool hasTexture = false;	// mtlのmap_Kd等で有効なテクスチャが指定されていたか
+	// シェーダーに渡す基本色。テクスチャ付きなら白(テクスチャそのまま)、
+	// テクスチャ無しならmtlのKd/dが入る
+	Vector4 baseColor{1.0f, 1.0f, 1.0f, 1.0f};
 };
 
 struct ModelData {
@@ -159,6 +163,7 @@ struct GBufferMaterialParam
 	float dissolveEdgeWidth; // width of edge emissive glow in noise space
 	Matrix4x4 uvTransform;
 	Vector4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
+	Vector4 materialColor;     // baseColorテクスチャに乗算する色(mtlのKd等)
 };
 
 struct UVData {

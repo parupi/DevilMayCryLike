@@ -36,6 +36,18 @@ std::vector<std::string> Editor::ScanModelFolders()
 	return names;
 }
 
+const std::vector<std::string>& Editor::CachedModelFolders(bool rescan)
+{
+	static std::vector<std::string> cache;
+	static bool scanned = false;
+
+	if (rescan || !scanned) {
+		cache = ScanModelFolders();
+		scanned = true;
+	}
+	return cache;
+}
+
 std::string Editor::FindLoadedModelName(const BaseModel* model)
 {
 	if (!model) {

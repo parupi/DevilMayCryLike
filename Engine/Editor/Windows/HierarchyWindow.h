@@ -1,7 +1,9 @@
 #pragma once
 #ifdef _DEBUG
 
+#include <optional>
 #include <string>
+#include "Math/Vector3.h"
 
 class Object3d;
 
@@ -25,6 +27,20 @@ Object3d* CreateEmptyObject(const std::string& desiredName);
 /// モデルが未読み込みならここで読み込む。
 /// </summary>
 Object3d* CreateModelObject(const std::string& desiredName, const std::string& modelName);
+
+/// <summary>
+/// ステージデータのクラス名（"Ground" / "GruntMelee" / "PointLight" など）を指定して作る。
+/// Object3dFactory に登録済みのものだけが対象で、未登録なら素の Object3d になる。
+///
+/// modelName は Ground / Prop のようにモデル名を使うクラスにだけ効く（空なら既定のまま）。
+/// 作られたオブジェクトは保存対象（IsStageObject() == true）になる。
+/// </summary>
+/// <param name="colliderHalfExtents">
+/// 指定するとOBBコライダーを付ける。Ground や敵は Initialize() / Update() で
+/// コライダーを前提にしているので、生成時に付けておく必要がある
+/// </param>
+Object3d* CreateStageObject(const std::string& desiredName, const std::string& className,
+	const std::string& modelName, const std::optional<Vector3>& colliderHalfExtents = std::nullopt);
 
 } // namespace Editor
 

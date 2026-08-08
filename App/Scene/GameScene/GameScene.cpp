@@ -12,6 +12,8 @@
 #include "World3D/Object/Renderer/PrimitiveRenderer.h"
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneBuilder.h"
+#include "Stage/StageDocument.h"
+#include "Utility/Logger.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
 #include "Scene/Transition/TransitionManager.h"
@@ -94,13 +96,21 @@ void GameScene::Initialize() {
 	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");
 
 	// ステージの情報を読み込んで生成
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Stage.json"));
+	// 読み込むステージはエディタで切り替えられる（Release では既定のまま）
+	SceneBuilder::BuildScene(SceneLoader::Load(StageDocument::GetPath()));
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
 	lockOnSystem_ = std::make_unique<LockOnSystem>();
 
-	player_ = static_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
+	// エディタでステージを作れるようになったぶん、Player を置き忘れたステージも起こりうる。
+	// そのまま進むとヌル参照で落ちて原因が分からないので、ここではっきり止める
+	player_ = dynamic_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
+	ASSERT_MSG(player_ != nullptr,
+		("ステージに Player クラスのオブジェクトがありません。\n  ステージ: "
+			+ StageDocument::GetPath()
+			+ "\n  Hierarchy の「+作成」でクラス Player を置いて保存してください。").c_str());
+
 	player_->SetInput(inputContext_->GetPlayerInput());
 	player_->SetLockOn(lockOnSystem_.get());
 

@@ -10,8 +10,8 @@ ForceBattleEvent::ForceBattleEvent(std::string objectName)
 void ForceBattleEvent::Initialize() {
 	// エリア兼トリガー。押し出し対象(Ground/Enemy)にならない純粋なトリガーにする。
 	// （BaseCollider::category_ は未初期化のため、明示的に None を設定しておく）
-	if (auto* col = GetCollider(name_)) {
-		col->category_ = CollisionCategory::None;
+	for (BaseCollider* collider : GetColliders()) {
+		collider->category_ = CollisionCategory::None;
 	}
 }
 

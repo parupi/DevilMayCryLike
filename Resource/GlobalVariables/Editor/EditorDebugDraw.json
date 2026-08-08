@@ -5,6 +5,6 @@
         "Grid": false,
         "GridExtent": 20.0,
         "GridSpacing": 1.0,
-        "LightGizmo": false
+        "LightGizmo": true
     }
 }

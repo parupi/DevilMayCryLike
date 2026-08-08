@@ -113,6 +113,13 @@ void Player::Initialize() {
 }
 
 void Player::Update(float deltaTime) {
+	// 入力とロックオンはシーン側が接続する。エディタで生成した直後など未接続の間は
+	// トランスフォームの更新だけして動かさない（次のシーン読み込みで有効になる）
+	if (!input_ || !lockOn_) {
+		Object3d::Update(deltaTime);
+		return;
+	}
+
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 	// パーティクルなど自分でヒットストップを持たない系統にも時間停止を伝える

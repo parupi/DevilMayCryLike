@@ -2,6 +2,7 @@
 #ifdef _DEBUG
 
 #include "EditorSelection.h"
+#include "EditorUndo.h"
 #include "EditorViewMath.h"
 
 #include "Debugger/GlobalVariables.h"
@@ -885,6 +886,17 @@ void CancelDrag()
 	g_drag.handle = kHandleNone;
 }
 
+// ドラッグ中に中断された場合だけ、控えていた履歴も捨てる。
+// CancelDrag() 自体はギズモが無効なフレームでも毎回走るので、
+// そこで無条件に AbortTransformEdit() を呼ぶと Inspector 側の編集まで巻き添えになる
+void AbortDrag()
+{
+	if (g_drag.active) {
+		EditorUndo::AbortTransformEdit();
+	}
+	CancelDrag();
+}
+
 } // namespace
 
 // --- 状態 ---
@@ -894,7 +906,7 @@ void EditorGizmo::SetEnabled(bool enabled)
 {
 	g_enabled = enabled;
 	if (!enabled) {
-		CancelDrag();
+		AbortDrag();
 	}
 }
 
@@ -914,7 +926,7 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 	g_isOver = false;
 
 	if (!g_enabled || imageSize.x <= 1.0f || imageSize.y <= 1.0f) {
-		CancelDrag();
+		AbortDrag();
 		return;
 	}
 
@@ -925,13 +937,13 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 	Object3d* object = Editor::GetSelectedObject();
 	WorldTransform* transform = object ? object->GetWorldTransform() : nullptr;
 	if (!transform) {
-		CancelDrag();
+		AbortDrag();
 		return;
 	}
 
 	Frame frame;
 	if (!EditorView::Build(frame.view, imagePos, imageSize)) {
-		CancelDrag();
+		AbortDrag();
 		return;
 	}
 
@@ -946,6 +958,8 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 	// そうしないと、動かした結果が1フレーム遅れて描かれる
 	if (g_drag.active) {
 		if (!ImGui::IsMouseDown(ImGuiMouseButton_Left)) {
+			// ドラッグの終わり。ここまでの移動量を1回の操作として履歴に積む
+			EditorUndo::EndTransformEdit(object);
 			CancelDrag();
 		} else {
 			switch (g_drag.operation) {
@@ -980,12 +994,12 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 	}
 
 	if (!WorldToScreen(frame.view, frame.origin, frame.originScreen)) {
-		CancelDrag();
+		AbortDrag();
 		return;
 	}
 	frame.size = ComputeGizmoWorldSize(frame.view, frame.origin);
 	if (frame.size <= 0.0f) {
-		CancelDrag();
+		AbortDrag();
 		return;
 	}
 
@@ -1015,6 +1029,8 @@ void EditorGizmo::DrawOverlay(const ImVec2& imagePos, const ImVec2& imageSize)
 	frame.drawList->PopClipRect();
 
 	if (frame.canInteract && hovered != kHandleNone && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+		// ドラッグの始まり。掴む前の値を控えておく
+		EditorUndo::BeginTransformEdit(object);
 		BeginDrag(frame, transform, hovered, hasParent, parentWorld);
 	}
 }
