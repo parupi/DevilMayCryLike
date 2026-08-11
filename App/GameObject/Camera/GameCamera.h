@@ -150,8 +150,9 @@ private:
 	float lockOnLagSpeed_ = 5.0f;     // ロックオン時のカメラ追従速度
 
 	// ⑧ FOV変化（速度で画角を広げる）
-	float fovNormal_ = 0.45f;         // 通常時の水平FOV
-	float fovDash_ = 0.6f;            // 高速移動時の水平FOV
+	// SetFovY/GetFovY の名前に反して中身は縦方向の画角（射影行列が cot(fov/2) を y に入れている）
+	float fovNormal_ = 0.45f;         // 通常時の画角（縦・rad）
+	float fovDash_ = 0.6f;            // 高速移動時の画角（縦・rad）
 	float fovSpeedMin_ = 6.0f;        // FOVが広がり始める水平速度
 	float fovSpeedMax_ = 14.0f;       // FOVが最大まで広がる水平速度
 	float fovLerpSpeed_ = 4.0f;       // FOVの補間速度
@@ -168,7 +169,7 @@ private:
 	// ⑫ CameraState（Normal/Battle）
 	bool battleStateEnabled_ = true;
 	float battleDistanceScale_ = 0.92f;// Battle時の距離倍率（<1で寄る）
-	float battleFovAdd_ = 0.05f;      // Battle時に加える水平FOV
+	float battleFovAdd_ = 0.05f;      // Battle時に加える画角（縦・rad）
 	float battleBlendSpeed_ = 3.0f;   // 状態ブレンドの補間速度
 
 	// ⑩ Camera Shake

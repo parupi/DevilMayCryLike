@@ -16,52 +16,52 @@
 #endif
 
 namespace {
-constexpr float kPi = 3.14159265358979323846f;
+	constexpr float kPi = 3.14159265358979323846f;
 
-// [-1,1]^3 内の乱数方向ベクトル（カメラシェイクのオフセット方向用）
-Vector3 RandomUnitVec() {
-	static std::mt19937 rng(std::random_device{}());
-	static std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
-	Vector3 v{ dist(rng), dist(rng), dist(rng) };
-	float len = Length(v);
-	if (len < 1e-5f) return Vector3(0.0f, 0.0f, 0.0f);
-	return v * (1.0f / len);
-}
-
-// 角度a→bを最短経路で補間する（±πの折り返しを考慮）
-float LerpAngleShortest(float a, float b, float t) {
-	float diff = std::fmod(b - a, 2.0f * kPi);
-	if (diff > kPi) diff -= 2.0f * kPi;
-	if (diff < -kPi) diff += 2.0f * kPi;
-	return a + diff * t;
-}
-
-// 線分(origin + dir*t, t∈(0, tMax])と原点中心スラブ領域(±halfExtents)の交差判定（スラブ法）
-// origin/dir は判定対象のローカル空間に変換済みであること。dir は単位ベクトル前提（tは距離）
-bool IntersectSegmentSlabs(const Vector3& origin, const Vector3& dir, float tMax, const Vector3& halfExtents, float& tHit) {
-	float tEnter = 0.0f;
-	float tExit = tMax;
-	const float o[3] = { origin.x, origin.y, origin.z };
-	const float d[3] = { dir.x, dir.y, dir.z };
-	const float h[3] = { halfExtents.x, halfExtents.y, halfExtents.z };
-	for (int i = 0; i < 3; ++i) {
-		if (std::abs(d[i]) < 1e-6f) {
-			// 軸に平行: スラブ範囲外なら交差しない
-			if (o[i] < -h[i] || o[i] > h[i]) return false;
-			continue;
-		}
-		float t1 = (-h[i] - o[i]) / d[i];
-		float t2 = (h[i] - o[i]) / d[i];
-		if (t1 > t2) std::swap(t1, t2);
-		tEnter = (std::max)(tEnter, t1);
-		tExit = (std::min)(tExit, t2);
-		if (tEnter > tExit) return false;
+	// [-1,1]^3 内の乱数方向ベクトル（カメラシェイクのオフセット方向用）
+	Vector3 RandomUnitVec() {
+		static std::mt19937 rng(std::random_device{}());
+		static std::uniform_real_distribution<float> dist(-1.0f, 1.0f);
+		Vector3 v{dist(rng), dist(rng), dist(rng)};
+		float len = Length(v);
+		if (len < 1e-5f) return Vector3(0.0f, 0.0f, 0.0f);
+		return v * (1.0f / len);
 	}
-	// 始点がすでに内部にある場合は引き寄せ先が無いので対象外
-	if (tEnter <= 0.0f) return false;
-	tHit = tEnter;
-	return true;
-}
+
+	// 角度a→bを最短経路で補間する（±πの折り返しを考慮）
+	float LerpAngleShortest(float a, float b, float t) {
+		float diff = std::fmod(b - a, 2.0f * kPi);
+		if (diff > kPi) diff -= 2.0f * kPi;
+		if (diff < -kPi) diff += 2.0f * kPi;
+		return a + diff * t;
+	}
+
+	// 線分(origin + dir*t, t∈(0, tMax])と原点中心スラブ領域(±halfExtents)の交差判定（スラブ法）
+	// origin/dir は判定対象のローカル空間に変換済みであること。dir は単位ベクトル前提（tは距離）
+	bool IntersectSegmentSlabs(const Vector3& origin, const Vector3& dir, float tMax, const Vector3& halfExtents, float& tHit) {
+		float tEnter = 0.0f;
+		float tExit = tMax;
+		const float o[3] = {origin.x, origin.y, origin.z};
+		const float d[3] = {dir.x, dir.y, dir.z};
+		const float h[3] = {halfExtents.x, halfExtents.y, halfExtents.z};
+		for (int i = 0; i < 3; ++i) {
+			if (std::abs(d[i]) < 1e-6f) {
+				// 軸に平行: スラブ範囲外なら交差しない
+				if (o[i] < -h[i] || o[i] > h[i]) return false;
+				continue;
+			}
+			float t1 = (-h[i] - o[i]) / d[i];
+			float t2 = (h[i] - o[i]) / d[i];
+			if (t1 > t2) std::swap(t1, t2);
+			tEnter = (std::max)(tEnter, t1);
+			tExit = (std::min)(tExit, t2);
+			if (tEnter > tExit) return false;
+		}
+		// 始点がすでに内部にある場合は引き寄せ先が無いので対象外
+		if (tEnter <= 0.0f) return false;
+		tHit = tEnter;
+		return true;
+	}
 } // namespace
 
 GameCamera::GameCamera(std::string cameraName)
@@ -328,8 +328,8 @@ Vector3 GameCamera::ResolveCameraCollision(const Vector3& pivot, const Vector3& 
 			if (!obb->GetColliderData().isActive) continue;
 			// OBBのローカル空間に射影してスラブ判定（axesは正規直交なのでtは距離のまま）
 			Vector3 rel = pivot - obb->GetCenter();
-			Vector3 localOrigin{ Dot(rel, obb->GetAxis(0)), Dot(rel, obb->GetAxis(1)), Dot(rel, obb->GetAxis(2)) };
-			Vector3 localDir{ Dot(dir, obb->GetAxis(0)), Dot(dir, obb->GetAxis(1)), Dot(dir, obb->GetAxis(2)) };
+			Vector3 localOrigin{Dot(rel, obb->GetAxis(0)), Dot(rel, obb->GetAxis(1)), Dot(rel, obb->GetAxis(2))};
+			Vector3 localDir{Dot(dir, obb->GetAxis(0)), Dot(dir, obb->GetAxis(1)), Dot(dir, obb->GetAxis(2))};
 			if (IntersectSegmentSlabs(localOrigin, localDir, nearestT, obb->GetWorldHalfExtents(), tHit)) {
 				nearestT = tHit;
 				hit = true;
