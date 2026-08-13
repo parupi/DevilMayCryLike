@@ -1,5 +1,6 @@
 {
     "EditorWindows": {
+        "Animation": true,
         "Asset Browser": true,
         "Attack Derivative Editor": false,
         "Attack Editor": false,

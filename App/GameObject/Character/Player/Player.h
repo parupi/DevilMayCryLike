@@ -35,6 +35,34 @@ struct PlayerCommand;
 /// </summary>
 class Player : public Object3d {
 public:
+	/// 見た目のモデル。Resource/models/Player/Alien/Alien.obj を指す
+	/// （ヘルメット付きにするなら "Player/Alien_Helmet" に変えるだけでよい）
+	static constexpr const char* kModelName = "Player/Alien";
+	/// 素の高さ約2.9m を約1.1m にするスケール。大きさを変えるならここ
+	static constexpr float kModelScale = 0.38f;
+	/// レンダラーの登録名。モデル名とは別物で、Player 内から GetRenderer() で引くのに使う
+	static constexpr const char* kRendererName = "PlayerModel";
+	/// モデルの足元(y=0)をコライダーの底に合わせるための縦オフセット
+	static constexpr float kModelOffsetY = -0.5f;
+
+	// ── アニメーションクリップ名（Alien.gltf が持つ15種のうち使うもの）──
+	// 差し替えは Player::UpdateAnimation() の対応表と合わせて見ること
+	static constexpr const char* kClipIdle      = "Alien_Idle";
+	static constexpr const char* kClipMove      = "Alien_Run";
+	static constexpr const char* kClipJump      = "Alien_Jump";
+	static constexpr const char* kClipAttack    = "Alien_SwordSlash";
+	static constexpr const char* kClipKnockBack = "Alien_Roll";
+	static constexpr const char* kClipDeath     = "Alien_Death";
+	static constexpr const char* kClipClear     = "Alien_Clapping";
+
+	/// Alien_SwordSlash(1.04秒)で振り切る瞬間の位置。
+	/// gltf のキーフレームで Palm.R / Torso の角速度ピークが 0.458秒＝44%だった。
+	/// クリップを差し替えたら測り直すこと
+	static constexpr float kAttackClipImpactRatio = 0.44f;
+	/// 攻撃の再生速度の上下限。0.15秒しかない空中攻撃で倍率が跳ね上がって残像になるのを防ぐ
+	static constexpr float kAttackSpeedMin = 0.75f;
+	static constexpr float kAttackSpeedMax = 3.0f;
+
 	Player(std::string objectName);
 	~Player() override = default;
 
@@ -174,6 +202,14 @@ public:
 private:
 	// Ground/Enemyコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
 	void ResolveGroundCollision(BaseCollider* other);
+
+	// ステートと戦闘状態から再生するクリップを決めて流す。毎フレーム呼ぶ
+	void UpdateAnimation();
+	// 体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る
+	AnimationPlayer* GetAnimationPlayer();
+
+	// 直前のフレームに再生していた攻撃名。コンボで技が変わったら振りを出し直すために覚えておく
+	std::string lastAttackName_;
 
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 

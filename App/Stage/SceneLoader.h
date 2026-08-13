@@ -70,7 +70,7 @@ public:
 	static constexpr int kFormatVersion = 2;
 
 	// ゲーム本編のステージ。エディタの保存先もここ
-	static constexpr const char* kDefaultStagePath = "Resource/Stage/Stage.json";
+	static constexpr const char* kDefaultStagePath = "Resource/Stage/Test.json";
 
 	/// <summary>ステージデータを読み込む。開けない・形式が違う場合は例外を投げる</summary>
 	static std::vector<SceneObject> Load(const std::string& path);

@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "GameObject/Character/Player/Player.h" // 表示するモデル名・縮尺をゲーム中と共有する
+#include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include "World3D/Object/Model/Animation/AnimationPlayer.h"
 
 void TitleUI::Initialize() {
 	RendererManager::GetInstance().AddRenderer(std::make_unique<PrimitiveRenderer>("Title", PrimitiveType::Plane, "Title.png"));
@@ -74,8 +77,16 @@ void TitleUI::Initialize() {
 
 	// プレイヤーの生成
 	std::unique_ptr<Object3d> playerObject = std::make_unique<Object3d>("Player");
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("Player", "PlayerHead"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("Player", Player::kModelName));
 	playerObject->AddRenderer(RendererManager::GetInstance().FindRender("Player"));
+	// ゲーム中と同じ縮尺にする。剣の位置はこの見た目に合わせて調整済み
+	BaseRenderer* playerRenderer = RendererManager::GetInstance().FindRender("Player");
+	playerRenderer->GetWorldTransform()->GetScale() =
+		{Player::kModelScale, Player::kModelScale, Player::kModelScale};
+	// タイトルでも待機モーションを流しておく（棒立ちのバインドポーズだと固まって見える）
+	if (SkinnedInstance* instance = playerRenderer->GetSkinnedInstance()) {
+		instance->GetPlayer()->Play(Player::kClipIdle, true, 0.0f);
+	}
 	playerObject->GetWorldTransform()->GetTranslation() = {0.0f, 0.0f, -7.0f};
 	playerBasePosition_ = playerObject->GetWorldTransform()->GetTranslation();
 	playerObject_ = playerObject.get();

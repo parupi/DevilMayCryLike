@@ -52,8 +52,8 @@ void GameScene::Initialize() {
 
 	// カメラの生成
 	std::unique_ptr<GameCamera> camera = std::make_unique<GameCamera>("GameCamera");
-	camera->GetTranslate() = { 0.096f, 13.4f, -20.0f };
-	camera->GetRotate() = { 0.5f, -0.005f, 0.0f };
+	camera->GetTranslate() = {0.096f, 13.4f, -20.0f};
+	camera->GetRotate() = {0.5f, -0.005f, 0.0f};
 	gameCamera_ = camera.get();
 	cameraManager_->AddCamera(std::move(camera));
 
@@ -132,8 +132,8 @@ void GameScene::Initialize() {
 	//gameUI_->Initialize();
 
 	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "menuMask", "white.png");
-	mask_->SetSize({ 1280.0f, 720.0f });
-	mask_->SetColor({ 0.0f, 0.0f, 0.0f, 0.5f });
+	mask_->SetSize({1280.0f, 720.0f});
+	mask_->SetColor({0.0f, 0.0f, 0.0f, 0.5f});
 
 	menuUI_ = std::make_unique<MenuUI>();
 	menuUI_->Initialize(this);
@@ -172,8 +172,7 @@ void GameScene::Finalize() {
 	EventManager::GetInstance().Finalize();
 }
 
-void GameScene::Update()
-{
+void GameScene::Update() {
 	//lightManager_->Update();
 	//gameUI_->Update();
 
@@ -200,7 +199,7 @@ void GameScene::Update()
 		currentState_->Update(*this);
 	}
 
-	mask_->SetColor({ 0.0f, 0.0f, 0.0f, maskAlpha_ });
+	mask_->SetColor({0.0f, 0.0f, 0.0f, maskAlpha_});
 	mask_->Update();
 
 	menuUI_->Update();

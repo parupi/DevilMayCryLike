@@ -5,7 +5,6 @@
 #include <Math/Vector2.h>
 #include <World3D/Object/Model/ModelManager.h>
 #include <World3D/WorldTransform.h>
-#include <World3D/Object/Model/Animation/Animation.h>
 #include "Mesh/Mesh.h"
 #include "World3D/Object/Model/Material/Material.h"
 #include <World3D/Object/Object3d.h>

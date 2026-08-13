@@ -14,6 +14,20 @@
 class GruntMelee : public Enemy
 {
 public:
+    /// 見た目のモデル。Resource/models/Enemys/Skeleton/Skeleton.obj を指す
+    static constexpr const char* kModelName = "Enemys/Skeleton";
+    /// 素の高さ約5m を約1.2m にするスケール。大きさを変えるならここ
+    static constexpr float kModelScale = 0.24f;
+
+    // Skeleton.gltf が持つクリップ（5種）。差し替えは Initialize の RegisterStateClip と合わせて見ること
+    static constexpr const char* kClipIdle   = "Skeleton_Idle";
+    static constexpr const char* kClipRun    = "Skeleton_Running";
+    static constexpr const char* kClipAttack = "Skeleton_Attack";
+    static constexpr const char* kClipDeath  = "Skeleton_Death";
+    static constexpr const char* kClipSpawn  = "Skeleton_Spawn";
+    /// Skeleton_Attack(0.93秒)で振り切る瞬間の位置。Torso の角速度ピークが 0.567秒＝61%
+    static constexpr float kAttackImpactRatio = 0.61f;
+
     GruntMelee(std::string objectName);
     void Initialize() override;
     void Update(float deltaTime) override;

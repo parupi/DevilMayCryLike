@@ -18,6 +18,22 @@ class BossKnight : public Enemy
 public:
     static constexpr float kMaxHp = 25.0f;
 
+    /// 見た目のモデル。Resource/models/Enemys/Dragon/Dragon.obj を指す
+    static constexpr const char* kModelName = "Enemys/Dragon";
+    /// 素の高さ約4.0m を約2.0m（雑魚の1.6倍・翼で横幅1.7m）にするスケール
+    static constexpr float kModelScale = 0.5f;
+
+    // Dragon.gltf が持つクリップ（5種）。待機に相当するのは Flying
+    static constexpr const char* kClipIdle    = "Dragon_Flying";
+    static constexpr const char* kClipAttack  = "Dragon_Attack";   // 速い斬り
+    static constexpr const char* kClipAttack2 = "Dragon_Attack2";  // 遅い叩きつけ
+    static constexpr const char* kClipHit     = "Dragon_Hit";
+    static constexpr const char* kClipDeath   = "Dragon_Death";
+    /// 振り切る瞬間の位置。角速度ピークは Attack が BodyRoot 0.583/0.88秒=67%、
+    /// Attack2 が翼の叩きつけ 1.083/1.67秒=65%
+    static constexpr float kAttackImpactRatio  = 0.67f;
+    static constexpr float kAttack2ImpactRatio = 0.65f;
+
     BossKnight(std::string objectName);
     void Initialize() override;
     void Update(float deltaTime) override;

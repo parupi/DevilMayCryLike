@@ -2,7 +2,6 @@
 #include "PSOBuilder/SpritePipeline.h"
 #include "PSOBuilder/ParticlePipeline.h"
 #include "PSOBuilder/ObjectPipeline.h"
-#include "PSOBuilder/AnimationPipeline.h"
 #include "PSOBuilder/OffScreenPipeline.h"
 #include "PSOBuilder/PrimitivePipeline.h"
 #include "PSOBuilder/SkyboxPipeline.h"
@@ -30,9 +29,6 @@ void PSOManager::Finalize() {
 
 	objectSignature_.Reset();
 	for (auto& pso : objectGraphicsPipelineState_) { pso.Reset(); }
-
-	animationSignature_.Reset();
-	animationGraphicsPipelineState_.Reset();
 
 	offScreenSignature_.Reset();
 	for (auto& pso : offScreenGraphicsPipelineState_) { pso.Reset(); }
@@ -132,28 +128,6 @@ void PSOManager::CreateObjectPSO(BlendMode blendMode) {
 	CreateObjectSignature();
 	objectGraphicsPipelineState_[static_cast<UINT>(blendMode)] =
 		ObjectPipeline::CreatePSO(dxManager_, objectSignature_.Get(), blendMode);
-}
-
-// ---------------------------------------------------------------------------
-// Animation
-// ---------------------------------------------------------------------------
-ID3D12PipelineState* PSOManager::GetAnimationPSO() {
-	if (!animationGraphicsPipelineState_) {
-		CreateAnimationPSO();
-	}
-	return animationGraphicsPipelineState_.Get();
-}
-
-void PSOManager::CreateAnimationSignature() {
-	if (!animationSignature_) {
-		animationSignature_ = AnimationPipeline::CreateRootSignature(dxManager_);
-	}
-}
-
-void PSOManager::CreateAnimationPSO() {
-	CreateAnimationSignature();
-	animationGraphicsPipelineState_ =
-		AnimationPipeline::CreatePSO(dxManager_, animationSignature_.Get());
 }
 
 // ---------------------------------------------------------------------------

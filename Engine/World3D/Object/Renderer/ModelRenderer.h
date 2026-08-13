@@ -3,6 +3,7 @@
 #include "IDeferredDrawable.h"
 #include "IShadowCaster.h"
 #include <World3D/Object/Model/Model.h>
+#include <World3D/Object/Model/Animation/SkinnedInstance.h>
 #include "World3D/Camera/BaseCamera.h"
 #include <World3D/Camera/CameraManager.h>
 
@@ -25,9 +26,17 @@ public:
 
 	WorldTransform* GetWorldTransform() const override { return localTransform_.get(); }
 	BaseModel* GetModel() const override { return model_; }
+	SkinnedInstance* GetSkinnedInstance() const override { return skinnedInstance_.get(); }
+
+	// スキンモデルのときだけ有効。アニメーションの再生はここから行う
+	AnimationPlayer* GetAnimationPlayer() const;
 
 private:
 	BaseModel* model_;
 	BaseCamera* camera_ = nullptr; // Update()で毎フレーム更新
+
+	// スキンモデルのときだけ生成される、このレンダラー専用のポーズと変形後頂点。
+	// モデル本体は ModelManager が共有しているので、可変状態はこちら側に置く
+	std::unique_ptr<SkinnedInstance> skinnedInstance_;
 };
 

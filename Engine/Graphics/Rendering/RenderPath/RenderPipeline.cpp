@@ -1,4 +1,5 @@
 #include "RenderPipeline.h"
+#include "Pass/SkinningRenderPass.h"
 #include "Pass/ShadowRenderPass.h"
 #include "Pass/GBufferRenderPass.h"
 #include "Pass/LightingRenderPass.h"
@@ -57,6 +58,12 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 	gBufferManager_->Initialize(ctx_.dxManager);
 
 	// --- パスを順番に登録 ---
+	{
+		// スキニングは影とGBufferの両方が結果を読むので必ず先頭
+		auto pass = std::make_unique<SkinningRenderPass>();
+		pass->Initialize(ctx_);
+		passes_.push_back(std::move(pass));
+	}
 	{
 		auto pass = std::make_unique<ShadowRenderPass>();
 		pass->Initialize(ctx_);

@@ -690,6 +690,9 @@
     <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h">
       <Filter>Engine\Editor\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\AnimationWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h">
       <Filter>Engine\Editor\Windows</Filter>
     </ClInclude>
@@ -746,9 +749,6 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AnimationPipeline.h">
-      <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
@@ -898,6 +898,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.h">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h">
@@ -1074,16 +1077,28 @@
     <ClInclude Include="Engine\World3D\Light\SpotLight.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\World3D\Object\Model\Animation\Animation.h">
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\AnimationClipSet.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\AnimationPlayer.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\BoneAttachment.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\Animation\Skeleton.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinCluster.h">
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinnedInstance.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinningResource.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\BaseModel.h">
+      <Filter>Engine\World3D\Object\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\GltfAxis.h">
       <Filter>Engine\World3D\Object\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\Material\Material.h">
@@ -1592,6 +1607,9 @@
     <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp">
       <Filter>Engine\Editor\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\AnimationWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp">
       <Filter>Engine\Editor\Windows</Filter>
     </ClCompile>
@@ -1648,9 +1666,6 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
-    </ClCompile>
-    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AnimationPipeline.cpp">
-      <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
@@ -1782,6 +1797,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.cpp">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp">
@@ -1931,13 +1949,22 @@
     <ClCompile Include="Engine\World3D\Light\SpotLight.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\World3D\Object\Model\Animation\Animation.cpp">
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\AnimationClipSet.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\AnimationPlayer.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\BoneAttachment.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Model\Animation\Skeleton.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinCluster.cpp">
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinnedInstance.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinningResource.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Model\Material\Material.cpp">

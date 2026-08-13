@@ -7,6 +7,7 @@
 #include "EditorMenuBar.h"
 #include "EditorPicking.h"
 #include "EditorStats.h"
+#include "Editor/Windows/AnimationWindow.h"
 #include "Editor/Windows/AssetBrowserWindow.h"
 #include "Editor/Windows/AudioWindow.h"
 #include "Editor/Windows/CameraWindow.h"
@@ -132,6 +133,7 @@ void Editor::Initialize()
 	AddWindowDrawer([] { DrawLightWindow(); });
 	AddWindowDrawer([] { DrawRenderWindow(); });
 	AddWindowDrawer([] { DrawCameraWindow(); });
+	AddWindowDrawer([] { DrawAnimationWindow(); });
 	AddWindowDrawer([] { DrawParticleEditorWindows(); });
 	AddWindowDrawer([] { DrawAudioWindow(); });
 	AddWindowDrawer([] { DrawTimeWindows(); });

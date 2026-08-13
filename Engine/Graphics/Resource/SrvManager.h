@@ -2,6 +2,7 @@
 #include <d3d12.h>
 #include <stdint.h>
 #include <wrl.h>
+#include <vector>
 
 class DirectXManager;
 
@@ -16,11 +17,15 @@ public:
 	void Finalize();
 	// 確保
 	uint32_t Allocate();
+	// 確保したインデックスを返却する。
+	// スキンモデルのインスタンスのように生成/破棄を繰り返すものは必ず返すこと。
+	// 返さないとヒープ(kMaxCount個)を使い切って Allocate() の assert で落ちる
+	void Free(uint32_t index);
 	void BeginDraw();
 	// SRVの確保が可能かどうかをチェックする関数
 	bool CanAllocate() const;
 	// 確保済みSRV数（エディタの統計表示用）
-	uint32_t GetUsedCount() const { return useIndex; }
+	uint32_t GetUsedCount() const { return useIndex - static_cast<uint32_t>(freeList_.size()); }
 
 public:
 	D3D12_CPU_DESCRIPTOR_HANDLE GetCPUDescriptorHandle(uint32_t index);
@@ -47,7 +52,9 @@ private:
 	static inline uint32_t descriptorSize_;
 	// デスクリプタヒープ
 	Microsoft::WRL::ComPtr<ID3D12DescriptorHeap> descriptorHeap_ = nullptr;
-	// 次に使用するSRVインデックス
+	// まだ一度も配ったことがない領域の先頭
 	uint32_t useIndex = 0;
+	// Free() で返却されて再利用できるインデックス
+	std::vector<uint32_t> freeList_;
 };
 

@@ -35,6 +35,10 @@ public: // メンバ関数
 
 	void DrawShadow();
 
+	// スキンモデルのCSスキニングを回す。
+	// 影・GBuffer・Forwardのどれからも同じ結果を使うので、全描画パスより前に1回だけ呼ぶ
+	void DispatchSkinning();
+
 	void ResetObject();
 
 #ifdef _DEBUG

@@ -1,7 +1,6 @@
-﻿#include "SkinnedModel.h"
-#include "World3D/Object/Model/Animation/Skeleton.h"
-#include "World3D/Object/Model/Animation/SkinCluster.h"
-#include "World3D/Object/Model/Animation/Animation.h"
+#include "SkinnedModel.h"
+#include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include "World3D/Object/Model/Animation/SkinningResource.h"
 #include "Graphics/Resource/TextureManager.h"
 #include "World3D/Object/Model/ModelManager.h"
 #include <World3D/Object/Object3d.h>
@@ -15,30 +14,29 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 {
 	// モデルローダーの保持
 	modelLoader_ = modelLoader;
+	modelName_ = fileName;
 
-	// モデルの読み込み
-	modelData_ = modelLoader_->LoadSkinnedModel(fileName);
+	// モデルとアニメーションクリップを1回のgltf読み込みでまとめて取る
+	modelData_ = modelLoader_->LoadSkinnedModel(fileName, &clipSet_);
+	// イベント定義（任意の .anim.json）はクリップを読んだ後に足す
+	clipSet_.LoadEvents(fileName);
 
-	// スケルトン作成
-	skeleton_ = std::make_unique<Skeleton>();
-	skeleton_->Initialize(this);
+	// バインドポーズのスケルトン作成
+	bindSkeleton_.BuildFromNode(modelData_.rootNode);
+	bindSkeleton_.Update();
 
-	// アニメーション作成
-	animation_ = std::make_unique<Animation>();
-	animation_->Initialize(this, fileName);
-
-	// メッシュとマテリアルの作成
+	// メッシュとスキニング入力リソースの作成
 	for (size_t i = 0; i < modelData_.meshes.size(); ++i) {
 		const auto& skinnedMeshData = modelData_.meshes[i];
 
 		auto mesh = std::make_unique<Mesh>();
 		mesh->Initialize(GetDxManager(), GetSrvManager(), skinnedMeshData);
-
-		// 各メッシュにスキンクラスタを作成させる
-		mesh->CreateSkinCluster(skeleton_->GetSkeletonData(), skinnedMeshData, skinnedMeshData.skinClusterData);
+		mesh->CreateSkinningResource(bindSkeleton_.GetSkeletonData(), skinnedMeshData, skinnedMeshData.skinClusterData);
 
 		meshes_.emplace_back(std::move(mesh));
 	}
+
+	BuildInverseBindPoseMatrices();
 
 	for (auto& materialData : modelData_.materials) {
 		auto material = std::make_unique<Material>();
@@ -47,65 +45,82 @@ void SkinnedModel::Initialize(ModelLoader* modelLoader, const std::string& fileN
 	}
 }
 
+void SkinnedModel::BuildInverseBindPoseMatrices()
+{
+	const SkeletonData& skeletonData = bindSkeleton_.GetSkeletonData();
+	inverseBindPoseMatrices_.assign(skeletonData.joints.size(), MakeIdentity4x4());
+
+	for (const auto& meshData : modelData_.meshes) {
+		for (const auto& [jointName, weightData] : meshData.skinClusterData) {
+			auto found = skeletonData.jointMap.find(jointName);
+			if (found == skeletonData.jointMap.end()) continue;
+			// 同じジョイントを複数メッシュが参照していても値は同じなので上書きで問題ない
+			inverseBindPoseMatrices_[found->second] = weightData.inverseBindPoseMatrix;
+		}
+	}
+}
+
+std::unique_ptr<SkinnedInstance> SkinnedModel::CreateInstance()
+{
+	auto instance = std::make_unique<SkinnedInstance>();
+	instance->Initialize(this);
+	return instance;
+}
+
 void SkinnedModel::Update(const Vector3& objectScale)
 {
-	// アニメーションの更新を呼ぶ
-	animation_->Update();
-
-	// アニメーションの時間取得
-	animationTime = animation_->GetAnimationTime();
-
-	skeleton_->Update();
-
-	for (const auto& mesh : meshes_) {
-		auto* cluster = mesh->GetSkinCluster();
-		cluster->UpdateInputVertex(mesh->GetSkinnedMeshData()); // メッシュ単位になったのでこれでOK
-		cluster->UpdateSkinCluster(skeleton_->GetSkeletonData());
-	}
-
+	// マテリアルはアセット側なので共有。ポーズは SkinnedInstance::Update が進める
 	for (size_t i = 0; i < materials_.size(); i++) {
 		materials_[i]->Update(objectScale);
 	}
 }
 
-void SkinnedModel::Draw()
+void SkinnedModel::DrawWith(SkinnedInstance* instance)
 {
-	for (auto& mesh : meshes_) {
+	auto* cmd = modelLoader_->GetDxManager()->GetCommandList();
+
+	for (size_t i = 0; i < meshes_.size(); ++i) {
+		auto& mesh = meshes_[i];
+
 		CameraManager::GetInstance().BindCameraToShader();
 		LightManager::GetInstance().BindLightsToShader();
 
-		// マテリアル設定
 		assert(mesh->GetMeshData().materialIndex < materials_.size());
 		materials_[mesh->GetMeshData().materialIndex]->Bind(5);
 
-		// 描画
-		mesh->Bind();
+		mesh->Bind(&instance->GetOutputVBV(i));
 
-		modelLoader_->GetDxManager()->GetCommandList()->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
 	}
 }
 
-void SkinnedModel::UpdateSkinningWithCS()
+void SkinnedModel::DrawGBufferWith(SkinnedInstance* instance)
 {
-	auto* commandList = modelLoader_->GetDxManager()->GetCommandList();
+	// CSスキニング後の出力頂点バッファは通常のVertexDataレイアウトなので、
+	// GBufferのシェーダーは静的モデルとまったく同じものが使える
+	auto* cmd = modelLoader_->GetDxManager()->GetCommandList();
 
-	// Compute用のPSOとRootSignature設定
-	commandList->SetPipelineState(Object3dManager::GetInstance().GetPsoManager()->GetSkinningPSO());
-	commandList->SetComputeRootSignature(Object3dManager::GetInstance().GetPsoManager()->GetSkinningSignature());
+	for (size_t i = 0; i < meshes_.size(); ++i) {
+		auto& mesh = meshes_[i];
 
-	// 各スキンクラスタのスキニング処理
-	for (auto& mesh : meshes_) {
-		mesh->Update();
+		assert(mesh->GetMeshData().materialIndex < materials_.size());
+		materials_[mesh->GetMeshData().materialIndex]->BindForGBuffer();
+
+		mesh->Bind(&instance->GetOutputVBV(i));
+
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
 	}
 }
 
-
-void SkinnedModel::DrawGBuffer()
+void SkinnedModel::DrawShadowWith(SkinnedInstance* instance)
 {
-}
+	auto* cmd = modelLoader_->GetDxManager()->GetCommandList();
 
-void SkinnedModel::DrawShadow()
-{
+	for (size_t i = 0; i < meshes_.size(); ++i) {
+		auto& mesh = meshes_[i];
+		mesh->Bind(&instance->GetOutputVBV(i));
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), 1, 0, 0, 0);
+	}
 }
 
 std::vector<Material*> SkinnedModel::GetMaterials()

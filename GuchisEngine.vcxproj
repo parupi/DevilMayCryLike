@@ -245,6 +245,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Editor\Core\EditorUndo.h" />
     <ClInclude Include="Engine\Editor\Core\EditorViewMath.h" />
     <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h" />
+    <ClInclude Include="Engine\Editor\Windows\AnimationWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\AudioWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\CameraWindow.h" />
@@ -264,7 +265,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Device\ShaderCompiler.h" />
     <ClInclude Include="Engine\Graphics\Device\SwapChainManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h" />
-    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AnimationPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\DeferredPipeline.h" />
@@ -315,6 +315,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\GBufferRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Shadow\ShadowPass.h" />
@@ -373,10 +374,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\World3D\Light\LightStructs.h" />
     <ClInclude Include="Engine\World3D\Light\PointLight.h" />
     <ClInclude Include="Engine\World3D\Light\SpotLight.h" />
-    <ClInclude Include="Engine\World3D\Object\Model\Animation\Animation.h" />
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\AnimationClipSet.h" />
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\AnimationPlayer.h" />
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\BoneAttachment.h" />
     <ClInclude Include="Engine\World3D\Object\Model\Animation\Skeleton.h" />
-    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinCluster.h" />
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinnedInstance.h" />
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinningResource.h" />
     <ClInclude Include="Engine\World3D\Object\Model\BaseModel.h" />
+    <ClInclude Include="Engine\World3D\Object\Model\GltfAxis.h" />
     <ClInclude Include="Engine\World3D\Object\Model\Material\Material.h" />
     <ClInclude Include="Engine\World3D\Object\Model\Mesh\Mesh.h" />
     <ClInclude Include="Engine\World3D\Object\Model\Model.h" />
@@ -547,6 +552,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Editor\Core\EditorUndo.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorViewMath.cpp" />
     <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\AnimationWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\AudioWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\CameraWindow.cpp" />
@@ -566,7 +572,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Device\ShaderCompiler.cpp" />
     <ClCompile Include="Engine\Graphics\Device\SwapChainManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp" />
-    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AnimationPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\DeferredPipeline.cpp" />
@@ -611,6 +616,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\GBufferRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\CascadedShadowMap.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Shadow\ShadowPass.cpp" />
@@ -660,9 +666,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\World3D\Light\LightManager.cpp" />
     <ClCompile Include="Engine\World3D\Light\PointLight.cpp" />
     <ClCompile Include="Engine\World3D\Light\SpotLight.cpp" />
-    <ClCompile Include="Engine\World3D\Object\Model\Animation\Animation.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\AnimationClipSet.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\AnimationPlayer.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\BoneAttachment.cpp" />
     <ClCompile Include="Engine\World3D\Object\Model\Animation\Skeleton.cpp" />
-    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinCluster.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinnedInstance.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinningResource.cpp" />
     <ClCompile Include="Engine\World3D\Object\Model\Material\Material.cpp" />
     <ClCompile Include="Engine\World3D\Object\Model\Mesh\Mesh.cpp" />
     <ClCompile Include="Engine\World3D\Object\Model\Model.cpp" />

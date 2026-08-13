@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 class BaseModel;
+class SkinnedInstance;
 
 // 描画パス固有の機能は IDeferredDrawable / IShadowCaster を参照
 class BaseRenderer
@@ -19,6 +20,8 @@ public:
 
 	virtual WorldTransform* GetWorldTransform() const = 0;
 	virtual BaseModel* GetModel() const = 0;
+	// スキンモデルを描くレンダラーだけが返す。CSスキニングの対象を集めるのに使う
+	virtual SkinnedInstance* GetSkinnedInstance() const { return nullptr; }
 
 	// ── レンダラー単位のDissolve上書き ──
 	// モデル(マテリアル)は複数オブジェクトで共有されるため、

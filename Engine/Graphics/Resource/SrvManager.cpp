@@ -27,6 +27,7 @@ void SrvManager::Finalize()
 
 	// 使用中のインデックスをリセット（必要に応じて）
 	useIndex = 0;
+	freeList_.clear();
 
 	dxManager_ = nullptr;
 
@@ -35,6 +36,15 @@ void SrvManager::Finalize()
 
 uint32_t SrvManager::Allocate()
 {
+	// 返却済みがあればそれを使い回す。
+	// ヒープは kMaxCount 個しかないので、使い捨てにするとスキンモデルの
+	// インスタンスを作り直すたびに枯渇する
+	if (!freeList_.empty()) {
+		uint32_t reused = freeList_.back();
+		freeList_.pop_back();
+		return reused;
+	}
+
 	assert(useIndex < kMaxCount);
 
 	// returnする番号を一旦記録しておく
@@ -43,6 +53,14 @@ uint32_t SrvManager::Allocate()
 	useIndex++;
 	// 上で記録した番号を返す
 	return index;
+}
+
+void SrvManager::Free(uint32_t index)
+{
+	if (index >= useIndex) return; // 配っていない番号は無視
+	// ディスクリプタの中身は次に Create〜 されるまで残るが、
+	// GPU は毎フレーム Flush 済みなので前フレームの参照は完了している
+	freeList_.push_back(index);
 }
 
 void SrvManager::BeginDraw()

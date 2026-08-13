@@ -17,11 +17,15 @@
 #include <Debugger/GlobalVariables.h>
 #include <Utility/DeltaTime.h>
 #include <Audio/SoundManager.h>
+#include <GameObject/Character/Player/Player.h> // 先読みするモデル名をゲーム中と共有する
 #include <cmath>
 
 
 void TitleScene::Initialize() {
-	ModelManager::GetInstance().LoadModel("PlayerHead");
+	// 必ず LoadSkinnedModel で読むこと。
+	// ModelManager::FindModel は静的モデルを先に探すので、ここで LoadModel してしまうと
+	// 同じ名前で静的モデルが登録され、ゲーム中のプレイヤーが黙ってアニメーションしなくなる
+	ModelManager::GetInstance().LoadSkinnedModel(Player::kModelName);
 	ModelManager::GetInstance().LoadModel("Sword");
 	ModelManager::GetInstance().LoadModel("Cube");
 	TextureManager::GetInstance().LoadTexture("white.png");

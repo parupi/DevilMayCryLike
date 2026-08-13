@@ -6,6 +6,9 @@
 #include "GameObject/Character/Player/Player.h"
 #include <Scene/Transition/TransitionManager.h>
 #include "Utility/TimeManager.h"
+#include "World3D/Object/Model/Animation/AnimationPlayer.h"
+#include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include <algorithm>
 #ifdef _DEBUG
 #endif
 
@@ -17,6 +20,81 @@ Enemy::Enemy(std::string objectName) : Object3d(objectName) {
 
 Enemy::~Enemy() {
 	lockOnTarget_.Finalize();
+}
+
+void Enemy::RegisterStateClip(const std::string& stateName, const std::string& clipName,
+	bool loop, float impactRatio) {
+	stateClips_[stateName] = StateClip{ clipName, loop, impactRatio };
+}
+
+AnimationPlayer* Enemy::GetAnimationPlayer() {
+	BaseRenderer* renderer = GetRenderer(name_);
+	if (!renderer) return nullptr;
+	// 静的モデルのままの敵はスキンインスタンスを持たないので、その場合は素通りさせる
+	SkinnedInstance* instance = renderer->GetSkinnedInstance();
+	return instance ? instance->GetPlayer() : nullptr;
+}
+
+void Enemy::BeginAttackAnimation(float weaponImpactSeconds) {
+	attackFitSeconds_ = weaponImpactSeconds;
+	attackAnimRestart_ = true;
+}
+
+// 出現・死亡演出とステートから再生クリップを決める。
+// AnimationPlayer::Play は同じクリップなら何もしないので毎フレーム呼んでよい。
+// 攻撃は「武器の振りの長さ」にクリップを詰めて、体と武器がずれないようにしている。
+void Enemy::UpdateAnimation() {
+	AnimationPlayer* anim = GetAnimationPlayer();
+	if (!anim) return;
+
+	// ── 出現・死亡は専用クリップを最優先。1回流すものは演出の長さに合わせる ──
+	// ループ指定（出現専用モーションが無くて待機で代用する場合）は等速のまま
+	auto playEffectClip = [anim](const StateClip& entry, float effectSeconds, float blendTime) {
+		anim->Play(entry.clip, entry.loop, blendTime);
+		const float duration = anim->GetDuration();
+		const bool fit = !entry.loop && duration > 0.01f && effectSeconds > 0.01f;
+		anim->SetSpeed(fit ? (duration / effectSeconds) : 1.0f);
+	};
+
+	if (appearanceFx_) {
+		if (appearanceFx_->IsAppearing() && !spawnClip_.clip.empty()) {
+			playEffectClip(spawnClip_, appearanceFx_->GetAppearDuration(), 0.0f);
+			return;
+		}
+		if ((appearanceFx_->IsDying() || appearanceFx_->IsDeathFinished()) && !deathClip_.clip.empty()) {
+			playEffectClip(deathClip_, appearanceFx_->GetDeathDuration(), 0.1f);
+			return;
+		}
+	}
+
+	// ── 通常時はステート名で決める。未登録なら今のクリップを続ける ──
+	auto it = stateClips_.find(currentStateName_);
+	if (it == stateClips_.end()) {
+		return;
+	}
+
+	anim->Play(it->second.clip, it->second.loop, 0.15f, attackAnimRestart_);
+	attackAnimRestart_ = false;
+
+	// 攻撃中だけ、体の「振り切る瞬間」が武器の振り抜きと重なるように再生速度を決める。
+	// GetDuration() は再生中クリップの長さなので必ず Play の後に取ること
+	if (attackFitSeconds_ > 0.01f) {
+		const float clipImpact = anim->GetDuration() * it->second.impactRatio;
+		const float speed = (clipImpact > 0.01f) ? (clipImpact / attackFitSeconds_) : 1.0f;
+		anim->SetSpeed(std::clamp(speed, kAttackSpeedMin, kAttackSpeedMax));
+	} else {
+		anim->SetSpeed(1.0f);
+	}
+}
+
+void Enemy::ApplyModelRotation() {
+	BaseRenderer* renderer = GetRenderer(name_);
+	if (!renderer) {
+		return;
+	}
+	// 行ベクトル規約なので v * M(補正) * M(リアクション) = v * M(リアクション * 補正)。
+	// 先にモデルを正面へ向けてから、被弾でよろけさせる。
+	renderer->GetWorldTransform()->GetRotation() = modelReactionRotation_ * modelRotationOffset_;
 }
 
 void Enemy::Initialize() {
@@ -52,6 +130,10 @@ void Enemy::Initialize() {
 	auto it = states_.find("Air");
 	if (it != states_.end()) {
 		currentState_ = it->second.get();
+		// アニメーション選択にも使うので名前を合わせておく。
+		// 派生クラスは最後に ChangeState() で本来の初期ステートへ移るが、
+		// 忘れてもバインドポーズのまま固まらないようにここで入れておく
+		currentStateName_ = "Air";
 	}
 }
 
@@ -96,6 +178,7 @@ void Enemy::Update(float deltaTime) {
 
 		if (appearanceFx_->IsAppearing()) {
 			// 出現演出中: ディゾルブで実体化し終わるまで行動しない
+			UpdateAnimation();
 			Object3d::Update(deltaTime);
 			onGround_ = false;
 			return;
@@ -109,6 +192,7 @@ void Enemy::Update(float deltaTime) {
 			velocity_.z *= damp;
 			GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
 			ClampToMovementBounds();
+			UpdateAnimation();
 			Object3d::Update(deltaTime);
 			onGround_ = false;
 			return;
@@ -136,6 +220,9 @@ void Enemy::Update(float deltaTime) {
 	if (currentState_) {
 		currentState_->Update(*this, dt);
 	}
+
+	// ステートが確定してからクリップを決める（この下に early return があるのでここで呼ぶ）
+	UpdateAnimation();
 
 	GetWorldTransform()->GetTranslation() += velocity_ * dt;
 	velocity_ += acceleration_ * dt;
@@ -285,6 +372,8 @@ void Enemy::ChangeState(const std::string& stateName) {
 	auto it = states_.find(stateName);
 	if (it != states_.end()) {
 		currentState_ = it->second.get();
+		// アニメーションの選択に使う。currentState_ はポインタなので名前は別に控えておく
+		currentStateName_ = stateName;
 		currentState_->Enter(*this);
 	}
 }

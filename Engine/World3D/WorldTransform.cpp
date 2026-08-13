@@ -48,6 +48,11 @@ void WorldTransform::TransferMatrix(BaseCamera* camera) {
 	// スケール、回転、平行移動を合成して行列を計算する
 	matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
 
+	// ボーン追従の行列があればローカルの直後に挟む（行ベクトル規約なので 子 * 親 の順）
+	if (hasAttachMatrix_) {
+		matWorld_ *= attachMatrix_;
+	}
+
 	// 親が存在する場合、親のワールド行列を掛け合わせる
 	if (parent_) {
 		matWorld_ *= parent_->matWorld_;

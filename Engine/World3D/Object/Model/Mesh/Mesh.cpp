@@ -45,43 +45,20 @@ void Mesh::Initialize(DirectXManager* directXManager, SrvManager* srvManager, co
 	CreateIndexResource();
 }
 
-void Mesh::Update()
+void Mesh::Bind(const D3D12_VERTEX_BUFFER_VIEW* vbvOverride)
 {
-	skinCluster_->UpdateSkinning();
+	auto* commandList = directXManager_->GetCommandList();
+
+	// スキンモデルは変形後の頂点（インスタンスが持つ出力バッファ）を使う
+	commandList->IASetVertexBuffers(0, 1, vbvOverride ? vbvOverride : &vertexBufferView_);
+	commandList->IASetIndexBuffer(&indexBufferView_);
+	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
-void Mesh::Bind()
+void Mesh::CreateSkinningResource(const SkeletonData& bindSkeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData)
 {
-	// VertexBufferViewを設定
-	// スキニングしていなければ普通の
-	if (skinnedMeshData_.skinClusterData.size() == 0) {
-		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	} else {
-		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &skinCluster_->GetOutputVBV());
-	}
-
-	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
-
-	directXManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void Mesh::BindForGBuffer()
-{
-	if (skinnedMeshData_.skinClusterData.size() == 0) {
-		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &vertexBufferView_);
-	} else {
-		directXManager_->GetCommandList()->IASetVertexBuffers(0, 1, &skinCluster_->GetOutputVBV());
-	}
-
-	directXManager_->GetCommandList()->IASetIndexBuffer(&indexBufferView_);
-
-	directXManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-}
-
-void Mesh::CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData)
-{
-	skinCluster_ = std::make_unique<SkinCluster>();
-	skinCluster_->Initialize(skeleton, meshData, skinClusterData, directXManager_, srvManager_);
+	skinningResource_ = std::make_unique<SkinningResource>();
+	skinningResource_->Initialize(meshData, skinClusterData, bindSkeleton, directXManager_, srvManager_);
 }
 
 void Mesh::CreateVertexResource()

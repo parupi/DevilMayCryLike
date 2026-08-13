@@ -5,6 +5,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+class AnimationClipSet;
+
 class ModelLoader
 {
 public: // メンバ関数
@@ -12,7 +15,13 @@ public: // メンバ関数
 
 	// モデルを読む関数
 	static ModelData LoadModelFile(const std::string& filename);
-	static SkinnedModelData LoadSkinnedModel(const std::string& filename);
+
+	/// <summary>
+	/// スキンモデルを読む。outClips を渡すと、同じ aiScene からアニメーションクリップも一緒に取る。
+	/// gltf を2回開かないためにこの形にしてある（以前はモデルとアニメで別々に読んでいて、
+	/// ロード時間が丸ごと2倍かかっていた）
+	/// </summary>
+	static SkinnedModelData LoadSkinnedModel(const std::string& filename, AnimationClipSet* outClips = nullptr);
 
 
 	// ノードをモデルデータに変換する関数

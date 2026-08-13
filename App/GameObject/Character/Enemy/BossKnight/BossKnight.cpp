@@ -25,11 +25,16 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	// ModelRenderer は FindModel するだけで読み込みはしないので、ここで読んでおく。
 	// 以前は TitleScene が先読みしていたが、他シーンの読み込みに依存すると
 	// そちらを整理したときに静かに壊れるので、Ground / Prop と同じく自分で読む
-	ModelManager::GetInstance().LoadModel("PlayerBody");
+	// Dragon.gltf はリグ付き（27ジョイント・5クリップ）なのでスキンモデルとして読む。
+	// ここで LoadModel してしまうと ModelManager::FindModel が静的モデルを先に返して
+	// 黙ってアニメーションしなくなるので注意
+	ModelManager::GetInstance().LoadSkinnedModel(kModelName);
 	ModelManager::GetInstance().LoadModel("Sword");
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, kModelName));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
-	GetRenderer(name_)->GetWorldTransform()->GetScale() = {1.5f, 1.5f, 1.5f};
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
+	// Dragon.obj も正面が +Z（目が +Z 側にある）。敵の前方向はローカル -Z なので180度回す
+	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
 
 	hp_ = kMaxHp;
 	maxHp_ = kMaxHp;
@@ -78,6 +83,24 @@ void BossKnight::Initialize() {
 	states_[BossStateName::HeavySword] = std::make_unique<BossStateHeavySword>(meleeAttack_.get());
 	states_[BossStateName::Rush] = std::make_unique<BossStateRush>(meleeAttack_.get());
 
+	// ── アニメーションの割り当て（Dragon.gltf の5クリップ）──
+	// このモデルには待機が無いので Flying を待機・移動の両方に充てている。
+	// 攻撃クリップは EnemyMeleeAttackComponent が武器の振りの長さに合わせて伸縮させる
+	RegisterStateClip(EnemyStateName::Idle,            kClipIdle);
+	RegisterStateClip(EnemyStateName::Move,            kClipIdle);
+	RegisterStateClip(EnemyStateName::Air,             kClipIdle);
+	RegisterStateClip(BossStateName::CombatIdle,       kClipIdle);
+	RegisterStateClip(BossStateName::Approach,         kClipIdle);
+	RegisterStateClip(BossStateName::Slash,            kClipAttack,  false, kAttackImpactRatio);
+	RegisterStateClip(BossStateName::HeavySword,       kClipAttack2, false, kAttack2ImpactRatio);
+	RegisterStateClip(BossStateName::Rush,             kClipAttack,  false, kAttackImpactRatio);
+	// のけぞり（共有KnockBack）と吹き飛び（BossKnockBack）は両方とも被弾クリップ
+	RegisterStateClip(EnemyStateName::KnockBack,       kClipHit, false);
+	RegisterStateClip(BossStateName::KnockBack,        kClipHit, false);
+	// 出現専用のクリップは無いので、ディゾルブ中は Flying をループさせておく
+	SetSpawnClip(kClipIdle, true);
+	SetDeathClip(kClipDeath);
+
 	// 被弾時のヒットエフェクトは HitEffectSystem の "HitImpact" に一本化したのでここでは持たない。
 	// （足元から出る旧エフェクトと違い、武器が実際に当たった位置へ火花とリングが出る）
 
@@ -92,7 +115,7 @@ void BossKnight::Initialize() {
 	ParticleManager::GetInstance().CreateEmitter(name_ + "ArmorAura");
 	auraEmitter_ = ParticleManager::GetInstance().GetEmitters().at(name_ + "ArmorAura").get();
 	auraEmitter_->SetParent(GetRenderer(name_)->GetWorldTransform());
-	auraEmitter_->SetShapeModel("PlayerBody"); // 本体と同じモデルの表面からエミット
+	auraEmitter_->SetShapeModel(kModelName); // 本体と同じモデルの表面からエミット
 	auraEmitter_->AddParticle("BossArmorAura");
 	auraEmitter_->GetParticles()[0].count = 50; // 1回のEmitで4粒ずつ出して体の形が読める密度にする
 
@@ -139,7 +162,9 @@ void BossKnight::Update(float deltaTime) {
 	weapon_->SetIsDraw(true);
 
 	if (meleeAttack_->IsFinished()) {
-		weapon_->GetWorldTransform()->GetTranslation() = {0.0f, 0.1f, 0.5f};
+		// +Z は敵の後ろ側。待機中は体の脇に構え、攻撃で -Z（プレイヤー側）へ振り抜く。
+		// Y は Dragon モデルの胴の高さに合わせている（0.1f だと剣が地面へ埋まる）
+		weapon_->GetWorldTransform()->GetTranslation() = {0.0f, 0.6f, 0.5f};
 		weapon_->GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 90.0f, 150.0f});
 	}
 

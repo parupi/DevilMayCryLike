@@ -21,8 +21,11 @@
 #include "State/PlayerStateKnockBack.h"
 #include "Controller/PlayerInput.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "World3D/Object/Model/Animation/AnimationPlayer.h"
+#include "World3D/Object/Model/Animation/SkinnedInstance.h"
 
 #include <numbers>
+#include <algorithm>
 
 #include "Input/Input.h"
 
@@ -31,15 +34,22 @@ Player::Player(std::string objectName) : Object3d(objectName) {
 
 	// ModelRenderer は FindModel するだけで読み込みはしないので、使うモデルはここで読んでおく。
 	// TitleScene の先読みに頼っていると、そちらを整理したときに静かに壊れる
-	ModelManager::GetInstance().LoadModel("PlayerHead");
+	// Alien.gltf はリグ付き（45ジョイント・15クリップ）なのでスキンモデルとして読む。
+	// ModelRenderer は SkinnedModel を渡されると自動で SkinnedInstance を作るので、
+	// 生成のしかたは静的モデルのときと変わらない
+	ModelManager::GetInstance().LoadSkinnedModel(kModelName);
 	ModelManager::GetInstance().LoadModel("Sword");
 
 	// レンダラーの生成
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerHead", "PlayerHead"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(kRendererName, kModelName));
 
-	AddRenderer(RendererManager::GetInstance().FindRender("PlayerHead"));
-	// 地面にしっかりつくようにする
-	GetRenderer("PlayerHead")->GetWorldTransform()->GetTranslation().y -= 0.5f;
+	AddRenderer(RendererManager::GetInstance().FindRender(kRendererName));
+	// Alien.obj は素の高さが約2.9m。オブジェクト原点はコライダー(半径0.5)の中心なので、
+	// 縮めたうえで足元がコライダーの底に来るように下げる
+	GetRenderer(kRendererName)->GetWorldTransform()->GetScale() = { kModelScale, kModelScale, kModelScale };
+	GetRenderer(kRendererName)->GetWorldTransform()->GetTranslation().y += kModelOffsetY;
+	// このモデルは正面が +Z。プレイヤーの前方向もローカル +Z（Rotate/LockOn の LookRotation と
+	// 攻撃モーションが +Z へ振り抜くのがその根拠）なので、敵と違って向き補正は要らない
 
 	// StateMachine生成
 	stateMachine_ = std::make_unique<PlayerStateMachine>();
@@ -108,8 +118,71 @@ void Player::Initialize() {
 
 	// 被弾時に体と武器を一瞬光らせる。体だけだと剣が暗いまま浮くので武器も対象に入れる
 	hitFlash_ = std::make_unique<HitFlashComponent>();
-	hitFlash_->AddRenderer(GetRenderer("PlayerHead"));
+	hitFlash_->AddRenderer(GetRenderer(kRendererName));
 	hitFlash_->AddRenderer(weapon_->GetRenderer("PlayerWeapon"));
+}
+
+// ステートと戦闘状態から再生するクリップを決めて流す。
+// 各ステートの Enter に Play を撒くと「攻撃が終わったら元のクリップに戻す」が漏れやすいので、
+// 毎フレームここで決め直す方式にしている。
+// AnimationPlayer::Play は同じクリップなら何もしないので、毎フレーム呼んで問題ない。
+//
+// クリップを変えたいときはこの対応表をいじること。Alien.gltf が持つのは以下の15種:
+//   Idle / IdleHold / Standing / Sitting / Walk / Run / RunHold / Jump / RunningJump /
+//   Roll / Punch / SwordSlash / Death / Swimming / Clapping
+void Player::UpdateAnimation() {
+	AnimationPlayer* anim = GetAnimationPlayer();
+	if (!anim) return;
+
+	// ── 攻撃中は斬りモーションを最優先 ──
+	// コンボで攻撃が切り替わったら頭から出し直す（同じ技を連打しても振り直したいので名前で見る）
+	if (combat_ && combat_->IsAttacking()) {
+		const std::string& attackName = combat_->GetCurrentAttackName();
+		const bool isNewSwing = (attackName != lastAttackName_);
+		lastAttackName_ = attackName;
+
+		anim->Play(kClipAttack, false, 0.05f, isNewSwing);
+
+		// 体の「振り切る瞬間」が武器の振り抜きと重なるように再生速度を決める。
+		// 武器は preDelay で構えに移動し、attackDuration の間に CatmullRom で振り抜くので、
+		// 斬る瞬間は preDelay + attackDuration/2 あたり。
+		// GetDuration() は再生中クリップの長さなので、必ず Play の後に取ること
+		// （先に取ると切り替え前＝待機モーション4.17秒の長さで割ることになり、初回だけ数倍速で飛ぶ）
+		const AttackData data = GetAttackData();
+		const float weaponImpact = data.preDelay + data.attackDuration * 0.5f;
+		const float clipImpact = anim->GetDuration() * kAttackClipImpactRatio;
+		const float speed = (weaponImpact > 0.01f && clipImpact > 0.01f) ? (clipImpact / weaponImpact) : 1.0f;
+		anim->SetSpeed(std::clamp(speed, kAttackSpeedMin, kAttackSpeedMax));
+		return;
+	}
+	lastAttackName_.clear();
+	anim->SetSpeed(1.0f);
+
+	// ── 通常時はステート名で決める ──
+	const PlayerStateBase* state = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
+	const std::string name = state ? state->GetDebugName() : "Idle";
+
+	if (name == "Death") {
+		anim->Play(kClipDeath, false, 0.15f);
+	} else if (name == "Clear") {
+		anim->Play(kClipClear, true, 0.25f);
+	} else if (name == "Knockback") {
+		anim->Play(kClipKnockBack, false, 0.05f);
+	} else if (name == "Jump" || name == "Air") {
+		anim->Play(kClipJump, false, 0.1f);
+	} else if (name == "Move") {
+		anim->Play(kClipMove, true, 0.15f);
+	} else {
+		anim->Play(kClipIdle, true, 0.2f);
+	}
+}
+
+AnimationPlayer* Player::GetAnimationPlayer() {
+	BaseRenderer* renderer = GetRenderer(kRendererName);
+	if (!renderer) return nullptr;
+	// 静的モデルに戻した場合はスキンインスタンスが無いので、その場合は素通りさせる
+	SkinnedInstance* instance = renderer->GetSkinnedInstance();
+	return instance ? instance->GetPlayer() : nullptr;
 }
 
 void Player::Update(float deltaTime) {
@@ -159,6 +232,10 @@ void Player::Update(float deltaTime) {
 	for (auto& cmd : input_->GetCommands()) {
 		ExecuteCommand(cmd);
 	}
+
+	// 確定したステート・戦闘状態でクリップを決める。
+	// ポーズの更新は Object3d::Update の中（レンダラー更新）で走るので、その手前で呼ぶ
+	UpdateAnimation();
 
 	// 移動処理
 	GetWorldTransform()->GetTranslation() += velocity_ * dt;
