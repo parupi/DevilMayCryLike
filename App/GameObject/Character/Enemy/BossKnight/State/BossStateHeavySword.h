@@ -1,7 +1,7 @@
 #pragma once
 #include "GameObject/Character/Enemy/BaseState/EnemyStateBase.h"
 
-class EnemyMeleeAttackComponent;
+class EnemyBoneAttackComponent;
 
 /// <summary>
 /// 遅くて強力な叩きつけ攻撃。予備動作0.9秒→叩きつけ0.35秒。
@@ -10,11 +10,11 @@ class EnemyMeleeAttackComponent;
 class BossStateHeavySword : public EnemyStateBase
 {
 public:
-    explicit BossStateHeavySword(EnemyMeleeAttackComponent* attack);
+    explicit BossStateHeavySword(EnemyBoneAttackComponent* attack);
     void Enter(Enemy& enemy) override;
     void Update(Enemy& enemy, float deltaTime) override;
     void Exit(Enemy& enemy) override;
 
 private:
-    EnemyMeleeAttackComponent* attack_;
+    EnemyBoneAttackComponent* attack_;
 };

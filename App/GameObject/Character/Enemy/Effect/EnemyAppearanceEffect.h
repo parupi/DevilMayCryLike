@@ -31,6 +31,9 @@ public:
 
 	/// <summary>出現演出の長さ[s]を設定する（ボス出現イベントなどでゆっくり出したいとき用）</summary>
 	void SetAppearDuration(float seconds) { appearDuration_ = seconds; }
+	/// <summary>出現・死亡演出の長さ[s]。出現/死亡モーションをこの尺に合わせるのに使う</summary>
+	float GetAppearDuration() const { return appearDuration_; }
+	float GetDeathDuration() const { return kDeathDuration; }
 
 	/// <summary>収束粒子の1回あたり発生数を設定する（ボスなど大型の敵で濃くしたいとき用）</summary>
 	void SetAppearEmitCount(int count) { appearEmitCount_ = count; }

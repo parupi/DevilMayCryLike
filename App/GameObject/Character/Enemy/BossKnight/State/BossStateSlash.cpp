@@ -1,37 +1,42 @@
 #include "BossStateSlash.h"
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
-#include "GameObject/Character/Enemy/Component/EnemyMeleeAttackComponent.h"
+#include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
+#include "GameObject/Character/Enemy/BossKnight/BossKnight.h"
 
 namespace {
-	MeleeAttackParams MakeSlashParams() {
-		MeleeAttackParams p;
-		p.windupDuration = 0.45f;
-		p.attackDuration = 0.22f;
-		p.rushSpeed = 2.5f;   // 振りながら少し前進
+	// 噛みつき。頭に小さめの判定を出す速い攻撃。
+	// リーチが短いぶんダメージも軽く、連発できる位置取りへの牽制に使う
+	BoneAttackParams MakeBiteParams() {
+		BoneAttackParams p;
+		p.jointName = "Head";
+		// ワールド単位。プレイヤーのコライダーは1辺1.0、ドラゴンの全高は約2.0。
+		// 頭は地上1.6mほどの高さにあるので、Yを大きめに取って地上のプレイヤーまで届かせる
+		// （小さくすると噛みつきが頭上を素通りする）
+		p.halfExtents = { 0.9f, 1.2f, 1.1f };
+		p.offset = { 0.0f, 0.0f, 0.0f }; // ジョイントの向きは骨ごとに違うので原点のまま使う
+		p.duration = 0.88f;                   // Dragon_Attack のクリップ長
+		p.rushSpeed = 3.0f;                   // 噛みつきながら少し踏み込む
 
-		// 武器を頭上に引いてから一気に振り下ろす
-		p.weaponTranslate = {
-			{ -1.2f,  1.8f,  0.2f },
-			{ -1.2f,  1.8f,  0.2f },
-			{  0.3f, -0.1f, -1.2f },
-			{  0.4f, -0.3f, -1.2f },
-		};
-		p.weaponRotate = {
-			{  60.0f, -30.0f,  90.0f },
-			{  60.0f, -30.0f,  90.0f },
-			{ -90.0f,   0.0f,  20.0f },
-			{-130.0f,   0.0f,  20.0f },
-		};
+		p.damage.damage = 1.0f;
+		p.damage.type = ReactionType::Knockback;
+		p.damage.impulseForce = 12.0f;
+		p.damage.upwardRatio = 0.25f;
+		p.damage.stunTime = 0.5f;
+
+		// .anim.json にイベントが無い場合のフォールバック。
+		// Dragon_Attack は BodyRoot の角速度ピークが 0.583/0.88 秒＝67% なのでその前後
+		p.hitStartRatio = 0.55f;
+		p.hitEndRatio = 0.78f;
 		return p;
 	}
 }
 
-BossStateSlash::BossStateSlash(EnemyMeleeAttackComponent* attack)
+BossStateSlash::BossStateSlash(EnemyBoneAttackComponent* attack)
 	: attack_(attack) {}
 
 void BossStateSlash::Enter(Enemy& enemy) {
-	attack_->BeginAttack(enemy, MakeSlashParams());
+	attack_->BeginAttack(enemy, MakeBiteParams());
 }
 
 void BossStateSlash::Update(Enemy& enemy, float deltaTime) {
@@ -41,4 +46,4 @@ void BossStateSlash::Update(Enemy& enemy, float deltaTime) {
 	}
 }
 
-void BossStateSlash::Exit(Enemy&) {}
+void BossStateSlash::Exit(Enemy& enemy) { attack_->Cancel(enemy); }

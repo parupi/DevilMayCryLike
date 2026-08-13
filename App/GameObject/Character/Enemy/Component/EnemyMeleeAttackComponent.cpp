@@ -12,6 +12,10 @@ void EnemyMeleeAttackComponent::BeginAttack(Enemy& enemy, const MeleeAttackParam
 	timer_ = 0.0f;
 	finished_ = false;
 	enemy.SetIsAttack(true);
+	// 武器の動き（構え→振り抜き）は据え置きで、体のクリップの方を合わせる。
+	// 渡すのは「武器が斬り抜ける瞬間まで」＝構えの終わり＋振りの中間まで。
+	// 攻撃ごとに長さが違うので、始めるたびに渡し直す
+	enemy.BeginAttackAnimation(params_.windupDuration + params_.attackDuration * 0.5f);
 }
 
 void EnemyMeleeAttackComponent::ApplyWeaponPose(float t) {
@@ -59,5 +63,6 @@ void EnemyMeleeAttackComponent::Update(Enemy& enemy, float deltaTime) {
 	if (timer_ >= params_.windupDuration + params_.attackDuration) {
 		finished_ = true;
 		enemy.SetIsAttack(false);
+		enemy.EndAttackAnimation();
 	}
 }

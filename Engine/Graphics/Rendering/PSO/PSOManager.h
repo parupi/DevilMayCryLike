@@ -22,8 +22,6 @@ public:
 	ID3D12RootSignature* GetObjectSignature() { return objectSignature_.Get(); }
 	ID3D12PipelineState* GetObjectPSO(BlendMode blendMode);
 
-	ID3D12RootSignature* GetAnimationSignature() { return animationSignature_.Get(); }
-	ID3D12PipelineState* GetAnimationPSO();
 
 	ID3D12RootSignature* GetOffScreenSignature() { return offScreenSignature_.Get(); }
 	ID3D12PipelineState* GetOffScreenPSO(OffScreenEffectType effectType);
@@ -68,8 +66,6 @@ private:
 	void CreateParticlePSO(BlendMode blendMode);
 	void CreateObjectSignature();
 	void CreateObjectPSO(BlendMode blendMode);
-	void CreateAnimationSignature();
-	void CreateAnimationPSO();
 	void CreateOffScreenSignature();
 	void CreateOffScreenPSO(OffScreenEffectType effectType);
 	void CreatePrimitiveSignature();
@@ -104,9 +100,7 @@ private:
 	// オブジェクト
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> objectSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> objectGraphicsPipelineState_;
-	// アニメーション
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> animationSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> animationGraphicsPipelineState_;
+	// スキニングはCS（GetSkinningPSO）で行う。VSでスキニングするPSOは使っていないので持たない
 	// オフスクリーン
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> offScreenSignature_;
 	// OffScreenEffectType の要素数分（増やしたら合わせて広げること）

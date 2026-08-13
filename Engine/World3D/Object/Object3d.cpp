@@ -5,6 +5,7 @@
 #include <World3D/WorldTransform.h>
 #include <numbers>
 #include "Model/ModelManager.h"
+#include "Model/Animation/SkinnedInstance.h"
 #ifdef _DEBUG
 #include <imgui.h>
 #endif // IMGUI
@@ -40,15 +41,21 @@ void Object3d::Update(float) {
 	}
 }
 
+void Object3d::DispatchSkinning() {
+	if (!isDraw) return;
+	for (size_t i = 0; i < renders_.size(); i++) {
+		if (auto* instance = renders_[i]->GetSkinnedInstance()) {
+			instance->DispatchSkinning();
+		}
+	}
+}
+
 void Object3d::Draw() {
 	// 非表示設定なら描画しない
 	if (!isDraw) return;
 	switch (drawOption_.drawPath) {
 	case DrawPath::Forward:
 		for (size_t i = 0; i < renders_.size(); i++) {
-			if (auto skinned = dynamic_cast<SkinnedModel*>(renders_[i]->GetModel())) {
-				skinned->UpdateSkinningWithCS();
-			}
 			Object3dManager::GetInstance().GetDxManager()->GetCommandList()->SetPipelineState(Object3dManager::GetInstance().GetPsoManager()->GetObjectPSO(BlendMode::kNormal));
 			Object3dManager::GetInstance().GetDxManager()->GetCommandList()->SetGraphicsRootSignature(Object3dManager::GetInstance().GetPsoManager()->GetObjectSignature());
 			Object3dManager::GetInstance().GetDxManager()->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

@@ -38,13 +38,16 @@ void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
 	velocity_.y += -9.8f * deltaTime;
 	enemy.SetVelocity(velocity_);
 
+	// レンダラーの回転を直接書かずに Enemy 経由で渡す。
+	// モデルごとの向き補正（SetModelRotationOffset）と合成されるので、
+	// 直接書くと吹き飛んだ敵が正面を向き直してしまう。
 	if (currentType_ != ReactionType::HitStun) {
 		float rotate = Lerp(0.0f, angularVel_, stateTime_.current);
-		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ rotate, rotate, rotate });
+		enemy.SetModelReactionRotation(EulerDegree({ rotate, rotate, rotate }));
 	}
 	else {
 		currentTilt_ = Lerp(currentTilt_, targetTilt_, deltaTime * 5.0f);
-		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ currentTilt_, 0.0f, 0.0f });
+		enemy.SetModelReactionRotation(EulerDegree({ currentTilt_, 0.0f, 0.0f }));
 
 		if ((stunTimer_ -= deltaTime) <= 0.0f) {
 			enemy.ChangeState(NextState());
@@ -60,7 +63,6 @@ void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
 void EnemyStateKnockBack::OnLand(Enemy& enemy) {
 	if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
 		velocity_ *= 0.3f;
-		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = { 0.0f, 0.0f, 0.0f };
 		enemy.ChangeState(NextState());
 	}
 }
@@ -70,5 +72,8 @@ const char* EnemyStateKnockBack::NextState() const {
 }
 
 void EnemyStateKnockBack::Exit(Enemy& enemy) {
-	enemy;
+	// のけぞり・吹き飛びで付けた傾きをここで必ず戻す。
+	// （以前は着地時にしか戻していなかったので、のけぞりで終わると傾いたままだった。
+	//   立方体のときは気づけなかったが、人型のモデルでは傾きっぱなしが目に見える）
+	enemy.ClearModelReactionRotation();
 }

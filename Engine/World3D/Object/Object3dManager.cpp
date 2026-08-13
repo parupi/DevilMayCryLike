@@ -31,6 +31,18 @@ void Object3dManager::Update() {
 	}
 }
 
+void Object3dManager::DispatchSkinning() {
+	// Compute用のPSOとRootSignatureはここで1回だけ設定する
+	auto* commandList = dxManager_->GetCommandList();
+	commandList->SetPipelineState(psoManager_->GetSkinningPSO());
+	commandList->SetComputeRootSignature(psoManager_->GetSkinningSignature());
+
+	for (auto& object : objects_) {
+		if (!object) continue;
+		object->DispatchSkinning();
+	}
+}
+
 void Object3dManager::DrawForward() {
 	for (auto& object : objects_) {
 		if (!object) continue;
@@ -74,12 +86,6 @@ void Object3dManager::DrawShadow() {
 		if (object->GetOption().drawPath != DrawPath::Deferred) continue;
 		object->DrawShadow();
 	}
-}
-
-void Object3dManager::DrawSetForAnimation() {
-	dxManager_->GetCommandList()->SetPipelineState(psoManager_->GetAnimationPSO());			// PSOを設定
-	dxManager_->GetCommandList()->SetGraphicsRootSignature(psoManager_->GetAnimationSignature());
-	dxManager_->GetCommandList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 }
 
 void Object3dManager::AddObject(std::unique_ptr<Object3d> object) {

@@ -1,0 +1,24 @@
+{
+    "clips": {
+        "Dragon_Attack": [
+            {
+                "time": 0.48,
+                "tag": "hit_start"
+            },
+            {
+                "time": 0.69,
+                "tag": "hit_end"
+            }
+        ],
+        "Dragon_Attack2": [
+            {
+                "time": 0.97,
+                "tag": "hit_start"
+            },
+            {
+                "time": 1.25,
+                "tag": "hit_end"
+            }
+        ]
+    }
+}

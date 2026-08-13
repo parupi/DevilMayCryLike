@@ -6,6 +6,8 @@
 #include <sstream>
 #include "Graphics/Resource/TextureManager.h"
 #include "Utility/Logger.h"
+#include "GltfAxis.h"
+#include "Animation/AnimationClipSet.h"
 
 namespace {
 	// mtl(や glTF/FBX のマテリアル)からKa/Kd/Ks/Ns/Ni/dを読み取る。
@@ -127,6 +129,14 @@ namespace {
 			matData.baseColor = {matData.Kd.r, matData.Kd.g, matData.Kd.b, matData.d};
 		}
 	}
+
+}
+
+// 宣言は ModelLoader.h。.anim.json など付随ファイルからも使うので公開している
+std::string ModelLoader::MakeAssetBasePath(const std::string& modelName) {
+	const size_t separator = modelName.find_last_of("/\\");
+	const std::string stem = (separator == std::string::npos) ? modelName : modelName.substr(separator + 1);
+	return "Resource/Models/" + modelName + "/" + stem;
 }
 
 void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager) {
@@ -139,7 +149,7 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename) {
 
 	Assimp::Importer importer;
 	// 拡張子を自動判別する（.obj が無ければ .gltf → .fbx の順に探す）
-	const std::string basePath = "Resource/Models/" + filename + "/" + filename;
+	const std::string basePath = ModelLoader::MakeAssetBasePath(filename);
 	std::string filePath = basePath + ".obj";
 	if (!std::filesystem::exists(filePath)) {
 		for (const char* ext : {".gltf", ".fbx"}) {
@@ -240,17 +250,22 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename) {
 	return modelData;
 }
 
-SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename) {
+SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename, AnimationClipSet* outClips) {
 	SkinnedModelData modelData;
 
 	Assimp::Importer importer;
 
-	std::string filePath = "Resource/Models/" + filename + "/" + filename + ".gltf";
+	std::string filePath = ModelLoader::MakeAssetBasePath(filename) + ".gltf";
 
 	Logger::Log("[ModelLoader] Loading skinned: " + filePath);
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);
 	ASSERT_MSG(scene && scene->HasMeshes(),
 		("[ModelLoader] スキンモデルの読み込みに失敗しました。\n  パス: " + filePath + "\n  Assimp: " + importer.GetErrorString()).c_str());
+
+	// 同じ scene からアニメーションも取る。ここで取らないと gltf をもう一度開くことになる
+	if (outClips) {
+		outClips->LoadFromScene(scene);
+	}
 
 	modelData.rootNode = ReadNode(scene->mRootNode);
 
@@ -321,8 +336,9 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename) {
 			aiVector3D& pos = mesh->mVertices[vertexIndex];
 			aiVector3D& norm = mesh->mNormals[vertexIndex];
 
-			SkinnedMeshData.vertices[vertexIndex].position = {-pos.x, pos.y, pos.z, 1.0f};
-			SkinnedMeshData.vertices[vertexIndex].normal = {-norm.x, norm.y, norm.z};
+			const Vector3 position = GltfAxis::Position(pos);
+			SkinnedMeshData.vertices[vertexIndex].position = {position.x, position.y, position.z, 1.0f};
+			SkinnedMeshData.vertices[vertexIndex].normal = GltfAxis::Normal(norm);
 
 			if (hasUV) {
 				aiVector3D& uv = mesh->mTextureCoords[0][vertexIndex];
@@ -359,9 +375,9 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename) {
 			bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
 
 			Matrix4x4 bindPoseMatrix = MakeAffineMatrix(
-				{scale.x, scale.y, scale.z},
-				{rotate.x, -rotate.y, -rotate.z, rotate.w},
-				{-translate.x, translate.y, translate.z}
+				GltfAxis::Scale(scale),
+				GltfAxis::Rotation(rotate),
+				GltfAxis::Position(translate)
 			);
 			jointWeightData.inverseBindPoseMatrix = Inverse(bindPoseMatrix);
 
@@ -387,9 +403,9 @@ Node ModelLoader::ReadNode(aiNode* node) {
 	aiVector3D scale, translate;
 	aiQuaternion rotate;
 	node->mTransformation.Decompose(scale, rotate, translate); // assimpの行列からSRTを抽出する関数
-	result.transform.scale = {scale.x, scale.y, scale.z}; // scaleはそのまま
-	result.transform.rotate = {rotate.x, -rotate.y, -rotate.z, rotate.w}; // xを反転、回転方向が逆なので軸も反転
-	result.transform.translate = {-translate.x, translate.y, translate.z}; // x軸を反転
+	result.transform.scale = GltfAxis::Scale(scale);
+	result.transform.rotate = GltfAxis::Rotation(rotate);
+	result.transform.translate = GltfAxis::Position(translate);
 	result.localMatrix = MakeAffineMatrix(result.transform.scale, result.transform.rotate, result.transform.translate);
 
 	result.name = node->mName.C_Str(); // node名を格納

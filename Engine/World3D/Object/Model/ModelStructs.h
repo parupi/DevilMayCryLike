@@ -17,6 +17,9 @@
 // 骨
 struct Joint {
 	QuaternionTransform transform;
+	// ノード階層から作った時点の姿勢。再生中のクリップにこのジョイントのチャンネルが無いときは
+	// 単位変換ではなくこれへ戻す（そうしないとチャンネルを持たないノードのスケールや軸合わせが飛ぶ）
+	QuaternionTransform bindTransform;
 	Matrix4x4 localMatrix;
 	Matrix4x4 skeletonSpaceMatrix;
 	std::string name;
@@ -140,9 +143,19 @@ struct NodeAnimation {
 	AnimationCurve<Vector3> scale;
 };
 
+// クリップ上の一点で鳴らしたい合図。
+// 「この瞬間に当たり判定を出す」「ここでSEを鳴らす」をモーション側に持たせるためのもの。
+// ゲーム側でタイマーを別管理すると、モーションを調整するたびに数値合わせが発生する
+struct AnimationEvent {
+	float time = 0.0f;
+	std::string tag;
+};
+
 struct AnimationData {
 	float duration; // アニメーション全体の尺
 	std::map<std::string, NodeAnimation> nodeAnimations;
+	// time 昇順で保持する（AnimationClipSet::AddEvent がソートを維持する）
+	std::vector<AnimationEvent> events;
 };
 
 struct MaterialForGPU {

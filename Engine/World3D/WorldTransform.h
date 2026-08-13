@@ -62,6 +62,14 @@ public:
 	void SetParent(WorldTransform* parent) { parent_ = parent; }
 	WorldTransform* GetParent() { return parent_; }
 	void DetachParent() { parent_ = nullptr; }
+
+	/// <summary>
+	/// ローカル変換と親の間に差し込む行列。ワールド行列は local * attach * 親 になる。
+	/// ボーン追従（BoneAttachment）がジョイントのスケルトン空間行列をここへ入れる。
+	/// 既定は単位行列なので、使わない限り従来どおり local * 親
+	/// </summary>
+	void SetAttachMatrix(const Matrix4x4& matrix) { attachMatrix_ = matrix; hasAttachMatrix_ = true; }
+	void ClearAttachMatrix() { hasAttachMatrix_ = false; }
 	// ワールド座標を取得
 	Vector3 GetWorldPos() const;
 	// ワールドスケールを取得
@@ -87,6 +95,9 @@ private:
 	Matrix4x4 matWorld_;
 	// 親となるワールド変換へのポインタ
 	WorldTransform* parent_ = nullptr;
+	// ボーン追従などでローカルと親の間に挟む行列
+	Matrix4x4 attachMatrix_;
+	bool hasAttachMatrix_ = false;
 	// ワールド座標を保持しておく
 	Vector3 worldPos_{};
 

@@ -21,14 +21,15 @@ public:
 	void Finalize();
 	// 更新
 	void Update();
+	// スキンモデルのCSスキニングを全オブジェクトぶん回す。
+	// 影もGBufferも同じ出力頂点バッファを読むので、すべての描画パスより前に1回だけ実行する
+	void DispatchSkinning();
+
 	// 描画前処理
 	void DrawForward();
 	void DrawDeferred();
 	// 影を描画
 	void DrawShadow();
-
-	// アニメーション用描画前処理
-	void DrawSetForAnimation();
 
 	void AddObject(std::unique_ptr<Object3d> object);
 

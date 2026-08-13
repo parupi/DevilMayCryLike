@@ -10,6 +10,7 @@
 #include <GameObject/LockOn/LockOnTarget.h>
 
 class Player;
+class AnimationPlayer;
 
 /// <summary>
 /// 敵キャラクターの基底クラス。
@@ -221,6 +222,73 @@ public:
 	/// <summary>移動範囲の制限を解除する</summary>
 	void ClearMovementBounds() { hasMovementBounds_ = false; }
 
+	// ======================
+	// モデルの向き
+	// ======================
+
+	/// <summary>
+	/// 体のモデルに掛ける固定の向き補正。派生クラスがコンストラクタ（レンダラー登録後）で呼ぶ。
+	///
+	/// Enemy::Update はオブジェクトのローカル -Z がプレイヤーを向くように回転させる
+	/// （武器の構え位置・振り抜き先が -Z 側にあるのはこのため）。
+	/// 一方 Blender から出した .obj はモデルの正面が +Z なので、そのままだと後ろ姿で戦うことになる。
+	/// そのため正面が +Z のモデルには Y 軸 180 度を渡す。
+	/// モデルを差し替えて後ろ向きになったら、まずこの角度を疑うこと。
+	/// </summary>
+	void SetModelRotationOffset(const Quaternion& offset) {
+		modelRotationOffset_ = offset;
+		ApplyModelRotation();
+	}
+
+	/// <summary>
+	/// 被弾リアクション（のけぞりの傾き・吹き飛びの回転）を体のモデルに与える。
+	/// 向き補正と合成して適用されるので、ステート側はレンダラーの回転を直接書かないこと。
+	/// </summary>
+	void SetModelReactionRotation(const Quaternion& reaction) {
+		modelReactionRotation_ = reaction;
+		ApplyModelRotation();
+	}
+
+	/// <summary>被弾リアクションの回転を消して、向き補正だけの状態に戻す。</summary>
+	void ClearModelReactionRotation() { SetModelReactionRotation(Identity()); }
+
+	// ======================
+	// アニメーション
+	// ======================
+
+	/// <summary>
+	/// ステート名に対して再生するクリップを登録する。派生クラスが Initialize で並べる。
+	/// 未登録のステートに入ったときはクリップを切り替えない（直前のものが続く）ので、
+	/// 見た目を変えたくないステートは登録しなくてよい。
+	///
+	/// impactRatio は攻撃クリップ専用で、「振り切る瞬間がクリップ全体のどこか」を 0〜1 で渡す。
+	/// これを使って、武器が斬り抜ける瞬間と体のモーションの山が重なるように再生速度を決める。
+	/// 値は gltf のキーフレームから角速度のピークを測って求めた（クリップを差し替えたら測り直す）。
+	/// </summary>
+	void RegisterStateClip(const std::string& stateName, const std::string& clipName,
+		bool loop = true, float impactRatio = 0.5f);
+
+	/// <summary>
+	/// 出現演出中に流すクリップ。空なら切り替えない。
+	/// loop=false なら演出の長さちょうどで1回流れるよう再生速度を合わせる（出現専用モーション向け）。
+	/// 出現専用のクリップが無いモデルは待機クリップを loop=true で渡す
+	/// </summary>
+	void SetSpawnClip(const std::string& clipName, bool loop = false) { spawnClip_ = { clipName, loop }; }
+	/// <summary>死亡演出中に流すクリップ。空なら切り替えない。演出の長さに合わせて1回流す</summary>
+	void SetDeathClip(const std::string& clipName) { deathClip_ = { clipName, false }; }
+
+	/// <summary>
+	/// 攻撃モーションを武器の振りに合わせて再生する。
+	/// 武器の動き（CatmullRom）は今までどおりで、体のクリップの方を伸縮させて合わせる。
+	/// EnemyMeleeAttackComponent が「武器が斬り抜ける瞬間までの秒数」を渡して呼ぶ。
+	/// </summary>
+	void BeginAttackAnimation(float weaponImpactSeconds);
+	/// <summary>攻撃が終わって等速に戻す</summary>
+	void EndAttackAnimation() { attackFitSeconds_ = 0.0f; }
+
+	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
+	AnimationPlayer* GetAnimationPlayer();
+
 protected:
 	/// <summary>
 	/// 死亡演出（ディゾルブアウト）が終わった直後に一度だけ呼ばれる。
@@ -266,6 +334,35 @@ protected:
 	MovementBounds movementBounds_{};
 
 private:
+	// 体のモデルの回転を「向き補正 → 被弾リアクション」の順で組み立ててレンダラーへ書き込む。
+	// 行ベクトル規約なのでクォータニオンの積は「後に掛けるもの * 先に掛けるもの」になる。
+	void ApplyModelRotation();
+
+	Quaternion modelRotationOffset_ = Identity();   // モデル固有の向き補正（差し替えても変わらない）
+	Quaternion modelReactionRotation_ = Identity(); // 被弾リアクション（毎フレーム変わる）
+
+	// ステートと演出フェーズから再生クリップを決めて流す。毎フレーム呼ぶ
+	void UpdateAnimation();
+
+	struct StateClip {
+		std::string clip;
+		bool loop = true;
+		float impactRatio = 0.5f; // 攻撃クリップのみ使用。振り切る瞬間の位置（0〜1）
+	};
+
+	// 攻撃時の再生速度の上下限。極端に短い攻撃で倍率が跳ね上がって残像になるのを防ぐ
+	static constexpr float kAttackSpeedMin = 0.5f;
+	static constexpr float kAttackSpeedMax = 3.0f;
+	std::unordered_map<std::string, StateClip> stateClips_;
+	StateClip spawnClip_;
+	StateClip deathClip_;
+	// 現在のステート名。currentState_ はポインタなので名前は ChangeState で控えておく
+	std::string currentStateName_;
+	// >0 のとき、攻撃クリップをこの秒数に収まる速度で再生する
+	float attackFitSeconds_ = 0.0f;
+	// 次の UpdateAnimation で攻撃クリップを頭から出し直すか（連続攻撃で振り直すため）
+	bool attackAnimRestart_ = false;
+
 	// 現在位置を移動範囲(XZ)内に押し戻す。範囲外へ向かう速度も殺して張り付きを防ぐ。
 	// 位置を動かした直後（速度の積分後・ノックバックの慣性適用後）に呼ぶこと。
 	void ClampToMovementBounds();

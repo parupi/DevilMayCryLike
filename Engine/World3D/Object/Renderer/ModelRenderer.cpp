@@ -1,8 +1,10 @@
 ﻿#include "ModelRenderer.h"
 #include "RendererManager.h"
 #include <World3D/Object/Model/ModelManager.h>
+#include <World3D/Object/Model/SkinnedModel.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
 #include "World3D/Object/Model/ModelStructs.h"
+#include <Utility/TimeManager.h>
 
 #ifdef _DEBUG
 #include <imgui.h>
@@ -23,6 +25,12 @@ void ModelRenderer::Update(WorldTransform* parentTransform) {
 
 	localTransform_->TransferMatrix(camera_);
 
+	// アニメーションはゲーム時間で進める。
+	// ヒットストップ中は GetGameDelta() が 0 になるのでポーズもそこで止まる
+	if (skinnedInstance_) {
+		skinnedInstance_->Update(TimeManager::GetGameDelta());
+	}
+
 	model_->Update(localTransform_->GetWorldScale());
 }
 
@@ -40,7 +48,11 @@ void ModelRenderer::Draw() {
 		RendererManager::GetInstance().GetSrvManager()->SetGraphicsRootDescriptorTable(6, envMapIndex);
 	}
 
-	model_->Draw();
+	if (skinnedInstance_) {
+		static_cast<SkinnedModel*>(model_)->DrawWith(skinnedInstance_.get());
+	} else {
+		model_->Draw();
+	}
 }
 
 void ModelRenderer::DrawGBuffer() {
@@ -55,7 +67,11 @@ void ModelRenderer::DrawGBuffer() {
 	};
 	cmd->SetGraphicsRoot32BitConstants(4, 12, dissolveConstants, 0);
 
-	model_->DrawGBuffer(); // Model側へ委譲
+	if (skinnedInstance_) {
+		static_cast<SkinnedModel*>(model_)->DrawGBufferWith(skinnedInstance_.get());
+	} else {
+		model_->DrawGBuffer(); // Model側へ委譲
+	}
 }
 
 void ModelRenderer::DrawShadow() {
@@ -63,12 +79,27 @@ void ModelRenderer::DrawShadow() {
 
 	localTransform_->BindToShader(commandList, 0);
 
-	model_->DrawShadow();
+	if (skinnedInstance_) {
+		static_cast<SkinnedModel*>(model_)->DrawShadowWith(skinnedInstance_.get());
+	} else {
+		model_->DrawShadow();
+	}
 }
 
 void ModelRenderer::SetModel(const std::string& filePath) {
 	// モデルを検索してセットする
 	model_ = ModelManager::GetInstance().FindModel(filePath);
+
+	// スキンモデルなら、このレンダラー専用のポーズと出力頂点バッファを作る。
+	// モデルを差し替えたら前のインスタンスは捨てる（ディスクリプタもデストラクタで返る）
+	skinnedInstance_.reset();
+	if (auto* skinned = dynamic_cast<SkinnedModel*>(model_)) {
+		skinnedInstance_ = skinned->CreateInstance();
+	}
+}
+
+AnimationPlayer* ModelRenderer::GetAnimationPlayer() const {
+	return skinnedInstance_ ? skinnedInstance_->GetPlayer() : nullptr;
 }
 
 #ifdef _DEBUG

@@ -25,11 +25,16 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	// ModelRenderer は FindModel するだけで読み込みはしないので、ここで読んでおく。
 	// 以前は TitleScene が先読みしていたが、他シーンの読み込みに依存すると
 	// そちらを整理したときに静かに壊れるので、Ground / Prop と同じく自分で読む
-	ModelManager::GetInstance().LoadModel("PlayerBody");
+	// Dragon.gltf はリグ付き（27ジョイント・5クリップ）なのでスキンモデルとして読む。
+	// ここで LoadModel してしまうと ModelManager::FindModel が静的モデルを先に返して
+	// 黙ってアニメーションしなくなるので注意
+	ModelManager::GetInstance().LoadSkinnedModel(kModelName);
 	ModelManager::GetInstance().LoadModel("Sword");
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, kModelName));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
-	GetRenderer(name_)->GetWorldTransform()->GetScale() = {1.5f, 1.5f, 1.5f};
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
+	// Dragon.obj も正面が +Z（目が +Z 側にある）。敵の前方向はローカル -Z なので180度回す
+	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
 
 	hp_ = kMaxHp;
 	maxHp_ = kMaxHp;
@@ -41,24 +46,24 @@ void BossKnight::Initialize() {
 	auto* col = static_cast<OBBCollider*>(GetCollider(name_));
 	col->GetColliderData().halfExtents *= 1.3f;
 
-	// ── 武器の生成 ──
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_ + "Weapon", "Sword"));
-	CollisionManager::GetInstance().AddCollider(std::make_unique<AABBCollider>(name_ + "Weapon"));
-	CollisionManager::GetInstance().FindCollider(name_ + "Weapon")->category_ = CollisionCategory::EnemyWeapon;
+	// ── 攻撃判定の生成 ──
+	// ドラゴンは剣を持たず、噛みつき・叩きつけ・突進で戦う。
+	// 見た目を持たないヒットボックスをジョイントへ追従させ、攻撃ごとに位置と大きさを変える
+	CollisionManager::GetInstance().AddCollider(std::make_unique<OBBCollider>(name_ + "Hitbox"));
+	CollisionManager::GetInstance().FindCollider(name_ + "Hitbox")->category_ = CollisionCategory::EnemyWeapon;
 
-	auto weapon = std::make_unique<BossWeapon>(name_ + "Weapon");
-	weapon->AddRenderer(RendererManager::GetInstance().FindRender(name_ + "Weapon"));
-	weapon->AddCollider(CollisionManager::GetInstance().FindCollider(name_ + "Weapon"));
-	weapon->Initialize();
-	weapon->GetWorldTransform()->SetParent(GetWorldTransform());
-	weapon_ = weapon.get();
-	Object3dManager::GetInstance().AddObject(std::move(weapon));
+	auto hitbox = std::make_unique<EnemyHitbox>(name_ + "Hitbox");
+	hitbox->AddCollider(CollisionManager::GetInstance().FindCollider(name_ + "Hitbox"));
+	hitbox->Initialize();
+	hitbox->SetupAttachment(GetRenderer(name_));
+	hitbox_ = hitbox.get();
+	Object3dManager::GetInstance().AddObject(std::move(hitbox));
 
 	// ── コンポーネント生成 ──
 	sensor_ = std::make_unique<EnemySensorComponent>();
 	sensor_->SetDetectionRange(25.0f); // 広い感知範囲
 	movement_ = std::make_unique<EnemyMovementComponent>();
-	meleeAttack_ = std::make_unique<EnemyMeleeAttackComponent>(weapon_);
+	boneAttack_ = std::make_unique<EnemyBoneAttackComponent>(hitbox_);
 
 	// ── ステート登録 ──
 	states_[EnemyStateName::Air] = std::make_unique<EnemyStateAir>();
@@ -74,9 +79,27 @@ void BossKnight::Initialize() {
 
 	states_[BossStateName::CombatIdle] = std::make_unique<BossStateCombatIdle>(sensor_.get(), movement_.get(), kMaxHp);
 	states_[BossStateName::Approach] = std::make_unique<BossStateApproach>(movement_.get());
-	states_[BossStateName::Slash] = std::make_unique<BossStateSlash>(meleeAttack_.get());
-	states_[BossStateName::HeavySword] = std::make_unique<BossStateHeavySword>(meleeAttack_.get());
-	states_[BossStateName::Rush] = std::make_unique<BossStateRush>(meleeAttack_.get());
+	states_[BossStateName::Slash] = std::make_unique<BossStateSlash>(boneAttack_.get());
+	states_[BossStateName::HeavySword] = std::make_unique<BossStateHeavySword>(boneAttack_.get());
+	states_[BossStateName::Rush] = std::make_unique<BossStateRush>(boneAttack_.get());
+
+	// ── アニメーションの割り当て（Dragon.gltf の5クリップ）──
+	// このモデルには待機が無いので Flying を待機・移動の両方に充てている。
+	// 攻撃クリップは EnemyMeleeAttackComponent が武器の振りの長さに合わせて伸縮させる
+	RegisterStateClip(EnemyStateName::Idle,            kClipIdle);
+	RegisterStateClip(EnemyStateName::Move,            kClipIdle);
+	RegisterStateClip(EnemyStateName::Air,             kClipIdle);
+	RegisterStateClip(BossStateName::CombatIdle,       kClipIdle);
+	RegisterStateClip(BossStateName::Approach,         kClipIdle);
+	RegisterStateClip(BossStateName::Slash,            kClipAttack,  false, kAttackImpactRatio);
+	RegisterStateClip(BossStateName::HeavySword,       kClipAttack2, false, kAttack2ImpactRatio);
+	RegisterStateClip(BossStateName::Rush,             kClipAttack,  false, kAttackImpactRatio);
+	// のけぞり（共有KnockBack）と吹き飛び（BossKnockBack）は両方とも被弾クリップ
+	RegisterStateClip(EnemyStateName::KnockBack,       kClipHit, false);
+	RegisterStateClip(BossStateName::KnockBack,        kClipHit, false);
+	// 出現専用のクリップは無いので、ディゾルブ中は Flying をループさせておく
+	SetSpawnClip(kClipIdle, true);
+	SetDeathClip(kClipDeath);
 
 	// 被弾時のヒットエフェクトは HitEffectSystem の "HitImpact" に一本化したのでここでは持たない。
 	// （足元から出る旧エフェクトと違い、武器が実際に当たった位置へ火花とリングが出る）
@@ -92,7 +115,7 @@ void BossKnight::Initialize() {
 	ParticleManager::GetInstance().CreateEmitter(name_ + "ArmorAura");
 	auraEmitter_ = ParticleManager::GetInstance().GetEmitters().at(name_ + "ArmorAura").get();
 	auraEmitter_->SetParent(GetRenderer(name_)->GetWorldTransform());
-	auraEmitter_->SetShapeModel("PlayerBody"); // 本体と同じモデルの表面からエミット
+	auraEmitter_->SetShapeModel(kModelName); // 本体と同じモデルの表面からエミット
 	auraEmitter_->AddParticle("BossArmorAura");
 	auraEmitter_->GetParticles()[0].count = 50; // 1回のEmitで4粒ずつ出して体の形が読める密度にする
 
@@ -121,9 +144,9 @@ void BossKnight::Update(float deltaTime) {
 		return;
 	}
 
-	// 未出現時は武器を隠し、非アクティブ時の共通処理（消灯など）だけ行う
+	// 未出現時は判定を切り、非アクティブ時の共通処理（消灯など）だけ行う
 	if (!isActive_) {
-		weapon_->SetIsDraw(false);
+		if (hitbox_) hitbox_->Deactivate();
 		Enemy::Update(deltaTime);
 		return;
 	}
@@ -135,24 +158,13 @@ void BossKnight::Update(float deltaTime) {
 		SetAcceleration({0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f});
 	}
 
-	// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
-	weapon_->SetIsDraw(true);
-
-	if (meleeAttack_->IsFinished()) {
-		weapon_->GetWorldTransform()->GetTranslation() = {0.0f, 0.1f, 0.5f};
-		weapon_->GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 90.0f, 150.0f});
-	}
-
-	// 攻撃フェーズのみ武器コライダーを有効化（出現/死亡演出中は無効）
-	bool isAttackPhase = !meleeAttack_->IsFinished() && !meleeAttack_->IsWindingUp()
-		&& !IsAppearanceEffectPlaying();
-	auto* weaponCol = static_cast<AABBCollider*>(weapon_->GetCollider(name_ + "Weapon"));
-	if (weaponCol) {
-		weaponCol->GetColliderData().isActive = isAttackPhase;
+	// 出現・死亡演出中は判定を出さない（EnemyBoneAttackComponent が出していても打ち消す）
+	if (IsAppearanceEffectPlaying() && hitbox_) {
+		hitbox_->Deactivate();
 	}
 
 	// 予備動作中にチャージリングを発射（GruntMeleeより速め）
-	if (meleeAttack_->IsWindingUp()) {
+	if (boneAttack_->IsWindingUp()) {
 		chargeEmitTimer_ += deltaTime;
 		if (chargeEmitTimer_ >= kChargeEmitInterval) {
 			chargeEmitter_->Emit();
@@ -166,6 +178,13 @@ void BossKnight::Update(float deltaTime) {
 	UpdateArmorVisual(deltaTime);
 
 	Enemy::Update(deltaTime);
+
+	// ヒットボックスをジョイントへ合わせ直す。
+	// **Enemy::Update（＝ポーズ更新）より後**でなければ1フレーム前の姿勢に付いてしまう。
+	// 当たり判定は全オブジェクト更新のあとに CollisionManager が見るので、ここで間に合う
+	if (hitbox_) {
+		hitbox_->Apply();
+	}
 }
 
 
@@ -207,11 +226,6 @@ void BossKnight::UpdateArmorVisual(float deltaTime) {
 		if (auto* bodyRenderer = GetRenderer(name_)) {
 			bodyRenderer->SetEmissiveTint(tint);
 		}
-		if (weapon_) {
-			if (auto* weaponRenderer = weapon_->GetRenderer(name_ + "Weapon")) {
-				weaponRenderer->SetEmissiveTint(tint);
-			}
-		}
 	} else {
 		// アーマー解除: すべての表示を通常状態に戻す
 		auraEmitTimer_ = 0.0f;
@@ -225,20 +239,16 @@ void BossKnight::UpdateArmorVisual(float deltaTime) {
 		if (auto* bodyRenderer = GetRenderer(name_)) {
 			bodyRenderer->SetEmissiveTint({ 0.0f, 0.0f, 0.0f, 0.0f });
 		}
-		if (weapon_) {
-			if (auto* weaponRenderer = weapon_->GetRenderer(name_ + "Weapon")) {
-				weaponRenderer->SetEmissiveTint({ 0.0f, 0.0f, 0.0f, 0.0f });
-			}
-		}
 	}
 }
 
 void BossKnight::OnDeathEffectFinished() {
-	// 武器を後始末する（本体は Enemy::Update の !isAlive_ 側で後始末される）
-	if (weapon_) {
-		weapon_->isAlive = false;
-		weapon_->ResetObject();
-		weapon_ = nullptr;
+	// 攻撃判定を後始末する（本体は Enemy::Update の !isAlive_ 側で後始末される）
+	if (hitbox_) {
+		hitbox_->Deactivate();
+		hitbox_->isAlive = false;
+		hitbox_->ResetObject();
+		hitbox_ = nullptr;
 	}
 }
 

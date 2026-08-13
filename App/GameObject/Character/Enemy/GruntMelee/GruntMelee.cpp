@@ -25,11 +25,17 @@ GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
 	// ModelRenderer は FindModel するだけで読み込みはしないので、ここで読んでおく。
 	// 以前は TitleScene が先読みしていたが、他シーンの読み込みに依存すると
 	// そちらを整理したときに静かに壊れるので、Ground / Prop と同じく自分で読む
-	ModelManager::GetInstance().LoadModel("PlayerBody");
+	// Skeleton.gltf はリグ付き（12ジョイント・5クリップ）なのでスキンモデルとして読む。
+	// ここで LoadModel してしまうと ModelManager::FindModel が静的モデルを先に返して
+	// 黙ってアニメーションしなくなるので注意
+	ModelManager::GetInstance().LoadSkinnedModel(kModelName);
 	ModelManager::GetInstance().LoadModel("Sword");
-	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, "PlayerBody"));
+	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, kModelName));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
-	GetRenderer(name_)->GetWorldTransform()->GetScale() = { 0.8f, 0.8f, 0.8f };
+	// Skeleton.obj は素の高さが約5m。プレイヤー（約0.9m）より少し背が高い程度に縮める
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = { kModelScale, kModelScale, kModelScale };
+	// このモデルは正面が +Z。敵の前方向はローカル -Z なので180度回す（詳細は Enemy::SetModelRotationOffset）
+	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
 
 	hp_ = 8.0f;
 	maxHp_ = hp_;
@@ -76,6 +82,24 @@ void GruntMelee::Initialize() {
 
 	currentState_ = states_[GruntMeleeStateName::Patrol].get();
 
+	// ── アニメーションの割り当て（Skeleton.gltf の5クリップ）──
+	// 攻撃クリップは EnemyMeleeAttackComponent が武器の振りの長さに合わせて伸縮させる
+	RegisterStateClip(GruntMeleeStateName::Patrol,       kClipIdle);
+	RegisterStateClip(EnemyStateName::Idle,              kClipIdle);
+	RegisterStateClip(EnemyStateName::Move,              kClipIdle);
+	RegisterStateClip(GruntMeleeStateName::CombatIdle,   kClipIdle);
+	RegisterStateClip(GruntMeleeStateName::Approach,     kClipRun);
+	RegisterStateClip(GruntMeleeStateName::SideMove,     kClipRun);
+	RegisterStateClip(GruntMeleeStateName::Retreat,      kClipRun);
+	RegisterStateClip(GruntMeleeStateName::AttackNormal, kClipAttack, false, kAttackImpactRatio);
+	RegisterStateClip(GruntMeleeStateName::RushAttack,   kClipAttack, false, kAttackImpactRatio);
+	RegisterStateClip(EnemyStateName::Air,               kClipIdle);
+	// のけぞり・吹き飛びは専用クリップが無いので待機のまま。
+	// 傾き/回転（SetModelReactionRotation）の方でリアクションを見せている
+	RegisterStateClip(EnemyStateName::KnockBack,         kClipIdle);
+	SetSpawnClip(kClipSpawn);
+	SetDeathClip(kClipDeath);
+
 	// 被弾時のヒットエフェクトは HitEffectSystem の "HitImpact" に一本化したのでここでは持たない。
 	// （足元から出る旧エフェクトと違い、武器が実際に当たった位置へ火花とリングが出る）
 
@@ -115,7 +139,9 @@ void GruntMelee::Update(float deltaTime) {
 
 
 	if (meleeAttack_->IsFinished()) {
-		weapon_->GetWorldTransform()->GetTranslation() = { 0.0f, 0.1f, -0.5f };
+		// -Z が敵の前方向。Y は Skeleton モデルの手の高さに合わせている
+		// （立方体だった頃は 0.1f で、そのままだと足元に剣が浮く）
+		weapon_->GetWorldTransform()->GetTranslation() = { 0.0f, 0.45f, -0.5f };
 		weapon_->GetWorldTransform()->GetRotation()    = EulerDegree({ 0.0f, 90.0f, 150.0f });
 	}
 
