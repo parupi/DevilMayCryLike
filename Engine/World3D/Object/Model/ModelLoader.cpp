@@ -130,16 +130,13 @@ namespace {
 		}
 	}
 
-	// モデル名から拡張子抜きのパスを作る。
-	// 規約は Resource/Models/<モデル名>/<ファイル名> で、ファイル名はモデル名の最後の要素。
-	//   "Sword"           → Resource/Models/Sword/Sword
-	//   "Enemys/Skeleton" → Resource/Models/Enemys/Skeleton/Skeleton
-	// 種類ごとにフォルダを切って整理できるように、区切りを含む名前も受け付ける。
-	std::string MakeModelBasePath(const std::string& modelName) {
-		const size_t separator = modelName.find_last_of("/\\");
-		const std::string stem = (separator == std::string::npos) ? modelName : modelName.substr(separator + 1);
-		return "Resource/Models/" + modelName + "/" + stem;
-	}
+}
+
+// 宣言は ModelLoader.h。.anim.json など付随ファイルからも使うので公開している
+std::string ModelLoader::MakeAssetBasePath(const std::string& modelName) {
+	const size_t separator = modelName.find_last_of("/\\");
+	const std::string stem = (separator == std::string::npos) ? modelName : modelName.substr(separator + 1);
+	return "Resource/Models/" + modelName + "/" + stem;
 }
 
 void ModelLoader::Initialize(DirectXManager* dxManager, SrvManager* srvManager) {
@@ -152,7 +149,7 @@ ModelData ModelLoader::LoadModelFile(const std::string& filename) {
 
 	Assimp::Importer importer;
 	// 拡張子を自動判別する（.obj が無ければ .gltf → .fbx の順に探す）
-	const std::string basePath = MakeModelBasePath(filename);
+	const std::string basePath = ModelLoader::MakeAssetBasePath(filename);
 	std::string filePath = basePath + ".obj";
 	if (!std::filesystem::exists(filePath)) {
 		for (const char* ext : {".gltf", ".fbx"}) {
@@ -258,7 +255,7 @@ SkinnedModelData ModelLoader::LoadSkinnedModel(const std::string& filename, Anim
 
 	Assimp::Importer importer;
 
-	std::string filePath = MakeModelBasePath(filename) + ".gltf";
+	std::string filePath = ModelLoader::MakeAssetBasePath(filename) + ".gltf";
 
 	Logger::Log("[ModelLoader] Loading skinned: " + filePath);
 	const aiScene* scene = importer.ReadFile(filePath.c_str(), aiProcess_FlipWindingOrder | aiProcess_FlipUVs);

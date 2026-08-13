@@ -26,6 +26,16 @@ public: // メンバ関数
 
 	// ノードをモデルデータに変換する関数
 	static Node ReadNode(aiNode* node);
+
+	/// <summary>
+	/// モデル名から拡張子抜きのパスを作る。規約は Resource/Models/&lt;モデル名&gt;/&lt;ファイル名&gt; で、
+	/// ファイル名はモデル名の最後の要素。
+	///   "Sword"           → Resource/Models/Sword/Sword
+	///   "Enemys/Skeleton" → Resource/Models/Enemys/Skeleton/Skeleton
+	/// 種類ごとにフォルダを切って整理できるよう、区切りを含む名前も受け付ける。
+	/// .anim.json など付随ファイルのパスもこれを使って作ること
+	/// </summary>
+	static std::string MakeAssetBasePath(const std::string& modelName);
 private:
 
 	DirectXManager* dxManager_ = nullptr;

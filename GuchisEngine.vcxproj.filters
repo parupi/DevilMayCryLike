@@ -321,9 +321,6 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.h">
-      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
@@ -341,6 +338,12 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.h">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyHitbox.h">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
@@ -1256,9 +1259,6 @@
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.cpp">
-      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
@@ -1276,6 +1276,12 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.cpp">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyHitbox.cpp">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>

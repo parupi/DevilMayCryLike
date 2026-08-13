@@ -2,6 +2,7 @@
 #include <assimp/scene.h>
 #include <Utility/Logger.h>
 #include <World3D/Object/Model/GltfAxis.h>
+#include <World3D/Object/Model/ModelLoader.h>
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <algorithm>
@@ -111,7 +112,9 @@ bool AnimationClipSet::SaveEvents(const std::string& filename) const
 	}
 	root["clips"] = clipsJson;
 
-	const std::string path = "Resource/Models/" + filename + "/" + filename + ".anim.json";
+	// サブフォルダを含むモデル名（"Enemys/Dragon" など）でも正しい場所を指すよう共通の規約に合わせる。
+	// ここで素朴に filename を2回繋ぐと Resource/Models/Enemys/Dragon/Enemys/Dragon.anim.json になる
+	const std::string path = ModelLoader::MakeAssetBasePath(filename) + ".anim.json";
 	std::ofstream file(path);
 	if (!file.is_open()) {
 		Logger::Log("[AnimationClipSet] 書き出しに失敗: " + path + "\n");
@@ -124,7 +127,9 @@ bool AnimationClipSet::SaveEvents(const std::string& filename) const
 
 void AnimationClipSet::LoadEvents(const std::string& filename)
 {
-	const std::string path = "Resource/Models/" + filename + "/" + filename + ".anim.json";
+	// サブフォルダを含むモデル名（"Enemys/Dragon" など）でも正しい場所を指すよう共通の規約に合わせる。
+	// ここで素朴に filename を2回繋ぐと Resource/Models/Enemys/Dragon/Enemys/Dragon.anim.json になる
+	const std::string path = ModelLoader::MakeAssetBasePath(filename) + ".anim.json";
 	std::ifstream file(path);
 	if (!file.is_open()) return; // イベント定義は任意
 

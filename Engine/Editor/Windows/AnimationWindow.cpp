@@ -320,8 +320,10 @@ void DrawEventSection(SkinnedInstance* instance, SkinnedModel* asset)
 		}
 	}
 	ImGui::SameLine();
-	ImGui::TextDisabled("Resource/Models/%s/%s.anim.json",
-		asset->GetModelName().c_str(), asset->GetModelName().c_str());
+	// 保存先は AnimationClipSet::SaveEvents と同じ規約で出す（自前で組み立てると
+	// "Enemys/Dragon" のようなサブフォルダ名で実際の保存先とズレる）
+	ImGui::TextDisabled("%s.anim.json",
+		ModelLoader::MakeAssetBasePath(asset->GetModelName()).c_str());
 }
 
 void DrawSkeletonSection(SkinnedInstance* instance)

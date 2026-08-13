@@ -23,6 +23,7 @@
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
 
 #include <numbers>
 #include <algorithm>
@@ -408,21 +409,29 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::EnemyWeapon) {
 		if (!other->owner_) return;
 
-		Vector3 weaponPos = other->owner_->GetWorldTransform()->GetTranslation();
+		// 攻撃してきた側の**ワールド**座標。GetTranslation() はローカル座標なので、
+		// 敵の子になっている武器・判定では「攻撃者から離れる方向」にならない
+		Vector3 attackerPos = other->owner_->GetWorldTransform()->GetWorldPos();
 		Vector3 playerPos = GetWorldTransform()->GetTranslation();
-		Vector3 dir = playerPos - weaponPos;
+		Vector3 dir = playerPos - attackerPos;
 		dir.y = 0.0f;
 		dir = (Length(dir) > 0.001f) ? Normalize(dir) : Vector3{0.0f, 0.0f, -1.0f};
 
+		// ボーン追従の判定（噛みつき・叩きつけ等）は攻撃ごとにダメージが違うので、
+		// 判定側が持っている値を使う。武器を振る敵（剣を持つ雑魚）は従来どおりの既定値
 		DamageInfo info;
-		info.damage = 1.0f;
+		if (auto* hitbox = dynamic_cast<EnemyHitbox*>(other->owner_)) {
+			info = hitbox->GetDamageInfo();
+		} else {
+			info.damage = 1.0f;
+			info.type = ReactionType::Knockback;
+			info.impulseForce = 15.0f;
+			info.upwardRatio = 0.4f;
+			info.stunTime = 0.7f;
+		}
 		info.direction = dir;
-		info.type = ReactionType::Knockback;
-		info.impulseForce = 15.0f;
-		info.upwardRatio = 0.4f;
-		info.stunTime = 0.7f;
 		info.hitPosition = playerPos;
-		info.attackerPosition = weaponPos;
+		info.attackerPosition = attackerPos;
 
 		TakeDamage(info);
 		return;

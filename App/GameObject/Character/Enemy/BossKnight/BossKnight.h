@@ -1,9 +1,9 @@
 #pragma once
 #include "GameObject/Character/Enemy/Enemy.h"
-#include "BossWeapon.h"
 #include "GameObject/Character/Enemy/Component/EnemySensorComponent.h"
 #include "GameObject/Character/Enemy/Component/EnemyMovementComponent.h"
-#include "GameObject/Character/Enemy/Component/EnemyMeleeAttackComponent.h"
+#include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
+#include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
 #include "Graphics/Rendering/Particle/ParticleEmitter.h"
 
 /// <summary>
@@ -63,7 +63,8 @@ private:
     // スーパーアーマーの視覚表示（紫オーラ・ライト・体の発光）をまとめて更新する
     void UpdateArmorVisual(float deltaTime);
 
-    BossWeapon*      weapon_        = nullptr;
+    // 剣は持たない。噛みつき・叩きつけ・突進のたびに、この判定を該当ジョイントへ付け替える
+    EnemyHitbox*     hitbox_        = nullptr;
     ParticleEmitter* chargeEmitter_ = nullptr;
     ParticleEmitter* auraEmitter_   = nullptr;
     ParticleEmitter* armorHitEmitter_ = nullptr; // アーマー中被弾の弾かれ火花
@@ -86,7 +87,7 @@ private:
     float hitAccumulation_           = 0.0f;
     static constexpr float kKnockbackThreshold = 3.0f; // 通常攻撃約3発分
 
-    std::unique_ptr<EnemySensorComponent>      sensor_;
-    std::unique_ptr<EnemyMovementComponent>    movement_;
-    std::unique_ptr<EnemyMeleeAttackComponent> meleeAttack_;
+    std::unique_ptr<EnemySensorComponent>       sensor_;
+    std::unique_ptr<EnemyMovementComponent>     movement_;
+    std::unique_ptr<EnemyBoneAttackComponent>   boneAttack_;
 };

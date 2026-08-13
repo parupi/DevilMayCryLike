@@ -58,6 +58,12 @@ public:
 	float GetDuration() const;
 	const std::string& GetCurrentClipName() const { return currentName_; }
 	bool IsBlending() const { return blending_; }
+	/// <summary>
+	/// 再生中のクリップにアニメーションイベントが定義されているか。
+	/// イベント駆動の処理（当たり判定のON/OFFなど）が、イベント未設定のクリップで
+	/// 黙って何も起きなくなるのを避けるために、呼ぶ側がフォールバックを選べるようにしている
+	/// </summary>
+	bool HasEvents() const { return current_ && !current_->events.empty(); }
 
 	// ── アニメーションイベント ──
 	/// <summary>
