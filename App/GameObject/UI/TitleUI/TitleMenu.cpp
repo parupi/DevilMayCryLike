@@ -30,7 +30,7 @@ void TitleMenu::LoadTextures()
 void TitleMenu::Initialize()
 {
 	itemList_.Initialize("titleMenu", SpriteLayer::UI,
-		{ "GAME START", "CONTROLS", "OPTION", "QUIT" },
+		{ "GAME START", "TRAINING", "CONTROLS", "OPTION", "QUIT" },
 		{ kCenterX, kItemStartY }, kItemSpacing, kItemFontSize);
 
 	hint_ = SpriteManager::GetInstance().CreateTextLabel(SpriteLayer::UI, "titleMenuHint");
@@ -44,6 +44,9 @@ void TitleMenu::Initialize()
 
 	optionPanel_ = std::make_unique<OptionPanel>();
 	optionPanel_->Initialize();
+
+	trainingPanel_ = std::make_unique<TrainingSetupPanel>();
+	trainingPanel_->Initialize();
 
 	// 確認ダイアログは一覧より後に作る（同じレイヤーでは後から作ったものが手前に出る）
 	confirmDialog_.Initialize("titleMenu", SpriteLayer::UI);
@@ -68,6 +71,7 @@ void TitleMenu::Close()
 
 	controlsPanel_->Close();
 	optionPanel_->Close();
+	trainingPanel_->Close();
 	confirmDialog_.Close();
 	phase_ = Phase::Closing;
 }
@@ -100,6 +104,20 @@ void TitleMenu::Update()
 
 	controlsPanel_->Update();
 	optionPanel_->Update(navigator_);
+
+	// 敵の選択は決定・キャンセルを戻り値で返してくる。
+	// 閉じるアニメを進めるため、開いていないフレームでも呼ぶ
+	const TrainingSetupPanel::Result trainingResult = trainingPanel_->Update(navigator_);
+	if (phase_ == Phase::Training) {
+		if (trainingResult == TrainingSetupPanel::Result::Decided) {
+			// 選ばれた敵の受け渡しとシーンの切り替えは TitleScene が受け持つ
+			result_ = Result::StartTraining;
+			phase_ = Phase::Closing;
+		} else if (trainingResult == TrainingSetupPanel::Result::Canceled) {
+			trainingPanel_->Close();
+			phase_ = Phase::Root;
+		}
+	}
 
 	// 終了が決まったあとも、暗転しきるまでは出したままにする
 	const ConfirmDialog::Answer answer = confirmDialog_.Update(navigator_);
@@ -143,6 +161,11 @@ void TitleMenu::Decide()
 		// 実際にシーンを進めるのは TitleScene
 		result_ = Result::StartGame;
 		break;
+	case Item::Training:
+		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		trainingPanel_->Open();
+		phase_ = Phase::Training;
+		break;
 	case Item::Controls:
 		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
 		controlsPanel_->Open();
@@ -162,6 +185,11 @@ void TitleMenu::Decide()
 	default:
 		break;
 	}
+}
+
+const std::string& TitleMenu::GetSelectedTrainingEnemy() const
+{
+	return trainingPanel_->GetSelectedEnemyClass();
 }
 
 void TitleMenu::RefreshRoot()

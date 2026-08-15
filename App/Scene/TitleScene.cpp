@@ -18,6 +18,7 @@
 #include <Utility/DeltaTime.h>
 #include <Audio/SoundManager.h>
 #include <GameObject/Character/Player/Player.h> // 先読みするモデル名をゲーム中と共有する
+#include <GameData/GameSession.h>
 #include <cmath>
 
 
@@ -175,7 +176,15 @@ void TitleScene::ChangePhase() {
 void TitleScene::ApplyMenuResult() {
 	switch (titleMenu_->GetResult()) {
 	case TitleMenu::Result::StartGame:
+		// どちらのモードで始めるかは GameScene が GameSession から読む。
 		// GAMEPLAY への切り替えは、飛び込む演出の途中で TitleCamera が要求する
+		GameSession::BeginStory();
+		camera_->Exit();
+		titleMenu_->Close();
+		break;
+	case TitleMenu::Result::StartTraining:
+		// 行き先のシーンは本編と同じ GAMEPLAY。中身の違いは GameScene が分岐する
+		GameSession::BeginTraining(titleMenu_->GetSelectedTrainingEnemy());
 		camera_->Exit();
 		titleMenu_->Close();
 		break;

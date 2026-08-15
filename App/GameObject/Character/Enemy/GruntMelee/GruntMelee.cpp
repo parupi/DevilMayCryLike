@@ -189,6 +189,7 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 
 	hp_ -= atk.damage;
+	RecordDamage(atk.damage);
 
 	DamageInfo info;
 	info.damage = atk.damage;

@@ -112,7 +112,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Editor\AppEditor.h" />
     <ClInclude Include="App\Editor\Windows\AppEditorWindows.h" />
     <ClInclude Include="App\GameData\CollisionCategory.h" />
+    <ClInclude Include="App\GameData\EnemyCatalog.h" />
     <ClInclude Include="App\GameData\GameData.h" />
+    <ClInclude Include="App\GameData\GameSession.h" />
     <ClInclude Include="App\GameData\GameSettings.h" />
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h" />
     <ClInclude Include="App\GameObject\Camera\ClearCamera.h" />
@@ -135,6 +137,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\EnemySpawner.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\EnemyStateNames.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\GruntMeleeWeapon.h" />
@@ -183,6 +186,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
     <ClInclude Include="App\GameObject\Prop\Prop.h" />
+    <ClInclude Include="App\GameObject\Training\TrainingController.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
@@ -199,6 +203,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleMenu.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
+    <ClInclude Include="App\GameObject\UI\TitleUI\TrainingSetupPanel.h" />
+    <ClInclude Include="App\GameObject\UI\Training\TrainingHUD.h" />
     <ClInclude Include="App\GameObjectRegister.h" />
     <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="App\Input\InputContext.h" />
@@ -428,7 +434,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\StylishWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\TrainingWindow.cpp" />
+    <ClCompile Include="App\GameData\EnemyCatalog.cpp" />
     <ClCompile Include="App\GameData\GameData.cpp" />
+    <ClCompile Include="App\GameData\GameSession.cpp" />
     <ClCompile Include="App\GameData\GameSettings.cpp" />
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp" />
     <ClCompile Include="App\GameObject\Camera\ClearCamera.cpp" />
@@ -449,6 +458,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\EnemySpawner.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMeleeWeapon.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateApproach.cpp" />
@@ -493,6 +503,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
     <ClCompile Include="App\GameObject\Prop\Prop.cpp" />
+    <ClCompile Include="App\GameObject\Training\TrainingController.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
@@ -509,6 +520,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleMenu.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\TitleUI\TrainingSetupPanel.cpp" />
+    <ClCompile Include="App\GameObject\UI\Training\TrainingHUD.cpp" />
     <ClCompile Include="App\GameObjectRegister.cpp" />
     <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="App\Input\InputContext.cpp" />

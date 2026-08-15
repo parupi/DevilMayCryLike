@@ -29,6 +29,7 @@
         "Stats": false,
         "Stylish": false,
         "TimeManager": false,
+        "Training": true,
         "VFX": false,
         "vignette": false
     }

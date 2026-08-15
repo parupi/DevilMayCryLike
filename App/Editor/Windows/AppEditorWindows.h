@@ -14,6 +14,7 @@ void DrawEnemyWindow();         // シーン内の敵一覧とHP
 void DrawCameraWorkWindow();    // GameCamera のカメラワーク調整
 void DrawStylishWindow();       // スタイリッシュランク
 void DrawHitEffectWindows();    // HitEffect / HitPostEffect
+void DrawTrainingWindow();      // トレーニングルームの操作と起動時の行き先
 
 } // namespace AppEditor
 

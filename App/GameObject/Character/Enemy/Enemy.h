@@ -87,9 +87,11 @@ public:
 
 	/// <summary>
 	/// HP が 0 になったときに実際に死亡してよいかを返す。
-	/// 通常は常に true。チュートリアル用の敵などが条件付きで死亡を抑制するためにオーバーライドする。
+	/// 既定では「死亡抑制フラグが立っていなければ死ねる」。
+	/// チュートリアル用の敵などが条件を足すときはオーバーライドし、
+	/// このクラスの実装（＝抑制フラグ）も必ず AND で残すこと。
 	/// </summary>
-	virtual bool CanDie() const { return true; }
+	virtual bool CanDie() const { return !deathSuppressed_; }
 
 	/// <summary>
 	/// ノックバック無効（スーパーアーマー）中かどうか。
@@ -106,10 +108,42 @@ public:
 
 	/// <summary>
 	/// 攻撃行動をしてよいかを返す。
-	/// 通常は常に true。チュートリアル用の敵（練習台）などが攻撃を封じるためにオーバーライドする。
+	/// 既定では「攻撃抑制フラグが立っていなければ攻撃できる」。
 	/// 意思決定ステート（CombatIdleなど）が攻撃を選ぶ前にこれを確認する。
 	/// </summary>
-	virtual bool CanAttack() const { return true; }
+	virtual bool CanAttack() const { return !attackSuppressed_; }
+
+	// ======================
+	// 外部からの行動制御（トレーニングルームなどのデバッグ用途）
+	// ======================
+
+	/// <summary>true の間、HP が 0 になっても死なない（CanDie が false になる）</summary>
+	void SetDeathSuppressed(bool suppress) { deathSuppressed_ = suppress; }
+	bool IsDeathSuppressed() const { return deathSuppressed_; }
+
+	/// <summary>true の間、意思決定ステートが攻撃行動を選ばなくなる</summary>
+	void SetAttackSuppressed(bool suppress) { attackSuppressed_ = suppress; }
+	bool IsAttackSuppressed() const { return attackSuppressed_; }
+
+	/// <summary>
+	/// true の間、ステートの更新と自走を止めてその場に立たせる。
+	/// 被弾リアクション・出現／死亡演出・重力は従来どおり動く（見た目を確認したいのはそちら）。
+	/// </summary>
+	void SetActionSuppressed(bool suppress) { actionSuppressed_ = suppress; }
+	bool IsActionSuppressed() const { return actionSuppressed_; }
+
+	/// <summary>
+	/// 被弾を記録する（表示用）。派生クラスが hp_ を減らす場所で呼ぶ。
+	/// HP と違って抑制・回復の影響を受けないので、与ダメージの確認に使える
+	/// </summary>
+	void RecordDamage(float amount) {
+		++damageHitCount_;
+		totalDamageTaken_ += amount;
+		lastDamageTaken_ = amount;
+	}
+	uint32_t GetDamageHitCount() const { return damageHitCount_; }
+	float GetTotalDamageTaken() const { return totalDamageTaken_; }
+	float GetLastDamageTaken() const { return lastDamageTaken_; }
 
 	bool IsAlive() const { return isAlive_; }
 
@@ -203,6 +237,14 @@ public:
 		float ratio = hp_ / maxHp_;
 		return ratio < 0.0f ? 0.0f : (ratio > 1.0f ? 1.0f : ratio);
 	}
+
+	float GetMaxHp() const { return maxHp_; }
+
+	/// <summary>
+	/// 今のステート名。currentState_ はポインタなので、ChangeState が控えたこちらを見る。
+	/// 挙動を詰めるときの状態表示に使う
+	/// </summary>
+	const std::string& GetCurrentStateName() const { return currentStateName_; }
 
 	bool IsActive() const { return isActive_; }
 	void SetActive(bool flag) { isActive_ = flag; }
@@ -332,6 +374,16 @@ protected:
 
 	bool hasMovementBounds_ = false;
 	MovementBounds movementBounds_{};
+
+	// 外部からの行動制御（トレーニングルーム用。通常のプレイでは全部 false のまま）
+	bool deathSuppressed_ = false;
+	bool attackSuppressed_ = false;
+	bool actionSuppressed_ = false;
+
+	// 被弾の記録（表示用）
+	uint32_t damageHitCount_ = 0;
+	float totalDamageTaken_ = 0.0f;
+	float lastDamageTaken_ = 0.0f;
 
 private:
 	// 体のモデルの回転を「向き補正 → 被弾リアクション」の順で組み立ててレンダラーへ書き込む。

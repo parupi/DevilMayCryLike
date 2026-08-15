@@ -32,7 +32,9 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 			// 2周目以降のために、タイトルの OPTION から切れるようにしてある
 			if (!tutorialStarted_) {
 				tutorialStarted_ = true;
-				if (GameSettings::GetInstance().IsTutorialEnabled()) {
+				// トレーニングは操作の確認済みで入る場所なので流さない
+				// （GameScene::Initialize が先に完了扱いにしている）
+				if (!scene.IsTrainingMode() && GameSettings::GetInstance().IsTutorialEnabled()) {
 					scene.GetTutorialService()->StartTutorial(TutorialState::Move);
 				} else {
 					// TutorialDummy は全チュートリアル完了まで死なないので、

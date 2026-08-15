@@ -1,0 +1,59 @@
+{
+  "format": "GuchisStage",
+  "version": 2,
+  "objects": [
+    {
+      "name": "TrainingFloor",
+      "class": "Ground",
+      "translate": [0.0, -6.0, 0.0],
+      "rotate": [-0.7071068286895752, -0.0, 0.0, 0.7071067094802856],
+      "scale": [25.0, 25.0, 1.0],
+      "model": "Cube",
+      "collider": { "shape": "OBB", "offset": [0.0, 0.0, 0.0], "halfExtents": [1.0, 1.0, 1.0] }
+    },
+    {
+      "name": "TrainingWallNorth",
+      "class": "Ground",
+      "translate": [0.0, 0.0, 25.0],
+      "rotate": [0.0, 0.0, 0.0, 1.0],
+      "scale": [25.0, 1.0, 1.0],
+      "model": "Wall",
+      "collider": { "shape": "OBB", "offset": [0.0, 0.0, 0.0], "halfExtents": [1.1, 5.0, 1.0] }
+    },
+    {
+      "name": "TrainingWallSouth",
+      "class": "Ground",
+      "translate": [0.0, 0.0, -25.0],
+      "rotate": [0.0, 1.0, 0.0, 0.0],
+      "scale": [25.0, 1.0, 1.0],
+      "model": "Wall",
+      "collider": { "shape": "OBB", "offset": [0.0, 0.0, 0.0], "halfExtents": [1.1, 5.0, 1.0] }
+    },
+    {
+      "name": "TrainingWallEast",
+      "class": "Ground",
+      "translate": [25.0, 0.0, 0.0],
+      "rotate": [0.0, -0.7071067811865476, 0.0, 0.7071067811865476],
+      "scale": [25.0, 1.0, 1.0],
+      "model": "Wall",
+      "collider": { "shape": "OBB", "offset": [0.0, 0.0, 0.0], "halfExtents": [1.1, 5.0, 1.0] }
+    },
+    {
+      "name": "TrainingWallWest",
+      "class": "Ground",
+      "translate": [-25.0, 0.0, 0.0],
+      "rotate": [0.0, 0.7071067811865476, 0.0, 0.7071067811865476],
+      "scale": [25.0, 1.0, 1.0],
+      "model": "Wall",
+      "collider": { "shape": "OBB", "offset": [0.0, 0.0, 0.0], "halfExtents": [1.1, 5.0, 1.0] }
+    },
+    {
+      "name": "Player",
+      "class": "Player",
+      "translate": [0.0, -4.0, -8.0],
+      "rotate": [0.0, 0.0, 0.0, 1.0],
+      "scale": [1.0, 1.0, 1.0],
+      "collider": { "shape": "OBB", "offset": [0.0, 0.0, 0.0], "halfExtents": [0.5, 0.5, 0.5] }
+    }
+  ]
+}

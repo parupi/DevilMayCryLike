@@ -375,6 +375,8 @@ void Player::TakeDamage(const DamageInfo& info) {
 	auto* cur = stateMachine_->GetCurrentState();
 	if (cur && std::string(cur->GetDebugName()) == "Death") return;
 	if (invincibleTimer_ > 0.0f) return;
+	// トレーニングの常時無敵。のけぞりも出さず、敵の攻撃を素通りさせる
+	if (invincible_) return;
 
 	hp_ -= static_cast<int32_t>(info.damage);
 	invincibleTimer_ = 1.2f;

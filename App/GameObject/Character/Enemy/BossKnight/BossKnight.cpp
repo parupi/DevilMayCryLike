@@ -283,7 +283,15 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 		armorHitFlashTimer_ = kArmorHitFlashDuration;
 
 		hp_ -= damage;
-		if (hp_ <= 0.0f) OnDeath();
+		RecordDamage(damage);
+		// 雑魚と同じく CanDie() を尊重する（アーマー中だけ無視していたので揃えた）
+		if (hp_ <= 0.0f) {
+			if (CanDie()) {
+				OnDeath();
+			} else {
+				hp_ = 1.0f;
+			}
+		}
 		return;
 	}
 
@@ -292,6 +300,7 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 
 	hp_ -= damage;
+	RecordDamage(damage);
 	hitAccumulation_ += damage;
 
 	DamageInfo info;
@@ -301,13 +310,17 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	info.direction = Normalize(info.hitPosition - info.attackerPosition);
 
 	if (hp_ <= 0.0f) {
-		OnDeath();
-		// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
-		Vector3 deathVelocity = info.direction * atk.impulseForce;
-		deathVelocity.y += atk.impulseForce * atk.upwardRatio;
-		SetVelocity(deathVelocity);
-		SetOnGround(false);
-		return;
+		if (CanDie()) {
+			OnDeath();
+			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
+			Vector3 deathVelocity = info.direction * atk.impulseForce;
+			deathVelocity.y += atk.impulseForce * atk.upwardRatio;
+			SetVelocity(deathVelocity);
+			SetOnGround(false);
+			return;
+		}
+		// まだ死亡できない（トレーニングの敵無敵など）ので生存を維持する
+		hp_ = 1.0f;
 	}
 
 	// ノックバック優先: ノックバック/打ち上げ系の攻撃、または蓄積ダメージが閾値を超えたら吹き飛ばす。

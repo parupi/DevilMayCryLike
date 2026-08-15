@@ -217,7 +217,14 @@ void Enemy::Update(float deltaTime) {
 		hitFlash_->Update(dt);
 	}
 
-	if (currentState_) {
+	// 行動停止中は意思決定のステートを回さず、水平方向の自走も止める。
+	// 被弾リアクションと落下（IsReaction）は最後まで再生させないと、
+	// のけぞりの傾きが戻らない・空中で固まる、といった見た目の破綻になる
+	const bool holdStill = actionSuppressed_ && currentState_ && !currentState_->IsReaction();
+	if (holdStill) {
+		velocity_.x = 0.0f;
+		velocity_.z = 0.0f;
+	} else if (currentState_) {
 		currentState_->Update(*this, dt);
 	}
 

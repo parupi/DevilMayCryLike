@@ -12,7 +12,6 @@
 #include "World3D/Object/Renderer/PrimitiveRenderer.h"
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneBuilder.h"
-#include "Stage/StageDocument.h"
 #include "Utility/Logger.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
@@ -25,6 +24,7 @@
 #include "State/GameSceneStateClear.h"
 #include "State/GameSceneStateGameOver.h"
 #include <GameObject/Character/Enemy/Enemy.h>
+#include <GameData/GameSession.h>
 #include "GameObject/Effect/HitEffectSystem.h"
 #include "World3D/Object/Object3dManager.h"
 #include "Input/Input.h"
@@ -44,7 +44,8 @@ void GameScene::Initialize() {
 	states_["Menu"] = std::make_unique<GameSceneStateMenu>();
 	states_["Clear"] = std::make_unique<GameSceneStateClear>();
 	states_["GameOver"] = std::make_unique<GameSceneStateGameOver>();
-	currentState_ = states_["Start"].get();
+	// トレーニングは何度も入り直すので、開始演出(StageStart)を挟まずすぐ動ける状態から始める
+	currentState_ = IsTrainingMode() ? states_["Play"].get() : states_["Start"].get();
 
 	// 入力の受付状態を管理するクラス生成
 	inputContext_ = std::make_unique<InputContext>();
@@ -60,6 +61,13 @@ void GameScene::Initialize() {
 	// カメラの生成
 	std::unique_ptr<ClearCamera> clearCamera = std::make_unique<ClearCamera>("ClearCamera");
 	cameraManager_->AddCamera(std::move(clearCamera));
+
+	// 既定のカメラをここで立てておく。
+	// AddCamera はアクティブにしないので、これが無いと GetCurrentCamera() が null のまま
+	// Object3d::Update() まで流れてアクセス違反になる。
+	// 本編は直後の StageStart が "StartCamera" へ差し替えるので見た目は変わらないが、
+	// 開始演出を挟まない経路（トレーニング）はこれが唯一の設定になる
+	cameraManager_->SetActiveCamera("GameCamera");
 
 	ParticleManager::GetInstance().CreateParticleGroup("test", "circle.png");
 	ParticleManager::GetInstance().CreateParticleGroup("fire", "circle.png");
@@ -95,9 +103,11 @@ void GameScene::Initialize() {
 	// スカイボックスを生成
 	SkySystem::GetInstance().CreateSkyBox("moonless_golf_4k.dds");
 
-	// ステージの情報を読み込んで生成
-	// 読み込むステージはエディタで切り替えられる（Release では既定のまま）
-	SceneBuilder::BuildScene(SceneLoader::Load(StageDocument::GetPath()));
+	// ステージの情報を読み込んで生成。
+	// 本編で読むステージはエディタで切り替えられる（Release では既定のまま）が、
+	// トレーニングは専用ステージで固定される
+	const std::string stagePath = GameSession::GetStagePath();
+	SceneBuilder::BuildScene(SceneLoader::Load(stagePath));
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
@@ -108,7 +118,7 @@ void GameScene::Initialize() {
 	player_ = dynamic_cast<Player*>(Object3dManager::GetInstance().FindObject("Player"));
 	ASSERT_MSG(player_ != nullptr,
 		("ステージに Player クラスのオブジェクトがありません。\n  ステージ: "
-			+ StageDocument::GetPath()
+			+ stagePath
 			+ "\n  Hierarchy の「+作成」でクラス Player を置いて保存してください。").c_str());
 
 	player_->SetInput(inputContext_->GetPlayerInput());
@@ -142,6 +152,12 @@ void GameScene::Initialize() {
 	styleHud_ = std::make_unique<StyleHUD>();
 	styleHud_->Initialize();
 
+	// トレーニングの状態表示。ポーズの暗幕より先に作って、暗幕がこの上に来るようにする
+	if (IsTrainingMode()) {
+		trainingHud_ = std::make_unique<TrainingHUD>();
+		trainingHud_->Initialize();
+	}
+
 	// 死亡時の選択肢。ゲーム中のHUDより後に作って、暗幕がHUDの上に来るようにする
 	gameOverUI_ = std::make_unique<GameOverUI>();
 	gameOverUI_->Initialize();
@@ -151,6 +167,17 @@ void GameScene::Initialize() {
 	// PlayerのチュートリアルサービスをGameSceneのものに接続する
 	// (これが無いとPlayer側のGetTutorialService()がnullptrを返しクラッシュする)
 	player_->SetTutorialService(tutorial_.get());
+
+	if (IsTrainingMode()) {
+		// トレーニングでチュートリアルは流さない。
+		// TutorialDummy::CanDie() が全チュートリアル完了を条件にしているので、
+		// 先に完了扱いにしておかないと倒せない相手になってしまう
+		tutorial_->SkipAllTutorials();
+
+		// 相手の生成もリセットの基準位置もここが持つ。プレイヤー生成後に初期化すること
+		training_ = std::make_unique<TrainingController>();
+		training_->Initialize(player_, lockOnSystem_.get());
+	}
 
 	// 最初のステートに入る処理
 	// ※必ずプレイヤー生成(BuildScene)後に呼ぶ。StageStartがプレイヤー位置を参照してアップのカメラを作るため
@@ -175,6 +202,16 @@ void GameScene::Finalize() {
 void GameScene::Update() {
 	//lightManager_->Update();
 	//gameUI_->Update();
+
+	// トレーニングの相手の生成・出し直し。
+	// Object3dManager::Update() の中ではオブジェクト配列を回している最中で追加できないが、
+	// シーンの更新はその手前で走るのでここなら安全。
+	// キー操作を受けるのは操作中（Play）だけ。ポーズやゲームオーバーの選択中に
+	// トレーニングのキーまで効くと事故になる
+	if (training_) {
+		const bool inPlay = (currentState_ == states_["Play"].get());
+		training_->Update(inPlay);
+	}
 
 	// スタイルスコアの暗黙戦闘判定用に、最寄りの生存敵との水平距離を供給する。
 	// scoreManager->Update() は下の currentState_->Update() の中で走るため、その前に渡す。
@@ -215,6 +252,15 @@ void GameScene::Update() {
 		}
 	}
 
+	// トレーニングの状態表示。ポーズ・ゲームオーバー中はメニューの邪魔になるので引っ込める
+	if (trainingHud_ && training_) {
+		if (currentState_ == states_["Play"].get()) {
+			trainingHud_->Update(*training_, player_);
+		} else {
+			trainingHud_->Hide();
+		}
+	}
+
 	inputContext_->Update();
 
 	lockOnSystem_->Update();
@@ -241,6 +287,10 @@ void GameScene::DebugUpdate() {
 	// シーンがウィンドウを手で呼び出す必要はもう無い
 }
 #endif // _DEBUG
+
+bool GameScene::IsTrainingMode() const {
+	return GameSession::GetMode() == GameMode::Training;
+}
 
 void GameScene::ChangeState(const std::string& stateName) {
 	currentState_->Exit(*this);

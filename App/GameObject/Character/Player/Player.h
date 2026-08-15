@@ -178,6 +178,16 @@ public:
 	const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
 
 	int32_t GetHp() const { return hp_; }
+	int32_t GetMaxHp() const { return maxHp_; }
+	/// <summary>HPを直接設定する（トレーニングのリセット用）。0以下にしても死亡処理は走らない</summary>
+	void SetHp(int32_t hp) { hp_ = hp; }
+
+	/// <summary>
+	/// true の間、被弾しない（TakeDamage が何もしない）。
+	/// 敵の攻撃モーションを何度も見たいときに使う、トレーニング用のスイッチ
+	/// </summary>
+	void SetInvincible(bool invincible) { invincible_ = invincible; }
+	bool IsInvincible() const { return invincible_; }
 
 	/// <summary>
 	/// 死亡演出が終わったことを知らせる。PlayerStateDeath から呼ぶ。
@@ -248,6 +258,8 @@ private:
 	int32_t hp_ = 5;
 	// 無敵時間（被弾直後の連続ヒット防止）
 	float invincibleTimer_ = 0.0f;
+	// 常時無敵（トレーニング用。通常のプレイでは false のまま）
+	bool invincible_ = false;
 	// 死亡演出を最後まで再生し終えたか
 	bool isDeathFinished_ = false;
 	// 被ダメージ情報（ノックバックステートで参照）
