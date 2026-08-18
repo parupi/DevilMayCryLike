@@ -12,9 +12,9 @@
             ],
             "rotate": [
                 0.0,
-                -0.7071068286895752,
+                0.7071068286895752,
                 0.0,
-                0.7071068286895752
+                -0.7071068286895752
             ],
             "scale": [
                 1.0,
@@ -76,7 +76,7 @@
             "translate": [
                 -29.925214767456055,
                 -5.9342756271362305,
-                16.033044815063477
+                21.618146896362305
             ],
             "rotate": [
                 -0.7071068286895752,
@@ -577,39 +577,6 @@
                     1.0,
                     1.0,
                     1.0
-                ]
-            }
-        },
-        {
-            "name": "BossKnight",
-            "class": "BossKnight",
-            "translate": [
-                1103.31640625,
-                65096.5859375,
-                -59.71134948730469
-            ],
-            "rotate": [
-                -0.0,
-                1.0,
-                -0.0,
-                -4.371138828673793e-08
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "collider": {
-                "shape": "OBB",
-                "offset": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "halfExtents": [
-                    4.826807975769043,
-                    4.826807975769043,
-                    4.826807975769043
                 ]
             }
         },
@@ -2620,111 +2587,6 @@
             }
         },
         {
-            "name": "Event_ForceBattle",
-            "class": "Event_ForceBattle",
-            "translate": [
-                -81.94418334960938,
-                2.073087692260742,
-                -39.04000473022461
-            ],
-            "rotate": [
-                0.0,
-                -0.3826834261417389,
-                0.0,
-                0.9238795042037964
-            ],
-            "scale": [
-                20.0,
-                20.0,
-                20.0
-            ],
-            "collider": {
-                "shape": "OBB",
-                "offset": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "halfExtents": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "event": {
-                "type": "ForceBattle",
-                "targets": [
-                    "GruntMelee3",
-                    "GruntMelee4"
-                ]
-            }
-        },
-        {
-            "name": "Event_Clear",
-            "class": "Event_Clear",
-            "translate": [
-                0.0,
-                33.49636459350586,
-                0.0
-            ],
-            "rotate": [
-                0.0,
-                -0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "event": {
-                "type": "Clear",
-                "targets": [
-                    "BossKnight"
-                ]
-            }
-        },
-        {
-            "name": "Event_BossSpawn",
-            "class": "Event_BossSpawn",
-            "translate": [
-                -100.0,
-                -4.1184892654418945,
-                -150.0
-            ],
-            "rotate": [
-                0.0,
-                -0.0,
-                0.0,
-                1.0
-            ],
-            "scale": [
-                20.0,
-                20.0,
-                20.0
-            ],
-            "collider": {
-                "shape": "OBB",
-                "offset": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "halfExtents": [
-                    1.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "event": {
-                "type": "BossSpawn",
-                "targets": [
-                    "BossKnight"
-                ]
-            }
-        },
-        {
             "name": "Wall_2_1_2_1",
             "class": "Ground",
             "translate": [
@@ -2925,6 +2787,144 @@
                     0.3499999940395355,
                     1.0,
                     1.0
+                ]
+            }
+        },
+        {
+            "name": "BossDragon",
+            "class": "BossKnight",
+            "translate": [
+                -100.0,
+                -7.0,
+                -160.0
+            ],
+            "rotate": [
+                -0.0,
+                -0.9423677325248718,
+                0.0,
+                0.33457884192466736
+            ],
+            "scale": [
+                2.0,
+                2.0,
+                2.0
+            ],
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    0.5,
+                    0.5,
+                    0.5
+                ]
+            }
+        },
+        {
+            "name": "Event_ForceBattle",
+            "class": "Event_ForceBattle",
+            "translate": [
+                -81.94418334960938,
+                2.073087692260742,
+                -39.04000473022461
+            ],
+            "rotate": [
+                0.0,
+                -0.3826834261417389,
+                0.0,
+                0.9238795042037964
+            ],
+            "scale": [
+                20.0,
+                20.0,
+                20.0
+            ],
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "event": {
+                "type": "ForceBattle",
+                "targets": [
+                    "GruntMelee3",
+                    "GruntMelee4"
+                ]
+            }
+        },
+        {
+            "name": "Event_Clear",
+            "class": "Event_Clear",
+            "translate": [
+                0.0,
+                33.49636459350586,
+                0.0
+            ],
+            "rotate": [
+                0.0,
+                -0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                1.0,
+                1.0,
+                1.0
+            ],
+            "event": {
+                "type": "Clear",
+                "targets": [
+                    "BossDragon"
+                ]
+            }
+        },
+        {
+            "name": "Event_BossSpawn",
+            "class": "Event_BossSpawn",
+            "translate": [
+                -100.0,
+                -4.1184892654418945,
+                -150.0
+            ],
+            "rotate": [
+                0.0,
+                -0.0,
+                0.0,
+                1.0
+            ],
+            "scale": [
+                20.0,
+                20.0,
+                20.0
+            ],
+            "collider": {
+                "shape": "OBB",
+                "offset": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "halfExtents": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "event": {
+                "type": "BossSpawn",
+                "targets": [
+                    "BossDragon"
                 ]
             }
         }
