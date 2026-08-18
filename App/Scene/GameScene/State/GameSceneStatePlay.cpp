@@ -53,6 +53,15 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 			scene.ChangeState("Menu");
 		}
 
+		// トレーニングの設定メニュー。キーを見ているのは TrainingController なので、
+		// ここは要求を受け取って状態を切り替えるだけ
+		if (TrainingController* training = scene.GetTrainingController()) {
+			if (training->ConsumeMenuRequest()) {
+				scene.ChangeState("TrainingMenu");
+				break;
+			}
+		}
+
 		// 死亡演出が終わっていたら、やり直しの選択肢を出す
 		if (scene.GetPlayer() && scene.GetPlayer()->IsDeathFinished()) {
 			scene.ChangeState("GameOver");

@@ -45,9 +45,6 @@ void TitleMenu::Initialize()
 	optionPanel_ = std::make_unique<OptionPanel>();
 	optionPanel_->Initialize();
 
-	trainingPanel_ = std::make_unique<TrainingSetupPanel>();
-	trainingPanel_->Initialize();
-
 	// 確認ダイアログは一覧より後に作る（同じレイヤーでは後から作ったものが手前に出る）
 	confirmDialog_.Initialize("titleMenu", SpriteLayer::UI);
 
@@ -71,7 +68,6 @@ void TitleMenu::Close()
 
 	controlsPanel_->Close();
 	optionPanel_->Close();
-	trainingPanel_->Close();
 	confirmDialog_.Close();
 	phase_ = Phase::Closing;
 }
@@ -104,20 +100,6 @@ void TitleMenu::Update()
 
 	controlsPanel_->Update();
 	optionPanel_->Update(navigator_);
-
-	// 敵の選択は決定・キャンセルを戻り値で返してくる。
-	// 閉じるアニメを進めるため、開いていないフレームでも呼ぶ
-	const TrainingSetupPanel::Result trainingResult = trainingPanel_->Update(navigator_);
-	if (phase_ == Phase::Training) {
-		if (trainingResult == TrainingSetupPanel::Result::Decided) {
-			// 選ばれた敵の受け渡しとシーンの切り替えは TitleScene が受け持つ
-			result_ = Result::StartTraining;
-			phase_ = Phase::Closing;
-		} else if (trainingResult == TrainingSetupPanel::Result::Canceled) {
-			trainingPanel_->Close();
-			phase_ = Phase::Root;
-		}
-	}
 
 	// 終了が決まったあとも、暗転しきるまでは出したままにする
 	const ConfirmDialog::Answer answer = confirmDialog_.Update(navigator_);
@@ -163,8 +145,8 @@ void TitleMenu::Decide()
 		break;
 	case Item::Training:
 		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
-		trainingPanel_->Open();
-		phase_ = Phase::Training;
+		// 戦う相手は部屋の中の設定メニューで選ぶので、ここでは何も聞かずに移動する
+		result_ = Result::StartTraining;
 		break;
 	case Item::Controls:
 		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
@@ -185,11 +167,6 @@ void TitleMenu::Decide()
 	default:
 		break;
 	}
-}
-
-const std::string& TitleMenu::GetSelectedTrainingEnemy() const
-{
-	return trainingPanel_->GetSelectedEnemyClass();
 }
 
 void TitleMenu::RefreshRoot()

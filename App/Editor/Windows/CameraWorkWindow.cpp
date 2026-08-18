@@ -69,6 +69,9 @@ void AppEditor::DrawCameraWorkWindow()
 	}
 
 	if (ImGui::CollapsingHeader("Lag / LookAt", ImGuiTreeNodeFlags_DefaultOpen)) {
+		// 1でプレイヤーの移動をそのままカメラへ渡し、追従の定常遅れを消す。
+		// プレイヤーの位置の細かい震えが気になる時だけ下げる
+		DragFloatParam(group, "FollowFeedForward", 0.01f, 0.0f, 1.0f);
 		DragFloatParam(group, "PositionLagSpeed", 0.05f, 0.1f, 30.0f);
 		DragFloatParam(group, "LookLagSpeed", 0.05f, 0.1f, 30.0f);
 		DragFloatParam(group, "LookForwardOffset", 0.05f, 0.0f, 20.0f);
@@ -80,6 +83,26 @@ void AppEditor::DrawCameraWorkWindow()
 	if (ImGui::CollapsingHeader("Collision")) {
 		DragFloatParam(group, "CollisionMargin", 0.01f, 0.0f, 5.0f);
 		DragFloatParam(group, "CollisionMinDist", 0.01f, 0.0f, 10.0f);
+		// カメラの当たり半径。角をかすめた時のバタつき止め
+		DragFloatParam(group, "CollisionRadius", 0.01f, 0.0f, 3.0f);
+		// 遮蔽されたら速く寄り、晴れたらゆっくり戻す
+		DragFloatParam(group, "CollisionInSpeed", 0.5f, 0.1f, 100.0f);
+		DragFloatParam(group, "CollisionOutSpeed", 0.05f, 0.1f, 30.0f);
+		ImGui::Text("Ratio: %.2f", status.collisionRatio);
+	}
+
+	if (ImGui::CollapsingHeader("Framing (LockOn)", ImGuiTreeNodeFlags_DefaultOpen)) {
+		// プレイヤーと敵の両方が安全枠に収まるまでカメラを下げる
+		CheckboxParam(group, "FramingEnabled");
+		DragFloatParam(group, "FramingSafeRatio", 0.01f, 0.2f, 1.0f);
+		DragFloatParam(group, "FramingLookWeight", 0.01f, 0.0f, 1.0f);
+		DragFloatParam(group, "FramingMaxLookOffset", 0.1f, 0.0f, 30.0f);
+		DragFloatParam(group, "FramingMaxDistanceAdd", 0.1f, 0.0f, 40.0f);
+		ImGui::Separator();
+		// プレイヤーを必ず画面内に残す最終保証（FramingSafeRatioより外側にすること）
+		CheckboxParam(group, "FramingSafetyEnabled");
+		DragFloatParam(group, "FramingClampRatio", 0.01f, 0.2f, 1.0f);
+		ImGui::Text("Distance: %.2f", status.distance);
 	}
 
 	if (ImGui::CollapsingHeader("LockOn")) {
@@ -89,6 +112,10 @@ void AppEditor::DrawCameraWorkWindow()
 		DragFloatParam(group, "LockOnHeight", 0.1f, 0.0f, 50.0f);
 		DragFloatParam(group, "LockOnRightOffset", 0.1f, -20.0f, 20.0f);
 		DragFloatParam(group, "LockOnLagSpeed", 0.05f, 0.1f, 30.0f);
+		// 敵の真下・真上を通った時の暴れ止め。DeadZone内では方位を凍結する
+		DragFloatParam(group, "LockOnYawSpeed", 0.1f, 0.1f, 60.0f);
+		DragFloatParam(group, "LockOnYawMaxSpeed", 0.1f, 0.1f, 20.0f);
+		DragFloatParam(group, "LockOnYawDeadZone", 0.05f, 0.0f, 20.0f);
 	}
 
 	if (ImGui::CollapsingHeader("FOV / Action")) {

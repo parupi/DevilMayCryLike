@@ -23,6 +23,7 @@
 #include "State/GameSceneStateStart.h"
 #include "State/GameSceneStateClear.h"
 #include "State/GameSceneStateGameOver.h"
+#include "State/GameSceneStateTrainingMenu.h"
 #include <GameObject/Character/Enemy/Enemy.h>
 #include <GameData/GameSession.h>
 #include "GameObject/Effect/HitEffectSystem.h"
@@ -44,6 +45,10 @@ void GameScene::Initialize() {
 	states_["Menu"] = std::make_unique<GameSceneStateMenu>();
 	states_["Clear"] = std::make_unique<GameSceneStateClear>();
 	states_["GameOver"] = std::make_unique<GameSceneStateGameOver>();
+	if (IsTrainingMode()) {
+		// 相手の種類や無敵を切り替える設定メニュー。本編には遷移先が無いので作らない
+		states_["TrainingMenu"] = std::make_unique<GameSceneStateTrainingMenu>();
+	}
 	// トレーニングは何度も入り直すので、開始演出(StageStart)を挟まずすぐ動ける状態から始める
 	currentState_ = IsTrainingMode() ? states_["Play"].get() : states_["Start"].get();
 
@@ -156,6 +161,12 @@ void GameScene::Initialize() {
 	if (IsTrainingMode()) {
 		trainingHud_ = std::make_unique<TrainingHUD>();
 		trainingHud_->Initialize();
+
+		// 設定メニューは状態表示より後に作る。
+		// 同じレイヤーでは後から作ったものが手前に出るので、こうしないと
+		// メニューの暗幕の上に状態表示が乗ってしまう
+		trainingMenu_ = std::make_unique<TrainingMenu>();
+		trainingMenu_->Initialize();
 	}
 
 	// 死亡時の選択肢。ゲーム中のHUDより後に作って、暗幕がHUDの上に来るようにする
@@ -252,13 +263,19 @@ void GameScene::Update() {
 		}
 	}
 
-	// トレーニングの状態表示。ポーズ・ゲームオーバー中はメニューの邪魔になるので引っ込める
+	// トレーニングの状態表示。ポーズ・ゲームオーバー・設定メニュー中は邪魔になるので引っ込める
 	if (trainingHud_ && training_) {
 		if (currentState_ == states_["Play"].get()) {
 			trainingHud_->Update(*training_, player_);
 		} else {
 			trainingHud_->Hide();
 		}
+	}
+
+	// 設定メニュー。閉じるアニメを進めるため、開いていないフレームでも呼ぶ。
+	// 相手の出し直しもここから走るが、Object3dManager::Update() の手前なので追加して構わない
+	if (trainingMenu_) {
+		trainingMenu_->Update(training_.get());
 	}
 
 	inputContext_->Update();

@@ -55,7 +55,10 @@ void GameSession::BeginStory()
 void GameSession::BeginTraining(const std::string& enemyClassName)
 {
 	g_mode = GameMode::Training;
-	g_trainingEnemyClass = enemyClassName;
+	// 指定が無ければ一覧の先頭。部屋に入ってから設定メニューで切り替えられる
+	g_trainingEnemyClass = enemyClassName.empty()
+		? EnemyCatalog::GetDefaultClassName()
+		: enemyClassName;
 }
 
 const std::string& GameSession::GetTrainingEnemyClass()

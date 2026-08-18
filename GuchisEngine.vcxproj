@@ -203,8 +203,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleMenu.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h" />
-    <ClInclude Include="App\GameObject\UI\TitleUI\TrainingSetupPanel.h" />
     <ClInclude Include="App\GameObject\UI\Training\TrainingHUD.h" />
+    <ClInclude Include="App\GameObject\UI\Training\TrainingMenu.h" />
     <ClInclude Include="App\GameObjectRegister.h" />
     <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="App\Input\InputContext.h" />
@@ -218,6 +218,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateMenu.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStatePlay.h" />
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h" />
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.h" />
     <ClInclude Include="App\Scene\SceneFactory.h" />
     <ClInclude Include="App\Scene\TitleScene.h" />
     <ClInclude Include="App\Scene\Transition\VignetteExpandTransition.h" />
@@ -520,8 +521,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleMenu.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp" />
-    <ClCompile Include="App\GameObject\UI\TitleUI\TrainingSetupPanel.cpp" />
     <ClCompile Include="App\GameObject\UI\Training\TrainingHUD.cpp" />
+    <ClCompile Include="App\GameObject\UI\Training\TrainingMenu.cpp" />
     <ClCompile Include="App\GameObjectRegister.cpp" />
     <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="App\Input\InputContext.cpp" />
@@ -535,6 +536,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateMenu.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStatePlay.cpp" />
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp" />
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.cpp" />
     <ClCompile Include="App\Scene\SceneFactory.cpp" />
     <ClCompile Include="App\Scene\TitleScene.cpp" />
     <ClCompile Include="App\Scene\Transition\VignetteExpandTransition.cpp" />

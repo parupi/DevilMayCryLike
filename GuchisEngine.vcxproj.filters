@@ -570,10 +570,10 @@
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\UI\TitleUI\TrainingSetupPanel.h">
-      <Filter>App\GameObject\UI\TitleUI</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\UI\Training\TrainingHUD.h">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Training\TrainingMenu.h">
       <Filter>App\GameObject\UI\Training</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObjectRegister.h">
@@ -613,6 +613,9 @@
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\SceneFactory.h">
@@ -1517,10 +1520,10 @@
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\UI\TitleUI\TrainingSetupPanel.cpp">
-      <Filter>App\GameObject\UI\TitleUI</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\UI\Training\TrainingHUD.cpp">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Training\TrainingMenu.cpp">
       <Filter>App\GameObject\UI\Training</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObjectRegister.cpp">
@@ -1560,6 +1563,9 @@
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\SceneFactory.cpp">

@@ -24,10 +24,14 @@ GameMode GetMode();
 void BeginStory();
 
 /// <summary>
-/// トレーニングとして始める。タイトルの TRAINING が、選ばれた敵のクラス名を添えて呼ぶ。
-/// クラス名は Object3dFactory の登録キー（EnemyCatalog が持っているもの）
+/// トレーニングとして始める。タイトルの TRAINING が呼ぶ。
+///
+/// クラス名は Object3dFactory の登録キー（EnemyCatalog が持っているもの）で、
+/// 省略すると一覧の先頭から始まる。タイトルでは相手を聞かずに部屋へ入り、
+/// 中の設定メニュー（TrainingMenu）で切り替えるので、通常はこちらを通る。
+/// 名指しするのは Debug の起動時トレーニングだけ
 /// </summary>
-void BeginTraining(const std::string& enemyClassName);
+void BeginTraining(const std::string& enemyClassName = std::string());
 
 /// <summary>トレーニングで戦う敵のクラス名。本編では空</summary>
 const std::string& GetTrainingEnemyClass();

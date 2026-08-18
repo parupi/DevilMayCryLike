@@ -183,8 +183,9 @@ void TitleScene::ApplyMenuResult() {
 		titleMenu_->Close();
 		break;
 	case TitleMenu::Result::StartTraining:
-		// 行き先のシーンは本編と同じ GAMEPLAY。中身の違いは GameScene が分岐する
-		GameSession::BeginTraining(titleMenu_->GetSelectedTrainingEnemy());
+		// 行き先のシーンは本編と同じ GAMEPLAY。中身の違いは GameScene が分岐する。
+		// 相手の指定は無し（一覧の先頭で始まり、部屋の中の設定メニューで切り替える）
+		GameSession::BeginTraining();
 		camera_->Exit();
 		titleMenu_->Close();
 		break;

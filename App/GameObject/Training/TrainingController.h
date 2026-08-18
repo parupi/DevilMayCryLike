@@ -63,6 +63,17 @@ public:
 	/// </param>
 	void Update(bool acceptInput);
 
+	/// <summary>
+	/// 設定メニューを開く要求が出ていたら true を返し、要求を下ろす。
+	///
+	/// ここで状態を切り替えないのは、シーンのステートを持っているのが GameScene だから。
+	/// GameSceneStatePlay が毎フレーム拾って "TrainingMenu" へ遷移する
+	/// </summary>
+	bool ConsumeMenuRequest();
+
+	/// <summary>設定メニューを開かせる。キーのほか、エディタのボタンからも呼ぶ</summary>
+	void RequestMenu() { menuRequested_ = true; }
+
 	// ======================
 	// 操作
 	// ======================
@@ -138,6 +149,9 @@ private:
 	/// </summary>
 	int32_t spawnDelayFrames_ = 0;
 	float autoRespawnTimer_ = 0.0f;
+
+	/// <summary>設定メニューを開く要求。ConsumeMenuRequest() で下ろす</summary>
+	bool menuRequested_ = false;
 
 	bool playerInvincible_ = false;
 	bool enemyInvincible_ = false;

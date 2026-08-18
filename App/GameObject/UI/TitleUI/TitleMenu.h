@@ -4,17 +4,15 @@
 #include "GameObject/UI/Common/MenuItemList.h"
 #include "GameObject/UI/Common/MenuNavigator.h"
 #include "GameObject/UI/Common/OptionPanel.h"
-#include "GameObject/UI/TitleUI/TrainingSetupPanel.h"
 
 #include <Graphics/Text/TextLabel.h>
 #include <memory>
-#include <string>
 
 /// <summary>
 /// タイトルの選択メニュー。
 ///
 /// GAME START / TRAINING / CONTROLS / OPTION / QUIT の5項目を持ち、
-/// TRAINING・CONTROLS・OPTION は子パネルへ委譲する。QUIT は誤爆すると
+/// CONTROLS・OPTION は子パネルへ委譲する。QUIT は誤爆すると
 /// アプリが落ちてしまうので、必ず確認を挟む。
 ///
 /// シーンを進める・アプリを終わらせるといった実際の処理はここでは行わず、
@@ -27,7 +25,10 @@ public:
 	enum class Result {
 		None,
 		StartGame,
-		/// <summary>トレーニングで始める。戦う敵は GetSelectedTrainingEnemy() で取る</summary>
+		/// <summary>
+		/// トレーニングルームへ入る。1回の決定でそのまま移動し、
+		/// 戦う相手は部屋の中の設定メニュー（TrainingMenu）で選ぶ
+		/// </summary>
 		StartTraining,
 		Quit,
 	};
@@ -48,12 +49,6 @@ public:
 	/// <summary>開いている（フェード中を含む）か</summary>
 	bool IsOpen() const { return phase_ != Phase::Hidden; }
 
-	/// <summary>
-	/// TRAINING で選ばれた敵のクラス名（Object3dFactory の登録キー）。
-	/// Result::StartTraining が返ったときに TitleScene が読む
-	/// </summary>
-	const std::string& GetSelectedTrainingEnemy() const;
-
 private:
 	/// <summary>項目。並び順がそのまま画面の上からの順番になる</summary>
 	enum class Item {
@@ -67,7 +62,6 @@ private:
 	enum class Phase {
 		Hidden,
 		Root,     // 一覧を操作している
-		Training, // 戦う敵を選んでいる
 		Controls, // 操作説明を開いている
 		Option,   // 設定を開いている
 		Confirm,  // 終了するか確認している
@@ -87,7 +81,6 @@ private:
 
 	std::unique_ptr<ControlsPanel> controlsPanel_ = nullptr;
 	std::unique_ptr<OptionPanel> optionPanel_ = nullptr;
-	std::unique_ptr<TrainingSetupPanel> trainingPanel_ = nullptr;
 
 	TextLabel* hint_ = nullptr; ///< 決定・戻るの操作案内
 

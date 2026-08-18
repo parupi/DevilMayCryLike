@@ -88,6 +88,13 @@ void DrawBootSection()
 
 void DrawRuntimeSection(TrainingController& training)
 {
+	// ゲーム側の設定メニュー。ここと同じ内容をパッドだけで触れるようにしたもの
+	if (ImGui::Button("ゲーム画面の設定メニューを開く (TAB)")) {
+		training.RequestMenu();
+	}
+
+	ImGui::Separator();
+
 	// ── 相手 ──
 	const int32_t picked = DrawEnemyCombo("相手", training.GetEnemyIndex());
 	if (picked >= 0) {

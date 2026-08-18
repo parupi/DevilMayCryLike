@@ -20,6 +20,8 @@ namespace {
 // こちらは DirectInput で直接キーを読んでいてエディタとは別経路なので、
 // 同じキーを使うと Debug ビルドで両方が同時に動いてしまう。空いているものだけを選ぶこと
 const TrainingController::KeyHint TrainingController::kKeyHints[] = {
+	// 設定メニューは一覧の先頭に置く。パッドだけで遊ぶときの唯一の入り口なので
+	{ "TAB/BACK", "MENU" },
 	{ "F1", "RESPAWN" },
 	{ "F2", "NEXT ENEMY" },
 	{ "F3", "PLAYER INVINCIBLE" },
@@ -105,17 +107,27 @@ void TrainingController::HandleInput()
 {
 	Input& input = Input::GetInstance();
 
-	// パッドを持ったまま片手で押せるよう、出し直しだけは BACK ボタンにも割り当てる
-	const bool respawnPressed = input.TriggerKey(DIK_F1)
-		|| (input.IsConnected() && input.TriggerButton(PadNumber::ButtonBack));
+	// 設定メニュー。パッドで空いているのは BACK だけなので、そこを入り口にする
+	// （F1〜F8 が押せない環境では、これがすべての設定へ辿り着く唯一の道になる）
+	if (input.TriggerKey(DIK_TAB)
+		|| (input.IsConnected() && input.TriggerButton(PadNumber::ButtonBack))) {
+		RequestMenu();
+	}
 
-	if (respawnPressed) RequestRespawn();
+	if (input.TriggerKey(DIK_F1)) RequestRespawn();
 	if (input.TriggerKey(DIK_F2)) SelectNextEnemy();
 	if (input.TriggerKey(DIK_F3)) SetPlayerInvincible(!playerInvincible_);
 	if (input.TriggerKey(DIK_F4)) SetEnemyInvincible(!enemyInvincible_);
 	if (input.TriggerKey(DIK_F6)) CycleBehavior();
 	if (input.TriggerKey(DIK_F7)) ResetAll();
 	if (input.TriggerKey(DIK_F8)) hudVisible_ = !hudVisible_;
+}
+
+bool TrainingController::ConsumeMenuRequest()
+{
+	if (!menuRequested_) return false;
+	menuRequested_ = false;
+	return true;
 }
 
 void TrainingController::RequestRespawn()
