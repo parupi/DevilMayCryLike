@@ -32,7 +32,9 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 			// 2周目以降のために、タイトルの OPTION から切れるようにしてある
 			if (!tutorialStarted_) {
 				tutorialStarted_ = true;
-				if (GameSettings::GetInstance().IsTutorialEnabled()) {
+				// トレーニングは操作の確認済みで入る場所なので流さない
+				// （GameScene::Initialize が先に完了扱いにしている）
+				if (!scene.IsTrainingMode() && GameSettings::GetInstance().IsTutorialEnabled()) {
 					scene.GetTutorialService()->StartTutorial(TutorialState::Move);
 				} else {
 					// TutorialDummy は全チュートリアル完了まで死なないので、
@@ -49,6 +51,15 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 
 		if (Input::GetInstance().TriggerKey(DIK_M) || Input::GetInstance().PushButton(ButtonStart)) {
 			scene.ChangeState("Menu");
+		}
+
+		// トレーニングの設定メニュー。キーを見ているのは TrainingController なので、
+		// ここは要求を受け取って状態を切り替えるだけ
+		if (TrainingController* training = scene.GetTrainingController()) {
+			if (training->ConsumeMenuRequest()) {
+				scene.ChangeState("TrainingMenu");
+				break;
+			}
 		}
 
 		// 死亡演出が終わっていたら、やり直しの選択肢を出す

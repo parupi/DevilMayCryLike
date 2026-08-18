@@ -94,6 +94,9 @@
     <Filter Include="App\GameObject\Prop">
       <UniqueIdentifier>{763E6D95-E29F-4AA3-6B0D-9155D76D8162}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Training">
+      <UniqueIdentifier>{9117527E-FD4E-9A15-0659-FE38720FC10E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
     </Filter>
@@ -117,6 +120,9 @@
     </Filter>
     <Filter Include="App\GameObject\UI\TitleUI">
       <UniqueIdentifier>{62540C37-CE16-40C1-17C7-CE4D83C8189F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\UI\Training">
+      <UniqueIdentifier>{9EFFDFA0-8A0F-8C71-F3C8-F08FDFF77A0A}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\Input">
       <UniqueIdentifier>{C5A20603-310D-BB79-7A4B-6C1FE6F498CE}</UniqueIdentifier>
@@ -291,7 +297,13 @@
     <ClInclude Include="App\GameData\CollisionCategory.h">
       <Filter>App\GameData</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameData\EnemyCatalog.h">
+      <Filter>App\GameData</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameData\GameData.h">
+      <Filter>App\GameData</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameData\GameSession.h">
       <Filter>App\GameData</Filter>
     </ClInclude>
     <ClInclude Include="App\GameData\GameSettings.h">
@@ -358,6 +370,9 @@
       <Filter>App\GameObject\Character\Enemy\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h">
+      <Filter>App\GameObject\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\EnemySpawner.h">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\EnemyStateNames.h">
@@ -504,6 +519,9 @@
     <ClInclude Include="App\GameObject\Prop\Prop.h">
       <Filter>App\GameObject\Prop</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Training\TrainingController.h">
+      <Filter>App\GameObject\Training</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClInclude>
@@ -552,6 +570,12 @@
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Training\TrainingHUD.h">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Training\TrainingMenu.h">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObjectRegister.h">
       <Filter>App</Filter>
     </ClInclude>
@@ -589,6 +613,9 @@
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\SceneFactory.h">
@@ -1235,7 +1262,16 @@
     <ClCompile Include="App\Editor\Windows\StylishWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="App\Editor\Windows\TrainingWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameData\EnemyCatalog.cpp">
+      <Filter>App\GameData</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameData\GameData.cpp">
+      <Filter>App\GameData</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameData\GameSession.cpp">
       <Filter>App\GameData</Filter>
     </ClCompile>
     <ClCompile Include="App\GameData\GameSettings.cpp">
@@ -1296,6 +1332,9 @@
       <Filter>App\GameObject\Character\Enemy\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp">
+      <Filter>App\GameObject\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\EnemySpawner.cpp">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.cpp">
@@ -1430,6 +1469,9 @@
     <ClCompile Include="App\GameObject\Prop\Prop.cpp">
       <Filter>App\GameObject\Prop</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Training\TrainingController.cpp">
+      <Filter>App\GameObject\Training</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClCompile>
@@ -1478,6 +1520,12 @@
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Training\TrainingHUD.cpp">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Training\TrainingMenu.cpp">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObjectRegister.cpp">
       <Filter>App</Filter>
     </ClCompile>
@@ -1515,6 +1563,9 @@
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\SceneFactory.cpp">

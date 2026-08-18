@@ -1,6 +1,9 @@
 #include "MyGameTitle.h"
 #include <Scene/SceneFactory.h>
 #include <GameObjectRegister.h>
+// App側。SceneFactory.h と同じくAppのincludeディレクトリから引かれる。
+// 最初に入るシーンはゲーム側の都合（Debugのトレーニング直行）で変わるので、判断はあちらに任せる
+#include <GameData/GameSession.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/PostEffect/BloomEffect.h"
@@ -70,7 +73,8 @@ void MyGameTitle::Initialize() {
 	SceneManager::GetInstance().SetSceneFactory(sceneFactory_.get());
 	// シーン初期化中のアップロードをスコープで囲めるようにする（ピークメモリ対策）
 	SceneManager::GetInstance().SetDXManager(GetDXManager());
-	SceneManager::GetInstance().ChangeScene("TITLE");
+	// 通常は "TITLE"。Debug で「起動時トレーニング」が有効なときだけ "GAMEPLAY" になる
+	SceneManager::GetInstance().ChangeScene(GameSession::ResolveBootScene());
 
 	// EngineContext に全サービスを登録（GuchisFramework::Initialize でコアサービスは登録済み）
 	ctx_.winManager = winManager.get();

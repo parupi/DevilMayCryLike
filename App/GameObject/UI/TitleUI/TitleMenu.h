@@ -11,8 +11,8 @@
 /// <summary>
 /// タイトルの選択メニュー。
 ///
-/// GAME START / CONTROLS / OPTION / QUIT の4項目を持ち、
-/// CONTROLS と OPTION は子パネルへ委譲する。QUIT は誤爆すると
+/// GAME START / TRAINING / CONTROLS / OPTION / QUIT の5項目を持ち、
+/// CONTROLS・OPTION は子パネルへ委譲する。QUIT は誤爆すると
 /// アプリが落ちてしまうので、必ず確認を挟む。
 ///
 /// シーンを進める・アプリを終わらせるといった実際の処理はここでは行わず、
@@ -25,6 +25,11 @@ public:
 	enum class Result {
 		None,
 		StartGame,
+		/// <summary>
+		/// トレーニングルームへ入る。1回の決定でそのまま移動し、
+		/// 戦う相手は部屋の中の設定メニュー（TrainingMenu）で選ぶ
+		/// </summary>
+		StartTraining,
 		Quit,
 	};
 
@@ -48,6 +53,7 @@ private:
 	/// <summary>項目。並び順がそのまま画面の上からの順番になる</summary>
 	enum class Item {
 		GameStart,
+		Training,
 		Controls,
 		Option,
 		Quit,
@@ -86,8 +92,10 @@ private:
 	// ==========================
 	// レイアウト・演出パラメータ
 	// ==========================
-	static constexpr float kItemStartY = 400.0f;
-	static constexpr float kItemSpacing = 62.0f;
+	// 項目が5つあるので、上はロゴの飾り罫、下は操作案内に挟まれる。
+	// 間隔を少し詰めて、両方に触れない範囲へ収めている
+	static constexpr float kItemStartY = 386.0f;
+	static constexpr float kItemSpacing = 58.0f;
 	static constexpr float kItemFontSize = 44.0f;
 	static constexpr float kFadeTime = 0.22f;
 };

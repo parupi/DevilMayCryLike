@@ -11,6 +11,9 @@
 #include "GameObject/UI/Menu/MenuUI.h"
 #include "GameObject/UI/Menu/GameOverUI.h"
 #include "GameObject/UI/StyleHUD/StyleHUD.h"
+#include "GameObject/Training/TrainingController.h"
+#include "GameObject/UI/Training/TrainingHUD.h"
+#include "GameObject/UI/Training/TrainingMenu.h"
 #include <memory>
 #include "Input/InputContext.h"
 #include "Tutorial/System/TutorialSystem.h"
@@ -61,6 +64,18 @@ public:
 	void DebugUpdate() override;
 #endif // _DEBUG
 
+	/// <summary>トレーニングルームとして動いているか（本編ならfalse）</summary>
+	bool IsTrainingMode() const;
+
+	/// <summary>
+	/// トレーニングの操作。本編では nullptr。
+	/// エディタの Training ウィンドウもここから引く
+	/// </summary>
+	TrainingController* GetTrainingController() { return training_.get(); }
+
+	/// <summary>トレーニングの設定メニュー。本編では nullptr</summary>
+	TrainingMenu* GetTrainingMenu() { return trainingMenu_.get(); }
+
 	// ステートを切り替える
 	void ChangeState(const std::string& stateName);
 
@@ -104,6 +119,11 @@ private:
 	std::unique_ptr<GameOverUI> gameOverUI_ = nullptr;
 	// スタイリッシュランクのゲーム中HUD
 	std::unique_ptr<StyleHUD> styleHud_ = nullptr;
+
+	// トレーニングルーム。本編では作らない
+	std::unique_ptr<TrainingController> training_ = nullptr;
+	std::unique_ptr<TrainingHUD> trainingHud_ = nullptr;
+	std::unique_ptr<TrainingMenu> trainingMenu_ = nullptr;
 	// シーン全体のデルタタイム
 	float sceneDeltaTime_ = 0.0f;
 

@@ -46,9 +46,11 @@ public:
 		float battleBlend;
 		float actionZoomScale;
 		float shakeTrauma;
+		float distance;       // 実行時の追従距離（フレーミングで伸びた分を含む）
+		float collisionRatio; // 遮蔽で寄せている割合（1で遮蔽なし）
 	};
 	EditorStatus MakeEditorStatus() const {
-		return { mode_, state_, battleBlend_, actionZoomScale_, shakeTrauma_ };
+		return { mode_, state_, battleBlend_, actionZoomScale_, shakeTrauma_, distance_, collisionRatio_ };
 	}
 #endif
 
@@ -73,12 +75,28 @@ private:
 	void UpdateFovAndZoom(float dt);
 	// ⑫ Normal/Battle状態を判定し、状態ブレンド値を滑らかに更新する
 	void UpdateCameraState(float dt);
-	// yaw/pitch/distance から、プレイヤーに対する追従位置を求める
+	/// <summary>
+	/// 極座標（方位・仰角・距離・高さ・横オフセット）から追従位置を組み立てる。
+	/// Free / LockOn で共通の構図の作り方。
+	/// </summary>
+	Vector3 CalcOrbitPosition(const Vector3& pivotPos, float yaw, float pitch, float distance, float height, float rightOffset) const;
+	// yaw/pitch/distance から、プレイヤーに対する追従位置を求める（Free用）
 	Vector3 CalcDesiredPosition(const Vector3& playerPos) const;
+	// 追従位置の補間と衝突補正をまとめて行い、カメラ位置を確定する
+	void ApplyFollowPosition(const Vector3& pivot, const Vector3& desiredPos, float lagSpeed, float dt);
 	// 注視点を滑らかに追従させてからLookAtする（モード切替時の視点飛びを防ぐ）
 	void ApplySmoothLookAt(const Vector3& lookTarget);
-	// ピボット→希望位置の間にGroundコライダー（壁・床）があれば、カメラを遮蔽物の手前へ引き寄せる
-	Vector3 ResolveCameraCollision(const Vector3& pivot, const Vector3& desiredPos) const;
+	// ピボットから dir 方向へどこまでカメラを離せるか（Groundコライダーの手前まで）を返す
+	float CalcAllowedDistance(const Vector3& pivot, const Vector3& dir, float maxDist) const;
+	/// <summary>
+	/// 2点（プレイヤーと敵）が安全枠に収まるまで、視線に沿って何ユニット下がる必要があるかを求める。
+	/// </summary>
+	float CalcFramingDistanceAdd(const Vector3& camPos, const Vector3& lookTarget, const Vector3& anchorA, const Vector3& anchorB) const;
+	/// <summary>
+	/// カメラの向きを最小限だけ回して、アンカー（プレイヤー）を必ず画面内に残す最終保証。
+	/// ApplySmoothLookAt の後に呼ぶこと。
+	/// </summary>
+	void ClampIntoView(const Vector3& anchor);
 
 private:
 	Player* player_ = nullptr;
@@ -100,6 +118,16 @@ private:
 
 	Vector3 smoothedLookTarget_ = Vector3(0.0f, 0.0f, 0.0f);
 	bool lookTargetInitialized_ = false;
+
+	// 衝突補正を掛ける前の追従位置。補間の状態はこちらで持ち、
+	// 壁で引き寄せた結果は transform_ にだけ書く（補正値を補間へ戻すと壁際で振動する）
+	Vector3 idealPos_ = Vector3(0.0f, 0.0f, 0.0f);
+	bool idealPosInitialized_ = false;
+	// フィードフォワード用の前フレームのピボット位置
+	Vector3 prevPivot_ = Vector3(0.0f, 0.0f, 0.0f);
+	// 遮蔽で寄せている割合[0,1]。1で理想位置、0でピボット上。
+	// 位置ではなく割合で持つことで、理想距離が変わっても寄せ具合だけが滑らかに残る
+	float collisionRatio_ = 1.0f;
 
 	Vector3 velocity_ = Vector3(0.0f, 0.0f, 0.0f);
 
@@ -132,6 +160,10 @@ private:
 	float autoRotateSpeed_ = 3.0f;    // 背後へ戻る補間速度
 	float autoRotateMoveSpeed_ = 0.5f;// この水平速度以上で移動中とみなす
 
+	// 追従のフィードフォワード率[0,1]。1でプレイヤーの移動量をそのままカメラへ渡し、
+	// 指数補間だけだと残ってしまう定常誤差（目標の速度/追従速度）を打ち消す。
+	// プレイヤーの位置が細かく震えるのが気になる場合だけ下げる
+	float followFeedForward_ = 1.0f;
 	float positionLagSpeed_ = 5.0f;   // カメラ位置の追従速度
 	float lookLagSpeed_ = 2.5f;       // 前方注視オフセットの追従速度
 	float lookForwardOffset_ = 3.0f;  // プレイヤー前方への注視オフセット量
@@ -140,7 +172,10 @@ private:
 	float lookTargetLagSpeed_ = 8.0f; // 注視点そのものの追従速度
 
 	float collisionMargin_ = 0.4f;    // 遮蔽物の手前に確保する余白
-	float collisionMinDist_ = 1.0f;   // 衝突補正時にピボットから離す最小距離
+	float collisionMinDist_ = 2.0f;   // 衝突補正時にピボットから離す最小距離
+	float collisionRadius_ = 0.35f;   // カメラの当たり半径。この分だけ壁を膨らませて判定する
+	float collisionInSpeed_ = 40.0f;  // 遮蔽されたときに寄る速度（速く）
+	float collisionOutSpeed_ = 2.5f;  // 遮蔽が晴れたときに戻る速度（ゆっくり）
 
 	float lockOnDistanceMul_ = 1.2f;  // 敵との距離に対するカメラ距離倍率
 	float lockOnDistanceMin_ = 12.0f; // ロックオン時の最小距離
@@ -148,6 +183,19 @@ private:
 	float lockOnHeight_ = 8.0f;       // ロックオン時のカメラ高さ
 	float lockOnRightOffset_ = 3.0f;  // ロックオン時の横方向オフセット
 	float lockOnLagSpeed_ = 5.0f;     // ロックオン時のカメラ追従速度
+	float lockOnYawSpeed_ = 20.0f;    // ロックオン方位・仰角の追従速度（大きいほど即座に敵の反対側へ回る）
+	float lockOnYawMaxSpeed_ = 6.0f;  // ロックオン方位の最大角速度(rad/秒)。敵の近くを通った時の暴れ止め
+	float lockOnYawDeadZone_ = 2.5f;  // 敵との水平距離がこの値を下回ると方位の更新を弱め、真下では凍結する
+
+	// ⑥ 2点フレーミング（ロックオン中、プレイヤーと敵の両方を画角へ収める）
+	bool framingEnabled_ = true;
+	float framingSafeRatio_ = 0.8f;        // 画角のうち何割を安全枠として使うか
+	float framingLookWeight_ = 0.5f;       // 注視点のプレイヤー↔敵の重み（0でプレイヤー、1で敵）
+	float framingMaxLookOffset_ = 6.0f;    // 注視点がプレイヤーから離れられる上限距離
+	float framingMaxDistanceAdd_ = 12.0f;  // フレーミングで足す距離の上限
+	// 最終保証：どれだけ遅れてもプレイヤーだけは画面内に残す
+	bool framingSafetyEnabled_ = true;
+	float framingClampRatio_ = 0.88f;      // プレイヤーを収める画角の割合（framingSafeRatio_より外側にすること）
 
 	// ⑧ FOV変化（速度で画角を広げる）
 	float fovNormal_ = 0.45f;         // 通常時の水平FOV

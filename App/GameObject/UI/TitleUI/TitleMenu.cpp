@@ -30,7 +30,7 @@ void TitleMenu::LoadTextures()
 void TitleMenu::Initialize()
 {
 	itemList_.Initialize("titleMenu", SpriteLayer::UI,
-		{ "GAME START", "CONTROLS", "OPTION", "QUIT" },
+		{ "GAME START", "TRAINING", "CONTROLS", "OPTION", "QUIT" },
 		{ kCenterX, kItemStartY }, kItemSpacing, kItemFontSize);
 
 	hint_ = SpriteManager::GetInstance().CreateTextLabel(SpriteLayer::UI, "titleMenuHint");
@@ -142,6 +142,11 @@ void TitleMenu::Decide()
 		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
 		// 実際にシーンを進めるのは TitleScene
 		result_ = Result::StartGame;
+		break;
+	case Item::Training:
+		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		// 戦う相手は部屋の中の設定メニューで選ぶので、ここでは何も聞かずに移動する
+		result_ = Result::StartTraining;
 		break;
 	case Item::Controls:
 		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);

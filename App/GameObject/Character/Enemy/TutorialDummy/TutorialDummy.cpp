@@ -2,6 +2,9 @@
 #include "GameObject/Character/Player/Player.h"
 
 bool TutorialDummy::CanDie() const {
+	// 外部から死亡を止められている（トレーニングの敵無敵）ならそちらが優先
+	if (!Enemy::CanDie()) return false;
+
 	// プレイヤーやチュートリアルサービスが未接続の場面（チュートリアル外）では
 	// 通常の敵と同じく倒せる扱いにする。
 	if (!player_) return true;
