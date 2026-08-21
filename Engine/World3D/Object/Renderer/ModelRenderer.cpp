@@ -2,9 +2,12 @@
 #include "RendererManager.h"
 #include <World3D/Object/Model/ModelManager.h>
 #include <World3D/Object/Model/SkinnedModel.h>
+#include <World3D/Object/Object3dManager.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
 #include "World3D/Object/Model/ModelStructs.h"
+#include "Math/MathUtils.h"
 #include <Utility/TimeManager.h>
+#include <algorithm>
 
 #ifdef _DEBUG
 #include <imgui.h>
@@ -17,7 +20,11 @@ ModelRenderer::ModelRenderer(const std::string& renderName, const std::string& f
 }
 
 void ModelRenderer::Update(WorldTransform* parentTransform) {
-	camera_ = CameraManager::GetInstance().GetActiveCamera();
+	// Object3d と同じく、名前でのmap検索を避けて流し込み済みのカメラを使う
+	camera_ = Object3dManager::GetInstance().GetDefaultCamera();
+	if (!camera_) {
+		camera_ = CameraManager::GetInstance().GetActiveCamera();
+	}
 
 	if (localTransform_->GetParent() == nullptr) {
 		localTransform_->SetParent(parentTransform);
@@ -84,6 +91,27 @@ void ModelRenderer::DrawShadow() {
 	} else {
 		model_->DrawShadow();
 	}
+}
+
+bool ModelRenderer::GetShadowBoundingSphere(Vector3& outCenter, float& outRadius) const {
+	// スキンモデルはポーズで形が変わるので、バインドポーズのAABBで弾くと消えてしまう
+	if (skinnedInstance_ || !model_ || !localTransform_) return false;
+
+	Vector3 localMin{};
+	Vector3 localMax{};
+	if (!model_->GetLocalBounds(localMin, localMax)) return false;
+
+	const Matrix4x4& world = localTransform_->GetMatWorld();
+	outCenter = Transform((localMin + localMax) * 0.5f, world);
+
+	// 行ベクトル規約なので、上3行がスケール込みの基底。一番伸びている軸で半径を膨らませる
+	float maxAxisScale = 0.0f;
+	for (int row = 0; row < 3; ++row) {
+		const Vector3 axis{ world.m[row][0], world.m[row][1], world.m[row][2] };
+		maxAxisScale = (std::max)(maxAxisScale, Length(axis));
+	}
+	outRadius = Length((localMax - localMin) * 0.5f) * maxAxisScale;
+	return true;
 }
 
 void ModelRenderer::SetModel(const std::string& filePath) {

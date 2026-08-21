@@ -18,6 +18,18 @@ void Material::Initialize(DirectXManager* directXManager, SrvManager* srvManager
 }
 
 void Material::Update(const Vector3& objectScale) {
+	// UV行列の材料はほとんど変化しない。毎フレーム3回の行列合成をやり直さないよう、
+	// 入力が前回と同じならそのまま返す（マテリアル数はオブジェクト数より多いので効く）
+	UVSource source{};
+	source.uv = uvData_;
+	source.objectScale = objectScale;
+	source.enableTextureDensity = enableTextureDensity_ ? 1u : 0u;
+	if (uvSourceValid_ && std::memcmp(&source, &cachedUVSource_, sizeof(UVSource)) == 0) {
+		return;
+	}
+	cachedUVSource_ = source;
+	uvSourceValid_ = true;
+
 	Vector2 finalUVScale = uvData_.scale;
 
 	// TextureDensity維持

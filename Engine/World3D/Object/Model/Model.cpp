@@ -36,6 +36,8 @@ void Model::Initialize(ModelLoader* modelManager, const std::string& fileName) {
 		material->Initialize(modelLoader_->GetDxManager(), modelLoader_->GetSrvManager(), materialData);
 		materials_.push_back(std::move(material));
 	}
+
+	CalcLocalBounds();
 }
 
 void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& materialData) {
@@ -50,6 +52,32 @@ void Model::InitializeFromMesh(const MeshData& meshData, const MaterialData& mat
 	auto material = std::make_unique<Material>();
 	material->Initialize(modelLoader_->GetDxManager(), modelLoader_->GetSrvManager(), materialData);
 	materials_.push_back(std::move(material));
+
+	bool found = false;
+	AccumulateLocalBounds(meshData, found);
+	hasLocalBounds_ = found;
+}
+
+void Model::AccumulateLocalBounds(const MeshData& meshData, bool& found) {
+	for (const VertexData& vertex : meshData.vertices) {
+		const Vector3 position{ vertex.position.x, vertex.position.y, vertex.position.z };
+		if (!found) {
+			localMin_ = position;
+			localMax_ = position;
+			found = true;
+			continue;
+		}
+		localMin_ = Min(localMin_, position);
+		localMax_ = Max(localMax_, position);
+	}
+}
+
+void Model::CalcLocalBounds() {
+	bool found = false;
+	for (const auto& meshData : modelData_.meshes) {
+		AccumulateLocalBounds(meshData, found);
+	}
+	hasLocalBounds_ = found;
 }
 
 void Model::Update(const Vector3& objectScale) {

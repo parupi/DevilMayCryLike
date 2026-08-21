@@ -7,6 +7,7 @@
 #include <imgui.h>
 #endif // IMGUI
 #include "Camera/CameraManager.h"
+#include <cstring>
 
 WorldTransform::~WorldTransform() {
 	//// GPUリソースの解放
@@ -45,39 +46,54 @@ void WorldTransform::CreateConstBuffer() {
 }
 
 void WorldTransform::TransferMatrix(BaseCamera* camera) {
-	// スケール、回転、平行移動を合成して行列を計算する
-	matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
-
-	// ボーン追従の行列があればローカルの直後に挟む（行ベクトル規約なので 子 * 親 の順）
+	// ワールド行列の材料（SRT・ボーン追従・親）をまとめて前フレームと突き合わせる。
+	// 動かないオブジェクトでは行列の合成も逆行列も丸ごと省ける。
+	// SRTは参照で公開していてどこからでも書き換わるので、フラグではなく値の比較で見る
+	TransformSource source{};
+	source.scale = scale_;
+	source.rotation = rotation_;
+	source.translation = translation_;
+	source.hasAttach = hasAttachMatrix_ ? 1u : 0u;
 	if (hasAttachMatrix_) {
-		matWorld_ *= attachMatrix_;
+		source.attach = attachMatrix_;
 	}
-
-	// 親が存在する場合、親のワールド行列を掛け合わせる
 	if (parent_) {
-		matWorld_ *= parent_->matWorld_;
+		source.parentWorld = parent_->matWorld_;
 	}
 
-	Matrix4x4 worldViewProjectionMatrix;
-	if (camera) {
-		const Matrix4x4& viewProjectionMatrix = camera->GetViewProjectionMatrix();
-		worldViewProjectionMatrix = matWorld_ * viewProjectionMatrix;
-	}
-	else {
-		worldViewProjectionMatrix = matWorld_;
-	}
+	const bool dirty = !sourceValid_ || std::memcmp(&source, &cachedSource_, sizeof(TransformSource)) != 0;
 
-	// ワールド行列を定数バッファに転送
-	if (constMap != nullptr) {
-		// 定数バッファに行列をコピー
-		constMap->World = matWorld_;
+	if (dirty) {
+		// スケール、回転、平行移動を合成して行列を計算する
+		matWorld_ = MakeAffineMatrix(scale_, rotation_, translation_);
 
-		constMap->WorldInverseTranspose = Transpose(Inverse(matWorld_));
-
-		if (camera) {
-			Matrix4x4 viewProj = CameraManager::GetInstance().GetActiveCamera()->GetViewProjectionMatrix();
-			constMap->WVP = matWorld_ * viewProj;
+		// ボーン追従の行列があればローカルの直後に挟む（行ベクトル規約なので 子 * 親 の順）
+		if (hasAttachMatrix_) {
+			matWorld_ *= attachMatrix_;
 		}
+
+		// 親が存在する場合、親のワールド行列を掛け合わせる
+		if (parent_) {
+			matWorld_ *= parent_->matWorld_;
+		}
+
+		// 逆転置行列は4x4の逆行列を解くので特に重い。ワールド行列が変わったときだけ求める
+		cachedWorldInverseTranspose_ = Transpose(Inverse(matWorld_));
+
+		cachedSource_ = source;
+		sourceValid_ = true;
+
+		if (constMap != nullptr) {
+			constMap->World = matWorld_;
+			constMap->WorldInverseTranspose = cachedWorldInverseTranspose_;
+		}
+	}
+
+	// WVPはカメラが動くたびに変わるので毎フレーム更新する。
+	// 渡されたカメラをそのまま使うこと。ここで CameraManager から引き直すと、
+	// オブジェクトの数だけ名前でのmap検索が走る
+	if (constMap != nullptr && camera) {
+		constMap->WVP = matWorld_ * camera->GetViewProjectionMatrix();
 	}
 }
 

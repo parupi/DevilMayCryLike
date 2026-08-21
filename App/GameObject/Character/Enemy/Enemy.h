@@ -86,6 +86,13 @@ public:
 	void OnDeath();
 
 	/// <summary>
+	/// とどめの一撃で吹き飛ばす初速を与える。
+	/// 死亡演出中はステートの更新が止まるため、KnockBack ステートを経由せずここで直接与える。
+	/// 空中コンボのように吹き飛ばしが 0 の攻撃でも「少し吹っ飛ぶ」よう下限を設けている。
+	/// </summary>
+	void ApplyDeathLaunch(const Vector3& direction, float impulseForce, float upwardRatio);
+
+	/// <summary>
 	/// HP が 0 になったときに実際に死亡してよいかを返す。
 	/// 既定では「死亡抑制フラグが立っていなければ死ねる」。
 	/// チュートリアル用の敵などが条件を足すときはオーバーライドし、
@@ -146,6 +153,15 @@ public:
 	float GetLastDamageTaken() const { return lastDamageTaken_; }
 
 	bool IsAlive() const { return isAlive_; }
+
+	/// <summary>
+	/// 死亡演出（吹き飛び〜ディゾルブ）に入っているか。
+	/// 演出が終わるまで isAlive_ は落ちないので、「もう倒した敵」を除きたい側
+	/// （ロックオン対象・攻撃の当たり先など）はこちらを見る。
+	/// </summary>
+	bool IsDying() const {
+		return appearanceFx_ && (appearanceFx_->IsDying() || appearanceFx_->IsDeathFinished());
+	}
 
 	/// <summary>
 	/// 出現・死亡演出の再生中かどうか。
@@ -405,6 +421,12 @@ private:
 	// 攻撃時の再生速度の上下限。極端に短い攻撃で倍率が跳ね上がって残像になるのを防ぐ
 	static constexpr float kAttackSpeedMin = 0.5f;
 	static constexpr float kAttackSpeedMax = 3.0f;
+	// 死亡クリップの再生速度の下限。短いクリップを演出の尺いっぱいに引き伸ばすと
+	// 止まって見えるので、遅くする側だけ止める（早く終わった分は最後のポーズで倒れたまま）
+	static constexpr float kDeathClipSpeedMin = 0.6f;
+	// とどめの吹き飛びの下限[m/s]。攻撃側の吹き飛ばしが 0 でも倒れたことが分かるようにする
+	static constexpr float kDeathLaunchMinSpeed = 5.0f;
+	static constexpr float kDeathLaunchMinUpSpeed = 3.5f;
 	std::unordered_map<std::string, StateClip> stateClips_;
 	StateClip spawnClip_;
 	StateClip deathClip_;
@@ -426,4 +448,7 @@ private:
 	// 真下の地面まで即座に降ろす（Spawn時用）。
 	// 空中に配置された敵が出現後に落下してくるのを防ぐ。地面が見つからなければ元の位置のまま。
 	void SnapToGround();
+
+	// 自分に付いているコライダーの判定をまとめて切り替える（出現前は切っておく）
+	void SetCollidersActive(bool active);
 };

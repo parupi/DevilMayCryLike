@@ -1,7 +1,6 @@
 #include "GameSceneStateGameOver.h"
 #include "Scene/GameScene/GameScene.h"
 
-#include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Scene/Transition/TransitionManager.h>
 
@@ -12,10 +11,8 @@ void GameSceneStateGameOver::Enter(GameScene& scene) {
 	scene.GetInputContext()->SetCanLockOn(false);
 	scene.GetInputContext()->SetCanCameraMove(false);
 
-	// 死亡演出が HUD ごと隠しているので、選択肢を出すために戻す。
-	// ゲーム中のHUDも一緒に出てくるが、暗幕の下になるので気にならない
-	SpriteManager::GetInstance().SetUILayerVisible(true);
-
+	// HUDは死亡演出の中でフェードアウト済みなので、ここで表示を戻す必要はない
+	// （UIレイヤーごと切ると、同じレイヤーにいるゲームオーバーの選択肢まで消える）
 	scene.GetGameOverUI()->Enter();
 }
 

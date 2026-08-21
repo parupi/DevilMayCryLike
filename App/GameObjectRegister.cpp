@@ -6,6 +6,7 @@
 #include "GameObject/Character/Enemy/TutorialDummy/TutorialDummy.h"
 #include "GameObject/Ground/Ground.h"
 #include "GameObject/Prop/Prop.h"
+#include "GameObject/Prop/WallTorch.h"
 #include "GameObject/Light/StagePointLight.h"
 #include "GameObject/Event/BossSpawnEvent.h"
 #include "GameObject/Event/ClearEvent.h"
@@ -21,6 +22,7 @@ void RegisterAllGameObjects() {
 	Object3dFactory::Register("TutorialDummy", [](const std::string& n) { return std::make_unique<TutorialDummy>(n); });
 	Object3dFactory::Register("Ground", [](const std::string& n) { return std::make_unique<Ground>(n); }, true);
 	Object3dFactory::Register("Prop", [](const std::string& n) { return std::make_unique<Prop>(n); }, true);
+	Object3dFactory::Register("WallTorch", [](const std::string& n) { return std::make_unique<WallTorch>(n); }, true);
 	Object3dFactory::Register("PointLight", [](const std::string& n) { return std::make_unique<StagePointLight>(n); });
 
 	// イベントも BaseEvent : Object3d なので同じファクトリに乗せる。

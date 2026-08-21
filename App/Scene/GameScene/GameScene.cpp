@@ -37,6 +37,8 @@ void GameScene::Initialize() {
 	// BGM は1曲で数十MBあり、戦闘が始まってから読むと確実に引っかかる
 	SoundManager::GetInstance().Preload("GamePlayBGM");
 	SoundManager::GetInstance().Preload("BattleBGM");
+	// 死亡SE。resource/sound/PlayerDeath.wav を置けば鳴る（無ければ Preload/PlaySE は何もしない）
+	SoundManager::GetInstance().Preload("PlayerDeath");
 	SoundManager::GetInstance().PlayBGM("GamePlayBGM", 1.5f);
 
 	// ステートの生成
@@ -88,6 +90,9 @@ void GameScene::Initialize() {
 	// 敵の出現演出（収束する黒い粒子）・死亡演出（拡散する黒い粒子）
 	ParticleManager::GetInstance().CreateParticleGroup("EnemySpawnParticle", "smoke.png");
 	ParticleManager::GetInstance().CreateParticleGroup("EnemyDeathParticle", "smoke.png");
+	// 死亡演出でディゾルブの前に立ち上る黒いもや（拡散する粒子よりゆっくり・大きい）。
+	// 敵とプレイヤーで共有する
+	ParticleManager::GetInstance().CreateParticleGroup("DeathSmoke", "smoke.png");
 	// ボスのスーパーアーマー中（ノックバック無効）に体から立ち上る紫のオーラ
 	ParticleManager::GetInstance().CreateParticleGroup("BossArmorAura", "smoke.png");
 	// スーパーアーマー中の被弾で弾かれたことを示す紫の硬い火花
@@ -253,10 +258,10 @@ void GameScene::Update() {
 	menuUI_->Update();
 	gameOverUI_->Update();
 
-	// スタイルランクHUDは戦闘中のみ表示する
+	// スタイルランクHUDは戦闘中のみ表示する（死亡演出に入ったら引っ込める）
 	if (player_ && styleHud_) {
 		auto* score = player_->GetScoreManager();
-		if (score && score->IsBattleActive()) {
+		if (score && score->IsBattleActive() && !player_->IsDying()) {
 			styleHud_->Update(score->GetCurrentRank(), score->GetCurrentScore());
 		} else {
 			styleHud_->Hide();

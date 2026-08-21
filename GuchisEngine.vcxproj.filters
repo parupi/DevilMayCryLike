@@ -468,6 +468,12 @@
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\DeathScreenEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\DissolveOutEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitEffectSystem.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -517,6 +523,9 @@
       <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Prop\Prop.h">
+      <Filter>App\GameObject\Prop</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Prop\WallTorch.h">
       <Filter>App\GameObject\Prop</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Training\TrainingController.h">
@@ -1056,6 +1065,9 @@
     <ClInclude Include="Engine\Utility\Logger.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Utility\ScopeProfiler.h">
+      <Filter>Engine\Utility</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Utility\StringUtility.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
@@ -1418,6 +1430,12 @@
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\DeathScreenEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\DissolveOutEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitEffectSystem.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
@@ -1467,6 +1485,9 @@
       <Filter>App\GameObject\LockOn</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Prop\Prop.cpp">
+      <Filter>App\GameObject\Prop</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Prop\WallTorch.cpp">
       <Filter>App\GameObject\Prop</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Training\TrainingController.cpp">

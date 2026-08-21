@@ -12,6 +12,9 @@ class EnemyHitbox;
 /// </summary>
 struct BoneAttackParams {
 	std::string jointName = "Head";     // 判定を付けるジョイント
+	// 判定の大きさ・オフセットは **オブジェクトのスケール1 のときのワールド単位** で書く。
+	// BeginAttack が実際の配置スケールを掛けるので、ステージで敵を大きく置いても
+	// 判定が置いていかれない（プレイヤーのコライダーは1辺1.0）
 	Vector3 halfExtents{ 0.5f, 0.5f, 0.5f }; // 判定の大きさ
 	Vector3 offset{};                    // ジョイント基準のオフセット
 	DamageInfo damage;                   // この攻撃のダメージ・リアクション

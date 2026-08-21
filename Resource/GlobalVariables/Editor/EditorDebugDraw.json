@@ -1,7 +1,7 @@
 {
     "EditorDebugDraw": {
         "AttackTrail": false,
-        "Collider": true,
+        "Collider": false,
         "Grid": false,
         "GridExtent": 20.0,
         "GridSpacing": 1.0,

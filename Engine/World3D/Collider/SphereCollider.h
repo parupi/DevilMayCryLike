@@ -22,6 +22,10 @@ public:
 	float GetRadius() const;
 
 	SphereData& GetColliderData() { return sphereData_; }
+	const SphereData& GetColliderData() const { return sphereData_; }
+
+	void SetColliderActive(bool active) override { sphereData_.isActive = active; }
+	bool IsColliderActive() const override { return sphereData_.isActive; }
 
 private:
 };

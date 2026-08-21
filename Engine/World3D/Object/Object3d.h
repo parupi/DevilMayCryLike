@@ -31,9 +31,17 @@ public: // メンバ関数
 	virtual void Initialize();
 	// 更新処理
 	virtual void Update(float deltaTime);
+	// ワールド行列だけを更新する（レンダラーは触らない）。
+	// 描画も行動もしないが位置は正しくしておきたいオブジェクト用。
+	// これを呼ばないと行列が単位行列のままになり、子（コライダー・武器）が
+	// ワールド原点に取り残される
+	void UpdateTransformOnly();
 	virtual void Draw();
 
-	void DrawShadow();
+	/// <summary>
+	/// 影を描く。lightViewProj のカスケードに入らないレンダラーは省く
+	/// </summary>
+	void DrawShadow(const Matrix4x4& lightViewProj);
 
 	// スキンモデルのCSスキニングを回す。
 	// 影・GBuffer・Forwardのどれからも同じ結果を使うので、全描画パスより前に1回だけ呼ぶ

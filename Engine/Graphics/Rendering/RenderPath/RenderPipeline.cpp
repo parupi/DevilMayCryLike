@@ -10,6 +10,8 @@
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Graphics/Text/FontManager.h"
 #include "Scene/Transition/TransitionManager.h"
+#include "Utility/ScopeProfiler.h"
+#include <iterator>
 #ifdef _DEBUG
 #include <Debugger/ImGuiManager.h>
 #endif
@@ -99,15 +101,20 @@ void RenderPipeline::Execute() {
 	FontManager::GetInstance().FlushAtlases();
 
 	// 各描画パスを順番に実行
-	for (auto& pass : passes_) {
-		pass->Execute();
+	static const char* kPassNames[] = { "Pass:Skinning", "Pass:Shadow", "Pass:GBuffer", "Pass:Lighting", "Pass:Forward" };
+	for (size_t i = 0; i < passes_.size(); ++i) {
+		PROF_SCOPE(i < std::size(kPassNames) ? kPassNames[i] : "Pass:?");
+		passes_[i]->Execute();
 	}
 
 	// OffScreen / PostEffect / 最終合成
-	ctx_.offScreenManager->CopyLightingToPing(srvIndex_);
-	ctx_.offScreenManager->BeginDrawToPingPong();
-	ctx_.offScreenManager->EndDrawToPingPong();
-	ctx_.offScreenManager->ExecutePostEffects();
+	{
+		PROF_SCOPE("PostEffect");
+		ctx_.offScreenManager->CopyLightingToPing(srvIndex_);
+		ctx_.offScreenManager->BeginDrawToPingPong();
+		ctx_.offScreenManager->EndDrawToPingPong();
+		ctx_.offScreenManager->ExecutePostEffects();
+	}
 
 #ifdef _DEBUG
 	// エディタ中はゲームの絵をバックバッファではなく専用のオフスクリーン(1280x720固定)へ描き、
@@ -118,18 +125,28 @@ void RenderPipeline::Execute() {
 #endif
 	ctx_.dxManager->Render(ctx_.psoManager, ctx_.offScreenManager->GetFinalSrvIndex());
 
-	// UIはポストエフェクトの影響を受けないよう、合成後のバックバッファへ直接描く。
-	// フェードはPersistentレイヤーのスプライトとして DrawUILayers() 内で描かれる。
-	ctx_.spriteManager->DrawUILayers();
-	// スプライトを使わないトランジション用のフック
-	ctx_.transitionManager->Draw();
+	{
+		PROF_SCOPE("UI/Sprite");
+		// UIはポストエフェクトの影響を受けないよう、合成後のバックバッファへ直接描く。
+		// フェードはPersistentレイヤーのスプライトとして DrawUILayers() 内で描かれる。
+		ctx_.spriteManager->DrawUILayers();
+		// スプライトを使わないトランジション用のフック
+		ctx_.transitionManager->Draw();
+	}
 
 #ifdef _DEBUG
 	// ゲームの絵を出し終えたのでSRVへ戻し、バックバッファにはImGuiだけを描く
 	ctx_.imGuiManager->EndGameViewRender();
 	ctx_.dxManager->BeginDraw();
-	ctx_.imGuiManager->Draw();
+	{
+		PROF_SCOPE("ImGui::Draw");
+		ctx_.imGuiManager->Draw();
+	}
 #endif
 
-	ctx_.dxManager->EndDraw();
+	{
+		// Present とGPU待ち。ここが大きければGPUバウンド
+		PROF_SCOPE("EndDraw(GPU待ち)");
+		ctx_.dxManager->EndDraw();
+	}
 }

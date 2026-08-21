@@ -10,6 +10,10 @@ void EnemySpawnEvent::AddEnemy(Enemy* enemy) {
 }
 
 void EnemySpawnEvent::Initialize() {
+	// 進入を見るだけのトリガー。押し出し対象(Ground/Enemy)にならないよう明示しておく
+	for (BaseCollider* collider : GetColliders()) {
+		collider->category_ = CollisionCategory::None;
+	}
 }
 
 void EnemySpawnEvent::Update(float deltaTime) {

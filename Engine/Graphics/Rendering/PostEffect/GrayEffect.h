@@ -5,7 +5,9 @@
 class GrayEffect : public BaseOffScreen
 {
 public:
-	GrayEffect();
+	/// <param name="name">OffScreenManager::FindEffect で引くための名前。
+	/// 名前が無いと同名扱いで2つ目以降が弾かれるので、必ず付けること</param>
+	explicit GrayEffect(const std::string& name = "Gray");
 	~GrayEffect();
 
 	// 更新

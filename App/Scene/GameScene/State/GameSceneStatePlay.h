@@ -21,5 +21,13 @@ private:
 	float muskAlpha_ = 0.0f;
 	// チュートリアルを開始済みかどうか（メニューからの復帰時などに再発火させないため）
 	bool tutorialStarted_ = false;
+
+	// 死亡演出が始まってからの経過時間[s]。世界の時間を落としていくのに使う
+	float deathWorldTimer_ = 0.0f;
+
+	// とどめが入った瞬間に世界をこの速さまで落とし、kWorldStopDuration かけて止める。
+	// プレイヤーだけは Player::Update が実時間で動くので、倒れる動きは止まらない
+	static constexpr float kWorldSlowScale = 0.25f;
+	static constexpr float kWorldStopDuration = 0.7f;
 };
 

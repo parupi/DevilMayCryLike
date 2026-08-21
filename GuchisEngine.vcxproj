@@ -169,6 +169,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h" />
+    <ClInclude Include="App\GameObject\Effect\DeathScreenEffect.h" />
+    <ClInclude Include="App\GameObject\Effect\DissolveOutEffect.h" />
     <ClInclude Include="App\GameObject\Effect\HitEffectSystem.h" />
     <ClInclude Include="App\GameObject\Effect\HitFlashComponent.h" />
     <ClInclude Include="App\GameObject\Effect\HitPostEffect.h" />
@@ -186,6 +188,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
     <ClInclude Include="App\GameObject\Prop\Prop.h" />
+    <ClInclude Include="App\GameObject\Prop\WallTorch.h" />
     <ClInclude Include="App\GameObject\Training\TrainingController.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
@@ -365,6 +368,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Scene\Transition\TransitionManager.h" />
     <ClInclude Include="Engine\Utility\DeltaTime.h" />
     <ClInclude Include="Engine\Utility\Logger.h" />
+    <ClInclude Include="Engine\Utility\ScopeProfiler.h" />
     <ClInclude Include="Engine\Utility\StringUtility.h" />
     <ClInclude Include="Engine\Utility\TimeManager.h" />
     <ClInclude Include="Engine\World3D\Camera\BaseCamera.h" />
@@ -487,6 +491,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp" />
+    <ClCompile Include="App\GameObject\Effect\DeathScreenEffect.cpp" />
+    <ClCompile Include="App\GameObject\Effect\DissolveOutEffect.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitEffectSystem.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitFlashComponent.cpp" />
     <ClCompile Include="App\GameObject\Effect\HitPostEffect.cpp" />
@@ -504,6 +510,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
     <ClCompile Include="App\GameObject\Prop\Prop.cpp" />
+    <ClCompile Include="App\GameObject\Prop\WallTorch.cpp" />
     <ClCompile Include="App\GameObject\Training\TrainingController.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />

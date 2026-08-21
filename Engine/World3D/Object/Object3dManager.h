@@ -28,8 +28,8 @@ public:
 	// 描画前処理
 	void DrawForward();
 	void DrawDeferred();
-	// 影を描画
-	void DrawShadow();
+	// 影を描画。カスケードのライトVPを渡すと、範囲外のオブジェクトを省いて描く
+	void DrawShadow(const Matrix4x4& lightViewProj);
 
 	void AddObject(std::unique_ptr<Object3d> object);
 

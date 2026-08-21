@@ -25,12 +25,15 @@ void ShadowPass::BeginDraw()
 
 void ShadowPass::Execute()
 {
+	const CascadeData* cascades = shadowMap_->GetCascadeData();
+
 	for (uint32_t i = 0; i < kCascadeCount; ++i) {
 		shadowMap_->BeginCascade(i);
 
 		shadowMap_->Bind(1, i);
 
-		object3dManager_->DrawShadow();
+		// このカスケードの範囲に入るオブジェクトだけ描く
+		object3dManager_->DrawShadow(cascades[i].lightViewProj);
 
 		shadowMap_->EndCascade(i);
 	}

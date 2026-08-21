@@ -3,8 +3,9 @@
 #include "OffScreenManager.h"
 #include <algorithm>
 
-GrayEffect::GrayEffect() : BaseOffScreen()
+GrayEffect::GrayEffect(const std::string& name) : BaseOffScreen()
 {
+	name_ = name;
 	dxManager_ = OffScreenManager::GetInstance().GetDXManager();
 	psoManager_ = OffScreenManager::GetInstance().GetPSOManager();
 

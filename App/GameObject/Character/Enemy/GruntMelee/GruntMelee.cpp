@@ -131,8 +131,12 @@ void GruntMelee::Update(float deltaTime) {
 		// 武器は常に表示し、攻撃中以外はデフォルトポーズに戻す
 		weapon_->SetIsDraw(true);
 	} else {
-		// 未出現時は武器を隠し、非アクティブ時の共通処理（消灯など）だけ行う
+		// 未出現時は武器を隠し、判定も切る（本体と同じく、出現前に殴られないようにする）
 		weapon_->SetIsDraw(false);
+		if (auto* weaponCol = weapon_->GetCollider(name_ + "Weapon")) {
+			weaponCol->SetColliderActive(false);
+		}
+		// 非アクティブ時の共通処理（消灯・配置位置へのワールド行列更新）
 		Enemy::Update(deltaTime);
 		return;
 	}
@@ -206,10 +210,7 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 		if (CanDie()) {
 			OnDeath();
 			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
-			Vector3 deathVelocity = info.direction * atk.impulseForce;
-			deathVelocity.y += atk.impulseForce * atk.upwardRatio;
-			SetVelocity(deathVelocity);
-			SetOnGround(false);
+			ApplyDeathLaunch(info.direction, atk.impulseForce, atk.upwardRatio);
 			return;
 		} else {
 			// まだ死亡できない（チュートリアル中など）ので生存を維持する

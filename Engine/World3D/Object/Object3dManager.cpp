@@ -3,6 +3,7 @@
 #include <cassert>
 #include <World3D/Light/LightManager.h>
 #include <World3D/Camera/CameraManager.h>
+#include <Utility/ScopeProfiler.h>
 
 Object3dManager& Object3dManager::GetInstance() {
 	static Object3dManager instance;
@@ -29,6 +30,7 @@ void Object3dManager::Update() {
 		if (!object) continue;
 		object->Update(deltaTime_);
 	}
+	PROF_COUNT("Obj:オブジェクト数", objects_.size());
 }
 
 void Object3dManager::DispatchSkinning() {
@@ -79,12 +81,12 @@ void Object3dManager::DrawDeferred() {
 	}
 }
 
-void Object3dManager::DrawShadow() {
+void Object3dManager::DrawShadow(const Matrix4x4& lightViewProj) {
 	// 全オブジェクトの描画
 	for (auto& object : objects_) {
 		// 描画方式がDeferredでなければ次
 		if (object->GetOption().drawPath != DrawPath::Deferred) continue;
-		object->DrawShadow();
+		object->DrawShadow(lightViewProj);
 	}
 }
 

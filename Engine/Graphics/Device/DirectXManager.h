@@ -50,6 +50,14 @@ public:
 	// SRVManagerを取得
 	SrvManager* GetSrvManager() const { return srvManager_.get(); }
 
+	/// <summary>
+	/// ソフト側のFPS上限を設定する。0以下（既定）で上限なし＝ vsync 任せ。
+	/// リフレッシュレートが上限FPSの倍数でないディスプレイでは、待ち時間とvsyncが
+	/// 噛み合わずフレーム時間が揺れるので、基本は上限なしのまま使うこと
+	/// </summary>
+	void SetFrameRateLimit(float fps) { frameTimer_->SetTargetFps(fps); }
+	float GetFrameRateLimit() const { return frameTimer_->GetTargetFps(); }
+
 	// シェーダーのコンパイル（ShaderCompilerへの委譲）
 	IDxcBlob* CompileShader(const std::wstring& filePath, const wchar_t* profile) {
 		return shaderCompiler_->Compile(filePath, profile);

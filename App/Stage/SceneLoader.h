@@ -69,8 +69,11 @@ public:
 	static constexpr const char* kFormatName = "GuchisStage";
 	static constexpr int kFormatVersion = 2;
 
-	// ゲーム本編のステージ。エディタの保存先もここ
-	static constexpr const char* kDefaultStagePath = "Resource/Stage/Test.json";
+	// ゲーム本編のステージ。エディタの保存先もここ。
+	// **Release ではこの値がそのまま使われる**（StageDocument::SetPath を呼ぶ AppEditor は
+	// Debug 限定で、EditorStage.json による上書きも Debug でしか起きない）。
+	// ここを差し替え忘れると、Debug では本編・Release では別のステージ、という食い違いになる
+	static constexpr const char* kDefaultStagePath = "Resource/Stage/Stage.json";
 
 	/// <summary>ステージデータを読み込む。開けない・形式が違う場合は例外を投げる</summary>
 	static std::vector<SceneObject> Load(const std::string& path);

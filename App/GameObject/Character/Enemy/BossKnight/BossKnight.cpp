@@ -23,17 +23,11 @@
 
 BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	// ModelRenderer は FindModel するだけで読み込みはしないので、ここで読んでおく。
-	// 以前は TitleScene が先読みしていたが、他シーンの読み込みに依存すると
-	// そちらを整理したときに静かに壊れるので、Ground / Prop と同じく自分で読む
-	// Dragon.gltf はリグ付き（27ジョイント・5クリップ）なのでスキンモデルとして読む。
-	// ここで LoadModel してしまうと ModelManager::FindModel が静的モデルを先に返して
-	// 黙ってアニメーションしなくなるので注意
 	ModelManager::GetInstance().LoadSkinnedModel(kModelName);
 	ModelManager::GetInstance().LoadModel("Sword");
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, kModelName));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
-	// Dragon.obj も正面が +Z（目が +Z 側にある）。敵の前方向はローカル -Z なので180度回す
 	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
 
 	hp_ = kMaxHp;
@@ -42,9 +36,10 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 
 void BossKnight::Initialize() {
 	// ── 自コライダーの調整 ──
+	// 
 	// レベル側の×2補正の撤廃に伴い 0.65f → 1.3f に変更（実効サイズは従来と同じ）
-	auto* col = static_cast<OBBCollider*>(GetCollider(name_));
-	col->GetColliderData().halfExtents *= 1.3f;
+	//auto* col = static_cast<OBBCollider*>(GetCollider(name_));
+	//col->GetColliderData().halfExtents *= 1.3f;
 
 	// ── 攻撃判定の生成 ──
 	// ドラゴンは剣を持たず、噛みつき・叩きつけ・突進で戦う。
@@ -288,6 +283,10 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 		if (hp_ <= 0.0f) {
 			if (CanDie()) {
 				OnDeath();
+				// アーマー中はノックバックしないが、とどめだけは吹き飛ばす（プレイヤーから離れる向きへ）
+				const Vector3 awayFromPlayer =
+					GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation();
+				ApplyDeathLaunch(awayFromPlayer, atk.impulseForce, atk.upwardRatio);
 			} else {
 				hp_ = 1.0f;
 			}
@@ -313,10 +312,7 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 		if (CanDie()) {
 			OnDeath();
 			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
-			Vector3 deathVelocity = info.direction * atk.impulseForce;
-			deathVelocity.y += atk.impulseForce * atk.upwardRatio;
-			SetVelocity(deathVelocity);
-			SetOnGround(false);
+			ApplyDeathLaunch(info.direction, atk.impulseForce, atk.upwardRatio);
 			return;
 		}
 		// まだ死亡できない（トレーニングの敵無敵など）ので生存を維持する
