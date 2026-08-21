@@ -101,6 +101,21 @@ private:
 	// ワールド座標を保持しておく
 	Vector3 worldPos_{};
 
+	/// <summary>
+	/// ワールド行列を組み立てる材料。前フレームとの比較用にまとめて持つ（memcmpで比較するのでPOD）
+	/// </summary>
+	struct TransformSource {
+		Vector3 scale{};
+		Quaternion rotation{};
+		Vector3 translation{};
+		Matrix4x4 attach{};
+		Matrix4x4 parentWorld{};
+		uint32_t hasAttach = 0;
+	};
+	TransformSource cachedSource_{};
+	Matrix4x4 cachedWorldInverseTranspose_{};
+	bool sourceValid_ = false;
+
 	// コピー禁止
 	WorldTransform(const WorldTransform&) = delete;
 	WorldTransform& operator=(const WorldTransform&) = delete;

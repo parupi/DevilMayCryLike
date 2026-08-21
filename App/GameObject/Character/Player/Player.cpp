@@ -121,6 +121,23 @@ void Player::Initialize() {
 	hitFlash_ = std::make_unique<HitFlashComponent>();
 	hitFlash_->AddRenderer(GetRenderer(kRendererName));
 	hitFlash_->AddRenderer(weapon_->GetRenderer("PlayerWeapon"));
+
+	// ── 死亡演出 ──
+	// 画面効果（グレースケール＋暗転ビネット）。ポストエフェクトはシーンをまたいで
+	// 生き続けるので、Initialize() の中で必ず切った状態へ戻している
+	deathScreen_ = std::make_unique<DeathScreenEffect>();
+	deathScreen_->Initialize();
+
+	// 最後に体と武器を溶かして消す。縁の色はプレイヤーのライトに合わせた青白
+	deathDissolve_ = std::make_unique<DissolveOutEffect>();
+	deathDissolve_->AddRenderer(GetRenderer(kRendererName));
+	deathDissolve_->AddRenderer(weapon_->GetRenderer("PlayerWeapon"));
+	deathDissolve_->SetEdgeColor({ 0.45f, 0.75f, 1.0f, 6.0f });
+	// レンダラーが作り直されていない経路（エディタからのシーン再読込など）でも
+	// 溶けたままにならないよう、ここで上書きを解除しておく
+	deathDissolve_->Reset();
+
+	hudAlpha_ = 1.0f;
 }
 
 // ステートと戦闘状態から再生するクリップを決めて流す。
@@ -186,12 +203,23 @@ AnimationPlayer* Player::GetAnimationPlayer() {
 	return instance ? instance->GetPlayer() : nullptr;
 }
 
+bool Player::IsDying() const {
+	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
+	return current && std::string(current->GetDebugName()) == "Death";
+}
+
 void Player::Update(float deltaTime) {
 	// 入力とロックオンはシーン側が接続する。エディタで生成した直後など未接続の間は
 	// トランスフォームの更新だけして動かさない（次のシーン読み込みで有効になる）
 	if (!input_ || !lockOn_) {
 		Object3d::Update(deltaTime);
 		return;
+	}
+
+	// 死亡演出中はシーン側が世界の時間を落として敵を止める（GameSceneStatePlay）。
+	// プレイヤー自身はその影響を受けずに倒れ切りたいので、ここだけ実時間で進める
+	if (IsDying()) {
+		deltaTime = DeltaTime::GetDeltaTime();
 	}
 
 	hitStop_->Update(deltaTime);
@@ -261,11 +289,12 @@ void Player::Update(float deltaTime) {
 	// 接地フラグを毎フレーム切っておく
 	onGround_ = false;
 
+	// HPのハート。死亡演出中は hudAlpha_ が下がってフェードアウトする
 	for (size_t i = 0; i < hearts_.size(); ++i) {
 		if (i < hp_) {
-			hearts_[i]->SetColor({1.0f, 1.0f, 1.0f, 1.0f}); // HP分は表示
+			hearts_[i]->SetColor({1.0f, 1.0f, 1.0f, hudAlpha_}); // HP分は表示
 		} else {
-			hearts_[i]->SetColor({0.0f, 0.0f, 0.0f, 0.3f}); // 残りは半透明で表示
+			hearts_[i]->SetColor({0.0f, 0.0f, 0.0f, 0.3f * hudAlpha_}); // 残りは半透明で表示
 		}
 		hearts_[i]->Update();
 	}
@@ -399,8 +428,12 @@ void Player::TakeDamage(const DamageInfo& info) {
 	combat_->InterruptCombat();
 
 	if (hp_ <= 0.0f) {
-		ChangeState("Death");
+		// とどめの一撃。フィニッシュらしく重めに止めてから死亡演出へ入る
+		// （吹き飛びの初速・カメラ・画面効果は PlayerStateDeath::Enter が受け持つ）
+		hitStop_->Start(kDeathHitStopTime, kDeathHitStopIntensity, HitStopStrength::Heavy);
+		// 被弾の赤いビネットは死亡の暗転とぶつかるので止める
 		hitVignette_->Stop();
+		ChangeState("Death");
 	} else {
 		stateMachine_->ChangeState(*this, "Knockback");
 	}
@@ -439,14 +472,18 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		return;
 	}
 
-	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
+	if (other->category_ == CollisionCategory::Ground) {
 		ResolveGroundCollision(other);
+	} else if (other->category_ == CollisionCategory::Enemy) {
+		ResolveCharacterCollision(other);
 	}
 }
 
 void Player::OnCollisionStay(BaseCollider* other) {
-	if (other->category_ == CollisionCategory::Ground || other->category_ == CollisionCategory::Enemy) {
+	if (other->category_ == CollisionCategory::Ground) {
 		ResolveGroundCollision(other);
+	} else if (other->category_ == CollisionCategory::Enemy) {
+		ResolveCharacterCollision(other);
 	}
 }
 
@@ -464,6 +501,19 @@ void Player::ResolveGroundCollision(BaseCollider* other) {
 		//velocity_.y = 0.0f;
 		onGround_ = true;
 	}
+}
+
+// 敵とのめり込みは水平方向だけで解消する。
+// キャラ同士の箱は上下の重なりが最小になりやすく、最小重なり軸(MTV)をそのまま使うと
+// 乗られた側が真下（＝床の中）へ押し込まれ、そのまま床を貫通して落ちてしまう
+void Player::ResolveCharacterCollision(BaseCollider* other) {
+	BaseCollider* playerCollider = GetCollider("Player");
+
+	PenetrationResult result = CollisionManager::GetInstance().CalculatePenetration(
+		playerCollider, other, CollisionManager::PenetrationAxis::HorizontalOnly);
+	if (!result.hit) return;
+
+	GetWorldTransform()->GetTranslation() += result.normal * result.depth;
 }
 
 void Player::OnCollisionExit(BaseCollider* other) {

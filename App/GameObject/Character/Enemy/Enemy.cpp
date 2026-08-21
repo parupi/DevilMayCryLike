@@ -48,21 +48,24 @@ void Enemy::UpdateAnimation() {
 	if (!anim) return;
 
 	// ── 出現・死亡は専用クリップを最優先。1回流すものは演出の長さに合わせる ──
-	// ループ指定（出現専用モーションが無くて待機で代用する場合）は等速のまま
-	auto playEffectClip = [anim](const StateClip& entry, float effectSeconds, float blendTime) {
+	// ループ指定（出現専用モーションが無くて待機で代用する場合）は等速のまま。
+	// minSpeed を渡すと「遅くする側」だけ止める（尺より早く終わったクリップは最後のポーズで止まる）
+	auto playEffectClip = [anim](const StateClip& entry, float effectSeconds, float blendTime, float minSpeed) {
 		anim->Play(entry.clip, entry.loop, blendTime);
 		const float duration = anim->GetDuration();
 		const bool fit = !entry.loop && duration > 0.01f && effectSeconds > 0.01f;
-		anim->SetSpeed(fit ? (duration / effectSeconds) : 1.0f);
+		anim->SetSpeed(fit ? (std::max)(duration / effectSeconds, minSpeed) : 1.0f);
 	};
 
 	if (appearanceFx_) {
 		if (appearanceFx_->IsAppearing() && !spawnClip_.clip.empty()) {
-			playEffectClip(spawnClip_, appearanceFx_->GetAppearDuration(), 0.0f);
+			playEffectClip(spawnClip_, appearanceFx_->GetAppearDuration(), 0.0f, 0.0f);
 			return;
 		}
 		if ((appearanceFx_->IsDying() || appearanceFx_->IsDeathFinished()) && !deathClip_.clip.empty()) {
-			playEffectClip(deathClip_, appearanceFx_->GetDeathDuration(), 0.1f);
+			// 死亡クリップは「吹き飛び + 死亡モーション」の尺で流し切る。
+			// 残りの段階（黒いもや・ディゾルブ）は倒れたポーズのまま見せる
+			playEffectClip(deathClip_, appearanceFx_->GetDeathClipDuration(), 0.1f, kDeathClipSpeedMin);
 			return;
 		}
 	}
@@ -150,6 +153,15 @@ void Enemy::Update(float deltaTime) {
 	if (!isActive_) {
 		SetIsDraw(false);
 		if (characterLight_) characterLight_->SetEnabled(false);
+		// 出現前でも「配置された位置」にワールド行列を作っておく。
+		// ここを飛ばすと行列が単位行列のままになり、子であるコライダーが
+		// ワールド原点に取り残される。原点に大きな当たり判定ができて
+		// プレイヤーの行動を邪魔するうえ、その押し出しで未出現の敵の座標が
+		// 毎フレーム流され、ステージを保存すると壊れた位置が焼き付く。
+		// 描画はしないのでレンダラー（スキニング）は回さず、行列だけ作る
+		UpdateTransformOnly();
+		// 出現前は判定も切る（見えない敵に攻撃が当たる・押し返されるのを防ぐ）
+		SetCollidersActive(false);
 		return;
 	}
 	SetIsDraw(true);
@@ -184,14 +196,26 @@ void Enemy::Update(float deltaTime) {
 			return;
 		}
 		if (appearanceFx_->IsDying()) {
-			// 死亡演出中: 意思決定を止め、ノックバックの慣性と重力だけを適用する
-			velocity_.y += -9.8f * deltaTime;
+			// 死亡演出中: 意思決定を止め、とどめの吹き飛びの慣性と重力だけを適用する。
+			// 演出はここから「吹き飛び → 死亡モーション → 黒いもや → ディゾルブ」と進むので、
+			// 倒れた体が地面で震えないよう接地したら落下速度を殺しておく
+			if (onGround_) {
+				if (velocity_.y < 0.0f) {
+					velocity_.y = 0.0f;
+				}
+			} else {
+				velocity_.y += -9.8f * deltaTime;
+			}
 			float damp = 1.0f - 2.0f * deltaTime;
 			if (damp < 0.0f) damp = 0.0f;
 			velocity_.x *= damp;
 			velocity_.z *= damp;
 			GetWorldTransform()->GetTranslation() += velocity_ * deltaTime;
 			ClampToMovementBounds();
+			// とどめの一撃の白フラッシュを最後まで再生させる（止めると白いまま固まる）
+			if (hitFlash_) {
+				hitFlash_->Update(deltaTime);
+			}
 			UpdateAnimation();
 			Object3d::Update(deltaTime);
 			onGround_ = false;
@@ -274,6 +298,8 @@ void Enemy::DrawEffect() {
 }
 
 void Enemy::Spawn() {
+	// 出現前に切ってあった判定を戻す。SnapToGround が自分のコライダーを使うので先に済ませる
+	SetCollidersActive(true);
 	// 空中に配置されていても、真下の地面に接地した位置から出現させる
 	SnapToGround();
 	isActive_ = true;
@@ -344,12 +370,21 @@ void Enemy::SnapToGround() {
 
 
 
+void Enemy::SetCollidersActive(bool active) {
+	for (BaseCollider* collider : GetColliders()) {
+		if (collider) collider->SetColliderActive(active);
+	}
+}
+
 void Enemy::OnCollisionEnter(BaseCollider* other) {
+	// 出現前は押し出されない（判定を切ってあるので届かないはずだが、配置位置を守るための保険）
+	if (!isActive_) return;
 	if (other->category_ != CollisionCategory::Ground) return;
 	ResolveGroundCollision(other, /*resetVelocity=*/true);
 }
 
 void Enemy::OnCollisionStay(BaseCollider* other) {
+	if (!isActive_) return;
 	if (other->category_ != CollisionCategory::Ground) return;
 	ResolveGroundCollision(other, /*resetVelocity=*/false);
 }
@@ -396,7 +431,14 @@ void Enemy::OnDeath() {
 		}
 	}
 
-	// 死亡演出（黒い粒子を撒き散らし + ディゾルブアウト）を開始する。
+	// 倒れた体はもう戦闘の相手ではないので、当たり判定のカテゴリを外す。
+	// （判定自体は残す＝地面との接地判定に要る。Enemy 側は相手のカテゴリしか見ないので支障はない）
+	// これを外さないと、演出中の死体にプレイヤーが押される・死体を斬ってスコアが入る、が起きる
+	for (BaseCollider* collider : GetColliders()) {
+		if (collider) collider->category_ = CollisionCategory::None;
+	}
+
+	// 死亡演出（吹き飛び → 死亡モーション → 黒いもや → ディゾルブ）を開始する。
 	// 演出終了後に Enemy::Update 側で isAlive_ が false になる。
 	if (appearanceFx_) {
 		if (!appearanceFx_->IsDying() && !appearanceFx_->IsDeathFinished()) {
@@ -406,6 +448,25 @@ void Enemy::OnDeath() {
 	}
 
 	isAlive_ = false;
+}
+
+void Enemy::ApplyDeathLaunch(const Vector3& direction, float impulseForce, float upwardRatio) {
+	// 水平方向は攻撃の向きに従う。真上・真下成分は落として斜めに飛びすぎないようにする
+	Vector3 horizontalDir{ direction.x, 0.0f, direction.z };
+	if (Length(horizontalDir) > 0.001f) {
+		horizontalDir = Normalize(horizontalDir);
+	} else {
+		horizontalDir = {};
+	}
+
+	// 空中コンボのように吹き飛ばしが 0 の攻撃でとどめを刺しても、
+	// 「倒した」ことが分かるように最低限の初速は出す
+	const float horizontalSpeed = (std::max)(impulseForce, kDeathLaunchMinSpeed);
+	const float verticalSpeed = (std::max)(impulseForce * upwardRatio, kDeathLaunchMinUpSpeed);
+
+	velocity_ = horizontalDir * horizontalSpeed;
+	velocity_.y = verticalSpeed;
+	onGround_ = false;
 }
 
 void Enemy::SetupLockOn(LockOnSystem* lockOnSystem) {

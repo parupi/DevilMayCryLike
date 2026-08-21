@@ -9,8 +9,9 @@ namespace {
     BoneAttackParams MakeRushParams() {
         BoneAttackParams p;
         p.jointName = "BodyRoot";
-        // ワールド単位。体当たりなので胴まわりを広めに取る
-        p.halfExtents = { 1.5f, 1.1f, 1.5f };
+        // スケール1のときのワールド単位（BeginAttack が配置スケールを掛ける）。
+        // 体当たりなので胴まわりを広めに、縦は足元のプレイヤーまで届く長さを取る
+        p.halfExtents = { 1.7f, 1.4f, 1.7f };
         p.offset = { 0.0f, 0.0f, 0.0f };        // ジョイントの向きは骨ごとに違うので原点のまま使う
         p.duration = 0.88f;                     // Dragon_Attack のクリップ長
         p.rushSpeed = 22.0f;                    // 判定が出ている間だけ突っ込む

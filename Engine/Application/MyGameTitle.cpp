@@ -19,6 +19,7 @@
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Text/FontManager.h>
 #include <Utility/TimeManager.h>
+#include <Utility/ScopeProfiler.h>
 #ifdef _DEBUG
 #include <Editor/Core/EditorHost.h>
 #include <Editor/AppEditor.h>   // App側。SceneFactory.h と同じくAppのincludeディレクトリから引かれる
@@ -100,14 +101,14 @@ void MyGameTitle::Initialize() {
 	// ここでエディタにエンジンのサービス一覧を渡す。
 	// 以降、エディタのウィンドウは Editor::Ctx() 経由でエンジン機能を呼べる
 	Editor::SetContext(ctx_);
-	// App固有のエディタを差し込む。App と Engine の両方を知っているのはここだけなので、
-	// 依存の向き（App/Editor → Engine/Editor → Engine）を壊さずに合流させられる
+	// App固有のエディタを差し込む。
 	AppEditor::Register();
 #endif
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(ctx_);
 
+	dxManager->SetFrameRateLimit(72.0f);
 }
 
 void MyGameTitle::Finalize() {
@@ -147,22 +148,54 @@ void MyGameTitle::Finalize() {
 
 void MyGameTitle::Update() {
 #ifdef _DEBUG
-	ImGuiManager::GetInstance().Begin();
+	// 1フレーム分の計測を確定させる。エディタの Profiler ウィンドウはこの結果を読む。
+	// 描画の計測は Update より後に走るので、ここで区切ると1フレームが揃った状態で出せる
+	ScopeProfiler::EndFrame();
+	{
+		PROF_SCOPE("ImGui::Begin");
+		ImGuiManager::GetInstance().Begin();
+	}
 #endif // DEBUG
-	GuchisFramework::Update();
-	CameraManager::GetInstance().Update();
-	// パーティクルはVFX時間で動かす（ヒットストップ中はゆっくりになる）
-	ParticleManager::GetInstance().Update(TimeManager::GetVFXDelta());
+	{
+		PROF_SCOPE("Scene::Update");
+		GuchisFramework::Update();
+	}
+	{
+		PROF_SCOPE("Camera");
+		CameraManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Particle");
+		// パーティクルはVFX時間で動かす（ヒットストップ中はゆっくりになる）
+		ParticleManager::GetInstance().Update(TimeManager::GetVFXDelta());
+	}
 	SceneTransitionController::GetInstance().Update();
-	Object3dManager::GetInstance().Update();
-	RendererManager::GetInstance().Update();
-	CollisionManager::GetInstance().Update();
-
-	LightManager::GetInstance().Update();
+	{
+		PROF_SCOPE("Object3d");
+		Object3dManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Renderer");
+		RendererManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Collision");
+		CollisionManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Light");
+		LightManager::GetInstance().Update();
+	}
 	OffScreenManager::GetInstance().Update();
 #ifdef _DEBUG
-	SceneManager::GetInstance().DebugUpdate();
-	ImGuiManager::GetInstance().End();
+	{
+		PROF_SCOPE("Editor(ImGui構築)");
+		SceneManager::GetInstance().DebugUpdate();
+	}
+	{
+		PROF_SCOPE("ImGui::End");
+		ImGuiManager::GetInstance().End();
+	}
 #endif // DEBUG
 }
 

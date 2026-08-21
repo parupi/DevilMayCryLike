@@ -9,8 +9,10 @@ namespace {
     BoneAttackParams MakeSlamParams() {
         BoneAttackParams p;
         p.jointName = "BodyRoot";               // 体ごと叩きつけるので体幹に付ける
-        // ワールド単位。翼幅を含む、避けにくい広範囲
-        p.halfExtents = { 2.2f, 1.2f, 1.8f };
+        // スケール1のときのワールド単位（BeginAttack が配置スケールを掛ける）。
+        // 翼幅を含む、避けにくい広範囲。体幹は宙に浮いているので、
+        // 縦は足元のプレイヤー（高さ1m）まで垂れ下がる長さを取る
+        p.halfExtents = { 2.4f, 1.5f, 2.0f };
         p.offset = { 0.0f, 0.0f, 0.0f };        // ジョイントの向きは骨ごとに違うので原点のまま使う
         p.duration = 1.67f;                     // Dragon_Attack2 のクリップ長
         p.rushSpeed = 0.0f;                     // その場で叩きつける

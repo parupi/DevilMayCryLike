@@ -9,7 +9,13 @@ BossStateCombatIdle::BossStateCombatIdle(EnemySensorComponent* sensor, EnemyMove
 	float maxHp)
 	: sensor_(sensor), movement_(movement), maxHp_(maxHp) {}
 
-void BossStateCombatIdle::Enter(Enemy&) { cooldown_ = 0.0f; }
+// 次の行動を選ぶまでの間を置く。
+// **ここを 0 にしてはいけない**。攻撃ステートは終わると必ずこのステートへ戻ってくるので、
+// 0 にすると戻った次のフレームにまた攻撃を選び、間が一切空かない
+// （Update 末尾の cooldown_ = GetCooldown() は Exit → Enter で毎回上書きされるため効かなかった）
+void BossStateCombatIdle::Enter(Enemy& enemy) {
+	cooldown_ = GetCooldown(GetPhase(enemy.GetHp()));
+}
 void BossStateCombatIdle::Exit(Enemy&) {}
 
 int BossStateCombatIdle::GetPhase(float hp) const {
@@ -19,6 +25,9 @@ int BossStateCombatIdle::GetPhase(float hp) const {
 	return 3;
 }
 
+// 攻撃と攻撃の間の「溜め」。攻撃モーション自体の長さ（噛みつき0.88秒・叩きつけ1.67秒）に
+// これが上乗せされるので、1.2秒ならフェーズ1の攻撃周期はおよそ2秒になる。
+// 攻撃頻度を変えたいときはこの3つを触る（大きくするほど攻撃が減る）
 float BossStateCombatIdle::GetCooldown(int phase) const {
 	if (phase == 1) return 1.2f;
 	if (phase == 2) return 0.8f;

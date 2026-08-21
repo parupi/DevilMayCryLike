@@ -21,6 +21,7 @@
 #include "GameObject/Event/BaseEvent.h"
 #include "GameObject/Light/StagePointLight.h"
 #include "GameObject/Prop/Prop.h"
+#include "GameObject/Prop/WallTorch.h"
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneSaver.h"
 #include "Stage/StageDocument.h"
@@ -176,6 +177,26 @@ void DrawStageObjectInspector(Object3d* object)
 				stageLight->ApplyLightParams();
 			}
 		}
+		return;
+	}
+
+	// WallTorch は Prop の派生なので、Prop の分岐より先に見る
+	if (auto* torch = dynamic_cast<WallTorch*>(object)) {
+		if (!ImGui::CollapsingHeader("壁掛けトーチ", ImGuiTreeNodeFlags_DefaultOpen)) {
+			return;
+		}
+		bool lit = torch->IsLit();
+		if (ImGui::Checkbox("火を点ける", &lit)) {
+			torch->SetLit(lit);
+		}
+		ImGui::TextDisabled("オフセット = 穂先の位置。炎もライトもここから出る");
+		if (DrawPointLightParams(
+			torch->GetLightColorRef(), torch->GetTipOffsetRef(),
+			torch->GetLightIntensityRef(), torch->GetLightRadiusRef(),
+			torch->GetLightDecayRef())) {
+			torch->ApplyLightParams();
+		}
+		ImGui::TextDisabled("炎の見た目は VFX ウィンドウの TorchFire で調整");
 		return;
 	}
 

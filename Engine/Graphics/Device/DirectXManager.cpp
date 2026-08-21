@@ -7,6 +7,7 @@
 #include "imgui/imgui_impl_win32.h"
 #include <DirectXTex/d3dx12.h>
 #include <Math/MathUtils.h>
+#include <Utility/ScopeProfiler.h>
 #include "Graphics/Rendering/PSO/PSOManager.h"
 
 #pragma comment(lib, "d3d12.lib")
@@ -14,16 +15,27 @@
 
 using namespace Microsoft::WRL;
 
+#ifdef _DEBUG
+// GPUベースの検証（GBV）を有効にするか。
+// シェーダーに検証コードを差し込む重い機能で、CommandList::Close() / ExecuteCommandLists() の
+// CPU時間が跳ね上がる（このプロジェクトでは実測 +8ms/frame ＝ Debugの40FPSの主因）。
+// 通常の開発では false のままにして、GPUクラッシュやデスクリプタ破壊を追うときだけ true にすること。
+// 通常のデバッグレイヤー（下の EnableDebugLayer）は軽いので常時有効のまま
+constexpr bool kEnableGpuBasedValidation = false;
+#endif
+
 void DirectXManager::Initialize(WindowManager* winManager) {
 #ifdef _DEBUG
 	Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController)))) {
 		debugController->EnableDebugLayer();
 
-		Microsoft::WRL::ComPtr<ID3D12Debug1> debugController1;
-		if (SUCCEEDED(debugController->QueryInterface(IID_PPV_ARGS(&debugController1)))) {
-			debugController1->SetEnableGPUBasedValidation(true);
-			debugController1->SetEnableSynchronizedCommandQueueValidation(true);
+		if constexpr (kEnableGpuBasedValidation) {
+			Microsoft::WRL::ComPtr<ID3D12Debug1> debugController1;
+			if (SUCCEEDED(debugController->QueryInterface(IID_PPV_ARGS(&debugController1)))) {
+				debugController1->SetEnableGPUBasedValidation(true);
+				debugController1->SetEnableSynchronizedCommandQueueValidation(true);
+			}
 		}
 	}
 #endif
@@ -302,20 +314,40 @@ void DirectXManager::EndDraw() {
 		D3D12_RESOURCE_STATE_PRESENT
 	);
 
-	commandContext_->Flush();
+	{
+		PROF_SCOPE("Gfx:Flush(コマンド実行)");
+		commandContext_->Flush();
+	}
 
 	uint64_t fenceValue = commandContext_->GetFenceValue();
-	resourceManager_->OnFrameEnd(fenceValue);
+	{
+		PROF_SCOPE("Gfx:OnFrameEnd");
+		resourceManager_->OnFrameEnd(fenceValue);
+	}
 
-	swapChainManager_->Present();
+	{
+		PROF_SCOPE("Gfx:Present(VSync待ち)");
+		swapChainManager_->Present();
+	}
 
-	commandContext_->Begin();
+	{
+		PROF_SCOPE("Gfx:Begin(GPU完了待ち)");
+		commandContext_->Begin();
+	}
 
 	uint64_t completed = commandContext_->GetFence()->GetCompletedValue();
-	resourceManager_->ProcessPendingReleases(completed);
-	// 直前の Begin() がフェンスを待っているので、ここでの解放は安全
-	resourceManager_->ReleasePendingUploads();
+	{
+		PROF_SCOPE("Gfx:リソース解放");
+		resourceManager_->ProcessPendingReleases(completed);
+		// 直前の Begin() がフェンスを待っているので、ここでの解放は安全
+		resourceManager_->ReleasePendingUploads();
+	}
 	pendingUploadBytes_ = 0;
 
-	frameTimer_->Update();
+	// 上限FPSが設定されていればここで待つ。既定は上限なしで、フレームの間隔は
+	// Present(1, 0) の vsync が決める（SetFrameRateLimit で上限を掛けられる）
+	{
+		PROF_SCOPE("Gfx:FPS上限待ち");
+		frameTimer_->Update();
+	}
 }

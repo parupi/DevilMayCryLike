@@ -4,9 +4,11 @@
 #include <Debugger/ImGuiManager.h>
 #include <algorithm>
 #include <cmath>
+#include <iterator>
 #include <numbers>
 #include <Utility/DeltaTime.h>
 #include <Utility/Logger.h>
+#include <Utility/ScopeProfiler.h>
 #include "Graphics/Resource/TextureManager.h"
 #include <World3D/Object/Renderer/MeshGenerator.h>
 
@@ -99,14 +101,40 @@ void ParticleManager::Update(float deltaTime)
 		emitter->Update(deltaTime);
 	}
 
-	for (auto& [groupName, group] : particleGroups_) {
-
-		// ① シミュレーション更新
-		updateSystem_.Update(group, deltaTime);
-
-		// ② Editorパラメータ読み込み（必要なら）
-		group.params = LoadParticleParameters(global_, groupName);
+	size_t aliveParticles = 0;
+	{
+		PROF_SCOPE("Ptc:シミュレーション");
+		for (auto& [groupName, group] : particleGroups_) {
+			updateSystem_.Update(group, deltaTime);
+			aliveParticles += group.particles.size();
+		}
 	}
+
+#ifdef _DEBUG
+	// パラメータはグループ生成時に読み込み済み。エディタでの編集を反映するために読み直すが、
+	// 全グループを毎フレーム引くと GlobalVariables の文字列検索だけで数ミリ秒かかる
+	// （1グループ約45項目 × グループ数）。編集中の1グループ＋1フレーム1グループの巡回に絞る。
+	// Release ではそもそもエディタが無いので読み直さない
+	if (!particleGroups_.empty()) {
+		PROF_SCOPE("Ptc:パラメータ再読込");
+
+		// 巡回ぶん
+		paramReloadCursor_ %= particleGroups_.size();
+		auto it = std::next(particleGroups_.begin(), static_cast<ptrdiff_t>(paramReloadCursor_));
+		it->second.params = LoadParticleParameters(global_, it->first);
+		++paramReloadCursor_;
+
+		// パーティクルエディタで開いているグループぶん（巡回と重なったら省く）
+		if (!liveEditGroup_.empty() && liveEditGroup_ != it->first) {
+			if (auto live = particleGroups_.find(liveEditGroup_); live != particleGroups_.end()) {
+				live->second.params = LoadParticleParameters(global_, live->first);
+			}
+		}
+	}
+#endif
+
+	PROF_COUNT("Ptc:グループ数", particleGroups_.size());
+	PROF_COUNT("Ptc:生存パーティクル数", aliveParticles);
 
 	// エディタの描画は Engine/Editor/Windows/ParticleEditorWindow.cpp が回す
 }
@@ -182,6 +210,9 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 	particleGroups_.emplace(name, std::move(group));
 
 	RegisterEditorParameters(name);
+	// パラメータはここで一度だけ読み込む。以降 Update() は編集反映のために
+	// 1フレーム1グループずつ読み直すだけ（毎フレーム全部引くと重い）
+	particleGroups_[name].params = LoadParticleParameters(global_, name);
 	CreateParticleGPU(name, shape);
 	CreateParticleRenderer(name, textureFilePath);
 }

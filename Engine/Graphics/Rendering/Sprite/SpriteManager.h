@@ -33,8 +33,10 @@ public:
 	// UIレイヤー（UI / Persistent / Debug）をバックバッファへ直接描画する。
 	// ポストエフェクトの後に呼ぶこと（RenderPipeline::Execute）
 	void DrawUILayers();
-	// HUD（UIレイヤー）の表示を一括で切り替える。死亡演出などで一時的に隠す用。
-	// フェードなどの Persistent レイヤーは隠さない。シーン切り替え時に表示へ戻る
+	// HUD（UIレイヤー）の表示を一括で切り替える。
+	// フェードなどの Persistent レイヤーは隠さない。シーン切り替え時に表示へ戻る。
+	// 注意: メニュー類も同じ UI レイヤーにいるので、演出中に隠すと選択肢まで消える
+	// （死亡演出は各HUDを個別にフェードさせている）
 	void SetUILayerVisible(bool visible) { isUILayerVisible_ = visible; }
 	bool IsUILayerVisible() const { return isUILayerVisible_; }
 	// 終了

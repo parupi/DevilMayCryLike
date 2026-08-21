@@ -56,6 +56,13 @@ public:
 	/// <summary>現在のパラメータを実体のライトへ反映する（未生成なら何もしない）</summary>
 	void ApplyLightParams();
 
+protected:
+	/// <summary>
+	/// 実体のポイントライト（未生成なら nullptr）。
+	/// WallTorch のように、派生クラスが毎フレーム明るさや位置を揺らすために使う
+	/// </summary>
+	DynamicPointLight* GetLight() const { return light_; }
+
 private:
 	// ── オプションのポイントライト（ランタンなど）──
 	bool hasLight_ = false;

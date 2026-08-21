@@ -1,6 +1,8 @@
 ﻿#include "GameSceneStatePlay.h"
 #include "Scene/GameScene/GameScene.h"
+#include "GameObject/Character/Player/Player.h"
 #include <Utility/DeltaTime.h>
+#include <algorithm>
 #include <GameObject/Event/EventManager.h>
 #include <GameObject/Event/ClearEvent.h>
 #include <Input/Input.h>
@@ -15,7 +17,18 @@ void GameSceneStatePlay::Enter(GameScene& scene) {
 }
 
 void GameSceneStatePlay::Update(GameScene& scene) {
-	scene.SetSceneTime(DeltaTime::GetDeltaTime());
+	// 死亡演出中は世界（敵・イベント）をスローにしてから止める。
+	// 倒れるプレイヤーだけは Player::Update が実時間で動くので、ここで止まっても最後まで演じ切る
+	float worldScale = 1.0f;
+	Player* player = scene.GetPlayer();
+	if (player && player->IsDying()) {
+		deathWorldTimer_ += DeltaTime::GetDeltaTime();
+		const float t = std::clamp(deathWorldTimer_ / kWorldStopDuration, 0.0f, 1.0f);
+		worldScale = kWorldSlowScale * (1.0f - t);
+	} else {
+		deathWorldTimer_ = 0.0f;
+	}
+	scene.SetSceneTime(DeltaTime::GetDeltaTime() * worldScale);
 
 	float maskAlpha = scene.GetMaskAlpha();
 

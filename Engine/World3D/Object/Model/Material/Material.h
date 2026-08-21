@@ -50,6 +50,15 @@ private:
 	// テクスチャ密度を維持するためのスケール値
 	float textureDensityScale_ = 1.0f;
 
+	/// <summary>UV行列を作る材料。前フレームとの比較用（memcmpするのでPOD）</summary>
+	struct UVSource {
+		UVData uv{};
+		Vector3 objectScale{};
+		uint32_t enableTextureDensity = 0;
+	};
+	UVSource cachedUVSource_{};
+	bool uvSourceValid_ = false;
+
 public:
 	// 色（前方描画とGBuffer(遅延描画)の両方に反映する）
 	Vector4& GetColor() const { return materialForGPU_->color; }

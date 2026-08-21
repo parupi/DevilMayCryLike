@@ -207,6 +207,12 @@ private:
 	MeshShapeSampler* GetMeshSampler(const std::string& modelName);
 
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
+	// エディタ編集を反映するための読み直し位置（1フレーム1グループずつ回す）
+	size_t paramReloadCursor_ = 0;
+#ifdef _DEBUG
+	// パーティクルエディタで開いているグループ。ここだけは毎フレーム読み直す
+	std::string liveEditGroup_;
+#endif
 	std::unordered_map<std::string, ParticleGroupGPU> particleGPU_;
 	std::unordered_map<std::string, ParticleRenderState> renderStates_;
 	std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>> emitters_;
@@ -219,6 +225,15 @@ public:
 	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 
 	const std::unordered_map<std::string, ParticleGroup>& GetParticleGroups() { return particleGroups_; }
+
+#ifdef _DEBUG
+	/// <summary>
+	/// パーティクルエディタで編集中のグループを伝える。
+	/// そのグループだけ毎フレーム GlobalVariables から読み直し、編集を即座に反映する
+	/// （全グループを毎フレーム引くと文字列検索だけで数ミリ秒かかるため）。
+	/// </summary>
+	void SetLiveEditGroup(const std::string& groupName) { liveEditGroup_ = groupName; }
+#endif
 	const std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>>& GetEmitters() { return emitters_; }
 
 	/// <summary>

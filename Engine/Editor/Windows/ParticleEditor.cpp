@@ -94,6 +94,9 @@ void ParticleEditor::DrawParticleWindow()
     ImGui::Combo("Group", &selectedParticleIndex_, names.data(), (int)names.size());
 
     const std::string& gName = keys[selectedParticleIndex_];
+    // 編集中のグループだけは毎フレーム読み直させる。
+    // 他は ParticleManager::Update() が1フレーム1グループずつ回して反映する
+    manager_->SetLiveEditGroup(gName);
 
     // Shape 表示（変更不可：形状はGPUリソースに紐づくため作成時のみ）
     const char* shapeNames[] = { "Plane", "Ring", "Cylinder" };

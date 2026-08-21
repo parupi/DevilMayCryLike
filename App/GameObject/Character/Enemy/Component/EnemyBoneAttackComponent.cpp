@@ -10,6 +10,25 @@ EnemyBoneAttackComponent::EnemyBoneAttackComponent(EnemyHitbox* hitbox)
 
 void EnemyBoneAttackComponent::BeginAttack(Enemy& enemy, const BoneAttackParams& params) {
 	params_ = params;
+
+	// 判定の大きさ・位置は「オブジェクトのスケール1」を前提に書かれているので、
+	// 実際に配置されたスケールを掛けて実寸に合わせる。
+	// EnemyHitbox::Activate が打ち消すのは**レンダラー側の縮小だけ**なので、
+	// これが無いとステージで敵を2倍に置いたときに見た目だけ大きくなり、
+	// 判定が元の大きさのまま置いていかれる（ジョイントは体と一緒に離れていくので、
+	// 頭に付けた噛みつきがプレイヤーの頭上を素通りする）
+	const Vector3 ownerScale = enemy.GetWorldTransform()->GetWorldScale();
+	params_.halfExtents = {
+		params_.halfExtents.x * ownerScale.x,
+		params_.halfExtents.y * ownerScale.y,
+		params_.halfExtents.z * ownerScale.z
+	};
+	params_.offset = {
+		params_.offset.x * ownerScale.x,
+		params_.offset.y * ownerScale.y,
+		params_.offset.z * ownerScale.z
+	};
+
 	timer_ = 0.0f;
 	finished_ = false;
 	hitActive_ = false;

@@ -45,11 +45,12 @@ bool LockOnTarget::IsKnockbackImmune() const {
 
 bool LockOnTarget::IsLockable() const {
 	bool flag = true;
-	// 敵が死亡している場合と待機状態の場合ロックオン対象から除外する
+	// 敵が死亡している場合と待機状態の場合ロックオン対象から除外する。
+	// 死亡演出（吹き飛び〜ディゾルブ）中の敵も、もう倒しているので対象から外す
 	if (auto* enemy = dynamic_cast<Enemy*>(owner_)) {
 		if (!enemy->IsActive()) {
 			flag = false;
-		} else if (!enemy->IsAlive()) {
+		} else if (!enemy->IsAlive() || enemy->IsDying()) {
 			flag = false;
 		}
 	}

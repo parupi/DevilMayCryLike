@@ -17,6 +17,7 @@ public:
 	void Draw() override;
 	void DrawGBuffer() override;
 	void DrawShadow() override;
+	bool GetShadowBoundingSphere(Vector3& outCenter, float& outRadius) const override;
 
 	void SetModel(const std::string& filePath);
 

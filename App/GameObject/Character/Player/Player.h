@@ -19,11 +19,14 @@
 #include "GameObject/Effect/HitPostEffect.h"
 #include "GameObject/Effect/CharacterLight.h"
 #include "GameObject/Effect/HitFlashComponent.h"
+#include "GameObject/Effect/DeathScreenEffect.h"
+#include "GameObject/Effect/DissolveOutEffect.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 #include "Tutorial/Service/TutorialService.h"
 
 class PlayerInput;
+class AnimationPlayer;
 
 struct PlayerCommand;
 
@@ -62,6 +65,10 @@ public:
 	/// 攻撃の再生速度の上下限。0.15秒しかない空中攻撃で倍率が跳ね上がって残像になるのを防ぐ
 	static constexpr float kAttackSpeedMin = 0.75f;
 	static constexpr float kAttackSpeedMax = 3.0f;
+
+	/// とどめの一撃で入れるヒットストップ。普段の攻撃（0.01〜0.03秒）よりはっきり長く止める
+	static constexpr float kDeathHitStopTime = 0.18f;
+	static constexpr float kDeathHitStopIntensity = 0.15f;
 
 	Player(std::string objectName);
 	~Player() override = default;
@@ -198,6 +205,24 @@ public:
 	void NotifyDeathFinished() { isDeathFinished_ = true; }
 	bool IsDeathFinished() const { return isDeathFinished_; }
 
+	/// <summary>
+	/// 死亡演出中か（Death ステートにいるか）。演出が終わってもステートは Death のままなので、
+	/// ゲームオーバーの選択中も true を返す。
+	/// 世界の時間を止める・HUDを引っ込める、といった判断に使う
+	/// </summary>
+	bool IsDying() const;
+
+	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
+	AnimationPlayer* GetAnimationPlayer();
+
+	/// <summary>死亡演出の画面効果（グレースケール＋暗転ビネット）</summary>
+	DeathScreenEffect* GetDeathScreen() const { return deathScreen_.get(); }
+	/// <summary>死亡演出の消滅（ディゾルブ＋黒いもや）</summary>
+	DissolveOutEffect* GetDeathDissolve() const { return deathDissolve_.get(); }
+
+	/// <summary>HUD（ハート）の不透明度。死亡演出でフェードアウトさせるのに使う</summary>
+	void SetHudAlpha(float alpha) { hudAlpha_ = alpha; }
+
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
 	void SetTutorialService(TutorialService* tutorialService) { tutorialService_ = tutorialService; }
@@ -210,13 +235,13 @@ public:
 	// 移動可能範囲の制限を解除する。
 	void ClearMovementBounds() { hasMovementBounds_ = false; }
 private:
-	// Ground/Enemyコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
+	// 地形コライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
 	void ResolveGroundCollision(BaseCollider* other);
+	// 敵とのめり込みを水平方向だけで解消する（OnCollisionEnter/Stay共通処理）
+	void ResolveCharacterCollision(BaseCollider* other);
 
 	// ステートと戦闘状態から再生するクリップを決めて流す。毎フレーム呼ぶ
 	void UpdateAnimation();
-	// 体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る
-	AnimationPlayer* GetAnimationPlayer();
 
 	// 直前のフレームに再生していた攻撃名。コンボで技が変わったら振りを出し直すために覚えておく
 	std::string lastAttackName_;
@@ -271,6 +296,12 @@ private:
 	std::unique_ptr<CharacterLight> characterLight_;
 	// 被弾時に体と武器を一瞬白く光らせるコンポーネント（EmissiveTintを使う）
 	std::unique_ptr<HitFlashComponent> hitFlash_;
+	// 死亡演出で画面から色を抜き、視界を閉じていくエフェクト
+	std::unique_ptr<DeathScreenEffect> deathScreen_;
+	// 死亡演出の最後に体と武器を溶かして消すエフェクト
+	std::unique_ptr<DissolveOutEffect> deathDissolve_;
+	// HUD（ハート）の不透明度。死亡演出で 1 → 0 にする
+	float hudAlpha_ = 1.0f;
 
 	// 移動可能範囲(水平方向)。強制戦闘イベント発動中などに有効化される。
 	bool hasMovementBounds_ = false;
