@@ -763,7 +763,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="Externals\DirectXTex\DirectXTex_Desktop_2022_Win10.vcxproj">
-      <Project>{A90EE592-95C6-26E0-FECD-FF3BEAA4C1D0}</Project>
+      <Project>{371B9FA9-4C90-4AC6-A123-ACED756D6C77}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
