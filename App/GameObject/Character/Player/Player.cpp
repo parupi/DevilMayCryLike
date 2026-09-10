@@ -19,11 +19,18 @@
 #include "State/PlayerStateDeath.h"
 #include "State/PlayerStateClear.h"
 #include "State/PlayerStateKnockBack.h"
+#include "State/PlayerStateDodge.h"
+#include "State/PlayerStateDash.h"
+#include "State/PlayerStateJustDodge.h"
 #include "Controller/PlayerInput.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include "World3D/Camera/CameraManager.h"
+#include "GameObject/Camera/GameCamera.h"
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
+#include "Audio/SoundManager.h"
 
 #include <numbers>
 #include <algorithm>
@@ -63,6 +70,10 @@ Player::Player(std::string objectName) : Object3d(objectName) {
 	stateMachine_->AddState("Death", std::make_unique<PlayerStateDeath>());
 	stateMachine_->AddState("Clear", std::make_unique<PlayerStateClear>());
 	stateMachine_->AddState("Knockback", std::make_unique<PlayerStateKnockBack>());
+	// 回避 → ダッシュ は1つの連続した移動アクション。ジャスト回避はその途中に割り込む
+	stateMachine_->AddState("Dodge", std::make_unique<PlayerStateDodge>());
+	stateMachine_->AddState("Dash", std::make_unique<PlayerStateDash>());
+	stateMachine_->AddState("JustDodge", std::make_unique<PlayerStateJustDodge>());
 }
 
 void Player::Initialize() {
@@ -138,6 +149,22 @@ void Player::Initialize() {
 	deathDissolve_->Reset();
 
 	hudAlpha_ = 1.0f;
+
+	// ── 回避・ダッシュ ──
+	dodgeParams_.RegisterAndLoad();
+	dodgeRuntime_ = PlayerDodgeRuntime{};
+	dodgeInvincibleTimer_ = 0.0f;
+	dodgeCooldownTimer_ = 0.0f;
+	justDodgeSlowTimer_ = 0.0f;
+
+	// 回避・ダッシュ中の残像。武器の軌跡と同じリボンの仕組みを、体の中心に沿って引いている
+	dodgeTrail_ = std::make_unique<WeaponTrail>();
+	dodgeTrail_->Initialize();
+	dodgeTrail_->SetLifetime(dodgeParams_.trailLifetime);
+	dodgeTrailActive_ = false;
+
+	justDodgeEffect_ = std::make_unique<JustDodgeEffect>();
+	justDodgeEffect_->Initialize();
 }
 
 // ステートと戦闘状態から再生するクリップを決めて流す。
@@ -186,6 +213,18 @@ void Player::UpdateAnimation() {
 		anim->Play(kClipClear, true, 0.25f);
 	} else if (name == "Knockback") {
 		anim->Play(kClipKnockBack, false, 0.05f);
+	} else if (name == "Dodge" || name == "JustDodge") {
+		// ノックバックと同じ前転クリップなので、回避で入り直したときは頭から出し直す
+		anim->Play(kClipDodge, false, 0.05f, dodgeAnimRestart_);
+		dodgeAnimRestart_ = false;
+		// 前転クリップは回避時間(0.25秒)より長いので、収まるように速める
+		const float duration = anim->GetDuration();
+		const float speed = (duration > 0.01f && dodgeParams_.dodgeDuration > 0.01f)
+			? duration / dodgeParams_.dodgeDuration : 1.0f;
+		anim->SetSpeed(std::clamp(speed, kDodgeSpeedMin, kDodgeSpeedMax));
+	} else if (name == "Dash") {
+		anim->Play(kClipDash, true, 0.12f);
+		anim->SetSpeed(kDashClipSpeed);
 	} else if (name == "Jump" || name == "Air") {
 		anim->Play(kClipJump, false, 0.1f);
 	} else if (name == "Move") {
@@ -222,10 +261,23 @@ void Player::Update(float deltaTime) {
 		deltaTime = DeltaTime::GetDeltaTime();
 	}
 
+	// 回避・ダッシュの調整値はエディタから触れるよう毎フレーム読み直す
+	dodgeParams_.Apply();
+
+	// ジャスト回避のスローモーションは実時間で数える。
+	// スケール済みの時間で数えると、遅くした分だけ演出が伸びて自分の首を絞める
+	const float realDelta = DeltaTime::GetDeltaTime();
+	if (justDodgeSlowTimer_ > 0.0f) {
+		justDodgeSlowTimer_ -= realDelta;
+	}
+	justDodgeEffect_->Update(realDelta);
+
 	hitStop_->Update(deltaTime);
 	float dt = deltaTime * hitStop_->GetTimeScale();
 	// パーティクルなど自分でヒットストップを持たない系統にも時間停止を伝える
 	TimeManager::RequestGameTimeScale(hitStop_->GetTimeScale());
+	// ジャスト回避のスローもパーティクル・アニメーションへ伝える（最も遅い要求が採用される）
+	TimeManager::RequestGameTimeScale(GetWorldTimeScale());
 
 	// Rキーを押したら死亡演出が流れる ← デバッグ用
 	if (Input::GetInstance().TriggerKey(DIK_R)) {
@@ -240,6 +292,13 @@ void Player::Update(float deltaTime) {
 	if (invincibleTimer_ > 0.0f) {
 		invincibleTimer_ -= dt;
 	}
+	// 回避の無敵とクールダウン
+	if (dodgeInvincibleTimer_ > 0.0f) {
+		dodgeInvincibleTimer_ -= dt;
+	}
+	if (dodgeCooldownTimer_ > 0.0f) {
+		dodgeCooldownTimer_ -= dt;
+	}
 
 	// 被弾ビネットの更新
 	hitVignette_->Update(dt);
@@ -248,6 +307,17 @@ void Player::Update(float deltaTime) {
 	hitPostEffect_->Update(deltaTime);
 
 	weapon_->Update(dt);
+
+	// 回避・ダッシュの残像。点を積むのは移動中だけだが、
+	// 積んだ点が消えるまでは止まった後も更新し続ける必要がある。
+	// 発生条件をステートから引くことで、被弾や死亡で回避が中断されても消し忘れない
+	dodgeTrailActive_ = IsDodging() || IsDashing();
+	if (dodgeTrailActive_) {
+		const Vector3 pos = GetWorldTransform()->GetTranslation();
+		dodgeTrail_->AddPoint(pos + Vector3{ 0.0f, kTrailTopOffsetY, 0.0f },
+			pos + Vector3{ 0.0f, kTrailBottomOffsetY, 0.0f });
+	}
+	dodgeTrail_->Update(dt);
 
 	// ノックバック中は戦闘状態に関わらず常にステートを更新する
 	bool isKnockbackState = (stateMachine_->GetCurrentState() && std::string(stateMachine_->GetCurrentState()->GetDebugName()) == "Knockback");
@@ -309,6 +379,7 @@ void Player::Draw() {
 void Player::DrawEffect() {
 	combat_->Draw();
 	weapon_->DrawEffect();
+	dodgeTrail_->Draw();
 }
 
 void Player::DrawUI() {
@@ -325,10 +396,146 @@ void Player::ExecuteCommand(const PlayerCommand& command) {
 	auto* cur = stateMachine_->GetCurrentState();
 	if (cur && std::string(cur->GetDebugName()) == "Death") return;
 
+	// 回避だけは攻撃中でもここで直接処理する。
+	// 各ステートの ExecuteCommand へ配ると、攻撃中はステートに届かない（下の分岐で止まる）ため、
+	// 「攻撃を回避でキャンセルする」というDMC系の基本動作が成立しない
+	if (command.action == PlayerAction::Dodge) {
+		if (CanStartDodge()) {
+			combat_->InterruptCombat();
+			ChangeState("Dodge");
+		}
+		return;
+	}
+
+	// 回避・ダッシュ中に攻撃へ移る場合は、先に移動ステートを畳んでおく。
+	// 攻撃中はステートの更新が止まるので、放置すると攻撃後に古いタイマーのまま再開してしまう。
+	// 水平速度もここで落とす（移動しない攻撃だと、回避の勢いのまま滑りながら斬ってしまう）
+	if (command.action == PlayerAction::Attack && (IsDodging() || IsDashing())) {
+		velocity_.x = 0.0f;
+		velocity_.z = 0.0f;
+		ChangeState("Idle");
+	}
+
 	if (!combat_->IsAttacking()) {
 		stateMachine_->ExecuteCommand(*this, command);
 	}
 	combat_->ExecuteCommand(command);
+}
+
+bool Player::IsDodging() const {
+	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
+	if (!current) return false;
+	const std::string name = current->GetDebugName();
+	return name == "Dodge" || name == "JustDodge";
+}
+
+bool Player::IsDashing() const {
+	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
+	return current && std::string(current->GetDebugName()) == "Dash";
+}
+
+float Player::GetWorldTimeScale() const {
+	return (justDodgeSlowTimer_ > 0.0f) ? dodgeParams_.justDodgeTimeScale : 1.0f;
+}
+
+bool Player::CanStartDodge() const {
+	if (dodgeCooldownTimer_ > 0.0f) return false;
+	// 空中では回避できない。宙に浮いたまま滑る絵にならないよう接地を必須にしている
+	if (!onGround_) return false;
+
+	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
+	if (!current) return false;
+
+	// 回避中の再入力は無視（ダッシュ中は方向を変える手段として許可する）
+	const std::string name = current->GetDebugName();
+	if (name == "Death" || name == "Clear" || name == "Knockback") return false;
+	if (name == "Dodge" || name == "JustDodge") return false;
+
+	return true;
+}
+
+Vector3 Player::CalcDodgeDirection() {
+	// スティックが入っていれば画面基準の入力方向（仕様書 §5.2 の推奨）
+	const Vector3 inputDir = GetMoveDirection();
+	if (Length(inputDir) > 0.01f) return inputDir;
+
+	// 入力が無ければキャラクターの前方向。このモデルの正面はローカル +Z
+	Vector3 forward = TransformNormal(Vector3{ 0.0f, 0.0f, 1.0f }, GetWorldTransform()->GetMatWorld());
+	forward.y = 0.0f;
+	const float length = Length(forward);
+	return (length > 0.0001f) ? forward * (1.0f / length) : Vector3{ 0.0f, 0.0f, 1.0f };
+}
+
+void Player::FaceDirection(const Vector3& direction) {
+	// ロックオン中は敵の方を向いたまま横へ滑ってほしいので向きは変えない
+	if (lockOn_ && lockOn_->IsLockOn()) return;
+	if (Length(direction) < 0.001f) return;
+
+	// Rotate() と同じく、LookRotation へ渡す前にXを反転させる
+	Vector3 dir = direction;
+	dir.x *= -1.0f;
+	GetWorldTransform()->GetRotation() = LookRotation(dir);
+}
+
+void Player::OnDodgeStart() {
+	const PlayerDodgeParams& params = dodgeParams_;
+
+	dodgeInvincibleTimer_ = params.invincibleTime;
+	dodgeCooldownTimer_ = params.dodgeDuration + params.cooldown;
+	dodgeAnimRestart_ = true;
+
+	// 残像は短く控えめに。ダッシュに入ったところで濃く長くする。
+	// トレイルは加算合成なので、明るい床の上でも色が乗るように青を濃いめにしている
+	dodgeTrail_->Clear();
+	dodgeTrail_->SetLifetime(params.trailLifetime);
+	dodgeTrail_->SetTintColor({ 0.30f, 0.65f, 1.0f, 0.85f });
+
+	// 足元の砂埃。回避方向の逆へ舞わせる
+	const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
+	ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
+
+	SoundManager::GetInstance().PlaySE("Dodge", 0.6f);
+
+	// 追従ライトのフラッシュはここでは焚かない。
+	// 回避は頻繁に使うので、毎回床が真っ白に照らされると画面がうるさくなる
+}
+
+void Player::OnDashStart() {
+	const PlayerDodgeParams& params = dodgeParams_;
+
+	// 残像を強くする。回避との差をここではっきり付ける（仕様書 §10.3）
+	dodgeTrail_->SetLifetime(params.trailLifetime * 1.6f);
+	dodgeTrail_->SetTintColor({ 0.55f, 0.85f, 1.0f, 1.0f });
+
+	SoundManager::GetInstance().PlaySE("Dash", 0.7f);
+
+	// ダッシュ開始の瞬間だけ画角を広げる。
+	// 速度に応じた常時のFOV変化はカメラ側が別に持っているので、ここは立ち上がりの「蹴り」だけ
+	if (auto* camera = dynamic_cast<GameCamera*>(CameraManager::GetInstance().GetActiveCamera())) {
+		camera->AddFovPunch(params.dashFovPunch);
+	}
+}
+
+void Player::OnJustDodge() {
+	const PlayerDodgeParams& params = dodgeParams_;
+
+	dodgeRuntime_.justDodgePending = false;
+	dodgeRuntime_.justDodgeUsed = true;
+
+	// ダメージは TakeDamage 側で既に弾いている。ここは無敵の延長と演出だけ
+	dodgeInvincibleTimer_ += params.justDodgeInvincibleAdd;
+	justDodgeSlowTimer_ = params.justDodgeSlowTime;
+
+	// 衝撃波は「攻撃してきた側 → プレイヤー」の向きに立てる
+	const Vector3 playerPos = GetWorldTransform()->GetTranslation();
+	Vector3 fromAttacker = playerPos - dodgeRuntime_.justDodgeInfo.attackerPosition;
+	fromAttacker.y = 0.0f;
+	const float length = Length(fromAttacker);
+	const Vector3 direction = (length > 0.001f) ? fromAttacker * (1.0f / length) : Vector3{ 0.0f, 1.0f, 0.0f };
+
+	justDodgeEffect_->Play(playerPos, direction, params.justDodgeShake);
+	characterLight_->Flash();
+	hitFlash_->Start();
 }
 
 Vector3 Player::GetMoveDirection() const {
@@ -403,7 +610,19 @@ void Player::TakeDamage(const DamageInfo& info) {
 	// デス状態・無敵時間中は被ダメージなし
 	auto* cur = stateMachine_->GetCurrentState();
 	if (cur && std::string(cur->GetDebugName()) == "Death") return;
+
+	// 優先順位は ジャスト回避 ＞ 通常無敵 ＞ 被弾（仕様書 §15）。
+	// 回避中なら通常の無敵処理より先にジャスト回避を成立させる。
+	// 実際の演出と無敵の延長は、次の更新で Dodge ステートが JustDodge へ移ってから行う
+	if (IsDodging() && !dodgeRuntime_.justDodgeUsed) {
+		dodgeRuntime_.justDodgePending = true;
+		dodgeRuntime_.justDodgeInfo = info;
+		return;
+	}
+
 	if (invincibleTimer_ > 0.0f) return;
+	// 回避の無敵。ジャスト回避を使い切った後やダッシュへ移った後も、残っている間は当たらない
+	if (dodgeInvincibleTimer_ > 0.0f) return;
 	// トレーニングの常時無敵。のけぞりも出さず、敵の攻撃を素通りさせる
 	if (invincible_) return;
 
@@ -433,6 +652,9 @@ void Player::TakeDamage(const DamageInfo& info) {
 		hitStop_->Start(kDeathHitStopTime, kDeathHitStopIntensity, HitStopStrength::Heavy);
 		// 被弾の赤いビネットは死亡の暗転とぶつかるので止める
 		hitVignette_->Stop();
+		// ジャスト回避の演出が残っていると、白フラッシュとスローが暗転に食い込む
+		justDodgeSlowTimer_ = 0.0f;
+		justDodgeEffect_->Stop();
 		ChangeState("Death");
 	} else {
 		stateMachine_->ChangeState(*this, "Knockback");

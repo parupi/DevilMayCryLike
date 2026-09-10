@@ -4,7 +4,8 @@
 class EnemyBoneAttackComponent;
 
 /// <summary>
-/// 速い縦斬り攻撃。予備動作0.45秒→振り0.22秒。
+/// 速い噛みつき攻撃。予備動作1.0秒→振り0.2秒（攻撃全体1.43秒）。
+/// 3種のなかで一番速いが、それでも見てから避けられる長さの溜めを持つ。
 /// </summary>
 class BossStateSlash : public EnemyStateBase
 {

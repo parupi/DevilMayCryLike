@@ -19,37 +19,32 @@ void EnemyHitbox::SetupAttachment(BaseRenderer* skinnedRenderer) {
 	GetWorldTransform()->SetParent(skinnedRenderer_->GetWorldTransform());
 }
 
-void EnemyHitbox::Activate(const std::string& jointName, const Vector3& halfExtents,
-	const Vector3& offset, const DamageInfo& damage) {
-	damage_ = damage;
-
-	if (skinnedRenderer_) {
-		attachment_.Initialize(skinnedRenderer_, jointName);
-	}
-
-	// 親（レンダラー）の縮小を打ち消して、引数をワールド単位として扱えるようにする。
+Vector3 EnemyHitbox::UndoParentScale(const Vector3& value) const {
 	// OBBCollider はワールド行列から取り出したスケールを halfExtents に掛けるので、
 	// ここで割っておかないとモデルの縮小率ぶんだけ判定が小さくなる
 	const Vector3 parentScale = skinnedRenderer_
 		? skinnedRenderer_->GetWorldTransform()->GetWorldScale()
 		: Vector3{ 1.0f, 1.0f, 1.0f };
-	auto undoScale = [](float value, float scale) {
-		return (scale > 1e-4f) ? (value / scale) : value;
+	auto undo = [](float v, float scale) {
+		return (scale > 1e-4f) ? (v / scale) : v;
 	};
+	return { undo(value.x, parentScale.x), undo(value.y, parentScale.y), undo(value.z, parentScale.z) };
+}
+
+void EnemyHitbox::Activate(const std::string& jointName, const Vector3& halfExtents,
+	const Vector3& offset, const DamageInfo& damage) {
+	damage_ = damage;
+	useBone_ = true;
+
+	if (skinnedRenderer_) {
+		attachment_.Initialize(skinnedRenderer_, jointName);
+	}
 
 	// ジョイント基準のオフセット。追従側のローカル座標がそのままオフセットになる
-	GetWorldTransform()->GetTranslation() = {
-		undoScale(offset.x, parentScale.x),
-		undoScale(offset.y, parentScale.y),
-		undoScale(offset.z, parentScale.z)
-	};
+	GetWorldTransform()->GetTranslation() = UndoParentScale(offset);
 
 	if (auto* collider = dynamic_cast<OBBCollider*>(GetCollider(name_))) {
-		collider->GetColliderData().halfExtents = {
-			undoScale(halfExtents.x, parentScale.x),
-			undoScale(halfExtents.y, parentScale.y),
-			undoScale(halfExtents.z, parentScale.z)
-		};
+		collider->GetColliderData().halfExtents = UndoParentScale(halfExtents);
 	}
 
 	active_ = true;
@@ -58,13 +53,36 @@ void EnemyHitbox::Activate(const std::string& jointName, const Vector3& halfExte
 	Apply();
 }
 
+void EnemyHitbox::ActivateOriented(const Vector3& halfExtents, const Vector3& offset,
+	const DamageInfo& damage) {
+	damage_ = damage;
+	useBone_ = false;
+
+	// ボーン追従をやめる。前の攻撃で入ったジョイント行列を消しておかないと、
+	// 体の正面ではなくその骨の位置・向きに判定が出たままになる
+	GetWorldTransform()->ClearAttachMatrix();
+	GetWorldTransform()->GetRotation() = Identity();
+
+	// 親はレンダラーなので、ローカル座標がそのまま体の正面基準になる（+Z がプレイヤー側）
+	GetWorldTransform()->GetTranslation() = UndoParentScale(offset);
+
+	if (auto* collider = dynamic_cast<OBBCollider*>(GetCollider(name_))) {
+		collider->GetColliderData().halfExtents = UndoParentScale(halfExtents);
+	}
+
+	active_ = true;
+	SetColliderActive(true);
+}
+
 void EnemyHitbox::Deactivate() {
 	active_ = false;
 	SetColliderActive(false);
 }
 
 void EnemyHitbox::Apply() {
-	if (!active_) {
+	// 体の正面基準（ActivateOriented）の判定はレンダラーの子として付いていくだけなので、
+	// ここで何もしなくてよい
+	if (!active_ || !useBone_) {
 		return;
 	}
 	// ジョイントが見つからないモデル（静的モデルに戻した等）ではそのままにしておく。

@@ -9,6 +9,10 @@ EnemyMeleeAttackComponent::EnemyMeleeAttackComponent(Object3d* weapon)
 
 void EnemyMeleeAttackComponent::BeginAttack(Enemy& enemy, const MeleeAttackParams& params) {
 	params_ = params;
+	// 予兆は「スケール1のときのワールド単位」で書かれているので、配置スケールを掛けて実寸に合わせる
+	const Vector3 ownerScale = enemy.GetWorldTransform()->GetWorldScale();
+	params_.telegraph.ApplyScale(ownerScale.x, ownerScale.z);
+
 	timer_ = 0.0f;
 	finished_ = false;
 	enemy.SetIsAttack(true);
@@ -65,4 +69,26 @@ void EnemyMeleeAttackComponent::Update(Enemy& enemy, float deltaTime) {
 		enemy.SetIsAttack(false);
 		enemy.EndAttackAnimation();
 	}
+
+	UpdateTelegraph(enemy);
+}
+
+void EnemyMeleeAttackComponent::UpdateTelegraph(Enemy& enemy) {
+	if (params_.telegraph.shape == TelegraphShape::None) return;
+	// 振り始めたら出すのをやめる。
+	// マーカー側が「出されなくなった＝発生した」と見て、閃光を出しながら畳んでくれる
+	if (finished_ || timer_ >= params_.windupDuration) return;
+
+	const float progress = (params_.windupDuration > 0.01f)
+		? std::clamp(timer_ / params_.windupDuration, 0.0f, 1.0f)
+		: 1.0f;
+	AttackTelegraph::GetInstance().Submit(this, params_.telegraph,
+		enemy.GetFootPosition(), enemy.GetForward(), progress);
+}
+
+void EnemyMeleeAttackComponent::CancelTelegraph() {
+	// 予備動作の途中で中断された場合だけ消す。
+	// 振り始めた後のマーカーは閃光を出して畳まれている最中なので触らない
+	if (finished_ || timer_ >= params_.windupDuration) return;
+	AttackTelegraph::GetInstance().Cancel(this);
 }

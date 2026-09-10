@@ -23,6 +23,14 @@ public:
 	virtual ~Enemy() override;
 
 	/// <summary>
+	/// 接地したときに地面へわずかに沈める量[m]。
+	/// コライダーを地面と重ねたままにするための遊びで、これが無いと押し出した次のフレームに
+	/// 接触が切れて OnCollisionStay が来なくなり、接地判定が明滅して落下と着地を繰り返す。
+	/// 見た目（モデルの足元）はこのぶん持ち上げて打ち消す（ApplyModelGroundOffset）
+	/// </summary>
+	static constexpr float kGroundSink = 0.1f;
+
+	/// <summary>
 	/// 敵の初期化処理  
 	/// 各種ステート・エフェクト・物理パラメータを設定する。
 	/// </summary>
@@ -206,6 +214,19 @@ public:
 	void SetOnGround(bool flag) { onGround_ = flag; }
 
 	/// <summary>
+	/// 体が向いている水平方向（正規化済み）。敵の前方向は **ローカル -Z**。
+	/// 向きが取れないとき（真上を向いている等）は +Z を返す。
+	/// </summary>
+	Vector3 GetForward();
+
+	/// <summary>
+	/// 足元のワールド座標。X/Z は本体、Y は **コライダーの底**（＝立っている地面の高さ）。
+	/// 攻撃予兆のように地面へ置く演出の基準に使う。
+	/// オブジェクト原点はコライダーの中心なので、原点をそのまま使うと宙に浮く
+	/// </summary>
+	Vector3 GetFootPosition();
+
+	/// <summary>
 	/// プレイヤーのポインタを取得する。
 	/// </summary>
 	Player* GetPlayer() { return player_; }
@@ -310,6 +331,15 @@ public:
 	/// <summary>被弾リアクションの回転を消して、向き補正だけの状態に戻す。</summary>
 	void ClearModelReactionRotation() { SetModelReactionRotation(Identity()); }
 
+	/// <summary>
+	/// 体のモデルに掛ける固定の縦補正。派生クラスがコンストラクタ（レンダラー登録後）で呼ぶ。
+	///
+	/// 既定では **モデルの原点が足元にある** ものとして、足がコライダーの底＝立っている地面に
+	/// 来るように自動で下げる（ApplyModelGroundOffset）。原点が腰や胴にあるモデルを使うときだけ、
+	/// そのズレをここで足す。値は **オブジェクトのスケール1 のときのワールド単位**（上が正）。
+	/// </summary>
+	void SetModelGroundOffset(float offset) { modelGroundOffset_ = offset; }
+
 	// ======================
 	// アニメーション
 	// ======================
@@ -342,7 +372,31 @@ public:
 	/// </summary>
 	void BeginAttackAnimation(float weaponImpactSeconds);
 	/// <summary>攻撃が終わって等速に戻す</summary>
-	void EndAttackAnimation() { attackFitSeconds_ = 0.0f; }
+	void EndAttackAnimation() { attackFitSeconds_ = 0.0f; attackSpeedOverride_ = 0.0f; }
+
+	/// <summary>
+	/// 攻撃クリップの再生速度を直接指定する。
+	/// 「予備動作だけを引き伸ばす（溜めはゆっくり・振り抜きは等速）」のように、
+	/// 攻撃の途中で速度を切り替えたいときに使う。
+	/// UpdateAnimation が毎フレーム速度を書き直すので、AnimationPlayer::SetSpeed を
+	/// 直接呼んでも1フレームで打ち消される。**必ずこちらを通すこと**。
+	/// </summary>
+	void SetAttackAnimationSpeed(float speed) { attackSpeedOverride_ = speed; }
+	/// <summary>速度の指定を解除して等速（または攻撃の尺合わせ）に戻す</summary>
+	void ClearAttackAnimationSpeed() { attackSpeedOverride_ = 0.0f; }
+
+	// ======================
+	// 向き
+	// ======================
+
+	/// <summary>
+	/// プレイヤーへ向き直る速さ[度/秒]。既定の 0 は「毎フレーム即座に向く」（従来どおり）。
+	/// 正の値を入れるとその速さまでしか回れなくなり、横へ走られると照準が置いていかれる。
+	/// ブレスのように「見てから横へ抜ければ避けられる」攻撃で使う。
+	/// **ステートの Enter で設定したら Exit で必ず 0 に戻すこと**（戻さないと以降ずっと鈍いままになる）。
+	/// </summary>
+	void SetFaceTurnSpeed(float degreesPerSecond) { faceTurnSpeed_ = degreesPerSecond; }
+	float GetFaceTurnSpeed() const { return faceTurnSpeed_; }
 
 	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
 	AnimationPlayer* GetAnimationPlayer();
@@ -406,8 +460,14 @@ private:
 	// 行ベクトル規約なのでクォータニオンの積は「後に掛けるもの * 先に掛けるもの」になる。
 	void ApplyModelRotation();
 
+	// 体のモデルの足元をコライダーの底（＝立っている地面）に合わせてレンダラーへ書き込む。
+	// コライダーの大きさはステージ側のデータなので、毎フレーム引き直して追従させる
+	// （エディタでコライダーを変えてもその場で合う）。
+	void ApplyModelGroundOffset();
+
 	Quaternion modelRotationOffset_ = Identity();   // モデル固有の向き補正（差し替えても変わらない）
 	Quaternion modelReactionRotation_ = Identity(); // 被弾リアクション（毎フレーム変わる）
+	float modelGroundOffset_ = 0.0f;                // モデル固有の縦補正（原点が足元でないモデル用）
 
 	// ステートと演出フェーズから再生クリップを決めて流す。毎フレーム呼ぶ
 	void UpdateAnimation();
@@ -434,6 +494,11 @@ private:
 	std::string currentStateName_;
 	// >0 のとき、攻撃クリップをこの秒数に収まる速度で再生する
 	float attackFitSeconds_ = 0.0f;
+	// >0 のとき、attackFitSeconds_ より優先してこの速度で攻撃クリップを流す。
+	// 予備動作の引き伸ばしのように、ステート側が速度を明示する場合に使う
+	float attackSpeedOverride_ = 0.0f;
+	// >0 のとき、プレイヤーへ向き直る速さをこの[度/秒]に制限する（0 なら即座に向く）
+	float faceTurnSpeed_ = 0.0f;
 	// 次の UpdateAnimation で攻撃クリップを頭から出し直すか（連続攻撃で振り直すため）
 	bool attackAnimRestart_ = false;
 
@@ -442,8 +507,7 @@ private:
 	void ClampToMovementBounds();
 
 	// Groundコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
-	// resetVelocity: 接地面に押し出した際にvelocity_.yを0にリセットするか
-	void ResolveGroundCollision(BaseCollider* other, bool resetVelocity);
+	void ResolveGroundCollision(BaseCollider* other);
 
 	// 真下の地面まで即座に降ろす（Spawn時用）。
 	// 空中に配置された敵が出現後に落下してくるのを防ぐ。地面が見つからなければ元の位置のまま。

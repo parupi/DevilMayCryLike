@@ -28,6 +28,19 @@ namespace {
         p.preferEvents = false;
         p.hitStartRatio = 0.35f;
         p.hitEndRatio = 0.85f;
+
+        // 溜めを 0.31秒 → 約0.9秒 に伸ばす。突進は距離を一気に詰めてくるぶん、
+        // 踏み込む前にその場で構える時間を長めに取って進路から逃げられるようにする
+        p.extraWindupTime = 0.6f;
+
+        // 予兆。突進の進路をそのまま帯で示す。
+        // 長さは体の厚み + 判定が出ている間に進む距離（22m/s × 約0.44秒 ≒ 9.7m）。
+        // 手前へずらして、突進を始める前の体の位置も帯に含める
+        // （スケール1基準。ステージ配置が2倍なので実寸は幅3.8m・長さ13m）
+        p.telegraph.shape = TelegraphShape::Rect;
+        p.telegraph.halfWidth = 1.9f;
+        p.telegraph.length = 6.5f;
+        p.telegraph.forwardOffset = -1.7f;
         return p;
     }
 }

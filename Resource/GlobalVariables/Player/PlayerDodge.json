@@ -1,0 +1,18 @@
+{
+    "PlayerDodge": {
+        "DashDuration": 1.2,
+        "DashFovPunch": 0.05000000074505806,
+        "DashInputGrace": 0.15000000596046448,
+        "DashSpeed": 26.0,
+        "DashTurnRate": 5.0,
+        "DodgeCooldown": 0.15000000596046448,
+        "DodgeDuration": 0.25,
+        "DodgeInvincibleTime": 0.2199999988079071,
+        "DodgeSpeed": 19.0,
+        "JustDodgeInvincibleAdd": 0.15000000596046448,
+        "JustDodgeShake": 0.2199999988079071,
+        "JustDodgeSlowTime": 0.07999999821186066,
+        "JustDodgeTimeScale": 0.25,
+        "TrailLifetime": 0.2199999988079071
+    }
+}

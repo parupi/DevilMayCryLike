@@ -40,6 +40,17 @@ public:
 	void Activate(const std::string& jointName, const Vector3& halfExtents,
 		const Vector3& offset, const DamageInfo& damage);
 
+	/// <summary>
+	/// ジョイントに追従させず、**体の正面基準**で判定を出す。
+	///
+	/// ブレスのように「口から前方へまっすぐ伸びる」判定は、頭の骨の向きに従わせると
+	/// あらぬ方向へ伸びてしまう（骨のローカル軸はモデルごとにばらばら）。
+	/// こちらはレンダラーのローカル軸で解釈するので、
+	/// **+Z がプレイヤー側・+Y が上** になり、狙った形の判定をそのまま置ける。
+	/// halfExtents / offset がワールド単位なのは Activate と同じ。
+	/// </summary>
+	void ActivateOriented(const Vector3& halfExtents, const Vector3& offset, const DamageInfo& damage);
+
 	/// <summary>判定を無効にする</summary>
 	void Deactivate();
 
@@ -63,8 +74,13 @@ private:
 	// コライダーの isActive を切り替える（見つからなければ何もしない）
 	void SetColliderActive(bool active);
 
+	// 親（レンダラー）の縮小を打ち消して、引数をワールド単位として扱えるようにする
+	Vector3 UndoParentScale(const Vector3& value) const;
+
 	BoneAttachment attachment_;
 	BaseRenderer* skinnedRenderer_ = nullptr;
 	DamageInfo damage_{};
 	bool active_ = false;
+	// ジョイント追従か（false なら ActivateOriented による体の正面基準）
+	bool useBone_ = true;
 };

@@ -43,6 +43,15 @@ void TutorialSystem::Update() {
 
 	// 装飾の更新
 	decoration_->Update();
+
+	// 最後のチュートリアルの絵と背景マスクが消えきってから「全部クリア」にする。
+	// AdvanceTutorial の時点で完了にしてしまうと、最後の1発が
+	// 「チュートリアルを終わらせた攻撃」と「練習台へのとどめ」を兼ねてしまい、
+	// まだ手順の絵が出ているうちに TutorialDummy が倒れる（CanDie() がその場で true になるため）
+	if (isFinishing_ && currentTutorial_->IsInactive() && decoration_->IsInactive()) {
+		isFinishing_ = false;
+		isAllFinished_ = true;
+	}
 }
 
 void TutorialSystem::StartTutorial(TutorialState state) {
@@ -94,7 +103,8 @@ void TutorialSystem::AdvanceTutorial() {
 	} else {
 		// 最後まで完了したら背景マスクもフェードアウトさせる
 		decoration_->End();
-		// 全チュートリアル完了。チュートリアル用の敵などが参照する
-		isAllFinished_ = true;
+		// 表示が消えきるまでは「完了」にしない（Update で isAllFinished_ を立てる）。
+		// ここで即座に完了にすると、最後の1発でそのまま TutorialDummy が倒れてしまう
+		isFinishing_ = true;
 	}
 }

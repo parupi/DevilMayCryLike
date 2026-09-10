@@ -2,6 +2,9 @@
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Object/Renderer/PrimitiveRenderer.h>
 #include <World3D/Collider/CollisionManager.h>
+#include <World3D/Collider/OBBCollider.h>
+#include <World3D/Collider/AABBCollider.h>
+#include <World3D/Collider/SphereCollider.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
 #include "GameObject/Character/Player/Player.h"
 #include <Scene/Transition/TransitionManager.h>
@@ -9,6 +12,8 @@
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
 #include <algorithm>
+#include <cmath>
+#include <numbers>
 #ifdef _DEBUG
 #endif
 
@@ -81,7 +86,10 @@ void Enemy::UpdateAnimation() {
 
 	// 攻撃中だけ、体の「振り切る瞬間」が武器の振り抜きと重なるように再生速度を決める。
 	// GetDuration() は再生中クリップの長さなので必ず Play の後に取ること
-	if (attackFitSeconds_ > 0.01f) {
+	if (attackSpeedOverride_ > 0.0f) {
+		// ステート側が速度を明示している間はそちらに従う（予備動作の引き伸ばしなど）
+		anim->SetSpeed(attackSpeedOverride_);
+	} else if (attackFitSeconds_ > 0.01f) {
 		const float clipImpact = anim->GetDuration() * it->second.impactRatio;
 		const float speed = (clipImpact > 0.01f) ? (clipImpact / attackFitSeconds_) : 1.0f;
 		anim->SetSpeed(std::clamp(speed, kAttackSpeedMin, kAttackSpeedMax));
@@ -98,6 +106,42 @@ void Enemy::ApplyModelRotation() {
 	// 行ベクトル規約なので v * M(補正) * M(リアクション) = v * M(リアクション * 補正)。
 	// 先にモデルを正面へ向けてから、被弾でよろけさせる。
 	renderer->GetWorldTransform()->GetRotation() = modelReactionRotation_ * modelRotationOffset_;
+}
+
+void Enemy::ApplyModelGroundOffset() {
+	BaseRenderer* renderer = GetRenderer(name_);
+	if (!renderer) return;
+	BaseCollider* collider = GetCollider(name_);
+	if (!collider) return;
+
+	// オブジェクトの原点はコライダーの中心なので、モデルをそのまま置くと
+	// 縦半分ぶん宙に浮いてしまう（影だけが地面に落ちて見える）。
+	// Player は kModelOffsetY で同じことを手で書いているが、敵はコライダーの大きさが
+	// ステージ側のデータで決まるため、ここで引き直して合わせる。
+	// 値はすべてオブジェクトのローカル単位（配置スケールは親の行列が掛ける）
+	float bottomLocal = 0.0f;
+	switch (collider->GetShapeType()) {
+	case CollisionShapeType::OBB: {
+		const OBBData& data = static_cast<OBBCollider*>(collider)->GetColliderData();
+		bottomLocal = data.offset.y - data.halfExtents.y;
+		break;
+	}
+	case CollisionShapeType::AABB:
+		bottomLocal = static_cast<AABBCollider*>(collider)->GetColliderData().offsetMin.y;
+		break;
+	case CollisionShapeType::Sphere: {
+		const SphereData& data = static_cast<SphereCollider*>(collider)->GetColliderData();
+		bottomLocal = data.offset.y - data.radius;
+		break;
+	}
+	}
+
+	// 接地中はコライダーの底が地面より kGroundSink だけ下にあるので、そのぶん持ち上げて
+	// 足の裏を地面の高さに合わせる。沈み量はワールド単位なので配置スケールで割る
+	const float scaleY = GetWorldTransform()->GetWorldScale().y;
+	const float sinkLocal = (scaleY > 1.0e-4f) ? (kGroundSink / scaleY) : 0.0f;
+
+	renderer->GetWorldTransform()->GetTranslation().y = bottomLocal + sinkLocal + modelGroundOffset_;
 }
 
 void Enemy::Initialize() {
@@ -177,6 +221,10 @@ void Enemy::Update(float deltaTime) {
 		if (characterLight_) characterLight_->SetEnabled(false);
 		return;
 	}
+
+	// モデルの足元を地面に合わせる。出現・死亡演出中も含めて毎フレーム掛け直す
+	// （コライダーの大きさはステージデータ側なので、エディタで変えても追従させたい）
+	ApplyModelGroundOffset();
 
 	// キャラクター追従ライトの更新（出現・死亡演出中も含めて追従させる）
 	if (characterLight_) {
@@ -280,6 +328,19 @@ void Enemy::Update(float deltaTime) {
 	// 回転Quaternionを計算
 	Quaternion rot = FromToRotation(forward, dir);
 
+	// 向き直りに上限がある間（ブレス中など）は、1フレームで回れる角度を制限する。
+	// 目標を追いきれなくなるので、プレイヤーが横へ走れば照準から外れられる
+	if (faceTurnSpeed_ > 0.0f) {
+		const Quaternion current = GetWorldTransform()->GetRotation();
+		// 近い方の回転で角度を測る（Quaternion は q と -q が同じ姿勢なので符号を揃える）
+		const float cosHalf = std::clamp(std::abs(Dot(current, rot)), 0.0f, 1.0f);
+		const float angle = 2.0f * std::acos(cosHalf);
+		const float maxStep = faceTurnSpeed_ * (std::numbers::pi_v<float> / 180.0f) * dt;
+		if (angle > maxStep && angle > 1e-4f) {
+			rot = Slerp(current, rot, maxStep / angle);
+		}
+	}
+
 	// 回転をセット
 	GetWorldTransform()->GetRotation() = rot;
 
@@ -295,6 +356,41 @@ void Enemy::Draw() {
 }
 
 void Enemy::DrawEffect() {
+}
+
+Vector3 Enemy::GetForward() {
+	// 敵はローカル -Z がプレイヤー側を向く（Enemy::Update の回転）
+	Vector3 forward = TransformNormal({ 0.0f, 0.0f, -1.0f }, GetWorldTransform()->GetMatWorld());
+	forward.y = 0.0f;
+	if (Length(forward) < 0.001f) return { 0.0f, 0.0f, 1.0f };
+	return Normalize(forward);
+}
+
+Vector3 Enemy::GetFootPosition() {
+	Vector3 pos = GetWorldTransform()->GetWorldPos();
+
+	// 敵はY軸まわりにしか回らないので、コライダーの底は「中心 - 縦の半分」でよい
+	BaseCollider* collider = GetCollider(name_);
+	if (!collider) return pos;
+
+	switch (collider->GetShapeType()) {
+	case CollisionShapeType::OBB: {
+		auto* obb = static_cast<OBBCollider*>(collider);
+		pos.y = obb->GetCenter().y - obb->GetWorldHalfExtents().y;
+		break;
+	}
+	case CollisionShapeType::AABB: {
+		auto* aabb = static_cast<AABBCollider*>(collider);
+		pos.y = aabb->GetMin().y;
+		break;
+	}
+	case CollisionShapeType::Sphere: {
+		auto* sphere = static_cast<SphereCollider*>(collider);
+		pos.y = sphere->GetCenter().y - sphere->GetRadius();
+		break;
+	}
+	}
+	return pos;
 }
 
 void Enemy::Spawn() {
@@ -353,7 +449,7 @@ void Enemy::SnapToGround() {
 			if (result.hit && result.normal.y > 0.5f) {
 				// ResolveGroundCollision と同じ押し出し + わずかな沈み込み
 				GetWorldTransform()->GetTranslation() += result.normal * result.depth;
-				GetWorldTransform()->GetTranslation().y -= 0.1f;
+				GetWorldTransform()->GetTranslation().y -= kGroundSink;
 				onGround_ = true;
 				Object3d::Update(0.0f);
 				return;
@@ -380,17 +476,18 @@ void Enemy::OnCollisionEnter(BaseCollider* other) {
 	// 出現前は押し出されない（判定を切ってあるので届かないはずだが、配置位置を守るための保険）
 	if (!isActive_) return;
 	if (other->category_ != CollisionCategory::Ground) return;
-	ResolveGroundCollision(other, /*resetVelocity=*/true);
+	ResolveGroundCollision(other);
 }
 
 void Enemy::OnCollisionStay(BaseCollider* other) {
 	if (!isActive_) return;
 	if (other->category_ != CollisionCategory::Ground) return;
-	ResolveGroundCollision(other, /*resetVelocity=*/false);
+	ResolveGroundCollision(other);
 }
 
-void Enemy::ResolveGroundCollision(BaseCollider* other, bool resetVelocity) {
+void Enemy::ResolveGroundCollision(BaseCollider* other) {
 	BaseCollider* enemyCollider = GetCollider(name_);
+	if (!enemyCollider) return;
 
 	PenetrationResult result = CollisionManager::GetInstance().CalculatePenetration(enemyCollider, other);
 	if (!result.hit) return;
@@ -398,10 +495,27 @@ void Enemy::ResolveGroundCollision(BaseCollider* other, bool resetVelocity) {
 	GetWorldTransform()->GetTranslation() += result.normal * result.depth;
 
 	if (result.normal.y > 0.5f) {
-		GetWorldTransform()->GetTranslation().y -= 0.1f;
-		if (resetVelocity) velocity_.y = 0.0f;
+		GetWorldTransform()->GetTranslation().y -= kGroundSink;
+
+		// 地面に載っている間は下向きの速度を残さない。
+		// 残すと「毎フレーム沈み込む → 押し出される」を繰り返して上下にがくつく。
+		// 特に吹き飛ばしの着地後が目立つ（KnockBack が落下速度を書き込んだまま
+		// 意思決定ステートへ戻り、そちらは velocity_.y を触らないため残り続ける）。
+		// 上向きの速度は消さない（打ち上げた瞬間はまだ地面と重なっているので、
+		// ここで消すと飛び上がれなくなる）
+		if (velocity_.y < 0.0f) {
+			velocity_.y = 0.0f;
+		}
 		onGround_ = true;
 	}
+
+	// 押し出した結果を自分のコライダーへ反映する。
+	// CollisionManager は判定を回す前に一度だけコライダーを更新するので、これが無いと
+	// 同じフレームの2枚目以降の床が「まだ深くめり込んでいる」古い位置で計算され、
+	// 押し出しが二重に効いて地面から浮く → 落ちる → また浮く、を繰り返す。
+	// （床が複数のコライダーに分かれている場所へ吹き飛ばすとこれが起きる）
+	UpdateTransformOnly();
+	enemyCollider->Update();
 }
 
 void Enemy::OnCollisionExit(BaseCollider* other) {

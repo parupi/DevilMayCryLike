@@ -16,7 +16,7 @@ namespace {
 		// 「足元まで垂れ下がる」くらい縦を取らないと頭上を素通りする。
 		// 箱の向きはジョイントの向きに従う（頭の骨は首の方向を向く）ため、
 		// どの軸が下を向いても届くよう3軸とも大きめに取っている
-		p.halfExtents = { 1.1f, 1.1f, 1.1f };
+		p.halfExtents = { 1.1f, 1.2f, 1.1f };
 		p.offset = { 0.0f, 0.0f, 0.0f }; // ジョイントの向きは骨ごとに違うので原点のまま使う
 		p.duration = 0.88f;                   // Dragon_Attack のクリップ長
 		p.rushSpeed = 3.0f;                   // 噛みつきながら少し踏み込む
@@ -28,9 +28,20 @@ namespace {
 		p.damage.stunTime = 0.5f;
 
 		// .anim.json にイベントが無い場合のフォールバック。
-		// Dragon_Attack は BodyRoot の角速度ピークが 0.583/0.88 秒＝67% なのでその前後
+		// Dragon_Attack は BodyRoot の角速度ピークが 0.583/0.88 秒＝67% なのでその前後。
+		// この比率は溜めと本編の境目にも使うので、hit_start(0.48秒＝55%) に合わせてある
 		p.hitStartRatio = 0.55f;
 		p.hitEndRatio = 0.78f;
+
+		// 溜めを 0.48秒 → 約1.0秒 に伸ばす。噛みつきは一番速い攻撃なので、
+		// 「来る」と分かってから避けられるぎりぎりの長さに留める
+		p.extraWindupTime = 0.55f;
+
+		// 予兆。正面へ噛みつくので扇形。少し踏み込むぶん半径に余裕を持たせてある
+		// （スケール1基準。ステージ配置が2倍なので実寸は半径5.2m）
+		p.telegraph.shape = TelegraphShape::Fan;
+		p.telegraph.radius = 2.6f;
+		p.telegraph.halfAngleDeg = 50.0f;
 		return p;
 	}
 }

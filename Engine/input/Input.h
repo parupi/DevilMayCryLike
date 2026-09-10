@@ -147,6 +147,21 @@ public: // メンバ関数
 	float GetRightStickX() const;
 	float GetRightStickY() const;
 
+	// ── アナログトリガー(LT/RT) ──
+	// XInput のトリガーは 0〜255 のアナログ値で wButtons にビットを持たないため、
+	// PushButton / TriggerButton では拾えない。閾値を超えたら「押した」とみなす専用の窓口を用意する
+	static constexpr BYTE kTriggerPressThreshold = 96; // 約38%踏み込み。誤爆しない範囲で軽めにしてある
+
+	// 踏み込み量[0.0〜1.0]
+	float GetLeftTrigger() const;
+	float GetRightTrigger() const;
+	// 踏み込んでいるか
+	bool PushLeftTrigger() const;
+	bool PushRightTrigger() const;
+	// 踏み込んだ瞬間か
+	bool TriggerLeftTrigger() const;
+	bool TriggerRightTrigger() const;
+
 #ifdef _DEBUG
 	// ── エディタ専用 ──
 	// デバッグカメラを飛ばしている間、同じ WASD でプレイヤーまで動いてしまうので、

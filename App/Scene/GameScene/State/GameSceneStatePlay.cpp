@@ -27,6 +27,11 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 		worldScale = kWorldSlowScale * (1.0f - t);
 	} else {
 		deathWorldTimer_ = 0.0f;
+		// ジャスト回避の一瞬のスロー。避けた瞬間を認識させるためのもので、
+		// 長さは Player 側が実時間で数えている（0.08秒程度）
+		if (player) {
+			worldScale = player->GetWorldTimeScale();
+		}
 	}
 	scene.SetSceneTime(DeltaTime::GetDeltaTime() * worldScale);
 

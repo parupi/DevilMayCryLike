@@ -75,6 +75,15 @@ void PlayerInput::Update()
 		commands_.push_back(command);
 	}
 
+	// 回避（RT / 左Shift）。押した瞬間だけ拾う。
+	// RT はアナログ値でボタンビットを持たないので Input の専用窓口を使う
+	if (input_->TriggerRightTrigger() || input_->TriggerKey(DIK_LSHIFT)) {
+		PlayerCommand command{};
+		command.action = PlayerAction::Dodge;
+		command.stickDir = context_.move;
+		commands_.push_back(command);
+	}
+
 	if (input_->IsConnected()) {
 		if (input_->TriggerButton(ButtonY)) {
 			PlayerCommand command{};

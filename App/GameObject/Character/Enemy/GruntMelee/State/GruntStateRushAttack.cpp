@@ -26,6 +26,13 @@ namespace
             { -55.0f,   0.0f,  25.0f },  // 振り抜き中
             {-115.0f,   0.0f,  25.0f },  // ghost
         };
+
+        // 予兆。突進の進路を帯で示す。
+        // 長さは攻撃フェーズで進む距離（18m/s × 0.30秒 = 5.4m）に体の厚みを足したもの
+        p.telegraph.shape = TelegraphShape::Rect;
+        p.telegraph.halfWidth = 0.9f;
+        p.telegraph.length = 6.5f;
+        p.telegraph.forwardOffset = -0.6f;
         return p;
     }
 }
@@ -51,5 +58,7 @@ void GruntStateRushAttack::Update(Enemy& enemy, float deltaTime)
 
 void GruntStateRushAttack::Exit(Enemy& enemy)
 {
+    // 予備動作の途中で中断されたら予兆も消す（放置すると「攻撃が来た」と誤認して光る）
+    attack_->CancelTelegraph();
     enemy;
 }

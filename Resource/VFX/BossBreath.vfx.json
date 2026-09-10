@@ -1,0 +1,230 @@
+{
+    "Name": "BossBreath",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Particles": [
+            {
+                "ParticleName": "BreathFlame",
+                "Count": 6,
+                "SpawnRate": 1.0
+            },
+            {
+                "ParticleName": "BreathEmber",
+                "Count": 2,
+                "SpawnRate": 1.0
+            }
+        ]
+    },
+    "Particles": {
+        "BreathFlame": {
+            "Texture": "smoke.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 0,
+                "BlendMode": 2,
+                "Drag": 0.6,
+                "FadeType": 1,
+                "Gravity": [
+                    0.0,
+                    1.2,
+                    0.0
+                ],
+                "IsBillboard": true,
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 17.0,
+                "SpeedMin": 11.0,
+                "SpreadDegrees": 11.0,
+                "UseDirectional": true,
+                "VelocityStretch": 0.05,
+                "maxAlpha": 0.0,
+                "maxColor": [
+                    1.0,
+                    1.0,
+                    0.9
+                ],
+                "maxLifeTime": 0.85,
+                "maxRotate": [
+                    0.0,
+                    0.0,
+                    3.2
+                ],
+                "maxScale": [
+                    1.1,
+                    1.1,
+                    1.1
+                ],
+                "maxTranslate": [
+                    0.35,
+                    0.35,
+                    0.35
+                ],
+                "maxVelocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minAlpha": 0.0,
+                "minColor": [
+                    1.0,
+                    0.85,
+                    0.55
+                ],
+                "minLifeTime": 0.65,
+                "minRotate": [
+                    0.0,
+                    0.0,
+                    -3.2
+                ],
+                "minScale": [
+                    0.55,
+                    0.55,
+                    0.55
+                ],
+                "minTranslate": [
+                    -0.35,
+                    -0.35,
+                    -0.35
+                ],
+                "minVelocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "Curves": {
+                "SizeCurve": [
+                    { "t": 0.0, "v": 0.35 },
+                    { "t": 0.35, "v": 1.0 },
+                    { "t": 1.0, "v": 1.9 }
+                ],
+                "AlphaCurve": [
+                    { "t": 0.0, "v": 0.0 },
+                    { "t": 0.12, "v": 1.0 },
+                    { "t": 0.55, "v": 0.8 },
+                    { "t": 1.0, "v": 0.0 }
+                ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 1.0, 0.92, 1.0 ] },
+                    { "t": 0.25, "c": [ 1.0, 0.8, 0.3, 1.0 ] },
+                    { "t": 0.6, "c": [ 1.0, 0.36, 0.07, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.35, 0.07, 0.02, 1.0 ] }
+                ]
+            }
+        },
+        "BreathEmber": {
+            "Texture": "white.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 2,
+                "BlendMode": 2,
+                "Drag": 0.25,
+                "FadeType": 1,
+                "Gravity": [
+                    0.0,
+                    -5.5,
+                    0.0
+                ],
+                "IsBillboard": true,
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 24.0,
+                "SpeedMin": 14.0,
+                "SpreadDegrees": 20.0,
+                "UseDirectional": true,
+                "VelocityStretch": 0.14,
+                "maxAlpha": 0.0,
+                "maxColor": [
+                    1.0,
+                    0.9,
+                    0.6
+                ],
+                "maxLifeTime": 0.8,
+                "maxRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxScale": [
+                    0.12,
+                    0.12,
+                    0.12
+                ],
+                "maxTranslate": [
+                    0.2,
+                    0.2,
+                    0.2
+                ],
+                "maxVelocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minAlpha": 0.0,
+                "minColor": [
+                    1.0,
+                    0.65,
+                    0.25
+                ],
+                "minLifeTime": 0.45,
+                "minRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minScale": [
+                    0.05,
+                    0.05,
+                    0.05
+                ],
+                "minTranslate": [
+                    -0.2,
+                    -0.2,
+                    -0.2
+                ],
+                "minVelocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "Curves": {
+                "SizeCurve": [
+                    { "t": 0.0, "v": 1.0 },
+                    { "t": 0.65, "v": 0.85 },
+                    { "t": 1.0, "v": 0.0 }
+                ],
+                "AlphaCurve": [
+                    { "t": 0.0, "v": 0.0 },
+                    { "t": 0.06, "v": 1.0 },
+                    { "t": 0.5, "v": 0.85 },
+                    { "t": 1.0, "v": 0.0 }
+                ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 0.97, 0.75, 1.0 ] },
+                    { "t": 0.4, "c": [ 1.0, 0.62, 0.2, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.7, 0.16, 0.03, 1.0 ] }
+                ]
+            }
+        }
+    }
+}

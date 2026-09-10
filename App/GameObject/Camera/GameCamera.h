@@ -34,6 +34,13 @@ public:
 	/// <param name="trauma">加えるトラウマ量（0〜1目安）。実際の揺れはtrauma^2に比例する</param>
 	void AddShake(float trauma);
 
+	/// <summary>
+	/// 画角を一時的に広げる（ダッシュ開始の「蹴り」など）。加えた分は自動で減衰して消える。
+	/// 速度に応じた常時のFOV変化とは別枠で、そちらへ上乗せされる。
+	/// </summary>
+	/// <param name="add">足す画角[rad]。既に残っている量より大きいときだけ置き換わる</param>
+	void AddFovPunch(float add);
+
 #ifdef _DEBUG
 	/// <summary>
 	/// エディタ表示用の状態スナップショット。
@@ -144,6 +151,9 @@ private:
 	// ⑨ Action Camera：攻撃状態から滑らかに寄る/戻るためのズーム倍率（実行時）
 	float actionZoomScale_ = 1.0f;
 
+	// 単発のFOVの「蹴り」（ダッシュ開始など）。AddFovPunch で入り、毎フレーム減衰する
+	float fovPunch_ = 0.0f;
+
 	// ===== 調整パラメータ（GlobalVariablesエディタから編集） =====
 	// 既定値は RegisterParams() の AddItem と一致させること
 	float baseFollowDistance_ = 18.0f;// Free時の基準追従距離（distance_の目標値）
@@ -203,6 +213,7 @@ private:
 	float fovSpeedMin_ = 6.0f;        // FOVが広がり始める水平速度
 	float fovSpeedMax_ = 14.0f;       // FOVが最大まで広がる水平速度
 	float fovLerpSpeed_ = 4.0f;       // FOVの補間速度
+	float fovPunchDecay_ = 6.0f;      // 単発のFOVの蹴りが抜けていく速さ（/秒）
 
 	// ⑨ Action Camera（攻撃時ズーム）
 	float attackDistanceScale_ = 0.85f;// 攻撃中の距離倍率（<1で寄る）

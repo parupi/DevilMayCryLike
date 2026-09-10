@@ -21,6 +21,9 @@
 #include "GameObject/Effect/HitFlashComponent.h"
 #include "GameObject/Effect/DeathScreenEffect.h"
 #include "GameObject/Effect/DissolveOutEffect.h"
+#include "GameObject/Effect/JustDodgeEffect.h"
+#include "Graphics/Rendering/Effect/WeaponTrail.h"
+#include "PlayerDodge.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 #include "Tutorial/Service/TutorialService.h"
@@ -48,6 +51,10 @@ public:
 	/// モデルの足元(y=0)をコライダーの底に合わせるための縦オフセット
 	static constexpr float kModelOffsetY = -0.5f;
 
+	/// 回避・ダッシュの残像（リボン）を張る高さ。モデルの頭と足元に合わせてある
+	static constexpr float kTrailTopOffsetY = 0.7f;
+	static constexpr float kTrailBottomOffsetY = -0.45f;
+
 	// ── アニメーションクリップ名（Alien.gltf が持つ15種のうち使うもの）──
 	// 差し替えは Player::UpdateAnimation() の対応表と合わせて見ること
 	static constexpr const char* kClipIdle      = "Alien_Idle";
@@ -57,6 +64,16 @@ public:
 	static constexpr const char* kClipKnockBack = "Alien_Roll";
 	static constexpr const char* kClipDeath     = "Alien_Death";
 	static constexpr const char* kClipClear     = "Alien_Clapping";
+	/// 回避の前転。ノックバックと同じクリップだが、再生速度と入り方が違うので別名で持つ
+	static constexpr const char* kClipDodge     = "Alien_Roll";
+	/// ダッシュは走りを速回しして使う
+	static constexpr const char* kClipDash      = "Alien_Run";
+
+	/// 回避モーションの再生速度の上下限。回避時間(0.25秒)に対して前転クリップが長いので速める
+	static constexpr float kDodgeSpeedMin = 1.0f;
+	static constexpr float kDodgeSpeedMax = 2.5f;
+	/// ダッシュ中の走りモーションの速回し倍率
+	static constexpr float kDashClipSpeed = 1.5f;
 
 	/// Alien_SwordSlash(1.04秒)で振り切る瞬間の位置。
 	/// gltf のキーフレームで Palm.R / Torso の角速度ピークが 0.458秒＝44%だった。
@@ -140,12 +157,58 @@ public:
 
 	// プレイヤーの移動方向を取得する。
 	Vector3 GetMoveDirection() const;
-	// プレイヤーの移動処理  
+	// プレイヤーの移動処理
 	void Move(Vector3 moveDir, float deltaTime);
 	// プレイヤーの向き更新処理
 	void Rotate(Vector3 moveDir, float deltaTime);
-	/// ロックオン処理  
+	// 指定方向へ即座に向き直る。回避・ダッシュのように「入力した瞬間にその方向を向く」用
+	void FaceDirection(const Vector3& direction);
+	/// ロックオン処理
 	void LockOn();
+
+	// ======================
+	// 回避・ダッシュ
+	// ======================
+
+	/// 調整値（GlobalVariables の PlayerDodge グループ）
+	const PlayerDodgeParams& GetDodgeParams() const { return dodgeParams_; }
+	/// Dodge / JustDodge / Dash の3ステートがまたいで使う実行時状態
+	PlayerDodgeRuntime& GetDodgeRuntime() { return dodgeRuntime_; }
+
+	/// <summary>
+	/// 今このフレームに回避を始められるか。
+	/// 死亡・クリア・ノックバック中、クールダウン中、空中では回避できない
+	/// </summary>
+	bool CanStartDodge() const;
+
+	/// <summary>
+	/// 回避方向を決める。スティック入力があればその方向（カメラ基準）、無ければキャラクターの前方向。
+	/// 返るのは水平の単位ベクトル
+	/// </summary>
+	/// <remarks>ワールド行列を引くため const にはできない（Object3d::GetWorldTransform が非const）</remarks>
+	Vector3 CalcDodgeDirection();
+
+	/// 回避開始時の共通処理（無敵とクールダウンの開始・SE・残像の開始・足元の砂埃）
+	void OnDodgeStart();
+	/// ダッシュ開始時の共通処理（SE・カメラのFOVパンチ・残像の強化）
+	void OnDashStart();
+	/// ジャスト回避成立時の処理（無敵の延長・スローモーション・専用演出）
+	void OnJustDodge();
+
+	/// 回避中（Dodge / JustDodge ステート）か
+	bool IsDodging() const;
+	/// ダッシュ中か
+	bool IsDashing() const;
+	/// 回避の無敵が残っているか
+	bool IsDodgeInvincible() const { return dodgeInvincibleTimer_ > 0.0f; }
+	/// ジャスト回避のスローモーション中か
+	bool IsJustDodgeSlow() const { return justDodgeSlowTimer_ > 0.0f; }
+
+	/// <summary>
+	/// 世界（敵・イベント）に掛けてほしい時間倍率。
+	/// ジャスト回避のスロー中だけ1未満を返す。適用するのは GameSceneStatePlay
+	/// </summary>
+	float GetWorldTimeScale() const;
 
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
@@ -306,4 +369,23 @@ private:
 	// 移動可能範囲(水平方向)。強制戦闘イベント発動中などに有効化される。
 	bool hasMovementBounds_ = false;
 	MovementBounds movementBounds_{};
+
+	// ── 回避・ダッシュ ──
+	PlayerDodgeParams dodgeParams_{};
+	PlayerDodgeRuntime dodgeRuntime_{};
+	// 回避の無敵の残り時間。被弾直後の invincibleTimer_ とは別枠で持つ
+	// （ジャスト回避判定より後・通常被弾より先に見るため）
+	float dodgeInvincibleTimer_ = 0.0f;
+	// 次に回避できるようになるまでの残り時間
+	float dodgeCooldownTimer_ = 0.0f;
+	// ジャスト回避のスローモーションの残り時間。実時間で減る
+	float justDodgeSlowTimer_ = 0.0f;
+	// 回避・ダッシュ中の残像（リボン）。武器の軌跡と同じ仕組みを使っている
+	std::unique_ptr<WeaponTrail> dodgeTrail_;
+	// 残像に点を積んでいる最中か
+	bool dodgeTrailActive_ = false;
+	// 回避モーションを頭から出し直す印。OnDodgeStart で立てて UpdateAnimation が消す
+	bool dodgeAnimRestart_ = false;
+	// ジャスト回避の演出（白フラッシュ・衝撃波・SE・シェイク）
+	std::unique_ptr<JustDodgeEffect> justDodgeEffect_;
 };

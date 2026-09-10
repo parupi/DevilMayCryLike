@@ -336,13 +336,13 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h">
-      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h">
@@ -429,6 +429,9 @@
     <ClInclude Include="App\GameObject\Character\Player\Player.h">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\PlayerDodge.h">
+      <Filter>App\GameObject\Character\Player</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\PlayerWeapon.h">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClInclude>
@@ -447,13 +450,22 @@
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateClear.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateDash.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateDeath.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateDodge.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateIdle.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateJump.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateJustDodge.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateKnockBack.h">
@@ -464,6 +476,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\AttackTelegraph.h">
+      <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
       <Filter>App\GameObject\Effect</Filter>
@@ -487,6 +502,9 @@
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitVignetteEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\JustDodgeEffect.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
@@ -788,6 +806,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h">
+      <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
@@ -1310,13 +1331,13 @@
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp">
-      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateKnockBack.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp">
@@ -1397,6 +1418,9 @@
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\PlayerDodge.cpp">
+      <Filter>App\GameObject\Character\Player</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\PlayerWeapon.cpp">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClCompile>
@@ -1409,13 +1433,22 @@
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateClear.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDash.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDeath.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDodge.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateIdle.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateJump.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateJustDodge.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateKnockBack.cpp">
@@ -1426,6 +1459,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\AttackTelegraph.cpp">
+      <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
       <Filter>App\GameObject\Effect</Filter>
@@ -1449,6 +1485,9 @@
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitVignetteEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\JustDodgeEffect.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
@@ -1744,6 +1783,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp">
+      <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
