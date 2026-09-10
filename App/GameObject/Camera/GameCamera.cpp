@@ -153,6 +153,7 @@ void GameCamera::RegisterParams() {
 	global_->AddItem(name_, "FovSpeedMin", fovSpeedMin_);
 	global_->AddItem(name_, "FovSpeedMax", fovSpeedMax_);
 	global_->AddItem(name_, "FovLerpSpeed", fovLerpSpeed_);
+	global_->AddItem(name_, "FovPunchDecay", fovPunchDecay_);
 	global_->AddItem(name_, "AttackDistanceScale", attackDistanceScale_);
 	global_->AddItem(name_, "ActionZoomSpeed", actionZoomSpeed_);
 
@@ -229,6 +230,7 @@ void GameCamera::ApplyParams() {
 	fovSpeedMin_ = global_->GetValueRef<float>(name_, "FovSpeedMin");
 	fovSpeedMax_ = global_->GetValueRef<float>(name_, "FovSpeedMax");
 	fovLerpSpeed_ = global_->GetValueRef<float>(name_, "FovLerpSpeed");
+	fovPunchDecay_ = global_->GetValueRef<float>(name_, "FovPunchDecay");
 	attackDistanceScale_ = global_->GetValueRef<float>(name_, "AttackDistanceScale");
 	actionZoomSpeed_ = global_->GetValueRef<float>(name_, "ActionZoomSpeed");
 	enemyFramingEnabled_ = global_->GetValueRef<bool>(name_, "EnemyFramingEnabled");
@@ -243,6 +245,11 @@ void GameCamera::ApplyParams() {
 	shakeHitTrauma_ = global_->GetValueRef<float>(name_, "ShakeHitTrauma");
 	shakeLandTrauma_ = global_->GetValueRef<float>(name_, "ShakeLandTrauma");
 	shakeLandSpeedThreshold_ = global_->GetValueRef<float>(name_, "ShakeLandSpeedThreshold");
+}
+
+void GameCamera::AddFovPunch(float add) {
+	// 連続で呼ばれても足し込まない。ダッシュを連打したときに画角が際限なく広がるのを防ぐ
+	fovPunch_ = (std::max)(fovPunch_, add);
 }
 
 void GameCamera::AddShake(float trauma) {
@@ -292,6 +299,9 @@ void GameCamera::UpdateFovAndZoom(float dt) {
 	float targetFov = fovNormal_ + (fovDash_ - fovNormal_) * speedT;
 	// ⑫ Battle状態では画角を少し広げる
 	targetFov += battleFovAdd_ * battleBlend_;
+	// ダッシュ開始などの単発の「蹴り」。速度由来の変化に上乗せして減衰させる
+	targetFov += fovPunch_;
+	fovPunch_ *= std::exp(-fovPunchDecay_ * dt);
 
 	float fovT = 1.0f - std::exp(-fovLerpSpeed_ * dt);
 	float fov = GetFovY() + (targetFov - GetFovY()) * fovT;

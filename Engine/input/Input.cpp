@@ -208,3 +208,29 @@ float Input::GetRightStickY() const {
 	float rawValue = gamepadStates.Gamepad.sThumbRY / 32767.0f;
 	return ProcessDeadZone(rawValue);
 }
+
+float Input::GetLeftTrigger() const {
+	return gamepadStates.Gamepad.bLeftTrigger / 255.0f;
+}
+
+float Input::GetRightTrigger() const {
+	return gamepadStates.Gamepad.bRightTrigger / 255.0f;
+}
+
+bool Input::PushLeftTrigger() const {
+	return gamepadStates.Gamepad.bLeftTrigger >= kTriggerPressThreshold;
+}
+
+bool Input::PushRightTrigger() const {
+	return gamepadStates.Gamepad.bRightTrigger >= kTriggerPressThreshold;
+}
+
+bool Input::TriggerLeftTrigger() const {
+	return gamepadStates.Gamepad.bLeftTrigger >= kTriggerPressThreshold &&
+		preGamepadStates.Gamepad.bLeftTrigger < kTriggerPressThreshold;
+}
+
+bool Input::TriggerRightTrigger() const {
+	return gamepadStates.Gamepad.bRightTrigger >= kTriggerPressThreshold &&
+		preGamepadStates.Gamepad.bRightTrigger < kTriggerPressThreshold;
+}

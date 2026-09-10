@@ -27,6 +27,7 @@
 #include <GameObject/Character/Enemy/Enemy.h>
 #include <GameData/GameSession.h>
 #include "GameObject/Effect/HitEffectSystem.h"
+#include "GameObject/Effect/AttackTelegraph.h"
 #include "World3D/Object/Object3dManager.h"
 #include "Input/Input.h"
 #include "Audio/SoundManager.h"
@@ -108,6 +109,16 @@ void GameScene::Initialize() {
 	if (!ParticleManager::GetInstance().LoadVFX("HitImpact")) {
 		// 読めなかった場合はヒット時に何も出なくなる。原因は Debug Log に出る
 		assert(false && "Resource/VFX/HitImpact.vfx.json の読み込みに失敗しました");
+	}
+
+	// ── 回避・ダッシュのVFX ──
+	// 回避開始の足元の砂埃と、ジャスト回避成功時の衝撃波（リング＋火花）。
+	// 再生は Player::OnDodgeStart / JustDodgeEffect::Play からの PlayVFX
+	if (!ParticleManager::GetInstance().LoadVFX("DodgeDust")) {
+		assert(false && "Resource/VFX/DodgeDust.vfx.json の読み込みに失敗しました");
+	}
+	if (!ParticleManager::GetInstance().LoadVFX("JustDodgeBurst")) {
+		assert(false && "Resource/VFX/JustDodgeBurst.vfx.json の読み込みに失敗しました");
 	}
 
 	// スカイボックスを生成
@@ -203,6 +214,8 @@ void GameScene::Initialize() {
 void GameScene::Finalize() {
 	// カメラ・プレイヤーが破棄される前に参照を切る
 	HitEffectSystem::GetInstance().Finalize();
+	// 出したままの予兆マーカーを次のシーンへ持ち越さない
+	AttackTelegraph::GetInstance().Clear();
 
 	states_.clear();
 	SpriteManager::GetInstance().DeleteNonPersistentSprite();
@@ -290,6 +303,11 @@ void GameScene::Update() {
 	tutorial_->Update();
 
 	Object3dManager::GetInstance().SetDeltaTime(sceneDeltaTime_);
+
+	// 攻撃予兆の寿命を進める。**敵の更新（Object3dManager::Update）より前**に呼ぶこと。
+	// 「前フレームに出し直されなかったマーカー＝判定が出た」と判断しているので、
+	// 敵より後に呼ぶと出したそばから畳まれてしまう
+	AttackTelegraph::GetInstance().Update(sceneDeltaTime_);
 }
 
 void GameScene::Draw() {
@@ -297,6 +315,9 @@ void GameScene::Draw() {
 	if (player_) {
 		player_->DrawEffect();
 	}
+
+	// 敵の攻撃予兆（地面の赤いマーカー）。パーティクルより下に敷く
+	AttackTelegraph::GetInstance().Draw();
 
 	// 全パーティクルの描画
 	ParticleManager::GetInstance().Draw();

@@ -1,0 +1,73 @@
+{
+    "Name": "DodgeDust",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Particles": [
+            {
+                "ParticleName": "DodgeDustPuff",
+                "Count": 6,
+                "SpawnRate": 1.0
+            }
+        ]
+    },
+    "Particles": {
+        "DodgeDustPuff": {
+            "Texture": "smoke.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 0,
+                "BlendMode": 1,
+                "Drag": 0.25,
+                "FadeType": 1,
+                "Gravity": [ 0.0, 1.2, 0.0 ],
+                "IsBillboard": true,
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 5.0,
+                "SpeedMin": 2.0,
+                "SpreadDegrees": 38.0,
+                "UseDirectional": true,
+                "VelocityStretch": 0.0,
+                "maxAlpha": 0.0,
+                "maxColor": [ 0.82, 0.86, 0.95 ],
+                "maxLifeTime": 0.45,
+                "maxRotate": [ 0.0, 0.0, 3.14 ],
+                "maxScale": [ 0.42, 0.42, 0.42 ],
+                "maxTranslate": [ 0.18, 0.05, 0.18 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ],
+                "minAlpha": 0.0,
+                "minColor": [ 0.62, 0.68, 0.8 ],
+                "minLifeTime": 0.28,
+                "minRotate": [ 0.0, 0.0, -3.14 ],
+                "minScale": [ 0.24, 0.24, 0.24 ],
+                "minTranslate": [ -0.18, -0.05, -0.18 ],
+                "minVelocity": [ 0.0, 0.0, 0.0 ]
+            },
+            "Curves": {
+                "SizeCurve": [
+                    { "t": 0.0, "v": 0.5 },
+                    { "t": 0.35, "v": 1.0 },
+                    { "t": 1.0, "v": 1.5 }
+                ],
+                "AlphaCurve": [
+                    { "t": 0.0, "v": 0.0 },
+                    { "t": 0.15, "v": 0.55 },
+                    { "t": 1.0, "v": 0.0 }
+                ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 1.0, 1.0, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.8, 0.85, 1.0, 1.0 ] }
+                ]
+            }
+        }
+    }
+}

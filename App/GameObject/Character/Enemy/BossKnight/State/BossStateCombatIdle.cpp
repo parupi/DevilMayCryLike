@@ -6,8 +6,8 @@
 #include <cstdlib>
 
 BossStateCombatIdle::BossStateCombatIdle(EnemySensorComponent* sensor, EnemyMovementComponent* movement,
-	float maxHp)
-	: sensor_(sensor), movement_(movement), maxHp_(maxHp) {}
+	float maxHp, BossBattleMemory* memory)
+	: sensor_(sensor), movement_(movement), maxHp_(maxHp), memory_(memory) {}
 
 // 次の行動を選ぶまでの間を置く。
 // **ここを 0 にしてはいけない**。攻撃ステートは終わると必ずこのステートへ戻ってくるので、
@@ -34,6 +34,23 @@ float BossStateCombatIdle::GetCooldown(int phase) const {
 	return 0.5f; // フェーズ3: 素早く判断
 }
 
+// 必殺技のブレスを撃つかどうか。距離・フェーズとは別枠で判定する。
+//   1. HPが半分を切った瞬間に解禁し、その1回目は必ず撃つ（「半分でブレスが来る」を保証）
+//   2. 以降は kBreathChance の確率で混ぜる
+// 解禁フラグはボス本体が持つ BossBattleMemory に記録するので、
+// Idle / Move / CombatIdle のどのインスタンスから来ても同じ記憶を見る
+bool BossStateCombatIdle::ShouldUseBreath(const Enemy& enemy, int roll) {
+	if (!memory_ || maxHp_ <= 0.0f) return false;
+
+	if (!memory_->breathUnlocked && (enemy.GetHp() / maxHp_) <= kBreathHpRatio) {
+		memory_->breathUnlocked = true;
+		memory_->breathUsed = false;
+	}
+	if (!memory_->breathUnlocked) return false;
+
+	return !memory_->breathUsed || (roll < kBreathChance);
+}
+
 void BossStateCombatIdle::Update(Enemy& enemy, float deltaTime) {
 	if (!enemy.GetOnGround()) return;
 
@@ -45,55 +62,71 @@ void BossStateCombatIdle::Update(Enemy& enemy, float deltaTime) {
 	float dist = sensor_->GetDistanceToPlayer();
 	int   roll = std::rand() % 100;
 
+	// 攻撃行動が許可されていない敵（トレーニングの攻撃抑制など）は、
+	// 攻撃の抽選結果を接近に置き換える
+	const bool canAttack = enemy.CanAttack();
+	auto attack = [canAttack](const char* attackState) {
+		return canAttack ? attackState : BossStateName::Approach;
+	};
+
+	// ─── 必殺技: 火炎ブレス ───────────────────────────────────────
+	// 距離を問わず割り込む（リーチが11mあるので中〜遠距離からでも届く）
+	if (canAttack && ShouldUseBreath(enemy, roll)) {
+		memory_->breathUsed = true;
+		enemy.ChangeState(BossStateName::Breath);
+		cooldown_ = GetCooldown(phase);
+		return;
+	}
+
 	// ─── フェーズ別・距離別の行動選択 ─────────────────────────────
 	if (phase == 1) {
 		if (dist < 4.0f) {
 			// 近距離: 通常斬り主体
-			if (roll < 60) enemy.ChangeState(BossStateName::Slash);
-			else if (roll < 90) enemy.ChangeState(BossStateName::HeavySword);
+			if (roll < 60) enemy.ChangeState(attack(BossStateName::Slash));
+			else if (roll < 90) enemy.ChangeState(attack(BossStateName::HeavySword));
 			else enemy.ChangeState(BossStateName::Approach);
 		}
 		else if (dist < 12.0f) {
 			// 中距離: 接近か斬り
 			if (roll < 50) enemy.ChangeState(BossStateName::Approach);
-			else if (roll < 80) enemy.ChangeState(BossStateName::Slash);
-			else enemy.ChangeState(BossStateName::Rush);
+			else if (roll < 80) enemy.ChangeState(attack(BossStateName::Slash));
+			else enemy.ChangeState(attack(BossStateName::Rush));
 		}
 		else {
 			// 遠距離: 接近優先
 			if (roll < 80) enemy.ChangeState(BossStateName::Approach);
-			else enemy.ChangeState(BossStateName::Rush);
+			else enemy.ChangeState(attack(BossStateName::Rush));
 		}
 	}
 	else if (phase == 2) {
 		if (dist < 4.0f) {
 			// 近距離: 斬り・叩きつけを均等に
-			if (roll < 50) enemy.ChangeState(BossStateName::Slash);
-			else enemy.ChangeState(BossStateName::HeavySword);
+			if (roll < 50) enemy.ChangeState(attack(BossStateName::Slash));
+			else enemy.ChangeState(attack(BossStateName::HeavySword));
 		}
 		else if (dist < 12.0f) {
 			// 中距離: 突進が増える
-			if (roll < 45) enemy.ChangeState(BossStateName::Rush);
-			else if (roll < 75) enemy.ChangeState(BossStateName::Slash);
+			if (roll < 45) enemy.ChangeState(attack(BossStateName::Rush));
+			else if (roll < 75) enemy.ChangeState(attack(BossStateName::Slash));
 			else enemy.ChangeState(BossStateName::Approach);
 		}
 		else {
-			if (roll < 65) enemy.ChangeState(BossStateName::Rush);
+			if (roll < 65) enemy.ChangeState(attack(BossStateName::Rush));
 			else enemy.ChangeState(BossStateName::Approach);
 		}
 	}
 	else {
 		// フェーズ3: 最大攻撃的
 		if (dist < 4.0f) {
-			if (roll < 40) enemy.ChangeState(BossStateName::Slash);
-			else enemy.ChangeState(BossStateName::HeavySword);
+			if (roll < 40) enemy.ChangeState(attack(BossStateName::Slash));
+			else enemy.ChangeState(attack(BossStateName::HeavySword));
 		}
 		else if (dist < 12.0f) {
-			if (roll < 65) enemy.ChangeState(BossStateName::Rush);
-			else enemy.ChangeState(BossStateName::HeavySword);
+			if (roll < 65) enemy.ChangeState(attack(BossStateName::Rush));
+			else enemy.ChangeState(attack(BossStateName::HeavySword));
 		}
 		else {
-			if (roll < 85) enemy.ChangeState(BossStateName::Rush);
+			if (roll < 85) enemy.ChangeState(attack(BossStateName::Rush));
 			else enemy.ChangeState(BossStateName::Approach);
 		}
 	}

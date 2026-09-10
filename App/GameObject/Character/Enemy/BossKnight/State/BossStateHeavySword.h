@@ -4,7 +4,7 @@
 class EnemyBoneAttackComponent;
 
 /// <summary>
-/// 遅くて強力な叩きつけ攻撃。予備動作0.9秒→叩きつけ0.35秒。
+/// 遅くて強力な叩きつけ攻撃。予備動作1.8秒→叩きつけ0.28秒（攻撃全体2.52秒）。
 /// 予備動作が長い分、プレイヤーに回避の猶予がある大振り攻撃。
 /// </summary>
 class BossStateHeavySword : public EnemyStateBase

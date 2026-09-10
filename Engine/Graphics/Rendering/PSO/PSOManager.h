@@ -59,6 +59,10 @@ public:
 	ID3D12RootSignature* GetTrailSignature() { return trailSignature_.Get(); }
 	ID3D12PipelineState* GetTrailPSO();
 
+	// AttackMarker（敵の攻撃予兆マーカー）
+	ID3D12RootSignature* GetAttackMarkerSignature() { return attackMarkerSignature_.Get(); }
+	ID3D12PipelineState* GetAttackMarkerPSO();
+
 private:
 	void CreateSpriteSignature();
 	void CreateSpritePSO(BlendMode blendMode, bool toBackBuffer);
@@ -86,6 +90,8 @@ private:
 	void CreateCSMPSO();
 	void CreateTrailSignature();
 	void CreateTrailPSO();
+	void CreateAttackMarkerSignature();
+	void CreateAttackMarkerPSO();
 
 private:
 	DirectXManager* dxManager_ = nullptr;
@@ -132,4 +138,7 @@ private:
 	// Trail
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> trailSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;
+	// AttackMarker
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> attackMarkerSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> attackMarkerPSO_;
 };

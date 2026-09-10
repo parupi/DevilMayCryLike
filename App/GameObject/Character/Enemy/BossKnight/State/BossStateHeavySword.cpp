@@ -23,9 +23,19 @@ namespace {
         p.damage.upwardRatio = 0.5f;
         p.damage.stunTime = 0.9f;
 
-        // フォールバック。Dragon_Attack2 は翼の角速度ピークが 1.083/1.67 秒＝65%
+        // フォールバック。Dragon_Attack2 は翼の角速度ピークが 1.083/1.67 秒＝65%。
+        // この比率は溜めと本編の境目にも使うので、hit_start(0.97秒＝58%) に合わせてある
         p.hitStartRatio = 0.58f;
         p.hitEndRatio = 0.75f;
+
+        // 溜めを 0.97秒 → 約1.8秒 に伸ばす。一番痛い大振りなので一番長く構える
+        p.extraWindupTime = 0.85f;
+
+        // 予兆。判定が体幹まわりの大きな箱（横±4.8m・前後±4.0m）なので、
+        // 正面だけでなく後ろにも当たる。円で「体のまわり全部が危ない」と見せる
+        // （スケール1基準。ステージ配置が2倍なので実寸は半径4.8m）
+        p.telegraph.shape = TelegraphShape::Circle;
+        p.telegraph.radius = 2.4f;
         return p;
     }
 }

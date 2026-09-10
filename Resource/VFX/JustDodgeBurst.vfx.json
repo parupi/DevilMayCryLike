@@ -1,0 +1,133 @@
+{
+    "Name": "JustDodgeBurst",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Particles": [
+            {
+                "ParticleName": "JustDodgeRing",
+                "Count": 2,
+                "SpawnRate": 1.0
+            },
+            {
+                "ParticleName": "JustDodgeSpark",
+                "Count": 12,
+                "SpawnRate": 1.0
+            }
+        ]
+    },
+    "Particles": {
+        "JustDodgeRing": {
+            "Texture": "white.png",
+            "Shape": "Ring",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 0,
+                "BlendMode": 2,
+                "Drag": 1.0,
+                "FadeType": 1,
+                "Gravity": [ 0.0, 0.0, 0.0 ],
+                "IsBillboard": false,
+                "OrientToDirection": true,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 0.0,
+                "SpeedMin": 0.0,
+                "SpreadDegrees": 0.0,
+                "UseDirectional": true,
+                "VelocityStretch": 0.0,
+                "maxAlpha": 0.0,
+                "maxColor": [ 1.0, 1.0, 1.0 ],
+                "maxLifeTime": 0.34,
+                "maxRotate": [ 0.0, 0.0, 0.0 ],
+                "maxScale": [ 1.1, 1.1, 1.1 ],
+                "maxTranslate": [ 0.0, 0.6, 0.0 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ],
+                "minAlpha": 0.0,
+                "minColor": [ 0.85, 0.94, 1.0 ],
+                "minLifeTime": 0.24,
+                "minRotate": [ 0.0, 0.0, 0.0 ],
+                "minScale": [ 1.1, 1.1, 1.1 ],
+                "minTranslate": [ 0.0, 0.6, 0.0 ],
+                "minVelocity": [ 0.0, 0.0, 0.0 ]
+            },
+            "Curves": {
+                "SizeCurve": [
+                    { "t": 0.0, "v": 0.15 },
+                    { "t": 0.3, "v": 0.95 },
+                    { "t": 1.0, "v": 1.6 }
+                ],
+                "AlphaCurve": [
+                    { "t": 0.0, "v": 1.0 },
+                    { "t": 0.25, "v": 0.9 },
+                    { "t": 1.0, "v": 0.0 }
+                ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 1.0, 1.0, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.55, 0.8, 1.0, 1.0 ] }
+                ]
+            }
+        },
+        "JustDodgeSpark": {
+            "Texture": "white.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 2,
+                "BlendMode": 2,
+                "Drag": 0.2,
+                "FadeType": 1,
+                "Gravity": [ 0.0, -6.0, 0.0 ],
+                "IsBillboard": true,
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 14.0,
+                "SpeedMin": 6.0,
+                "SpreadDegrees": 75.0,
+                "UseDirectional": true,
+                "VelocityStretch": 0.09,
+                "maxAlpha": 0.0,
+                "maxColor": [ 1.0, 1.0, 1.0 ],
+                "maxLifeTime": 0.26,
+                "maxRotate": [ 0.0, 0.0, 0.0 ],
+                "maxScale": [ 0.08, 0.08, 0.08 ],
+                "maxTranslate": [ 0.15, 0.75, 0.15 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ],
+                "minAlpha": 0.0,
+                "minColor": [ 0.75, 0.9, 1.0 ],
+                "minLifeTime": 0.14,
+                "minRotate": [ 0.0, 0.0, 0.0 ],
+                "minScale": [ 0.035, 0.035, 0.035 ],
+                "minTranslate": [ -0.15, 0.45, -0.15 ],
+                "minVelocity": [ 0.0, 0.0, 0.0 ]
+            },
+            "Curves": {
+                "SizeCurve": [
+                    { "t": 0.0, "v": 1.0 },
+                    { "t": 0.25, "v": 1.0 },
+                    { "t": 1.0, "v": 0.15 }
+                ],
+                "AlphaCurve": [
+                    { "t": 0.0, "v": 1.0 },
+                    { "t": 0.5, "v": 1.0 },
+                    { "t": 1.0, "v": 0.0 }
+                ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 1.0, 1.0, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.5, 0.75, 1.0, 1.0 ] }
+                ]
+            }
+        }
+    }
+}

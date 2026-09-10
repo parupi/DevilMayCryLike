@@ -9,6 +9,7 @@ enum class PlayerAction {
 	Jump,
 	Attack,
 	LockOn,
+	Dodge,   // 回避（そのままダッシュへ発展する）
 };
 
 enum class InputButton {

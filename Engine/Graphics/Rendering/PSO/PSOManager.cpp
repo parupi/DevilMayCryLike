@@ -12,6 +12,7 @@
 #include "PSOBuilder/CompositePipeline.h"
 #include "PSOBuilder/CSMPipeline.h"
 #include "PSOBuilder/TrailPipeline.h"
+#include "PSOBuilder/AttackMarkerPipeline.h"
 #include <cassert>
 
 void PSOManager::Initialize(DirectXManager* dxManager) {
@@ -59,6 +60,9 @@ void PSOManager::Finalize() {
 
 	trailSignature_.Reset();
 	trailPSO_.Reset();
+
+	attackMarkerSignature_.Reset();
+	attackMarkerPSO_.Reset();
 
 	dxManager_ = nullptr;
 }
@@ -347,4 +351,25 @@ void PSOManager::CreateTrailSignature() {
 void PSOManager::CreateTrailPSO() {
 	CreateTrailSignature();
 	trailPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get());
+}
+
+// ---------------------------------------------------------------------------
+// AttackMarker（敵の攻撃予兆）
+// ---------------------------------------------------------------------------
+ID3D12PipelineState* PSOManager::GetAttackMarkerPSO() {
+	if (!attackMarkerPSO_) {
+		CreateAttackMarkerPSO();
+	}
+	return attackMarkerPSO_.Get();
+}
+
+void PSOManager::CreateAttackMarkerSignature() {
+	if (!attackMarkerSignature_) {
+		attackMarkerSignature_ = AttackMarkerPipeline::CreateRootSignature(dxManager_);
+	}
+}
+
+void PSOManager::CreateAttackMarkerPSO() {
+	CreateAttackMarkerSignature();
+	attackMarkerPSO_ = AttackMarkerPipeline::CreatePSO(dxManager_, attackMarkerSignature_.Get());
 }

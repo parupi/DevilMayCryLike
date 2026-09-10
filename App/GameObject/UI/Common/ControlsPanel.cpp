@@ -16,6 +16,7 @@ const ControlsPanel::ControlRow ControlsPanel::kRows[] = {
 	{ "MOVE",          "LEFT STICK",  "W  A  S  D" },
 	{ "CAMERA",        "RIGHT STICK", "ARROW KEYS" },
 	{ "JUMP",          "A",           "SPACE" },
+	{ "DODGE / DASH",  "RT",          "LEFT SHIFT" },
 	{ "ATTACK",        "Y",           "J" },
 	{ "STRONG ATTACK", "X",           "K" },
 	{ "LOCK ON",       "RB (HOLD)",   "P (HOLD)" },

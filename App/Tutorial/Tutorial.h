@@ -18,6 +18,8 @@ public:
 	void End();
 	// 進行度を進める
 	bool StepTutorial();
+	// 表示が完全に消えているか（フェードアウトが終わったか）
+	bool IsInactive() const { return state_ == State::Inactive; }
 private:
 	// チュートリアルの状態
 	enum class State {

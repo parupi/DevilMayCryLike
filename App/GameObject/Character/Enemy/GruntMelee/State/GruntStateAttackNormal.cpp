@@ -26,6 +26,11 @@ namespace
             { -80.0f,   0.0f,  20.0f },  // 振り切り
             {-125.0f,   0.0f,  20.0f },  // ghost
         };
+
+        // 予兆。正面へ振り下ろすので扇形。剣の届く範囲に合わせて小さめに取る
+        p.telegraph.shape = TelegraphShape::Fan;
+        p.telegraph.radius = 2.0f;
+        p.telegraph.halfAngleDeg = 55.0f;
         return p;
     }
 }
@@ -51,5 +56,7 @@ void GruntStateAttackNormal::Update(Enemy& enemy, float deltaTime)
 
 void GruntStateAttackNormal::Exit(Enemy& enemy)
 {
+    // 予備動作の途中で中断されたら予兆も消す（放置すると「攻撃が来た」と誤認して光る）
+    attack_->CancelTelegraph();
     enemy;
 }

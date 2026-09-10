@@ -28,6 +28,9 @@ void EnemyStateKnockBack::Enter(Enemy& enemy) {
 	case ReactionType::Launch:
 		velocity_.y += info.impulseForce * info.upwardRatio * 1.4f;
 		angularVel_ = info.torqueForce;
+		// 打ち上げた瞬間はまだ地面の上に立っている。ここで接地を落としておかないと
+		// 最初の Update が「もう着地した」と判断してしまう（Knockback と同じ扱い）
+		enemy.SetOnGround(false);
 		break;
 	}
 }
@@ -55,14 +58,25 @@ void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
 		}
 	}
 
-	if (enemy.GetOnGround() && deltaTime != 0.0f) {
+	// **上へ飛んでいる間は着地とみなさない**。
+	// 打ち上げた直後の敵はまだ地面のコライダーと重なっていて、押し出し
+	// （Enemy::ResolveGroundCollision）が接地フラグを立て直す。フラグだけを見ると
+	// 振り上げた次のフレームで着地扱いになり、OnLand が初速を消してしまうので
+	// 一度も浮かなくなる（＝切り上げで敵が吹っ飛ばない）
+	if (enemy.GetOnGround() && velocity_.y <= 0.0f && deltaTime != 0.0f) {
 		OnLand(enemy);
 	}
 }
 
 void EnemyStateKnockBack::OnLand(Enemy& enemy) {
 	if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
+		// 着地の減速。**Enemy 側へ書き戻すこと**。
+		// ここで手元の velocity_ を弱めるだけだと、直前の Update が書き込んだ
+		// 落下速度がそのまま次のステートへ残り、地面にめり込み続ける
+		// （意思決定のステートは velocity_.y を触らないので誰も消してくれない）
 		velocity_ *= 0.3f;
+		velocity_.y = 0.0f;
+		enemy.SetVelocity(velocity_);
 		enemy.ChangeState(NextState());
 	}
 }

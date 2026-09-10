@@ -19,10 +19,10 @@ public:
 	void EndTutorial();
 	// 進行度を進める
 	void StepTutorial(TutorialState state) override;
-	// 全チュートリアルが完了したか
+	// 全チュートリアルが完了したか（表示が消えきってから true になる）
 	bool IsAllFinished() const override { return isAllFinished_; }
 	// チュートリアルを流さずに完了扱いにする
-	void SkipAllTutorials() override { isAllFinished_ = true; }
+	void SkipAllTutorials() override { isFinishing_ = false; isAllFinished_ = true; }
 private:
 	// 現在のチュートリアルを終了し、次のチュートリアルへ自動的に進める
 	void AdvanceTutorial();
@@ -33,8 +33,11 @@ private:
 	std::unordered_map<TutorialState, std::unique_ptr<Tutorial>> tutorials_;
 	// 現在のチュートリアル
 	Tutorial* currentTutorial_ = nullptr;
-	// 全チュートリアルを完了したか（最後の種類まで進み切ったら true）
+	// 全チュートリアルを完了したか（最後の種類まで進み切り、表示も消えきったら true）
 	bool isAllFinished_ = false;
+	// 最後の種類まで進み切って、表示のフェードアウト待ちか（Update で完了へ移す）。
+	// この間は IsAllFinished() が false のままなので、TutorialDummy はまだ倒せない
+	bool isFinishing_ = false;
 	// 装飾表示用のクラス
 	std::unique_ptr<TutorialDecoration> decoration_ = nullptr;
 };
