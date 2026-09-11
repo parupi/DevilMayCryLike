@@ -444,6 +444,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\StylishWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\TrainingWindow.cpp" />

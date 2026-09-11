@@ -205,6 +205,17 @@ public:
 	bool IsJustDodgeSlow() const { return justDodgeSlowTimer_ > 0.0f; }
 
 	/// <summary>
+	/// 攻撃の出始めの無敵を与える。回避の無敵と同じ枠で数える
+	/// （ジャスト回避は成立させず、通常の被弾より先に弾く、という扱いが同じなので）。
+	/// 残っている無敵の方が長ければそちらを残す
+	/// </summary>
+	void GrantAttackInvincibility(float seconds) {
+		if (seconds > dodgeInvincibleTimer_) {
+			dodgeInvincibleTimer_ = seconds;
+		}
+	}
+
+	/// <summary>
 	/// 世界（敵・イベント）に掛けてほしい時間倍率。
 	/// ジャスト回避のスロー中だけ1未満を返す。適用するのは GameSceneStatePlay
 	/// </summary>

@@ -24,4 +24,6 @@ public:
 	// TutorialDummy が IsAllFinished() を倒せる条件にしているので、
 	// OPTION でチュートリアルを切った場合はここを通さないと進行が止まる
 	virtual void SkipAllTutorials() = 0;
+	// チュートリアルを流すシーンか。false のときは表示物を1つも作っていない
+	virtual bool IsEnabled() const = 0;
 };

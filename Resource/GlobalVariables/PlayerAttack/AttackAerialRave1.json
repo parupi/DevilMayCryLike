@@ -2,7 +2,7 @@
     "AttackAerialRave1": {
         "AttackDuration": 0.14000000059604645,
         "AttackPosture": 1,
-        "ButtonIndex": 1,
+        "ButtonIndex": 2,
         "ControlPoint_0": [
             1.0,
             -0.20000000298023224,

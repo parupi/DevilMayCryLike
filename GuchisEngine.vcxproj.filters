@@ -1289,6 +1289,9 @@
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>

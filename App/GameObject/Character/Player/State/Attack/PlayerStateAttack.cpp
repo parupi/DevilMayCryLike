@@ -1,4 +1,4 @@
-﻿#include "PlayerStateAttack.h"
+#include "PlayerStateAttack.h"
 #include "Debugger/GlobalVariables.h"
 #include "World3D/Primitive/PrimitiveLineDrawer.h"
 #include <Math/MathUtils.h>
@@ -10,6 +10,15 @@
 #ifdef _DEBUG
 #include "Editor/Core/EditorDebugDraw.h"
 #endif
+
+#include <vector>
+
+namespace {
+	// 攻撃に割り当てたボタンで出せるか（ボタン指定なしの攻撃はどのボタンでもよい）
+	bool AcceptsButton(const AttackNode& node, InputButton button) {
+		return node.condition.button == InputButton::None || node.condition.button == button;
+	}
+}
 
 PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	name_ = attackName;
@@ -68,6 +77,35 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "RootAttackFlag", bool(false));
 	gv->AddItem(name_, "IsAir", bool(false));
 	gv->AddItem(name_, "DirIndex", int32_t(0));
+
+	// ── ここから強攻撃用。既定値はどれも、今までの攻撃の挙動を変えない値にしてある ──
+
+	// ジャスト回避の直後（カウンター受付中）だけ出せる攻撃にするか
+	gv->AddItem(name_, "CounterFlag", bool(false));
+
+	// 多段ヒット・当たり判定
+	gv->AddItem(name_, "HitCount", int32_t(1));          // 攻撃判定が出ている間に何回当たるか
+	gv->AddItem(name_, "HitboxScale", 1.0f);             // 武器の当たり判定の大きさの倍率
+	// 最終段だけ別の性能にする（HitCount が2以上のときだけ使う）
+	gv->AddItem(name_, "UseFinalHit", bool(false));
+	gv->AddItem(name_, "FinalDamage", float());
+	gv->AddItem(name_, "FinalReactionType", int32_t(static_cast<int32_t>(ReactionType::Knockback)));
+	gv->AddItem(name_, "FinalImpulseForce", float());
+	gv->AddItem(name_, "FinalUpwardRatio", float());
+	gv->AddItem(name_, "FinalTorqueForce", float());
+	gv->AddItem(name_, "FinalStunTime", float());
+	gv->AddItem(name_, "FinalHitStopTime", float());
+
+	// 溜め
+	gv->AddItem(name_, "IsCharge", bool(false));
+	gv->AddItem(name_, "ChargeMinTime", 0.2f);           // これより短く離すと溜め無し
+	gv->AddItem(name_, "ChargeMaxTime", 1.0f);           // ここで最大
+	gv->AddItem(name_, "ChargeDamageScale", 1.0f);       // 最大まで溜めたときのダメージ倍率
+	gv->AddItem(name_, "ChargeImpulseScale", 1.0f);      // 同・吹き飛ばしの強さの倍率
+	gv->AddItem(name_, "ChargeHitStopScale", 1.0f);      // 同・ヒットストップの長さの倍率
+
+	// 攻撃の出始めから被弾しない時間
+	gv->AddItem(name_, "InvincibleTime", float());
 }
 
 void PlayerStateAttack::Enter(Player& player) {
@@ -84,12 +122,26 @@ void PlayerStateAttack::Enter(Player& player) {
 		attackData_.controlPoints.push_back(gv->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i)));
 		attackData_.controlRotations.push_back(gv->GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i)));
 	}
-	// 今回の攻撃のパラメータを送っておく
-	player.SetAttackData(attackData_);
+
+	// 溜めと多段ヒットの進み具合を戻す
+	chargeTime_ = 0.0f;
+	chargeRatio_ = 0.0f;
+	isChargeReleased_ = false;
+	isChargeFullNotified_ = false;
+	hitIndex_ = 0;
+
+	// 今回の攻撃のパラメータを送っておく（最終段・溜めの差し替えもここを通す）
+	ApplyHitData(player);
+
+	// 攻撃の出始めの無敵
+	if (attackData_.invincibleTime > 0.0f) {
+		player.GrantAttackInvincibility(attackData_.invincibleTime);
+	}
 
 	// 振り始めに剣風の音を鳴らす。
-	// 納刀モーションも同じ仕組みで流れてくるが、あれは攻撃ではないので鳴らさない
-	if (name_ != "Sheathe") {
+	// 納刀モーションも同じ仕組みで流れてくるが、あれは攻撃ではないので鳴らさない。
+	// 溜め攻撃は構えで止まるので、振り始める ReleaseCharge で鳴らす
+	if (name_ != "Sheathe" && !attackData_.isCharge) {
 		SoundManager::GetInstance().PlaySE("SwordSlash", 0.55f);
 	}
 
@@ -97,6 +149,11 @@ void PlayerStateAttack::Enter(Player& player) {
 }
 
 void PlayerStateAttack::Update(Player& player, float deltaTime) {
+	// 溜め攻撃は、構えきってからボタンを離すまで攻撃の時間を進めない
+	if (UpdateCharge(player, deltaTime)) {
+		return;
+	}
+
 	stateTime_.current += deltaTime;
 
 	// 攻撃フェーズの更新処理
@@ -105,7 +162,7 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 
 	// Cancel フェーズに入った瞬間に先行入力を発火
 	if (prevPhase != AttackPhase::Cancel && attackPhase_ == AttackPhase::Cancel && hasPendingBuffer_) {
-		pendingRequest_ = BuildRequestFromNode(player);
+		pendingRequest_ = BuildRequestFromNode(player, pendingButton_);
 		hasPendingBuffer_ = false;
 	}
 
@@ -116,9 +173,13 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 		UpdateStartup(player, deltaTime);
 		break;
 	}
+	case AttackPhase::Charge:
+		// 溜め中は UpdateCharge が受け持つので、ここへは来ない
+		break;
 	case AttackPhase::Active:
 	{
 		UpdateActive(player);
+		UpdateHitSegment(player);
 		break;
 	}
 	case AttackPhase::Recovery:
@@ -150,23 +211,53 @@ void PlayerStateAttack::Exit(Player& player) {
 	attackChangeTimer_.current = 0.0f;
 	hasPendingBuffer_ = false;
 	pendingRequest_ = {};
+
+	// 溜めの途中で中断された（回避・被弾）ときに、溜めた状態を次へ持ち越さない
+	chargeTime_ = 0.0f;
+	chargeRatio_ = 0.0f;
+	isChargeReleased_ = false;
+	isChargeFullNotified_ = false;
+	hitIndex_ = 0;
 }
 
-AttackRequestData PlayerStateAttack::BuildRequestFromNode(Player& player) {
+AttackRequestData PlayerStateAttack::BuildRequestFromNode(Player& player, InputButton button) {
 	AttackRequestData req{};
 	req.type = AttackRequest::None;
 
-	const AttackNode& node = player.GetCombat()->GetAttackNode(name_);
-	int nextCount = static_cast<int>(node.nextAttacks.size());
+	const PlayerCombat* combat = player.GetCombat();
+	const AttackNode& node = combat->GetAttackNode(name_);
 
-	if (nextCount > 0 && attackChangeTimer_.max > 0.0f) {
-		float segment = attackChangeTimer_.max / static_cast<float>(nextCount);
-		int derivedIndex = std::clamp(static_cast<int>(attackChangeTimer_.current / segment), 0, nextCount - 1);
-		req.nextAttack = node.nextAttacks[derivedIndex];
+	// 押したボタンで出せる派生先だけを候補にして、その中から入力のタイミングで選ぶ。
+	// 以前は全派生先をタイミングだけで選んでからボタンで弾いていたので、
+	// 「Y の派生と X の派生を両方持つ攻撃」を作っても、タイミング次第で X が出なかった
+	std::vector<const std::string*> candidates;
+	for (const std::string& nextAttack : node.nextAttacks) {
+		if (AcceptsButton(combat->GetAttackNode(nextAttack), button)) {
+			candidates.push_back(&nextAttack);
+		}
+	}
+
+	const int candidateCount = static_cast<int>(candidates.size());
+	if (candidateCount > 0 && attackChangeTimer_.max > 0.0f) {
+		float segment = attackChangeTimer_.max / static_cast<float>(candidateCount);
+		int derivedIndex = std::clamp(static_cast<int>(attackChangeTimer_.current / segment), 0, candidateCount - 1);
+		req.nextAttack = *candidates[derivedIndex];
 		req.type = AttackRequest::ChangeAttack;
 	}
 
 	return req;
+}
+
+bool PlayerStateAttack::CanBranchWith(Player& player, InputButton button) const {
+	const PlayerCombat* combat = player.GetCombat();
+	const AttackNode& node = combat->GetAttackNode(name_);
+
+	for (const std::string& nextAttack : node.nextAttacks) {
+		if (AcceptsButton(combat->GetAttackNode(nextAttack), button)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const PlayerCommand& command) {
@@ -175,12 +266,18 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 	req.type = AttackRequest::None;
 
 	if (command.action == PlayerAction::Attack) {
+		// どの派生先にも割り当てていないボタンは無視する。
+		// 先行入力に積むと、先に押した正しいボタンの入力を上書きして消してしまうため
+		if (!CanBranchWith(player, command.button)) {
+			return req;
+		}
 		if (attackPhase_ != AttackPhase::Cancel) {
 			// Cancel フェーズ前の入力をバッファに保存（上書きで最新入力を保持）
 			hasPendingBuffer_ = true;
+			pendingButton_ = command.button;
 			return req;
 		}
-		return BuildRequestFromNode(player);
+		return BuildRequestFromNode(player, command.button);
 	}
 	else if (command.action == PlayerAction::Jump) {
 		if (attackPhase_ != AttackPhase::Cancel || gv->GetValueRef<int32_t>(name_, "AttackPosture") == 1) {
@@ -238,6 +335,29 @@ void PlayerStateAttack::UpdateAttackData() {
 	attackData_.torqueForce = gv->GetValueRef<float>(name_, "TorqueForce");
 	// のけぞり用
 	attackData_.stunTime = gv->GetValueRef<float>(name_, "StunTime");
+
+	// 多段ヒット・当たり判定
+	attackData_.hitCount = gv->GetValueRef<int32_t>(name_, "HitCount");
+	attackData_.hitboxScale = gv->GetValueRef<float>(name_, "HitboxScale");
+	attackData_.useFinalHit = gv->GetValueRef<bool>(name_, "UseFinalHit");
+	attackData_.finalDamage = gv->GetValueRef<float>(name_, "FinalDamage");
+	attackData_.finalType = static_cast<ReactionType>(gv->GetValueRef<int32_t>(name_, "FinalReactionType"));
+	attackData_.finalImpulseForce = gv->GetValueRef<float>(name_, "FinalImpulseForce");
+	attackData_.finalUpwardRatio = gv->GetValueRef<float>(name_, "FinalUpwardRatio");
+	attackData_.finalTorqueForce = gv->GetValueRef<float>(name_, "FinalTorqueForce");
+	attackData_.finalStunTime = gv->GetValueRef<float>(name_, "FinalStunTime");
+	attackData_.finalHitStopTime = gv->GetValueRef<float>(name_, "FinalHitStopTime");
+
+	// 溜め
+	attackData_.isCharge = gv->GetValueRef<bool>(name_, "IsCharge");
+	attackData_.chargeMinTime = gv->GetValueRef<float>(name_, "ChargeMinTime");
+	attackData_.chargeMaxTime = gv->GetValueRef<float>(name_, "ChargeMaxTime");
+	attackData_.chargeDamageScale = gv->GetValueRef<float>(name_, "ChargeDamageScale");
+	attackData_.chargeImpulseScale = gv->GetValueRef<float>(name_, "ChargeImpulseScale");
+	attackData_.chargeHitStopScale = gv->GetValueRef<float>(name_, "ChargeHitStopScale");
+
+	// 無敵
+	attackData_.invincibleTime = gv->GetValueRef<float>(name_, "InvincibleTime");
 }
 
 void PlayerStateAttack::DrawControlPoints(Player& player) {
@@ -275,6 +395,119 @@ bool PlayerStateAttack::HasBranch(Player& player) const {
 	return nextCount > 0;
 }
 
+bool PlayerStateAttack::UpdateCharge(Player& player, float deltaTime) {
+	if (!attackData_.isCharge || isChargeReleased_) return false;
+
+	const bool isHeld = IsAttackButtonHeld(player);
+
+	if (attackPhase_ != AttackPhase::Charge) {
+		// 構えの途中で離したら、溜めずにそのまま振る（軽く押しただけでも攻撃として出す）
+		if (!isHeld) {
+			ReleaseCharge(player);
+			return false;
+		}
+		// まだ構えの途中。予備動作は通常どおり進める
+		if (stateTime_.current + deltaTime < attackData_.preDelay) {
+			return false;
+		}
+		// 構えきったので溜めに入る
+		stateTime_.current = attackData_.preDelay;
+		attackPhase_ = AttackPhase::Charge;
+	}
+
+	chargeTime_ += deltaTime;
+
+	// 溜めきった瞬間を1回だけ知らせる
+	if (!isChargeFullNotified_ && chargeTime_ >= attackData_.chargeMaxTime) {
+		isChargeFullNotified_ = true;
+		if (CharacterLight* light = player.GetCharacterLight()) {
+			light->Flash();
+		}
+	}
+
+	// 構えたまま止まる。向きだけはスティックで変えられる（ロックオン中は敵を向いたまま）
+	player.Rotate(player.GetMoveDirection(), deltaTime);
+	Vector3& velocity = player.GetVelocity();
+	velocity.x = 0.0f;
+	velocity.z = 0.0f;
+	if (!attackData_.controlPoints.empty()) {
+		player.GetWeapon()->GetWorldTransform()->GetTranslation() = attackData_.controlPoints[0];
+	}
+
+	// 離したフレームから振り始める
+	if (!isHeld) {
+		ReleaseCharge(player);
+		return false;
+	}
+	return true;
+}
+
+void PlayerStateAttack::ReleaseCharge(Player& player) {
+	isChargeReleased_ = true;
+
+	// Charge Min Time までは倍率 1.0、Charge Max Time で最大。その間は線形に上がる
+	const float range = attackData_.chargeMaxTime - attackData_.chargeMinTime;
+	if (range > 0.0f) {
+		chargeRatio_ = std::clamp((chargeTime_ - attackData_.chargeMinTime) / range, 0.0f, 1.0f);
+	} else {
+		chargeRatio_ = (chargeTime_ >= attackData_.chargeMaxTime) ? 1.0f : 0.0f;
+	}
+	ApplyHitData(player);
+
+	// 溜め攻撃の剣風は、構えた瞬間ではなく振り始めに鳴らす
+	SoundManager::GetInstance().PlaySE("SwordSlash", 0.55f);
+}
+
+bool PlayerStateAttack::IsAttackButtonHeld(Player& player) const {
+	PlayerInput* input = player.GetInput();
+	if (!input) return false;
+	// この攻撃に割り当てたボタンで見る（ボタン指定なしならどちらのボタンでもよい）
+	return input->IsAttackButtonHeld(player.GetCombat()->GetAttackNode(name_).condition.button);
+}
+
+void PlayerStateAttack::UpdateHitSegment(Player& player) {
+	const int32_t hitCount = (std::max)(attackData_.hitCount, 1);
+	if (hitCount <= 1) return;
+
+	// Attack Duration を Hit Count 等分して、今が何段目かを出す
+	const float t = (attackData_.attackDuration > 0.0f)
+		? std::clamp((stateTime_.current - attackData_.preDelay) / attackData_.attackDuration, 0.0f, 1.0f)
+		: 1.0f;
+	const int32_t index = (std::min)(static_cast<int32_t>(t * static_cast<float>(hitCount)), hitCount - 1);
+	if (index == hitIndex_) return;
+	hitIndex_ = index;
+
+	// 触れたままの敵にも次の段が当たるよう、武器の判定を1回だけ切る
+	player.GetWeapon()->RequestRehit();
+	// 最終段だけ性能を差し替える場合に備えて、攻撃データを渡し直す
+	ApplyHitData(player);
+}
+
+void PlayerStateAttack::ApplyHitData(Player& player) {
+	AttackData data = attackData_;
+
+	// 多段ヒットの最終段
+	const int32_t hitCount = (std::max)(attackData_.hitCount, 1);
+	if (attackData_.useFinalHit && hitCount >= 2 && hitIndex_ >= hitCount - 1) {
+		data.damage = attackData_.finalDamage;
+		data.type = attackData_.finalType;
+		data.impulseForce = attackData_.finalImpulseForce;
+		data.upwardRatio = attackData_.finalUpwardRatio;
+		data.torqueForce = attackData_.finalTorqueForce;
+		data.stunTime = attackData_.finalStunTime;
+		data.hitStopTime = attackData_.finalHitStopTime;
+	}
+
+	// 溜め具合の倍率（溜め攻撃でなければ掛けない）
+	if (attackData_.isCharge) {
+		data.damage *= 1.0f + (attackData_.chargeDamageScale - 1.0f) * chargeRatio_;
+		data.impulseForce *= 1.0f + (attackData_.chargeImpulseScale - 1.0f) * chargeRatio_;
+		data.hitStopTime *= 1.0f + (attackData_.chargeHitStopScale - 1.0f) * chargeRatio_;
+	}
+
+	player.SetAttackData(data);
+}
+
 void PlayerStateAttack::UpdatePhase(float time) {
 	if (time < attackData_.preDelay) {
 		attackPhase_ = AttackPhase::Startup;
@@ -295,6 +528,9 @@ void PlayerStateAttack::UpdateStartup(Player& player, float deltaTime) {
 	Vector3 moveDir = player.GetMoveDirection();
 	// プレイヤーの向きを移動方向に向ける
 	player.Rotate(moveDir, deltaTime);
+
+	// 制御点がまだ無い攻撃（エディタで追加した直後など）は武器を動かさない
+	if (attackData_.controlPoints.empty()) return;
 
 	// 武器を制御点の最初の位置に移動させる
 	Vector3 targetPos = attackData_.controlPoints[0];

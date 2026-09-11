@@ -1,31 +1,48 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "ClearUI.h"
 #ifdef _DEBUG
 #endif // DEBUG
 #include "Utility/DeltaTime.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
+namespace {
+    // ランク画像（Ranks.png）と同じ「黒い文字に白い縁」に寄せる。
+    // TextLabel は縁取りを持たないので、白い影をずらして重ねて縁の代わりにする
+    const Vector4 kHeadingColor = { 0.05f, 0.05f, 0.05f, 1.0f };
+    const Vector4 kHeadingShadowColor = { 1.0f, 1.0f, 1.0f, 0.9f };
+    const Vector2 kHeadingShadowOffset = { 3.0f, 3.0f };
+
+    TextLabel* CreateHeading(const std::string& name, const std::string& text, float fontSize, TextAlignX alignX) {
+        TextLabel* label = SpriteManager::GetInstance().CreateTextLabel(SpriteLayer::UI, name);
+        label->SetText(text);
+        label->SetFontSize(fontSize);
+        label->SetAlign(alignX, TextAlignY::Middle);
+        label->SetColor(kHeadingColor);
+        label->SetShadow(true, kHeadingShadowOffset, kHeadingShadowColor);
+        return label;
+    }
+}
+
 void ClearUI::Initialize()
 {
-    // Result
-    resultUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "result", "Result.png");
-    resultUI_->SetAnchorPoint({ 0.5f, 0.5f });
+    // 位置の y はどれも文字の縦の中心。落ちてくる演出では y だけを動かす
 
-    resultDefaultPos_ = { 162.0f, 80.0f };
+    // Result
+    resultUI_ = CreateHeading("result", "Result", 64.0f, TextAlignX::Left);
+
+    resultDefaultPos_ = { 40.0f, 80.0f };
     resultUI_->SetPosition({ resultDefaultPos_.x, -200.0f });
 
     // Stage
-    stageNumUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "stageNum", "Stage1.png");
-    stageNumUI_->SetAnchorPoint({ 0.5f, 0.5f });
+    stageNumUI_ = CreateHeading("stageNum", "Stage1", 40.0f, TextAlignX::Left);
 
-    stageDefaultPos_ = { 106.0f, 145.0f };
+    stageDefaultPos_ = { 44.0f, 145.0f };
     stageNumUI_->SetPosition({ stageDefaultPos_.x, -200.0f });
 
-    // Score
-    score_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "score", "Score.png");
-    score_->SetAnchorPoint({ 0.5f, 0.5f });
+    // Score（右隣に ScoreUI の数字が並ぶので、右揃えにして数字の手前に収める）
+    score_ = CreateHeading("score", "Score :", 48.0f, TextAlignX::Right);
 
-    scoreDefaultPos_ = { 142.0f, 340.0f };
+    scoreDefaultPos_ = { 222.0f, 342.0f };
     score_->SetPosition({ scoreDefaultPos_.x, -200.0f });
 
 	scoreUI_ = std::make_unique<ScoreUI>();

@@ -1,26 +1,48 @@
 #include "TutorialSystem.h"
 
 namespace {
-	// チュートリアルごとの設定（表示画像名と完了に必要な回数）
+	// チュートリアルごとの設定（表示画像名・説明文・完了に必要な回数）
 	struct TutorialConfig {
 		std::string imageName;
+		TutorialText text;
 		uint32_t maxCounter;
 	};
 }
 
-void TutorialSystem::Initialize() {
+void TutorialSystem::Initialize(bool enabled) {
+	enabled_ = enabled;
+
+	// 流さないシーン（トレーニング、OPTIONでオフ）では表示物を一切作らない。
+	// 作ったうえでアルファ0にする方式だと、消し忘れた1枚が画面左に残るし、
+	// 使わない GIF を6本ぶん読み込んでVRAMも食う。
+	// TutorialDummy::CanDie() が全チュートリアル完了を条件にしているので、完了扱いにしておく
+	if (!enabled_) {
+		isFinishing_ = false;
+		isAllFinished_ = true;
+		return;
+	}
+
 	// 装飾クラスの生成
 	decoration_ = std::make_unique<TutorialDecoration>();
 	decoration_->Initialize();
 
-	// チュートリアルの種類ごとの、表示画像と完了に必要な回数
+	// チュートリアルの種類ごとの、表示画像・説明文・完了に必要な回数。
+	// 説明文の操作は { パッド, キーボード, 何の操作か } の順。
+	// PlayerInput / LockOnInput と攻撃の json（ButtonIndex 2 = Y / J）の割り当てに合わせてあるので、
+	// 割り当てを変えたらここも直すこと
 	static const std::unordered_map<TutorialState, TutorialConfig> kTutorialConfigs = {
-		{ TutorialState::Move,           { "PlayerWalk", 50 } }, // 120フレーム移動し続けたら完了
-		{ TutorialState::Jump,           { "PlayerJump", 1 } }, // 1度ジャンプしたら完了
-		{ TutorialState::AttackA,        { "AttackA", 3 } },   // 攻撃Aを3回当てたら完了
-		{ TutorialState::AttackB,        { "AttackB", 2 } },   // 攻撃Bを3回当てたら完了
-		{ TutorialState::LockOn,         { "LockOn", 1 } },   // ロックオンを1回行ったら完了
-		{ TutorialState::RoundUpAttack,  { "RoundUp", 2 } },   // 切り上げ攻撃を3回当てたら完了
+		// 120フレーム移動し続けたら完了
+		{ TutorialState::Move,          { "PlayerWalk", { "左スティック", "W A S D", "移動" }, 50 } },
+		// 1度ジャンプしたら完了
+		{ TutorialState::Jump,          { "PlayerJump", { "Aボタンを押したら", "SPACEキーを押したら", "ジャンプ" }, 1 } },
+		// 攻撃Aを3回当てたら完了
+		{ TutorialState::AttackA,       { "AttackA", { "Y → Y → Y", "J → J → J", "コンボA" }, 3 } },
+		// 攻撃Bを3回当てたら完了
+		{ TutorialState::AttackB,       { "AttackB", { "Y → 少し待つ → Y → Y", "J → 少し待つ → J → J", "コンボB" }, 2 } },
+		// ロックオンを1回行ったら完了（離すと外れるので長押し）
+		{ TutorialState::LockOn,        { "LockOn", { "RB 長押し", "P 長押し", "ロックオン" }, 1 } },
+		// 切り上げ攻撃を3回当てたら完了（ロックオン中にスティック／Sキーを手前へ入れて攻撃）
+		{ TutorialState::RoundUpAttack, { "RoundUp", { "RB + 左スティック↓ + Y", "P + S + J", "切り上げ攻撃" }, 2 } },
 	};
 
 	// チュートリアルの初期化処理
@@ -28,13 +50,15 @@ void TutorialSystem::Initialize() {
 		TutorialState state = static_cast<TutorialState>(i);
 		const TutorialConfig& config = kTutorialConfigs.at(state);
 		tutorials_[state] = std::make_unique<Tutorial>();
-		tutorials_[state]->Initialize(config.imageName, config.maxCounter);
+		tutorials_[state]->Initialize(config.imageName, config.text, config.maxCounter);
 	}
 	// 最初のチュートリアルを設定
 	currentTutorial_ = tutorials_[TutorialState::Move].get();
 }
 
 void TutorialSystem::Update() {
+	if (!enabled_) return;
+
 	// 全チュートリアルを更新する
 	// （フェードアウト中に次のチュートリアルが完了しても、消えきるまで更新が途切れないようにするため）
 	for (auto& [state, tutorial] : tutorials_) {
@@ -55,6 +79,10 @@ void TutorialSystem::Update() {
 }
 
 void TutorialSystem::StartTutorial(TutorialState state) {
+	// 流さないシーンでは表示物を作っていないので何もしない。
+	// 呼び出し側（GameSceneStatePlay）に条件分岐を持たせないための入口ガード
+	if (!enabled_) return;
+
 	// 背景マスクの表示は、既に表示中でなければ行う（連続再生時に演出をやり直さないため）
 	if (decoration_->IsInactive()) {
 		decoration_->Start();
@@ -71,6 +99,8 @@ void TutorialSystem::StartTutorial(TutorialState state) {
 }
 
 void TutorialSystem::EndTutorial() {
+	if (!enabled_) return;
+
 	// 背景マスクの非表示など、チュートリアル終了時の共通処理をここに記述
 	decoration_->End();
 
@@ -79,6 +109,9 @@ void TutorialSystem::EndTutorial() {
 }
 
 void TutorialSystem::StepTutorial(TutorialState state) {
+	// プレイヤーの各ステートから毎フレーム飛んでくるので、無効なシーンではここで捨てる
+	if (!enabled_) return;
+
 	// 現在表示中のチュートリアルと関係ないイベントは無視する
 	if (state != state_) {
 		return;

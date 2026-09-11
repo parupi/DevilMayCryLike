@@ -184,12 +184,6 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	FlashLight();
 	PlayHitFlash();
 
-	if (currentState_ == states_[EnemyStateName::KnockBack].get()) {
-		const AttackData knockBackAtk = player_->GetAttackData(); // 値返しなのでローカルにコピー
-		hitStop_->Start(knockBackAtk.hitStopTime, knockBackAtk.hitStopIntensity * 3.0f, knockBackAtk.hitStopStrength);
-		return;
-	}
-
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 
 	hp_ -= atk.damage;
@@ -218,8 +212,17 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 		}
 	}
 
-	SetPendingDamageInfo(info);
-	ChangeState(EnemyStateName::KnockBack);
+	// 吹き飛び・打ち上げで宙に浮いている最中の追撃。
+	// 以前は吹き飛び中の被弾をヒットストップだけ掛けて捨てていたので、
+	// 打ち上げた後の空中コンボはダメージも浮きも入らなかった。
+	// のけぞりの攻撃なら状態はそのままで落下だけ止め（空中に留める）、吹き飛ばし・打ち上げなら当たり直す
+	auto* knockBack = dynamic_cast<EnemyStateKnockBack*>(currentState_);
+	if (knockBack && knockBack->IsAirborne() && info.type == ReactionType::HitStun) {
+		knockBack->OnAirHit(*this, info);
+	} else {
+		SetPendingDamageInfo(info);
+		ChangeState(EnemyStateName::KnockBack);
+	}
 
 	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 }

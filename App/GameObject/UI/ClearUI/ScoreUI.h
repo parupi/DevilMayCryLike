@@ -2,6 +2,9 @@
 #include <vector>
 #include <Graphics/Rendering/Sprite/Sprite.h>
 #include <memory>
+
+class TextLabel;
+
 class ScoreUI
 {
 public:
@@ -21,8 +24,9 @@ public:
 	bool isFinished() const { return isFinish_; }
 private:
 
-	std::vector<Sprite*> scoreNums_;
-	
+	// 数えている途中のスコアを出す文字（以前は Numbers.png を桁ぶん並べていた）
+	TextLabel* scoreLabel_ = nullptr;
+
 	bool isStart_ = false;
 	bool isFinish_ = false;
 	int32_t currentScore_ = 0;  // 画面に表示しているスコア

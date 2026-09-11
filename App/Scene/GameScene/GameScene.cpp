@@ -26,6 +26,7 @@
 #include "State/GameSceneStateTrainingMenu.h"
 #include <GameObject/Character/Enemy/Enemy.h>
 #include <GameData/GameSession.h>
+#include <GameData/GameSettings.h>
 #include "GameObject/Effect/HitEffectSystem.h"
 #include "GameObject/Effect/AttackTelegraph.h"
 #include "World3D/Object/Object3dManager.h"
@@ -189,18 +190,17 @@ void GameScene::Initialize() {
 	gameOverUI_ = std::make_unique<GameOverUI>();
 	gameOverUI_->Initialize();
 
+	// チュートリアルを流すかどうかの判断はここ1か所にまとめる。
+	// トレーニングは操作を確認済みで入る場所なので流さない。本編は OPTION の設定に従う。
+	// 流さない場合は TutorialSystem が表示物を1つも作らない（＝画面に何も出ない）
+	const bool tutorialEnabled = !IsTrainingMode() && GameSettings::GetInstance().IsTutorialEnabled();
 	tutorial_ = std::make_unique<TutorialSystem>();
-	tutorial_->Initialize();
+	tutorial_->Initialize(tutorialEnabled);
 	// PlayerのチュートリアルサービスをGameSceneのものに接続する
 	// (これが無いとPlayer側のGetTutorialService()がnullptrを返しクラッシュする)
 	player_->SetTutorialService(tutorial_.get());
 
 	if (IsTrainingMode()) {
-		// トレーニングでチュートリアルは流さない。
-		// TutorialDummy::CanDie() が全チュートリアル完了を条件にしているので、
-		// 先に完了扱いにしておかないと倒せない相手になってしまう
-		tutorial_->SkipAllTutorials();
-
 		// 相手の生成もリセットの基準位置もここが持つ。プレイヤー生成後に初期化すること
 		training_ = std::make_unique<TrainingController>();
 		training_->Initialize(player_, lockOnSystem_.get());

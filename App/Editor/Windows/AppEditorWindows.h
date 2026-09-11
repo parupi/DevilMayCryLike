@@ -9,6 +9,7 @@
 namespace AppEditor {
 
 void DrawPlayerWindow();        // プレイヤーの状態 + 攻撃プレビュー
+void DrawPlayerDodgeWindow();   // 回避・ダッシュの速度と時間の調整
 void DrawAttackEditorWindows(); // Attack Editor / Attack Derivative Editor
 void DrawEnemyWindow();         // シーン内の敵一覧とHP
 void DrawCameraWorkWindow();    // GameCamera のカメラワーク調整

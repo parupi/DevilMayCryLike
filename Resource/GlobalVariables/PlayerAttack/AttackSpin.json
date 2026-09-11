@@ -1,0 +1,249 @@
+{
+    "AttackSpin": {
+        "AttackDuration": 0.6,
+        "AttackPosture": 0,
+        "ButtonIndex": 1,
+        "ChargeDamageScale": 1.0,
+        "ChargeHitStopScale": 1.0,
+        "ChargeImpulseScale": 1.0,
+        "ChargeMaxTime": 1.0,
+        "ChargeMinTime": 0.2,
+        "ControlPoint_0": [
+            -0.6364,
+            0.5,
+            0.6364
+        ],
+        "ControlPoint_1": [
+            -0.6364,
+            0.5,
+            0.6364
+        ],
+        "ControlPoint_2": [
+            0.0,
+            0.5,
+            0.9
+        ],
+        "ControlPoint_3": [
+            0.6364,
+            0.5,
+            0.6364
+        ],
+        "ControlPoint_4": [
+            0.9,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_5": [
+            0.6364,
+            0.5,
+            -0.6364
+        ],
+        "ControlPoint_6": [
+            0.0,
+            0.5,
+            -0.9
+        ],
+        "ControlPoint_7": [
+            -0.6364,
+            0.5,
+            -0.6364
+        ],
+        "ControlPoint_8": [
+            -0.9,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_9": [
+            -0.6364,
+            0.5,
+            0.6364
+        ],
+        "ControlPoint_10": [
+            0.0,
+            0.5,
+            1.1
+        ],
+        "ControlPoint_11": [
+            0.7778,
+            0.5,
+            0.7778
+        ],
+        "ControlPoint_12": [
+            1.1,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_13": [
+            0.7778,
+            0.5,
+            -0.7778
+        ],
+        "ControlPoint_14": [
+            0.0,
+            0.5,
+            -1.1
+        ],
+        "ControlPoint_15": [
+            -0.7778,
+            0.5,
+            -0.7778
+        ],
+        "ControlPoint_16": [
+            -1.1,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_17": [
+            -0.7778,
+            0.5,
+            0.7778
+        ],
+        "ControlPoint_18": [
+            0.0,
+            0.5,
+            1.1
+        ],
+        "ControlRotation_0": [
+            45.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_1": [
+            45.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_2": [
+            90.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_3": [
+            135.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_4": [
+            180.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_5": [
+            225.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_6": [
+            270.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_7": [
+            315.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_8": [
+            360.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_9": [
+            405.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_10": [
+            450.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_11": [
+            495.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_12": [
+            540.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_13": [
+            585.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_14": [
+            630.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_15": [
+            675.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_16": [
+            720.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_17": [
+            765.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_18": [
+            810.0,
+            0.0,
+            90.0
+        ],
+        "CounterFlag": false,
+        "Damage": 1.0,
+        "DirIndex": 0,
+        "DrawDebugControlPoints": false,
+        "FinalDamage": 2.5,
+        "FinalHitStopTime": 0.12,
+        "FinalImpulseForce": 16.0,
+        "FinalReactionType": 1,
+        "FinalStunTime": 0.0,
+        "FinalTorqueForce": 20.0,
+        "FinalUpwardRatio": 0.5,
+        "HitCount": 2,
+        "HitStopIntensity": 0.05,
+        "HitStopStrength": 1,
+        "HitStopTime": 0.03,
+        "HitboxScale": 1.6,
+        "ImpulseForce": 6.0,
+        "InvincibleTime": 0.0,
+        "IsAir": false,
+        "IsCharge": false,
+        "IsMove": false,
+        "KnockBackSpeed": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "LockOnFlag": false,
+        "MoveSpeed": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "NextAttackCount": 0,
+        "NextAttackDelay": 0.0,
+        "NextAttack_0": "",
+        "NextAttack_1": "",
+        "NextAttack_2": "",
+        "PointCount": 19,
+        "PostDelay": 0.35,
+        "PreDelay": 0.2,
+        "ReactionType": 0,
+        "RootAttackFlag": false,
+        "StunTime": 0.5,
+        "TorqueForce": 0.0,
+        "TotalDuration": 1.2,
+        "UpwardRatio": 0.0,
+        "UseFinalHit": true
+    }
+}

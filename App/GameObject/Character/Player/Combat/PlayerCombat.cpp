@@ -5,6 +5,22 @@
 #ifdef _DEBUG
 #endif
 
+namespace {
+	// 納刀モーションの攻撃名。見た目だけの動きなので、ルート攻撃でいつでも割り込めるようにしている
+	constexpr const char* kSheatheName = "Sheathe";
+	// 攻撃の硬直中に押された、別のボタンのルート攻撃を覚えておく時間[秒]
+	constexpr float kRootAttackBufferTime = 0.3f;
+
+	// エディタに出す、攻撃に割り当てたボタンの名前
+	const char* ButtonLabel(InputButton button) {
+		switch (button) {
+		case InputButton::X: return "X";
+		case InputButton::Y: return "Y";
+		default: return "Any";
+		}
+	}
+}
+
 void PlayerCombat::Initialize(Player* player) {
 	player_ = player;
 
@@ -23,6 +39,20 @@ void PlayerCombat::Initialize(Player* player) {
 void PlayerCombat::Update(float deltaTime) {
 	// 毎フレーム
 	attackPlayer_->Update(DeltaTime::GetDeltaTime());
+
+	// カウンターの受付とクールタイムは実時間で数える（ジャスト回避のスロー中に伸びないように）
+	const float realDelta = DeltaTime::GetDeltaTime();
+	if (counterWindowTimer_ > 0.0f) {
+		counterWindowTimer_ -= realDelta;
+	}
+	if (counterCooldownTimer_ > 0.0f) {
+		counterCooldownTimer_ -= realDelta;
+	}
+	// ルート攻撃の先行入力はゲーム内の時間で数える（ヒットストップ中に消えないように）
+	if (pendingRootTimer_ > 0.0f) {
+		pendingRootTimer_ -= deltaTime;
+	}
+
 	// エディタのUIは App/Editor/Windows/AttackEditorWindow.cpp から呼ばれる
 	for (auto& [name, state] : states_) {
 		state->UpdateAttackData();
@@ -32,6 +62,7 @@ void PlayerCombat::Update(float deltaTime) {
 		node.condition.button = static_cast<InputButton>(global_->GetValueRef<int32_t>(name, "ButtonIndex"));
 		node.condition.requireLockOn = global_->GetValueRef<bool>(name, "LockOnFlag");
 		node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(name, "DirIndex"));
+		node.condition.requireCounter = global_->GetValueRef<bool>(name, "CounterFlag");
 	}
 	// コンボのリセット処理
 	if (waitingForNextCombo_) {
@@ -42,7 +73,7 @@ void PlayerCombat::Update(float deltaTime) {
 			waitingForNextCombo_ = false;
 
 			// 納刀モーション
-			AddState("Sheathe");
+			AddState(kSheatheName);
 		}
 	}
 
@@ -54,6 +85,9 @@ void PlayerCombat::Update(float deltaTime) {
 
 	// 先行入力が Cancel フェーズ突入時に発火していたら処理する
 	if (top->HasPendingRequest()) {
+		// コンボの続きが出るので、別のボタンのルート攻撃の先行入力は捨てる
+		pendingRootTimer_ = 0.0f;
+
 		auto req = top->ConsumePendingRequest();
 		if (req.type == AttackRequest::ChangeAttack && states_.count(req.nextAttack)) {
 			// AddState を使うと push_back 後も top が旧ステートを指すため
@@ -67,6 +101,17 @@ void PlayerCombat::Update(float deltaTime) {
 			player_->ChangeState("Jump");
 		}
 		return; // top は無効になるので IsFinished チェックをスキップ
+	}
+
+	// 硬直中に押された別のボタンのルート攻撃を、割り込めるようになった時点で出す
+	if (pendingRootTimer_ > 0.0f && IsReadyForRootAttack(*top)) {
+		const PlayerCommand command = pendingRootCommand_;
+		pendingRootTimer_ = 0.0f;
+		if (const AttackNode* root = FindRootAttack(command)) {
+			InterruptCombat();
+			StartRootAttack(*root);
+			return; // top は無効になるので IsFinished チェックをスキップ
+		}
 	}
 
 	// 攻撃が終了していたらスタックから抜ける
@@ -86,7 +131,7 @@ void PlayerCombat::Update(float deltaTime) {
 			comboResetTimer_ = 0.3f;
 		} else {
 			// 納刀モーションでなければ
-			if (currentAttackName != "Sheathe") {
+			if (currentAttackName != kSheatheName) {
 				// 少し待ってから納刀モーションに遷移する
 				waitingForNextCombo_ = true;
 				comboResetTimer_ = 0.1f;
@@ -108,6 +153,7 @@ void PlayerCombat::InterruptCombat() {
 	currentState_.clear();
 	waitingForNextCombo_ = false;
 	comboResetTimer_ = 0.0f;
+	pendingRootTimer_ = 0.0f;
 }
 
 void PlayerCombat::AddState(const std::string& stateName) {
@@ -133,73 +179,134 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 	waitingForNextCombo_ = false;
 
 	if (currentState_.empty()) {
-		bool onGround = player_->GetOnGround();
-		bool lockedOn = player_->IsLockOn();
-
-		const AttackNode* bestMatch = nullptr;
-		int bestScore = -1;
-
-		for (auto& [name, node] : attackGraph_) {
-			if (!node.isRootAttack) continue;
-
-			// 地上/空中が一致しなければスキップ
-			if (node.isAir == onGround) continue;
-
-			// ロックオン必須なのにロックオンしていなければスキップ
-			if (node.condition.requireLockOn && !lockedOn) continue;
-
-			// ボタンが指定されていてコマンドと違えばスキップ
-			if (node.condition.button != InputButton::None && node.condition.button != command.button) continue;
-
-			// スティック方向チェック
-			bool stickMatch = false;
-			switch (node.condition.stick) {
-			case StickDirection::ToEnemy:
-				stickMatch = command.stickDir.y >= 0.7f;
-				break;
-			case StickDirection::AwayFromEnemy:
-				stickMatch = command.stickDir.y <= -0.7f;
-				break;
-			case StickDirection::None:
-			case StickDirection::Any:
-				stickMatch = true;
-				break;
-			}
-			if (!stickMatch) continue;
-
-			// 条件が多いほど優先度が高い
-			int score = 0;
-			if (node.condition.requireLockOn) score += 4;
-			if (node.condition.stick == StickDirection::ToEnemy || node.condition.stick == StickDirection::AwayFromEnemy) score += 2;
-			if (node.condition.button != InputButton::None) score += 1;
-
-			if (score > bestScore) {
-				bestScore = score;
-				bestMatch = &node;
-			}
+		if (const AttackNode* root = FindRootAttack(command)) {
+			StartRootAttack(*root);
 		}
+		return;
+	}
 
-		if (bestMatch) {
-			AddState(bestMatch->name);
+	PlayerStateAttack* top = currentState_.back();
+
+	// 今の攻撃から派生できない別のボタンなら、そのボタンのルート攻撃として扱う。
+	// 以前は攻撃が終わりきるまで入力を捨てていて、終わった直後に納刀モーションが始まるとそこでも捨てていたので、
+	// Y の攻撃の後に X のルート攻撃を押しても、ほとんど出なかった
+	if (CanStartRootAttackOver(*top, command.button)) {
+		if (IsReadyForRootAttack(*top)) {
+			if (const AttackNode* root = FindRootAttack(command)) {
+				InterruptCombat();
+				StartRootAttack(*root);
+			}
+		} else {
+			// 硬直中なら覚えておき、割り込めるようになった時点で Update が出す
+			pendingRootCommand_ = command;
+			pendingRootTimer_ = kRootAttackBufferTime;
 		}
-	} else {
-		auto& top = currentState_.back();
-		auto req = top->ExecuteCommand(*player_, command);
+		return;
+	}
 
-		switch (req.type) {
-		case AttackRequest::Jump:
-			player_->ChangeState("Jump");
+	auto req = top->ExecuteCommand(*player_, command);
+
+	switch (req.type) {
+	case AttackRequest::Jump:
+		player_->ChangeState("Jump");
+		break;
+	case AttackRequest::Air:
+		player_->ChangeState("Air");
+		break;
+	case AttackRequest::ChangeAttack:
+		AddState(req.nextAttack);
+		break;
+	case AttackRequest::None:
+		break;
+	}
+}
+
+const AttackNode* PlayerCombat::FindRootAttack(const PlayerCommand& command) const {
+	bool onGround = player_->GetOnGround();
+	bool lockedOn = player_->IsLockOn();
+
+	const AttackNode* bestMatch = nullptr;
+	int bestScore = -1;
+
+	for (const auto& [name, node] : attackGraph_) {
+		if (!node.isRootAttack) continue;
+
+		// 地上/空中が一致しなければスキップ
+		if (node.isAir == onGround) continue;
+
+		// ロックオン必須なのにロックオンしていなければスキップ
+		if (node.condition.requireLockOn && !lockedOn) continue;
+
+		// ジャスト回避の直後にしか出せない攻撃（カウンター）は、受付中でなければスキップ
+		if (node.condition.requireCounter && !IsCounterWindowOpen()) continue;
+
+		// ボタンが指定されていてコマンドと違えばスキップ
+		if (node.condition.button != InputButton::None && node.condition.button != command.button) continue;
+
+		// スティック方向チェック
+		bool stickMatch = false;
+		switch (node.condition.stick) {
+		case StickDirection::ToEnemy:
+			stickMatch = command.stickDir.y >= 0.7f;
 			break;
-		case AttackRequest::Air:
-			player_->ChangeState("Air");
+		case StickDirection::AwayFromEnemy:
+			stickMatch = command.stickDir.y <= -0.7f;
 			break;
-		case AttackRequest::ChangeAttack:
-			AddState(req.nextAttack);
+		case StickDirection::None:
+		case StickDirection::Any:
+			stickMatch = true;
 			break;
-		case AttackRequest::None:
-			break;
+		}
+		if (!stickMatch) continue;
+
+		// 条件が多いほど優先度が高い。カウンターは出せる場面が限られるので一番優先する
+		int score = 0;
+		if (node.condition.requireCounter) score += 8;
+		if (node.condition.requireLockOn) score += 4;
+		if (node.condition.stick == StickDirection::ToEnemy || node.condition.stick == StickDirection::AwayFromEnemy) score += 2;
+		if (node.condition.button != InputButton::None) score += 1;
+
+		if (score > bestScore) {
+			bestScore = score;
+			bestMatch = &node;
 		}
 	}
+
+	return bestMatch;
+}
+
+void PlayerCombat::StartRootAttack(const AttackNode& node) {
+	pendingRootTimer_ = 0.0f;
+
+	// カウンターを出したら受付を閉じて、クールタイムに入る
+	if (node.condition.requireCounter) {
+		counterWindowTimer_ = 0.0f;
+		counterCooldownTimer_ = player_->GetDodgeParams().counterCooldown;
+	}
+	AddState(node.name);
+}
+
+bool PlayerCombat::CanStartRootAttackOver(const PlayerStateAttack& attack, InputButton button) const {
+	// 今の攻撃から派生できるボタンなら、コンボの続きの方を優先する
+	if (attack.CanBranchWith(*player_, button)) return false;
+
+	// 納刀モーションは見た目だけなので、どのボタンでも割り込める
+	if (attack.GetAttackName() == kSheatheName) return true;
+
+	// 続きの無い技を同じボタンで連打しても、ルート攻撃から振り直さない（従来どおり、終わるまで待つ）
+	const auto it = attackGraph_.find(attack.GetAttackName());
+	if (it == attackGraph_.end()) return false;
+	return it->second.condition.button != button;
+}
+
+bool PlayerCombat::IsReadyForRootAttack(const PlayerStateAttack& attack) const {
+	return attack.CanBeInterrupted() || attack.GetAttackName() == kSheatheName;
+}
+
+void PlayerCombat::OpenCounterWindow(float seconds) {
+	// 立て続けにカウンターを出せないよう、クールタイム中は受付を開かない
+	if (counterCooldownTimer_ > 0.0f) return;
+	counterWindowTimer_ = seconds;
 }
 
 void PlayerCombat::CreateState() {
@@ -263,6 +370,72 @@ void PlayerCombat::DrawAttackDataEditorUI() {
 	}
 
 }
+
+void PlayerCombat::DrawRootAttackCheck(const std::string& attackName) {
+	if (!ImGui::CollapsingHeader("Check : 今ルート攻撃として出せるか", ImGuiTreeNodeFlags_DefaultOpen)) return;
+
+	const auto it = attackGraph_.find(attackName);
+	if (it == attackGraph_.end()) return;
+	const AttackNode& node = it->second;
+
+	auto row = [](bool ok, const std::string& text) {
+		const ImVec4 color = ok ? ImVec4(0.55f, 0.90f, 0.55f, 1.0f) : ImVec4(1.0f, 0.45f, 0.40f, 1.0f);
+		ImGui::TextColored(color, "%s  %s", ok ? "OK" : "NG", text.c_str());
+	};
+
+	// ── 出す条件（FindRootAttack と同じ並び） ──
+	row(node.isRootAttack, "IsRootAttack が ON（OFF だとコンボの派生でしか出ない）");
+
+	const bool onGround = player_->GetOnGround();
+	row(node.isAir != onGround, std::format("地上/空中が合っている（今: {} / この攻撃: {}用。IsAir で切り替え）",
+		onGround ? "地上" : "空中", node.isAir ? "空中" : "地上"));
+
+	if (node.condition.requireLockOn) {
+		row(player_->IsLockOn(), "ロックオンしている（RequireLockOn が ON）");
+	}
+	if (node.condition.requireCounter) {
+		row(IsCounterWindowOpen(), "カウンター受付中（Require Just Dodge が ON。ジャスト回避の直後だけ出る）");
+	}
+
+	switch (node.condition.button) {
+	case InputButton::X: ImGui::TextDisabled("      押すボタン: X（キーボードは K）"); break;
+	case InputButton::Y: ImGui::TextDisabled("      押すボタン: Y（キーボードは J）"); break;
+	default: ImGui::TextDisabled("      押すボタン: X / Y どちらでも"); break;
+	}
+	switch (node.condition.stick) {
+	case StickDirection::ToEnemy: ImGui::TextDisabled("      スティック（移動キー）を前に倒しながら押す（Stick Direction）"); break;
+	case StickDirection::AwayFromEnemy: ImGui::TextDisabled("      スティック（移動キー）を後ろに倒しながら押す（Stick Direction）"); break;
+	default: break;
+	}
+
+	// 同じ入力で、もっと条件の多い攻撃が選ばれてしまっていないか
+	if (node.isRootAttack) {
+		PlayerCommand command{};
+		command.action = PlayerAction::Attack;
+		command.button = (node.condition.button == InputButton::None) ? InputButton::X : node.condition.button;
+		if (node.condition.stick == StickDirection::ToEnemy) command.stickDir = { 0.0f, 1.0f };
+		if (node.condition.stick == StickDirection::AwayFromEnemy) command.stickDir = { 0.0f, -1.0f };
+		const AttackNode* chosen = FindRootAttack(command);
+		if (chosen && chosen->name != attackName) {
+			row(false, std::format("同じ入力では「{}」が選ばれる（条件の多い攻撃が優先）", chosen->name));
+		}
+	}
+
+	// ── データ ──
+	const float total = global_->GetValueRef<float>(attackName, "TotalDuration");
+	const float pre = global_->GetValueRef<float>(attackName, "PreDelay");
+	const float active = global_->GetValueRef<float>(attackName, "AttackDuration");
+	const float post = global_->GetValueRef<float>(attackName, "PostDelay");
+	const int32_t pointCount = global_->GetValueRef<int32_t>(attackName, "PointCount");
+
+	row(total > 0.0f, "Total Duration が 0 より大きい（0 だと出た瞬間に終わる）");
+	row(active > 0.0f, "Attack Duration が 0 より大きい（0 だと当たり判定が出ない）");
+	row(pointCount >= 4, std::format("制御点が4つ以上ある（今 {} 個。足りないと武器が振られない）", pointCount));
+	if (!node.nextAttacks.empty() && pre + active + post >= total) {
+		row(false, std::format("Pre + Attack + Post Delay（{:.2f}）が Total Duration（{:.2f}）以上なので、派生を受け付ける時間が無い",
+			pre + active + post, total));
+	}
+}
 #endif // _DEBUG
 
 void PlayerCombat::AddAttackState(const std::string& attackName) {
@@ -279,11 +452,27 @@ void PlayerCombat::AddAttackState(const std::string& attackName) {
 	state->UpdateAttackData();
 
 	states_[attackName] = std::move(state);
+
+	// 攻撃グラフにも名前付きで登録する。
+	// 以前は states_ にしか足しておらず、Update がノードを名前の空のまま作っていたので、
+	// 追加した攻撃をルート攻撃にして出すと、空の名前でステートを探して落ちていた
+	attackGraph_[attackName] = LoadAttackNode(attackName);
+
+	// 攻撃の試し再生（AttackPlayer）の一覧にも入れる
+	std::vector<PlayerStateAttack*> list;
+	for (auto& [name, attack] : states_) {
+		list.push_back(attack.get());
+	}
+	attackPlayer_->SetAttacks(list);
 }
 
 void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* attack) {
 #ifdef _DEBUG
 	const char* attackName = attack->name_.c_str();
+
+	// 出ないときに理由を探せるよう、一番上に出す
+	DrawRootAttackCheck(attack->name_);
+	ImGui::Separator();
 
 	int32_t& pointCount = global_->GetValueRef<int32_t>(attackName, "PointCount");
 
@@ -359,15 +548,23 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 
 	ImGui::Checkbox("RequireLockOn", &global_->GetValueRef<bool>(attackName, "LockOnFlag"));
 
-	if (global_->GetValueRef<bool>(attackName, "LockOnFlag")) {
-		const char* dirLabels[] = {
-			"None",
-			"To Enemy",
-			"Away From Enemy",
-			"Any"
-		};
-		ImGui::Combo("Stick Direction", &global_->GetValueRef<int32_t>(attackName, "DirIndex"), dirLabels, IM_ARRAYSIZE(dirLabels));
-	}
+	// スティック方向はロックオンしていなくても判定に効く。
+	// 以前は RequireLockOn が ON のときしか出しておらず、OFF にすると設定が見えないまま残って、攻撃が出なくなることがあった
+	const char* dirLabels[] = {
+		"None",
+		"To Enemy",
+		"Away From Enemy",
+		"Any"
+	};
+	ImGui::Combo("Stick Direction", &global_->GetValueRef<int32_t>(attackName, "DirIndex"), dirLabels, IM_ARRAYSIZE(dirLabels));
+	ImGui::SetItemTooltip("To Enemy = スティック（移動キー）を前に倒しながら押す\n"
+		"Away From Enemy = 後ろに倒しながら押す\n"
+		"ロックオンしていなくても効く");
+
+	ImGui::Checkbox("Require Just Dodge (Counter)", &global_->GetValueRef<bool>(attackName, "CounterFlag"));
+	ImGui::SetItemTooltip("ジャスト回避の直後だけ出せる攻撃（カウンター）にする。\n"
+		"受付時間とクールタイムは Dodge / Dash ウィンドウの「ジャスト回避」で調整する。\n"
+		"条件が合えば、同じボタンの他の攻撃より優先される");
 
 	ImGui::Separator();
 
@@ -408,6 +605,65 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	// のけぞり用
 	ImGui::DragFloat("StunTime", &global_->GetValueRef<float>(attackName, "StunTime"), 0.01f);
 
+	// ── 多段ヒット・当たり判定 ──
+	ImGui::SeparatorText("Hit");
+	int32_t& hitCount = global_->GetValueRef<int32_t>(attackName, "HitCount");
+	ImGui::DragInt("Hit Count", &hitCount, 0.05f, 1, 10);
+	ImGui::SetItemTooltip("攻撃判定が出ている間に何回当たり直すか。\n"
+		"Attack Duration を等分し、区切りごとに触れている敵へもう一度当たる（回転攻撃など）");
+	hitCount = std::clamp(hitCount, 1, 10);
+
+	ImGui::DragFloat("Hitbox Scale", &global_->GetValueRef<float>(attackName, "HitboxScale"), 0.01f, 0.1f, 10.0f);
+	ImGui::SetItemTooltip("武器の当たり判定の大きさの倍率。1.0 で通常");
+
+	if (hitCount >= 2) {
+		bool& useFinalHit = global_->GetValueRef<bool>(attackName, "UseFinalHit");
+		ImGui::Checkbox("Use Final Hit", &useFinalHit);
+		ImGui::SetItemTooltip("最終段だけ下の性能に差し替える。\nそれより前の段は上の Damage / ReactionType などを使う");
+		if (useFinalHit) {
+			ImGui::Indent();
+			ImGui::DragFloat("Final Damage", &global_->GetValueRef<float>(attackName, "FinalDamage"), 0.01f);
+			int32_t& finalType = global_->GetValueRef<int32_t>(attackName, "FinalReactionType");
+			ImGui::Text("Final ReactionType:");
+			ImGui::SameLine();
+			ImGui::RadioButton("HitStun##Final", &finalType, 0);
+			ImGui::SameLine();
+			ImGui::RadioButton("Knockback##Final", &finalType, 1);
+			ImGui::SameLine();
+			ImGui::RadioButton("Launch##Final", &finalType, 2);
+			ImGui::DragFloat("Final ImpulseForce", &global_->GetValueRef<float>(attackName, "FinalImpulseForce"), 0.01f);
+			ImGui::DragFloat("Final UpwardRatio", &global_->GetValueRef<float>(attackName, "FinalUpwardRatio"), 0.01f);
+			ImGui::DragFloat("Final TorqueForce", &global_->GetValueRef<float>(attackName, "FinalTorqueForce"), 0.01f);
+			ImGui::DragFloat("Final StunTime", &global_->GetValueRef<float>(attackName, "FinalStunTime"), 0.01f);
+			ImGui::DragFloat("Final HitStopTime", &global_->GetValueRef<float>(attackName, "FinalHitStopTime"), 0.01f);
+			ImGui::Unindent();
+		}
+	}
+
+	// ── 溜め ──
+	ImGui::SeparatorText("Charge");
+	bool& isCharge = global_->GetValueRef<bool>(attackName, "IsCharge");
+	ImGui::Checkbox("IsCharge", &isCharge);
+	ImGui::SetItemTooltip("ボタンを押し続けている間、構え（Pre Delay の終わり）で止めて溜める。離すと振る。\n"
+		"構えの途中で離したときは、溜め無し（倍率 1.0）で振る");
+	if (isCharge) {
+		ImGui::DragFloat("Charge Min Time", &global_->GetValueRef<float>(attackName, "ChargeMinTime"), 0.01f, 0.0f, 10.0f, "%.2f 秒");
+		ImGui::SetItemTooltip("溜めがこれより短いと倍率 1.0 のまま（軽く押しただけでも最低限の攻撃として出る）");
+		ImGui::DragFloat("Charge Max Time", &global_->GetValueRef<float>(attackName, "ChargeMaxTime"), 0.01f, 0.0f, 10.0f, "%.2f 秒");
+		ImGui::SetItemTooltip("ここまで溜めると最大倍率。溜めきった瞬間にキャラクターのライトが光る");
+		ImGui::DragFloat("Charge Damage Scale", &global_->GetValueRef<float>(attackName, "ChargeDamageScale"), 0.01f, 0.0f, 20.0f);
+		ImGui::SetItemTooltip("最大まで溜めたときのダメージ倍率。Min 〜 Max の間は線形に上がる");
+		ImGui::DragFloat("Charge Impulse Scale", &global_->GetValueRef<float>(attackName, "ChargeImpulseScale"), 0.01f, 0.0f, 20.0f);
+		ImGui::SetItemTooltip("最大まで溜めたときの ImpulseForce（吹き飛ばし・打ち上げの強さ）の倍率");
+		ImGui::DragFloat("Charge HitStop Scale", &global_->GetValueRef<float>(attackName, "ChargeHitStopScale"), 0.01f, 0.0f, 20.0f);
+		ImGui::SetItemTooltip("最大まで溜めたときの HitStopTime の倍率");
+	}
+
+	// ── 無敵 ──
+	ImGui::SeparatorText("Invincible");
+	ImGui::DragFloat("Invincible Time", &global_->GetValueRef<float>(attackName, "InvincibleTime"), 0.01f, 0.0f, 5.0f, "%.2f 秒");
+	ImGui::SetItemTooltip("攻撃の出始めから被弾しない時間。カウンターや溜め攻撃の振り出しに使う");
+
 	// 攻撃時に地上にいるかの判定
 	ImGui::Separator();
 
@@ -437,10 +693,13 @@ AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName) {
 	node.condition.button = static_cast<InputButton>(global_->GetValueRef<int32_t>(attackName, "ButtonIndex"));
 	node.condition.requireLockOn = global_->GetValueRef<bool>(attackName, "LockOnFlag");
 	node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(attackName, "DirIndex"));
+	node.condition.requireCounter = global_->GetValueRef<bool>(attackName, "CounterFlag");
 
 	int count = global_->GetValueRef<int>(attackName, "NextAttackCount");
 	for (int i = 0; i < count; ++i) {
 		std::string key = "NextAttack_" + std::to_string(i);
+		// 派生先の枠は既定で3つ分しか作っていない。項目が無ければ読まずに飛ばす
+		if (!global_->HasItem(attackName, key)) continue;
 		node.nextAttacks.push_back(global_->GetValueRef<std::string>(attackName, key));
 	}
 
@@ -456,9 +715,17 @@ void PlayerCombat::DrawAttackNodeEditor(const std::string& attackName, AttackNod
 	global_->GetValueRef<int>(attackName, "NextAttackCount") = count;
 
 	for (int i = 0; i < count; ++i) {
-		ImGui::BulletText("-> %s", node.nextAttacks[i].c_str());
+		// 派生先は押したボタンごとに選ばれるので、どのボタンで出る派生かも並べて見せる
+		auto target = attackGraph_.find(node.nextAttacks[i]);
+		const char* button = (target != attackGraph_.end()) ? ButtonLabel(target->second.condition.button) : "?";
+		ImGui::BulletText("-> %s  [%s]", node.nextAttacks[i].c_str(), button);
 
 		std::string key = "NextAttack_" + std::to_string(i);
+		// 派生先の枠は既定で3つ。Attack Derivative Editor で4つ目以降を付けたときに、
+		// 無い項目を読みに行って止まらないよう、足りなければここで作る
+		if (!global_->HasItem(attackName, key)) {
+			global_->AddItem(attackName, key, std::string(""));
+		}
 		global_->GetValueRef<std::string>(attackName, key) = node.nextAttacks[i];
 	}
 }
@@ -494,7 +761,10 @@ void PlayerCombat::DrawAttackDerivativeEditorUI() {
 
 			bool hasLink = std::find(node.nextAttacks.begin(), node.nextAttacks.end(), targetName) != node.nextAttacks.end();
 
-			if (ImGui::Checkbox(targetName.c_str(), &hasLink)) {
+			// どのボタンで出る攻撃かも出す（派生先は押したボタンごとに選ばれる）。
+			// 表示だけ変えて、ImGui の ID は攻撃名のまま固定する
+			const std::string label = std::format("{}  [{}]##{}", targetName, ButtonLabel(targetNode.condition.button), targetName);
+			if (ImGui::Checkbox(label.c_str(), &hasLink)) {
 				if (hasLink) {
 					node.nextAttacks.push_back(targetName);
 				} else {

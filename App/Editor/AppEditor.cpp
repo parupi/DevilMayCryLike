@@ -437,6 +437,7 @@ void AppEditor::Register()
 
 	// ゲーム固有のウィンドウ。エンジン標準のウィンドウの後ろに並ぶ
 	Editor::AddWindowDrawer([] { DrawPlayerWindow(); });
+	Editor::AddWindowDrawer([] { DrawPlayerDodgeWindow(); });
 	Editor::AddWindowDrawer([] { DrawAttackEditorWindows(); });
 	Editor::AddWindowDrawer([] { DrawEnemyWindow(); });
 	Editor::AddWindowDrawer([] { DrawCameraWorkWindow(); });

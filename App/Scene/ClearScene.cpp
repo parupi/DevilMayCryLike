@@ -17,12 +17,9 @@ void ClearScene::Initialize()
 {
 	SoundManager::GetInstance().PlayBGM("ClearBGM", 0.8f);
 
+	// 見出しとスコアの数字はフォントから描くので、読むのは絵だけ
 	TextureManager::GetInstance().LoadTexture("ClearUI.png");
-	TextureManager::GetInstance().LoadTexture("Result.png");
-	TextureManager::GetInstance().LoadTexture("Numbers.png");
 	TextureManager::GetInstance().LoadTexture("Ranks.png");
-	TextureManager::GetInstance().LoadTexture("Stage1.png");
-	TextureManager::GetInstance().LoadTexture("Score.png");
 
 	// カメラの生成
 	std::unique_ptr<BaseCamera> clearCamera = std::make_unique<BaseCamera>("ClearCamera");

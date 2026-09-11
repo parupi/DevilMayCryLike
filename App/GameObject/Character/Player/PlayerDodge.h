@@ -19,12 +19,14 @@ struct PlayerDodgeParams {
 
 	// ── 回避 ──
 	float dodgeDuration = 0.25f;      // 回避からダッシュへ移行するまでの時間[秒]
-	float dodgeSpeed = 19.0f;         // 回避中の移動速度（通常移動は10）
+	float dodgeSpeed = 16.0f;         // 回避中の移動速度（通常移動は10）
 	float invincibleTime = 0.22f;     // 回避開始からの無敵時間[秒]
 	float cooldown = 0.15f;           // 次に回避できるようになるまでの時間[秒]
 
 	// ── ダッシュ ──
-	float dashSpeed = 26.0f;          // ダッシュ中の移動速度
+	// ダッシュは最大1.2秒続くので、速すぎるとアリーナを一瞬で横切って制御しづらくなる。
+	// 通常移動(10)の1.8倍あたりが、回避からの加速を感じつつ扱える上限
+	float dashSpeed = 18.0f;          // ダッシュ中の移動速度
 	float dashDuration = 1.2f;        // ダッシュを続けられる上限[秒]
 	float dashTurnRate = 5.0f;        // 進行方向をスティックへ寄せる角速度[rad/秒]
 	float dashInputGrace = 0.15f;     // 入力を離してからダッシュが切れるまでの猶予[秒]
@@ -34,6 +36,8 @@ struct PlayerDodgeParams {
 	float justDodgeTimeScale = 0.25f; // スローモーション中の時間倍率
 	float justDodgeShake = 0.22f;     // ジャスト回避時にカメラへ加えるトラウマ量
 	float justDodgeInvincibleAdd = 0.15f; // ジャスト回避成功時に伸ばす無敵時間[秒]
+	float counterWindow = 0.6f;       // ジャスト回避の後、カウンター攻撃を出せる時間[秒]（実時間）
+	float counterCooldown = 1.0f;     // カウンターを出してから、次に受付が開くまでの時間[秒]（実時間）
 
 	// ── 演出 ──
 	float dashFovPunch = 0.05f;       // ダッシュ開始時に一時的に足す画角[rad]（約3度）

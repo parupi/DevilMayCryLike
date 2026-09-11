@@ -68,6 +68,16 @@ void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
 	}
 }
 
+void EnemyStateKnockBack::OnAirHit(Enemy& enemy, const DamageInfo& info) {
+	// 横の勢いを殺して、追いかけて斬り続けられる位置に留める
+	velocity_.x *= 0.25f;
+	velocity_.z *= 0.25f;
+	// 落ちている途中なら落下を止める。上向きの力を持つ攻撃なら、そのぶん持ち上げる
+	const float risingSpeed = (velocity_.y > 0.0f) ? velocity_.y : 0.0f;
+	velocity_.y = risingSpeed + info.impulseForce * info.upwardRatio;
+	enemy.SetVelocity(velocity_);
+}
+
 void EnemyStateKnockBack::OnLand(Enemy& enemy) {
 	if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
 		// 着地の減速。**Enemy 側へ書き戻すこと**。

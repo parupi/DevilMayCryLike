@@ -43,6 +43,8 @@ public:
 	const std::vector<PlayerCommand>& GetCommands() const { return commands_; }
 	// 現在の入力状態を取得
 	const PlayerInputContext& GetContext() const { return context_; }
+	// 攻撃ボタンを押し続けているか（溜め攻撃用）。None を渡すとどちらかのボタンを押していれば true
+	bool IsAttackButtonHeld(InputButton button) const;
 private:
 	Input* input_ = nullptr;
 	std::vector<PlayerCommand> commands_;

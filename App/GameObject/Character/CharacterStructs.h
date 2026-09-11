@@ -62,6 +62,34 @@ struct AttackData {
 
 	// のけぞり用
 	float stunTime = 0.0f;
+
+	// ── 多段ヒット・当たり判定 ──
+	// 攻撃判定が出ている間に何回当たり直すか（Attack Duration を等分する）。1 なら従来通り1回
+	int32_t hitCount = 1;
+	// 武器の当たり判定の大きさの倍率
+	float hitboxScale = 1.0f;
+	// 最終段だけ別の性能にするか（hitCount が2以上のときだけ効く）
+	bool useFinalHit = false;
+	float finalDamage = 0.0f;
+	ReactionType finalType = ReactionType::Knockback;
+	float finalImpulseForce = 0.0f;
+	float finalUpwardRatio = 0.0f;
+	float finalTorqueForce = 0.0f;
+	float finalStunTime = 0.0f;
+	float finalHitStopTime = 0.0f;
+
+	// ── 溜め ──
+	// ボタンを押し続けている間、構え（予備動作の終わり）で止めて溜める
+	bool isCharge = false;
+	float chargeMinTime = 0.2f;       // これより短く離すと溜め無し（倍率1.0）
+	float chargeMaxTime = 1.0f;       // ここまで溜めると最大倍率
+	float chargeDamageScale = 1.0f;   // 最大まで溜めたときのダメージ倍率
+	float chargeImpulseScale = 1.0f;  // 同・吹き飛ばしの強さの倍率
+	float chargeHitStopScale = 1.0f;  // 同・ヒットストップの長さの倍率
+
+	// ── 無敵 ──
+	// 攻撃の出始めから被弾しない時間[秒]
+	float invincibleTime = 0.0f;
 };
 
 struct DamageInfo {

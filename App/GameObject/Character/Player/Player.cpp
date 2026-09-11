@@ -188,6 +188,12 @@ void Player::UpdateAnimation() {
 
 		anim->Play(kClipAttack, false, 0.05f, isNewSwing);
 
+		// 溜め攻撃の溜め中は、構えた姿勢のまま止めておく
+		if (combat_->IsCharging()) {
+			anim->SetSpeed(0.0f);
+			return;
+		}
+
 		// 体の「振り切る瞬間」が武器の振り抜きと重なるように再生速度を決める。
 		// 武器は preDelay で構えに移動し、attackDuration の間に CatmullRom で振り抜くので、
 		// 斬る瞬間は preDelay + attackDuration/2 あたり。
@@ -594,11 +600,18 @@ void Player::LockOn() {
 	if (lockOn_->IsLockOn()) {
 		// 現在のターゲットを取得
 		auto* target = lockOn_->GetCurrentTarget();
+		if (!target) return;
 		// ターゲットへのベクトルを計算
 		Vector3 toTarget = target->GetWorldPosition() - GetWorldTransform()->GetTranslation();
+		// 向くのは水平方向（Y軸まわり）だけ。
+		// 高さの差をそのまま使うと、打ち上げた敵や段差の上の敵を見上げて体ごと前後に傾いてしまう
+		toTarget.y = 0.0f;
+		const float length = Length(toTarget);
+		// 真上・真下にいるときは向きが決まらない（正規化で0除算になる）ので、今の向きを保つ
+		if (length < 0.001f) return;
 
 		// ターゲット方向に向く
-		Vector3 direction = Normalize(toTarget);
+		Vector3 direction = toTarget * (1.0f / length);
 		direction.x *= -1.0f;
 		Quaternion lookRot = LookRotation(direction);
 		// 回転を適用
