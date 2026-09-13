@@ -236,4 +236,6 @@ private:
 	float shakeHitTrauma_ = 0.6f;         // 被弾時に加えるトラウマ
 	float shakeLandTrauma_ = 0.35f;       // 着地時に加えるトラウマ
 	float shakeLandSpeedThreshold_ = 8.0f;// この落下速度以上の着地でシェイク
+	// 軽被弾のときの揺れの倍率（仕様書 §15 の「攻撃の強さに応じた段階」）
+	static constexpr float kLightHitShakeScale = 0.45f;
 };

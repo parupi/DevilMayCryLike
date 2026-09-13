@@ -24,8 +24,8 @@ void LoadNotoSansJP()
 	// 同梱のNoto Sans JPを優先。ImGui(stb_truetype)ではstaticのRegularが最も安定する。
 	// 見つからなければ可変フォント→システムフォントの順にフォールバックする。
 	const char* candidates[] = {
-		"Font/Noto_Sans_JP/static/NotoSansJP-Regular.ttf",
-		"Font/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf",
+		"Resource/Font/Noto_Sans_JP/static/NotoSansJP-Regular.ttf",
+		"Resource/Font/Noto_Sans_JP/NotoSansJP-VariableFont_wght.ttf",
 		"C:/Windows/Fonts/NotoSansJP-VF.ttf",
 	};
 

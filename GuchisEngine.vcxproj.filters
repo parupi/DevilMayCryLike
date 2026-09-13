@@ -25,6 +25,9 @@
     <Filter Include="App\GameObject\Character">
       <UniqueIdentifier>{6236CF65-4E5B-1EE6-77A6-0376632A1D04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Character\Combat">
+      <UniqueIdentifier>{C7D05A01-33B4-6941-3CB7-977DA8193092}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Character\Enemy">
       <UniqueIdentifier>{0F166CF8-FB3B-365F-E481-BB2AD0465B2B}</UniqueIdentifier>
     </Filter>
@@ -327,6 +330,12 @@
     <ClInclude Include="App\GameObject\Character\CharacterStructs.h">
       <Filter>App\GameObject\Character</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Combat\CombatHitResolver.h">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Combat\KnockbackComponent.h">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h">
       <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
     </ClInclude>
@@ -350,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyAttackAim.h">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
@@ -1289,6 +1301,9 @@
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
@@ -1325,6 +1340,12 @@
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Combat\CombatHitResolver.cpp">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
@@ -1345,6 +1366,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyAttackAim.cpp">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>

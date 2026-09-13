@@ -122,6 +122,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Camera\GameCamera.h" />
     <ClInclude Include="App\GameObject\Camera\TitleCamera.h" />
     <ClInclude Include="App\GameObject\Character\CharacterStructs.h" />
+    <ClInclude Include="App\GameObject\Character\Combat\CombatHitResolver.h" />
+    <ClInclude Include="App\GameObject\Character\Combat\KnockbackComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h" />
@@ -130,6 +132,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyAttackAim.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyHitbox.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h" />
@@ -444,6 +447,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\StylishWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\TrainingWindow.cpp" />
@@ -456,6 +460,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\DeathCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\GameCamera.cpp" />
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
+    <ClCompile Include="App\GameObject\Character\Combat\CombatHitResolver.cpp" />
+    <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.cpp" />
@@ -463,6 +469,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyAttackAim.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyHitbox.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp" />

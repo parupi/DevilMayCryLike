@@ -4,6 +4,8 @@
 void PlayerStateJustDodge::Enter(Player& player) {
 	// ダメージ無効・無敵の延長・スローモーション・演出の開始はすべてここから
 	player.OnJustDodge();
+	// ジャスト回避の直後だけ出せる攻撃（カウンター）の受付を開く
+	player.GetCombat()->OpenCounterWindow(player.GetDodgeParams().counterWindow);
 
 	player.GetAcceleration() = { 0.0f, 0.0f, 0.0f };
 }

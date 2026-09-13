@@ -3,6 +3,7 @@
 #include "GameObject/Effect/HitStop.h"
 #include <vector>
 #include <string>
+#include <cstdint>
 
 enum class AttackPosture {
 	Stand, // 立ち状態
@@ -15,6 +16,70 @@ enum class ReactionType {
 	Launch     // 打ち上げ
 };
 
+/// <summary>
+/// ノックバックの向きの決め方（仕様書 §4）。
+/// 基本は「攻撃者 → 被弾者」で、攻撃ごとに向きを固定したいときだけ他を選ぶ。
+/// </summary>
+enum class KnockbackDirection : int32_t {
+	AwayFromAttacker, // 攻撃者から離れる（既定）
+	AttackerForward,  // 攻撃者の正面へ。横から当てても同じ向きへ飛ばしたいとき
+	Upward,           // 真上へ。水平成分を捨てる
+	TowardAttacker,   // 引き寄せ（§5.5）。コンボ維持・距離調整用
+	Count
+};
+
+/// <summary>
+/// ノックバック中に重ねて攻撃を受けたときの合成方法（仕様書 §8）。
+/// </summary>
+enum class KnockbackBlend : int32_t {
+	Override, // 上書き。強い攻撃を受けたときの反応が分かりやすい
+	Additive, // 加算 + 上限(maxSpeed)。多段ヒット攻撃と相性がよい
+	Count
+};
+
+/// <summary>
+/// 攻撃1回ぶんのノックバック性能（仕様書 §3）。
+/// 攻撃を出す側（AttackData）と受ける側へ渡す情報（DamageInfo）で同じものを使う。
+///
+/// power / verticalPower は **速度[m/s]**。
+/// エディタ上の調整値は従来どおり ImpulseForce / UpwardRatio（power に対する割合）で、
+/// 読み込み時にここへ変換する。
+/// </summary>
+struct KnockbackData {
+	ReactionType type = ReactionType::HitStun;
+
+	float power = 0.0f;          // 水平方向の強さ[m/s]
+	float verticalPower = 0.0f;  // 上方向の強さ[m/s]
+	float duration = 0.0f;       // ノックバックの時間[秒]。0 なら種類ごとの既定値を使う
+	float deceleration = 1.0f;   // 減速カーブの鋭さ。1.0 で仕様書どおりの直線 power*(1-t)
+	float maxSpeed = 0.0f;       // 合成後の水平速度の上限[m/s]。0 なら無制限
+	float torque = 0.0f;         // 吹っ飛び中の回転量[度/秒]
+	float stunTime = 0.0f;       // のけぞり・操作不能の時間[秒]
+
+	KnockbackDirection direction = KnockbackDirection::AwayFromAttacker;
+	KnockbackBlend blend = KnockbackBlend::Override;
+
+	/// <summary>開始時に元の速度を捨てるか。false なら残っている速度に足す</summary>
+	bool overrideVelocity = true;
+	/// <summary>この攻撃で相手を地面から浮かせてよいか。受ける側の耐性と AND される</summary>
+	bool canLaunch = true;
+};
+
+/// <summary>
+/// 敵ごとのノックバック耐性（仕様書 §9）。
+/// 「すべての敵を同じように吹き飛ばさない」ための重み付け。
+/// </summary>
+struct KnockbackResistance {
+	/// <summary>0.0 = 素通し、1.0 = 完全無効。受けた power / verticalPower に (1-resistance) が掛かる</summary>
+	float resistance = 0.0f;
+	/// <summary>のけぞる（被弾リアクションのステートへ入って行動が中断される）</summary>
+	bool canStagger = true;
+	/// <summary>吹き飛ぶ</summary>
+	bool canBlowAway = true;
+	/// <summary>打ち上がる</summary>
+	bool canLaunch = true;
+};
+
 // 攻撃の情報
 struct AttackData {
 	std::string name = ""; // 名前
@@ -25,7 +90,6 @@ struct AttackData {
 
 	// 移動系
 	Vector3 moveVelocity{};                  // 攻撃中の移動速度
-	Vector3 knockBackSpeed{};             // 敵のノックバック速度
 
 	// タイマー系
 	float totalDuration = 0.0f;              // 攻撃全体にかかる時間
@@ -50,40 +114,48 @@ struct AttackData {
 	float hitStopIntensity = 0.0f;
 	HitStopStrength hitStopStrength = HitStopStrength::Heavy; // 攻撃の強さ（止まり方の強弱）
 
-	// 攻撃を受けた側に送る情報
-	ReactionType type = ReactionType::HitStun;
+	/// <summary>攻撃を受けた側に送るノックバック性能（仕様書 §3）</summary>
+	KnockbackData knockback{};
 
-	// ノックバック＆打ち上げ共通
-	float impulseForce = 0.0f;
-	float upwardRatio = 0.0f;    // Launchはここを高めに
+	// ── 多段ヒット・当たり判定 ──
+	// 攻撃判定が出ている間に何回当たり直すか（Attack Duration を等分する）。1 なら従来通り1回
+	int32_t hitCount = 1;
+	// 武器の当たり判定の大きさの倍率
+	float hitboxScale = 1.0f;
+	// 最終段だけ別の性能にするか（hitCount が2以上のときだけ効く）
+	bool useFinalHit = false;
+	float finalDamage = 0.0f;
+	float finalHitStopTime = 0.0f;
+	/// <summary>最終段のノックバック性能（useFinalHit が true のときだけ使う）</summary>
+	KnockbackData finalKnockback{};
 
-	// 吹っ飛び用
-	float torqueForce = 0.0f;
+	// ── 溜め ──
+	// ボタンを押し続けている間、構え（予備動作の終わり）で止めて溜める
+	bool isCharge = false;
+	float chargeMinTime = 0.2f;       // これより短く離すと溜め無し（倍率1.0）
+	float chargeMaxTime = 1.0f;       // ここまで溜めると最大倍率
+	float chargeDamageScale = 1.0f;   // 最大まで溜めたときのダメージ倍率
+	float chargeImpulseScale = 1.0f;  // 同・吹き飛ばしの強さの倍率
+	float chargeHitStopScale = 1.0f;  // 同・ヒットストップの長さの倍率
 
-	// のけぞり用
-	float stunTime = 0.0f;
+	// ── 無敵 ──
+	// 攻撃の出始めから被弾しない時間[秒]
+	float invincibleTime = 0.0f;
 };
 
 struct DamageInfo {
-    float damage = 0.0f;
+	float damage = 0.0f;
 
 	Vector3 hitPosition{};
 	Vector3 hitNormal{};
 	Vector3 attackerPosition{};
-    // ノックバックの方向
+	/// <summary>攻撃者の正面（水平・正規化済み）。KnockbackDirection::AttackerForward で使う</summary>
+	Vector3 attackerForward{};
+	/// <summary>解決済みのノックバック方向（正規化済み）。KnockbackSolver が埋める</summary>
 	Vector3 direction{};
 
-    ReactionType type = ReactionType::HitStun;
-
-    // ノックバック＆打ち上げ共通
-    float impulseForce = 0.0f;
-    float upwardRatio = 0.0f;    // Launchはここを高めに
-
-    // 吹っ飛び用
-    float torqueForce = 0.0f;
-
-    // のけぞり用
-    float stunTime = 0.0f;
+	/// <summary>ノックバック性能。耐性を適用したあとの値が入る</summary>
+	KnockbackData knockback{};
 };
 
 struct MoveIntent {

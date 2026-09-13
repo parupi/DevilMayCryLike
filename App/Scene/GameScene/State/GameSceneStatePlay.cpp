@@ -7,7 +7,6 @@
 #include <GameObject/Event/ClearEvent.h>
 #include <Input/Input.h>
 #include <Audio/SoundManager.h>
-#include <GameData/GameSettings.h>
 
 void GameSceneStatePlay::Enter(GameScene& scene) {
 	state_ = PlayState::Enter;
@@ -47,18 +46,11 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 			state_ = PlayState::Play;
 
 			// 開始演出と被らないよう、演出が終わってからチュートリアルを開始する（一度だけ）。
-			// 2周目以降のために、タイトルの OPTION から切れるようにしてある
+			// 流すかどうかの判断は GameScene::Initialize が済ませている（トレーニング／OPTIONの設定）。
+			// 流さないシーンでは StartTutorial が何もせず、最初から完了扱いになっている
 			if (!tutorialStarted_) {
 				tutorialStarted_ = true;
-				// トレーニングは操作の確認済みで入る場所なので流さない
-				// （GameScene::Initialize が先に完了扱いにしている）
-				if (!scene.IsTrainingMode() && GameSettings::GetInstance().IsTutorialEnabled()) {
-					scene.GetTutorialService()->StartTutorial(TutorialState::Move);
-				} else {
-					// TutorialDummy は全チュートリアル完了まで死なないので、
-					// 流さない場合は先に完了扱いにしておかないと進行が止まる
-					scene.GetTutorialService()->SkipAllTutorials();
-				}
+				scene.GetTutorialService()->StartTutorial(TutorialState::Move);
 			}
 		}
 

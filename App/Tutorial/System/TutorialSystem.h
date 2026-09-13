@@ -9,8 +9,15 @@ class TutorialSystem : public TutorialService {
 public:
 	TutorialSystem() = default;
 	~TutorialSystem() = default;
-	// 初期化
-	void Initialize();
+	/// <summary>
+	/// 初期化。
+	/// </summary>
+	/// <param name="enabled">
+	/// チュートリアルを流すか。false を渡すと **表示物を1つも作らない**（最初から完了扱いになる）。
+	/// アルファ0で隠す方式にしていた頃は、OPTION で切っていても画面左に出てしまうことがあり、
+	/// GIF 6本ぶんのVRAMも無駄に確保していた。作らなければどちらも起きない
+	/// </param>
+	void Initialize(bool enabled);
 	// 更新
 	void Update();
 	// チュートリアルの開始
@@ -23,9 +30,14 @@ public:
 	bool IsAllFinished() const override { return isAllFinished_; }
 	// チュートリアルを流さずに完了扱いにする
 	void SkipAllTutorials() override { isFinishing_ = false; isAllFinished_ = true; }
+	// チュートリアルを流すシーンか
+	bool IsEnabled() const override { return enabled_; }
 private:
 	// 現在のチュートリアルを終了し、次のチュートリアルへ自動的に進める
 	void AdvanceTutorial();
+
+	// チュートリアルを流すシーンか。false のときは tutorials_ も decoration_ も空のまま
+	bool enabled_ = true;
 
 	TutorialState state_ = TutorialState::Move; // 現在のチュートリアルの状態
 

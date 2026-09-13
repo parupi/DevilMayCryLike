@@ -100,19 +100,39 @@ void PlayerInput::Update()
 			commands_.push_back(command);
 		}
 	} else {
+		// 攻撃の方向条件（ロックオン中に 前 / 後ろ + 攻撃 で出る突進・切り上げ）は、
+		// パッドのスティックと同じく移動キーの向きで判定する。
+		// {0,0} 固定にしていた頃は、キーボードでは方向付きの攻撃が一切出なかった
 		if (input_->TriggerKey(DIK_J)) {
 			PlayerCommand command{};
 			command.action = PlayerAction::Attack;
 			command.button = InputButton::Y;
-			command.stickDir = { 0.0f, 0.0f };
+			command.stickDir = context_.move;
 			commands_.push_back(command);
 		}
 		if (input_->TriggerKey(DIK_K)) {
 			PlayerCommand command{};
 			command.action = PlayerAction::Attack;
 			command.button = InputButton::X;
-			command.stickDir = { 0.0f, 0.0f };
+			command.stickDir = context_.move;
 			commands_.push_back(command);
 		}
+	}
+}
+
+bool PlayerInput::IsAttackButtonHeld(InputButton button) const
+{
+	// 割り当ては Update と同じ（パッドが繋がっていればパッド、無ければ J / K）
+	const bool isPadConnected = input_->IsConnected();
+	const bool isHoldY = isPadConnected ? input_->PushButton(ButtonY) : input_->PushKey(DIK_J);
+	const bool isHoldX = isPadConnected ? input_->PushButton(ButtonX) : input_->PushKey(DIK_K);
+
+	switch (button) {
+	case InputButton::X:
+		return isHoldX;
+	case InputButton::Y:
+		return isHoldY;
+	default:
+		return isHoldX || isHoldY;
 	}
 }

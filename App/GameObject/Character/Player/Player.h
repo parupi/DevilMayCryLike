@@ -14,6 +14,7 @@
 #include <GameObject/Effect/HitStop.h>
 #include "StateMachine/PlayerStateMachine.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Character/Combat/KnockbackComponent.h"
 #include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Effect/HitVignetteEffect.h"
 #include "GameObject/Effect/HitPostEffect.h"
@@ -83,9 +84,41 @@ public:
 	static constexpr float kAttackSpeedMin = 0.75f;
 	static constexpr float kAttackSpeedMax = 3.0f;
 
+	/// 落下加速度[m/s^2]。他のステート（Air / Dodge / Death）と同じ値
+	static constexpr float kGravity = -12.0f;
+
 	/// とどめの一撃で入れるヒットストップ。普段の攻撃（0.01〜0.03秒）よりはっきり長く止める
 	static constexpr float kDeathHitStopTime = 0.18f;
 	static constexpr float kDeathHitStopIntensity = 0.15f;
+
+	// ── 被弾時のヒットストップ（仕様書 §12・§13）──
+	// 敵を殴ったときと同じく「一度止まってから動く」を作る。
+	// プレイヤーは拘束を嫌うので、敵に与える長さより短くしてある
+	static constexpr float kLightHitStopTime = 0.04f;
+	static constexpr float kHeavyHitStopTime = 0.09f;
+	static constexpr float kHitStopIntensity = 0.12f;
+
+	/// <summary>
+	/// これ以上のノックバックを受けたら「強被弾」として扱う速度[m/s]（仕様書 §11・§12）。
+	/// 軽い攻撃はすぐ操作へ戻し、強い攻撃だけ長めに拘束する
+	/// </summary>
+	static constexpr float kHeavyHitPowerThreshold = 14.0f;
+
+	// 被弾後の無敵時間[秒]。強い攻撃ほど長く取って立て直す間を作る
+	static constexpr float kLightHitInvincibleTime = 0.8f;
+	static constexpr float kHeavyHitInvincibleTime = 1.2f;
+
+	/// <summary>
+	/// プレイヤーのノックバック耐性（仕様書 §9）。
+	/// 打ち上げだけ禁止にしてある。プレイヤーには空中被弾のステートが無いので、
+	/// 打ち上げられると落ちるまで操作できない時間が伸びて §23 ⑦に反する
+	/// </summary>
+	static constexpr KnockbackResistance kPlayerKnockbackResistance{
+		/*resistance=*/ 0.0f,
+		/*canStagger=*/ true,
+		/*canBlowAway=*/ true,
+		/*canLaunch=*/ false,
+	};
 
 	Player(std::string objectName);
 	~Player() override = default;
@@ -157,6 +190,16 @@ public:
 
 	// プレイヤーの移動方向を取得する。
 	Vector3 GetMoveDirection() const;
+
+	/// <summary>
+	/// 体が向いている水平方向（正規化済み）。ノックバックの向き指定などに使う。
+	///
+	/// プレイヤーの前方向はローカル +Z だが、Rotate/LockOn が LookRotation へ渡す前に
+	/// X を反転しているため、ワールド行列から取り出した +Z も X が反転している。
+	/// ここで戻さないと、左右が逆の「正面」が返る。
+	/// 向きが取れないときは +Z を返す。
+	/// </summary>
+	Vector3 GetForward();
 	// プレイヤーの移動処理
 	void Move(Vector3 moveDir, float deltaTime);
 	// プレイヤーの向き更新処理
@@ -205,6 +248,17 @@ public:
 	bool IsJustDodgeSlow() const { return justDodgeSlowTimer_ > 0.0f; }
 
 	/// <summary>
+	/// 攻撃の出始めの無敵を与える。回避の無敵と同じ枠で数える
+	/// （ジャスト回避は成立させず、通常の被弾より先に弾く、という扱いが同じなので）。
+	/// 残っている無敵の方が長ければそちらを残す
+	/// </summary>
+	void GrantAttackInvincibility(float seconds) {
+		if (seconds > dodgeInvincibleTimer_) {
+			dodgeInvincibleTimer_ = seconds;
+		}
+	}
+
+	/// <summary>
 	/// 世界（敵・イベント）に掛けてほしい時間倍率。
 	/// ジャスト回避のスロー中だけ1未満を返す。適用するのは GameSceneStatePlay
 	/// </summary>
@@ -221,6 +275,19 @@ public:
 
 	Vector3& GetVelocity() { return velocity_; } ///< 現在の速度ベクトルを取得
 	Vector3& GetAcceleration() { return acceleration_; } ///< 現在の加速度ベクトルを取得
+
+	/// <summary>
+	/// ノックバックの速度を持つ部品（仕様書 §6）。敵と同じ減衰・合成の式を使う。
+	/// 移動の速度（velocity_）とは分けて持ち、Player::Update が両方を足して位置へ反映する
+	/// </summary>
+	KnockbackComponent& GetKnockback() { return knockback_; }
+	const KnockbackComponent& GetKnockback() const { return knockback_; }
+
+	/// <summary>
+	/// 直前の被弾が「強被弾」だったか（仕様書 §11・§12）。
+	/// 軽い攻撃はすぐ操作へ戻し、強い攻撃だけ長めに拘束する
+	/// </summary>
+	bool IsHeavyHit() const { return heavyHit_; }
 	PlayerWeapon* GetWeapon() { return weapon_.get(); } ///< プレイヤーの武器クラス取得
 	AttackData GetAttackData() const { return attackData_; } ///< 現在の攻撃データを取得
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; } ///< 攻撃データを設定
@@ -324,8 +391,13 @@ private:
 
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
-	Vector3 velocity_{}; ///< プレイヤーの速度
+	Vector3 velocity_{}; ///< プレイヤーの速度（移動。ノックバックはここには混ぜない）
 	Vector3 acceleration_{0.0f, 0.0f, 0.0f}; ///< プレイヤーの加速度
+
+	/// ノックバックの速度（仕様書 §6 の knockbackVelocity）。敵と同じ部品を使う
+	KnockbackComponent knockback_;
+	/// 直前の被弾が強被弾だったか（仕様書 §11）
+	bool heavyHit_ = false;
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ
 

@@ -2,7 +2,7 @@
     "AttackComboA3": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
-        "ButtonIndex": 1,
+        "ButtonIndex": 2,
         "ControlPoint_0": [
             0.0,
             1.0,
@@ -92,11 +92,6 @@
         "ImpulseForce": 8.0,
         "IsAir": false,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            6.0,
-            30.0
-        ],
         "LockOnFlag": false,
         "MoveSpeed": [
             0.0,

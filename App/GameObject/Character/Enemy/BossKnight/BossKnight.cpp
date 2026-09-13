@@ -7,6 +7,7 @@
 #include <World3D/Collider/AABBCollider.h>
 #include <World3D/Collider/OBBCollider.h>
 #include <World3D/Collider/CollisionManager.h>
+#include "GameObject/Character/Combat/CombatHitResolver.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
@@ -32,6 +33,18 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 
 	hp_ = kMaxHp;
 	maxHp_ = kMaxHp;
+
+	// ノックバック耐性（仕様書 §9 の「ボス」）。
+	// のけぞらない・吹き飛ばない・打ち上がらないのは以前と同じだが、
+	// **位置だけは押される**ようにした（resistance のぶんだけ弱まった速度が入る）。
+	// 以前は KnockBack ステートを持たないことで無効化していたので、
+	// 攻撃が当たってもボスは1ミリも動かず、手応えがヒットストップと発光だけだった
+	SetKnockbackResistance(KnockbackResistance{
+		/*resistance=*/ kKnockbackResistance,
+		/*canStagger=*/ false,
+		/*canBlowAway=*/ false,
+		/*canLaunch=*/ false,
+	});
 }
 
 void BossKnight::Initialize() {
@@ -61,7 +74,10 @@ void BossKnight::Initialize() {
 	boneAttack_ = std::make_unique<EnemyBoneAttackComponent>(hitbox_);
 
 	// ── ステート登録 ──
-	// ボスは被弾でのけぞらない・吹き飛ばないので、KnockBack 系のステートは持たない。
+	// ボスは被弾でのけぞらないので KnockBack ステートは持たない。
+	// 「のけぞらない」を決めているのはステートの有無ではなく
+	// ノックバック耐性の canStagger=false（コンストラクタ）で、
+	// 位置を押す弱いノックバックだけは KnockbackComponent 経由で入る。
 	// （とどめの吹き飛びは ApplyDeathLaunch がステートを経由せずに初速を与える）
 	states_[EnemyStateName::Air] = std::make_unique<EnemyStateAir>();
 
@@ -195,9 +211,16 @@ void BossKnight::Update(float deltaTime) {
 
 
 bool BossKnight::IsKnockbackImmune() const {
-	// ボスはどの状態でもノックバックしないが、これは「弾いた」演出を出すかどうかのフラグ
+	// ボスはどの状態でものけぞらないが、これは「弾いた」演出を出すかどうかのフラグ
 	// （ヘッダーのコメント参照）。踏み込みを止められない突進(Rush)中だけ true にする
 	return currentState_ == states_.at(BossStateName::Rush).get();
+}
+
+const KnockbackResistance& BossKnight::GetKnockbackResistance() const {
+	// 突進中は完全無効。踏み込みが鈍ると「見てから避ける」の読みが崩れる
+	static const KnockbackResistance kImmune{ 1.0f, false, false, false };
+	if (IsKnockbackImmune()) return kImmune;
+	return Enemy::GetKnockbackResistance();
 }
 
 void BossKnight::UpdateBodyVisual(float deltaTime) {
@@ -291,68 +314,62 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	// 出現・死亡演出中は被弾処理をしない
 	if (IsAppearanceEffectPlaying()) return;
 
+	// ── 仕様書 §20 の実装フロー ──
+	// ① 攻撃判定がヒット
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 	const float damage = atk.damage;
+	const bool isArmorHit = IsKnockbackImmune();
 
 	// 攻撃がヒットしたのでライトを強く光らせる
 	FlashLight();
 	// 弾いた場合は紫の発光（UpdateBodyVisual）で見せるので白フラッシュは出さない
-	if (!IsKnockbackImmune()) {
+	if (!isArmorHit) {
 		PlayHitFlash();
 	}
 
-	// ── 弾かれ演出（突進中）─────────────────────────────────────────
-	// ダメージは通すが、踏み込みを止められないことを紫の火花と発光で伝える。
-	// この間は Update() で紫のオーラ・ライト・体の発光が表示される。
-	if (IsKnockbackImmune()) {
-		// 「弾かれた」感を出す: 通常より短いヒットストップ + 紫の硬い火花 + 体の紫フラッシュ
-		// （通常のヒットエフェクトはあえて出さず、攻撃が通っていないことを伝える）
-		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
-		armorHitEmitter_->Emit();
-		armorHitFlashTimer_ = kArmorHitFlashDuration;
-
-		hp_ -= damage;
-		RecordDamage(damage);
-		// 雑魚と同じく CanDie() を尊重する
-		if (hp_ <= 0.0f) {
-			if (CanDie()) {
-				OnDeath();
-				// 生きている間は動かせないが、とどめだけは吹き飛ばす（プレイヤーから離れる向きへ）
-				const Vector3 awayFromPlayer =
-					GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation();
-				ApplyDeathLaunch(awayFromPlayer, atk.impulseForce, atk.upwardRatio);
-			} else {
-				hp_ = 1.0f;
-			}
-		}
-		return;
-	}
-
-	// ── 通常の被弾 ─────────────────────────────────────────────────
-	// 通常時のヒットストップとヒットエフェクト（手応えはここで返す）
-	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
-
+	// ② ダメージ計算（弾かれていてもダメージは通る）
 	hp_ -= damage;
 	RecordDamage(damage);
+
+	// ③④ 方向と耐性。突進中は GetKnockbackResistance() が完全無効を返すので、
+	//     解決後の power / verticalPower は 0 になる
+	CombatHit::Attacker attacker;
+	attacker.position = player_->GetWorldTransform()->GetTranslation();
+	attacker.forward = player_->GetForward();
+	const CombatHit::Result hit = CombatHit::Resolve(
+		atk, attacker, GetWorldTransform()->GetTranslation(), GetKnockbackResistance());
 
 	if (hp_ <= 0.0f) {
 		if (CanDie()) {
 			OnDeath();
-			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
+			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える。
+			// 生きている間は耐性で動かせないので、とどめだけは **耐性を通さない** 攻撃の値で飛ばす
 			const Vector3 awayFromPlayer =
 				GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation();
-			ApplyDeathLaunch(awayFromPlayer, atk.impulseForce, atk.upwardRatio);
+			ApplyDeathLaunch(awayFromPlayer, CombatHit::ApplyTypeScale(atk.knockback));
 			return;
 		}
 		// まだ死亡できない（トレーニングの敵無敵など）ので生存を維持する
 		hp_ = 1.0f;
 	}
 
-	// ── ここでステートは変えない ───────────────────────────────────
-	// ボスは常時スーパーアーマーで、のけぞりも吹き飛びもしない。
-	// プレイヤーの攻撃でボスの行動（移動・攻撃モーション）が中断されないので、
-	// 割り込みで止めるのではなく、長い予備動作を見て回避することで対処する。
-	// 手応えはヒットストップ・白フラッシュ・ヒットエフェクトだけで返す
+	// ⑤⑥ ノックバック。
+	// 耐性で canStagger が false なので **ステートは変わらず**、位置だけがわずかに押される。
+	// ボスは長い予備動作を見て回避する相手なので、プレイヤーの攻撃で行動は中断されない
+	ApplyKnockback(hit.info, hit.causesReaction);
+
+	// ⑦⑧ ヒットストップと演出
+	if (isArmorHit) {
+		// 「弾かれた」感を出す: 通常より短いヒットストップ + 紫の硬い火花 + 体の紫フラッシュ
+		// （通常のヒットエフェクトはあえて出さず、攻撃が通っていないことを伝える）
+		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
+		armorHitEmitter_->Emit();
+		armorHitFlashTimer_ = kArmorHitFlashDuration;
+		return;
+	}
+
+	// 通常時のヒットストップ（手応えはここで返す）
+	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 }
 
 void BossKnight::OnCollisionStay(BaseCollider* other) { Enemy::OnCollisionStay(other); }

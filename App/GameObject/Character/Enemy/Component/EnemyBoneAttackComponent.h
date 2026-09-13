@@ -2,7 +2,7 @@
 #include <string>
 #include <Math/Vector3.h>
 #include "GameObject/Character/CharacterStructs.h"
-#include "GameObject/Effect/AttackTelegraph.h"
+#include "EnemyAttackAim.h"
 
 class Enemy;
 class EnemyHitbox;
@@ -28,7 +28,7 @@ struct BoneAttackParams {
 	DamageInfo damage;                   // この攻撃のダメージ・リアクション
 
 	float duration = 1.0f;               // 攻撃全体の長さ[s]（クリップ長に合わせる）
-	float rushSpeed = 0.0f;              // > 0 なら判定が出ている間プレイヤーへ突進
+	float rushSpeed = 0.0f;              // > 0 なら判定が出ている間、振り始めに向いていた正面へまっすぐ突進
 
 	// アニメーションイベント（hit_start / hit_end）が無いクリップ用のフォールバック。
 	// 攻撃全体を 0〜1 としたときの判定ON/OFFの位置
@@ -52,6 +52,8 @@ struct BoneAttackParams {
 
 	// 地面に出す予兆（赤いマーカー）。shape が None なら出さない。
 	// 予備動作の間ずっと出したままにして、判定が出る瞬間に塗りが外枠へ届く。
+	// 判定が出るとこの向き・場所で体が固定されるので、攻撃は予兆の上をなぞって出る
+	// （当たり判定そのものは上の halfExtents の箱が持つ）。
 	// 大きさは halfExtents と同じくスケール1基準で書く（BeginAttack が配置スケールを掛ける）
 	AttackTelegraphParams telegraph;
 };
@@ -67,6 +69,9 @@ struct BoneAttackParams {
 /// extraWindupTime を入れると攻撃は「溜め → 本編」の2段になる。
 /// 溜めの間はクリップを遅く流して判定も突進も出さないので、
 /// プレイヤーは大振りを見てから回避できる。
+///
+/// 判定が出た瞬間に体の向き・突進の進路を予兆の場所で固定し、
+/// 攻撃が終わるまでプレイヤーを追わない（EnemyAttackAim）。
 /// </summary>
 class EnemyBoneAttackComponent {
 public:
@@ -82,7 +87,7 @@ public:
 	/// <summary>
 	/// 攻撃を中断して判定を消す。**必ずステートの Exit() から呼ぶこと**。
 	/// 被弾などで攻撃モーションの途中でステートが切り替わると Update が回らなくなり、
-	/// 判定が出しっぱなしのまま残ってしまう
+	/// 判定が出しっぱなし・体の向きが固定されたまま残ってしまう
 	/// </summary>
 	void Cancel(Enemy& enemy);
 
@@ -109,11 +114,13 @@ private:
 	void SetHitActive(Enemy& enemy, bool active);
 	// 本編（判定が出てから終わるまで）のクリップ再生速度を決める
 	void ApplyStrikeAnimSpeed(Enemy& enemy);
-	// 予兆マーカーを敵の足元へ出し直す。判定が出たら呼ぶのをやめて自動で畳ませる
+	// 予兆マーカーを敵の足元へ出し直す。狙いを固定したら呼ぶのをやめて自動で畳ませる
 	void UpdateTelegraph(Enemy& enemy);
 
 	EnemyHitbox* hitbox_;
 	BoneAttackParams params_;
+	// 予兆と、判定が出た瞬間に固定する狙い（体の向き・突進の進路）
+	EnemyAttackAim aim_;
 	float timer_ = 0.0f;
 	bool finished_ = true;
 	bool hitActive_ = false;

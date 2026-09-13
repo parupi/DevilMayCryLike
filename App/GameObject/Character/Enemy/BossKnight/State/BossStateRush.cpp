@@ -4,7 +4,7 @@
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
 
 namespace {
-    // 突進。体当たりでプレイヤーへ突っ込む。判定は体全体。
+    // 突進。体当たりで正面へまっすぐ突っ込む。判定は体全体。
     // 吹き飛ばされた直後にこれへ移行するので、距離を一気に詰め直す役割も持つ
     BoneAttackParams MakeRushParams() {
         BoneAttackParams p;
@@ -14,13 +14,13 @@ namespace {
         p.halfExtents = { 1.7f, 1.4f, 1.7f };
         p.offset = { 0.0f, 0.0f, 0.0f };        // ジョイントの向きは骨ごとに違うので原点のまま使う
         p.duration = 0.88f;                     // Dragon_Attack のクリップ長
-        p.rushSpeed = 22.0f;                    // 判定が出ている間だけ突っ込む
+        p.rushSpeed = 22.0f;                    // 判定が出ている間だけ、振り始めの正面へ突っ込む
 
         p.damage.damage = 1.0f;
-        p.damage.type = ReactionType::Knockback;
-        p.damage.impulseForce = 18.0f;
-        p.damage.upwardRatio = 0.35f;
-        p.damage.stunTime = 0.7f;
+        p.damage.knockback.type = ReactionType::Knockback;
+        p.damage.knockback.power = 18.0f;
+        p.damage.knockback.verticalPower = 18.0f * 0.35f;
+        p.damage.knockback.stunTime = 0.7f;
 
         // 突進は判定が出ている間だけ前進するので、窓を長めに取って距離を稼ぐ。
         // 噛みつきと同じ Dragon_Attack を使うが、あちらのイベント（短い窓）に
@@ -33,13 +33,15 @@ namespace {
         // 踏み込む前にその場で構える時間を長めに取って進路から逃げられるようにする
         p.extraWindupTime = 0.6f;
 
-        // 予兆。突進の進路をそのまま帯で示す。
-        // 長さは体の厚み + 判定が出ている間に進む距離（22m/s × 約0.44秒 ≒ 9.7m）。
-        // 手前へずらして、突進を始める前の体の位置も帯に含める
-        // （スケール1基準。ステージ配置が2倍なので実寸は幅3.8m・長さ13m）
+        // 予兆。突進の進路をそのまま帯で示す。体はこの帯の上をなぞって走る。
+        // 帯の手前の端（forwardOffset）が体の後ろ端で、体の前端が奥の端へ届いたところで止まる。
+        // 長さ = 体の厚み 3.4（判定の halfExtents.z の2倍）+ 進む距離 4.8
+        //      （配置2倍の実寸で 9.6m ≒ 22m/s × 判定が出ている 0.44秒）。
+        // 奥の端は体当たりの判定が届く所とちょうど同じ（足元から実寸13m先）
+        // （スケール1基準。ステージ配置が2倍なので実寸は幅3.8m・長さ16.4m）
         p.telegraph.shape = TelegraphShape::Rect;
         p.telegraph.halfWidth = 1.9f;
-        p.telegraph.length = 6.5f;
+        p.telegraph.length = 8.2f;
         p.telegraph.forwardOffset = -1.7f;
         return p;
     }

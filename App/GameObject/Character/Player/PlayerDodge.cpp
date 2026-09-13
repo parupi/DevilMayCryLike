@@ -20,6 +20,8 @@ void PlayerDodgeParams::RegisterAndLoad() {
 	global.AddItem(kGroupName, "JustDodgeTimeScale", justDodgeTimeScale);
 	global.AddItem(kGroupName, "JustDodgeShake", justDodgeShake);
 	global.AddItem(kGroupName, "JustDodgeInvincibleAdd", justDodgeInvincibleAdd);
+	global.AddItem(kGroupName, "CounterWindow", counterWindow);
+	global.AddItem(kGroupName, "CounterCooldown", counterCooldown);
 
 	global.AddItem(kGroupName, "DashFovPunch", dashFovPunch);
 	global.AddItem(kGroupName, "TrailLifetime", trailLifetime);
@@ -44,6 +46,8 @@ void PlayerDodgeParams::Apply() {
 	justDodgeTimeScale = global.GetValueRef<float>(kGroupName, "JustDodgeTimeScale");
 	justDodgeShake = global.GetValueRef<float>(kGroupName, "JustDodgeShake");
 	justDodgeInvincibleAdd = global.GetValueRef<float>(kGroupName, "JustDodgeInvincibleAdd");
+	counterWindow = global.GetValueRef<float>(kGroupName, "CounterWindow");
+	counterCooldown = global.GetValueRef<float>(kGroupName, "CounterCooldown");
 
 	dashFovPunch = global.GetValueRef<float>(kGroupName, "DashFovPunch");
 	trailLifetime = global.GetValueRef<float>(kGroupName, "TrailLifetime");

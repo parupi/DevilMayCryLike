@@ -1,5 +1,6 @@
 #include "TitleUI.h"
 #include <Utility/DeltaTime.h>
+#include <Input/Input.h>
 #include <algorithm>
 #include <cmath>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
@@ -48,22 +49,27 @@ void TitleUI::Initialize() {
 
 		if (i == 0) {
 			selectArrows_[i]->SetSize({32.0f, 32.0f});
-			selectArrows_[i]->SetPosition({500.0f, 520.0f});
 		} else {
 			// x を負にして左右反転させ、内向きの矢印にしている
 			selectArrows_[i]->SetSize({-32.0f, 32.0f});
-			selectArrows_[i]->SetPosition({780.0f, 520.0f});
 		}
-
-		arrowBasePositions_[i] = selectArrows_[i]->GetPosition();
 	}
 
-	gameStart_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "titleUI", "TitleUI.png");
-	gameStart_->SetPosition({640.0f, 520.0f});
-	gameStart_->SetAnchorPoint({0.5f, 0.5f});
+	// 操作案内。以前は文字入りの PNG だったが、パッド／キーボードで文言を出し分けるためフォントから描く
+	gameStart_ = SpriteManager::GetInstance().CreateTextLabel(SpriteLayer::UI, "titleUI");
+	gameStart_->SetFontSize(kPromptFontSize);
+	gameStart_->SetAlign(TextAlignX::Center, TextAlignY::Middle);
+	gameStart_->SetPosition({kPromptCenterX, kPromptCenterY});
+	gameStart_->SetShadow(true);
+
+	// 矢印は文字の幅が決まってから置く
+	RefreshPromptText();
+	for (size_t i = 0; i < selectArrows_.size(); i++) {
+		selectArrows_[i]->SetPosition(arrowBasePositions_[i]);
+	}
 
 	selectMask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "selectMask", "circle.png");
-	selectMask_->SetPosition({640.0f, 520.0f});
+	selectMask_->SetPosition({kPromptCenterX, kPromptCenterY});
 	selectMask_->SetSize({500.0f, 100.0f});
 	selectMask_->SetAnchorPoint({0.5f, 0.5f});
 	selectMask_->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
@@ -111,6 +117,7 @@ void TitleUI::Update() {
 	const float deltaTime = DeltaTime::GetDeltaTime();
 
 	//UpdateSceneMotion(deltaTime);
+	RefreshPromptText();
 	UpdatePrompt(deltaTime);
 	ExitUpdate();
 
@@ -146,6 +153,21 @@ void TitleUI::ShowPrompt() {
 
 	promptState_ = PromptState::Appearing;
 	promptTimer_ = 0.0f;
+}
+
+void TitleUI::RefreshPromptText() {
+	// 決定はパッドなら A、キーボードなら SPACE（TitleScene::ChangePhase と同じ）。
+	// パッドを挿し直されてもすぐ追従できるよう毎フレーム見る
+	const bool usePad = Input::GetInstance().IsConnected();
+	gameStart_->SetText(usePad ? "PRESS A BUTTON" : "PRESS SPACE KEY");
+
+	// 実寸は組み直したあとでないと取れないので、ここで一度組ませる（文言が変わっていなければ軽い）
+	gameStart_->Update();
+
+	// 文言で幅が変わるので、矢印は固定位置にせず文字の両脇へ置く
+	const float halfWidth = gameStart_->GetSize().x * 0.5f + kArrowMargin;
+	arrowBasePositions_[0] = {kPromptCenterX - halfWidth, kPromptCenterY};
+	arrowBasePositions_[1] = {kPromptCenterX + halfWidth, kPromptCenterY};
 }
 
 void TitleUI::UpdatePrompt(float deltaTime) {
@@ -214,7 +236,7 @@ void TitleUI::ExitUpdate() {
 	// 0.0f ～ 1.0f にクランプ
 	float t = std::clamp(exitTimer_ / exitTime_, 0.0f, 1.0f);
 
-	// --- GameStart スプライトのアルファ補間 ---
+	// --- GameStart の文字のアルファ補間 ---
 	float spriteAlpha = Lerp(startSpriteAlpha_, targetSpriteAlpha_, t);
 	gameStart_->SetColor({1.0f, 1.0f, 1.0f, spriteAlpha});
 

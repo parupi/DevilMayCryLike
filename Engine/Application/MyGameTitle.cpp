@@ -41,7 +41,7 @@ void MyGameTitle::Initialize() {
 	SpriteManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 	// 文字描画用のフォント。焼く大きさは、UIで使う一番大きい文字に合わせてある。
 	// ここより大きく表示するとぼやけるので、必要になったら値を上げること
-	FontManager::GetInstance().LoadFont("Main", "Font/Noto_Sans_JP/static/NotoSansJP-Bold.ttf", 64.0f);
+	FontManager::GetInstance().LoadFont("Main", "Resource/Font/Noto_Sans_JP/static/NotoSansJP-Bold.ttf", 64.0f);
 	// オブジェクト共通部
 	Object3dManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 

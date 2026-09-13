@@ -33,8 +33,17 @@ public:
 	void SetIsAttack(bool flag) { isAttack_ = flag; }
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetScoreManager(StylishScoreManager* scoreManager) { scoreManager_ = scoreManager; }
+	/// <summary>
+	/// 次の当たり判定を1回だけ切る（多段ヒット用）。
+	/// 触れたままの敵に、もう一度 OnCollisionEnter を起こすために使う
+	/// </summary>
+	void RequestRehit() { rehitRequested_ = true; }
 private:
 	bool isAttack_ = false;
+	// RequestRehit で立てる。次の Update で判定を1回切ったら下ろす
+	bool rehitRequested_ = false;
+	// 当たり判定（OBB）の基準の大きさ。攻撃ごとの倍率（Hitbox Scale）はこれに掛ける
+	Vector3 baseHalfExtents_ = { 0.5f, 1.0f, 0.5f };
 
 	StylishScoreManager* scoreManager_;
 	// プレイヤーの生ポインタ（武器からプレイヤーの状態を参照するために必要）

@@ -1,7 +1,7 @@
 #pragma once
 #include <Math/Vector3.h>
 #include <vector>
-#include "GameObject/Effect/AttackTelegraph.h"
+#include "EnemyAttackAim.h"
 
 class Enemy;
 class Object3d;
@@ -9,7 +9,7 @@ class Object3d;
 struct MeleeAttackParams {
 	float windupDuration = 0.5f;   // 予備動作: 構えポーズを保持する時間
 	float attackDuration = 0.25f;  // 攻撃モーション: CatmullRom スイングの時間
-	float rushSpeed = 0.0f;   // > 0 なら攻撃フェーズ中プレイヤーへ突進
+	float rushSpeed = 0.0f;   // > 0 なら攻撃フェーズ中、振り始めに向いていた正面へまっすぐ突進
 
 	// weaponTranslate[1] と weaponRotate[1] が構えポーズ（t=0）になる
 	std::vector<Vector3> weaponTranslate;
@@ -17,6 +17,8 @@ struct MeleeAttackParams {
 
 	// 地面に出す予兆（赤いマーカー）。shape が None なら出さない。
 	// 予備動作の間だけ出して、振り始める瞬間に塗りが外枠へ届く。
+	// 振り始めるとこの向き・場所で体が固定されるので、攻撃は予兆の上をなぞって出る
+	// （当たり判定そのものは武器のコライダーが持つ）。
 	// 大きさは **オブジェクトのスケール1 のときのワールド単位** で書く
 	AttackTelegraphParams telegraph;
 };
@@ -24,6 +26,7 @@ struct MeleeAttackParams {
 /// <summary>
 /// 近接攻撃実行コンポーネント。
 /// 予備動作（Windup）フェーズで構えを保持した後、攻撃フェーズでスイングする。
+/// 振り始めの瞬間に体の向き・突進の進路を予兆の場所で固定し、以降はプレイヤーを追わない（EnemyAttackAim）。
 /// </summary>
 class EnemyMeleeAttackComponent {
 public:
@@ -33,22 +36,23 @@ public:
 	void Update(Enemy& enemy, float deltaTime);
 
 	/// <summary>
-	/// 予兆マーカーを消す。**必ずステートの Exit() から呼ぶこと**。
+	/// 予兆と向きの固定を後始末する。**必ずステートの Exit() から呼ぶこと**。
 	/// 被弾などで予備動作の途中にステートが切り替わると Update が回らなくなり、
-	/// マーカー側が「攻撃が発生した」と誤認して閃光を出してしまう
+	/// マーカー側が「攻撃が発生した」と誤認して閃光を出してしまう。
+	/// 振り始めた後に中断された場合は、体の向きの固定が戻らず振り向かなくなる
 	/// </summary>
-	void CancelTelegraph();
+	void Cancel(Enemy& enemy);
 
 	bool IsFinished()  const { return finished_; }
 	bool IsWindingUp() const { return !finished_ && timer_ < params_.windupDuration; }
 
 private:
 	void ApplyWeaponPose(float t);
-	// 予兆マーカーを敵の足元へ出し直す。振り始めたら呼ぶのをやめて自動で畳ませる
-	void UpdateTelegraph(Enemy& enemy);
 
 	Object3d* weapon_;
 	MeleeAttackParams params_;
+	// 予兆と、振り始めに固定する狙い（体の向き・突進の進路）
+	EnemyAttackAim aim_;
 	float timer_ = 0.0f;
 	bool finished_ = true;
 };

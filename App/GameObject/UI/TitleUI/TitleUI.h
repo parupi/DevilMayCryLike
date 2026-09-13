@@ -6,6 +6,8 @@
 #include <Graphics/Rendering/Sprite/Sprite.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
 
+class TextLabel;
+
 /// <summary>
 /// タイトルのUIをまとめるクラス
 /// </summary>
@@ -59,6 +61,11 @@ private:
 	/// </summary>
 	void UpdatePrompt(float deltaTime);
 
+	/// <summary>
+	/// 操作案内の文言をパッド／キーボードに合わせ、両脇の矢印を文字の幅に合わせて置き直す
+	/// </summary>
+	void RefreshPromptText();
+
 private:
 	/// <summary>
 	/// 操作案内の状態
@@ -72,7 +79,7 @@ private:
 
 	// セレクトのUI群
 	std::array<Sprite*, 2> selectArrows_{ nullptr, nullptr };
-	Sprite* gameStart_ = nullptr;
+	TextLabel* gameStart_ = nullptr;
 	Sprite* selectMask_ = nullptr;
 
 	// ==========================
@@ -97,7 +104,7 @@ private:
 	// ==========================
 	/// <summary>出現・明滅に使う経過時間</summary>
 	float promptTimer_ = 0.0f;
-	/// <summary>矢印の基準位置。明滅に合わせて左右へ寄せる基準になる</summary>
+	/// <summary>矢印の基準位置。文字の幅から決まり、明滅に合わせて左右へ寄せる基準になる</summary>
 	std::array<Vector2, 2> arrowBasePositions_{};
 
 	bool isExit_ = false;
@@ -121,4 +128,11 @@ private:
 	static constexpr float kPulseSpeed = 3.0f;
 	/// <summary>明滅で暗くなりきったときのアルファ</summary>
 	static constexpr float kPulseMinAlpha = 0.72f;
+	/// <summary>操作案内の中心。加算グローもここに重ねる</summary>
+	static constexpr float kPromptCenterX = 640.0f;
+	static constexpr float kPromptCenterY = 520.0f;
+	/// <summary>操作案内の文字の高さ(px)</summary>
+	static constexpr float kPromptFontSize = 34.0f;
+	/// <summary>文字の端から矢印の中心までの距離</summary>
+	static constexpr float kArrowMargin = 30.0f;
 };

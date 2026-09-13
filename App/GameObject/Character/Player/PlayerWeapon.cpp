@@ -38,7 +38,7 @@ void PlayerWeapon::Initialize() {
 	GetRenderer("PlayerWeapon")->GetWorldTransform()->GetScale() = {0.5f, 1.0f, 0.5f};
 
 	GetCollider("WeaponCollider")->category_ = CollisionCategory::PlayerWeapon;
-	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().halfExtents = {0.5f, 1.0f, 0.5f};
+	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().halfExtents = baseHalfExtents_;
 
 	trail_ = std::make_unique<WeaponTrail>();
 	trail_->Initialize();
@@ -53,8 +53,16 @@ void PlayerWeapon::Initialize() {
 void PlayerWeapon::Update(float deltaTime) {
 	if (!player_) return;
 
-	// 攻撃中ならエフェクトを発生させる
-	static_cast<OBBCollider*>(GetCollider("WeaponCollider"))->GetColliderData().isActive = isAttack_;
+	auto* collider = static_cast<OBBCollider*>(GetCollider("WeaponCollider"));
+	// 攻撃中だけ判定を出す。
+	// 多段ヒットの区切りでは1回だけ切る。CollisionManager は「前回も触れていたか」で Enter と Stay を
+	// 分けるので、一度離れたことにしないと、触れたままの敵へ次の段が入らない
+	collider->GetColliderData().isActive = isAttack_ && !rehitRequested_;
+	rehitRequested_ = false;
+	// 攻撃ごとの当たり判定の大きさ（回転攻撃などで広げる）
+	const float hitboxScale = player_->IsAttack() ? player_->GetAttackData().hitboxScale : 1.0f;
+	collider->GetColliderData().halfExtents = baseHalfExtents_ * hitboxScale;
+
 	// 刃先・根本のワールド座標を計算してトレイルに渡す
 	const Matrix4x4& worldMat = GetWorldTransform()->GetMatWorld();
 	Vector3 worldTip = Transform(tipOffset_, worldMat);
@@ -87,7 +95,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		if (hitCtx.attackName.empty()) hitCtx.attackName = attack.name;
 		hitCtx.isAir = (attack.posture == AttackPosture::Air);
 		// 打ち上げ・吹き飛ばしは強攻撃として高めに評価する
-		hitCtx.isStrong = (attack.type == ReactionType::Launch || attack.type == ReactionType::Knockback);
+		hitCtx.isStrong = (attack.knockback.type == ReactionType::Launch || attack.knockback.type == ReactionType::Knockback);
 		auto* enemy = dynamic_cast<Enemy*>(other->owner_);
 		if (enemy) {
 			hitCtx.enemyMultiplier = enemy->GetStyleMultiplier();

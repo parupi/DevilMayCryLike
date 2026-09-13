@@ -262,7 +262,9 @@ void GameCamera::UpdateShake(float dt) {
 		// 被弾：HPが減ったフレーム
 		int32_t hp = player_->GetHp();
 		if (hp < prevHp_) {
-			AddShake(shakeHitTrauma_);
+			// 仕様書 §15: 攻撃の強さで揺れを段階的に変える。
+			// 軽い攻撃まで大きく揺らすと画面が揺れっぱなしになり、強い一撃が埋もれる
+			AddShake(player_->IsHeavyHit() ? shakeHitTrauma_ : shakeHitTrauma_ * kLightHitShakeScale);
 		}
 		prevHp_ = hp;
 

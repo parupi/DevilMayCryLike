@@ -2,7 +2,7 @@
     "AttackHighTime": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
-        "ButtonIndex": 1,
+        "ButtonIndex": 2,
         "ControlPoint_0": [
             0.0,
             -1.159999966621399,
@@ -92,11 +92,6 @@
         "ImpulseForce": 2.0,
         "IsAir": false,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            7.5,
-            0.0
-        ],
         "LockOnFlag": true,
         "MoveSpeed": [
             0.0,

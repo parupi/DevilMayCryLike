@@ -37,8 +37,7 @@ void TitleScene::Initialize() {
 	TextureManager::GetInstance().LoadTexture("TitleUp.png");
 	TextureManager::GetInstance().LoadTexture("SelectArrow.png");
 	TextureManager::GetInstance().LoadTexture("smoke.png");
-	TextureManager::GetInstance().LoadTexture("TitleUI.png");
-	// メニューの文字テクスチャ（tools/generate_title_menu_textures.ps1 で生成したもの）
+	// メニューの下敷きに使う絵。文字は操作案内も含めてフォントから描くので、文字のテクスチャは読まない
 	TitleMenu::LoadTextures();
 
 	// タイトルのBGM。読み込み（数十MB）もここで済ませる

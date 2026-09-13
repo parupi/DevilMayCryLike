@@ -25,10 +25,10 @@ namespace {
         p.rushSpeed = 0.0f;                     // その場で吐き続ける
 
         p.damage.damage = 3.0f;                 // 叩きつけ(2.0)より更に重い必殺技
-        p.damage.type = ReactionType::Knockback;
-        p.damage.impulseForce = 20.0f;
-        p.damage.upwardRatio = 0.35f;
-        p.damage.stunTime = 1.0f;
+        p.damage.knockback.type = ReactionType::Knockback;
+        p.damage.knockback.power = 20.0f;
+        p.damage.knockback.verticalPower = 20.0f * 0.35f;
+        p.damage.knockback.stunTime = 1.0f;
 
         // Dragon_Attack2 のイベントは叩きつけ用の短い窓なので、そのままだと
         // 炎が一瞬しか出ない。ここは比率で長い窓を作る
@@ -40,7 +40,8 @@ namespace {
         p.extraWindupTime = 1.4f;
 
         // 予兆。判定（offset.z ± halfExtents.z）と同じ帯をそのまま地面に描く。
-        // 塗りが口元から奥へ走るので、炎がどこまで届くかが吐く前に分かる
+        // 塗りが口元から奥へ走るので、炎がどこまで届くかが吐く前に分かる。
+        // 吐き始めた瞬間に体の向きがここで固定されるので、炎も判定もこの帯の上をなぞる
         // （スケール1基準。ステージ配置が2倍なので実寸は幅3.5m・長さ11m）
         p.telegraph.shape = TelegraphShape::Rect;
         p.telegraph.halfWidth = 0.875f;
@@ -48,10 +49,6 @@ namespace {
         p.telegraph.forwardOffset = 0.25f;
         return p;
     }
-
-    // 炎を吐いている間の向き直りの速さ[度/秒]。
-    // これを超えて回れないので、横へ走られると照準が置いていかれる＝避けられる
-    constexpr float kBreathTurnSpeed = 42.0f;
 
     // 炎VFXの発生間隔[s]。細かく出すほど炎が途切れずに繋がる
     constexpr float kFlameInterval = 0.03f;
@@ -69,20 +66,14 @@ void BossStateBreath::Enter(Enemy& enemy)
     attack_->BeginAttack(enemy, MakeBreathParams());
     emitTimer_ = 0.0f;
     // 溜めの間はまだ普通に向き直る（＝プレイヤーへ狙いを付ける）。
-    // 制限を掛けるのは炎が出てから（Update 側）
+    // 吐き始めた瞬間に EnemyBoneAttackComponent が予兆の向きで体を固定する
 }
 
 void BossStateBreath::Update(Enemy& enemy, float deltaTime)
 {
-    const bool wasFiring = attack_->IsHitActive();
     attack_->Update(enemy, deltaTime);
 
     if (attack_->IsHitActive()) {
-        // 吐き始めた瞬間に照準を固める。以降はゆっくりしか追ってこない
-        if (!wasFiring) {
-            enemy.SetFaceTurnSpeed(kBreathTurnSpeed);
-        }
-
         emitTimer_ += deltaTime;
         while (emitTimer_ >= kFlameInterval) {
             EmitFlame(enemy);
@@ -97,15 +88,14 @@ void BossStateBreath::Update(Enemy& enemy, float deltaTime)
 
 void BossStateBreath::Exit(Enemy& enemy)
 {
+    // 途中で中断された場合も含め、予兆と体の向きの固定を後始末する
     attack_->Cancel(enemy);
-    // 途中で中断された場合も含め、向き直りの制限は必ず戻す
-    enemy.SetFaceTurnSpeed(0.0f);
 }
 
 void BossStateBreath::EmitFlame(Enemy& enemy)
 {
     // プレイヤーの方向ではなく **体が今向いている方向** へ吐く。
-    // でないと向き直りを遅くした意味がなくなり、炎だけがプレイヤーを追ってしまう。
+    // 体は吐き始めに予兆の向きで固定されているので、炎は予兆の帯に沿って伸びる。
     // 敵はローカル -Z がプレイヤー側を向く（Enemy::Update の回転）
     const Matrix4x4& world = enemy.GetWorldTransform()->GetMatWorld();
     Vector3 forward = TransformNormal({ 0.0f, 0.0f, -1.0f }, world);

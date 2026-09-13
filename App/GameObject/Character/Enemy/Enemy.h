@@ -3,6 +3,7 @@
 #include "BaseState/EnemyStateBase.h"
 #include "GameObject/Effect/HitStop.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Character/Combat/KnockbackComponent.h"
 #include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Character/Enemy/Effect/EnemyAppearanceEffect.h"
 #include "GameObject/Effect/CharacterLight.h"
@@ -29,6 +30,9 @@ public:
 	/// 見た目（モデルの足元）はこのぶん持ち上げて打ち消す（ApplyModelGroundOffset）
 	/// </summary>
 	static constexpr float kGroundSink = 0.1f;
+
+	/// <summary>ノックバック・落下に使う重力[m/s^2]</summary>
+	static constexpr float kGravity = -9.8f;
 
 	/// <summary>
 	/// 敵の初期化処理  
@@ -98,7 +102,7 @@ public:
 	/// 死亡演出中はステートの更新が止まるため、KnockBack ステートを経由せずここで直接与える。
 	/// 空中コンボのように吹き飛ばしが 0 の攻撃でも「少し吹っ飛ぶ」よう下限を設けている。
 	/// </summary>
-	void ApplyDeathLaunch(const Vector3& direction, float impulseForce, float upwardRatio);
+	void ApplyDeathLaunch(const Vector3& direction, const KnockbackData& knockback);
 
 	/// <summary>
 	/// HP が 0 になったときに実際に死亡してよいかを返す。
@@ -114,6 +118,35 @@ public:
 	/// ロックオンレティクルの色変化など、プレイヤーへの状態表示に使う。
 	/// </summary>
 	virtual bool IsKnockbackImmune() const { return false; }
+
+	// ======================
+	// ノックバック（仕様書 §6, §9）
+	// ======================
+
+	/// <summary>
+	/// ノックバックの速度を持つ部品。移動の速度（velocity_）とは分けて持ち、
+	/// Enemy::Update が両方を足して位置へ反映する。
+	/// </summary>
+	KnockbackComponent& GetKnockback() { return knockback_; }
+	const KnockbackComponent& GetKnockback() const { return knockback_; }
+
+	/// <summary>
+	/// この敵のノックバック耐性（仕様書 §9）。
+	/// 派生クラスがコンストラクタか Initialize で SetKnockbackResistance() を呼んで設定する。
+	/// 状況で変えたい場合（アーマー中だけ固くする等）はオーバーライドしてよい。
+	/// </summary>
+	virtual const KnockbackResistance& GetKnockbackResistance() const { return knockbackResistance_; }
+	void SetKnockbackResistance(const KnockbackResistance& resistance) { knockbackResistance_ = resistance; }
+
+	/// <summary>
+	/// 解決済みのヒット情報を受けてノックバックを始める（仕様書 §20 ⑤⑥）。
+	/// 被弾リアクションのステートへ入るかは causesReaction で決める。
+	/// 演出（ヒットストップ・VFX）は呼び出し側の担当。
+	/// </summary>
+	void ApplyKnockback(const DamageInfo& info, bool causesReaction);
+
+	/// <summary>そのステートが登録されているか（KnockBack を持たない敵があるので確認に使う）</summary>
+	bool HasState(const std::string& stateName) const { return states_.find(stateName) != states_.end(); }
 
 	/// <summary>
 	/// スタイルスコアの敵補正倍率。難しい敵ほど高くする（雑魚1.0 / ボス2.0 など）。
@@ -390,13 +423,14 @@ public:
 	// ======================
 
 	/// <summary>
-	/// プレイヤーへ向き直る速さ[度/秒]。既定の 0 は「毎フレーム即座に向く」（従来どおり）。
-	/// 正の値を入れるとその速さまでしか回れなくなり、横へ走られると照準が置いていかれる。
-	/// ブレスのように「見てから横へ抜ければ避けられる」攻撃で使う。
-	/// **ステートの Enter で設定したら Exit で必ず 0 に戻すこと**（戻さないと以降ずっと鈍いままになる）。
+	/// 体の向きを forward（水平方向）へ揃えて固定する。固定している間はプレイヤーへ向き直らない。
+	/// 攻撃の振り始めに EnemyAttackAim が呼び、予兆を出した向きのまま攻撃させる
+	/// （向き直りを残すと、予兆が消えた後に横へ動いたプレイヤーの方へ攻撃が曲がる）。
+	/// **固定したら攻撃の終わり・中断で必ず UnlockFacing() すること**（忘れると以降ずっと振り向かない）
 	/// </summary>
-	void SetFaceTurnSpeed(float degreesPerSecond) { faceTurnSpeed_ = degreesPerSecond; }
-	float GetFaceTurnSpeed() const { return faceTurnSpeed_; }
+	void LockFacing(const Vector3& forward);
+	void UnlockFacing() { facingLocked_ = false; }
+	bool IsFacingLocked() const { return facingLocked_; }
 
 	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
 	AnimationPlayer* GetAnimationPlayer();
@@ -407,6 +441,12 @@ protected:
 	/// 武器など本体以外の後始末を派生クラスで行う。
 	/// </summary>
 	virtual void OnDeathEffectFinished() {}
+
+	/// <summary>
+	/// ノックバック中に壁（移動範囲の境界）へぶつかった瞬間に1度だけ呼ばれる（仕様書 §10）。
+	/// 既定では体を光らせるだけ。派生クラスで火花などを足せる。
+	/// </summary>
+	virtual void OnKnockbackWallHit();
 
 	std::unordered_map<std::string, std::unique_ptr<EnemyStateBase>> states_;
 	EnemyStateBase* currentState_ = nullptr;
@@ -421,8 +461,16 @@ protected:
 
 	Player* player_ = nullptr;
 
+	// 移動（意思決定のステートが書く）速度。ノックバックはここには混ぜない
 	Vector3 velocity_{};
 	Vector3 acceleration_{0.0f, 0.0f, 0.0f};
+
+	// ノックバックの速度（仕様書 §6 の knockbackVelocity）。
+	// 被弾リアクションのステートに入らない敵（ボス）でも押されるよう、ステートではなく本体が持つ
+	KnockbackComponent knockback_;
+	KnockbackResistance knockbackResistance_{};
+	// 壁ヒット演出を1回のノックバックにつき1度だけ出すためのガード
+	bool knockbackWallHit_ = false;
 
 	float hp_ = 3.0f;
 	float maxHp_ = 3.0f; // 派生クラスで hp_ を変えるときは一緒に設定する（GetHpRatio用）
@@ -497,8 +545,8 @@ private:
 	// >0 のとき、attackFitSeconds_ より優先してこの速度で攻撃クリップを流す。
 	// 予備動作の引き伸ばしのように、ステート側が速度を明示する場合に使う
 	float attackSpeedOverride_ = 0.0f;
-	// >0 のとき、プレイヤーへ向き直る速さをこの[度/秒]に制限する（0 なら即座に向く）
-	float faceTurnSpeed_ = 0.0f;
+	// 攻撃の振り始めから終わりまで true。プレイヤーへ向き直らず、予兆を出した向きのまま攻撃する
+	bool facingLocked_ = false;
 	// 次の UpdateAnimation で攻撃クリップを頭から出し直すか（連続攻撃で振り直すため）
 	bool attackAnimRestart_ = false;
 

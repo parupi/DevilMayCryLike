@@ -14,14 +14,14 @@ void StyleHUD::Initialize()
 	rank_->SetSize(rankSize_);
 	rank_->SetPosition(rankPos_);
 
-	// スタイルポイントの数字（Numbers.png。横10フレームのUVシート）
-	for (int32_t i = 0; i < kMaxDigits; ++i) {
-		Sprite* num = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "styleNum" + std::to_string(i), "Numbers.png");
-		num->SetUVSize({ 0.1f, 1.0f });
-		num->SetAnchorPoint({ 0.5f, 0.5f });
-		num->SetSize(digitSize_);
-		digits_.push_back(num);
-	}
+	// スタイルポイントの数字（ランク画像の下に中央揃え）。
+	// ランク画像と同じ「黒い文字に白い縁」に寄せ、縁の代わりに白い影をずらして重ねる
+	points_ = SpriteManager::GetInstance().CreateTextLabel(SpriteLayer::UI, "stylePoint");
+	points_->SetFontSize(pointFontSize_);
+	points_->SetAlign(TextAlignX::Center, TextAlignY::Middle);
+	points_->SetPosition({ rankPos_.x, pointBaseY_ });
+	points_->SetColor({ 0.05f, 0.05f, 0.05f, 1.0f });
+	points_->SetShadow(true, { 2.0f, 2.0f }, { 1.0f, 1.0f, 1.0f, 0.9f });
 
 	// 戦闘に入るまでは非表示にしておく
 	Hide();
@@ -51,34 +51,20 @@ void StyleHUD::Update(const std::string& rankCode, int32_t stylePoint)
 	rank_->Update();
 
 	// ===== スタイルポイントの数字（ランク画像の下に中央揃えで表示） =====
-	std::string str = std::to_string((std::max)(0, stylePoint));
-	int32_t used = (std::min)(static_cast<int32_t>(str.size()), kMaxDigits);
-
-	float totalWidth = (used - 1) * digitSpacing_;
-	float startX = rankPos_.x - totalWidth * 0.5f;
-
-	for (int32_t i = 0; i < static_cast<int32_t>(digits_.size()); ++i) {
-		if (i < used) {
-			int32_t digit = str[i] - '0';
-			digits_[i]->GetRenderState().isVisible = true;
-			digits_[i]->SetUVPosition({ digit * 0.1f, 0.0f });
-			digits_[i]->SetPosition({ startX + i * digitSpacing_, digitBaseY_ });
-			digits_[i]->Update();
-		} else {
-			// 使わない桁は非表示にする
-			digits_[i]->GetRenderState().isVisible = false;
-		}
-	}
+	// 値が変わらないフレームは文字を組み直さない
+	points_->GetRenderState().isVisible = true;
+	points_->SetText(std::to_string((std::max)(0, stylePoint)));
+	points_->Update();
 }
 
 void StyleHUD::Hide()
 {
-	// 戦闘中以外は全スプライトを非表示にする（DrawUILayersは表示中だけ描く）
+	// 戦闘中以外は全部を非表示にする（DrawUILayersは表示中だけ描く）
 	if (rank_) {
 		rank_->GetRenderState().isVisible = false;
 	}
-	for (Sprite* d : digits_) {
-		d->GetRenderState().isVisible = false;
+	if (points_) {
+		points_->GetRenderState().isVisible = false;
 	}
 }
 

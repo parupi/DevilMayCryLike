@@ -3,80 +3,48 @@
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 
 void EnemyStateKnockBack::Enter(Enemy& enemy) {
-	const DamageInfo& info = enemy.GetPendingDamageInfo();
+	const KnockbackComponent& knockback = enemy.GetKnockback();
 
-	currentType_ = info.type;
-	velocity_ = info.direction * info.impulseForce;
-	stateTime_.current = 0.0f;
 	currentTilt_ = 0.0f;
-	targetTilt_ = 20.0f;
+	targetTilt_ = TiltFor(knockback.GetType());
+}
 
-	switch (info.type) {
-	case ReactionType::HitStun:
-		stunTimer_ = info.stunTime;
-		velocity_ *= 0.25f;
-		targetTilt_ = 15.0f;
-		break;
-
-	case ReactionType::Knockback:
-		velocity_.y += info.impulseForce * info.upwardRatio;
-		angularVel_ = info.torqueForce;
-		enemy.GetWorldTransform()->GetTranslation().y += 0.3f;
-		enemy.SetOnGround(false);
-		break;
-
-	case ReactionType::Launch:
-		velocity_.y += info.impulseForce * info.upwardRatio * 1.4f;
-		angularVel_ = info.torqueForce;
-		// 打ち上げた瞬間はまだ地面の上に立っている。ここで接地を落としておかないと
-		// 最初の Update が「もう着地した」と判断してしまう（Knockback と同じ扱い）
-		enemy.SetOnGround(false);
-		break;
-	}
+float EnemyStateKnockBack::TiltFor(ReactionType type) {
+	return (type == ReactionType::HitStun) ? kStunTiltDegree : kBlowTiltDegree;
 }
 
 void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
-	stateTime_.current += deltaTime;
+	const KnockbackComponent& knockback = enemy.GetKnockback();
 
-	velocity_.y += -9.8f * deltaTime;
-	enemy.SetVelocity(velocity_);
-
+	// ── 見た目 ──
 	// レンダラーの回転を直接書かずに Enemy 経由で渡す。
 	// モデルごとの向き補正（SetModelRotationOffset）と合成されるので、
 	// 直接書くと吹き飛んだ敵が正面を向き直してしまう。
-	if (currentType_ != ReactionType::HitStun) {
-		float rotate = Lerp(0.0f, angularVel_, stateTime_.current);
+	if (knockback.GetType() != ReactionType::HitStun) {
+		// 吹き飛び・打ち上げはくるくる回す。経過時間に比例させるので回り続ける
+		const float rotate = knockback.GetTorque() * knockback.GetElapsed();
 		enemy.SetModelReactionRotation(EulerDegree({ rotate, rotate, rotate }));
 	}
 	else {
-		currentTilt_ = Lerp(currentTilt_, targetTilt_, deltaTime * 5.0f);
+		// 追撃でリアクションの種類が変わってもステートは入れ直さないので、傾き先は毎フレーム引き直す
+		targetTilt_ = TiltFor(knockback.GetType());
+		currentTilt_ = Lerp(currentTilt_, targetTilt_, deltaTime * kTiltFollowRate);
 		enemy.SetModelReactionRotation(EulerDegree({ currentTilt_, 0.0f, 0.0f }));
+	}
 
-		if ((stunTimer_ -= deltaTime) <= 0.0f) {
+	// ── 復帰の判定（仕様書 §11）──
+	if (knockback.GetType() == ReactionType::HitStun) {
+		// のけぞりは地上なので、時間が来たらすぐ戻す（拘束を長引かせない）。
+		// 追撃を受けると KnockbackComponent 側でのけぞりが延長される
+		if (!knockback.IsStunned() && knockback.IsHorizontalFinished()) {
 			enemy.ChangeState(NextState());
-			return;
 		}
+		return;
 	}
 
-	// **上へ飛んでいる間は着地とみなさない**。
-	// 打ち上げた直後の敵はまだ地面のコライダーと重なっていて、押し出し
-	// （Enemy::ResolveGroundCollision）が接地フラグを立て直す。フラグだけを見ると
-	// 振り上げた次のフレームで着地扱いになり、OnLand が初速を消してしまうので
-	// 一度も浮かなくなる（＝切り上げで敵が吹っ飛ばない）
-	if (enemy.GetOnGround() && velocity_.y <= 0.0f && deltaTime != 0.0f) {
-		OnLand(enemy);
-	}
-}
-
-void EnemyStateKnockBack::OnLand(Enemy& enemy) {
-	if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
-		// 着地の減速。**Enemy 側へ書き戻すこと**。
-		// ここで手元の velocity_ を弱めるだけだと、直前の Update が書き込んだ
-		// 落下速度がそのまま次のステートへ残り、地面にめり込み続ける
-		// （意思決定のステートは velocity_.y を触らないので誰も消してくれない）
-		velocity_ *= 0.3f;
-		velocity_.y = 0.0f;
-		enemy.SetVelocity(velocity_);
+	// 吹き飛び・打ち上げは着地して勢いが収まるまで。
+	// 着地の処理（落下速度を消して水平を弱める）は Enemy::ResolveGroundCollision が行う
+	if (!knockback.IsActive()) {
 		enemy.ChangeState(NextState());
 	}
 }

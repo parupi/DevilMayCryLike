@@ -2,7 +2,7 @@
     "Stinger": {
         "AttackDuration": 0.15000000596046448,
         "AttackPosture": 0,
-        "ButtonIndex": 1,
+        "ButtonIndex": 2,
         "ControlPoint_0": [
             0.0,
             0.800000011920929,
@@ -102,11 +102,6 @@
         "ImpulseForce": 12.0,
         "IsAir": false,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            0.07000000029802322,
-            30.0
-        ],
         "LockOnFlag": true,
         "MoveSpeed": [
             0.0,

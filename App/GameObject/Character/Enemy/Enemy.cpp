@@ -7,13 +7,13 @@
 #include <World3D/Collider/SphereCollider.h>
 #include <World3D/Object/Renderer/ModelRenderer.h>
 #include "GameObject/Character/Player/Player.h"
+#include "GameObject/Character/Combat/CombatHitResolver.h"
+#include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include <Scene/Transition/TransitionManager.h>
 #include "Utility/TimeManager.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
 #include <algorithm>
-#include <cmath>
-#include <numbers>
 #ifdef _DEBUG
 #endif
 
@@ -289,6 +289,12 @@ void Enemy::Update(float deltaTime) {
 		hitFlash_->Update(dt);
 	}
 
+	// ノックバックの速度を先に進める（仕様書 §6・§7）。
+	// ステートより先に更新することで、被弾リアクションのステートは今フレームの値を読める。
+	// 接地は前フレームの押し出し結果（Update の最後で落とし、衝突コールバックが立て直す）
+	knockback_.SetGrounded(onGround_);
+	knockback_.Update(dt, kGravity);
+
 	// 行動停止中は意思決定のステートを回さず、水平方向の自走も止める。
 	// 被弾リアクションと落下（IsReaction）は最後まで再生させないと、
 	// のけぞりの傾きが戻らない・空中で固まる、といった見た目の破綻になる
@@ -303,7 +309,9 @@ void Enemy::Update(float deltaTime) {
 	// ステートが確定してからクリップを決める（この下に early return があるのでここで呼ぶ）
 	UpdateAnimation();
 
-	GetWorldTransform()->GetTranslation() += velocity_ * dt;
+	// 仕様書 §6: velocity = moveVelocity + knockbackVelocity。
+	// ノックバックを別の速度として足すので、のけぞらない敵（ボス）でも位置だけは押される
+	GetWorldTransform()->GetTranslation() += (velocity_ + knockback_.GetVelocity()) * dt;
 	velocity_ += acceleration_ * dt;
 
 	// 追跡・突進・ノックバックのどれで動いた場合もここを通るので、まとめて範囲内に収める
@@ -313,36 +321,24 @@ void Enemy::Update(float deltaTime) {
 		return;
 	}
 
-	// 座標取得
-	Vector3 enemyPos = GetWorldTransform()->GetTranslation();
-	Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+	// 攻撃の振り始めから終わりまでは向きを固定する（EnemyAttackAim が LockFacing で止める）。
+	// ここで向き直ると、予兆が消えた後に横へ動いたプレイヤーの方へ攻撃が曲がってしまう
+	if (!facingLocked_) {
+		// 座標取得
+		Vector3 enemyPos = GetWorldTransform()->GetTranslation();
+		Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
 
-	// 敵 → プレイヤー方向
-	Vector3 dir = enemyPos - playerPos;
-	dir.y = 0.0f; // 上下は無視
-	Normalize(dir);
+		// 敵 → プレイヤー方向
+		Vector3 dir = enemyPos - playerPos;
+		dir.y = 0.0f; // 上下は無視
+		Normalize(dir);
 
-	// 前方向（モデルの前が +Z 前提）
-	Vector3 forward(0.0f, 0.0f, 1.0f);
+		// 前方向（モデルの前が +Z 前提）
+		Vector3 forward(0.0f, 0.0f, 1.0f);
 
-	// 回転Quaternionを計算
-	Quaternion rot = FromToRotation(forward, dir);
-
-	// 向き直りに上限がある間（ブレス中など）は、1フレームで回れる角度を制限する。
-	// 目標を追いきれなくなるので、プレイヤーが横へ走れば照準から外れられる
-	if (faceTurnSpeed_ > 0.0f) {
-		const Quaternion current = GetWorldTransform()->GetRotation();
-		// 近い方の回転で角度を測る（Quaternion は q と -q が同じ姿勢なので符号を揃える）
-		const float cosHalf = std::clamp(std::abs(Dot(current, rot)), 0.0f, 1.0f);
-		const float angle = 2.0f * std::acos(cosHalf);
-		const float maxStep = faceTurnSpeed_ * (std::numbers::pi_v<float> / 180.0f) * dt;
-		if (angle > maxStep && angle > 1e-4f) {
-			rot = Slerp(current, rot, maxStep / angle);
-		}
+		// 回転をセット
+		GetWorldTransform()->GetRotation() = FromToRotation(forward, dir);
 	}
-
-	// 回転をセット
-	GetWorldTransform()->GetRotation() = rot;
 
 	Object3d::Update(dt);
 
@@ -364,6 +360,18 @@ Vector3 Enemy::GetForward() {
 	forward.y = 0.0f;
 	if (Length(forward) < 0.001f) return { 0.0f, 0.0f, 1.0f };
 	return Normalize(forward);
+}
+
+void Enemy::LockFacing(const Vector3& forward) {
+	facingLocked_ = true;
+
+	Vector3 flat{ forward.x, 0.0f, forward.z };
+	// 向きが取れないとき（真上を向いている等）は今の向きのまま止める
+	if (Length(flat) < 0.001f) return;
+
+	// Update の向き直りと同じ式。ローカル +Z を forward の反対へ向ける
+	// ＝ 前方向（ローカル -Z）が forward を向く
+	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, -flat);
 }
 
 Vector3 Enemy::GetFootPosition() {
@@ -418,6 +426,16 @@ void Enemy::ClampToMovementBounds() {
 	const float outwardSpeed = Dot(velocity_, inwardNormal);
 	if (outwardSpeed < 0.0f) {
 		velocity_ -= inwardNormal * outwardSpeed;
+	}
+
+	// ノックバックの速度も同じように削る（仕様書 §10）。
+	// 初速のほうも削らないと、時間ベースの減衰カーブから次のフレームに同じ速度が復活する
+	if (knockback_.CancelOutward(inwardNormal)) {
+		// 壁ヒット演出は1回のノックバックにつき1度だけ（押し付けられている間ずっと鳴らさない）
+		if (!knockbackWallHit_) {
+			knockbackWallHit_ = true;
+			OnKnockbackWallHit();
+		}
 	}
 }
 
@@ -506,6 +524,14 @@ void Enemy::ResolveGroundCollision(BaseCollider* other) {
 		if (velocity_.y < 0.0f) {
 			velocity_.y = 0.0f;
 		}
+
+		// ノックバックで浮いていたなら、ここが着地。
+		// 落下速度を消して水平を弱め、滑って止まる形にする（仕様書 §11 の「復帰」）
+		if (knockback_.IsAirborne() && knockback_.GetVelocity().y <= 0.0f) {
+			knockback_.OnLand();
+		}
+		knockback_.SetGrounded(true);
+
 		onGround_ = true;
 	}
 
@@ -545,6 +571,9 @@ void Enemy::OnDeath() {
 		}
 	}
 
+	// 死亡演出中の動きは velocity_ 側で受け持つので、ノックバックの速度は捨てる
+	knockback_.Stop();
+
 	// 倒れた体はもう戦闘の相手ではないので、当たり判定のカテゴリを外す。
 	// （判定自体は残す＝地面との接地判定に要る。Enemy 側は相手のカテゴリしか見ないので支障はない）
 	// これを外さないと、演出中の死体にプレイヤーが押される・死体を斬ってスコアが入る、が起きる
@@ -564,7 +593,51 @@ void Enemy::OnDeath() {
 	isAlive_ = false;
 }
 
-void Enemy::ApplyDeathLaunch(const Vector3& direction, float impulseForce, float upwardRatio) {
+void Enemy::OnKnockbackWallHit() {
+	// 壁にぶつかったことを最小限伝える（仕様書 §10 の「壁ヒット演出」）。
+	// 壁バウンド・壁張り付きは Wall カテゴリのコライダーが要るのでまだ入れていない
+	FlashLight();
+	PlayHitFlash();
+}
+
+void Enemy::ApplyKnockback(const DamageInfo& info, bool causesReaction) {
+	pendingDamageInfo_ = info;
+	knockbackWallHit_ = false;
+
+	// 仕様書 §8: すでにノックバック中なら、攻撃ごとの合成方法（上書き / 加算+上限）に従う。
+	// 止まっているところへの1発目は、今の移動速度を引き継ぐかどうかを overrideVelocity で決める
+	if (knockback_.IsActive()) {
+		knockback_.AddHit(info.knockback, info.direction);
+	} else {
+		knockback_.Begin(info.knockback, info.direction, velocity_);
+	}
+
+	// 浮かせる攻撃を受けたら、その場で接地を解除して本体も少し持ち上げる。
+	// ここで浮かせておかないと、押し出し（ResolveGroundCollision）が同じフレームに
+	// 接地を立て直して「もう着地した」と判断され、初速が消える。
+	// のけぞりは地上では浮かないので対象外（持ち上げると当たるたびに小さく跳ねる）
+	if (info.knockback.type != ReactionType::HitStun && info.knockback.verticalPower > 0.0f) {
+		GetWorldTransform()->GetTranslation().y += kGroundSink;
+		onGround_ = false;
+	}
+
+	if (!causesReaction) {
+		// のけぞらない相手（ボスなど）。行動は中断せず、速度だけを受けて押される
+		return;
+	}
+
+	// 意思決定のステートを止めて被弾リアクションへ。
+	// すでにリアクション中なら入れ直さない（入れ直すと傾き・回転が毎ヒットで巻き戻る）
+	if (currentStateName_ != EnemyStateName::KnockBack && HasState(EnemyStateName::KnockBack)) {
+		ChangeState(EnemyStateName::KnockBack);
+	}
+}
+
+void Enemy::ApplyDeathLaunch(const Vector3& direction, const KnockbackData& knockback) {
+	// とどめの吹き飛びは死亡演出（ステート更新が止まる）の中で動かすので、
+	// ノックバックの部品ではなく velocity_ へ直接書く
+	knockback_.Stop();
+
 	// 水平方向は攻撃の向きに従う。真上・真下成分は落として斜めに飛びすぎないようにする
 	Vector3 horizontalDir{ direction.x, 0.0f, direction.z };
 	if (Length(horizontalDir) > 0.001f) {
@@ -575,8 +648,8 @@ void Enemy::ApplyDeathLaunch(const Vector3& direction, float impulseForce, float
 
 	// 空中コンボのように吹き飛ばしが 0 の攻撃でとどめを刺しても、
 	// 「倒した」ことが分かるように最低限の初速は出す
-	const float horizontalSpeed = (std::max)(impulseForce, kDeathLaunchMinSpeed);
-	const float verticalSpeed = (std::max)(impulseForce * upwardRatio, kDeathLaunchMinUpSpeed);
+	const float horizontalSpeed = (std::max)(knockback.power, kDeathLaunchMinSpeed);
+	const float verticalSpeed = (std::max)(knockback.verticalPower, kDeathLaunchMinUpSpeed);
 
 	velocity_ = horizontalDir * horizontalSpeed;
 	velocity_.y = verticalSpeed;
