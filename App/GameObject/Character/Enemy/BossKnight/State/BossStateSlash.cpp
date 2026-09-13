@@ -19,13 +19,13 @@ namespace {
 		p.halfExtents = { 1.1f, 1.2f, 1.1f };
 		p.offset = { 0.0f, 0.0f, 0.0f }; // ジョイントの向きは骨ごとに違うので原点のまま使う
 		p.duration = 0.88f;                   // Dragon_Attack のクリップ長
-		p.rushSpeed = 3.0f;                   // 噛みつきながら少し踏み込む
+		p.rushSpeed = 3.0f;                   // 噛みつきながら少し踏み込む（振り始めの正面へ）
 
 		p.damage.damage = 1.0f;
-		p.damage.type = ReactionType::Knockback;
-		p.damage.impulseForce = 12.0f;
-		p.damage.upwardRatio = 0.25f;
-		p.damage.stunTime = 0.5f;
+		p.damage.knockback.type = ReactionType::Knockback;
+		p.damage.knockback.power = 12.0f;
+		p.damage.knockback.verticalPower = 12.0f * 0.25f;
+		p.damage.knockback.stunTime = 0.5f;
 
 		// .anim.json にイベントが無い場合のフォールバック。
 		// Dragon_Attack は BodyRoot の角速度ピークが 0.583/0.88 秒＝67% なのでその前後。
@@ -38,7 +38,8 @@ namespace {
 		p.extraWindupTime = 0.55f;
 
 		// 予兆。正面へ噛みつくので扇形。少し踏み込むぶん半径に余裕を持たせてある
-		// （スケール1基準。ステージ配置が2倍なので実寸は半径5.2m）
+		// （スケール1基準。ステージ配置が2倍なので実寸は半径5.2m）。
+		// 噛みつく瞬間に体の向きがここで固定されるので、頭はこの扇の上へ振り下ろされる
 		p.telegraph.shape = TelegraphShape::Fan;
 		p.telegraph.radius = 2.6f;
 		p.telegraph.halfAngleDeg = 50.0f;

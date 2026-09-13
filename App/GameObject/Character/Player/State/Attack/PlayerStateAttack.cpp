@@ -29,7 +29,6 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "PointCount", int32_t()); // 制御点の数
 	// 移動系
 	gv->AddItem(name_, "MoveSpeed", Vector3());          // 攻撃中にどれくらい移動するか
-	gv->AddItem(name_, "KnockBackSpeed", Vector3());     // 敵のノックバック
 
 	// タイマー系
 	gv->AddItem(name_, "TotalDuration", float());      // 攻撃全体にかかる時間
@@ -62,7 +61,8 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	// 攻撃の強さ（0=Light, 1=Medium, 2=Heavy）。未設定の攻撃は従来通り完全停止のHeavy
 	gv->AddItem(name_, "HitStopStrength", int32_t(static_cast<int32_t>(HitStopStrength::Heavy)));
 
-	// 攻撃を受けた側に送る情報
+	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3）──
+	// 既定値はどれも、作り直す前と同じ挙動になる値にしてある
 	gv->AddItem(name_, "ReactionType", int32_t(0));
 	// ノックバック＆打ち上げ共通
 	gv->AddItem(name_, "ImpulseForce", float());
@@ -71,6 +71,15 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "TorqueForce", float());
 	// のけぞり用
 	gv->AddItem(name_, "StunTime", float());
+	// ノックバックの時間と減速（仕様書 §7）。0 なら ReactionType ごとの既定値
+	gv->AddItem(name_, "KnockbackDuration", float());
+	gv->AddItem(name_, "KnockbackDeceleration", 1.0f);
+	gv->AddItem(name_, "KnockbackMaxSpeed", float());
+	// 向き（仕様書 §4）と、連続ヒット時の合成方法（§8）
+	gv->AddItem(name_, "KnockbackDirection", int32_t(static_cast<int32_t>(KnockbackDirection::AwayFromAttacker)));
+	gv->AddItem(name_, "KnockbackBlend", int32_t(static_cast<int32_t>(KnockbackBlend::Override)));
+	gv->AddItem(name_, "KnockbackOverrideVelocity", bool(true));
+	gv->AddItem(name_, "KnockbackCanLaunch", bool(true));
 
 	gv->AddItem(name_, "ButtonIndex", int32_t(0));
 	gv->AddItem(name_, "LockOnFlag", bool(false));
@@ -295,6 +304,26 @@ void PlayerStateAttack::OnInterrupted(Player&) {
 	isFinish_ = true;
 }
 
+KnockbackData PlayerStateAttack::LoadKnockback(const std::string& prefix) const {
+	KnockbackData knockback;
+	knockback.type = static_cast<ReactionType>(gv->GetValueRef<int32_t>(name_, prefix + "ReactionType"));
+	knockback.power = gv->GetValueRef<float>(name_, prefix + "ImpulseForce");
+	// UpwardRatio は「水平の強さに対する上方向の割合」。KnockbackData は速度で持つのでここで掛ける
+	knockback.verticalPower = knockback.power * gv->GetValueRef<float>(name_, prefix + "UpwardRatio");
+	knockback.torque = gv->GetValueRef<float>(name_, prefix + "TorqueForce");
+	knockback.stunTime = gv->GetValueRef<float>(name_, prefix + "StunTime");
+
+	// 以下は最終段でも同じものを使う（段ごとに変えたくなるものではないため）
+	knockback.duration = gv->GetValueRef<float>(name_, "KnockbackDuration");
+	knockback.deceleration = gv->GetValueRef<float>(name_, "KnockbackDeceleration");
+	knockback.maxSpeed = gv->GetValueRef<float>(name_, "KnockbackMaxSpeed");
+	knockback.direction = static_cast<KnockbackDirection>(gv->GetValueRef<int32_t>(name_, "KnockbackDirection"));
+	knockback.blend = static_cast<KnockbackBlend>(gv->GetValueRef<int32_t>(name_, "KnockbackBlend"));
+	knockback.overrideVelocity = gv->GetValueRef<bool>(name_, "KnockbackOverrideVelocity");
+	knockback.canLaunch = gv->GetValueRef<bool>(name_, "KnockbackCanLaunch");
+	return knockback;
+}
+
 void PlayerStateAttack::UpdateAttackData() {
 	// 制御点
 	attackData_.pointCount = GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "PointCount");
@@ -307,7 +336,6 @@ void PlayerStateAttack::UpdateAttackData() {
 
 	// 移動系
 	attackData_.moveVelocity = GlobalVariables::GetInstance().GetValueRef<Vector3>(name_, "MoveSpeed");
-	attackData_.knockBackSpeed = GlobalVariables::GetInstance().GetValueRef<Vector3>(name_, "KnockBackSpeed");
 
 	// タイマー系
 	attackData_.totalDuration = GlobalVariables::GetInstance().GetValueRef<float>(name_, "TotalDuration");
@@ -326,27 +354,19 @@ void PlayerStateAttack::UpdateAttackData() {
 	attackData_.hitStopIntensity = GlobalVariables::GetInstance().GetValueRef<float>(name_, "HitStopIntensity");
 
 	attackData_.hitStopStrength = HitStop::ToStrength(GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "HitStopStrength"));
-	// 攻撃を受けた側に送る情報
-	attackData_.type = static_cast<ReactionType>(GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "ReactionType"));
-	// ノックバック＆打ち上げ共通
-	attackData_.impulseForce = GlobalVariables::GetInstance().GetValueRef<float>(name_, "ImpulseForce");
-	attackData_.upwardRatio = gv->GetValueRef<float>(name_, "UpwardRatio");
-	// 吹っ飛び用
-	attackData_.torqueForce = gv->GetValueRef<float>(name_, "TorqueForce");
-	// のけぞり用
-	attackData_.stunTime = gv->GetValueRef<float>(name_, "StunTime");
+
+	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3）──
+	// エディタの調整値は ImpulseForce（水平の強さ）と UpwardRatio（それに対する上方向の割合）のまま。
+	// KnockbackData は速度[m/s]で持つので、ここで掛けて verticalPower にする
+	attackData_.knockback = LoadKnockback("");
 
 	// 多段ヒット・当たり判定
 	attackData_.hitCount = gv->GetValueRef<int32_t>(name_, "HitCount");
 	attackData_.hitboxScale = gv->GetValueRef<float>(name_, "HitboxScale");
 	attackData_.useFinalHit = gv->GetValueRef<bool>(name_, "UseFinalHit");
 	attackData_.finalDamage = gv->GetValueRef<float>(name_, "FinalDamage");
-	attackData_.finalType = static_cast<ReactionType>(gv->GetValueRef<int32_t>(name_, "FinalReactionType"));
-	attackData_.finalImpulseForce = gv->GetValueRef<float>(name_, "FinalImpulseForce");
-	attackData_.finalUpwardRatio = gv->GetValueRef<float>(name_, "FinalUpwardRatio");
-	attackData_.finalTorqueForce = gv->GetValueRef<float>(name_, "FinalTorqueForce");
-	attackData_.finalStunTime = gv->GetValueRef<float>(name_, "FinalStunTime");
 	attackData_.finalHitStopTime = gv->GetValueRef<float>(name_, "FinalHitStopTime");
+	attackData_.finalKnockback = LoadKnockback("Final");
 
 	// 溜め
 	attackData_.isCharge = gv->GetValueRef<bool>(name_, "IsCharge");
@@ -490,19 +510,18 @@ void PlayerStateAttack::ApplyHitData(Player& player) {
 	const int32_t hitCount = (std::max)(attackData_.hitCount, 1);
 	if (attackData_.useFinalHit && hitCount >= 2 && hitIndex_ >= hitCount - 1) {
 		data.damage = attackData_.finalDamage;
-		data.type = attackData_.finalType;
-		data.impulseForce = attackData_.finalImpulseForce;
-		data.upwardRatio = attackData_.finalUpwardRatio;
-		data.torqueForce = attackData_.finalTorqueForce;
-		data.stunTime = attackData_.finalStunTime;
 		data.hitStopTime = attackData_.finalHitStopTime;
+		data.knockback = attackData_.finalKnockback;
 	}
 
 	// 溜め具合の倍率（溜め攻撃でなければ掛けない）
 	if (attackData_.isCharge) {
+		const float impulseScale = 1.0f + (attackData_.chargeImpulseScale - 1.0f) * chargeRatio_;
 		data.damage *= 1.0f + (attackData_.chargeDamageScale - 1.0f) * chargeRatio_;
-		data.impulseForce *= 1.0f + (attackData_.chargeImpulseScale - 1.0f) * chargeRatio_;
 		data.hitStopTime *= 1.0f + (attackData_.chargeHitStopScale - 1.0f) * chargeRatio_;
+		// 水平と上方向を同じ倍率で伸ばす（片方だけだと溜めるほど角度が変わってしまう）
+		data.knockback.power *= impulseScale;
+		data.knockback.verticalPower *= impulseScale;
 	}
 
 	player.SetAttackData(data);

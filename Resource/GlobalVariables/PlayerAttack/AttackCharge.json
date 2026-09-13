@@ -109,11 +109,6 @@
         "IsAir": false,
         "IsCharge": true,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            0.0,
-            0.0
-        ],
         "LockOnFlag": false,
         "MoveSpeed": [
             0.0,

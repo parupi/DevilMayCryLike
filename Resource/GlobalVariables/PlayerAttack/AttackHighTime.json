@@ -92,11 +92,6 @@
         "ImpulseForce": 2.0,
         "IsAir": false,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            7.5,
-            0.0
-        ],
         "LockOnFlag": true,
         "MoveSpeed": [
             0.0,

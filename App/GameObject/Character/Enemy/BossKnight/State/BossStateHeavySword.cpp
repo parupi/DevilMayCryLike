@@ -18,10 +18,10 @@ namespace {
         p.rushSpeed = 0.0f;                     // その場で叩きつける
 
         p.damage.damage = 2.0f;                 // 噛みつきの倍
-        p.damage.type = ReactionType::Knockback;
-        p.damage.impulseForce = 22.0f;
-        p.damage.upwardRatio = 0.5f;
-        p.damage.stunTime = 0.9f;
+        p.damage.knockback.type = ReactionType::Knockback;
+        p.damage.knockback.power = 22.0f;
+        p.damage.knockback.verticalPower = 22.0f * 0.5f;
+        p.damage.knockback.stunTime = 0.9f;
 
         // フォールバック。Dragon_Attack2 は翼の角速度ピークが 1.083/1.67 秒＝65%。
         // この比率は溜めと本編の境目にも使うので、hit_start(0.97秒＝58%) に合わせてある

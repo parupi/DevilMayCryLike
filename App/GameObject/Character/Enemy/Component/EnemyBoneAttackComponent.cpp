@@ -1,7 +1,6 @@
 #include "EnemyBoneAttackComponent.h"
 #include "EnemyHitbox.h"
 #include "GameObject/Character/Enemy/Enemy.h"
-#include "GameObject/Character/Player/Player.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include <algorithm>
 
@@ -30,6 +29,7 @@ void EnemyBoneAttackComponent::BeginAttack(Enemy& enemy, const BoneAttackParams&
 	};
 	// 予兆も判定と同じ縮尺で書かれているので、同じスケールを掛ける
 	params_.telegraph.ApplyScale(ownerScale.x, ownerScale.z);
+	aim_.Begin(enemy, params_.telegraph, params_.rushSpeed > 0.0f);
 
 	timer_ = 0.0f;
 	finished_ = false;
@@ -81,13 +81,11 @@ float EnemyBoneAttackComponent::GetTelegraphProgress() const {
 }
 
 void EnemyBoneAttackComponent::UpdateTelegraph(Enemy& enemy) {
-	if (params_.telegraph.shape == TelegraphShape::None) return;
-	// 判定が出た（＝攻撃が来た）ら出すのをやめる。
-	// マーカー側が「出されなくなった＝発生した」と見て、閃光を出しながら畳んでくれる
-	if (finished_ || hitActive_) return;
-
-	AttackTelegraph::GetInstance().Submit(this, params_.telegraph,
-		enemy.GetFootPosition(), enemy.GetForward(), GetTelegraphProgress());
+	// 狙いを固定する（＝判定が出る）までの間だけ出す。
+	// 出されなくなったマーカーは、閃光を出しながら自動で畳まれる。
+	// 固定した後は出し直さないので、判定の窓が閉じた後に予兆が出直すことはない
+	if (finished_ || aim_.IsLocked()) return;
+	aim_.Aim(enemy, GetTelegraphProgress());
 }
 
 void EnemyBoneAttackComponent::Update(Enemy& enemy, float deltaTime) {
@@ -140,15 +138,12 @@ void EnemyBoneAttackComponent::Update(Enemy& enemy, float deltaTime) {
 	}
 
 	// ── 突進 ──
-	// 判定が出ている間だけ前へ出る。予備動作では動かない（見てから避けられるように）
+	// 判定が出ている間だけ、振り始めに固定した正面へまっすぐ進む（プレイヤーは追わない）。
+	// 予備動作では動かない（見てから避けられるように）
 	if (params_.rushSpeed > 0.0f && hitActive_) {
-		if (Player* player = enemy.GetPlayer()) {
-			Vector3 dir = player->GetWorldTransform()->GetTranslation() - enemy.GetWorldTransform()->GetTranslation();
-			dir.y = 0.0f;
-			if (Length(dir) > 0.001f) {
-				enemy.GetWorldTransform()->GetTranslation() += Normalize(dir) * params_.rushSpeed * deltaTime;
-			}
-		}
+		// 帯の奥の端まで、判定が出ているうちに届くよう、判定が出ている時間（比率から見積もる）を渡す
+		const float hitWindow = params_.duration * (params_.hitEndRatio - params_.hitStartRatio);
+		aim_.Rush(enemy, params_.rushSpeed, hitWindow, deltaTime);
 	} else {
 		// 突進していない間は水平に流れないよう速度を殺す
 		Vector3 velocity = enemy.GetVelocity();
@@ -163,6 +158,7 @@ void EnemyBoneAttackComponent::Update(Enemy& enemy, float deltaTime) {
 		hitRequested_ = false;
 		enemy.SetIsAttack(false);
 		enemy.EndAttackAnimation();
+		aim_.Finish(enemy);
 	}
 
 	UpdateTelegraph(enemy);
@@ -170,11 +166,6 @@ void EnemyBoneAttackComponent::Update(Enemy& enemy, float deltaTime) {
 
 void EnemyBoneAttackComponent::Cancel(Enemy& enemy) {
 	if (finished_) return;
-	// 判定が出る前に中断された＝この攻撃はもう来ない。予兆も消す。
-	// （判定が出た後なら、マーカーは既に閃光を出して畳まれている最中なので触らない）
-	if (!hitActive_) {
-		AttackTelegraph::GetInstance().Cancel(this);
-	}
 	SetHitActive(enemy, false);
 	finished_ = true;
 	// 溜めの途中で中断されても、遅くしたままの再生速度を残さない
@@ -183,10 +174,18 @@ void EnemyBoneAttackComponent::Cancel(Enemy& enemy) {
 	hitRequested_ = false;
 	enemy.SetIsAttack(false);
 	enemy.EndAttackAnimation();
+	// 判定が出る前に中断された＝この攻撃はもう来ないので予兆を消す。
+	// 出た後なら固定した体の向きを解く（マーカーは閃光を出して畳まれている最中なので触らない）
+	aim_.Finish(enemy);
 }
 
 void EnemyBoneAttackComponent::SetHitActive(Enemy& enemy, bool active) {
 	hitActive_ = active;
+	if (active) {
+		// 判定が出た瞬間に、最後に出した予兆の場所と向きで狙いを固定する。
+		// これで判定は予兆の上をなぞって出る（イベントで窓が2回開いても向きは変わらない）
+		aim_.Lock(enemy);
+	}
 	if (!hitbox_) return;
 
 	if (!active) {
@@ -196,7 +195,6 @@ void EnemyBoneAttackComponent::SetHitActive(Enemy& enemy, bool active) {
 	} else {
 		hitbox_->Activate(params_.jointName, params_.halfExtents, params_.offset, params_.damage);
 	}
-	enemy;
 }
 
 // 判定が出ている本編の長さがクリップの残りより長い攻撃（ブレスのように撃ち続けるもの）では、

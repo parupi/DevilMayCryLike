@@ -56,6 +56,10 @@ private:
 	bool IsAttackButtonHeld(Player& player) const;
 	// 多段ヒットの段を進める。段が変わるたびに当たり直させる
 	void UpdateHitSegment(Player& player);
+	// ノックバック性能を GlobalVariables から読む（仕様書 §3）。
+	// prefix は "" で通常、"Final" で最終段ぶん。
+	// 時間・減速・向き・合成方法は段で変える必要が無いので、最終段でも共通の値を読む
+	KnockbackData LoadKnockback(const std::string& prefix) const;
 	// 最終段・溜めの倍率を反映した攻撃データを Player へ渡す（敵はこれを見てダメージを受ける）
 	void ApplyHitData(Player& player);
 	// フェーズの更新

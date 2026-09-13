@@ -6,6 +6,7 @@
 #include <World3D/Collider/AABBCollider.h>
 #include <World3D/Collider/OBBCollider.h>
 #include <World3D/Collider/CollisionManager.h>
+#include "GameObject/Character/Combat/CombatHitResolver.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "GameObject/Character/Enemy/State/EnemyStateKnockBack.h"
@@ -39,6 +40,15 @@ GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
 
 	hp_ = 8.0f;
 	maxHp_ = hp_;
+
+	// ノックバック耐性（仕様書 §9 の「小型」）。
+	// 軽攻撃も強攻撃も打ち上げも素通しで、コンボの練習台になる敵
+	SetKnockbackResistance(KnockbackResistance{
+		/*resistance=*/ 0.0f,
+		/*canStagger=*/ true,
+		/*canBlowAway=*/ true,
+		/*canLaunch=*/ true,
+	});
 }
 
 void GruntMelee::Initialize() {
@@ -180,31 +190,26 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	// 出現・死亡演出中は被弾処理をしない
 	if (IsAppearanceEffectPlaying()) return;
 
-	// 攻撃がヒットしたのでライトを強く光らせ、体も一瞬白く光らせる
-	FlashLight();
-	PlayHitFlash();
-
+	// ── 仕様書 §20 の実装フロー ──
+	// ① 攻撃判定がヒット
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 
+	// ② ダメージ計算
 	hp_ -= atk.damage;
 	RecordDamage(atk.damage);
 
-	DamageInfo info;
-	info.damage = atk.damage;
-	info.hitPosition = GetWorldTransform()->GetTranslation();
-	info.attackerPosition = player_->GetWorldTransform()->GetTranslation();
-	info.direction = Normalize(info.hitPosition - info.attackerPosition);
-	info.type = atk.type;
-	info.impulseForce = atk.impulseForce;
-	info.upwardRatio = atk.upwardRatio;
-	info.torqueForce = atk.torqueForce;
-	info.stunTime = atk.stunTime;
+	// ③④ ノックバックの方向と耐性。CombatHit が水平化・種類補正・耐性をまとめて解決する
+	CombatHit::Attacker attacker;
+	attacker.position = player_->GetWorldTransform()->GetTranslation();
+	attacker.forward = player_->GetForward();
+	const CombatHit::Result hit = CombatHit::Resolve(
+		atk, attacker, GetWorldTransform()->GetTranslation(), GetKnockbackResistance());
 
 	if (hp_ <= 0.0f) {
 		if (CanDie()) {
 			OnDeath();
 			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
-			ApplyDeathLaunch(info.direction, atk.impulseForce, atk.upwardRatio);
+			ApplyDeathLaunch(hit.info.direction, hit.info.knockback);
 			return;
 		} else {
 			// まだ死亡できない（チュートリアル中など）ので生存を維持する
@@ -212,19 +217,17 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 		}
 	}
 
-	// 吹き飛び・打ち上げで宙に浮いている最中の追撃。
-	// 以前は吹き飛び中の被弾をヒットストップだけ掛けて捨てていたので、
-	// 打ち上げた後の空中コンボはダメージも浮きも入らなかった。
-	// のけぞりの攻撃なら状態はそのままで落下だけ止め（空中に留める）、吹き飛ばし・打ち上げなら当たり直す
-	auto* knockBack = dynamic_cast<EnemyStateKnockBack*>(currentState_);
-	if (knockBack && knockBack->IsAirborne() && info.type == ReactionType::HitStun) {
-		knockBack->OnAirHit(*this, info);
-	} else {
-		SetPendingDamageInfo(info);
-		ChangeState(EnemyStateName::KnockBack);
-	}
+	// ⑤⑥ ノックバック速度と被弾リアクション。
+	// 空中で追撃を受けたときの合成（落下を止める・打ち上げ直す）は KnockbackComponent の担当
+	ApplyKnockback(hit.info, hit.causesReaction);
 
+	// ⑦ ヒットストップ。**ノックバックより後に開始する**のが仕様書 §13 の順番だが、
+	// ヒットストップ中は Enemy::Update の dt が縮むので、実際に敵が動き出すのは停止が明けてから
 	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
+
+	// ⑧ 演出（ライトと白フラッシュ。VFX・SE・カメラは PlayerWeapon 側の HitEffectSystem）
+	FlashLight();
+	PlayHitFlash();
 }
 
 void GruntMelee::OnDeathEffectFinished() {

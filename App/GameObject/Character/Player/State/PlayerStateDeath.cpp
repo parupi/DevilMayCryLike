@@ -51,8 +51,8 @@ void PlayerStateDeath::Enter(Player& player)
 	} else {
 		horizontal = {};
 	}
-	const float speed = (std::max)(info.impulseForce, kLaunchMinSpeed);
-	const float upSpeed = (std::max)(info.impulseForce * info.upwardRatio, kLaunchMinUpSpeed);
+	const float speed = (std::max)(info.knockback.power, kLaunchMinSpeed);
+	const float upSpeed = (std::max)(info.knockback.verticalPower, kLaunchMinUpSpeed);
 
 	Vector3& velocity = player.GetVelocity();
 	velocity = horizontal * speed;

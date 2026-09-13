@@ -7,6 +7,7 @@
 #include "World3D/Collider/AABBCollider.h"
 #include "World3D/Collider/OBBCollider.h"
 #include "World3D/Collider/CollisionManager.h"
+#include "GameObject/Character/Combat/CombatHitResolver.h"
 #include "Utility/DeltaTime.h"
 #include "Utility/TimeManager.h"
 #include "State/PlayerStateJump.h"
@@ -342,8 +343,12 @@ void Player::Update(float deltaTime) {
 	// ポーズの更新は Object3d::Update の中（レンダラー更新）で走るので、その手前で呼ぶ
 	UpdateAnimation();
 
-	// 移動処理
-	GetWorldTransform()->GetTranslation() += velocity_ * dt;
+	// ノックバックの速度を進める（仕様書 §6・§7）。敵と同じ部品・同じ減衰の式を使う
+	knockback_.SetGrounded(onGround_);
+	knockback_.Update(dt, kGravity);
+
+	// 移動処理。仕様書 §6: velocity = moveVelocity + knockbackVelocity
+	GetWorldTransform()->GetTranslation() += (velocity_ + knockback_.GetVelocity()) * dt;
 	velocity_ += acceleration_ * dt;
 
 	Object3d::Update(dt);
@@ -353,7 +358,11 @@ void Player::Update(float deltaTime) {
 	if (hasMovementBounds_) {
 		Vector3& pos = GetWorldTransform()->GetTranslation();
 		Vector3 inwardNormal{};
-		movementBounds_.ClampPosition(pos, inwardNormal);
+		if (movementBounds_.ClampPosition(pos, inwardNormal)) {
+			// 壁の外を向いているノックバック速度を削る（仕様書 §10）。
+			// 残すと押し戻されながら飛び続け、境界に貼り付いたまま操作不能になる
+			knockback_.CancelOutward(inwardNormal);
+		}
 	}
 
 	// キャラクター追従ライトの更新（ヒットストップ中はフラッシュの減衰も止まる）
@@ -581,6 +590,15 @@ void Player::Move(Vector3 moveDir, float) {
 	velocity_.y = velocityY;
 }
 
+Vector3 Player::GetForward() {
+	Vector3 forward = TransformNormal({ 0.0f, 0.0f, 1.0f }, GetWorldTransform()->GetMatWorld());
+	// Rotate() / LockOn() が LookRotation に渡す前に X を反転しているぶんを戻す
+	forward.x *= -1.0f;
+	forward.y = 0.0f;
+	if (Length(forward) < 0.001f) return { 0.0f, 0.0f, 1.0f };
+	return Normalize(forward);
+}
+
 void Player::Rotate(Vector3 moveDir, float deltaTime) {
 	// ロックオンしているなら回転させない
 	if (lockOn_->IsLockOn()) return;
@@ -640,7 +658,13 @@ void Player::TakeDamage(const DamageInfo& info) {
 	if (invincible_) return;
 
 	hp_ -= static_cast<int32_t>(info.damage);
-	invincibleTimer_ = 1.2f;
+
+	// 軽被弾／強被弾の切り分け（仕様書 §11・§12）。
+	// 弱い攻撃で毎回1.2秒も無敵と拘束を掛けると、当たり続けても反撃できない一方で
+	// 無敵が長すぎて緊張感が無くなる。ノックバックの強さで2段階に分ける
+	heavyHit_ = (info.knockback.power >= kHeavyHitPowerThreshold)
+		|| (info.knockback.type != ReactionType::HitStun && info.knockback.verticalPower > 0.0f);
+	invincibleTimer_ = heavyHit_ ? kHeavyHitInvincibleTime : kLightHitInvincibleTime;
 
 	pendingDamageInfo_ = info;
 
@@ -670,6 +694,20 @@ void Player::TakeDamage(const DamageInfo& info) {
 		justDodgeEffect_->Stop();
 		ChangeState("Death");
 	} else {
+		// 仕様書 §13 の順番（ヒット → 止まる → ノックバック）。
+		// ヒットストップ中は Player::Update の dt が縮むので、実際に飛ぶのは停止が明けてから
+		hitStop_->Start(heavyHit_ ? kHeavyHitStopTime : kLightHitStopTime,
+			kHitStopIntensity,
+			heavyHit_ ? HitStopStrength::Medium : HitStopStrength::Light);
+
+		// ノックバックの速度は Knockback ステートではなく共通の部品が持つ（仕様書 §6）
+		knockback_.SetGrounded(onGround_);
+		if (knockback_.IsActive()) {
+			knockback_.AddHit(info.knockback, info.direction);
+		} else {
+			knockback_.Begin(info.knockback, info.direction, velocity_);
+		}
+
 		stateMachine_->ChangeState(*this, "Knockback");
 	}
 }
@@ -681,29 +719,32 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 
 		// 攻撃してきた側の**ワールド**座標。GetTranslation() はローカル座標なので、
 		// 敵の子になっている武器・判定では「攻撃者から離れる方向」にならない
-		Vector3 attackerPos = other->owner_->GetWorldTransform()->GetWorldPos();
-		Vector3 playerPos = GetWorldTransform()->GetTranslation();
-		Vector3 dir = playerPos - attackerPos;
-		dir.y = 0.0f;
-		dir = (Length(dir) > 0.001f) ? Normalize(dir) : Vector3{0.0f, 0.0f, -1.0f};
+		const Vector3 attackerPos = other->owner_->GetWorldTransform()->GetWorldPos();
+		const Vector3 playerPos = GetWorldTransform()->GetTranslation();
 
 		// ボーン追従の判定（噛みつき・叩きつけ等）は攻撃ごとにダメージが違うので、
 		// 判定側が持っている値を使う。武器を振る敵（剣を持つ雑魚）は従来どおりの既定値
-		DamageInfo info;
+		DamageInfo raw;
 		if (auto* hitbox = dynamic_cast<EnemyHitbox*>(other->owner_)) {
-			info = hitbox->GetDamageInfo();
+			raw = hitbox->GetDamageInfo();
 		} else {
-			info.damage = 1.0f;
-			info.type = ReactionType::Knockback;
-			info.impulseForce = 15.0f;
-			info.upwardRatio = 0.4f;
-			info.stunTime = 0.7f;
+			raw.damage = 1.0f;
+			raw.knockback.type = ReactionType::Knockback;
+			raw.knockback.power = 15.0f;
+			raw.knockback.verticalPower = 15.0f * 0.4f;
+			raw.knockback.stunTime = 0.7f;
 		}
-		info.direction = dir;
-		info.hitPosition = playerPos;
-		info.attackerPosition = attackerPos;
+		raw.hitPosition = playerPos;
 
-		TakeDamage(info);
+		// 方向と耐性の解決は敵を殴るときと同じ CombatHit に通す（仕様書 §20 ③④）。
+		// 以前は敵側だけが3Dのまま正規化していて、高低差があると挙動が食い違っていた
+		CombatHit::Attacker attacker;
+		attacker.position = attackerPos;
+		// 敵の前方向はローカル -Z（Enemy::GetForward と同じ規約）
+		attacker.forward = TransformNormal({ 0.0f, 0.0f, -1.0f }, other->owner_->GetWorldTransform()->GetMatWorld());
+		const CombatHit::Result hit = CombatHit::Resolve(raw, attacker, playerPos, kPlayerKnockbackResistance);
+
+		TakeDamage(hit.info);
 		return;
 	}
 
@@ -734,6 +775,13 @@ void Player::ResolveGroundCollision(BaseCollider* other) {
 		// 上に当たってる（接地）
 		GetWorldTransform()->GetTranslation().y -= 0.1f;
 		//velocity_.y = 0.0f;
+
+		// ノックバックで浮いていたならここが着地。落下速度を消して水平を弱める
+		if (knockback_.IsAirborne() && knockback_.GetVelocity().y <= 0.0f) {
+			knockback_.OnLand();
+		}
+		knockback_.SetGrounded(true);
+
 		onGround_ = true;
 	}
 }

@@ -95,7 +95,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		if (hitCtx.attackName.empty()) hitCtx.attackName = attack.name;
 		hitCtx.isAir = (attack.posture == AttackPosture::Air);
 		// 打ち上げ・吹き飛ばしは強攻撃として高めに評価する
-		hitCtx.isStrong = (attack.type == ReactionType::Launch || attack.type == ReactionType::Knockback);
+		hitCtx.isStrong = (attack.knockback.type == ReactionType::Launch || attack.knockback.type == ReactionType::Knockback);
 		auto* enemy = dynamic_cast<Enemy*>(other->owner_);
 		if (enemy) {
 			hitCtx.enemyMultiplier = enemy->GetStyleMultiplier();

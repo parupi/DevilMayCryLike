@@ -45,6 +45,13 @@ public:
     /// 必殺技ブレスの炎。Resource/VFX/BossBreath.vfx.json が中身を持つ
     static constexpr const char* kBreathVfxName = "BossBreath";
 
+    /// <summary>
+    /// 通常時のノックバック耐性（仕様書 §9）。0.88 = 受けた強さの12%だけ効く。
+    /// 「重くて動かないが、当たれば少しは押される」を出すための値。
+    /// 突進中は IsKnockbackImmune() が完全無効へ上書きする
+    /// </summary>
+    static constexpr float kKnockbackResistance = 0.88f;
+
     BossKnight(std::string objectName);
     void Initialize() override;
     void Update(float deltaTime) override;
@@ -65,6 +72,12 @@ public:
     /// そのため「本当に手が出せない」突進(Rush)中だけ true を返す。
     /// </summary>
     bool IsKnockbackImmune() const override;
+
+    /// <summary>
+    /// 突進中は踏み込みを止められないので、ノックバックを完全に無効にする。
+    /// それ以外は通常の耐性（kKnockbackResistance）で少しだけ押される。
+    /// </summary>
+    const KnockbackResistance& GetKnockbackResistance() const override;
 
     /// <summary>ボスは倒すのが難しいのでスタイルスコアを高めに補正する。</summary>
     float GetStyleMultiplier() const override { return 2.0f; }

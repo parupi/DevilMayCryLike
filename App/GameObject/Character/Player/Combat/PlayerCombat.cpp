@@ -524,7 +524,6 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 
 	// 移動系
 	ImGui::DragFloat3("Move Speed", &global_->GetValueRef<Vector3>(attackName, "MoveSpeed").x, 0.01f);
-	ImGui::DragFloat3("KnockBack Speed", &global_->GetValueRef<Vector3>(attackName, "KnockBackSpeed").x, 0.01f);
 
 	ImGui::Separator();
 
@@ -588,7 +587,8 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::RadioButton("Heavy", &hitStopStrength, static_cast<int32_t>(HitStopStrength::Heavy));
 	ImGui::Text("  -> TimeScale: %.2f", HitStop::ToTimeScale(HitStop::ToStrength(hitStopStrength)));
 
-	// 攻撃を受けた側に送る情報
+	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3〜§8）──
+	ImGui::SeparatorText("Knockback");
 	ImGui::Text("ReactionType:");
 	ImGui::SameLine();
 	ImGui::RadioButton("HitStun", &global_->GetValueRef<int32_t>(attackName, "ReactionType"), 0);
@@ -596,14 +596,59 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::RadioButton("Knockback", &global_->GetValueRef<int32_t>(attackName, "ReactionType"), 1);
 	ImGui::SameLine();
 	ImGui::RadioButton("Launch", &global_->GetValueRef<int32_t>(attackName, "ReactionType"), 2);
+	ImGui::SetItemTooltip("HitStun = 少し後退するだけ（通常攻撃）\n"
+		"Knockback = 大きく後退する（強攻撃）\n"
+		"Launch = 打ち上げて空中コンボへ繋ぐ\n"
+		"種類ごとに水平／上方向の効き方が変わるので、切り替えても数値を付け直さなくてよい");
 
 	// ノックバック＆打ち上げ共通
+	const float impulseForce = global_->GetValueRef<float>(attackName, "ImpulseForce");
 	ImGui::DragFloat("ImpulseForce", &global_->GetValueRef<float>(attackName, "ImpulseForce"), 0.01f);
+	ImGui::SetItemTooltip("水平方向の初速[m/s]。この速さから時間をかけて 0 まで減速する");
 	ImGui::DragFloat("UpwardRatio", &global_->GetValueRef<float>(attackName, "UpwardRatio"), 0.01f);
+	ImGui::SetItemTooltip("ImpulseForce に対する上方向の割合。Launch はここを高めにする");
+	ImGui::Text("  -> 上方向の初速: %.2f m/s", impulseForce * global_->GetValueRef<float>(attackName, "UpwardRatio"));
 	// 吹っ飛び用
 	ImGui::DragFloat("TorqueForce", &global_->GetValueRef<float>(attackName, "TorqueForce"), 0.01f);
+	ImGui::SetItemTooltip("吹き飛び・打ち上げ中に体が回る速さ[度/秒]");
 	// のけぞり用
 	ImGui::DragFloat("StunTime", &global_->GetValueRef<float>(attackName, "StunTime"), 0.01f);
+	ImGui::SetItemTooltip("のけぞりで動けなくなる時間[秒]。吹き飛び・打ち上げは着地するまでなので効かない");
+
+	// 時間と減速（仕様書 §7）
+	float& knockbackDuration = global_->GetValueRef<float>(attackName, "KnockbackDuration");
+	ImGui::DragFloat("Knockback Duration", &knockbackDuration, 0.01f, 0.0f, 5.0f, "%.2f 秒");
+	ImGui::SetItemTooltip("ノックバックが続く時間。0 なら ReactionType ごとの既定値\n"
+		"（HitStun 0.18秒 / Knockback 0.45秒 / Launch 0.35秒）");
+	ImGui::DragFloat("Knockback Deceleration", &global_->GetValueRef<float>(attackName, "KnockbackDeceleration"), 0.01f, 0.1f, 10.0f);
+	ImGui::SetItemTooltip("減速カーブの鋭さ。1.0 で直線に減速する。\n"
+		"大きくすると初速だけ強く出てすぐ止まり、小さくすると長く滑る");
+	ImGui::DragFloat("Knockback Max Speed", &global_->GetValueRef<float>(attackName, "KnockbackMaxSpeed"), 0.1f, 0.0f, 100.0f);
+	ImGui::SetItemTooltip("合成後の速度の上限[m/s]。0 で無制限。\n"
+		"多段ヒットで速度が伸びすぎるときに使う");
+
+	// 向き（仕様書 §4）
+	const char* knockbackDirLabels[] = { "Away From Attacker", "Attacker Forward", "Upward", "Toward Attacker" };
+	ImGui::Combo("Knockback Direction", &global_->GetValueRef<int32_t>(attackName, "KnockbackDirection"),
+		knockbackDirLabels, IM_ARRAYSIZE(knockbackDirLabels));
+	ImGui::SetItemTooltip("Away From Attacker = 攻撃者から離れる（基本）\n"
+		"Attacker Forward = 横から当てても自分の正面へ飛ばす\n"
+		"Upward = 水平には飛ばさず真上へ\n"
+		"Toward Attacker = 引き寄せる（コンボ維持用）");
+
+	// 連続ヒット時の合成（仕様書 §8）
+	const char* knockbackBlendLabels[] = { "Override", "Additive" };
+	ImGui::Combo("Knockback Blend", &global_->GetValueRef<int32_t>(attackName, "KnockbackBlend"),
+		knockbackBlendLabels, IM_ARRAYSIZE(knockbackBlendLabels));
+	ImGui::SetItemTooltip("ノックバック中にもう一度当たったときの合成方法。\n"
+		"Override = 上書き（強い攻撃の反応が分かりやすい）\n"
+		"Additive = 加算して Max Speed で頭打ち（多段ヒットと相性がよい）");
+
+	ImGui::Checkbox("Override Velocity", &global_->GetValueRef<bool>(attackName, "KnockbackOverrideVelocity"));
+	ImGui::SetItemTooltip("ON なら相手の元の速度を捨てて飛ばす。OFF なら残っている勢いに足す");
+	ImGui::Checkbox("Can Launch", &global_->GetValueRef<bool>(attackName, "KnockbackCanLaunch"));
+	ImGui::SetItemTooltip("この攻撃で相手を浮かせてよいか。敵ごとの耐性と AND される\n"
+		"（OFF にすると Launch を指定しても吹き飛びに落ちる）");
 
 	// ── 多段ヒット・当たり判定 ──
 	ImGui::SeparatorText("Hit");
