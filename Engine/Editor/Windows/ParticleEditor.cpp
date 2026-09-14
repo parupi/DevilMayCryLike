@@ -120,6 +120,17 @@ void ParticleEditor::DrawParticleWindow()
         Vector3& maxS = global_->GetValueRef<Vector3>(gName, "maxScale");
         ImGui::DragFloat3("Min Scale", &minS.x, 0.01f);
         ImGui::DragFloat3("Max Scale", &maxS.x, 0.01f);
+
+        Vector3& minAV = global_->GetValueRef<Vector3>(gName, "minAngularVelocity");
+        Vector3& maxAV = global_->GetValueRef<Vector3>(gName, "maxAngularVelocity");
+        ImGui::DragFloat3("Min Angular Vel", &minAV.x, 0.05f);
+        ImGui::DragFloat3("Max Angular Vel", &maxAV.x, 0.05f);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("回転の速さ[rad/s]。生成時にこの範囲から選び、寿命のあいだ回し続けます。\n"
+                              "Billboard(Screen/AxisY) は Z だけを画面内の傾きとして使います（Velocity は回りません）。\n"
+                              "Orient To Direction は Z を向けた軸まわりの回転として使います。\n"
+                              "Rotate の Z もビルボードに効きます（最初の向きをばらけさせる）");
+        }
     }
 
     if (ImGui::CollapsingHeader("Velocity")) {
@@ -198,6 +209,83 @@ void ParticleEditor::DrawParticleWindow()
             if (ImGui::IsItemHovered()) {
                 ImGui::SetTooltip("オフにすると最後のコマで止まります");
             }
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Noise (炎・煙の質感)")) {
+        bool& enabled = global_->GetValueRef<bool>(gName, "NoiseEnabled");
+        ImGui::Checkbox("Enabled##noise", &enabled);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("ノイズテクスチャを時間でスクロールさせて、色・形・消え方を揺らします。\n"
+                              "形(アルファ)は本来のテクスチャ、色はノイズから取ります");
+        }
+
+        // テクスチャの差し替え（Resource/Images/ 以下のファイル名。空で既定に戻る）
+        static char noiseTex[128] = "";
+        static std::string lastNoiseGroup;
+        if (lastNoiseGroup != gName) {
+            lastNoiseGroup = gName;
+            strncpy_s(noiseTex, groups.at(gName).noiseTexturePath.c_str(), sizeof(noiseTex) - 1);
+        }
+        ImGui::InputText("Texture##noise", noiseTex, IM_ARRAYSIZE(noiseTex));
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Apply##noiseTex")) {
+            manager_->SetParticleGroupNoiseTexture(gName, noiseTex);
+        }
+        if (groups.at(gName).noiseTexturePath.empty()) {
+            ImGui::TextDisabled("既定: %s", ParticleManager::kDefaultNoiseTexture);
+        }
+
+        if (enabled) {
+            Vector3& tiling = global_->GetValueRef<Vector3>(gName, "NoiseTiling");
+            ImGui::DragFloat2("Tiling##noise", &tiling.x, 0.01f, 0.01f, 16.0f);
+            Vector3& scroll = global_->GetValueRef<Vector3>(gName, "NoiseScroll");
+            ImGui::DragFloat2("Scroll (UV/s)##noise", &scroll.x, 0.01f, -20.0f, 20.0f);
+            float& distortion = global_->GetValueRef<float>(gName, "NoiseDistortion");
+            ImGui::SliderFloat("Distortion##noise", &distortion, 0.0f, 0.5f);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("本来のテクスチャのUVをノイズで揺らす量。形がゆらぐ");
+            }
+            float& colorBlend = global_->GetValueRef<float>(gName, "NoiseColorBlend");
+            ImGui::SliderFloat("Color Blend##noise", &colorBlend, 0.0f, 1.0f);
+            bool& gray = global_->GetValueRef<bool>(gName, "NoiseGrayscale");
+            ImGui::Checkbox("Grayscale##noise", &gray);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("ノイズの色を捨てて明るさだけ使う。煙に炎の色が乗らないようにする");
+            }
+            float& erosion = global_->GetValueRef<float>(gName, "NoiseErosion");
+            ImGui::SliderFloat("Erosion##noise", &erosion, 0.0f, 2.0f);
+            if (ImGui::IsItemHovered()) {
+                ImGui::SetTooltip("寿命の終わりへ向けて、ノイズの暗い所から削れて千切れていく量。0=削らない");
+            }
+            float& softness = global_->GetValueRef<float>(gName, "NoiseErosionSoftness");
+            ImGui::SliderFloat("Erosion Softness##noise", &softness, 0.001f, 0.5f);
+        }
+
+        float& intensity = global_->GetValueRef<float>(gName, "EmissiveIntensity");
+        ImGui::DragFloat("Emissive Intensity", &intensity, 0.01f, 0.0f, 16.0f);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("色に掛ける明るさ（ノイズを使わないグループにも効きます）");
+        }
+    }
+
+    if (ImGui::CollapsingHeader("Draw Order / Soft")) {
+        int& sortOrder = global_->GetValueRef<int>(gName, "SortOrder");
+        ImGui::DragInt("Sort Order", &sortOrder, 0.1f, -100, 100);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("小さいグループから先に描きます（同じなら名前順）。\n"
+                              "煙(Normal)を小さく、炎(Add)を大きくすると炎が煙に埋もれません");
+        }
+        bool& sortByDepth = global_->GetValueRef<bool>(gName, "SortByDepth");
+        ImGui::Checkbox("Sort By Depth", &sortByDepth);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("グループ内の粒を奥から順に描きます。Normal ブレンドの煙の前後崩れを防ぐ（Add には不要）");
+        }
+        float& softDistance = global_->GetValueRef<float>(gName, "SoftDistance");
+        ImGui::DragFloat("Soft Distance", &softDistance, 0.01f, 0.0f, 10.0f);
+        if (ImGui::IsItemHovered()) {
+            ImGui::SetTooltip("地面や壁との距離がこれ[m]より近い部分を薄くします。0=使わない。\n"
+                              "地面に貼る焦げ跡などは 0 のままにしてください（消えてしまう）");
         }
     }
 

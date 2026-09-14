@@ -27,6 +27,33 @@ struct ParticleForGPU {
 	Matrix4x4 World;
 	Vector4 color;
 	Vector4 uvOffsetScale; // xy=UVオフセット / zw=UVスケール（スプライトシートのコマ）
+	Vector4 misc;          // x=粒ごとの乱数 / y=寿命の進み具合
+};
+
+// グループ単位の定数。Particle.PS.hlsl の ParticleGroupParam と並び順を合わせること（64バイト）
+struct ParticleGroupConstantsGPU {
+	float time;
+	float noiseDistortion;
+	float noiseColorBlend;
+	float emissiveIntensity;
+
+	Vector2 noiseTiling;
+	Vector2 noiseScroll;
+
+	float noiseErosion;
+	float noiseErosionSoftness;
+	float softDistance;
+	uint32_t flags; // ParticleShaderFlag の組み合わせ
+
+	Vector3 cameraPosition;
+	float _pad0;
+};
+
+// Particle.PS.hlsl の kFlag* と合わせること
+enum ParticleShaderFlag : uint32_t {
+	kParticleFlagNoise = 1u << 0,     // ノイズで質感を付ける
+	kParticleFlagGrayscale = 1u << 1, // ノイズの色ではなく明るさだけを使う
+	kParticleFlagSoft = 1u << 2,      // ソフトパーティクル
 };
 
 struct ParticleGroupGPU
@@ -39,6 +66,9 @@ struct ParticleGroupGPU
 	D3D12_VERTEX_BUFFER_VIEW vbv{};
 	D3D12_INDEX_BUFFER_VIEW  ibv{};
 	uint32_t indexCount = 0;
+	// グループ単位の定数（ノイズ・ソフトパーティクルの設定）
+	BufferHandle constantsHandle = kInvalidBufferHandle;
+	ParticleGroupConstantsGPU* constantsPtr = nullptr;
 };
 
 struct ParticleRenderState
@@ -46,6 +76,7 @@ struct ParticleRenderState
 	BlendMode blendMode;
 	bool isBillboard;
 	uint32_t textureIndex;
+	uint32_t noiseTextureIndex = 0;
 };
 
 class ParticleManager
@@ -71,6 +102,21 @@ public:
 	void Draw();
 	// パーティクルグループを登録する
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath, PrimitiveType shape = PrimitiveType::Plane);
+
+	/// <summary>
+	/// グループのノイズテクスチャを差し替える（Resource/Images/ 以下のファイル名）。
+	/// 空文字を渡すと既定（kDefaultNoiseTexture）に戻る
+	/// </summary>
+	void SetParticleGroupNoiseTexture(const std::string& groupName, const std::string& textureFilePath);
+
+	/// <summary>ノイズテクスチャを指定しないグループが使うテクスチャ</summary>
+	static constexpr const char* kDefaultNoiseTexture = "FireNoise.jpg";
+
+	/// <summary>
+	/// シーンのワールド座標テクスチャ（GBuffer の WorldPos）を渡す。ソフトパーティクルが地面との距離を測るのに使う。
+	/// 渡されていない間はソフトパーティクルが効かないだけで、描画は壊れない
+	/// </summary>
+	void SetSceneWorldPositionSrv(D3D12_GPU_DESCRIPTOR_HANDLE srv) { sceneWorldPositionSrv_ = srv; hasSceneWorldPositionSrv_ = true; }
 	// エミッターを生成する関数
 	void CreateEmitter(const std::string& emitterName, const std::string& dataName = "");
 	// 全てのエミッターを削除する関数
@@ -202,6 +248,16 @@ private:
 
 	// ランダム用変数宣言
 	std::mt19937 randomEngine;
+
+	// ノイズのスクロールに使う経過時間[s]（VFX時間）。桁落ちしないよう一定時間で畳む
+	float shaderTime_ = 0.0f;
+	// ソフトパーティクル用のシーンのワールド座標テクスチャ
+	D3D12_GPU_DESCRIPTOR_HANDLE sceneWorldPositionSrv_{};
+	bool hasSceneWorldPositionSrv_ = false;
+	// 描画順に並べたグループ名（毎フレーム並べ直す。使い回して確保を減らす）
+	std::vector<std::pair<int, const std::string*>> drawOrder_;
+	// グループ単位の定数を書き込む
+	void WriteGroupConstants(const ParticleGroup& group, ParticleGroupGPU& gpu);
 
 	// モデル名→メッシュ表面サンプラーのキャッシュ（初回要求時に構築、有効なものだけ保持）
 	MeshShapeSampler* GetMeshSampler(const std::string& modelName);

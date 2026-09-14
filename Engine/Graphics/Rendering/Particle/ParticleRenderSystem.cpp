@@ -122,11 +122,25 @@ void ParticleRenderSystem::BuildInstances(const ParticleGroup& group, BaseCamera
 				break;
 			}
 
+			// 画面内の傾き（rotate.z）。以前はビルボードだと回転が捨てられていて、
+			// 同じ向きの煙や炎が並んで単調に見えていた。
+			// Velocity は「進行方向に沿う」ことに意味があるので回さない
+			if (billboardType != BillboardType::Velocity && p.transform.rotate.z != 0.0f) {
+				orientMatrix = MakeRotateZMatrix(p.transform.rotate.z) * orientMatrix;
+			}
+
 			worldMatrix = MakeScaleMatrix(scale) * orientMatrix * translateMatrix;
 		} else if (p.orientToDirection) {
 			// 発生時に渡された方向へ形状を向ける（インパクトリング・斬撃板など）
-			const Matrix4x4 orientMatrix =
+			Matrix4x4 orientMatrix =
 				ParticleMath::MakeDirectionMatrix(p.orientDir, shapeBaseAxisY);
+			// 向けた軸まわりの回転（地面に寝かせた焦げ跡をばらばらの向きにする等）
+			if (p.transform.rotate.z != 0.0f) {
+				const Matrix4x4 spin = shapeBaseAxisY
+					? MakeRotateYMatrix(p.transform.rotate.z)
+					: MakeRotateZMatrix(p.transform.rotate.z);
+				orientMatrix = spin * orientMatrix;
+			}
 			worldMatrix = MakeScaleMatrix(scale) * orientMatrix * translateMatrix;
 		} else {
 			worldMatrix = MakeAffineMatrix(scale, p.transform.rotate, p.transform.translate);
@@ -137,7 +151,27 @@ void ParticleRenderSystem::BuildInstances(const ParticleGroup& group, BaseCamera
 		id.wvp = worldMatrix * viewProjectionMatrix;
 		id.color = p.color;
 		id.uvOffsetScale = CalcUvFrame(p, params);
+		const float lifeRatio = (p.lifeTime > 0.0f)
+			? std::clamp(p.currentTime / p.lifeTime, 0.0f, 1.0f)
+			: 1.0f;
+		id.misc = Vector4{ p.seed, lifeRatio, 0.0f, 0.0f };
 
 		outInstances.push_back(id);
+	}
+
+	// 通常ブレンドの煙は奥から順に描かないと、手前の粒が奥の粒を塗りつぶして前後が崩れる。
+	// 加算は順番で結果が変わらないので、指定したグループだけ並べ替える
+	if (params.sortByDepth && outInstances.size() > 1) {
+		auto distanceSq = [&cameraPosition](const InstanceData& instance) {
+			// 行ベクトル規約なので、ワールド行列の4行目が粒の位置
+			const float dx = instance.world.m[3][0] - cameraPosition.x;
+			const float dy = instance.world.m[3][1] - cameraPosition.y;
+			const float dz = instance.world.m[3][2] - cameraPosition.z;
+			return dx * dx + dy * dy + dz * dz;
+			};
+		std::sort(outInstances.begin(), outInstances.end(),
+			[&distanceSq](const InstanceData& a, const InstanceData& b) {
+				return distanceSq(a) > distanceSq(b);
+			});
 	}
 }

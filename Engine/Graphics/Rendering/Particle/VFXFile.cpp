@@ -88,6 +88,7 @@ namespace VFXFile {
 
 				const auto& value = it.value();
 				particleDef.texture = value.value("Texture", std::string{ "white.png" });
+				particleDef.noiseTexture = value.value("NoiseTexture", std::string{});
 				particleDef.shape = ShapeFromString(value.value("Shape", std::string{ "Plane" }));
 
 				if (value.contains("Params") && value["Params"].is_object()) {
@@ -140,6 +141,10 @@ namespace VFXFile {
 		for (const VFXParticleDef& particleDef : definition.particles) {
 			nlohmann::json particleJson;
 			particleJson["Texture"] = particleDef.texture;
+			// 既定のままなら書かない（ノイズを使わないVFXのファイルを汚さない）
+			if (!particleDef.noiseTexture.empty()) {
+				particleJson["NoiseTexture"] = particleDef.noiseTexture;
+			}
 			particleJson["Shape"] = ToString(particleDef.shape);
 			particleJson["Params"] = particleDef.params;
 			particleJson["Curves"] = particleDef.curves.ToJson();

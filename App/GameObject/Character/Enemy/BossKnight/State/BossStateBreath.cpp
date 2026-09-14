@@ -1,9 +1,9 @@
 #include "BossStateBreath.h"
+#include <algorithm>
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
-#include "GameObject/Character/Enemy/BossKnight/BossKnight.h"
-#include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "GameObject/Character/Enemy/BossKnight/BossBreathEffect.h"
 
 namespace {
     // 火炎ブレス。口から前方へまっすぐ伸びる炎の帯。
@@ -53,24 +53,17 @@ namespace {
         p.telegraph.forwardOffset = 0.25f;
         return p;
     }
-
-    // 炎VFXの発生間隔[s]。細かく出すほど炎が途切れずに繋がる
-    constexpr float kFlameInterval = 0.03f;
-
-    // 口元の位置（スケール1のときのワールド単位）。判定の手前側の端に合わせてある
-    constexpr float kMouthHeight = 0.75f;
-    constexpr float kMouthForward = 0.6f;
 }
 
 AttackTelegraphParams BossStateBreath::GetTelegraph() { return MakeBreathParams().telegraph; }
 
-BossStateBreath::BossStateBreath(EnemyBoneAttackComponent* attack)
-    : attack_(attack) {}
+BossStateBreath::BossStateBreath(EnemyBoneAttackComponent* attack, BossBreathEffect* effect)
+    : attack_(attack), effect_(effect) {}
 
 void BossStateBreath::Enter(Enemy& enemy)
 {
     attack_->BeginAttack(enemy, MakeBreathParams());
-    emitTimer_ = 0.0f;
+    fireTimer_ = 0.0f;
     // 溜めの間はゆっくり向き直る（windupTurnSpeed）＝プレイヤーへ狙いを付けていく。
     // 吐き始めた瞬間に EnemyBoneAttackComponent が予兆の向きで体を固定する
 }
@@ -79,11 +72,23 @@ void BossStateBreath::Update(Enemy& enemy, float deltaTime)
 {
     attack_->Update(enemy, deltaTime);
 
-    if (attack_->IsHitActive()) {
-        emitTimer_ += deltaTime;
-        while (emitTimer_ >= kFlameInterval) {
-            EmitFlame(enemy);
-            emitTimer_ -= kFlameInterval;
+    if (effect_) {
+        if (attack_->IsWindingUp()) {
+            effect_->RequestCharge(attack_->GetWindupProgress());
+        } else if (attack_->IsHitActive()) {
+            // 炎の帯の大きさは予兆と同じ（体の位置から奥の端まで）。配置スケールを掛けて実寸にする
+            static const BoneAttackParams kParams = MakeBreathParams();
+            const Vector3 scale = enemy.GetWorldTransform()->GetWorldScale();
+            AttackTelegraphParams band = kParams.telegraph;
+            band.ApplyScale(scale.x, scale.z);
+
+            const float fireDuration = kParams.duration * (kParams.hitEndRatio - kParams.hitStartRatio);
+            fireTimer_ += deltaTime;
+            effect_->RequestFire(std::clamp(fireTimer_ / fireDuration, 0.0f, 1.0f),
+                band.forwardOffset + band.length, band.halfWidth);
+        } else {
+            // 吐き終わって構えを解いている間。演出は余韻へ移る
+            effect_->RequestStop();
         }
     }
 
@@ -96,23 +101,8 @@ void BossStateBreath::Exit(Enemy& enemy)
 {
     // 途中で中断された場合も含め、予兆と体の向きの固定を後始末する
     attack_->Cancel(enemy);
-}
-
-void BossStateBreath::EmitFlame(Enemy& enemy)
-{
-    // プレイヤーの方向ではなく **体が今向いている方向** へ吐く。
-    // 体は吐き始めに予兆の向きで固定されているので、炎は予兆の帯に沿って伸びる。
-    // 敵はローカル -Z がプレイヤー側を向く（Enemy::Update の回転）
-    const Matrix4x4& world = enemy.GetWorldTransform()->GetMatWorld();
-    Vector3 forward = TransformNormal({ 0.0f, 0.0f, -1.0f }, world);
-    forward.y = 0.0f;
-    if (Length(forward) < 0.001f) return;
-    forward = Normalize(forward);
-
-    const Vector3 scale = enemy.GetWorldTransform()->GetWorldScale();
-    const Vector3 mouth = enemy.GetWorldTransform()->GetWorldPos()
-        + Vector3{ 0.0f, kMouthHeight * scale.y, 0.0f }
-        + forward * (kMouthForward * scale.z);
-
-    ParticleManager::GetInstance().PlayVFX(BossKnight::kBreathVfxName, mouth, forward);
+    // 崩れなどで途中で抜けても、炎を出しっぱなしにしない
+    if (effect_) {
+        effect_->RequestStop();
+    }
 }

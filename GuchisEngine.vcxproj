@@ -125,6 +125,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Combat\CombatHitResolver.h" />
     <ClInclude Include="App\GameObject\Character\Combat\KnockbackComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.h" />
@@ -320,8 +321,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BaseOffScreen.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\OutlineEffect.h" />
@@ -394,6 +397,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\World3D\Light\BaseLight.h" />
     <ClInclude Include="Engine\World3D\Light\DirectionalLight.h" />
     <ClInclude Include="Engine\World3D\Light\DynamicPointLight.h" />
+    <ClInclude Include="Engine\World3D\Light\DynamicSpotLight.h" />
     <ClInclude Include="Engine\World3D\Light\LightManager.h" />
     <ClInclude Include="Engine\World3D\Light\LightStructs.h" />
     <ClInclude Include="Engine\World3D\Light\PointLight.h" />
@@ -464,6 +468,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Character\Combat\CombatHitResolver.cpp" />
     <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.cpp" />
@@ -648,8 +653,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\Particle\VFXFile.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\OutlineEffect.cpp" />
@@ -712,6 +719,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\World3D\Collider\SphereCollider.cpp" />
     <ClCompile Include="Engine\World3D\Light\DirectionalLight.cpp" />
     <ClCompile Include="Engine\World3D\Light\DynamicPointLight.cpp" />
+    <ClCompile Include="Engine\World3D\Light\DynamicSpotLight.cpp" />
     <ClCompile Include="Engine\World3D\Light\LightManager.cpp" />
     <ClCompile Include="Engine\World3D\Light\PointLight.cpp" />
     <ClCompile Include="Engine\World3D\Light\SpotLight.cpp" />

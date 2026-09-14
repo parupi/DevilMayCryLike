@@ -49,6 +49,7 @@ void ParticleUpdateSystem::UpdateMovement(Particle& p, const ParticleParameters&
     }
 
     p.transform.translate += p.velocity * dt;
+    p.transform.rotate += p.angularVelocity * dt;
 }
 
 void ParticleUpdateSystem::UpdateCurves(Particle& p, const ParticleCurves& curves)

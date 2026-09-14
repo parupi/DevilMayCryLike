@@ -5,6 +5,7 @@
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
 #include "GameObject/Character/Enemy/BossKnight/State/BossStateCombatIdle.h"
+#include "GameObject/Character/Enemy/BossKnight/BossBreathEffect.h"
 #include "Graphics/Rendering/Particle/ParticleEmitter.h"
 
 /// <summary>
@@ -45,8 +46,7 @@ public:
     static constexpr float kAttackImpactRatio  = 0.67f;
     static constexpr float kAttack2ImpactRatio = 0.65f;
 
-    /// 必殺技ブレスの炎。Resource/VFX/BossBreath.vfx.json が中身を持つ
-    static constexpr const char* kBreathVfxName = "BossBreath";
+    // 必殺技ブレスの演出（Resource/VFX/BossBreath*.vfx.json）は BossBreathEffect が持つ
     /// フェーズが変わった瞬間の咆哮の衝撃波。Resource/VFX/BossRoar.vfx.json が中身を持つ
     static constexpr const char* kRoarVfxName = "BossRoar";
     /// 崩れた瞬間に弾ける火花。GameScene が読む Resource/VFX/HitImpact.vfx.json を使い回す
@@ -167,4 +167,6 @@ private:
     std::unique_ptr<EnemySensorComponent>       sensor_;
     std::unique_ptr<EnemyMovementComponent>     movement_;
     std::unique_ptr<EnemyBoneAttackComponent>   boneAttack_;
+    // ブレスの演出（溜め→発射→維持→余韻）。余韻はステートを抜けた後も続くので本体が持って毎フレーム回す
+    std::unique_ptr<BossBreathEffect>           breathEffect_;
 };

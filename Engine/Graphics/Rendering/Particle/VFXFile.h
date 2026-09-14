@@ -19,6 +19,8 @@ struct VFXParticleDef
 	std::string name;
 	/// <summary>テクスチャのファイル名。これまで C++ にベタ書きしていたものがデータへ移った</summary>
 	std::string texture = "white.png";
+	/// <summary>ノイズテクスチャのファイル名。空なら既定（FireNoise.jpg）</summary>
+	std::string noiseTexture;
 	/// <summary>形状。GPUリソースに紐づくのでグループ生成時にしか決められない</summary>
 	PrimitiveType shape = PrimitiveType::Plane;
 	/// <summary>GlobalVariables のグループをそのまま写したもの</summary>
