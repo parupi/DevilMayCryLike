@@ -25,6 +25,7 @@
         "FovDash": 0.6000000238418579,
         "FovLerpSpeed": 4.0,
         "FovNormal": 0.44999998807907104,
+        "FovPunchDecay": 6.0,
         "FovSpeedMax": 14.0,
         "FovSpeedMin": 6.0,
         "FramingClampRatio": 0.8799999952316284,

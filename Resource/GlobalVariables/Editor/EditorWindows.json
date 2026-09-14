@@ -14,7 +14,7 @@
         "Emitters": false,
         "Enemy": true,
         "Game": true,
-        "GameCamera": false,
+        "GameCamera": true,
         "Hierarchy": true,
         "HitEffect": false,
         "HitPostEffect": false,

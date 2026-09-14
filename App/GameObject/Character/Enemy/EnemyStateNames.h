@@ -24,4 +24,6 @@ namespace BossStateName {
 	constexpr const char* HeavySword  = "BossHeavySword";  // 遅い強力な叩きつけ
 	constexpr const char* Rush        = "BossRush";        // 突進攻撃
 	constexpr const char* Breath      = "BossBreath";      // 必殺技の火炎ブレス
+	constexpr const char* Down        = "BossDown";        // ダメージが溜まって崩れている
+	constexpr const char* Roar        = "BossRoar";        // フェーズが変わった瞬間の咆哮
 }

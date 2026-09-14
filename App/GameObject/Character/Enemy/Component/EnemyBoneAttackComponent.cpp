@@ -31,6 +31,13 @@ void EnemyBoneAttackComponent::BeginAttack(Enemy& enemy, const BoneAttackParams&
 	params_.telegraph.ApplyScale(ownerScale.x, ownerScale.z);
 	aim_.Begin(enemy, params_.telegraph, params_.rushSpeed > 0.0f);
 
+	// 溜めの間だけ向き直りを遅くする。判定が出た瞬間に向きは固定されるので、そこで戻す
+	if (params_.windupTurnSpeed > 0.0f) {
+		enemy.SetFaceTurnSpeedOverride(params_.windupTurnSpeed);
+	} else {
+		enemy.ClearFaceTurnSpeedOverride();
+	}
+
 	timer_ = 0.0f;
 	finished_ = false;
 	hitActive_ = false;
@@ -158,6 +165,7 @@ void EnemyBoneAttackComponent::Update(Enemy& enemy, float deltaTime) {
 		hitRequested_ = false;
 		enemy.SetIsAttack(false);
 		enemy.EndAttackAnimation();
+		enemy.ClearFaceTurnSpeedOverride();
 		aim_.Finish(enemy);
 	}
 
@@ -177,6 +185,7 @@ void EnemyBoneAttackComponent::Cancel(Enemy& enemy) {
 	// 判定が出る前に中断された＝この攻撃はもう来ないので予兆を消す。
 	// 出た後なら固定した体の向きを解く（マーカーは閃光を出して畳まれている最中なので触らない）
 	aim_.Finish(enemy);
+	enemy.ClearFaceTurnSpeedOverride();
 }
 
 void EnemyBoneAttackComponent::SetHitActive(Enemy& enemy, bool active) {
@@ -185,6 +194,8 @@ void EnemyBoneAttackComponent::SetHitActive(Enemy& enemy, bool active) {
 		// 判定が出た瞬間に、最後に出した予兆の場所と向きで狙いを固定する。
 		// これで判定は予兆の上をなぞって出る（イベントで窓が2回開いても向きは変わらない）
 		aim_.Lock(enemy);
+		// 向きは固定されたので、溜めの間だけの遅い向き直りはここで終わり
+		enemy.ClearFaceTurnSpeedOverride();
 	}
 	if (!hitbox_) return;
 

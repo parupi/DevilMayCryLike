@@ -39,6 +39,10 @@ namespace {
         // 溜めは通常攻撃の3種より更に長い。合計2.4秒あるので必殺技だと分かる
         p.extraWindupTime = 1.4f;
 
+        // 溜めの間の向き直り[度/秒]。溜めが一番長いぶん一番遅くして、
+        // 帯の外へ走り込めば避けられるようにする
+        p.windupTurnSpeed = 35.0f;
+
         // 予兆。判定（offset.z ± halfExtents.z）と同じ帯をそのまま地面に描く。
         // 塗りが口元から奥へ走るので、炎がどこまで届くかが吐く前に分かる。
         // 吐き始めた瞬間に体の向きがここで固定されるので、炎も判定もこの帯の上をなぞる
@@ -67,7 +71,7 @@ void BossStateBreath::Enter(Enemy& enemy)
 {
     attack_->BeginAttack(enemy, MakeBreathParams());
     emitTimer_ = 0.0f;
-    // 溜めの間はまだ普通に向き直る（＝プレイヤーへ狙いを付ける）。
+    // 溜めの間はゆっくり向き直る（windupTurnSpeed）＝プレイヤーへ狙いを付けていく。
     // 吐き始めた瞬間に EnemyBoneAttackComponent が予兆の向きで体を固定する
 }
 

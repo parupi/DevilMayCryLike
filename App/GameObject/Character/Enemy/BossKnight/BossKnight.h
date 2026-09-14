@@ -17,8 +17,11 @@
 /// HPが半分を切ると必殺技の火炎ブレス（Breath）を必ず1回撃ち、以降も低確率で使う。
 ///
 /// 雑魚と違い、被弾しても **のけぞらない・吹き飛ばない**（常時スーパーアーマー）。
-/// プレイヤーはボスの行動を止められないかわりに、どの攻撃も長い予備動作を持つので
+/// プレイヤーは1発ごとにはボスの行動を止められないかわりに、どの攻撃も長い予備動作を持つので
 /// 見てから回避できる。溜めの間は体が橙に光り、チャージリングが収束する。
+///
+/// ダメージを溜めると数秒崩れ（BossStateDown）、その間は被ダメージが増える。
+/// フェーズが変わった瞬間は咆哮（BossStateRoar）で知らせ、フェーズ3の間は体が赤く脈打つ。
 /// </summary>
 class BossKnight : public Enemy
 {
@@ -34,7 +37,7 @@ public:
     static constexpr const char* kClipIdle    = "Dragon_Flying";
     static constexpr const char* kClipAttack  = "Dragon_Attack";   // 速い斬り
     static constexpr const char* kClipAttack2 = "Dragon_Attack2";  // 遅い叩きつけ
-    // 被弾クリップ。ボスはのけぞらないので今は再生していない（クリップ一覧として残す）
+    // 被弾クリップ。ボスはのけぞらないので、崩れ（BossStateDown）でだけ使う
     static constexpr const char* kClipHit     = "Dragon_Hit";
     static constexpr const char* kClipDeath   = "Dragon_Death";
     /// 振り切る瞬間の位置。角速度ピークは Attack が BodyRoot 0.583/0.88秒=67%、
@@ -44,6 +47,23 @@ public:
 
     /// 必殺技ブレスの炎。Resource/VFX/BossBreath.vfx.json が中身を持つ
     static constexpr const char* kBreathVfxName = "BossBreath";
+    /// フェーズが変わった瞬間の咆哮の衝撃波。Resource/VFX/BossRoar.vfx.json が中身を持つ
+    static constexpr const char* kRoarVfxName = "BossRoar";
+    /// 崩れた瞬間に弾ける火花。GameScene が読む Resource/VFX/HitImpact.vfx.json を使い回す
+    static constexpr const char* kBreakVfxName = "HitImpact";
+
+    /// 普段プレイヤーへ向き直る速さ[度/秒]。大きな体なので一瞬では振り向かない
+    /// （攻撃の溜めの間はさらに遅い。各攻撃の windupTurnSpeed）
+    static constexpr float kFaceTurnSpeed = 240.0f;
+
+    // ── ブレイク（崩れ）──
+    // 与えたダメージが溜まると数秒崩れ（BossStateDown）、その間は被ダメージが増える。
+    // のけぞらないボスに「攻め続けた見返り」を作るためのもの
+    static constexpr float kBreakThresholdBase = 8.0f; // 最初に崩れるまでのダメージ（HP25のおよそ1/3）
+    static constexpr float kBreakThresholdStep = 4.0f; // 崩れるたびに次の必要量を増やす（崩し続けるハメを防ぐ）
+    static constexpr float kBreakDecayDelay    = 2.5f; // 殴るのをやめてから減り始めるまで[s]
+    static constexpr float kBreakDecayRate     = 2.0f; // 減り始めてから1秒に減る量
+    static constexpr float kDownDamageScale    = 1.5f; // 崩れている間の被ダメージ倍率
 
     /// <summary>
     /// 通常時のノックバック耐性（仕様書 §9）。0.88 = 受けた強さの12%だけ効く。
@@ -69,14 +89,15 @@ public:
     /// ボスはダメージでのけぞりも吹き飛びもしないので、実際には常にノックバック無効。
     /// ただしこのフラグは弾かれ演出（紫オーラ・レティクルの色・控えめなヒット演出）に
     /// 直結していて、常時 true にすると通っているダメージまで弾かれて見えてしまう。
-    /// そのため「本当に手が出せない」突進の踏み込み中（判定が出ている間）だけ true を返す。
-    /// 溜めの間はその場で構えているだけなので false。ここで紫を出すと、
-    /// 溜めの橙（＝攻撃が来る）が隠れ、殴っても弾かれたように見えてしまう。
+    /// そのため「本当に手が出せない」間だけ true を返す:
+    ///   - 突進の踏み込み中（判定が出ている間）。溜めの間はその場で構えているだけなので false
+    ///     （ここで紫を出すと溜めの橙＝攻撃が来る、が隠れ、殴っても弾かれたように見える）
+    ///   - フェーズが変わった瞬間の咆哮中。この間はダメージも通らない
     /// </summary>
     bool IsKnockbackImmune() const override;
 
     /// <summary>
-    /// 突進ステートの間（溜めも含む）は、ノックバックを完全に無効にする。
+    /// 突進ステートの間（溜めも含む）と咆哮中は、ノックバックを完全に無効にする。
     /// 溜めで押されても踏み込みが鈍っても「予兆を見てから避ける」の読みが崩れるため。
     /// それ以外は通常の耐性（kKnockbackResistance）で少しだけ押される。
     /// </summary>
@@ -90,8 +111,12 @@ protected:
     void OnDeathEffectFinished() override;
 
 private:
-    // 突進ステートにいるか（溜めも含む）
-    bool IsInRushState() const;
+    // 今そのステートにいるか
+    bool IsInState(const char* stateName) const;
+
+    // ブレイク値の減衰と、溜まりきったときの崩れ
+    void UpdateBreak(float deltaTime);
+    void StartBreak();
 
     // 体の発光と追従ライトをまとめて更新する。
     // 弾かれ演出（紫）と攻撃の溜め（橙）が同じ場所を取り合うので、優先順をここで決める
@@ -121,6 +146,19 @@ private:
     // アーマー中被弾時に体を一瞬強く光らせるタイマー
     float armorHitFlashTimer_ = 0.0f;
     static constexpr float kArmorHitFlashDuration = 0.15f;
+
+    // 崩れ中・瀕死の体の脈動用の経過時間
+    float bodyPulsePhase_ = 0.0f;
+
+    // ブレイク（崩れ）の状態
+    float breakGauge_ = 0.0f;                    // 溜まったダメージ
+    float breakThreshold_ = kBreakThresholdBase; // 次に崩れるまでの必要量
+    float breakDecayTimer_ = 0.0f;               // これが 0 になるまでは減らない
+    // 崩れた瞬間の演出
+    static constexpr float kBreakHitStopTime = 0.25f;
+    static constexpr float kBreakHitStopIntensity = 0.0f; // 体は震わせず、揺れはカメラに任せる（プレイヤーの攻撃と同じ）
+    static constexpr float kBreakShakeTrauma = 0.5f;
+    static constexpr float kBreakVfxCountScale = 2.5f;
 
     // 「HPが半分を切ってブレスを解禁したか」などの1体ぶんの記憶。
     // BossStateCombatIdle は3インスタンスに分かれているので、実体はここに1つ置いて共有する

@@ -14,6 +14,8 @@
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
 #include <algorithm>
+#include <cmath>
+#include <numbers>
 #ifdef _DEBUG
 #endif
 
@@ -324,20 +326,8 @@ void Enemy::Update(float deltaTime) {
 	// 攻撃の振り始めから終わりまでは向きを固定する（EnemyAttackAim が LockFacing で止める）。
 	// ここで向き直ると、予兆が消えた後に横へ動いたプレイヤーの方へ攻撃が曲がってしまう
 	if (!facingLocked_) {
-		// 座標取得
-		Vector3 enemyPos = GetWorldTransform()->GetTranslation();
-		Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
-
-		// 敵 → プレイヤー方向
-		Vector3 dir = enemyPos - playerPos;
-		dir.y = 0.0f; // 上下は無視
-		Normalize(dir);
-
-		// 前方向（モデルの前が +Z 前提）
-		Vector3 forward(0.0f, 0.0f, 1.0f);
-
-		// 回転をセット
-		GetWorldTransform()->GetRotation() = FromToRotation(forward, dir);
+		// ローカル +Z をプレイヤーと反対側へ向ける（＝前方向のローカル -Z がプレイヤーを向く）
+		TurnToward(GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation(), dt);
 	}
 
 	Object3d::Update(dt);
@@ -370,8 +360,34 @@ void Enemy::LockFacing(const Vector3& forward) {
 	if (Length(flat) < 0.001f) return;
 
 	// Update の向き直りと同じ式。ローカル +Z を forward の反対へ向ける
-	// ＝ 前方向（ローカル -Z）が forward を向く
-	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, -flat);
+	// ＝ 前方向（ローカル -Z）が forward を向く。
+	// 固定は向き直りの速さに関係なく一瞬で揃える（予兆がその向きで出ているため）
+	faceDir_ = Normalize(-flat);
+	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, faceDir_);
+}
+
+void Enemy::TurnToward(const Vector3& away, float deltaTime) {
+	Vector3 target{ away.x, 0.0f, away.z };
+	// 真上・真下に居るなど向きが決まらないときは、今の向きのまま
+	if (Length(target) < 0.001f) return;
+	target = Normalize(target);
+
+	const float turnSpeed = (faceTurnSpeedOverride_ > 0.0f) ? faceTurnSpeedOverride_ : faceTurnSpeed_;
+	if (turnSpeed > 0.0f && Length(faceDir_) > 0.5f) {
+		// 今の向きから目標までの角度を、このフレームに回ってよい角度で切る
+		constexpr float kPi = std::numbers::pi_v<float>;
+		const float currentYaw = std::atan2(faceDir_.x, faceDir_.z);
+		float delta = std::atan2(target.x, target.z) - currentYaw;
+		// -π〜π に畳んで、近い方へ回る
+		if (delta > kPi) delta -= 2.0f * kPi;
+		if (delta < -kPi) delta += 2.0f * kPi;
+		const float maxStep = turnSpeed * (kPi / 180.0f) * deltaTime;
+		const float yaw = currentYaw + std::clamp(delta, -maxStep, maxStep);
+		target = { std::sin(yaw), 0.0f, std::cos(yaw) };
+	}
+
+	faceDir_ = target;
+	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, target);
 }
 
 Vector3 Enemy::GetFootPosition() {

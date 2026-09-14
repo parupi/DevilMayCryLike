@@ -432,6 +432,18 @@ public:
 	void UnlockFacing() { facingLocked_ = false; }
 	bool IsFacingLocked() const { return facingLocked_; }
 
+	/// <summary>
+	/// プレイヤーへ向き直る速さの上限[度/秒]。0 以下なら毎フレームぴったり向く（既定）。
+	/// 大きな敵に重さを出したいとき、派生クラスのコンストラクタで設定する
+	/// </summary>
+	void SetFaceTurnSpeed(float degreesPerSecond) { faceTurnSpeed_ = degreesPerSecond; }
+	/// <summary>
+	/// 向き直りの速さを一時的に上書きする（攻撃の溜めの間だけ遅くする等）。0 以下なら上書きしない。
+	/// 上書きしたら終わりで必ず ClearFaceTurnSpeedOverride() すること
+	/// </summary>
+	void SetFaceTurnSpeedOverride(float degreesPerSecond) { faceTurnSpeedOverride_ = degreesPerSecond; }
+	void ClearFaceTurnSpeedOverride() { faceTurnSpeedOverride_ = 0.0f; }
+
 	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
 	AnimationPlayer* GetAnimationPlayer();
 
@@ -547,6 +559,15 @@ private:
 	float attackSpeedOverride_ = 0.0f;
 	// 攻撃の振り始めから終わりまで true。プレイヤーへ向き直らず、予兆を出した向きのまま攻撃する
 	bool facingLocked_ = false;
+	// 向き直りの速さの上限[度/秒]（0 以下なら即座に向く）と、その一時的な上書き
+	float faceTurnSpeed_ = 0.0f;
+	float faceTurnSpeedOverride_ = 0.0f;
+	// 最後に向けた向き（ローカル +Z が向く水平方向＝プレイヤーと反対側）。
+	// ゼロのうちは向きを覚えていないので、次の向き直りは一気に向く
+	Vector3 faceDir_{};
+
+	// ローカル +Z を away（水平方向）へ向ける。速さの上限があれば、今の向きから少しずつ回す
+	void TurnToward(const Vector3& away, float deltaTime);
 	// 次の UpdateAnimation で攻撃クリップを頭から出し直すか（連続攻撃で振り直すため）
 	bool attackAnimRestart_ = false;
 
