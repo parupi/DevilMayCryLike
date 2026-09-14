@@ -176,9 +176,13 @@ void BossKnight::Update(float deltaTime) {
 	// 重力は常にここで掛けてよい
 	SetAcceleration({0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f});
 
-	// 出現・死亡演出中は判定を出さない（EnemyBoneAttackComponent が出していても打ち消す）
-	if (IsAppearanceEffectPlaying() && hitbox_) {
-		hitbox_->Deactivate();
+	// 出現・死亡演出中は攻撃を出さない。
+	// 演出中はステートの更新が止まるので、溜めの途中で倒されると攻撃が「溜め中」のまま残り、
+	// チャージリングが死亡演出の間ずっと出続けたり、予兆が「攻撃が出た」閃光で畳まれたりする。
+	// 判定を消すだけでなく攻撃ごと中断する（予兆は閃光なしで消え、体の向きの固定も解ける）
+	if (IsAppearanceEffectPlaying()) {
+		boneAttack_->Cancel(*this);
+		if (hitbox_) hitbox_->Deactivate();
 	}
 
 	// 予備動作中にチャージリングを発射。
@@ -210,16 +214,22 @@ void BossKnight::Update(float deltaTime) {
 }
 
 
+bool BossKnight::IsInRushState() const {
+	auto it = states_.find(BossStateName::Rush);
+	return it != states_.end() && currentState_ == it->second.get();
+}
+
 bool BossKnight::IsKnockbackImmune() const {
 	// ボスはどの状態でものけぞらないが、これは「弾いた」演出を出すかどうかのフラグ
-	// （ヘッダーのコメント参照）。踏み込みを止められない突進(Rush)中だけ true にする
-	return currentState_ == states_.at(BossStateName::Rush).get();
+	// （ヘッダーのコメント参照）。突進で実際に踏み込んでいる（判定が出ている）間だけ true にする
+	return IsInRushState() && boneAttack_ && boneAttack_->IsHitActive();
 }
 
 const KnockbackResistance& BossKnight::GetKnockbackResistance() const {
-	// 突進中は完全無効。踏み込みが鈍ると「見てから避ける」の読みが崩れる
+	// 突進ステートの間は溜めも含めて完全無効。
+	// 「弾いている」表示（IsKnockbackImmune）は踏み込み中だけなので、ここは別に判定する
 	static const KnockbackResistance kImmune{ 1.0f, false, false, false };
-	if (IsKnockbackImmune()) return kImmune;
+	if (IsInRushState()) return kImmune;
 	return Enemy::GetKnockbackResistance();
 }
 

@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/BaseState/EnemyStateBase.h"
 
 class EnemyBoneAttackComponent;
+struct AttackTelegraphParams;
 
 /// <summary>
 /// 必殺技の火炎ブレス。予備動作2.4秒→前方へ炎を吐き続ける1.6秒（攻撃全体4.2秒）。
@@ -17,6 +18,12 @@ class EnemyBoneAttackComponent;
 class BossStateBreath : public EnemyStateBase
 {
 public:
+    /// <summary>
+    /// この攻撃の予兆（スケール1基準）。BossStateCombatIdle が「届くか」を測るのに使うので、
+    /// 予兆の大きさを変えるとボスがブレスを選ぶ距離も変わる
+    /// </summary>
+    static AttackTelegraphParams GetTelegraph();
+
     explicit BossStateBreath(EnemyBoneAttackComponent* attack);
     void Enter(Enemy& enemy) override;
     void Update(Enemy& enemy, float deltaTime) override;

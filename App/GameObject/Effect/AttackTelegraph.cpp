@@ -33,6 +33,20 @@ void AttackTelegraphParams::ApplyScale(float lateral, float forward) {
 	forwardOffset *= forward;
 }
 
+float AttackTelegraphParams::GetReach() const {
+	// Submit と同じ置き方。どの図形も forwardOffset だけ前へずれ、
+	// 矩形はそこから length、円・扇はそこから radius だけ先が奥の端になる
+	switch (shape) {
+	case TelegraphShape::Rect:
+		return forwardOffset + length;
+	case TelegraphShape::Circle:
+	case TelegraphShape::Fan:
+		return forwardOffset + radius;
+	default:
+		return 0.0f;
+	}
+}
+
 AttackTelegraph& AttackTelegraph::GetInstance() {
 	static AttackTelegraph instance;
 	return instance;

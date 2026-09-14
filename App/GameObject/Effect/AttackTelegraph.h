@@ -35,6 +35,12 @@ struct AttackTelegraphParams {
 
 	/// <summary>配置スケールを掛ける。lateral=横方向、forward=前後方向の倍率</summary>
 	void ApplyScale(float lateral, float forward);
+
+	/// <summary>
+	/// 足元から正面へ、図形の奥の端までの距離。敵が「この攻撃は届くか」を判断するのに使う。
+	/// 単位はこの params と同じ（ApplyScale の後ならワールド単位）。None は 0
+	/// </summary>
+	float GetReach() const;
 };
 
 /// <summary>

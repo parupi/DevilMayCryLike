@@ -48,7 +48,7 @@ public:
     /// <summary>
     /// 通常時のノックバック耐性（仕様書 §9）。0.88 = 受けた強さの12%だけ効く。
     /// 「重くて動かないが、当たれば少しは押される」を出すための値。
-    /// 突進中は IsKnockbackImmune() が完全無効へ上書きする
+    /// 突進ステートの間（溜めも含む）は GetKnockbackResistance() が完全無効へ上書きする
     /// </summary>
     static constexpr float kKnockbackResistance = 0.88f;
 
@@ -69,12 +69,15 @@ public:
     /// ボスはダメージでのけぞりも吹き飛びもしないので、実際には常にノックバック無効。
     /// ただしこのフラグは弾かれ演出（紫オーラ・レティクルの色・控えめなヒット演出）に
     /// 直結していて、常時 true にすると通っているダメージまで弾かれて見えてしまう。
-    /// そのため「本当に手が出せない」突進(Rush)中だけ true を返す。
+    /// そのため「本当に手が出せない」突進の踏み込み中（判定が出ている間）だけ true を返す。
+    /// 溜めの間はその場で構えているだけなので false。ここで紫を出すと、
+    /// 溜めの橙（＝攻撃が来る）が隠れ、殴っても弾かれたように見えてしまう。
     /// </summary>
     bool IsKnockbackImmune() const override;
 
     /// <summary>
-    /// 突進中は踏み込みを止められないので、ノックバックを完全に無効にする。
+    /// 突進ステートの間（溜めも含む）は、ノックバックを完全に無効にする。
+    /// 溜めで押されても踏み込みが鈍っても「予兆を見てから避ける」の読みが崩れるため。
     /// それ以外は通常の耐性（kKnockbackResistance）で少しだけ押される。
     /// </summary>
     const KnockbackResistance& GetKnockbackResistance() const override;
@@ -87,6 +90,9 @@ protected:
     void OnDeathEffectFinished() override;
 
 private:
+    // 突進ステートにいるか（溜めも含む）
+    bool IsInRushState() const;
+
     // 体の発光と追従ライトをまとめて更新する。
     // 弾かれ演出（紫）と攻撃の溜め（橙）が同じ場所を取り合うので、優先順をここで決める
     void UpdateBodyVisual(float deltaTime);

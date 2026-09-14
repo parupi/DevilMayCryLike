@@ -47,6 +47,8 @@ namespace {
 	}
 }
 
+AttackTelegraphParams BossStateSlash::GetTelegraph() { return MakeBiteParams().telegraph; }
+
 BossStateSlash::BossStateSlash(EnemyBoneAttackComponent* attack)
 	: attack_(attack) {}
 

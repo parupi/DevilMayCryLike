@@ -58,6 +58,8 @@ namespace {
     constexpr float kMouthForward = 0.6f;
 }
 
+AttackTelegraphParams BossStateBreath::GetTelegraph() { return MakeBreathParams().telegraph; }
+
 BossStateBreath::BossStateBreath(EnemyBoneAttackComponent* attack)
     : attack_(attack) {}
 

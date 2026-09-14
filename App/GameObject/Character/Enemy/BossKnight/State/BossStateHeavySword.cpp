@@ -40,6 +40,8 @@ namespace {
     }
 }
 
+AttackTelegraphParams BossStateHeavySword::GetTelegraph() { return MakeSlamParams().telegraph; }
+
 BossStateHeavySword::BossStateHeavySword(EnemyBoneAttackComponent* attack)
     : attack_(attack) {}
 
