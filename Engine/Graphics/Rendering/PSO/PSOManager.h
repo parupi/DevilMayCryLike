@@ -57,7 +57,8 @@ public:
 
 	// Trail
 	ID3D12RootSignature* GetTrailSignature() { return trailSignature_.Get(); }
-	ID3D12PipelineState* GetTrailPSO();
+	// additive = false で半透明の合成（明るい床の上でも色が残る）
+	ID3D12PipelineState* GetTrailPSO(bool additive = true);
 
 	// AttackMarker（敵の攻撃予兆マーカー）
 	ID3D12RootSignature* GetAttackMarkerSignature() { return attackMarkerSignature_.Get(); }
@@ -137,7 +138,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmPSO_;
 	// Trail
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> trailSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;      // 加算
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailAlphaPSO_; // 半透明
 	// AttackMarker
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> attackMarkerSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> attackMarkerPSO_;

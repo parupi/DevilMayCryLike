@@ -166,6 +166,11 @@ void Player::Initialize() {
 
 	justDodgeEffect_ = std::make_unique<JustDodgeEffect>();
 	justDodgeEffect_->Initialize();
+
+	// 剣の攻撃演出（軌跡・刀身の光・溜め・技ごとの追加演出）。VFX は未登録のものだけ読む
+	PlayerAttackEffect::LoadVfx();
+	attackEffect_ = std::make_unique<PlayerAttackEffect>();
+	attackEffect_->Initialize(this);
 }
 
 // ステートと戦闘状態から再生するクリップを決めて流す。
@@ -368,6 +373,12 @@ void Player::Update(float deltaTime) {
 	// キャラクター追従ライトの更新（ヒットストップ中はフラッシュの減衰も止まる）
 	characterLight_->Update(GetWorldTransform()->GetTranslation(), dt);
 
+	// 剣の攻撃演出。刃先の位置から軌跡を作るので、武器の行列をこのフレームの値へ揃えてから呼ぶ
+	// （武器の Update はプレイヤーが動く前に走るため、そのままだと1フレーム遅れた位置になる）。
+	// 刀身の光を書くので、被弾フラッシュ（下）より前に呼ぶ
+	weapon_->UpdateTransformOnly();
+	attackEffect_->Update(dt);
+
 	// 被弾フラッシュ。dt（ヒットストップ適用後）で進めるので、時間が止まっている間は白いまま保持される
 	hitFlash_->Update(dt);
 
@@ -393,7 +404,8 @@ void Player::Draw() {
 
 void Player::DrawEffect() {
 	combat_->Draw();
-	weapon_->DrawEffect();
+	// 剣の軌跡（ブレ・太い帯・刃先の光る帯）
+	attackEffect_->Draw();
 	dodgeTrail_->Draw();
 }
 

@@ -204,6 +204,15 @@ public:
 	/// <returns>そのエミッターが登録されていれば true</returns>
 	bool PlayVFX(const std::string& emitterName, const Vector3& position, float countScale = 1.0f);
 	bool PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale = 1.0f);
+	/// <summary>
+	/// 大きさの倍率つきで再生する（大きな敵へのヒットほど火花を大きくする、ボス用のVFXを小さくして使い回す、など）。
+	/// 大きさと発生位置のばらつきに sizeScale が掛かる
+	/// </summary>
+	bool PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale, float sizeScale);
+private:
+	// 大きさつきの PlayVFX の間だけ 1 以外になる。MakeNewParticle が大きさと発生位置のばらつきに掛ける
+	float emitSizeScale_ = 1.0f;
+public:
 
 	// モデルのメッシュ表面からパーティクルを発生させる関数
 	// worldMatrix でモデルローカル座標→ワールド座標に変換する（回転・スケール込み）

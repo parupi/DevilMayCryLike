@@ -118,6 +118,9 @@ public:
     /// <summary>ボスは倒すのが難しいのでスタイルスコアを高めに補正する。</summary>
     float GetStyleMultiplier() const override { return 2.0f; }
 
+    /// <summary>硬い鱗に覆われているので、斬ると金属のような火花が散る</summary>
+    HitMaterial GetHitMaterial() const override { return HitMaterial::Armor; }
+
     /// <summary>画面上部のHPバー（BossHealthBar）に出す名前</summary>
     static constexpr const char* kDisplayName = "DRAGON";
 

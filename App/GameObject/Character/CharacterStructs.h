@@ -17,6 +17,20 @@ enum class ReactionType {
 };
 
 /// <summary>
+/// プレイヤーの攻撃の見た目の種類（剣の軌跡の色・溜めの光・技ごとの追加演出）。PlayerAttackEffect が使う。
+/// 攻撃エディタの "VFX Style" の並びと同じ
+/// </summary>
+enum class AttackVfxStyle : int32_t {
+	Auto,   // 攻撃の性能から決める
+	Slash,  // 通常斬り（白＋青）
+	Heavy,  // 強攻撃（白＋金）
+	Thrust, // 突進（前方の風・衝撃リング・集中線）
+	Launch, // 打ち上げ（長い軌跡・地面の衝撃・上昇する光）
+	Slam,   // 叩きつけ（地面の衝撃波・ひび・土煙）
+	Count,
+};
+
+/// <summary>
 /// ノックバックの向きの決め方（仕様書 §4）。
 /// 基本は「攻撃者 → 被弾者」で、攻撃ごとに向きを固定したいときだけ他を選ぶ。
 /// </summary>
@@ -141,6 +155,10 @@ struct AttackData {
 	// ── 無敵 ──
 	// 攻撃の出始めから被弾しない時間[秒]
 	float invincibleTime = 0.0f;
+
+	// ── 見た目 ──
+	// 剣の軌跡の色・溜めの光・技ごとの追加演出の種類（PlayerAttackEffect）。Auto は攻撃の性能から決める
+	AttackVfxStyle vfxStyle = AttackVfxStyle::Auto;
 };
 
 struct DamageInfo {

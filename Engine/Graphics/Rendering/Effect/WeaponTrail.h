@@ -18,24 +18,36 @@ struct TrailVertex {
 // 武器の軌跡をリボンメッシュ (TriangleStrip) で描画するクラス
 class WeaponTrail {
 public:
+    // 覚えておく点（1フレーム1点）の最大数
     static const uint32_t kMaxPoints = 32;
+    // 点と点の間を何分割して描くかの上限
+    static const uint32_t kMaxSubdivisions = 4;
 
     WeaponTrail() = default;
     ~WeaponTrail();
 
-    // 初期化 (PlayerWeapon::Initialize() から呼ぶ)
+    // 初期化
     void Initialize();
     // 毎フレーム更新 (age を進め、寿命切れの点を削除)
     void Update(float deltaTime);
-    // 攻撃中に毎フレーム刃先 (tip) と根本 (hilt) のワールド座標を追加
+    // 毎フレーム刃先 (tip) と根本 (hilt) のワールド座標を追加。前の点とほぼ同じ位置なら積まない（ヒットストップ中など）
     void AddPoint(const Vector3& tip, const Vector3& hilt);
-    // 軌跡を即座にリセット (攻撃終了後の残像を消す場合に呼ぶ)
+    // 軌跡を即座にリセット
     void Clear();
-    // 描画 (PlayerWeapon::DrawEffect() から呼ぶ)
+    // 描画
     void Draw();
 
     void SetTintColor(const Vector4& color) { tintColor_ = color; }
     void SetLifetime(float lifetime) { lifetime_ = lifetime; }
+    /// <summary>
+    /// 点と点の間を Catmull-Rom で何分割するか（1 で分割なし）。
+    /// 速く振るとフレーム間で刃が大きく動くので、分割しないと軌跡が折れ線になる
+    /// </summary>
+    void SetSubdivisions(uint32_t subdivisions);
+    /// <summary>
+    /// true で加算合成（光る帯）、false で半透明の合成（明るい床の上でも色が残る帯・ブレ）
+    /// </summary>
+    void SetAdditive(bool additive) { additive_ = additive; }
 
 private:
     struct TrailPoint {
@@ -49,15 +61,22 @@ private:
         Vector4   tintColor;
     };
 
+    // 分割後に描ける点の最大数
+    static const uint32_t kMaxRenderPoints = (kMaxPoints - 1) * kMaxSubdivisions + 1;
+
     void CreateVertexBuffer();
     void CreateConstantBuffer();
     void CreateTrailTexture();
     // points_ から mappedVB_ へリボン頂点を書き込む
     void BuildMesh();
+    // index 番目の描画点（刃先・根本の2頂点）を書き込む
+    void WriteVertex(uint32_t index, uint32_t total, const Vector3& tip, const Vector3& hilt, float age);
 
     std::deque<TrailPoint> points_;
     float lifetime_ = 0.25f;
     Vector4 tintColor_ = { 0.5f, 0.85f, 1.0f, 1.0f }; // 青白色
+    uint32_t subdivisions_ = 1;
+    bool additive_ = true;
 
     // 動的頂点バッファ (Upload ヒープ、毎フレーム CPU から書き込み)
     BufferHandle vbHandle_ = kInvalidBufferHandle;

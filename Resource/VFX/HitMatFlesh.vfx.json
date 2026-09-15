@@ -1,0 +1,235 @@
+{
+  "Name": "HitMatFlesh",
+  "Emitter": {
+    "Frequency": 0.5,
+    "IsActive": false,
+    "ShapeModel": "",
+    "Position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Particles": [
+      {
+        "ParticleName": "PAtkBloodMist",
+        "Count": 3,
+        "SpawnRate": 1.0
+      },
+      {
+        "ParticleName": "PAtkBloodDrop",
+        "Count": 6,
+        "SpawnRate": 1.0
+      }
+    ]
+  },
+  "Particles": {
+    "PAtkBloodMist": {
+      "Texture": "SoftCircle.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 0,
+        "BlendMode": 1,
+        "Drag": 0.2,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 2.0,
+        "SpeedMin": 0.8,
+        "SpreadDegrees": 50.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.0,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          0.5,
+          0.05,
+          0.05
+        ],
+        "minColor": [
+          0.35,
+          0.02,
+          0.03
+        ],
+        "maxLifeTime": 0.45,
+        "minLifeTime": 0.3,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.45,
+          0.45,
+          0.45
+        ],
+        "minScale": [
+          0.3,
+          0.3,
+          0.3
+        ],
+        "maxTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "SizeCurve": [
+          {
+            "t": 0.0,
+            "v": 0.4
+          },
+          {
+            "t": 1.0,
+            "v": 1.5
+          }
+        ],
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.12,
+            "v": 0.5
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    },
+    "PAtkBloodDrop": {
+      "Texture": "white.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 2,
+        "BlendMode": 1,
+        "Drag": 0.5,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          -16.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 7.0,
+        "SpeedMin": 3.0,
+        "SpreadDegrees": 55.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.05,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          0.6,
+          0.05,
+          0.04
+        ],
+        "minColor": [
+          0.45,
+          0.02,
+          0.02
+        ],
+        "maxLifeTime": 0.35,
+        "minLifeTime": 0.2,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.045,
+          0.045,
+          0.045
+        ],
+        "minScale": [
+          0.025,
+          0.025,
+          0.025
+        ],
+        "maxTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.7,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

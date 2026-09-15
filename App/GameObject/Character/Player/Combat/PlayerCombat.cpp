@@ -587,6 +587,11 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::RadioButton("Heavy", &hitStopStrength, static_cast<int32_t>(HitStopStrength::Heavy));
 	ImGui::Text("  -> TimeScale: %.2f", HitStop::ToTimeScale(HitStop::ToStrength(hitStopStrength)));
 
+	// 剣の軌跡の色・溜めの光・技ごとの追加演出（PlayerAttackEffect）
+	static const char* vfxStyleLabels[] = { "Auto", "Slash (通常斬り)", "Heavy (強攻撃)", "Thrust (突進)", "Launch (打ち上げ)", "Slam (叩きつけ)" };
+	ImGui::Combo("VFX Style", &global_->GetValueRef<int32_t>(attackName, "VfxStyle"), vfxStyleLabels, IM_ARRAYSIZE(vfxStyleLabels));
+	ImGui::SetItemTooltip("Auto = 溜め攻撃→叩きつけ / Stinger→突進 / 打ち上げ→打ち上げ / 吹き飛ばし→強攻撃 / それ以外→通常斬り");
+
 	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3〜§8）──
 	ImGui::SeparatorText("Knockback");
 	ImGui::Text("ReactionType:");

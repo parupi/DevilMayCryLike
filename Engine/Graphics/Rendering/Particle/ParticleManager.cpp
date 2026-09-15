@@ -613,9 +613,16 @@ Particle ParticleManager::MakeNewParticle(const std::string& name, const Vector3
 	std::uniform_real_distribution<float> distColorR(params.colorMin.x, params.colorMax.x);
 	std::uniform_real_distribution<float> distColorG(params.colorMin.y, params.colorMax.y);
 	std::uniform_real_distribution<float> distColorB(params.colorMin.z, params.colorMax.z);
-	particle.transform.scale = { distScaleX(randomEngine), distScaleY(randomEngine), distScaleZ(randomEngine) };
+	// emitSizeScale_ は大きさつきの PlayVFX の間だけ 1 以外になる
+	particle.transform.scale = {
+		distScaleX(randomEngine) * emitSizeScale_,
+		distScaleY(randomEngine) * emitSizeScale_,
+		distScaleZ(randomEngine) * emitSizeScale_ };
 	particle.transform.rotate = { distRotationX(randomEngine), distRotationY(randomEngine), distRotationZ(randomEngine) };
-	Vector3 randomTranslate = { distTranslationX(randomEngine), distTranslationY(randomEngine), distTranslationZ(randomEngine) };
+	Vector3 randomTranslate = {
+		distTranslationX(randomEngine) * emitSizeScale_,
+		distTranslationY(randomEngine) * emitSizeScale_,
+		distTranslationZ(randomEngine) * emitSizeScale_ };
 	particle.transform.translate = translate + randomTranslate;
 	particle.velocity = { distVelocityX(randomEngine), distVelocityY(randomEngine), distVelocityZ(randomEngine) };
 	particle.color = { distColorR(randomEngine) , distColorG(randomEngine) , distColorB(randomEngine) , 1.0f };
@@ -819,6 +826,19 @@ bool ParticleManager::PlayVFX(const std::string& emitterName, const Vector3& pos
 		return false;
 	}
 	it->second->PlayOneShot(position, direction, countScale);
+	return true;
+}
+
+bool ParticleManager::PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale, float sizeScale)
+{
+	auto it = emitters_.find(emitterName);
+	if (it == emitters_.end()) {
+		return false;
+	}
+	// この1回の発生にだけ大きさの倍率を掛ける（MakeNewParticle が読む）
+	emitSizeScale_ = sizeScale;
+	it->second->PlayOneShot(position, direction, countScale);
+	emitSizeScale_ = 1.0f;
 	return true;
 }
 

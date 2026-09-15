@@ -68,6 +68,13 @@ void HitEffectSystem::Initialize(GameCamera* camera, Player* player)
 	}
 	global_->AddItem(kGroupName, "ArmorParticleScale", kArmorDefault.particleScale);
 	global_->AddItem(kGroupName, "ArmorShakeTrauma", kArmorDefault.shakeTrauma);
+
+	// 当たった瞬間のカメラの寄り（負の値で画角が狭まる）。強攻撃だけ一瞬寄る
+	constexpr float kFovPunchDefaults[static_cast<size_t>(HitStopStrength::Count)] = { 0.0f, 0.0f, -0.035f };
+	for (int32_t i = 0; i < static_cast<int32_t>(HitStopStrength::Count); ++i) {
+		global_->AddItem(kGroupName, MakeKey(static_cast<HitStopStrength>(i), false, "FovPunch"), kFovPunchDefaults[i]);
+	}
+	global_->AddItem(kGroupName, "ArmorFovPunch", 0.0f);
 }
 
 void HitEffectSystem::Finalize()
@@ -121,12 +128,23 @@ void HitEffectSystem::Play(const HitEffectRequest& request)
 	//    未登録の名前なら PlayVFX が false を返して何も起きない
 	if (!request.vfxName.empty()) {
 		ParticleManager::GetInstance().PlayVFX(
-			request.vfxName, request.position, request.direction, preset.particleScale);
+			request.vfxName, request.position, request.direction, preset.particleScale, request.sizeScale);
+	}
+	// 当たった相手の材質ごとの破片（骨の欠片・硬い鱗の火花など）
+	if (!request.materialVfxName.empty()) {
+		ParticleManager::GetInstance().PlayVFX(
+			request.materialVfxName, request.position, request.direction, preset.particleScale, request.sizeScale);
 	}
 
-	// ② カメラシェイク
+	// ② カメラシェイクと、強攻撃の一瞬の寄り
 	if (camera_) {
 		camera_->AddShake(preset.shakeTrauma);
+		const float fovPunch = global_
+			? global_->GetValueRef<float>(kGroupName, MakeKey(request.strength, request.isArmorHit, "FovPunch"))
+			: 0.0f;
+		if (fovPunch != 0.0f) {
+			camera_->AddFovPunch(fovPunch);
+		}
 	}
 
 	if (!player_) return;

@@ -154,6 +154,15 @@ public:
 	/// </summary>
 	virtual float GetStyleMultiplier() const { return 1.0f; }
 
+	/// <summary>斬られたときの手応えの材質。プレイヤーの剣のヒット演出が火花・破片の種類を変える</summary>
+	enum class HitMaterial {
+		Flesh, // 生身（赤い霧と小さな飛沫。控えめ）
+		Bone,  // 骨（白い欠片と粉）
+		Armor, // 鎧・硬い鱗（金属の火花）
+		Wood,  // 木（木片）
+	};
+	virtual HitMaterial GetHitMaterial() const { return HitMaterial::Flesh; }
+
 	/// <summary>
 	/// 攻撃行動をしてよいかを返す。
 	/// 既定では「攻撃抑制フラグが立っていなければ攻撃できる」。

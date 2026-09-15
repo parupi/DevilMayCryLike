@@ -115,6 +115,9 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 
 	// 攻撃の出始めから被弾しない時間
 	gv->AddItem(name_, "InvincibleTime", float());
+
+	// 見た目の種類（AttackVfxStyle）。0 = Auto は攻撃の性能から決める
+	gv->AddItem(name_, "VfxStyle", int32_t(0));
 }
 
 void PlayerStateAttack::Enter(Player& player) {
@@ -378,6 +381,10 @@ void PlayerStateAttack::UpdateAttackData() {
 
 	// 無敵
 	attackData_.invincibleTime = gv->GetValueRef<float>(name_, "InvincibleTime");
+
+	// 見た目の種類（範囲外の値は Auto に落とさず端へ寄せる）
+	attackData_.vfxStyle = static_cast<AttackVfxStyle>(std::clamp(gv->GetValueRef<int32_t>(name_, "VfxStyle"),
+		0, static_cast<int32_t>(AttackVfxStyle::Count) - 1));
 }
 
 void PlayerStateAttack::DrawControlPoints(Player& player) {

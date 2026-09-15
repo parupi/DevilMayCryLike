@@ -57,6 +57,8 @@ public:
 	bool IsAttacking() const { return !currentState_.empty(); }
 	// 溜め攻撃の溜め中か（体のモーションを構えで止めるのに使う）
 	bool IsCharging() const { return !currentState_.empty() && currentState_.back()->IsCharging(); }
+	// 今の攻撃（攻撃中でなければ nullptr）。演出が振りの段階を読むのに使う
+	const PlayerStateAttack* GetCurrentAttack() const { return currentState_.empty() ? nullptr : currentState_.back(); }
 	// 攻撃を強制中断する（被弾時など）
 	void InterruptCombat();
 	// 攻撃ノードを取得

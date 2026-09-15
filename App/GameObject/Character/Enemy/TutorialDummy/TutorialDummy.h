@@ -19,6 +19,9 @@ public:
 	/// </summary>
 	bool CanAttack() const override { return false; }
 
+	/// <summary>練習台なので、斬ると木片が飛ぶ</summary>
+	HitMaterial GetHitMaterial() const override { return HitMaterial::Wood; }
+
 protected:
 	/// <summary>
 	/// 全チュートリアルが完了していれば true（＝倒せる）。
