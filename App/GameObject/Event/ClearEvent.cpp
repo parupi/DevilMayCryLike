@@ -1,6 +1,7 @@
 ﻿#include "ClearEvent.h"
 #include <Scene/Transition/TransitionManager.h>
 #include <World3D/Camera/CameraManager.h>
+#include <World3D/Object/Object3dManager.h>
 
 ClearEvent::ClearEvent(std::string objectName) : BaseEvent(objectName, EventType::Clear) {
 	Object3d::Initialize();
@@ -18,7 +19,9 @@ void ClearEvent::Update(float) {
 	if (isClear_) return;
 
 	bool isTrigger = true;
-	for (auto& enemy : targetEnemies_) {
+	for (const auto& enemyName : targetEnemyNames_) {
+		// 削除済み（FindObjectで見つからない）＝撃破済み
+		auto* enemy = dynamic_cast<Enemy*>(Object3dManager::GetInstance().FindObject(enemyName));
 		if (enemy && enemy->IsAlive()) {
 			isTrigger = false;
 		}
@@ -37,5 +40,6 @@ void ClearEvent::Execute() {
 }
 
 void ClearEvent::AddTargetEnemy(Enemy* enemy) {
-	targetEnemies_.push_back(enemy);
+	if (!enemy) return;
+	targetEnemyNames_.push_back(enemy->name_);
 }

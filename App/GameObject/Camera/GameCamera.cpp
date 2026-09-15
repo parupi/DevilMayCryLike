@@ -483,6 +483,13 @@ float GameCamera::CalcFramingDistanceAdd(const Vector3& camPos, const Vector3& l
 	return std::clamp(need, 0.0f, framingMaxDistanceAdd_);
 }
 
+namespace {
+// プレイヤーの原点（コライダーの中心）から足元までの高さ。Player::kModelOffsetY と同じ値。
+// 構図の「プレイヤーが画面に収まっているか」は、注視の基準点（lookHeight_ 上＝頭よりさらに上）に加えて
+// この足元でも確かめる
+constexpr float kPlayerFootOffsetY = -0.5f;
+}
+
 void GameCamera::ClampIntoView(const Vector3& anchor) {
 	const Vector3 v = anchor - GetTranslate();
 
@@ -549,7 +556,12 @@ void GameCamera::Update() {
 	// ⑥ 最終保証：構図がどれだけ遅れても、プレイヤーだけは画面内に残るよう向きを詰める。
 	// smoothedLookTarget_ には触らないので、この補正が次フレームの補間へ効き戻ることはない
 	if (framingSafetyEnabled_) {
-		ClampIntoView(player_->GetWorldTransform()->GetTranslation() + Vector3(0.0f, lookHeight_, 0.0f));
+		const Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
+		ClampIntoView(playerPos + Vector3(0.0f, lookHeight_, 0.0f));
+		// 足元も入れる。上の点（プレイヤーの頭よりさらに上）だけだと、敵を打ち上げて注視点が上がったときに
+		// その点は画面の下端に残っても体が画面の外へ抜けていた（縦の画角が狭いので数mで外れる）。
+		// 足元を後に詰めるので、両方が収まらないときは体の方を優先する
+		ClampIntoView(playerPos + Vector3(0.0f, kPlayerFootOffsetY, 0.0f));
 	}
 
 	// ⑩ シェイクを反映。補間の連続性を保つため、揺れは行列生成の瞬間だけ加え、
@@ -719,7 +731,8 @@ void GameCamera::UpdateLockOn() {
 	const float dt = DeltaTime::GetDeltaTime();
 
 	Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
-	Vector3 enemyPos = lockOn_->GetCurrentTarget()->GetWorldPosition();
+	// 構図は足元を基準に組む（下で lookHeight_ を足す。体の中心だと大きい敵ほど注視点が上がる）
+	Vector3 enemyPos = lockOn_->GetCurrentTarget()->GetFootPosition();
 
 	// ===== 方位(yaw)の更新 =====
 	// 敵の真下・真上を通ると水平距離が0に近づき、そこから作った方向ベクトルが暴れる
@@ -767,7 +780,12 @@ void GameCamera::UpdateLockOn() {
 		// 基準距離での構図を試算し、2点が安全枠に収まるまで必要なぶんだけ下がる。
 		// 下がった量は次フレームの計算に持ち越さない（毎フレーム作り直すので発散しない）
 		const Vector3 probe = CalcOrbitPosition(playerPos, yaw_, pitch_, distance, lockOnHeight_, lockOnRightOffset_);
-		distance += CalcFramingDistanceAdd(probe, lookTarget, anchorPlayer, anchorTarget);
+		// プレイヤーは基準点（頭より上）と足元の両方を入れる。基準点だけだと、
+		// 敵を打ち上げて注視点が上がったときに体が画面の下へ抜けても「収まっている」と判定していた
+		const Vector3 playerFoot = playerPos + Vector3(0.0f, kPlayerFootOffsetY, 0.0f);
+		distance += (std::max)(
+			CalcFramingDistanceAdd(probe, lookTarget, anchorPlayer, anchorTarget),
+			CalcFramingDistanceAdd(probe, lookTarget, playerFoot, anchorTarget));
 	}
 
 	// Free と同じ極座標の状態として持つ（モードをまたいでも構図が連続する）

@@ -40,7 +40,9 @@ public:
 	bool IsClear() const { return isClear_; }
 
 private:
-	std::vector<Enemy*> targetEnemies_;
+	// 倒した敵は Object3dManager から削除されるので、ポインタではなく名前で持って毎回引き直す
+	// （ポインタのままだと解放後のメモリを読み、Debug では 0xDD が「生きている」と読めてクリアしない）
+	std::vector<std::string> targetEnemyNames_;
 
 	bool isClear_ = false;
 

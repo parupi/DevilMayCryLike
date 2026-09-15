@@ -28,7 +28,8 @@
 class BossKnight : public Enemy
 {
 public:
-    static constexpr float kMaxHp = 25.0f;
+    /// プレイヤーの1撃は 1〜4（コンボ1本で 5〜10 程度）。25 だとコンボ数本で終わってしまうので増やした
+    static constexpr float kMaxHp = 60.0f;
 
     /// 見た目のモデル。Resource/models/Enemys/Dragon/Dragon.obj を指す
     static constexpr const char* kModelName = "Enemys/Dragon";
@@ -57,11 +58,18 @@ public:
     /// （攻撃の溜めの間はさらに遅い。各攻撃の windupTurnSpeed）
     static constexpr float kFaceTurnSpeed = 240.0f;
 
+    /// 死亡モーションの最後に沈める量（オブジェクトのスケール1のときの単位）。
+    /// Dragon_Death の最後のポーズは、一番低い関節（足・翼の先）でもモデル原点から 0.33 上に残る
+    /// （飛んでいる姿勢のまま倒れるため）。関節は肉の内側にあるので少し控えめに 0.28 ぶん沈める。
+    /// モデル単位 0.28 × kModelScale 0.5 = 0.14
+    static constexpr float kDeathModelSink = 0.14f;
+
     // ── ブレイク（崩れ）──
     // 与えたダメージが溜まると数秒崩れ（BossStateDown）、その間は被ダメージが増える。
     // のけぞらないボスに「攻め続けた見返り」を作るためのもの
-    static constexpr float kBreakThresholdBase = 8.0f; // 最初に崩れるまでのダメージ（HP25のおよそ1/3）
-    static constexpr float kBreakThresholdStep = 4.0f; // 崩れるたびに次の必要量を増やす（崩し続けるハメを防ぐ）
+    // HP に対する比率は以前（HP25 に 8 / +4）と同じにしてある。1戦で崩れるのは2回ほど
+    static constexpr float kBreakThresholdBase = 18.0f; // 最初に崩れるまでのダメージ（HPのおよそ1/3）
+    static constexpr float kBreakThresholdStep = 10.0f; // 崩れるたびに次の必要量を増やす（崩し続けるハメを防ぐ）
     static constexpr float kBreakDecayDelay    = 2.5f; // 殴るのをやめてから減り始めるまで[s]
     static constexpr float kBreakDecayRate     = 2.0f; // 減り始めてから1秒に減る量
     static constexpr float kDownDamageScale    = 1.5f; // 崩れている間の被ダメージ倍率

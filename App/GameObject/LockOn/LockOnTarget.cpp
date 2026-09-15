@@ -25,7 +25,17 @@ void LockOnTarget::Finalize() {
 	}
 }
 
-const Vector3& LockOnTarget::GetWorldPosition() const {
+Vector3 LockOnTarget::GetWorldPosition() const {
+	if (auto* enemy = dynamic_cast<Enemy*>(owner_)) {
+		return enemy->GetBodyCenter();
+	}
+	return owner_->GetWorldTransform()->GetTranslation();
+}
+
+Vector3 LockOnTarget::GetFootPosition() const {
+	if (auto* enemy = dynamic_cast<Enemy*>(owner_)) {
+		return enemy->GetFootPosition();
+	}
 	return owner_->GetWorldTransform()->GetTranslation();
 }
 

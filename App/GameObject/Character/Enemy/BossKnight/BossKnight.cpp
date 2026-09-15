@@ -35,6 +35,8 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
 	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
+	// Dragon_Death は倒れきっても体が浮いたまま終わるので、倒れるのに合わせて沈める
+	SetDeathModelSink(kDeathModelSink);
 	// 大きな体なので、プレイヤーへ一瞬では振り向かない（攻撃の溜めの間はさらに遅くなる）
 	SetFaceTurnSpeed(kFaceTurnSpeed);
 

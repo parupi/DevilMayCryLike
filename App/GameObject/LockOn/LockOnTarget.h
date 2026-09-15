@@ -19,7 +19,18 @@ public:
 	/// </summary>
 	void DetachSystem() { system_ = nullptr; }
 
-	const Vector3& GetWorldPosition() const;
+	/// <summary>
+	/// 狙う位置（レティクル・視野判定・ターゲット選び）。敵なら体の中心（コライダーの中心）。
+	/// オブジェクト原点はモデルごとに高さがまちまちで、ボス(Dragon)は足元より下にあるため使わない
+	/// </summary>
+	Vector3 GetWorldPosition() const;
+
+	/// <summary>
+	/// 足元の位置（カメラの構図用）。敵ならコライダーの底。
+	/// カメラはここへ自分の lookHeight を足して使うので、体の中心を渡すと大きい敵ほど注視点が上がりすぎる
+	/// </summary>
+	Vector3 GetFootPosition() const;
+
 	bool IsLockable() const;
 
 	// 対象の残りHP割合（0〜1）。敵でなければ1を返す（レティクルのHP表示用）

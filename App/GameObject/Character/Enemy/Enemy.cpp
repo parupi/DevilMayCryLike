@@ -125,7 +125,13 @@ void Enemy::ApplyModelGroundOffset() {
 	switch (collider->GetShapeType()) {
 	case CollisionShapeType::OBB: {
 		const OBBData& data = static_cast<OBBCollider*>(collider)->GetColliderData();
-		bottomLocal = data.offset.y - data.halfExtents.y;
+		// OBBCollider::Update は offset を「回転はするが拡大しない」＝ワールド単位で足し、
+		// halfExtents だけを配置スケールで拡大する。ここはローカル単位で揃えるので offset だけスケールで割る。
+		// 割らないと、コライダーを上へずらして2倍に置いたボス（本編の BossDragon）で
+		// モデルが offset ぶん（1.92m）宙に浮いていた
+		const float objScaleY = GetWorldTransform()->GetWorldScale().y;
+		const float offsetLocalY = (objScaleY > 1.0e-4f) ? (data.offset.y / objScaleY) : data.offset.y;
+		bottomLocal = offsetLocalY - data.halfExtents.y;
 		break;
 	}
 	case CollisionShapeType::AABB:
@@ -143,7 +149,17 @@ void Enemy::ApplyModelGroundOffset() {
 	const float scaleY = GetWorldTransform()->GetWorldScale().y;
 	const float sinkLocal = (scaleY > 1.0e-4f) ? (kGroundSink / scaleY) : 0.0f;
 
-	renderer->GetWorldTransform()->GetTranslation().y = bottomLocal + sinkLocal + modelGroundOffset_;
+	// 死亡モーションで倒れた体が地面まで届かないモデルは、倒れるのに合わせて沈める。
+	// 死亡クリップ（吹き飛び + 死亡モーション）の長さをかけて滑らかに下げ、以降はそのまま保つ
+	float deathSink = 0.0f;
+	if (deathModelSink_ > 0.0f && appearanceFx_ &&
+		(appearanceFx_->IsDying() || appearanceFx_->IsDeathFinished())) {
+		const float clipSeconds = appearanceFx_->GetDeathClipDuration();
+		const float t = (clipSeconds > 0.01f) ? std::clamp(deathSinkTimer_ / clipSeconds, 0.0f, 1.0f) : 1.0f;
+		deathSink = deathModelSink_ * (t * t * (3.0f - 2.0f * t));
+	}
+
+	renderer->GetWorldTransform()->GetTranslation().y = bottomLocal + sinkLocal + modelGroundOffset_ - deathSink;
 }
 
 void Enemy::Initialize() {
@@ -249,6 +265,8 @@ void Enemy::Update(float deltaTime) {
 			// 死亡演出中: 意思決定を止め、とどめの吹き飛びの慣性と重力だけを適用する。
 			// 演出はここから「吹き飛び → 死亡モーション → 黒いもや → ディゾルブ」と進むので、
 			// 倒れた体が地面で震えないよう接地したら落下速度を殺しておく
+			// （経過時間は ApplyModelGroundOffset の死体の沈み込みに使う）
+			deathSinkTimer_ += deltaTime;
 			if (onGround_) {
 				if (velocity_.y < 0.0f) {
 					velocity_.y = 0.0f;
@@ -415,6 +433,23 @@ Vector3 Enemy::GetFootPosition() {
 	}
 	}
 	return pos;
+}
+
+Vector3 Enemy::GetBodyCenter() {
+	BaseCollider* collider = GetCollider(name_);
+	if (!collider) return GetWorldTransform()->GetWorldPos();
+
+	switch (collider->GetShapeType()) {
+	case CollisionShapeType::OBB:
+		return static_cast<OBBCollider*>(collider)->GetCenter();
+	case CollisionShapeType::AABB: {
+		auto* aabb = static_cast<AABBCollider*>(collider);
+		return (aabb->GetMin() + aabb->GetMax()) * 0.5f;
+	}
+	case CollisionShapeType::Sphere:
+		return static_cast<SphereCollider*>(collider)->GetCenter();
+	}
+	return GetWorldTransform()->GetWorldPos();
 }
 
 void Enemy::Spawn() {

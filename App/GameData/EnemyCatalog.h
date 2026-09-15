@@ -31,6 +31,13 @@ struct EnemyCatalogEntry {
 
 	/// <summary>プレイヤーからどれだけ離して出すか（m）。大きい敵ほど遠くに置く</summary>
 	float spawnDistance = 8.0f;
+
+	/// <summary>
+	/// 配置スケール。本編ステージ（Stage.json）で置いている大きさと同じにする。
+	/// ボスは本編で2倍に置いていて、攻撃の判定・予兆・間合いもこの倍率で伸びるので、
+	/// ここが違うとトレーニングで練習した間合いが本編で通用しない
+	/// </summary>
+	float scale = 1.0f;
 };
 
 namespace EnemyCatalog {

@@ -22,9 +22,10 @@ namespace EnemySpawner {
 /// </summary>
 /// <param name="className">Object3dFactory の登録キー（EnemyCatalog の className）</param>
 /// <param name="objectName">オブジェクト名。FindObject で引くときの名前になる</param>
-/// <param name="colliderHalfExtents">本体に付ける OBB コライダーの大きさ</param>
+/// <param name="colliderHalfExtents">本体に付ける OBB コライダーの大きさ（スケール1のときの値）</param>
+/// <param name="scale">配置スケール。攻撃の判定・予兆・間合いは Initialize/攻撃開始時にこの倍率を読むので、先に入れておく</param>
 /// <returns>作った敵。className が敵クラスでなければ nullptr（この場合は何も追加しない）</returns>
 Enemy* Spawn(const std::string& className, const std::string& objectName,
-	const Vector3& position, const Vector3& colliderHalfExtents);
+	const Vector3& position, const Vector3& colliderHalfExtents, float scale = 1.0f);
 
 } // namespace EnemySpawner

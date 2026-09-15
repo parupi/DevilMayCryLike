@@ -82,4 +82,15 @@ void EnemyMeleeAttackComponent::Cancel(Enemy& enemy) {
 	// 閃光を出して畳まれている最中なので触らない）。
 	// 振り始めた後なら、固定した体の向きをここで解く
 	aim_.Finish(enemy);
+
+	// 攻撃そのものも終わった扱いにする（EnemyBoneAttackComponent::Cancel と同じ）。
+	// ここを落とさないと、被弾で攻撃ステートを抜けても finished_ が false のまま残り、
+	// ・IsWindingUp() が true のまま → のけぞり中や死亡演出中にもチャージリングが出続ける
+	// ・振り始めた後なら武器の判定が有効のまま → 攻撃していないのに当たる
+	// ・SetIsAttack(true) が残る
+	// という「攻撃状態が続く」不具合になる
+	if (finished_) return;
+	finished_ = true;
+	enemy.SetIsAttack(false);
+	enemy.EndAttackAnimation();
 }

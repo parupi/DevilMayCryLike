@@ -260,6 +260,13 @@ public:
 	Vector3 GetFootPosition();
 
 	/// <summary>
+	/// 体の中心のワールド座標（＝コライダーの中心）。ロックオンの狙う位置に使う。
+	/// オブジェクト原点はモデルとステージ側のコライダーの置き方で高さが変わり、
+	/// ボス(Dragon)はコライダーを上へずらしてあるので原点が足元より下にある
+	/// </summary>
+	Vector3 GetBodyCenter();
+
+	/// <summary>
 	/// プレイヤーのポインタを取得する。
 	/// </summary>
 	Player* GetPlayer() { return player_; }
@@ -372,6 +379,12 @@ public:
 	/// そのズレをここで足す。値は **オブジェクトのスケール1 のときのワールド単位**（上が正）。
 	/// </summary>
 	void SetModelGroundOffset(float offset) { modelGroundOffset_ = offset; }
+
+	/// <summary>
+	/// 死亡モーションの最後のポーズが地面から浮いているモデル用。倒れるのに合わせてモデルをこの量だけ沈める。
+	/// 単位は SetModelGroundOffset と同じ（オブジェクトのスケール1のときのワールド単位、正で下へ）
+	/// </summary>
+	void SetDeathModelSink(float amount) { deathModelSink_ = amount; }
 
 	// ======================
 	// アニメーション
@@ -528,6 +541,8 @@ private:
 	Quaternion modelRotationOffset_ = Identity();   // モデル固有の向き補正（差し替えても変わらない）
 	Quaternion modelReactionRotation_ = Identity(); // 被弾リアクション（毎フレーム変わる）
 	float modelGroundOffset_ = 0.0f;                // モデル固有の縦補正（原点が足元でないモデル用）
+	float deathModelSink_ = 0.0f;                   // 死亡モーション中に沈める量（SetDeathModelSink）
+	float deathSinkTimer_ = 0.0f;                   // 死亡演出に入ってからの経過時間
 
 	// ステートと演出フェーズから再生クリップを決めて流す。毎フレーム呼ぶ
 	void UpdateAnimation();

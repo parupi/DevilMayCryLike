@@ -12,11 +12,11 @@
         ],
         "Dragon_Attack2": [
             {
-                "time": 0.97,
+                "time": 0.32,
                 "tag": "hit_start"
             },
             {
-                "time": 1.25,
+                "time": 0.52,
                 "tag": "hit_end"
             }
         ]

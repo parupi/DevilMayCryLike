@@ -41,5 +41,17 @@ void EventManager::RemoveEvent(BaseEvent* event)
 
 BaseEvent* EventManager::FindEvent(std::string eventName)
 {
-	return events_[eventName];
+	// operator[] だと見つからない名前で nullptr の項目が増えるので find で引く
+	auto it = events_.find(eventName);
+	return (it != events_.end()) ? it->second : nullptr;
+}
+
+BaseEvent* EventManager::FindEventByType(EventType type)
+{
+	for (const auto& [name, event] : events_) {
+		if (event && event->GetType() == type) {
+			return event;
+		}
+	}
+	return nullptr;
 }
