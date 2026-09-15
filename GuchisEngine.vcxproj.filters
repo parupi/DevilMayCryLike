@@ -103,6 +103,9 @@
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\BossHealthBar">
+      <UniqueIdentifier>{44FC8DD9-B0DF-9C19-B9E2-CA552545636A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\ClearUI">
       <UniqueIdentifier>{07855820-7347-8CAA-BCF7-1A3728F96488}</UniqueIdentifier>
     </Filter>
@@ -575,6 +578,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Training\TrainingController.h">
       <Filter>App\GameObject\Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\BossHealthBar\BossHealthBar.h">
+      <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -1597,6 +1603,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Training\TrainingController.cpp">
       <Filter>App\GameObject\Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\BossHealthBar\BossHealthBar.cpp">
+      <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>

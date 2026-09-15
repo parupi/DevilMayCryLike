@@ -204,6 +204,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Prop\Prop.h" />
     <ClInclude Include="App\GameObject\Prop\WallTorch.h" />
     <ClInclude Include="App\GameObject\Training\TrainingController.h" />
+    <ClInclude Include="App\GameObject\UI\BossHealthBar\BossHealthBar.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
@@ -546,6 +547,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Prop\Prop.cpp" />
     <ClCompile Include="App\GameObject\Prop\WallTorch.cpp" />
     <ClCompile Include="App\GameObject\Training\TrainingController.cpp" />
+    <ClCompile Include="App\GameObject\UI\BossHealthBar\BossHealthBar.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />

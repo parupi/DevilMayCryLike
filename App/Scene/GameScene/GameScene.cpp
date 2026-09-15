@@ -163,6 +163,11 @@ void GameScene::Initialize() {
 	//gameUI_ = std::make_unique<GameUI>();
 	//gameUI_->Initialize();
 
+	// ボスのHPバー（画面上部中央）。ボスが現れるまでは何も出さない。
+	// ポーズの暗幕より先に作って、暗幕がこの上に来るようにする（同じレイヤーは生成順に描かれる）
+	bossHealthBar_ = std::make_unique<BossHealthBar>();
+	bossHealthBar_->Initialize();
+
 	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "menuMask", "white.png");
 	mask_->SetSize({1280.0f, 720.0f});
 	mask_->SetColor({0.0f, 0.0f, 0.0f, 0.5f});
@@ -279,6 +284,11 @@ void GameScene::Update() {
 		} else {
 			styleHud_->Hide();
 		}
+	}
+
+	// ボスのHPバー。登場・被弾・撃破の演出は自分で進める。プレイヤーの死亡演出中は引っ込める
+	if (bossHealthBar_) {
+		bossHealthBar_->Update(player_ && !player_->IsDying());
 	}
 
 	// トレーニングの状態表示。ポーズ・ゲームオーバー・設定メニュー中は邪魔になるので引っ込める

@@ -108,8 +108,8 @@ void BossStateCombatIdle::Exit(Enemy& enemy) {
 
 int BossStateCombatIdle::GetPhase(float hp) const {
 	float ratio = hp / maxHp_;
-	if (ratio > 0.66f) return 1;
-	if (ratio > 0.33f) return 2;
+	if (ratio > BossPhase::kPhase2HpRatio) return 1;
+	if (ratio > BossPhase::kPhase3HpRatio) return 2;
 	return 3;
 }
 

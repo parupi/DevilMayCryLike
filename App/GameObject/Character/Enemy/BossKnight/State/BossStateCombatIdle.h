@@ -29,6 +29,15 @@ struct BossBattleMemory
 };
 
 /// <summary>
+/// フェーズの境目（HP割合）。この値を下回ると次のフェーズ。
+/// 行動の抽選（BossStateCombatIdle::GetPhase）と、HPバーの目盛り（BossHealthBar）が同じ値を見る
+/// </summary>
+namespace BossPhase {
+    constexpr float kPhase2HpRatio = 0.66f;
+    constexpr float kPhase3HpRatio = 0.33f;
+}
+
+/// <summary>
 /// ボスの意思決定ステート。
 /// HP割合からフェーズを、プレイヤーとの距離から間合い（近・中・遠）を決め、
 /// その組み合わせの重みで次の行動を抽選する。フェーズが上がるほど攻撃的になり、

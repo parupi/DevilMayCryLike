@@ -118,6 +118,15 @@ public:
     /// <summary>ボスは倒すのが難しいのでスタイルスコアを高めに補正する。</summary>
     float GetStyleMultiplier() const override { return 2.0f; }
 
+    /// <summary>画面上部のHPバー（BossHealthBar）に出す名前</summary>
+    static constexpr const char* kDisplayName = "DRAGON";
+
+    /// <summary>
+    /// 咆哮で知らせ終えたフェーズ（1〜3）。HPが境目を越えたあと、咆哮に入る瞬間に1つ進む。
+    /// HPバーのフェーズ移行演出をボスの咆哮に揃えるために使う
+    /// </summary>
+    int GetShownPhase() const { return battleMemory_.shownPhase; }
+
 protected:
     /// <summary>死亡演出終了時に武器を後始末する</summary>
     void OnDeathEffectFinished() override;
