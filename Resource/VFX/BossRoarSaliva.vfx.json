@@ -1,0 +1,40 @@
+{
+    "Name": "BossRoarSaliva",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Particles": [
+            { "ParticleName": "BossSaliva", "Count": 14, "SpawnRate": 1.0 }
+        ]
+    },
+    "Particles": {
+        "BossSaliva": {
+            "Texture": "white.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 2, "BlendMode": 1,
+                "Drag": 0.4, "FadeType": 1, "Gravity": [ 0.0, -12.0, 0.0 ],
+                "IsBillboard": true, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 9.0, "SpeedMin": 4.0, "SpreadDegrees": 35.0,
+                "UseDirectional": true, "VelocityStretch": 0.08,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 0.95, 0.97, 1.0 ], "minColor": [ 0.82, 0.86, 0.9 ],
+                "maxLifeTime": 0.8, "minLifeTime": 0.4,
+                "maxRotate": [ 0.0, 0.0, 0.0 ], "minRotate": [ 0.0, 0.0, 0.0 ],
+                "maxScale": [ 0.07, 0.07, 0.07 ], "minScale": [ 0.03, 0.03, 0.03 ],
+                "maxTranslate": [ 0.15, 0.1, 0.15 ], "minTranslate": [ -0.15, -0.1, -0.15 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "EmissiveIntensity": 1.0,
+                "SortOrder": 3
+            },
+            "Curves": {
+                "SizeCurve": [ { "t": 0.0, "v": 1.0 }, { "t": 1.0, "v": 0.5 } ],
+                "AlphaCurve": [ { "t": 0.0, "v": 0.9 }, { "t": 0.6, "v": 0.9 }, { "t": 1.0, "v": 0.0 } ]
+            }
+        }
+    }
+}

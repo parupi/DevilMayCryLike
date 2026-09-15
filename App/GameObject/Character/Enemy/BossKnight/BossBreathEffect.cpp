@@ -11,14 +11,11 @@
 #include "Graphics/Rendering/PostEffect/BloomEffect.h"
 #include "Graphics/Rendering/PostEffect/HeatDistortionEffect.h"
 #include "Graphics/Rendering/PostEffect/ColorGradingEffect.h"
-#include "Platform/WindowManager.h"
 #include "World3D/Camera/CameraManager.h"
 #include "World3D/Light/LightManager.h"
 #include "World3D/Light/DynamicPointLight.h"
 #include "World3D/Light/DynamicSpotLight.h"
-#include "World3D/Object/Renderer/BaseRenderer.h"
-#include "World3D/Object/Model/Animation/SkinnedInstance.h"
-#include "World3D/Object/Model/Animation/Skeleton.h"
+#include "GameObject/Character/Enemy/BossKnight/BossVfxUtil.h"
 #include "Utility/Logger.h"
 
 namespace {
@@ -286,16 +283,11 @@ void BossBreathEffect::UpdateMouth(Enemy& enemy) {
 	forward_ = enemy.GetForward();
 	foot_ = enemy.GetFootPosition();
 
-	// 口のジョイントの位置。ジョイントのスケルトン空間行列 × レンダラーのワールド行列（BoneAttachment と同じ式）
-	if (BaseRenderer* renderer = enemy.GetRenderer(ownerName_)) {
-		if (SkinnedInstance* instance = renderer->GetSkinnedInstance()) {
-			if (const Joint* joint = instance->GetSkeleton()->FindJoint(kMouthJoint)) {
-				const Matrix4x4 world = joint->skeletonSpaceMatrix * renderer->GetWorldTransform()->GetMatWorld();
-				mouth_ = Vector3{ world.m[3][0], world.m[3][1], world.m[3][2] }
-					+ forward_ * (kMouthForwardOffset * scale.z);
-				return;
-			}
-		}
+	// 口のジョイントの位置
+	Vector3 joint{};
+	if (BossVfxUtil::TryGetJointWorldPosition(enemy, ownerName_, kMouthJoint, joint)) {
+		mouth_ = joint + forward_ * (kMouthForwardOffset * scale.z);
+		return;
 	}
 
 	// ジョイントが無いモデル: 体の正面の口元あたり（以前の BossStateBreath の位置）
@@ -346,7 +338,7 @@ void BossBreathEffect::EnterFire(Enemy& enemy) {
 		flash_->GetEffectData().flashColor = { 1.0f, 0.85f, 0.6f, kIgniteFlashIntensity };
 		flash_->SetActive(true);
 	}
-	AddShake(kIgniteShake);
+	BossVfxUtil::AddCameraShake(kIgniteShake);
 	if (auto* camera = dynamic_cast<GameCamera*>(CameraManager::GetInstance().GetActiveCamera())) {
 		camera->AddFovPunch(kIgniteFovPunch);
 	}
@@ -384,7 +376,7 @@ void BossBreathEffect::UpdateCharge(float deltaTime) {
 	// 終盤は低く唸るように揺らす
 	if (t > kChargeRumbleStart) {
 		const float k = (t - kChargeRumbleStart) / (1.0f - kChargeRumbleStart);
-		AddShake(kChargeRumble * k * deltaTime);
+		BossVfxUtil::AddCameraShake(kChargeRumble * k * deltaTime);
 	}
 }
 
@@ -426,7 +418,7 @@ void BossBreathEffect::UpdateFire(float deltaTime) {
 		}
 	}
 
-	AddShake(kFireRumble * deltaTime * (1.0f - 0.6f * thin));
+	BossVfxUtil::AddCameraShake(kFireRumble * deltaTime * (1.0f - 0.6f * thin));
 }
 
 void BossBreathEffect::UpdateTail(float deltaTime) {
@@ -563,7 +555,7 @@ void BossBreathEffect::UpdatePostEffects(float deltaTime) {
 		const float strength = kChromaStrength * fireWeight;
 		if (strength > 1e-5f) {
 			Vector2 center{ 0.5f, 0.5f };
-			ToScreenUV(mouth_, center);
+			BossVfxUtil::ToScreenUV(mouth_, center);
 			chroma_->GetEffectData().center = center;
 			chroma_->GetEffectData().strength = strength;
 			chroma_->SetActive(true);
@@ -600,7 +592,7 @@ void BossBreathEffect::UpdatePostEffects(float deltaTime) {
 		float endRadius = 0.0f;
 
 		if (phase_ == Phase::Charge) {
-			if (ProjectToScreen(mouth_, kHeatChargeRadius * ownerScale_, startUV, startRadius)) {
+			if (BossVfxUtil::ProjectToScreen(mouth_, kHeatChargeRadius * ownerScale_, startUV, startRadius)) {
 				endUV = startUV;
 				endRadius = startRadius;
 				strength = kHeatChargeStrength * chargeProgress_;
@@ -608,8 +600,8 @@ void BossBreathEffect::UpdatePostEffects(float deltaTime) {
 		} else if ((phase_ == Phase::Fire || (phase_ == Phase::Tail && tailFromFire_)) && reach_ > 0.0f) {
 			const Vector3 bandEnd = foot_ + forward_ * (reach_ * kHeatEndRatio)
 				+ kUp * (kHeatEndHeight * ownerScale_);
-			if (ProjectToScreen(mouth_, kHeatMouthRadius * ownerScale_, startUV, startRadius)
-				&& ProjectToScreen(bandEnd, halfWidth_ * kHeatEndWidthRate, endUV, endRadius)) {
+			if (BossVfxUtil::ProjectToScreen(mouth_, kHeatMouthRadius * ownerScale_, startUV, startRadius)
+				&& BossVfxUtil::ProjectToScreen(bandEnd, halfWidth_ * kHeatEndWidthRate, endUV, endRadius)) {
 				strength = kHeatFireStrength * postWeight_;
 			}
 		}
@@ -643,40 +635,3 @@ Vector3 BossBreathEffect::RandomBandPoint(float nearRatio, float farRatio, float
 	return point;
 }
 
-bool BossBreathEffect::ToScreenUV(const Vector3& worldPosition, Vector2& outUV) {
-	BaseCamera* camera = CameraManager::GetInstance().GetActiveCamera();
-	if (!camera || !camera->IsInView(worldPosition)) return false;
-
-	const Vector2 screen = camera->WorldToScreen(worldPosition,
-		static_cast<int>(WindowManager::kGameWidth), static_cast<int>(WindowManager::kGameHeight));
-	outUV = {
-		screen.x / static_cast<float>(WindowManager::kGameWidth),
-		screen.y / static_cast<float>(WindowManager::kGameHeight)
-	};
-	return true;
-}
-
-bool BossBreathEffect::ProjectToScreen(const Vector3& worldPosition, float worldRadius, Vector2& outUV, float& outRadius) {
-	BaseCamera* camera = CameraManager::GetInstance().GetActiveCamera();
-	if (!camera) return false;
-
-	// 行ベクトル規約（v * VP）。画面の外でも、カメラの前にあれば帯の端として使えるので IsInView は見ない
-	const Matrix4x4& vp = camera->GetViewProjectionMatrix();
-	const Vector3& p = worldPosition;
-	const float clipX = p.x * vp.m[0][0] + p.y * vp.m[1][0] + p.z * vp.m[2][0] + vp.m[3][0];
-	const float clipY = p.x * vp.m[0][1] + p.y * vp.m[1][1] + p.z * vp.m[2][1] + vp.m[3][1];
-	const float clipW = p.x * vp.m[0][3] + p.y * vp.m[1][3] + p.z * vp.m[2][3] + vp.m[3][3];
-	if (clipW <= 0.05f) return false;
-
-	outUV = { clipX / clipW * 0.5f + 0.5f, -clipY / clipW * 0.5f + 0.5f };
-	// 射影行列の [1][1] は 1/tan(縦画角/2)。NDC の縦は2なので、UV（縦=1）では半分になる
-	outRadius = worldRadius * camera->GetProjectionMatrix().m[1][1] * 0.5f / clipW;
-	return true;
-}
-
-void BossBreathEffect::AddShake(float trauma) {
-	if (trauma <= 0.0f) return;
-	if (auto* camera = dynamic_cast<GameCamera*>(CameraManager::GetInstance().GetActiveCamera())) {
-		camera->AddShake(trauma);
-	}
-}

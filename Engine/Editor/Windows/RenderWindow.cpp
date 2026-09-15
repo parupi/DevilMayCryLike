@@ -11,6 +11,7 @@
 #include "Graphics/Rendering/PostEffect/GrayEffect.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/PostEffect/SmoothEffect.h"
+#include "Graphics/Rendering/PostEffect/SpeedLineEffect.h"
 #include "Graphics/Rendering/PostEffect/VignetteEffect.h"
 #include "Graphics/Rendering/Shadow/CascadedShadowMap.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
@@ -81,6 +82,15 @@ void DrawEffectParams(BaseOffScreen* effect)
 		ImGui::DragFloat("strength", &d.strength, 0.0005f, 0.0f, 0.1f, "%.4f");
 		ImGui::DragFloat("noiseScale", &d.noiseScale, 0.1f, 0.1f, 100.0f);
 		ImGui::DragFloat("scrollSpeed", &d.scrollSpeed, 0.05f, -20.0f, 20.0f);
+		return;
+	}
+	if (auto* speedLine = dynamic_cast<SpeedLineEffect*>(effect)) {
+		SpeedLineEffect::SpeedLineData& d = speedLine->GetEffectData();
+		ImGui::TextDisabled("中心は使う側（突進など）が毎フレーム上書きします");
+		ImGui::DragFloat2("center", &d.center.x, 0.005f, 0.0f, 1.0f);
+		ImGui::DragFloat("strength", &d.strength, 0.01f, 0.0f, 2.0f);
+		ImGui::DragFloat("lineCount", &d.lineCount, 1.0f, 8.0f, 360.0f);
+		ImGui::DragFloat("innerRadius", &d.innerRadius, 0.005f, 0.0f, 1.0f);
 		return;
 	}
 	if (auto* grading = dynamic_cast<ColorGradingEffect*>(effect)) {

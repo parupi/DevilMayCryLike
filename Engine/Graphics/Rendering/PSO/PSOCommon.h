@@ -24,4 +24,5 @@ enum class OffScreenEffectType {
 	kBloomComposite,      // ブルーム：加算合成（加算ブレンドのPSO）
 	kHeatDistortion,      // 熱の歪み（画面上の帯の範囲だけUVを揺らす）
 	kColorGrading,        // 色の調整（暖色寄りなど）
+	kSpeedLine,           // 集中線（突進などの速度感）
 };

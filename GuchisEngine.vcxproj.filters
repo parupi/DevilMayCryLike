@@ -339,10 +339,16 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h">
       <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h">
@@ -957,6 +963,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
@@ -1364,10 +1373,16 @@
     <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp">
       <Filter>App\GameObject\Character\Combat</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp">
@@ -1947,6 +1962,9 @@
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp">

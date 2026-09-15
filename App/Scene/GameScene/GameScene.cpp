@@ -316,6 +316,13 @@ void GameScene::Draw() {
 		player_->DrawEffect();
 	}
 
+	// 敵の軌跡（ボスの噛みつきの風切り・突進の翼の軌跡など）
+	for (Object3d* object : Object3dManager::GetInstance().GetAllObject()) {
+		if (auto* enemy = dynamic_cast<Enemy*>(object)) {
+			enemy->DrawEffect();
+		}
+	}
+
 	// 敵の攻撃予兆（地面の赤いマーカー）。パーティクルより下に敷く
 	AttackTelegraph::GetInstance().Draw();
 

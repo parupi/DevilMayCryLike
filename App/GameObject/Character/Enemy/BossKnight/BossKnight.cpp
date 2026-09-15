@@ -81,6 +81,8 @@ void BossKnight::Initialize() {
 	boneAttack_ = std::make_unique<EnemyBoneAttackComponent>(hitbox_);
 	breathEffect_ = std::make_unique<BossBreathEffect>();
 	breathEffect_->Initialize(name_);
+	attackEffect_ = std::make_unique<BossAttackEffect>();
+	attackEffect_->Initialize(name_);
 
 	// ── ステート登録 ──
 	// ボスは被弾でのけぞらないので KnockBack ステートは持たない。
@@ -156,6 +158,8 @@ void BossKnight::Initialize() {
 	// ── VFX: 必殺技ブレス（溜め・発射・炎・地面・焦げ跡・余韻）──
 	// パーティクルグループはシーンをまたいで残るので、未登録のものだけ読む
 	BossBreathEffect::LoadVfx();
+	// ── VFX: 噛みつき・叩きつけ・突進・咆哮（土煙・衝撃・地面のひび・唾液）──
+	BossAttackEffect::LoadVfx();
 	// ── VFX: フェーズ移行の咆哮の衝撃波 ──（ブレスと同じく未登録のときだけ読む）
 	if (!ParticleManager::GetInstance().GetEmitters().contains(kRoarVfxName)) {
 		if (!ParticleManager::GetInstance().LoadVFX(kRoarVfxName)) {
@@ -180,6 +184,7 @@ void BossKnight::Update(float deltaTime) {
 		Enemy::Update(deltaTime);
 		// ブレスの途中で倒されても、ライトや画面の効果を焼き付けたままにしない（要求が途絶えて余韻へ移る）
 		if (breathEffect_) breathEffect_->Update(*this, deltaTime);
+		if (attackEffect_) attackEffect_->Update(*this, deltaTime, BossActionKind::None, *boneAttack_);
 		return;
 	}
 
@@ -188,6 +193,7 @@ void BossKnight::Update(float deltaTime) {
 		if (hitbox_) hitbox_->Deactivate();
 		Enemy::Update(deltaTime);
 		if (breathEffect_) breathEffect_->Update(*this, deltaTime);
+		if (attackEffect_) attackEffect_->Update(*this, deltaTime, BossActionKind::None, *boneAttack_);
 		return;
 	}
 
@@ -231,6 +237,11 @@ void BossKnight::Update(float deltaTime) {
 	if (breathEffect_) {
 		breathEffect_->Update(*this, deltaTime);
 	}
+	// 噛みつき・叩きつけ・突進・咆哮の演出と、移動・着地の砂埃。出現・死亡演出中は攻撃の演出を出さない
+	if (attackEffect_) {
+		const BossActionKind action = IsAppearanceEffectPlaying() ? BossActionKind::None : GetCurrentAction();
+		attackEffect_->Update(*this, deltaTime, action, *boneAttack_);
+	}
 
 	// ヒットボックスをジョイントへ合わせ直す。
 	// **Enemy::Update（＝ポーズ更新）より後**でなければ1フレーム前の姿勢に付いてしまう。
@@ -244,6 +255,19 @@ void BossKnight::Update(float deltaTime) {
 bool BossKnight::IsInState(const char* stateName) const {
 	auto it = states_.find(stateName);
 	return it != states_.end() && currentState_ == it->second.get();
+}
+
+BossActionKind BossKnight::GetCurrentAction() const {
+	if (IsInState(BossStateName::Slash)) return BossActionKind::Bite;
+	if (IsInState(BossStateName::HeavySword)) return BossActionKind::Slam;
+	if (IsInState(BossStateName::Rush)) return BossActionKind::Rush;
+	if (IsInState(BossStateName::Breath)) return BossActionKind::Breath;
+	if (IsInState(BossStateName::Roar)) return BossActionKind::Roar;
+	return BossActionKind::None;
+}
+
+void BossKnight::DrawEffect() {
+	if (attackEffect_) attackEffect_->Draw();
 }
 
 bool BossKnight::IsKnockbackImmune() const {

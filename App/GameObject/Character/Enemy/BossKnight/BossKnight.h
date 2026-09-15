@@ -6,6 +6,7 @@
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
 #include "GameObject/Character/Enemy/BossKnight/State/BossStateCombatIdle.h"
 #include "GameObject/Character/Enemy/BossKnight/BossBreathEffect.h"
+#include "GameObject/Character/Enemy/BossKnight/BossAttackEffect.h"
 #include "Graphics/Rendering/Particle/ParticleEmitter.h"
 
 /// <summary>
@@ -83,6 +84,9 @@ public:
     void OnCollisionStay(BaseCollider* other) override;
     void OnCollisionExit(BaseCollider* other) override;
 
+    /// <summary>攻撃の軌跡（噛みつきの風切り・突進の翼の軌跡）を描く。GameScene::Draw が敵ごとに呼ぶ</summary>
+    void DrawEffect() override;
+
     /// <summary>
     /// 「攻撃を弾いている」表示を出すかどうか。
     ///
@@ -113,6 +117,8 @@ protected:
 private:
     // 今そのステートにいるか
     bool IsInState(const char* stateName) const;
+    // 今の行動の種類（攻撃ごとの演出の出し分けに使う）
+    BossActionKind GetCurrentAction() const;
 
     // ブレイク値の減衰と、溜まりきったときの崩れ
     void UpdateBreak(float deltaTime);
@@ -169,4 +175,6 @@ private:
     std::unique_ptr<EnemyBoneAttackComponent>   boneAttack_;
     // ブレスの演出（溜め→発射→維持→余韻）。余韻はステートを抜けた後も続くので本体が持って毎フレーム回す
     std::unique_ptr<BossBreathEffect>           breathEffect_;
+    // 噛みつき・叩きつけ・突進・咆哮の演出と、移動・着地の砂埃、被弾の閃光
+    std::unique_ptr<BossAttackEffect>           attackEffect_;
 };

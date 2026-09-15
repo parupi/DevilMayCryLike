@@ -125,8 +125,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Combat\CombatHitResolver.h" />
     <ClInclude Include="App\GameObject\Character\Combat\KnockbackComponent.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h" />
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.h" />
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.h" />
@@ -331,6 +333,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\IRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.h" />
@@ -468,8 +471,10 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp" />
     <ClCompile Include="App\GameObject\Character\Combat\CombatHitResolver.cpp" />
     <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp" />
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.cpp" />
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.cpp" />
@@ -663,6 +668,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\GBufferManager.cpp" />

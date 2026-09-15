@@ -1,0 +1,72 @@
+{
+    "Name": "BossDust",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Particles": [
+            { "ParticleName": "BossDustPuff", "Count": 4, "SpawnRate": 1.0 },
+            { "ParticleName": "BossPebble", "Count": 2, "SpawnRate": 1.0 }
+        ]
+    },
+    "Particles": {
+        "BossDustPuff": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 0, "BlendMode": 1,
+                "Drag": 0.3, "FadeType": 1, "Gravity": [ 0.0, 0.9, 0.0 ],
+                "IsBillboard": true, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 6.0, "SpeedMin": 2.5, "SpreadDegrees": 45.0,
+                "UseDirectional": true, "VelocityStretch": 0.0,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 0.74, 0.68, 0.6 ], "minColor": [ 0.55, 0.5, 0.44 ],
+                "maxLifeTime": 1.0, "minLifeTime": 0.6,
+                "maxRotate": [ 0.0, 0.0, 3.14 ], "minRotate": [ 0.0, 0.0, -3.14 ],
+                "maxAngularVelocity": [ 0.0, 0.0, 1.0 ], "minAngularVelocity": [ 0.0, 0.0, -1.0 ],
+                "maxScale": [ 0.9, 0.9, 0.9 ], "minScale": [ 0.5, 0.5, 0.5 ],
+                "maxTranslate": [ 0.3, 0.15, 0.3 ], "minTranslate": [ -0.3, 0.0, -0.3 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "NoiseEnabled": true,
+                "NoiseTiling": [ 0.8, 0.8, 0.0 ], "NoiseScroll": [ 0.0, -0.25, 0.0 ],
+                "NoiseDistortion": 0.12, "NoiseColorBlend": 1.0, "NoiseGrayscale": true,
+                "NoiseErosion": 1.1, "NoiseErosionSoftness": 0.25,
+                "EmissiveIntensity": 1.0,
+                "SortOrder": 0, "SortByDepth": true, "SoftDistance": 0.8
+            },
+            "Curves": {
+                "SizeCurve": [ { "t": 0.0, "v": 0.5 }, { "t": 0.3, "v": 1.0 }, { "t": 1.0, "v": 2.0 } ],
+                "AlphaCurve": [ { "t": 0.0, "v": 0.0 }, { "t": 0.15, "v": 0.6 }, { "t": 0.6, "v": 0.45 }, { "t": 1.0, "v": 0.0 } ]
+            }
+        },
+        "BossPebble": {
+            "Texture": "white.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 0, "BlendMode": 1,
+                "Drag": 0.9, "FadeType": 1, "Gravity": [ 0.0, -14.0, 0.0 ],
+                "IsBillboard": false, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 7.0, "SpeedMin": 3.0, "SpreadDegrees": 50.0,
+                "UseDirectional": true, "VelocityStretch": 0.0,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 0.48, 0.43, 0.38 ], "minColor": [ 0.3, 0.27, 0.24 ],
+                "maxLifeTime": 0.9, "minLifeTime": 0.5,
+                "maxRotate": [ 3.14, 3.14, 3.14 ], "minRotate": [ -3.14, -3.14, -3.14 ],
+                "maxAngularVelocity": [ 8.0, 8.0, 8.0 ], "minAngularVelocity": [ -8.0, -8.0, -8.0 ],
+                "maxScale": [ 0.1, 0.1, 0.1 ], "minScale": [ 0.05, 0.05, 0.05 ],
+                "maxTranslate": [ 0.2, 0.1, 0.2 ], "minTranslate": [ -0.2, 0.0, -0.2 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "EmissiveIntensity": 1.0,
+                "SortOrder": 2
+            },
+            "Curves": {
+                "AlphaCurve": [ { "t": 0.0, "v": 1.0 }, { "t": 0.8, "v": 1.0 }, { "t": 1.0, "v": 0.0 } ]
+            }
+        }
+    }
+}

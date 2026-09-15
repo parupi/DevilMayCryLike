@@ -98,12 +98,6 @@ private:
 
 	// 炎の帯の地面の上のランダムな点。ratio は帯の長さに対する位置、lateral は半幅に対する割合
 	Vector3 RandomBandPoint(float nearRatio, float farRatio, float lateral, float height);
-	// ワールド座標を画面のUVへ。画面外なら false
-	static bool ToScreenUV(const Vector3& worldPosition, Vector2& outUV);
-	// ワールド座標と半径を、画面のUVと「画面の縦を1とした太さ」へ。カメラの後ろなら false（画面の外でも前なら true）
-	static bool ProjectToScreen(const Vector3& worldPosition, float worldRadius, Vector2& outUV, float& outRadius);
-	// カメラを揺らす（ゲームカメラでなければ何もしない）
-	static void AddShake(float trauma);
 
 	std::string ownerName_;
 
