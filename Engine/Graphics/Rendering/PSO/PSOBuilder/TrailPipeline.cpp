@@ -55,7 +55,7 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> TrailPipeline::CreateRootSignature(D
 }
 
 Microsoft::WRL::ComPtr<ID3D12PipelineState> TrailPipeline::CreatePSO(
-	DirectXManager* dxManager, ID3D12RootSignature* rootSignature)
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature, bool additive)
 {
 	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
@@ -71,7 +71,8 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> TrailPipeline::CreatePSO(
 	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
 	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_SRC_ALPHA;
 	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
-	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ONE;
+	// 加算は光る帯、半透明は明るい床の上でも色が残る帯（加算だと白い床ではほとんど見えない）
+	blendDesc.RenderTarget[0].DestBlend = additive ? D3D12_BLEND_ONE : D3D12_BLEND_INV_SRC_ALPHA;
 	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
 	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
 	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;

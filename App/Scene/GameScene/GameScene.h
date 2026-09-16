@@ -11,6 +11,7 @@
 #include "GameObject/UI/Menu/MenuUI.h"
 #include "GameObject/UI/Menu/GameOverUI.h"
 #include "GameObject/UI/StyleHUD/StyleHUD.h"
+#include "GameObject/UI/BossHealthBar/BossHealthBar.h"
 #include "GameObject/Training/TrainingController.h"
 #include "GameObject/UI/Training/TrainingHUD.h"
 #include "GameObject/UI/Training/TrainingMenu.h"
@@ -119,6 +120,8 @@ private:
 	std::unique_ptr<GameOverUI> gameOverUI_ = nullptr;
 	// スタイリッシュランクのゲーム中HUD
 	std::unique_ptr<StyleHUD> styleHud_ = nullptr;
+	// ボスのHPバー（画面上部中央）
+	std::unique_ptr<BossHealthBar> bossHealthBar_ = nullptr;
 
 	// トレーニングルーム。本編では作らない
 	std::unique_ptr<TrainingController> training_ = nullptr;

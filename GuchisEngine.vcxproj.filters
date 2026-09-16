@@ -103,6 +103,9 @@
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\BossHealthBar">
+      <UniqueIdentifier>{44FC8DD9-B0DF-9C19-B9E2-CA552545636A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\ClearUI">
       <UniqueIdentifier>{07855820-7347-8CAA-BCF7-1A3728F96488}</UniqueIdentifier>
     </Filter>
@@ -165,6 +168,9 @@
     </Filter>
     <Filter Include="Engine\Audio">
       <UniqueIdentifier>{1C8EDB94-08F1-6A39-B176-A3EF9DB836BC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Audio\SE">
+      <UniqueIdentifier>{83FBE878-EF86-563D-F897-D93164A2B23D}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Core">
       <UniqueIdentifier>{130D9B61-7FC2-1357-08B7-0D2E746B0A5B}</UniqueIdentifier>
@@ -339,7 +345,16 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h">
       <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h">
@@ -351,7 +366,13 @@
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateDown.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRoar.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h">
@@ -519,6 +540,9 @@
     <ClInclude Include="App\GameObject\Effect\JustDodgeEffect.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\PlayerAttackEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
@@ -560,6 +584,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Training\TrainingController.h">
       <Filter>App\GameObject\Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\BossHealthBar\BossHealthBar.h">
+      <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -696,6 +723,24 @@
     <ClInclude Include="Engine\Audio\Audio.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\AudioBuffer.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundAssetLibrary.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundDSP.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundDefinition.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundPresets.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundSynthesizer.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Audio\SoundManager.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
@@ -793,6 +838,9 @@
       <Filter>Engine\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Windows\RenderWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\SoundEditorWindow.h">
       <Filter>Engine\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Windows\TimeWindow.h">
@@ -918,10 +966,16 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.h">
@@ -940,6 +994,9 @@
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h">
@@ -1138,6 +1195,9 @@
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Light\DynamicPointLight.h">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Light\DynamicSpotLight.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Light\LightManager.h">
@@ -1346,7 +1406,16 @@
     <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp">
       <Filter>App\GameObject\Character\Combat</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp">
@@ -1358,7 +1427,13 @@
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateDown.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRoar.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp">
@@ -1514,6 +1589,9 @@
     <ClCompile Include="App\GameObject\Effect\JustDodgeEffect.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\PlayerAttackEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
@@ -1555,6 +1633,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Training\TrainingController.cpp">
       <Filter>App\GameObject\Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\BossHealthBar\BossHealthBar.cpp">
+      <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -1688,6 +1769,24 @@
     <ClCompile Include="Engine\Audio\Audio.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\AudioBuffer.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundAssetLibrary.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundDSP.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundDefinition.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundPresets.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundSynthesizer.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Audio\SoundManager.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
@@ -1782,6 +1881,9 @@
       <Filter>Engine\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Windows\RenderWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\SoundEditorWindow.cpp">
       <Filter>Engine\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Windows\TimeWindow.cpp">
@@ -1892,10 +1994,16 @@
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.cpp">
@@ -1914,6 +2022,9 @@
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp">
@@ -2082,6 +2193,9 @@
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Light\DynamicPointLight.cpp">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Light\DynamicSpotLight.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Light\LightManager.cpp">

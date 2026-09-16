@@ -8,7 +8,7 @@
 #include <World3D/Object/Object3dManager.h>
 
 Enemy* EnemySpawner::Spawn(const std::string& className, const std::string& objectName,
-	const Vector3& position, const Vector3& colliderHalfExtents)
+	const Vector3& position, const Vector3& colliderHalfExtents, float scale)
 {
 	auto object = Object3dFactory::Create(className, objectName);
 	// 未登録のクラス名を渡すと素の Object3d が返ってくる。敵でなければ何も足さずに帰る
@@ -28,8 +28,10 @@ Enemy* EnemySpawner::Spawn(const std::string& className, const std::string& obje
 	CollisionManager::GetInstance().AddCollider(std::move(collider));
 	enemy->AddCollider(rawCollider);
 
-	// Object3d::Initialize() は冪等なので、先に位置を入れても消えない
+	// Object3d::Initialize() は冪等なので、先に位置を入れても消えない。
+	// スケールも Initialize の前に入れる（本編のステージ読み込みと同じ順番。攻撃の判定などが配置スケールを読む）
 	enemy->GetWorldTransform()->GetTranslation() = position;
+	enemy->GetWorldTransform()->GetScale() = { scale, scale, scale };
 
 	enemy->Initialize();
 

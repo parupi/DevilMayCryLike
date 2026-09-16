@@ -1,0 +1,150 @@
+{
+  "Name": "HitMatArmor",
+  "Emitter": {
+    "Frequency": 0.5,
+    "IsActive": false,
+    "ShapeModel": "",
+    "Position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Particles": [
+      {
+        "ParticleName": "PAtkArmorSpark",
+        "Count": 14,
+        "SpawnRate": 1.0
+      }
+    ]
+  },
+  "Particles": {
+    "PAtkArmorSpark": {
+      "Texture": "white.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 2,
+        "BlendMode": 2,
+        "Drag": 0.3,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          -22.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 15.0,
+        "SpeedMin": 6.0,
+        "SpreadDegrees": 80.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.06,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          1.0,
+          0.95,
+          0.6
+        ],
+        "minColor": [
+          1.0,
+          0.75,
+          0.3
+        ],
+        "maxLifeTime": 0.5,
+        "minLifeTime": 0.25,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "minScale": [
+          0.025,
+          0.025,
+          0.025
+        ],
+        "maxTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.7,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ],
+        "ColorGradient": [
+          {
+            "t": 0.0,
+            "c": [
+              1.0,
+              1.0,
+              0.9,
+              1.0
+            ]
+          },
+          {
+            "t": 0.4,
+            "c": [
+              1.0,
+              0.7,
+              0.25,
+              1.0
+            ]
+          },
+          {
+            "t": 1.0,
+            "c": [
+              0.9,
+              0.3,
+              0.05,
+              1.0
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

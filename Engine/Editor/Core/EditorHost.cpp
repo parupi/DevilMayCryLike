@@ -18,6 +18,7 @@
 #include "Editor/Windows/ProfilerWindow.h"
 #include "Editor/Windows/ParticleEditorWindow.h"
 #include "Editor/Windows/RenderWindow.h"
+#include "Editor/Windows/SoundEditorWindow.h"
 #include "Editor/Windows/TimeWindow.h"
 
 #include <string>
@@ -136,6 +137,7 @@ void Editor::Initialize()
 	AddWindowDrawer([] { DrawAnimationWindow(); });
 	AddWindowDrawer([] { DrawParticleEditorWindows(); });
 	AddWindowDrawer([] { DrawAudioWindow(); });
+	AddWindowDrawer([] { DrawSoundEditorWindow(); });
 	AddWindowDrawer([] { DrawTimeWindows(); });
 	AddWindowDrawer([] { DrawProfilerWindow(); });
 	AddWindowDrawer([] { DrawDebugLogWindow(); });

@@ -37,6 +37,12 @@ struct HitEffectRequest {
 	/// 「火花＋リング＋煙」を1つの名前で扱える。
 	/// </summary>
 	std::string vfxName;
+
+	/// <summary>当たった相手の材質ごとの追加VFX（骨の欠片・硬い鱗の火花など）。空なら出さない</summary>
+	std::string materialVfxName;
+
+	/// <summary>VFXの大きさの倍率。大きな敵ほど少し大きくする</summary>
+	float sizeScale = 1.0f;
 };
 
 /// <summary>

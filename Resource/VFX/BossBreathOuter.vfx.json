@@ -1,0 +1,88 @@
+{
+    "Name": "BossBreathOuter",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Particles": [
+            { "ParticleName": "BreathFlame", "Count": 3, "SpawnRate": 1.0 },
+            { "ParticleName": "BreathSmoke", "Count": 1, "SpawnRate": 1.0 }
+        ]
+    },
+    "Particles": {
+        "BreathFlame": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 0, "BlendMode": 2,
+                "Drag": 0.55, "FadeType": 1, "Gravity": [ 0.0, 1.4, 0.0 ],
+                "IsBillboard": true, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 15.0, "SpeedMin": 10.0, "SpreadDegrees": 13.0,
+                "UseDirectional": true, "VelocityStretch": 0.0,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 1.0, 1.0, 0.9 ], "minColor": [ 1.0, 0.85, 0.6 ],
+                "maxLifeTime": 0.95, "minLifeTime": 0.7,
+                "maxRotate": [ 0.0, 0.0, 3.14 ], "minRotate": [ 0.0, 0.0, -3.14 ],
+                "maxAngularVelocity": [ 0.0, 0.0, 1.2 ], "minAngularVelocity": [ 0.0, 0.0, -1.2 ],
+                "maxScale": [ 1.4, 1.4, 1.4 ], "minScale": [ 0.9, 0.9, 0.9 ],
+                "maxTranslate": [ 0.3, 0.3, 0.3 ], "minTranslate": [ -0.3, -0.3, -0.3 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "NoiseEnabled": true,
+                "NoiseTiling": [ 0.6, 0.6, 0.0 ], "NoiseScroll": [ 0.15, -1.1, 0.0 ],
+                "NoiseDistortion": 0.2, "NoiseColorBlend": 1.0, "NoiseGrayscale": false,
+                "NoiseErosion": 1.1, "NoiseErosionSoftness": 0.2,
+                "EmissiveIntensity": 1.5,
+                "SortOrder": 10, "SortByDepth": false, "SoftDistance": 0.8
+            },
+            "Curves": {
+                "SizeCurve": [ { "t": 0.0, "v": 0.35 }, { "t": 0.35, "v": 1.0 }, { "t": 1.0, "v": 2.2 } ],
+                "AlphaCurve": [ { "t": 0.0, "v": 0.0 }, { "t": 0.1, "v": 0.9 }, { "t": 0.55, "v": 0.7 }, { "t": 1.0, "v": 0.0 } ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 0.9, 0.7, 1.0 ] },
+                    { "t": 0.3, "c": [ 1.0, 0.6, 0.3, 1.0 ] },
+                    { "t": 0.65, "c": [ 0.9, 0.3, 0.1, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.4, 0.08, 0.02, 1.0 ] }
+                ]
+            }
+        },
+        "BreathSmoke": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 0, "BlendMode": 1,
+                "Drag": 0.45, "FadeType": 1, "Gravity": [ 0.0, 2.2, 0.0 ],
+                "IsBillboard": true, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 10.0, "SpeedMin": 6.0, "SpreadDegrees": 20.0,
+                "UseDirectional": true, "VelocityStretch": 0.0,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 0.5, 0.47, 0.45 ], "minColor": [ 0.35, 0.33, 0.32 ],
+                "maxLifeTime": 2.0, "minLifeTime": 1.4,
+                "maxRotate": [ 0.0, 0.0, 3.14 ], "minRotate": [ 0.0, 0.0, -3.14 ],
+                "maxAngularVelocity": [ 0.0, 0.0, 0.6 ], "minAngularVelocity": [ 0.0, 0.0, -0.6 ],
+                "maxScale": [ 1.6, 1.6, 1.6 ], "minScale": [ 1.0, 1.0, 1.0 ],
+                "maxTranslate": [ 0.4, 0.4, 0.4 ], "minTranslate": [ -0.4, -0.4, -0.4 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "NoiseEnabled": true,
+                "NoiseTiling": [ 0.7, 0.7, 0.0 ], "NoiseScroll": [ 0.0, -0.35, 0.0 ],
+                "NoiseDistortion": 0.15, "NoiseColorBlend": 1.0, "NoiseGrayscale": true,
+                "NoiseErosion": 1.2, "NoiseErosionSoftness": 0.25,
+                "EmissiveIntensity": 1.0,
+                "SortOrder": 0, "SortByDepth": true, "SoftDistance": 1.0
+            },
+            "Curves": {
+                "SizeCurve": [ { "t": 0.0, "v": 0.5 }, { "t": 0.4, "v": 1.2 }, { "t": 1.0, "v": 2.8 } ],
+                "AlphaCurve": [ { "t": 0.0, "v": 0.0 }, { "t": 0.2, "v": 0.55 }, { "t": 0.6, "v": 0.4 }, { "t": 1.0, "v": 0.0 } ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 0.6, 0.5, 0.45, 1.0 ] },
+                    { "t": 0.4, "c": [ 0.25, 0.23, 0.22, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.1, 0.1, 0.1, 1.0 ] }
+                ]
+            }
+        }
+    }
+}

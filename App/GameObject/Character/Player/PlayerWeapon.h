@@ -1,7 +1,6 @@
 #pragma once
 #include "World3D/Object/Object3d.h"
 #include <GameData/Score/StylishScoreManager.h>
-#include "Graphics/Rendering/Effect/WeaponTrail.h"
 
 class Player;
 class PlayerWeapon : public Object3d
@@ -15,7 +14,6 @@ public:
 	void Update(float deltaTime) override;
 	// 描画
 	void Draw() override;
-	void DrawEffect();
 
 #ifdef _DEBUG
 	void DebugGui() override;
@@ -38,6 +36,11 @@ public:
 	/// 触れたままの敵に、もう一度 OnCollisionEnter を起こすために使う
 	/// </summary>
 	void RequestRehit() { rehitRequested_ = true; }
+
+	/// <summary>刃先のワールド座標（今のワールド行列から計算する）。剣の軌跡とヒット位置に使う</summary>
+	Vector3 GetBladeTipWorld();
+	/// <summary>刃の根本（鍔のすぐ上）のワールド座標</summary>
+	Vector3 GetBladeBaseWorld();
 private:
 	bool isAttack_ = false;
 	// RequestRehit で立てる。次の Update で判定を1回切ったら下ろす
@@ -52,10 +55,9 @@ private:
 	Vector3 defaultPosition_ = { 0.0f, 0.6f, -0.5f };
 	Vector3 defaultRotation_ = { 0.0f, 90.0f, 150.0f };
 
-	// 刃先 (tip) と根本 (hilt) のローカルオフセット
-	Vector3 tipOffset_  = { 0.0f,  0.5f, 0.0f };
-	Vector3 hiltOffset_ = { 0.0f, -0.5f, 0.0f };
-
-	std::unique_ptr<WeaponTrail> trail_;
+	// 刃先と刃の根本のローカル位置。Sword.obj は Y 方向に -1.31〜1.43 で、
+	// -1.4〜-0.8 が柄、-0.8〜-0.7 が鍔、その上が刃（先端 1.43）
+	Vector3 bladeTipOffset_ = { 0.0f, 1.35f, 0.0f };
+	Vector3 bladeBaseOffset_ = { 0.0f, -0.65f, 0.0f };
 };
 

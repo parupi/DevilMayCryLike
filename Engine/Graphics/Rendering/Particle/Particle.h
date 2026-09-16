@@ -33,4 +33,9 @@ struct Particle {
 	// transform.scale / color を直接減衰させると誤差が蓄積するためこの持ち方にしている。
 	Vector3 baseScale;  // 生成時のスケール（sizeCurve の基準）
 	Vector4 baseColor;  // 生成時のカラー（colorGradient / alphaCurve の基準）
+
+	// 回転の速さ[rad/s]。毎フレーム transform.rotate に足す
+	Vector3 angularVelocity{ 0.0f, 0.0f, 0.0f };
+	// 粒ごとの乱数(0〜1)。ノイズの読み出し位置をずらして、同じ模様の粒が並ばないようにする
+	float seed = 0.0f;
 };

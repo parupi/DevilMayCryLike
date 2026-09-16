@@ -19,7 +19,18 @@
 #include <Audio/SoundManager.h>
 #include <GameObject/Character/Player/Player.h> // 先読みするモデル名をゲーム中と共有する
 #include <GameData/GameSession.h>
+#include <Graphics/Rendering/PostEffect/OffScreenManager.h>
+#include <Graphics/Rendering/PostEffect/VignetteEffect.h>
 #include <cmath>
+
+namespace {
+// タイトルの常時ビネット。四隅でも6割ほどの明るさに留まる「軽い」かかり方にしてある
+// （中心からの距離 0.4 から暗くなり始め、0.8 で最大。画面の角は距離0.71）
+constexpr const char* kTitleVignetteName = "TitleVignette";
+constexpr float kTitleVignetteRadius = 0.4f;
+constexpr float kTitleVignetteSoftness = -0.4f;
+constexpr float kTitleVignetteIntensity = 0.45f;
+}
 
 
 void TitleScene::Initialize() {
@@ -89,9 +100,30 @@ void TitleScene::Initialize() {
 	// 起動直後はシーン遷移を経由しないので、ここで暗転明けを始める。
 	// 他シーンから来た場合は遷移側が動いているため、この呼び出しは無視される
 	SceneTransitionController::GetInstance().BeginFadeIn();
+
+	// 画面の四隅を軽く暗くして、中央のロゴとメニューへ目を寄せる。
+	// ポストエフェクトはシーンをまたいで残るので、2回目以降は作らずに既存のものを使う
+	OffScreenManager& offScreen = OffScreenManager::GetInstance();
+	if (!offScreen.FindEffect(kTitleVignetteName)) {
+		auto vignette = std::make_unique<VignetteEffect>(kTitleVignetteName);
+		vignette->SetColor(0.0f, 0.0f, 0.0f);
+		offScreen.AddEffect(std::move(vignette));
+	}
+	if (auto* vignette = static_cast<VignetteEffect*>(offScreen.FindEffect(kTitleVignetteName))) {
+		VignetteEffect::VignetteEffectData& data = vignette->GetEffectData();
+		data.radius = kTitleVignetteRadius;
+		data.intensity = kTitleVignetteIntensity;
+		data.softness = kTitleVignetteSoftness;
+		vignette->SetActive(true);
+	}
 }
 
 void TitleScene::Finalize() {
+	// タイトルのビネットはゲーム中に残さない（エフェクト自体は次にタイトルへ戻ったとき使い回す）
+	if (auto* vignette = OffScreenManager::GetInstance().FindEffect(kTitleVignetteName)) {
+		vignette->SetActive(false);
+	}
+
 	// 明滅させていたぶんを戻しておく。
 	// ライトの明るさは json 側の値をそのまま書き換えて動かしているので、
 	// 途中の値のまま抜けるとエディタで保存したときにその値が焼き付いてしまう

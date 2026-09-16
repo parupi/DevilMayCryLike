@@ -79,7 +79,9 @@ void GameSceneStatePlay::Update(GameScene& scene) {
 		}
 
 		{
-			auto* clearEvent = static_cast<ClearEvent*>(EventManager::GetInstance().FindEvent("Event_Clear"));
+			// ステージ上の名前は "ClearEvent" などエディタで付けたものなので、名前ではなく種類で引く
+			// （以前は "Event_Clear" という名前で探していて見つからず、ボスを倒してもクリアしなかった）
+			auto* clearEvent = static_cast<ClearEvent*>(EventManager::GetInstance().FindEventByType(EventType::Clear));
 			if (clearEvent && clearEvent->IsClear()) {
 				scene.ChangeState("Clear");
 			}

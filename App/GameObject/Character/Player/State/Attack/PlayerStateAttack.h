@@ -44,6 +44,35 @@ public:
 	AttackRequestData ConsumePendingRequest() { auto r = pendingRequest_; pendingRequest_ = {}; return r; }
 	// 溜め攻撃の溜め中か（構えで止まって、ボタンを離すのを待っている）
 	bool IsCharging() const { return attackPhase_ == AttackPhase::Charge; }
+
+	// ── 演出（PlayerAttackEffect）が見る状態。攻撃の中身は変えない ──
+	// 予備動作（構え）の途中か
+	bool IsStartupPhase() const { return attackPhase_ == AttackPhase::Startup; }
+	// 攻撃判定が出ている（剣を振っている）間か
+	bool IsActivePhase() const { return attackPhase_ == AttackPhase::Active; }
+	// 予備動作の進み具合 0〜1
+	float GetStartupProgress() const {
+		if (attackData_.preDelay <= 0.0f) return 1.0f;
+		const float t = stateTime_.current / attackData_.preDelay;
+		return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+	}
+	// 振りの進み具合 0〜1
+	float GetActiveProgress() const {
+		if (attackData_.attackDuration <= 0.0f) return 1.0f;
+		const float t = (stateTime_.current - attackData_.preDelay) / attackData_.attackDuration;
+		return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+	}
+	// 溜め具合 0〜1。溜めている間は「今離したらこうなる」値、振り始めた後は確定した値
+	float GetChargeProgress() const {
+		if (!attackData_.isCharge) return 0.0f;
+		if (isChargeReleased_) return chargeRatio_;
+		const float range = attackData_.chargeMaxTime - attackData_.chargeMinTime;
+		if (range <= 0.0f) return (chargeTime_ >= attackData_.chargeMaxTime) ? 1.0f : 0.0f;
+		const float t = (chargeTime_ - attackData_.chargeMinTime) / range;
+		return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+	}
+	// エディタの値そのままの攻撃データ（溜め・最終段の差し替え前）
+	const AttackData& GetBaseAttackData() const { return attackData_; }
 private:
 	// タイミングに基づいて次の攻撃リクエストを生成する。
 	// 押したボタンで出せる派生先だけを候補にし、その中から入力のタイミングで選ぶ

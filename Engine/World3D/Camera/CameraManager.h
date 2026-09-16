@@ -72,6 +72,12 @@ private:
 	void CreateCameraResource();
 	// activeCameraName_ が指すカメラ。デバッグカメラの割り込みは見ない
 	BaseCamera* FindActiveCameraEntry() const;
+	// 3D SE の聞き手としてカメラの位置・向き・速度を SoundManager へ渡す
+	void UpdateSoundListener(BaseCamera* camera);
+
+	// 速度を出すための前フレームの位置。初回は差が取れないので履歴フラグで判別する
+	Vector3 previousListenerPosition_{};
+	bool hasListenerHistory_ = false;
 
 	// カメラ座標
 	struct CameraForGPU {

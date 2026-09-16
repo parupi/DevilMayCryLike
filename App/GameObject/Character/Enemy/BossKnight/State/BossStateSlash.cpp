@@ -37,6 +37,10 @@ namespace {
 		// 「来る」と分かってから避けられるぎりぎりの長さに留める
 		p.extraWindupTime = 0.55f;
 
+		// 溜めの間の向き直り[度/秒]。近くで横へ走り続ければ扇の外へ出られるぎりぎり
+		// （4m先を走るプレイヤーは約140度/秒で回り込む）
+		p.windupTurnSpeed = 90.0f;
+
 		// 予兆。正面へ噛みつくので扇形。少し踏み込むぶん半径に余裕を持たせてある
 		// （スケール1基準。ステージ配置が2倍なので実寸は半径5.2m）。
 		// 噛みつく瞬間に体の向きがここで固定されるので、頭はこの扇の上へ振り下ろされる
@@ -46,6 +50,8 @@ namespace {
 		return p;
 	}
 }
+
+AttackTelegraphParams BossStateSlash::GetTelegraph() { return MakeBiteParams().telegraph; }
 
 BossStateSlash::BossStateSlash(EnemyBoneAttackComponent* attack)
 	: attack_(attack) {}

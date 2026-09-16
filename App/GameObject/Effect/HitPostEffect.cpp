@@ -10,7 +10,7 @@
 // 弱いほど短く浅く、強いほど長く深くかける
 const HitPostEffect::Preset HitPostEffect::kPresets[static_cast<size_t>(HitStopStrength::Count)] = {
 	// duration, blur,   chroma,  flash
-	{  0.06f,    0.010f, 0.0015f, 0.05f }, // Light
+	{  0.06f,    0.0f,   0.0012f, 0.05f }, // Light（軽攻撃はブラーなし・色収差は少し。PlayerAttackVFX.md の推奨）
 	{  0.09f,    0.022f, 0.0035f, 0.12f }, // Medium
 	{  0.13f,    0.038f, 0.0060f, 0.25f }, // Heavy
 };

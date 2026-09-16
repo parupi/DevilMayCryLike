@@ -7,8 +7,24 @@
 #include "Graphics/Device/DirectXManager.h"
 #include "Math/MathUtils.h"
 #include <DirectXTex/DirectXTex.h>
+#include <algorithm>
 #include <cassert>
 #include <cmath>
+
+namespace {
+	// 4点 p0〜p3 で p1→p2 の間を補間する（t=0 で p1、t=1 で p2）
+	Vector3 CatmullRomPoint(const Vector3& p0, const Vector3& p1, const Vector3& p2, const Vector3& p3, float t) {
+		const float t2 = t * t;
+		const float t3 = t2 * t;
+		return (p1 * 2.0f
+			+ (p2 - p0) * t
+			+ (p0 * 2.0f - p1 * 5.0f + p2 * 4.0f - p3) * t2
+			+ (p1 * 3.0f - p0 - p2 * 3.0f + p3) * t3) * 0.5f;
+	}
+
+	// 前の点とこれより近ければ積まない[m]。ヒットストップで止まっている間に同じ点で埋まって軌跡が縮むのを防ぐ
+	constexpr float kMinPointDistance = 0.005f;
+}
 
 WeaponTrail::~WeaponTrail() {
 	auto* rm = RendererManager::GetInstance().GetDxManager()->GetResourceManager();
@@ -26,6 +42,10 @@ void WeaponTrail::Initialize() {
 	CreateTrailTexture();
 }
 
+void WeaponTrail::SetSubdivisions(uint32_t subdivisions) {
+	subdivisions_ = std::clamp<uint32_t>(subdivisions, 1u, kMaxSubdivisions);
+}
+
 void WeaponTrail::Update(float deltaTime) {
 	for (auto& p : points_) {
 		p.age += deltaTime;
@@ -36,6 +56,12 @@ void WeaponTrail::Update(float deltaTime) {
 }
 
 void WeaponTrail::AddPoint(const Vector3& tip, const Vector3& hilt) {
+	if (!points_.empty()) {
+		const TrailPoint& last = points_.back();
+		if (Length(tip - last.tip) < kMinPointDistance && Length(hilt - last.hilt) < kMinPointDistance) {
+			return;
+		}
+	}
 	if (points_.size() >= kMaxPoints) {
 		points_.pop_front();
 	}
@@ -64,7 +90,7 @@ void WeaponTrail::Draw() {
 	mappedCB_->tintColor = tintColor_;
 
 	// PSO・ルートシグネチャをバインド
-	cmd->SetPipelineState(psoManager->GetTrailPSO());
+	cmd->SetPipelineState(psoManager->GetTrailPSO(additive_));
 	cmd->SetGraphicsRootSignature(psoManager->GetTrailSignature());
 
 	// b0: 定数バッファ
@@ -84,40 +110,63 @@ void WeaponTrail::Draw() {
 // private
 // ─────────────────────────────────────────
 
+void WeaponTrail::WriteVertex(uint32_t index, uint32_t total, const Vector3& tip, const Vector3& hilt, float age) {
+	const float u = (total > 1) ? (static_cast<float>(index) / static_cast<float>(total - 1)) : 1.0f;
+	// 古い端ほど薄く（u）、さらに寿命に近いほど薄く（振り抜いた後に残光として自然に消える）
+	const float ageFade = (lifetime_ > 0.0f) ? std::clamp(1.0f - age / lifetime_, 0.0f, 1.0f) : 1.0f;
+	const float alpha = u * ageFade;
+
+	// tip 頂点 (v = 0)
+	mappedVB_[index * 2 + 0] = {
+		tip,
+		{ u, 0.0f },
+		{ 1.0f, 1.0f, 1.0f, alpha }
+	};
+	// hilt 頂点 (v = 1)
+	mappedVB_[index * 2 + 1] = {
+		hilt,
+		{ u, 1.0f },
+		{ 1.0f, 1.0f, 1.0f, alpha }
+	};
+}
+
 void WeaponTrail::BuildMesh() {
-	if (points_.size() < 2) {
+	const uint32_t n = static_cast<uint32_t>(points_.size());
+	if (n < 2) {
 		vertexCount_ = 0;
 		return;
 	}
 
-	uint32_t n = static_cast<uint32_t>(points_.size());
-	vertexCount_ = n * 2;
+	// 隣り合う点の間を Catmull-Rom で分割して、速い振りでも滑らかな弧にする。
+	// 端の区間は、存在しない外側の点を端の点で代用する
+	const uint32_t steps = subdivisions_;
+	const uint32_t total = (n - 1) * steps + 1;
+	uint32_t out = 0;
 
-	for (uint32_t i = 0; i < n; i++) {
-		float u = (n > 1) ? (static_cast<float>(i) / (n - 1)) : 1.0f;
-		float alpha = u; // 古い端 = 0, 新しい端 = 1
+	for (uint32_t i = 0; i + 1 < n; ++i) {
+		const TrailPoint& p0 = points_[(i == 0) ? 0 : i - 1];
+		const TrailPoint& p1 = points_[i];
+		const TrailPoint& p2 = points_[i + 1];
+		const TrailPoint& p3 = points_[(std::min)(i + 2, n - 1)];
 
-		const auto& p = points_[i];
-
-		// tip 頂点 (v = 0)
-		mappedVB_[i * 2 + 0] = {
-			p.tip,
-			{ u, 0.0f },
-			{ 1.0f, 1.0f, 1.0f, alpha }
-		};
-		// hilt 頂点 (v = 1)
-		mappedVB_[i * 2 + 1] = {
-			p.hilt,
-			{ u, 1.0f },
-			{ 1.0f, 1.0f, 1.0f, alpha }
-		};
+		for (uint32_t s = 0; s < steps; ++s) {
+			const float t = static_cast<float>(s) / static_cast<float>(steps);
+			WriteVertex(out++, total,
+				CatmullRomPoint(p0.tip, p1.tip, p2.tip, p3.tip, t),
+				CatmullRomPoint(p0.hilt, p1.hilt, p2.hilt, p3.hilt, t),
+				p1.age + (p2.age - p1.age) * t);
+		}
 	}
+	const TrailPoint& last = points_.back();
+	WriteVertex(out++, total, last.tip, last.hilt, last.age);
+
+	vertexCount_ = out * 2;
 }
 
 void WeaponTrail::CreateVertexBuffer() {
 	auto* rm = RendererManager::GetInstance().GetDxManager()->GetResourceManager();
 
-	const size_t bufSize = sizeof(TrailVertex) * kMaxPoints * 2;
+	const size_t bufSize = sizeof(TrailVertex) * kMaxRenderPoints * 2;
 	vbHandle_ = rm->CreateUploadBuffer(bufSize, L"WeaponTrailVB");
 	mappedVB_ = static_cast<TrailVertex*>(rm->Map(vbHandle_));
 

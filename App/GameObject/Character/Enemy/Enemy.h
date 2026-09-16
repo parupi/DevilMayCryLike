@@ -154,6 +154,15 @@ public:
 	/// </summary>
 	virtual float GetStyleMultiplier() const { return 1.0f; }
 
+	/// <summary>斬られたときの手応えの材質。プレイヤーの剣のヒット演出が火花・破片の種類を変える</summary>
+	enum class HitMaterial {
+		Flesh, // 生身（赤い霧と小さな飛沫。控えめ）
+		Bone,  // 骨（白い欠片と粉）
+		Armor, // 鎧・硬い鱗（金属の火花）
+		Wood,  // 木（木片）
+	};
+	virtual HitMaterial GetHitMaterial() const { return HitMaterial::Flesh; }
+
 	/// <summary>
 	/// 攻撃行動をしてよいかを返す。
 	/// 既定では「攻撃抑制フラグが立っていなければ攻撃できる」。
@@ -258,6 +267,13 @@ public:
 	/// オブジェクト原点はコライダーの中心なので、原点をそのまま使うと宙に浮く
 	/// </summary>
 	Vector3 GetFootPosition();
+
+	/// <summary>
+	/// 体の中心のワールド座標（＝コライダーの中心）。ロックオンの狙う位置に使う。
+	/// オブジェクト原点はモデルとステージ側のコライダーの置き方で高さが変わり、
+	/// ボス(Dragon)はコライダーを上へずらしてあるので原点が足元より下にある
+	/// </summary>
+	Vector3 GetBodyCenter();
 
 	/// <summary>
 	/// プレイヤーのポインタを取得する。
@@ -373,6 +389,12 @@ public:
 	/// </summary>
 	void SetModelGroundOffset(float offset) { modelGroundOffset_ = offset; }
 
+	/// <summary>
+	/// 死亡モーションの最後のポーズが地面から浮いているモデル用。倒れるのに合わせてモデルをこの量だけ沈める。
+	/// 単位は SetModelGroundOffset と同じ（オブジェクトのスケール1のときのワールド単位、正で下へ）
+	/// </summary>
+	void SetDeathModelSink(float amount) { deathModelSink_ = amount; }
+
 	// ======================
 	// アニメーション
 	// ======================
@@ -431,6 +453,18 @@ public:
 	void LockFacing(const Vector3& forward);
 	void UnlockFacing() { facingLocked_ = false; }
 	bool IsFacingLocked() const { return facingLocked_; }
+
+	/// <summary>
+	/// プレイヤーへ向き直る速さの上限[度/秒]。0 以下なら毎フレームぴったり向く（既定）。
+	/// 大きな敵に重さを出したいとき、派生クラスのコンストラクタで設定する
+	/// </summary>
+	void SetFaceTurnSpeed(float degreesPerSecond) { faceTurnSpeed_ = degreesPerSecond; }
+	/// <summary>
+	/// 向き直りの速さを一時的に上書きする（攻撃の溜めの間だけ遅くする等）。0 以下なら上書きしない。
+	/// 上書きしたら終わりで必ず ClearFaceTurnSpeedOverride() すること
+	/// </summary>
+	void SetFaceTurnSpeedOverride(float degreesPerSecond) { faceTurnSpeedOverride_ = degreesPerSecond; }
+	void ClearFaceTurnSpeedOverride() { faceTurnSpeedOverride_ = 0.0f; }
 
 	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
 	AnimationPlayer* GetAnimationPlayer();
@@ -516,6 +550,8 @@ private:
 	Quaternion modelRotationOffset_ = Identity();   // モデル固有の向き補正（差し替えても変わらない）
 	Quaternion modelReactionRotation_ = Identity(); // 被弾リアクション（毎フレーム変わる）
 	float modelGroundOffset_ = 0.0f;                // モデル固有の縦補正（原点が足元でないモデル用）
+	float deathModelSink_ = 0.0f;                   // 死亡モーション中に沈める量（SetDeathModelSink）
+	float deathSinkTimer_ = 0.0f;                   // 死亡演出に入ってからの経過時間
 
 	// ステートと演出フェーズから再生クリップを決めて流す。毎フレーム呼ぶ
 	void UpdateAnimation();
@@ -547,6 +583,15 @@ private:
 	float attackSpeedOverride_ = 0.0f;
 	// 攻撃の振り始めから終わりまで true。プレイヤーへ向き直らず、予兆を出した向きのまま攻撃する
 	bool facingLocked_ = false;
+	// 向き直りの速さの上限[度/秒]（0 以下なら即座に向く）と、その一時的な上書き
+	float faceTurnSpeed_ = 0.0f;
+	float faceTurnSpeedOverride_ = 0.0f;
+	// 最後に向けた向き（ローカル +Z が向く水平方向＝プレイヤーと反対側）。
+	// ゼロのうちは向きを覚えていないので、次の向き直りは一気に向く
+	Vector3 faceDir_{};
+
+	// ローカル +Z を away（水平方向）へ向ける。速さの上限があれば、今の向きから少しずつ回す
+	void TurnToward(const Vector3& away, float deltaTime);
 	// 次の UpdateAnimation で攻撃クリップを頭から出し直すか（連続攻撃で振り直すため）
 	bool attackAnimRestart_ = false;
 

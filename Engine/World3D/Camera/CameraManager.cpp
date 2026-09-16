@@ -1,5 +1,6 @@
 ﻿#include "CameraManager.h"
 #include <World3D/Object/Object3dManager.h>
+#include "Audio/SoundManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include <Utility/DeltaTime.h>
 #include <algorithm>
@@ -68,7 +69,29 @@ void CameraManager::Update()
 	if (camera) {
 		cameraData_->worldPosition = camera->GetTranslate();
 		Object3dManager::GetInstance().SetDefaultCamera(camera);
+		UpdateSoundListener(camera);
 	}
+}
+
+void CameraManager::UpdateSoundListener(BaseCamera* camera)
+{
+	// 3D SE（SoundManager::PlaySE3D）の聞き手はいま絵を出しているカメラ。
+	// カメラの更新が終わったここで渡しておけば、ゲーム側は何もしなくてよい
+	const Vector3 position = camera->GetTranslate();
+
+	// 速度は位置の差から出す。ドップラーにしか使わないので実時間で構わない
+	Vector3 velocity{};
+	const float deltaTime = DeltaTime::GetUnscaledDeltaTime();
+	if (hasListenerHistory_ && deltaTime > 0.0f) {
+		velocity = (position - previousListenerPosition_) / deltaTime;
+		// シーン切り替えやカメラの切り替えで位置が飛ぶと、その1フレームだけ
+		// 音速級の速度が出てピッチが跳ねる。常識的な範囲で頭打ちにする
+		velocity = ClampLength(velocity, 60.0f);
+	}
+	previousListenerPosition_ = position;
+	hasListenerHistory_ = true;
+
+	SoundManager::GetInstance().SetListener(position, camera->GetForward(), camera->GetRight(), velocity);
 }
 
 void CameraManager::SetActiveCamera(const std::string& cameraName, float transitionTime)

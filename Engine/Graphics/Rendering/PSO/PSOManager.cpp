@@ -335,11 +335,11 @@ void PSOManager::CreateCSMPSO() {
 // ---------------------------------------------------------------------------
 // Trail
 // ---------------------------------------------------------------------------
-ID3D12PipelineState* PSOManager::GetTrailPSO() {
+ID3D12PipelineState* PSOManager::GetTrailPSO(bool additive) {
 	if (!trailPSO_) {
 		CreateTrailPSO();
 	}
-	return trailPSO_.Get();
+	return additive ? trailPSO_.Get() : trailAlphaPSO_.Get();
 }
 
 void PSOManager::CreateTrailSignature() {
@@ -350,7 +350,8 @@ void PSOManager::CreateTrailSignature() {
 
 void PSOManager::CreateTrailPSO() {
 	CreateTrailSignature();
-	trailPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get());
+	trailPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get(), true);
+	trailAlphaPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get(), false);
 }
 
 // ---------------------------------------------------------------------------

@@ -1,0 +1,387 @@
+{
+  "Name": "PlayerHitSlash",
+  "Emitter": {
+    "Frequency": 0.5,
+    "IsActive": false,
+    "ShapeModel": "",
+    "Position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Particles": [
+      {
+        "ParticleName": "PAtkSlashStar",
+        "Count": 1,
+        "SpawnRate": 1.0
+      },
+      {
+        "ParticleName": "PAtkSlashSpark",
+        "Count": 12,
+        "SpawnRate": 1.0
+      },
+      {
+        "ParticleName": "PAtkSlashRing",
+        "Count": 2,
+        "SpawnRate": 1.0
+      }
+    ]
+  },
+  "Particles": {
+    "PAtkSlashStar": {
+      "Texture": "SlashStar.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 0,
+        "BlendMode": 2,
+        "Drag": 1.0,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 0.0,
+        "SpeedMin": 0.0,
+        "SpreadDegrees": 0.0,
+        "UseDirectional": false,
+        "VelocityStretch": 0.0,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "minColor": [
+          0.8,
+          0.9,
+          1.0
+        ],
+        "maxLifeTime": 0.09,
+        "minLifeTime": 0.07,
+        "maxRotate": [
+          0.0,
+          0.0,
+          3.14
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          -3.14
+        ],
+        "maxScale": [
+          0.7,
+          0.7,
+          0.7
+        ],
+        "minScale": [
+          0.55,
+          0.55,
+          0.55
+        ],
+        "maxTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "SizeCurve": [
+          {
+            "t": 0.0,
+            "v": 0.3
+          },
+          {
+            "t": 0.25,
+            "v": 1.15
+          },
+          {
+            "t": 1.0,
+            "v": 0.7
+          }
+        ],
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.5,
+            "v": 0.9
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    },
+    "PAtkSlashSpark": {
+      "Texture": "white.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 2,
+        "BlendMode": 2,
+        "Drag": 0.15,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          -14.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 16.0,
+        "SpeedMin": 7.0,
+        "SpreadDegrees": 55.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.07,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "minColor": [
+          0.8,
+          0.92,
+          1.0
+        ],
+        "maxLifeTime": 0.24,
+        "minLifeTime": 0.12,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.07,
+          0.07,
+          0.07
+        ],
+        "minScale": [
+          0.03,
+          0.03,
+          0.03
+        ],
+        "maxTranslate": [
+          0.08,
+          0.08,
+          0.08
+        ],
+        "minTranslate": [
+          -0.08,
+          -0.08,
+          -0.08
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "SizeCurve": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.3,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.2
+          }
+        ],
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.6,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ],
+        "ColorGradient": [
+          {
+            "t": 0.0,
+            "c": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "t": 1.0,
+            "c": [
+              0.55,
+              0.8,
+              1.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    },
+    "PAtkSlashRing": {
+      "Texture": "white.png",
+      "Shape": "Ring",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 0,
+        "BlendMode": 2,
+        "Drag": 1.0,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "IsBillboard": false,
+        "OrientToDirection": true,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 0.0,
+        "SpeedMin": 0.0,
+        "SpreadDegrees": 0.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.0,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          0.85,
+          0.95,
+          1.0
+        ],
+        "minColor": [
+          0.85,
+          0.95,
+          1.0
+        ],
+        "maxLifeTime": 0.18,
+        "minLifeTime": 0.14,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.35,
+          0.35,
+          0.35
+        ],
+        "minScale": [
+          0.35,
+          0.35,
+          0.35
+        ],
+        "maxTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "SizeCurve": [
+          {
+            "t": 0.0,
+            "v": 0.2
+          },
+          {
+            "t": 0.4,
+            "v": 0.9
+          },
+          {
+            "t": 1.0,
+            "v": 1.3
+          }
+        ],
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 0.9
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

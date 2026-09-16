@@ -75,11 +75,16 @@ void OffScreenManager::ExecutePostEffects() {
 
 		path->Execute();
 
+		// このパスが書き込んだのは今の ping のバッファ。
+		// path->GetOutputSRVIndex() は「そのパスが最初に書いたバッファ」の SRV を作ったまま使い回しているので使わない。
+		// 1フレームの swap 回数は「EndDrawToPingPong の1回 + 有効なパスの数」なので、
+		// 有効なパスが偶数個（例: Bloom + タイトルのビネット）だと ping/pong がフレームごとに入れ替わり、
+		// 覚えた SRV が1フレームおきに1つ手前のパスの結果を指して、最後のエフェクトが画面に出ていなかった
+		finalPostEffectSrv_ = srvHandles_[ping_];
+		outputSrvIndex_ = srvIndices_[ping_];
+
 		std::swap(ping_, pong_);
 		inputSrv = srvHandles_[pong_];
-
-		finalPostEffectSrv_ = path->GetOutputSRV();
-		outputSrvIndex_ = path->GetOutputSRVIndex();
 	}
 	// pathが一つも無かった場合のフォールバック
 	if (!anyExecuted) {

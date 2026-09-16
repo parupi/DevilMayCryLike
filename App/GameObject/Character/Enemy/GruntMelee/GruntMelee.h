@@ -39,6 +39,9 @@ public:
     void OnCollisionStay(BaseCollider* other) override;
     void OnCollisionExit(BaseCollider* other) override;
 
+    /// <summary>骸骨なので、斬ると白い骨の欠片が飛ぶ</summary>
+    HitMaterial GetHitMaterial() const override { return HitMaterial::Bone; }
+
 protected:
     /// <summary>死亡演出終了時に武器を後始末する</summary>
     void OnDeathEffectFinished() override;

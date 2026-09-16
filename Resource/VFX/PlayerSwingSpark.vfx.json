@@ -1,0 +1,141 @@
+{
+  "Name": "PlayerSwingSpark",
+  "Emitter": {
+    "Frequency": 0.5,
+    "IsActive": false,
+    "ShapeModel": "",
+    "Position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Particles": [
+      {
+        "ParticleName": "PAtkSwingSpark",
+        "Count": 6,
+        "SpawnRate": 1.0
+      }
+    ]
+  },
+  "Particles": {
+    "PAtkSwingSpark": {
+      "Texture": "white.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 2,
+        "BlendMode": 2,
+        "Drag": 0.2,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          -8.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 9.0,
+        "SpeedMin": 4.0,
+        "SpreadDegrees": 35.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.06,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "minColor": [
+          0.8,
+          0.92,
+          1.0
+        ],
+        "maxLifeTime": 0.18,
+        "minLifeTime": 0.1,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.045,
+          0.045,
+          0.045
+        ],
+        "minScale": [
+          0.025,
+          0.025,
+          0.025
+        ],
+        "maxTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minTranslate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 1.0
+          },
+          {
+            "t": 0.5,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ],
+        "ColorGradient": [
+          {
+            "t": 0.0,
+            "c": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "t": 1.0,
+            "c": [
+              0.6,
+              0.8,
+              1.0,
+              1.0
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

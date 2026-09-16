@@ -167,8 +167,9 @@ void GruntMelee::Update(float deltaTime) {
 		weaponCol->GetColliderData().isActive = isAttackPhase;
 	}
 
-	// 予備動作中にチャージリングを一定間隔で発射
-	if (meleeAttack_->IsWindingUp()) {
+	// 予備動作中にチャージリングを一定間隔で発射。
+	// 死亡演出中はステートが回らず攻撃の時間も止まるので、構えのまま死んでも出さない
+	if (meleeAttack_->IsWindingUp() && !IsAppearanceEffectPlaying()) {
 		chargeEmitTimer_ += deltaTime;
 		if (chargeEmitTimer_ >= kChargeEmitInterval) {
 			chargeEmitter_->Emit();
@@ -207,6 +208,9 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 
 	if (hp_ <= 0.0f) {
 		if (CanDie()) {
+			// 死亡演出中はステートが回らないので、構えの途中で倒されると攻撃が残る。
+			// ボスと同じく攻撃ごと中断する（予兆は閃光なしで消え、向きの固定も解ける）
+			meleeAttack_->Cancel(*this);
 			OnDeath();
 			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
 			ApplyDeathLaunch(hit.info.direction, hit.info.knockback);

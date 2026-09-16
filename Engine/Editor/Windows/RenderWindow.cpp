@@ -5,10 +5,13 @@
 
 #include "Graphics/Rendering/PostEffect/BaseOffScreen.h"
 #include "Graphics/Rendering/PostEffect/BloomEffect.h"
+#include "Graphics/Rendering/PostEffect/ColorGradingEffect.h"
 #include "Graphics/Rendering/PostEffect/GaussianEffect.h"
+#include "Graphics/Rendering/PostEffect/HeatDistortionEffect.h"
 #include "Graphics/Rendering/PostEffect/GrayEffect.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/PostEffect/SmoothEffect.h"
+#include "Graphics/Rendering/PostEffect/SpeedLineEffect.h"
 #include "Graphics/Rendering/PostEffect/VignetteEffect.h"
 #include "Graphics/Rendering/Shadow/CascadedShadowMap.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
@@ -67,6 +70,36 @@ void DrawEffectParams(BaseOffScreen* effect)
 		if (auto* d = gray->GetEffectData()) {
 			ImGui::DragFloat("intensity", &d->intensity, 0.01f);
 		}
+		return;
+	}
+	if (auto* heat = dynamic_cast<HeatDistortionEffect*>(effect)) {
+		HeatDistortionEffect::HeatDistortionData& d = heat->GetEffectData();
+		ImGui::TextDisabled("位置と太さは使う側（ブレスなど）が毎フレーム上書きします");
+		ImGui::DragFloat2("segmentStart", &d.segmentStart.x, 0.005f, 0.0f, 1.0f);
+		ImGui::DragFloat2("segmentEnd", &d.segmentEnd.x, 0.005f, 0.0f, 1.0f);
+		ImGui::DragFloat("radiusStart", &d.radiusStart, 0.002f, 0.0f, 1.0f);
+		ImGui::DragFloat("radiusEnd", &d.radiusEnd, 0.002f, 0.0f, 1.0f);
+		ImGui::DragFloat("strength", &d.strength, 0.0005f, 0.0f, 0.1f, "%.4f");
+		ImGui::DragFloat("noiseScale", &d.noiseScale, 0.1f, 0.1f, 100.0f);
+		ImGui::DragFloat("scrollSpeed", &d.scrollSpeed, 0.05f, -20.0f, 20.0f);
+		return;
+	}
+	if (auto* speedLine = dynamic_cast<SpeedLineEffect*>(effect)) {
+		SpeedLineEffect::SpeedLineData& d = speedLine->GetEffectData();
+		ImGui::TextDisabled("中心は使う側（突進など）が毎フレーム上書きします");
+		ImGui::DragFloat2("center", &d.center.x, 0.005f, 0.0f, 1.0f);
+		ImGui::DragFloat("strength", &d.strength, 0.01f, 0.0f, 2.0f);
+		ImGui::DragFloat("lineCount", &d.lineCount, 1.0f, 8.0f, 360.0f);
+		ImGui::DragFloat("innerRadius", &d.innerRadius, 0.005f, 0.0f, 1.0f);
+		return;
+	}
+	if (auto* grading = dynamic_cast<ColorGradingEffect*>(effect)) {
+		ColorGradingEffect::ColorGradingData& d = grading->GetEffectData();
+		ImGui::DragFloat("strength", &d.strength, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat3("gain", &d.gain.x, 0.005f, 0.0f, 2.0f);
+		ImGui::DragFloat3("lift", &d.lift.x, 0.002f, -0.5f, 0.5f);
+		ImGui::DragFloat("saturation", &d.saturation, 0.01f, 0.0f, 2.0f);
+		ImGui::DragFloat("contrast", &d.contrast, 0.01f, 0.0f, 2.0f);
 		return;
 	}
 	if (auto* smooth = dynamic_cast<SmoothEffect*>(effect)) {

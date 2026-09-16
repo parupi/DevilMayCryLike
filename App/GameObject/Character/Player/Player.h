@@ -23,6 +23,7 @@
 #include "GameObject/Effect/DeathScreenEffect.h"
 #include "GameObject/Effect/DissolveOutEffect.h"
 #include "GameObject/Effect/JustDodgeEffect.h"
+#include "GameObject/Effect/PlayerAttackEffect.h"
 #include "Graphics/Rendering/Effect/WeaponTrail.h"
 #include "PlayerDodge.h"
 #include "Combat/PlayerCombat.h"
@@ -460,4 +461,10 @@ private:
 	bool dodgeAnimRestart_ = false;
 	// ジャスト回避の演出（白フラッシュ・衝撃波・SE・シェイク）
 	std::unique_ptr<JustDodgeEffect> justDodgeEffect_;
+	// 剣の攻撃演出（軌跡・刀身の光・溜め・技ごとの追加演出）
+	std::unique_ptr<PlayerAttackEffect> attackEffect_;
+
+public:
+	/// <summary>剣の攻撃演出。武器のヒット処理が刃先の速度と見た目の種類を読む</summary>
+	PlayerAttackEffect* GetAttackEffect() const { return attackEffect_.get(); }
 };

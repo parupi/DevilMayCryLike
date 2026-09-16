@@ -14,6 +14,8 @@
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
 #include <algorithm>
+#include <cmath>
+#include <numbers>
 #ifdef _DEBUG
 #endif
 
@@ -123,7 +125,13 @@ void Enemy::ApplyModelGroundOffset() {
 	switch (collider->GetShapeType()) {
 	case CollisionShapeType::OBB: {
 		const OBBData& data = static_cast<OBBCollider*>(collider)->GetColliderData();
-		bottomLocal = data.offset.y - data.halfExtents.y;
+		// OBBCollider::Update は offset を「回転はするが拡大しない」＝ワールド単位で足し、
+		// halfExtents だけを配置スケールで拡大する。ここはローカル単位で揃えるので offset だけスケールで割る。
+		// 割らないと、コライダーを上へずらして2倍に置いたボス（本編の BossDragon）で
+		// モデルが offset ぶん（1.92m）宙に浮いていた
+		const float objScaleY = GetWorldTransform()->GetWorldScale().y;
+		const float offsetLocalY = (objScaleY > 1.0e-4f) ? (data.offset.y / objScaleY) : data.offset.y;
+		bottomLocal = offsetLocalY - data.halfExtents.y;
 		break;
 	}
 	case CollisionShapeType::AABB:
@@ -141,7 +149,17 @@ void Enemy::ApplyModelGroundOffset() {
 	const float scaleY = GetWorldTransform()->GetWorldScale().y;
 	const float sinkLocal = (scaleY > 1.0e-4f) ? (kGroundSink / scaleY) : 0.0f;
 
-	renderer->GetWorldTransform()->GetTranslation().y = bottomLocal + sinkLocal + modelGroundOffset_;
+	// 死亡モーションで倒れた体が地面まで届かないモデルは、倒れるのに合わせて沈める。
+	// 死亡クリップ（吹き飛び + 死亡モーション）の長さをかけて滑らかに下げ、以降はそのまま保つ
+	float deathSink = 0.0f;
+	if (deathModelSink_ > 0.0f && appearanceFx_ &&
+		(appearanceFx_->IsDying() || appearanceFx_->IsDeathFinished())) {
+		const float clipSeconds = appearanceFx_->GetDeathClipDuration();
+		const float t = (clipSeconds > 0.01f) ? std::clamp(deathSinkTimer_ / clipSeconds, 0.0f, 1.0f) : 1.0f;
+		deathSink = deathModelSink_ * (t * t * (3.0f - 2.0f * t));
+	}
+
+	renderer->GetWorldTransform()->GetTranslation().y = bottomLocal + sinkLocal + modelGroundOffset_ - deathSink;
 }
 
 void Enemy::Initialize() {
@@ -247,6 +265,8 @@ void Enemy::Update(float deltaTime) {
 			// 死亡演出中: 意思決定を止め、とどめの吹き飛びの慣性と重力だけを適用する。
 			// 演出はここから「吹き飛び → 死亡モーション → 黒いもや → ディゾルブ」と進むので、
 			// 倒れた体が地面で震えないよう接地したら落下速度を殺しておく
+			// （経過時間は ApplyModelGroundOffset の死体の沈み込みに使う）
+			deathSinkTimer_ += deltaTime;
 			if (onGround_) {
 				if (velocity_.y < 0.0f) {
 					velocity_.y = 0.0f;
@@ -324,20 +344,8 @@ void Enemy::Update(float deltaTime) {
 	// 攻撃の振り始めから終わりまでは向きを固定する（EnemyAttackAim が LockFacing で止める）。
 	// ここで向き直ると、予兆が消えた後に横へ動いたプレイヤーの方へ攻撃が曲がってしまう
 	if (!facingLocked_) {
-		// 座標取得
-		Vector3 enemyPos = GetWorldTransform()->GetTranslation();
-		Vector3 playerPos = player_->GetWorldTransform()->GetTranslation();
-
-		// 敵 → プレイヤー方向
-		Vector3 dir = enemyPos - playerPos;
-		dir.y = 0.0f; // 上下は無視
-		Normalize(dir);
-
-		// 前方向（モデルの前が +Z 前提）
-		Vector3 forward(0.0f, 0.0f, 1.0f);
-
-		// 回転をセット
-		GetWorldTransform()->GetRotation() = FromToRotation(forward, dir);
+		// ローカル +Z をプレイヤーと反対側へ向ける（＝前方向のローカル -Z がプレイヤーを向く）
+		TurnToward(GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation(), dt);
 	}
 
 	Object3d::Update(dt);
@@ -370,8 +378,34 @@ void Enemy::LockFacing(const Vector3& forward) {
 	if (Length(flat) < 0.001f) return;
 
 	// Update の向き直りと同じ式。ローカル +Z を forward の反対へ向ける
-	// ＝ 前方向（ローカル -Z）が forward を向く
-	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, -flat);
+	// ＝ 前方向（ローカル -Z）が forward を向く。
+	// 固定は向き直りの速さに関係なく一瞬で揃える（予兆がその向きで出ているため）
+	faceDir_ = Normalize(-flat);
+	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, faceDir_);
+}
+
+void Enemy::TurnToward(const Vector3& away, float deltaTime) {
+	Vector3 target{ away.x, 0.0f, away.z };
+	// 真上・真下に居るなど向きが決まらないときは、今の向きのまま
+	if (Length(target) < 0.001f) return;
+	target = Normalize(target);
+
+	const float turnSpeed = (faceTurnSpeedOverride_ > 0.0f) ? faceTurnSpeedOverride_ : faceTurnSpeed_;
+	if (turnSpeed > 0.0f && Length(faceDir_) > 0.5f) {
+		// 今の向きから目標までの角度を、このフレームに回ってよい角度で切る
+		constexpr float kPi = std::numbers::pi_v<float>;
+		const float currentYaw = std::atan2(faceDir_.x, faceDir_.z);
+		float delta = std::atan2(target.x, target.z) - currentYaw;
+		// -π〜π に畳んで、近い方へ回る
+		if (delta > kPi) delta -= 2.0f * kPi;
+		if (delta < -kPi) delta += 2.0f * kPi;
+		const float maxStep = turnSpeed * (kPi / 180.0f) * deltaTime;
+		const float yaw = currentYaw + std::clamp(delta, -maxStep, maxStep);
+		target = { std::sin(yaw), 0.0f, std::cos(yaw) };
+	}
+
+	faceDir_ = target;
+	GetWorldTransform()->GetRotation() = FromToRotation({ 0.0f, 0.0f, 1.0f }, target);
 }
 
 Vector3 Enemy::GetFootPosition() {
@@ -399,6 +433,23 @@ Vector3 Enemy::GetFootPosition() {
 	}
 	}
 	return pos;
+}
+
+Vector3 Enemy::GetBodyCenter() {
+	BaseCollider* collider = GetCollider(name_);
+	if (!collider) return GetWorldTransform()->GetWorldPos();
+
+	switch (collider->GetShapeType()) {
+	case CollisionShapeType::OBB:
+		return static_cast<OBBCollider*>(collider)->GetCenter();
+	case CollisionShapeType::AABB: {
+		auto* aabb = static_cast<AABBCollider*>(collider);
+		return (aabb->GetMin() + aabb->GetMax()) * 0.5f;
+	}
+	case CollisionShapeType::Sphere:
+		return static_cast<SphereCollider*>(collider)->GetCenter();
+	}
+	return GetWorldTransform()->GetWorldPos();
 }
 
 void Enemy::Spawn() {

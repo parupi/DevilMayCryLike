@@ -7,6 +7,7 @@
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Graphics/Text/FontManager.h"
 #include "Scene/Transition/TransitionManager.h"
@@ -58,6 +59,12 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 	// --- GBufferManager ---
 	gBufferManager_ = std::make_unique<GBufferManager>();
 	gBufferManager_->Initialize(ctx_.dxManager);
+
+	// ソフトパーティクル用。パーティクルは Forward パスで描かれ、その時点の GBuffer は読める状態にある
+	if (ctx_.particleManager) {
+		ctx_.particleManager->SetSceneWorldPositionSrv(
+			gBufferManager_->GetSRVHandle(GBufferManager::GBufferType::WorldPos));
+	}
 
 	// --- パスを順番に登録 ---
 	{

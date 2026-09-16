@@ -1,4 +1,5 @@
 #include "BossKnight.h"
+#include <algorithm>
 #include <cmath>
 #include "GameObject/Character/Player/Player.h"
 #include <World3D/Object/Renderer/RendererManager.h>
@@ -21,6 +22,10 @@
 #include "State/BossStateHeavySword.h"
 #include "State/BossStateRush.h"
 #include "State/BossStateBreath.h"
+#include "State/BossStateDown.h"
+#include "State/BossStateRoar.h"
+#include "GameObject/Camera/GameCamera.h"
+#include "World3D/Camera/CameraManager.h"
 
 BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	// ModelRenderer は FindModel するだけで読み込みはしないので、ここで読んでおく。
@@ -30,6 +35,10 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
 	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
+	// Dragon_Death は倒れきっても体が浮いたまま終わるので、倒れるのに合わせて沈める
+	SetDeathModelSink(kDeathModelSink);
+	// 大きな体なので、プレイヤーへ一瞬では振り向かない（攻撃の溜めの間はさらに遅くなる）
+	SetFaceTurnSpeed(kFaceTurnSpeed);
 
 	hp_ = kMaxHp;
 	maxHp_ = kMaxHp;
@@ -72,6 +81,10 @@ void BossKnight::Initialize() {
 	sensor_->SetDetectionRange(25.0f); // 広い感知範囲
 	movement_ = std::make_unique<EnemyMovementComponent>();
 	boneAttack_ = std::make_unique<EnemyBoneAttackComponent>(hitbox_);
+	breathEffect_ = std::make_unique<BossBreathEffect>();
+	breathEffect_->Initialize(name_);
+	attackEffect_ = std::make_unique<BossAttackEffect>();
+	attackEffect_->Initialize(name_);
 
 	// ── ステート登録 ──
 	// ボスは被弾でのけぞらないので KnockBack ステートは持たない。
@@ -92,7 +105,9 @@ void BossKnight::Initialize() {
 	states_[BossStateName::Slash] = std::make_unique<BossStateSlash>(boneAttack_.get());
 	states_[BossStateName::HeavySword] = std::make_unique<BossStateHeavySword>(boneAttack_.get());
 	states_[BossStateName::Rush] = std::make_unique<BossStateRush>(boneAttack_.get());
-	states_[BossStateName::Breath] = std::make_unique<BossStateBreath>(boneAttack_.get());
+	states_[BossStateName::Breath] = std::make_unique<BossStateBreath>(boneAttack_.get(), breathEffect_.get());
+	states_[BossStateName::Down] = std::make_unique<BossStateDown>(movement_.get());
+	states_[BossStateName::Roar] = std::make_unique<BossStateRoar>(movement_.get());
 
 	// ── アニメーションの割り当て（Dragon.gltf の5クリップ）──
 	// このモデルには待機が無いので Flying を待機・移動の両方に充てている。
@@ -109,6 +124,10 @@ void BossKnight::Initialize() {
 	// 攻撃の尺(4.2秒)がクリップ(1.67秒)より長いので、EnemyBoneAttackComponent が
 	// 引き伸ばして流す（最後のポーズで固まらない）
 	RegisterStateClip(BossStateName::Breath,           kClipAttack2, false, kAttack2ImpactRatio);
+	// 崩れは被弾クリップを崩れの長さへ引き伸ばして1回流す（速さは BossStateDown が決める）
+	RegisterStateClip(BossStateName::Down,             kClipHit,     false);
+	// 咆哮は専用のクリップが無いので、羽ばたき（待機）を速く回して見せる（速さは BossStateRoar が決める）
+	RegisterStateClip(BossStateName::Roar,             kClipIdle);
 	// 出現専用のクリップは無いので、ディゾルブ中は Flying をループさせておく
 	SetSpawnClip(kClipIdle, true);
 	SetDeathClip(kClipDeath);
@@ -138,12 +157,15 @@ void BossKnight::Initialize() {
 	armorHitEmitter_->AddParticle("BossArmorHitSpark");
 	armorHitEmitter_->GetParticles()[0].count = 16; // 1ヒットで16粒の火花を散らす
 
-	// ── VFX: 必殺技ブレスの炎 ──
-	// パーティクルグループはシーンをまたいで残るので、未登録のときだけ読む。
-	// 毎回読むとパーティクルエディタでの調整がボスを1体置くたびに巻き戻る
-	if (!ParticleManager::GetInstance().GetEmitters().contains(kBreathVfxName)) {
-		if (!ParticleManager::GetInstance().LoadVFX(kBreathVfxName)) {
-			Logger::Log("BossKnight: Resource/VFX/BossBreath.vfx.json を読み込めませんでした（炎が出ません）\n");
+	// ── VFX: 必殺技ブレス（溜め・発射・炎・地面・焦げ跡・余韻）──
+	// パーティクルグループはシーンをまたいで残るので、未登録のものだけ読む
+	BossBreathEffect::LoadVfx();
+	// ── VFX: 噛みつき・叩きつけ・突進・咆哮（土煙・衝撃・地面のひび・唾液）──
+	BossAttackEffect::LoadVfx();
+	// ── VFX: フェーズ移行の咆哮の衝撃波 ──（ブレスと同じく未登録のときだけ読む）
+	if (!ParticleManager::GetInstance().GetEmitters().contains(kRoarVfxName)) {
+		if (!ParticleManager::GetInstance().LoadVFX(kRoarVfxName)) {
+			Logger::Log("BossKnight: Resource/VFX/BossRoar.vfx.json を読み込めませんでした（咆哮の衝撃波が出ません）\n");
 		}
 	}
 
@@ -162,6 +184,9 @@ void BossKnight::Update(float deltaTime) {
 	// 死亡演出終了後は武器が後始末済みのため、本体の後始末だけ行う
 	if (!IsAlive()) {
 		Enemy::Update(deltaTime);
+		// ブレスの途中で倒されても、ライトや画面の効果を焼き付けたままにしない（要求が途絶えて余韻へ移る）
+		if (breathEffect_) breathEffect_->Update(*this, deltaTime);
+		if (attackEffect_) attackEffect_->Update(*this, deltaTime, BossActionKind::None, *boneAttack_);
 		return;
 	}
 
@@ -169,6 +194,8 @@ void BossKnight::Update(float deltaTime) {
 	if (!isActive_) {
 		if (hitbox_) hitbox_->Deactivate();
 		Enemy::Update(deltaTime);
+		if (breathEffect_) breathEffect_->Update(*this, deltaTime);
+		if (attackEffect_) attackEffect_->Update(*this, deltaTime, BossActionKind::None, *boneAttack_);
 		return;
 	}
 
@@ -176,9 +203,16 @@ void BossKnight::Update(float deltaTime) {
 	// 重力は常にここで掛けてよい
 	SetAcceleration({0.0f, GetOnGround() ? 0.0f : -9.8f, 0.0f});
 
-	// 出現・死亡演出中は判定を出さない（EnemyBoneAttackComponent が出していても打ち消す）
-	if (IsAppearanceEffectPlaying() && hitbox_) {
-		hitbox_->Deactivate();
+	// 出現・死亡演出中は攻撃を出さない。
+	// 演出中はステートの更新が止まるので、溜めの途中で倒されると攻撃が「溜め中」のまま残り、
+	// チャージリングが死亡演出の間ずっと出続けたり、予兆が「攻撃が出た」閃光で畳まれたりする。
+	// 判定を消すだけでなく攻撃ごと中断する（予兆は閃光なしで消え、体の向きの固定も解ける）
+	if (IsAppearanceEffectPlaying()) {
+		boneAttack_->Cancel(*this);
+		if (hitbox_) hitbox_->Deactivate();
+	} else {
+		// ブレイク値の減衰と崩れ。演出中は溜めも崩れもしない
+		UpdateBreak(deltaTime);
 	}
 
 	// 予備動作中にチャージリングを発射。
@@ -201,6 +235,16 @@ void BossKnight::Update(float deltaTime) {
 
 	Enemy::Update(deltaTime);
 
+	// ブレスの演出。口のジョイントの位置を使うので、ポーズ更新（Enemy::Update）の後に回す
+	if (breathEffect_) {
+		breathEffect_->Update(*this, deltaTime);
+	}
+	// 噛みつき・叩きつけ・突進・咆哮の演出と、移動・着地の砂埃。出現・死亡演出中は攻撃の演出を出さない
+	if (attackEffect_) {
+		const BossActionKind action = IsAppearanceEffectPlaying() ? BossActionKind::None : GetCurrentAction();
+		attackEffect_->Update(*this, deltaTime, action, *boneAttack_);
+	}
+
 	// ヒットボックスをジョイントへ合わせ直す。
 	// **Enemy::Update（＝ポーズ更新）より後**でなければ1フレーム前の姿勢に付いてしまう。
 	// 当たり判定は全オブジェクト更新のあとに CollisionManager が見るので、ここで間に合う
@@ -210,16 +254,36 @@ void BossKnight::Update(float deltaTime) {
 }
 
 
+bool BossKnight::IsInState(const char* stateName) const {
+	auto it = states_.find(stateName);
+	return it != states_.end() && currentState_ == it->second.get();
+}
+
+BossActionKind BossKnight::GetCurrentAction() const {
+	if (IsInState(BossStateName::Slash)) return BossActionKind::Bite;
+	if (IsInState(BossStateName::HeavySword)) return BossActionKind::Slam;
+	if (IsInState(BossStateName::Rush)) return BossActionKind::Rush;
+	if (IsInState(BossStateName::Breath)) return BossActionKind::Breath;
+	if (IsInState(BossStateName::Roar)) return BossActionKind::Roar;
+	return BossActionKind::None;
+}
+
+void BossKnight::DrawEffect() {
+	if (attackEffect_) attackEffect_->Draw();
+}
+
 bool BossKnight::IsKnockbackImmune() const {
 	// ボスはどの状態でものけぞらないが、これは「弾いた」演出を出すかどうかのフラグ
-	// （ヘッダーのコメント参照）。踏み込みを止められない突進(Rush)中だけ true にする
-	return currentState_ == states_.at(BossStateName::Rush).get();
+	// （ヘッダーのコメント参照）。咆哮中と、突進で実際に踏み込んでいる（判定が出ている）間だけ true にする
+	if (IsInState(BossStateName::Roar)) return true;
+	return IsInState(BossStateName::Rush) && boneAttack_ && boneAttack_->IsHitActive();
 }
 
 const KnockbackResistance& BossKnight::GetKnockbackResistance() const {
-	// 突進中は完全無効。踏み込みが鈍ると「見てから避ける」の読みが崩れる
+	// 突進ステートの間は溜めも含めて完全無効。咆哮中も押されない。
+	// 「弾いている」表示（IsKnockbackImmune）は突進の踏み込み中だけなので、ここは別に判定する
 	static const KnockbackResistance kImmune{ 1.0f, false, false, false };
-	if (IsKnockbackImmune()) return kImmune;
+	if (IsInState(BossStateName::Rush) || IsInState(BossStateName::Roar)) return kImmune;
 	return Enemy::GetKnockbackResistance();
 }
 
@@ -230,7 +294,8 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		if (armorHitFlashTimer_ < 0.0f) armorHitFlashTimer_ = 0.0f;
 	}
 
-	const bool armorActive = IsKnockbackImmune() && !IsAppearanceEffectPlaying();
+	const bool effectPlaying = IsAppearanceEffectPlaying();
+	const bool armorActive = IsKnockbackImmune() && !effectPlaying;
 
 	// 攻撃の溜め具合。振り抜いた瞬間に発光がパチッと消えないよう追従させる
 	const float windupTarget = (boneAttack_->IsWindingUp() && !IsAppearanceEffectPlaying())
@@ -239,7 +304,29 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 	if (follow > 1.0f) follow = 1.0f;
 	windupGlow_ += (windupTarget - windupGlow_) * follow;
 
-	if (armorActive) {
+	if (!effectPlaying && IsInState(BossStateName::Roar)) {
+		// ── 咆哮: 息を吸うあいだ赤く灯り、吼えた瞬間いちばん明るくなって引いていく ──
+		// 攻撃を受け付けない間だが、紫の「弾き」より先に「吼えている」を見せる
+		auraEmitTimer_ = 0.0f;
+		armorTintPhase_ = 0.0f;
+
+		const float elapsed = static_cast<const BossStateRoar*>(currentState_)->GetElapsed();
+		float glow = elapsed / BossStateRoar::kBurstTime;
+		if (elapsed >= BossStateRoar::kBurstTime) {
+			const float fade = (elapsed - BossStateRoar::kBurstTime)
+				/ (BossStateRoar::kDuration - BossStateRoar::kBurstTime);
+			glow = 1.0f - fade;
+		}
+		glow = std::clamp(glow, 0.0f, 1.0f);
+
+		if (characterLight_) {
+			characterLight_->SetColorOverride({ 1.0f, 0.2f, 0.08f, 1.0f });
+			characterLight_->SetIntensityScale(1.0f + 3.0f * glow);
+		}
+		if (auto* bodyRenderer = GetRenderer(name_)) {
+			bodyRenderer->SetEmissiveTint({ 1.0f, 0.15f, 0.05f, 0.9f * glow });
+		}
+	} else if (armorActive) {
 		// ── 紫オーラ（体のメッシュ表面から発生）──
 		auraEmitTimer_ += deltaTime;
 		while (auraEmitTimer_ >= kAuraEmitInterval) {
@@ -280,8 +367,36 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		if (auto* bodyRenderer = GetRenderer(name_)) {
 			bodyRenderer->SetEmissiveTint({ 1.0f, 0.3f, 0.05f, 0.8f * glow });
 		}
+	} else if (!effectPlaying && IsInState(BossStateName::Down)) {
+		// ── 崩れ: 追従ライトを落とし、体を黄色くゆっくり明滅させて「今が攻め時」を見せる ──
+		auraEmitTimer_ = 0.0f;
+		armorTintPhase_ = 0.0f;
+		bodyPulsePhase_ += deltaTime;
+		const float pulse = 0.14f + 0.08f * std::sin(bodyPulsePhase_ * 6.0f);
+
+		if (characterLight_) {
+			characterLight_->SetColorOverride({ 1.0f, 0.85f, 0.35f, 1.0f });
+			characterLight_->SetIntensityScale(0.6f);
+		}
+		if (auto* bodyRenderer = GetRenderer(name_)) {
+			bodyRenderer->SetEmissiveTint({ 1.0f, 0.8f, 0.25f, pulse });
+		}
+	} else if (!effectPlaying && battleMemory_.shownPhase >= 3) {
+		// ── 瀕死（フェーズ3の咆哮の後）: 体に赤い脈動を残して、追い詰めたことを見せる ──
+		auraEmitTimer_ = 0.0f;
+		armorTintPhase_ = 0.0f;
+		bodyPulsePhase_ += deltaTime;
+		const float pulse = 0.10f + 0.06f * std::sin(bodyPulsePhase_ * 3.0f);
+
+		if (characterLight_) {
+			characterLight_->SetColorOverride({ 1.0f, 0.2f, 0.1f, 1.0f });
+			characterLight_->SetIntensityScale(1.4f);
+		}
+		if (auto* bodyRenderer = GetRenderer(name_)) {
+			bodyRenderer->SetEmissiveTint({ 0.9f, 0.1f, 0.05f, pulse });
+		}
 	} else {
-		// アーマーも溜めも無し: すべての表示を通常状態に戻す
+		// アーマーも溜めも無し（出現・死亡演出中も含む）: すべての表示を通常状態に戻す
 		auraEmitTimer_ = 0.0f;
 		armorTintPhase_ = 0.0f;
 
@@ -306,6 +421,45 @@ void BossKnight::OnDeathEffectFinished() {
 	}
 }
 
+void BossKnight::UpdateBreak(float deltaTime) {
+	if (IsInState(BossStateName::Down)) return;
+
+	if (breakGauge_ >= breakThreshold_) {
+		// 突進（溜めも含む）と咆哮は途中で崩さない。終わって次の行動へ移るところで崩す
+		if (IsInState(BossStateName::Rush) || IsInState(BossStateName::Roar)) return;
+		StartBreak();
+		return;
+	}
+
+	// しばらく殴られなければ少しずつ抜けていく（間を空けてちまちま当てても崩れない）
+	if (breakDecayTimer_ > 0.0f) {
+		breakDecayTimer_ -= deltaTime;
+		return;
+	}
+	breakGauge_ -= kBreakDecayRate * deltaTime;
+	if (breakGauge_ < 0.0f) breakGauge_ = 0.0f;
+}
+
+void BossKnight::StartBreak() {
+	breakGauge_ = 0.0f;
+	breakDecayTimer_ = 0.0f;
+	breakThreshold_ += kBreakThresholdStep;
+	// 攻めの流れが切れたので、連携や連続を避けるための「直前の行動」は忘れる
+	battleMemory_.lastAction = BossBattleMemory::kNoAction;
+
+	// 攻撃の途中なら、そのステートの Exit が攻撃ごと中断する（予兆も判定も消える）
+	ChangeState(BossStateName::Down);
+
+	// 崩れた瞬間をはっきり見せる: 重いヒットストップ・白フラッシュ・揺れ・火花
+	hitStop_->Start(kBreakHitStopTime, kBreakHitStopIntensity, HitStopStrength::Heavy);
+	FlashLight();
+	PlayHitFlash();
+	if (auto* camera = dynamic_cast<GameCamera*>(CameraManager::GetInstance().GetActiveCamera())) {
+		camera->AddShake(kBreakShakeTrauma);
+	}
+	ParticleManager::GetInstance().PlayVFX(kBreakVfxName, GetWorldTransform()->GetTranslation(), kBreakVfxCountScale);
+}
+
 void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	Enemy::OnCollisionEnter(other);
 
@@ -317,8 +471,8 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	// ── 仕様書 §20 の実装フロー ──
 	// ① 攻撃判定がヒット
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
-	const float damage = atk.damage;
 	const bool isArmorHit = IsKnockbackImmune();
+	const bool isDown = IsInState(BossStateName::Down);
 
 	// 攻撃がヒットしたのでライトを強く光らせる
 	FlashLight();
@@ -327,9 +481,25 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 		PlayHitFlash();
 	}
 
-	// ② ダメージ計算（弾かれていてもダメージは通る）
+	// 咆哮の間は攻撃を受け付けない。弾いた演出だけ出して、ダメージもノックバックも入れない
+	if (IsInState(BossStateName::Roar)) {
+		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
+		armorHitEmitter_->Emit();
+		armorHitFlashTimer_ = kArmorHitFlashDuration;
+		return;
+	}
+
+	// ② ダメージ計算（弾かれていてもダメージは通る。崩れている間は増える）
+	const float damage = atk.damage * (isDown ? kDownDamageScale : 1.0f);
 	hp_ -= damage;
 	RecordDamage(damage);
+
+	// ブレイク値を溜める（崩れるかどうかは UpdateBreak が決める）。
+	// 崩れている間は溜めない（明けた直後にまた崩れて、ずっと殴り放題になるのを防ぐ）
+	if (!isDown) {
+		breakGauge_ += atk.damage;
+		breakDecayTimer_ = kBreakDecayDelay;
+	}
 
 	// ③④ 方向と耐性。突進中は GetKnockbackResistance() が完全無効を返すので、
 	//     解決後の power / verticalPower は 0 になる

@@ -249,7 +249,7 @@ void TrainingController::SpawnEnemy()
 	// 前の相手がまだ消えきっていないことがあるので名前は毎回変える
 	const std::string name = std::string(kEnemyNamePrefix) + std::to_string(spawnSerial_++);
 
-	Enemy* enemy = EnemySpawner::Spawn(entry.className, name, spawnPos, entry.colliderHalfExtents);
+	Enemy* enemy = EnemySpawner::Spawn(entry.className, name, spawnPos, entry.colliderHalfExtents, entry.scale);
 	if (!enemy) return;
 
 	enemyName_ = name;

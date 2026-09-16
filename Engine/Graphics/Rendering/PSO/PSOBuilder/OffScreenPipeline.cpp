@@ -113,6 +113,18 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> OffScreenPipeline::CreatePSO(
 		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
 		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/BloomComposite.PS.hlsl", L"ps_6_0");
 		break;
+	case OffScreenEffectType::kHeatDistortion:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/HeatDistortion.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kColorGrading:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/ColorGrading.PS.hlsl", L"ps_6_0");
+		break;
+	case OffScreenEffectType::kSpeedLine:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/SpeedLine.PS.hlsl", L"ps_6_0");
+		break;
 	}
 	assert(pixelShaderBlob != nullptr);
 
