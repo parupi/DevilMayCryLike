@@ -27,6 +27,7 @@
         "Profiler": false,
         "Render": false,
         "Shadow Map (CSM)": true,
+        "Sound Editor": false,
         "Stats": false,
         "Stylish": false,
         "TimeManager": false,

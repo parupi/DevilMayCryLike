@@ -77,10 +77,60 @@ public:
 	 */
 	void SetBGMVolume(int resourceNum, float volume);
 
+	/**
+	 * @brief 再生速度（＝ピッチ）を変える
+	 * @param resourceNum BGMのリソース番号
+	 * @param ratio 1.0 で原音。2.0 で1オクターブ上、0.5 で1オクターブ下
+	 */
+	void SetPitch(int resourceNum, float ratio);
+
+	/**
+	 * @brief 定位を変える
+	 * @param resourceNum BGMのリソース番号
+	 * @param pan -1.0 で左、0.0 で中央、+1.0 で右
+	 */
+	void SetPan(int resourceNum, float pan);
+
+	/// @brief そのボイスがまだ鳴っているか
+	bool IsPlaying(int resourceNum) const;
+
 	// 音声読み込み
 	void SoundLoadWave(const char* filename);
 	// 音声データ解放
 	void SoundUnload(const char* filename);
+
+	/**
+	 * @brief その名前の波形がメモリにあるか
+	 */
+	bool HasSound(const std::string& name) const { return soundDataMap.count(name) != 0; }
+
+	/**
+	 * @brief 生成した波形を名前付きで登録する。
+	 *
+	 * SEエディタで焼いた音を .wav へ書き出さずにそのまま鳴らすための入口。
+	 * 登録後は SoundPlayWave(name) がファイル由来の音と同じように扱える。
+	 *
+	 * 同じ名前が既にあれば**中身を作り直す**（SoundLoadWave と違って早期 return しない）。
+	 * このとき古いバッファを参照しているボイスは内部で止める。
+	 *
+	 * @param name 拡張子もフォルダも無い素の名前
+	 * @param pcm 16bit PCM のバイト列
+	 * @param channels チャンネル数
+	 * @param sampleRate サンプリング周波数
+	 */
+	void RegisterGeneratedSound(const std::string& name, const std::vector<BYTE>& pcm,
+		int channels, int sampleRate);
+
+	/// @brief その波形を鳴らしているボイスを全部止める（バッファを作り直す前に呼ぶ）
+	void StopVoicesUsing(const std::string& name);
+
+	/**
+	 * @brief そのボイスが今どの波形を鳴らしているか。
+	 *
+	 * ボイスのスロットは使い回されるので、再生番号だけ持っていると
+	 * 「止めたつもりが別の音を止めていた」が起きる。止める前にここで確かめる
+	 */
+	const std::string& GetVoiceSoundName(int resourceNum) const;
 	/**
 	 * @brief 音源の再生
 	 * @param soundData 音源データ
@@ -108,6 +158,15 @@ private:
 	std::unordered_map<std::string, Audio::SoundData> soundDataMap;
 
 	std::array<IXAudio2SourceVoice*, kMaxPlayWave> pSourceVoices_ = { nullptr };
+	// そのスロットが今どの波形を鳴らしているか。
+	// 生成した波形を作り直すときに「その波形を参照しているボイス」を止めるために要る
+	// （止めずに vector を作り直すと、XAudio2 が解放済みのメモリを読みに行く）
+	std::array<std::string, kMaxPlayWave> voiceSoundNames_;
+	// SetPan の出力行列はソースのチャンネル数ぶん必要なので覚えておく
+	std::array<int, kMaxPlayWave> voiceChannels_ = {};
+
+	// マスターボイスのチャンネル数。SetPan の行列サイズに使う
+	int masterChannels_ = 2;
 
 public:
 	auto GetSoundData() { return soundDataMap; }

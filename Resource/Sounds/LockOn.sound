@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.07000000029802322,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0020000000949949026,
+                "Curve": 2.0,
+                "Decay": 0.05000000074505806,
+                "Hold": 0.009999999776482582,
+                "Release": 0.009999999776482582,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 1250.0,
+            "Name": "Blip1",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.6000000238418579,
+            "Wave": "Sine"
+        },
+        {
+            "Duration": 0.09000000357627869,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0020000000949949026,
+                "Curve": 2.0,
+                "Decay": 0.07000000029802322,
+                "Hold": 0.009999999776482582,
+                "Release": 0.009999999776482582,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 1875.0,
+            "Name": "Blip2",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.07999999821186066,
+            "Volume": 0.6000000238418579,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "LockOn",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 60,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

@@ -251,6 +251,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Tutorial\Tutorial.h" />
     <ClInclude Include="Engine\Application\MyGameTitle.h" />
     <ClInclude Include="Engine\Audio\Audio.h" />
+    <ClInclude Include="Engine\Audio\SE\AudioBuffer.h" />
+    <ClInclude Include="Engine\Audio\SE\SoundAssetLibrary.h" />
+    <ClInclude Include="Engine\Audio\SE\SoundDSP.h" />
+    <ClInclude Include="Engine\Audio\SE\SoundDefinition.h" />
+    <ClInclude Include="Engine\Audio\SE\SoundPresets.h" />
+    <ClInclude Include="Engine\Audio\SE\SoundSynthesizer.h" />
     <ClInclude Include="Engine\Audio\SoundManager.h" />
     <ClInclude Include="Engine\Core\EngineContext.h" />
     <ClInclude Include="Engine\Core\GuchisFramework.h" />
@@ -284,6 +290,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Editor\Windows\ParticleEditorWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\ProfilerWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\RenderWindow.h" />
+    <ClInclude Include="Engine\Editor\Windows\SoundEditorWindow.h" />
     <ClInclude Include="Engine\Editor\Windows\TimeWindow.h" />
     <ClInclude Include="Engine\Graphics\Device\CommandContext.h" />
     <ClInclude Include="Engine\Graphics\Device\DirectXManager.h" />
@@ -594,6 +601,12 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Tutorial\Tutorial.cpp" />
     <ClCompile Include="Engine\Application\MyGameTitle.cpp" />
     <ClCompile Include="Engine\Audio\Audio.cpp" />
+    <ClCompile Include="Engine\Audio\SE\AudioBuffer.cpp" />
+    <ClCompile Include="Engine\Audio\SE\SoundAssetLibrary.cpp" />
+    <ClCompile Include="Engine\Audio\SE\SoundDSP.cpp" />
+    <ClCompile Include="Engine\Audio\SE\SoundDefinition.cpp" />
+    <ClCompile Include="Engine\Audio\SE\SoundPresets.cpp" />
+    <ClCompile Include="Engine\Audio\SE\SoundSynthesizer.cpp" />
     <ClCompile Include="Engine\Audio\SoundManager.cpp" />
     <ClCompile Include="Engine\Core\GuchisFramework.cpp" />
     <ClCompile Include="Engine\Debugger\GlobalVariables.cpp" />
@@ -626,6 +639,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Editor\Windows\ParticleEditorWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\ProfilerWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\RenderWindow.cpp" />
+    <ClCompile Include="Engine\Editor\Windows\SoundEditorWindow.cpp" />
     <ClCompile Include="Engine\Editor\Windows\TimeWindow.cpp" />
     <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp" />
     <ClCompile Include="Engine\Graphics\Device\DirectXManager.cpp" />

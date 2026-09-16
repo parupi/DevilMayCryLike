@@ -1,10 +1,12 @@
 #include "SoundManager.h"
 #include "Audio/Audio.h"
+#include "Audio/SE/SoundAssetLibrary.h"
 #include "Debugger/GlobalVariables.h"
 #include "Utility/DeltaTime.h"
 #include "Utility/Logger.h"
 
 #include <algorithm>
+#include <cmath>
 #include <filesystem>
 
 namespace {
@@ -20,6 +22,9 @@ namespace {
 	std::filesystem::path MakeSoundPath(const std::string& name) {
 		return std::filesystem::path("Resource/sound") / (name + ".wav");
 	}
+
+	// 音速（m/s）。ドップラーの計算にだけ使う
+	constexpr float kSpeedOfSound = 340.0f;
 }
 
 SoundManager& SoundManager::GetInstance() {
@@ -60,11 +65,23 @@ void SoundManager::Update() {
 	if (previous_.IsActive() && previous_.gain <= 0.0f && previous_.targetGain <= 0.0f) {
 		ReleaseChannel(previous_);
 	}
+
+	// 鳴り終わった SE を一覧から外す。優先度の判定がここの中身を見る
+	PruneSEVoices();
 }
 
 void SoundManager::Finalize() {
 	ReleaseChannel(current_);
 	ReleaseChannel(previous_);
+
+	for (const SEVoice& voice : seVoices_) {
+		Audio::GetInstance().StopBGM(voice.handle);
+	}
+	seVoices_.clear();
+	// 焼いた波形の登録も忘れる。Audio::Finalize がバッファごと捨てるので、
+	// ここを残すと「登録済みのつもりで鳴らない」状態になる
+	SoundAssets::InvalidateAll();
+
 	paused_ = false;
 }
 
@@ -72,7 +89,14 @@ void SoundManager::Preload(const std::string& name) {
 	if (name.empty()) { return; }
 
 	Audio& audio = Audio::GetInstance();
-	if (audio.GetSoundDataMap().count(name) != 0) { return; }
+	if (audio.HasSound(name)) { return; }
+
+	// SEエディタで作った .sound を先に見る。
+	// 同名の .wav があっても、わざわざ作ったほうを鳴らしたいはずなのでこちらが勝つ
+	if (SoundAssets::Exists(name)) {
+		if (SoundAssets::Preload(name)) { return; }
+		Logger::Log("[SoundManager] .sound の合成に失敗しました: " + name + "\n");
+	}
 
 	std::error_code ec;
 	if (!std::filesystem::exists(MakeSoundPath(name), ec)) {
@@ -137,15 +161,132 @@ void SoundManager::ResumeBGM() {
 	if (previous_.IsActive()) { Audio::GetInstance().ReStartBGM(previous_.handle); }
 }
 
-void SoundManager::PlaySE(const std::string& name, float volume) {
-	if (name.empty()) { return; }
+int SoundManager::PlaySE(const std::string& name, float volume) {
+	SEPlayParams params;
+	params.name = name;
+	params.volume = volume;
+	return PlaySE(params);
+}
 
-	Preload(name);
+int SoundManager::PlaySE(const SEPlayParams& params) {
+	if (params.name.empty()) { return -1; }
 
-	const int handle = Audio::GetInstance().SoundPlayWave(name.c_str(), false);
+	Preload(params.name);
+
+	// 優先度の指定が無ければ .sound 側の値を使う（WAV しか無ければ既定値）
+	int priority = params.priority;
+	if (priority < 0) {
+		priority = SoundAssets::Exists(params.name) ? SoundAssets::GetPriority(params.name) : 50;
+	}
+
+	PruneSEVoices();
+	if (!MakeRoomForSE(priority)) {
+		// 今鳴っている音のほうが重要。鳴らさずに諦める
+		return -1;
+	}
+
+	Audio& audio = Audio::GetInstance();
+	const int handle = audio.SoundPlayWave(params.name.c_str(), false);
+	if (handle < 0) { return -1; }
+
+	audio.SetBGMVolume(handle, std::clamp(params.volume, 0.0f, 1.0f) * seVolume_ * masterVolume_);
+	if (params.pitch != 1.0f) { audio.SetPitch(handle, params.pitch); }
+	if (params.pan != 0.0f) { audio.SetPan(handle, params.pan); }
+
+	seVoices_.push_back(SEVoice{ handle, params.name, priority });
+	return handle;
+}
+
+int SoundManager::PlaySE3D(const std::string& name, const Vector3& worldPosition,
+	float volume, const Vector3& velocity) {
+	SEPlayParams params;
+	params.name = name;
+	params.volume = volume;
+
+	if (hasListener_) {
+		const Vector3 toSource = worldPosition - listenerPosition_;
+		const float distance = Length(toSource);
+
+		// 遠すぎる音はボイスを取らない。優先度の取り合いにも参加させない
+		if (distance >= seMaxDistance_) { return -1; }
+
+		// 距離減衰。逆二乗だと近づいた瞬間だけ極端に大きくなるので逆距離にする
+		float attenuation = 1.0f;
+		if (distance > seMinDistance_) {
+			attenuation = seMinDistance_ / distance;
+			// 打ち切り点で「ブツッ」と消えないよう、最後の1/4でフェードさせる
+			const float fadeStart = seMaxDistance_ * 0.75f;
+			if (distance > fadeStart) {
+				attenuation *= (seMaxDistance_ - distance) / (seMaxDistance_ - fadeStart);
+			}
+		}
+		params.volume = volume * std::clamp(attenuation, 0.0f, 1.0f);
+
+		// パンは聞き手の右方向との内積。真後ろでも左右が入れ替わらない
+		if (distance > 0.001f) {
+			const Vector3 direction = Normalize(toSource);
+			// 真横で振り切らないよう 0.85 まで。振り切ると片耳から消えて不自然に聞こえる
+			params.pan = std::clamp(Dot(direction, listenerRight_) * 0.85f, -1.0f, 1.0f);
+
+			// ドップラー。音源と聞き手の視線方向の速度差で再生速度を変える
+			const float sourceSpeed = Dot(velocity, direction);
+			const float listenerSpeed = Dot(listenerVelocity_, direction);
+			const float denominator = kSpeedOfSound + sourceSpeed;
+			if (std::fabs(denominator) > 1.0f) {
+				params.pitch = std::clamp((kSpeedOfSound + listenerSpeed) / denominator, 0.5f, 2.0f);
+			}
+		}
+	}
+
+	return PlaySE(params);
+}
+
+void SoundManager::StopSE(int handle) {
 	if (handle < 0) { return; }
+	Audio::GetInstance().StopBGM(handle);
+	seVoices_.erase(
+		std::remove_if(seVoices_.begin(), seVoices_.end(),
+			[handle](const SEVoice& voice) { return voice.handle == handle; }),
+		seVoices_.end());
+}
 
-	Audio::GetInstance().SetBGMVolume(handle, std::clamp(volume, 0.0f, 1.0f) * seVolume_ * masterVolume_);
+void SoundManager::SetListener(const Vector3& position, const Vector3& forward, const Vector3& right,
+	const Vector3& velocity) {
+	hasListener_ = true;
+	listenerPosition_ = position;
+	listenerForward_ = forward;
+	listenerRight_ = right;
+	listenerVelocity_ = velocity;
+}
+
+void SoundManager::SetSEDistanceRange(float minDistance, float maxDistance) {
+	seMinDistance_ = (std::max)(minDistance, 0.01f);
+	seMaxDistance_ = (std::max)(maxDistance, seMinDistance_ + 0.01f);
+}
+
+void SoundManager::PruneSEVoices() {
+	Audio& audio = Audio::GetInstance();
+	seVoices_.erase(
+		std::remove_if(seVoices_.begin(), seVoices_.end(),
+			[&audio](const SEVoice& voice) { return !audio.IsPlaying(voice.handle); }),
+		seVoices_.end());
+}
+
+bool SoundManager::MakeRoomForSE(int priority) {
+	if (seVoices_.size() < kMaxSEVoices) { return true; }
+
+	// いちばん優先度の低い音を探す。同点なら古いほう（先頭側）が犠牲になる
+	auto lowest = seVoices_.begin();
+	for (auto it = seVoices_.begin(); it != seVoices_.end(); ++it) {
+		if (it->priority < lowest->priority) { lowest = it; }
+	}
+
+	// 自分のほうが低い（か同じ）なら割り込まない
+	if (lowest->priority >= priority) { return false; }
+
+	Audio::GetInstance().StopBGM(lowest->handle);
+	seVoices_.erase(lowest);
+	return true;
 }
 
 void SoundManager::SetMasterVolume(float volume) {

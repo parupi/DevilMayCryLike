@@ -96,6 +96,15 @@ void Editor::DrawAudioWindow()
 		}
 	}
 
+	// 合成して作る SE はこちらのウィンドウが持っている。
+	// この一覧は Resource/sound の .wav 素材だけを扱う
+	if (ImGui::Button("Sound Editor を開く")) {
+		EditorWindow::SetVisible("Sound Editor", true);
+		ImGui::SetWindowFocus("Sound Editor");
+	}
+	ImGui::SameLine();
+	ImGui::TextDisabled("SE を合成して作る（Resource/Sounds/*.sound）");
+
 	ImGui::SeparatorText("試聴");
 
 	if (ImGui::Button("再スキャン")) {

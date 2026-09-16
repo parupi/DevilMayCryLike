@@ -169,6 +169,9 @@
     <Filter Include="Engine\Audio">
       <UniqueIdentifier>{1C8EDB94-08F1-6A39-B176-A3EF9DB836BC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Audio\SE">
+      <UniqueIdentifier>{83FBE878-EF86-563D-F897-D93164A2B23D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Core">
       <UniqueIdentifier>{130D9B61-7FC2-1357-08B7-0D2E746B0A5B}</UniqueIdentifier>
     </Filter>
@@ -720,6 +723,24 @@
     <ClInclude Include="Engine\Audio\Audio.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\AudioBuffer.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundAssetLibrary.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundDSP.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundDefinition.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundPresets.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundSynthesizer.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Audio\SoundManager.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
@@ -817,6 +838,9 @@
       <Filter>Engine\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Windows\RenderWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\SoundEditorWindow.h">
       <Filter>Engine\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Editor\Windows\TimeWindow.h">
@@ -1745,6 +1769,24 @@
     <ClCompile Include="Engine\Audio\Audio.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\AudioBuffer.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundAssetLibrary.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundDSP.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundDefinition.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundPresets.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundSynthesizer.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Audio\SoundManager.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
@@ -1839,6 +1881,9 @@
       <Filter>Engine\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Windows\RenderWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\SoundEditorWindow.cpp">
       <Filter>Engine\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Editor\Windows\TimeWindow.cpp">
