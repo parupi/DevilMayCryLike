@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.14000000059604645,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.003000000026077032,
+                "Curve": 2.5999999046325684,
+                "Decay": 0.10999999940395355,
+                "Hold": 0.0,
+                "Release": 0.019999999552965164,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 3000.0,
+                "CutoffEnd": 900.0,
+                "Resonance": 0.8999999761581421,
+                "Sweep": true,
+                "Type": "LowPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Push",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 800.0,
+                "Start": 2600.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.699999988079071,
+            "Wave": "PinkNoise"
+        },
+        {
+            "Duration": 0.17000000178813934,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.009999999776482582,
+                "Curve": 2.0,
+                "Decay": 0.14000000059604645,
+                "Hold": 0.0,
+                "Release": 0.019999999552965164,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 440.0,
+            "Name": "Lift",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseOut",
+                "Enabled": true,
+                "End": 430.0,
+                "Start": 220.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.3499999940395355,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "PlayerJump",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 40,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

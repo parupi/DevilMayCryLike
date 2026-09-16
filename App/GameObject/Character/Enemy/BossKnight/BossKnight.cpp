@@ -13,6 +13,7 @@
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "Utility/Logger.h"
+#include "Audio/SoundManager.h"
 #ifdef _DEBUG
 #endif
 
@@ -458,6 +459,9 @@ void BossKnight::StartBreak() {
 		camera->AddShake(kBreakShakeTrauma);
 	}
 	ParticleManager::GetInstance().PlayVFX(kBreakVfxName, GetWorldTransform()->GetTranslation(), kBreakVfxCountScale);
+	// 崩れて倒れ込む音
+	SoundManager::GetInstance().PlaySE3D(
+		GameSound::kDragonBreak, GetWorldTransform()->GetTranslation(), 1.0f);
 }
 
 void BossKnight::OnCollisionEnter(BaseCollider* other) {
@@ -483,6 +487,9 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 
 	// 咆哮の間は攻撃を受け付けない。弾いた演出だけ出して、ダメージもノックバックも入れない
 	if (IsInState(BossStateName::Roar)) {
+		// 紫の火花で弾いた音。攻撃が通っていないことを音でも伝える
+		SoundManager::GetInstance().PlaySE3D(
+			GameSound::kDragonArmorSpark, GetWorldTransform()->GetTranslation(), 0.8f);
 		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
 		armorHitEmitter_->Emit();
 		armorHitFlashTimer_ = kArmorHitFlashDuration;
@@ -532,6 +539,9 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	if (isArmorHit) {
 		// 「弾かれた」感を出す: 通常より短いヒットストップ + 紫の硬い火花 + 体の紫フラッシュ
 		// （通常のヒットエフェクトはあえて出さず、攻撃が通っていないことを伝える）
+		// 紫の火花で弾いた音。攻撃が通っていないことを音でも伝える
+		SoundManager::GetInstance().PlaySE3D(
+			GameSound::kDragonArmorSpark, GetWorldTransform()->GetTranslation(), 0.8f);
 		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
 		armorHitEmitter_->Emit();
 		armorHitFlashTimer_ = kArmorHitFlashDuration;
@@ -540,6 +550,10 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 
 	// 通常時のヒットストップ（手応えはここで返す）
 	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
+
+	// 鱗を斬られた鈍い手応え。剣側の材質音（HitArmor）に重ねてボスの位置から鳴らす
+	SoundManager::GetInstance().PlaySE3D(
+		GameSound::kDragonHit, GetWorldTransform()->GetTranslation(), 0.7f);
 }
 
 void BossKnight::OnCollisionStay(BaseCollider* other) { Enemy::OnCollisionStay(other); }

@@ -17,6 +17,12 @@ struct SEPlayParams
 	/// <summary>-1 で左、+1 で右</summary>
 	float pan = 0.0f;
 	/// <summary>
+	/// 鳴り続けさせるか。溜め中の唸り・炎・環境音のように、
+	/// 止めるタイミングを呼び出し側が持っている音で使う。
+	/// **true にしたら戻り値を保持して、必ず StopSE で止めること**（放っておくと鳴りっぱなしになる）
+	/// </summary>
+	bool loop = false;
+	/// <summary>
 	/// 同時発音が上限に達したときの取り合いに使う。大きいほど優先。
 	/// -1 のままなら .sound に書かれた値（無ければ既定値）が使われる
 	/// </summary>
@@ -100,6 +106,17 @@ public:
 	int PlaySE3D(const std::string& name, const Vector3& worldPosition,
 		float volume = 1.0f, const Vector3& velocity = {});
 
+	/// <summary>
+	/// 鳴っている 3D SE の音量と定位を、今の位置で計算し直す。
+	///
+	/// <see cref="PlaySE3D"/> は鳴らした瞬間の位置でしか計算しないので、
+	/// **ループする音（松明・炎・突進）はこれを毎フレーム呼ばないと**
+	/// プレイヤーが動いても音が最初の位置から動かない。
+	/// 一発で終わる音には要らない。
+	/// </summary>
+	/// <returns>まだ鳴っていて更新できたら true</returns>
+	bool UpdateSE3D(int handle, const Vector3& worldPosition, float volume = 1.0f);
+
 	/// <summary>SE を止める。PlaySE が返した番号を渡す</summary>
 	void StopSE(int handle);
 
@@ -159,12 +176,18 @@ private:
 		int handle = -1;
 		std::string name;
 		int priority = 0;
+		bool loop = false;
 	};
 
 	// 同時に鳴らす SE の上限（設計書 Phase 8「優先度」）。
 	// Audio のボイス数（kMaxPlayWave = 100）より十分少なくして、
 	// BGM のぶんを SE で食い潰さないようにする
 	static constexpr size_t kMaxSEVoices = 32;
+
+	// 聞き手から見た音量倍率・定位・ドップラーを求める。
+	// 遠すぎて鳴らす必要が無ければ false（PlaySE3D はそのまま諦め、UpdateSE3D は無音にする）
+	bool Compute3D(const Vector3& worldPosition, const Vector3& velocity,
+		float& outAttenuation, float& outPan, float& outPitch) const;
 
 	// 鳴り終わった SE を一覧から外す
 	void PruneSEVoices();

@@ -4,6 +4,8 @@
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
 #include "GameObject/Character/Enemy/BossKnight/BossBreathEffect.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 
 namespace {
     // 火炎ブレス。口から前方へまっすぐ伸びる炎の帯。
@@ -64,13 +66,37 @@ void BossStateBreath::Enter(Enemy& enemy)
 {
     attack_->BeginAttack(enemy, MakeBreathParams());
     fireTimer_ = 0.0f;
+    wasFiring_ = false;
     // 溜めの間はゆっくり向き直る（windupTurnSpeed）＝プレイヤーへ狙いを付けていく。
     // 吐き始めた瞬間に EnemyBoneAttackComponent が予兆の向きで体を固定する
+
+    // 息を吸い込む音。溜めの長さぶん鳴るので、ここで一度だけ出す
+    SoundManager::GetInstance().PlaySE3D(
+        GameSound::kDragonBreathCharge, enemy.GetWorldTransform()->GetTranslation(), 0.9f);
 }
 
 void BossStateBreath::Update(Enemy& enemy, float deltaTime)
 {
     attack_->Update(enemy, deltaTime);
+
+    // 炎の音は見た目（BossBreathEffect）と同じ段階で切り替える:
+    //   溜め → 着火 → 燃えている間のループ → 消える余韻
+    const bool isFiring = attack_->IsHitActive();
+    if (isFiring && !wasFiring_) {
+        const Vector3 position = enemy.GetWorldTransform()->GetTranslation();
+        SoundManager::GetInstance().PlaySE3D(GameSound::kDragonBreathIgnite, position, 1.0f);
+
+        SEPlayParams flame;
+        flame.name = GameSound::kDragonBreathLoop;
+        flame.volume = 0.85f;
+        flame.loop = true;
+        breathVoice_ = SoundManager::GetInstance().PlaySE(flame);
+    } else if (!isFiring && wasFiring_) {
+        StopBreathLoop();
+        SoundManager::GetInstance().PlaySE3D(
+            GameSound::kDragonBreathEnd, enemy.GetWorldTransform()->GetTranslation(), 0.7f);
+    }
+    wasFiring_ = isFiring;
 
     if (effect_) {
         if (attack_->IsWindingUp()) {
@@ -105,4 +131,13 @@ void BossStateBreath::Exit(Enemy& enemy)
     if (effect_) {
         effect_->RequestStop();
     }
+    // 音の方も同じ。ループなので消し忘れると炎だけ鳴り続ける
+    StopBreathLoop();
+}
+
+void BossStateBreath::StopBreathLoop()
+{
+    if (breathVoice_ < 0) { return; }
+    SoundManager::GetInstance().StopSE(breathVoice_);
+    breathVoice_ = -1;
 }

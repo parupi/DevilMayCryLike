@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 2.5,
+        "Enabled": true,
+        "Mix": 0.3499999940395355
+    },
+    "Layers": [
+        {
+            "Duration": 1.600000023841858,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.5,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.30000001192092896,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 600.0,
+                "CutoffEnd": 2200.0,
+                "Resonance": 1.600000023841858,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Inhale",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseIn",
+                "Enabled": true,
+                "End": 2400.0,
+                "Start": 400.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.800000011920929,
+            "Wave": "PinkNoise"
+        },
+        {
+            "Duration": 1.600000023841858,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.44999998807907104,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.30000001192092896,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.800000011920929,
+            "FMRatio": 1.4299999475479126,
+            "Filter": {
+                "Cutoff": 800.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.5,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Throat",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseIn",
+                "Enabled": true,
+                "End": 140.0,
+                "Start": 70.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.5,
+            "Wave": "Saw"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "DragonBreathCharge",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 95,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

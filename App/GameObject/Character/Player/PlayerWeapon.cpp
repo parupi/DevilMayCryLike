@@ -6,6 +6,7 @@
 #include "Math/MathUtils.h"
 #include "GameObject/Effect/HitEffectSystem.h"
 #include "Audio/SoundManager.h"
+#include "Audio/GameSoundLibrary.h"
 #include <algorithm>
 #include <cmath>
 
@@ -43,6 +44,17 @@ namespace {
 		case Enemy::HitMaterial::Wood:  return "HitMatWood";
 		case Enemy::HitMaterial::Flesh:
 		default:                        return "HitMatFlesh";
+		}
+	}
+
+	// 材質ごとの手応えの音。火花・破片の種類と同じ分け方にしてある
+	const char* MaterialHitSound(Enemy::HitMaterial material) {
+		switch (material) {
+		case Enemy::HitMaterial::Bone:  return GameSound::kHitBone;
+		case Enemy::HitMaterial::Armor: return GameSound::kHitArmor;
+		case Enemy::HitMaterial::Wood:  return GameSound::kHitWood;
+		case Enemy::HitMaterial::Flesh:
+		default:                        return GameSound::kHitFlesh;
 		}
 	}
 }
@@ -160,8 +172,21 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		}
 		HitEffectSystem::GetInstance().Play(fx);
 
-		// 手応えの音。弾かれたヒットは通っていないので控えめに鳴らす
-		SoundManager::GetInstance().PlaySE("SwordHit", fx.isArmorHit ? 0.5f : 0.9f);
+		// 手応えの音。3段構えで鳴らし分ける:
+		//   1. スーパーアーマーで弾かれた → 通っていないことが分かる詰まった音だけ
+		//   2. 強攻撃 → 重い衝撃を材質音に重ねる（材質だけだと大振りの手応えが出ない）
+		//   3. それ以外 → 材質の音
+		SoundManager& sound = SoundManager::GetInstance();
+		if (fx.isArmorHit) {
+			sound.PlaySE(GameSound::kHitBlocked, 0.7f);
+		} else {
+			const AttackVfxStyle style = attackEffect ? attackEffect->GetCurrentStyle() : AttackVfxStyle::Slash;
+			const bool isHeavyHit = (style == AttackVfxStyle::Heavy || style == AttackVfxStyle::Slam);
+			sound.PlaySE(enemy ? MaterialHitSound(enemy->GetHitMaterial()) : GameSound::kSwordHit, 0.85f);
+			if (isHeavyHit) {
+				sound.PlaySE(GameSound::kHitHeavy, 0.8f);
+			}
+		}
 
 		// チュートリアル対象の攻撃であれば進行させる
 		TutorialState tutorialState = ResolveTutorialState(player_->GetCombat()->GetCurrentAttackName());

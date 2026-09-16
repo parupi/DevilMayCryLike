@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.18000000715255737,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 2.5999999046325684,
+                "Decay": 0.1599999964237213,
+                "Hold": 0.0,
+                "Release": 0.019999999552965164,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 440.0,
+            "Name": "Thud",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 70.0,
+                "Start": 260.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.8999999761581421,
+            "Wave": "Sine"
+        },
+        {
+            "Duration": 0.11999999731779099,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 2.799999952316284,
+                "Decay": 0.10000000149011612,
+                "Hold": 0.0,
+                "Release": 0.014999999664723873,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 1800.0,
+                "CutoffEnd": 350.0,
+                "Resonance": 0.8999999761581421,
+                "Sweep": true,
+                "Type": "LowPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Splat",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 350.0,
+                "Start": 1800.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.550000011920929,
+            "Wave": "PinkNoise"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "HitFlesh",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 78,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

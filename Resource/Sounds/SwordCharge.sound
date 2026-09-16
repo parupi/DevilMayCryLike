@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 1.0,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.2800000011920929,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.2800000011920929,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.30000001192092896,
+            "FMRatio": 2.0,
+            "Filter": {
+                "Cutoff": 900.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 2.0,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 92.0,
+            "Name": "Hum",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.699999988079071,
+            "Wave": "Saw"
+        },
+        {
+            "Duration": 1.0,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.3199999928474426,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.3199999928474426,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 700.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 3.0,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 900.0,
+            "Name": "Energy",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.30000001192092896,
+            "Wave": "WhiteNoise"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "SwordCharge",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 60,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

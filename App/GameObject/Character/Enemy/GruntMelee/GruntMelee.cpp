@@ -11,6 +11,7 @@
 #include "GameObject/Character/Enemy/State/EnemyStateAir.h"
 #include "GameObject/Character/Enemy/State/EnemyStateKnockBack.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "Audio/SoundManager.h"
 #ifdef _DEBUG
 #endif
 
@@ -179,6 +180,20 @@ void GruntMelee::Update(float deltaTime) {
 		chargeEmitTimer_ = 0.0f;
 	}
 
+	// 足音。攻撃中と演出中は止める（振りの音や崩れる音と重なって濁るだけ）
+	const bool walking = meleeAttack_->IsFinished() && !IsAppearanceEffectPlaying() && !IsDying();
+	if (walking) {
+		const Vector3 position = GetWorldTransform()->GetTranslation();
+		if (footstep_.Update(position, GetOnGround(), GetAnimationPlayer())) {
+			// 位置で鳴らす。囲まれたときに、どこから近づいているかが音で分かる。
+			// 左右の足で音量を少し変えて、等間隔の繰り返しに聞こえないようにする
+			const float volume = footstep_.IsRightFoot() ? 0.5f : 0.42f;
+			SoundManager::GetInstance().PlaySE3D(GameSound::kSkeletonFootstep, position, volume);
+		}
+	} else {
+		footstep_.Reset();
+	}
+
 	Enemy::Update(deltaTime);
 }
 
@@ -229,9 +244,13 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	// ヒットストップ中は Enemy::Update の dt が縮むので、実際に敵が動き出すのは停止が明けてから
 	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 
-	// ⑧ 演出（ライトと白フラッシュ。VFX・SE・カメラは PlayerWeapon 側の HitEffectSystem）
+	// ⑧ 演出（ライトと白フラッシュ。剣の手応えの音は PlayerWeapon 側が材質を見て鳴らす）
 	FlashLight();
 	PlayHitFlash();
+
+	// 骸骨自身の被弾の音。手応え（プレイヤー側）と重ねて、骨が軋む音を敵の位置から出す
+	SoundManager::GetInstance().PlaySE3D(
+		GameSound::kSkeletonHit, GetWorldTransform()->GetTranslation(), 0.7f);
 }
 
 void GruntMelee::OnDeathEffectFinished() {

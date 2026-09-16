@@ -44,6 +44,9 @@ public:
 	static constexpr float kFlickerSpeed = 1.0f;  // ゆらぎ全体の速さ倍率
 	static constexpr float kFlickerShake = 0.03f; // 光源自体の揺れ幅[m]。壁の影が動いて炎らしくなる
 
+	// パチパチという音の音量。5本まとめて鳴っても五月蝿くならない大きさ
+	static constexpr float kCrackleVolume = 0.35f;
+
 	// パーティクルの発生間隔[秒]
 	static constexpr float kFlameInterval = 0.05f;
 	static constexpr float kEmberInterval = 0.35f;
@@ -55,6 +58,7 @@ public:
 
 	void Initialize() override;
 	void Update(float deltaTime) override;
+	~WallTorch() override;
 
 	/// <summary>火を点ける / 消す。消すと炎もライトも止まる（ライトの設定値は残る）</summary>
 	void SetLit(bool lit);
@@ -74,6 +78,9 @@ private:
 	/// <summary>穂先がカメラから kEmitDistance 以内か。カメラが無ければ常に true</summary>
 	static bool IsWithinEmitDistance(const Vector3& position);
 
+	/// <summary>パチパチという音を止める。鳴っていなければ何もしない</summary>
+	void StopCrackle();
+
 	bool isLit_ = true;
 	// 火の粉のグループが登録できているか。VFXファイルが無いときに空グループを作らないための保険
 	bool canEmitEmber_ = false;
@@ -82,4 +89,8 @@ private:
 	float flickerTime_ = 0.0f;
 	float flameTimer_ = 0.0f;
 	float emberTimer_ = 0.0f;
+
+	// パチパチという音。ループなので再生番号を持って、消灯・破棄で必ず止める。
+	// 位置つきで鳴らすので、毎フレーム UpdateSE3D で音量と定位を計算し直す
+	int crackleVoice_ = -1;
 };

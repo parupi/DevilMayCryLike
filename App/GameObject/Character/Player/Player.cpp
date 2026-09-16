@@ -32,6 +32,7 @@
 #include "GameObject/Camera/GameCamera.h"
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
 #include "Audio/SoundManager.h"
+#include "Audio/GameSoundLibrary.h"
 
 #include <numbers>
 #include <algorithm>
@@ -259,6 +260,44 @@ bool Player::IsDying() const {
 	return current && std::string(current->GetDebugName()) == "Death";
 }
 
+void Player::UpdateMovementSound() {
+	SoundManager& sound = SoundManager::GetInstance();
+
+	// ── 足音 ──
+	// 走っている間だけ。回避・ダッシュは専用の音があるので二重に鳴らさない。
+	// 攻撃中も足は動くが、振りの音と重なって濁るだけなので止める
+	const PlayerStateBase* state = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
+	const std::string stateName = state ? state->GetDebugName() : "";
+	const bool walking = (stateName == "Move") && !combat_->IsAttacking();
+
+	if (walking) {
+		if (footstep_.Update(GetWorldTransform()->GetTranslation(), onGround_, GetAnimationPlayer())) {
+			// 左右でピッチを変える。同じ音が等間隔で続くと機械的に聞こえる
+			SEPlayParams params;
+			params.name = GameSound::kPlayerFootstep;
+			params.volume = 0.5f;
+			params.pitch = footstep_.IsRightFoot() ? 1.06f : 0.95f;
+			sound.PlaySE(params);
+		}
+	} else {
+		footstep_.Reset();
+	}
+
+	// ── HPが少ないときの心音 ──
+	// 残り1つ（かつ生きている）の間だけ鳴らし続ける。ループなので必ず止めること
+	const bool lowHealth = (hp_ <= 1) && !IsDying() && !isDeathFinished_;
+	if (lowHealth && lowHealthVoice_ < 0) {
+		SEPlayParams params;
+		params.name = GameSound::kPlayerLowHealth;
+		params.volume = 0.55f;
+		params.loop = true;
+		lowHealthVoice_ = sound.PlaySE(params);
+	} else if (!lowHealth && lowHealthVoice_ >= 0) {
+		sound.StopSE(lowHealthVoice_);
+		lowHealthVoice_ = -1;
+	}
+}
+
 void Player::Update(float deltaTime) {
 	// 入力とロックオンはシーン側が接続する。エディタで生成した直後など未接続の間は
 	// トランスフォームの更新だけして動かさない（次のシーン読み込みで有効になる）
@@ -347,6 +386,9 @@ void Player::Update(float deltaTime) {
 	// 確定したステート・戦闘状態でクリップを決める。
 	// ポーズの更新は Object3d::Update の中（レンダラー更新）で走るので、その手前で呼ぶ
 	UpdateAnimation();
+
+	// 足音と心音。クリップが決まった後に呼ぶ（足音がアニメーションイベントを見るため）
+	UpdateMovementSound();
 
 	// ノックバックの速度を進める（仕様書 §6・§7）。敵と同じ部品・同じ減衰の式を使う
 	knockback_.SetGrounded(onGround_);
@@ -521,7 +563,7 @@ void Player::OnDodgeStart() {
 	const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
 	ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
 
-	SoundManager::GetInstance().PlaySE("Dodge", 0.6f);
+	SoundManager::GetInstance().PlaySE(GameSound::kDodge, 0.6f);
 
 	// 追従ライトのフラッシュはここでは焚かない。
 	// 回避は頻繁に使うので、毎回床が真っ白に照らされると画面がうるさくなる
@@ -534,7 +576,7 @@ void Player::OnDashStart() {
 	dodgeTrail_->SetLifetime(params.trailLifetime * 1.6f);
 	dodgeTrail_->SetTintColor({ 0.55f, 0.85f, 1.0f, 1.0f });
 
-	SoundManager::GetInstance().PlaySE("Dash", 0.7f);
+	SoundManager::GetInstance().PlaySE(GameSound::kDash, 0.7f);
 
 	// ダッシュ開始の瞬間だけ画角を広げる。
 	// 速度に応じた常時のFOV変化はカメラ側が別に持っているので、ここは立ち上がりの「蹴り」だけ
@@ -684,6 +726,10 @@ void Player::TakeDamage(const DamageInfo& info) {
 	if (scoreManager) {
 		scoreManager->OnDamage();
 	}
+
+	// 被弾の音。吹き飛ばされたかどうかで鳴らし分ける（heavyHit_ は上で決まっている）
+	SoundManager::GetInstance().PlaySE(
+		heavyHit_ ? GameSound::kPlayerDamageHeavy : GameSound::kPlayerDamage, 0.85f);
 
 	// 被弾ビネットフラッシュ
 	hitVignette_->Play();

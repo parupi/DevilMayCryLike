@@ -164,6 +164,15 @@ public:
 	virtual HitMaterial GetHitMaterial() const { return HitMaterial::Flesh; }
 
 	/// <summary>
+	/// この敵の出現音。空なら鳴らさない。
+	/// 出現・死亡は基底が演出を持っているので、音もここから引く
+	/// （被弾音のように派生の当たり判定側で鳴らすものは、それぞれの OnCollisionEnter に書く）
+	/// </summary>
+	virtual const char* GetSpawnSound() const { return ""; }
+	/// <summary>この敵の死亡音。空なら鳴らさない</summary>
+	virtual const char* GetDeathSound() const { return ""; }
+
+	/// <summary>
 	/// 攻撃行動をしてよいかを返す。
 	/// 既定では「攻撃抑制フラグが立っていなければ攻撃できる」。
 	/// 意思決定ステート（CombatIdleなど）が攻撃を選ぶ前にこれを確認する。
@@ -516,6 +525,8 @@ protected:
 
 	// 撃破スコアを二重加算しないためのガード（OnDeathは演出中に複数回呼ばれ得る）
 	bool killScored_ = false;
+	// 死亡音も同じ理由で1回だけ（killScored_ とは別に持つ。撃破扱いにならない死に方もあるため）
+	bool deathSoundPlayed_ = false;
 
 	DamageInfo pendingDamageInfo_;
 

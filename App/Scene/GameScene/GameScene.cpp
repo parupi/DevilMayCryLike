@@ -32,6 +32,7 @@
 #include "World3D/Object/Object3dManager.h"
 #include "Input/Input.h"
 #include "Audio/SoundManager.h"
+#include "Audio/GameSoundLibrary.h"
 #include <cmath>
 
 void GameScene::Initialize() {
@@ -39,9 +40,29 @@ void GameScene::Initialize() {
 	// BGM は1曲で数十MBあり、戦闘が始まってから読むと確実に引っかかる
 	SoundManager::GetInstance().Preload("GamePlayBGM");
 	SoundManager::GetInstance().Preload("BattleBGM");
-	// 死亡SE。resource/sound/PlayerDeath.wav を置けば鳴る（無ければ Preload/PlaySE は何もしない）
-	SoundManager::GetInstance().Preload("PlayerDeath");
 	SoundManager::GetInstance().PlayBGM("GamePlayBGM", 1.5f);
+
+	// 戦闘中に鳴る SE は先に合成しておく（.sound は初回再生時に焼くので、
+	// そのまま戦闘に入ると最初の1発だけ引っかかる）
+	for (const char* name : {
+		GameSound::kPlayerFootstep, GameSound::kPlayerJump, GameSound::kPlayerLand,
+		GameSound::kPlayerDamage, GameSound::kPlayerDamageHeavy, GameSound::kPlayerLowHealth,
+		GameSound::kPlayerDeath,
+		GameSound::kSwordSlashHeavy, GameSound::kSwordStinger, GameSound::kSwordLaunch,
+		GameSound::kSwordSlam, GameSound::kSwordCharge, GameSound::kSwordChargeReady,
+		GameSound::kHitFlesh, GameSound::kHitBone, GameSound::kHitWood,
+		GameSound::kHitArmor, GameSound::kHitHeavy, GameSound::kHitBlocked,
+		GameSound::kAttackWarning, GameSound::kTorchCrackle, GameSound::kAmbienceDungeon,
+		}) {
+		SoundManager::GetInstance().PreloadSE(name);
+	}
+
+	// ダンジョンの空気。ステージにいる間ずっと鳴らす（位置を持たない環境音）
+	SEPlayParams ambience;
+	ambience.name = GameSound::kAmbienceDungeon;
+	ambience.volume = 0.5f;
+	ambience.loop = true;
+	ambienceVoice_ = SoundManager::GetInstance().PlaySE(ambience);
 
 	// ステートの生成
 	states_["Start"] = std::make_unique<GameSceneStateStart>();
@@ -217,6 +238,10 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Finalize() {
+	// 環境音はループなので、シーンを抜けるときに必ず止める
+	SoundManager::GetInstance().StopSE(ambienceVoice_);
+	ambienceVoice_ = -1;
+
 	// カメラ・プレイヤーが破棄される前に参照を切る
 	HitEffectSystem::GetInstance().Finalize();
 	// 出したままの予兆マーカーを次のシーンへ持ち越さない

@@ -4,6 +4,8 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "Math/MathUtils.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <algorithm>
 #include <cmath>
 
@@ -70,6 +72,11 @@ void AttackTelegraph::Submit(const void* ownerKey, const AttackTelegraphParams& 
 		markers_.push_back(Marker{});
 		marker = &markers_.back();
 		marker->key = ownerKey;
+
+		// マーカーが出た瞬間の警告音。予兆を見て避けるゲームなので、
+		// 画面の外や背後から来る攻撃にも気づけるように、予兆の場所から鳴らす。
+		// ここは「新しく作った」分岐なので、出ている間ずっと鳴り続けることはない
+		SoundManager::GetInstance().PlaySE3D(GameSound::kAttackWarning, groundPos, 0.55f);
 	}
 	// 判定が出た後に出し直されることは無い想定だが、来たら生きている扱いに戻す
 	marker->resolveTimer = -1.0f;

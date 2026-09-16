@@ -1,5 +1,7 @@
 #pragma once
 #include "GameObject/Character/Enemy/Enemy.h"
+#include "Audio/FootstepTracker.h"
+#include "Audio/GameSoundLibrary.h"
 #include "GruntMeleeWeapon.h"
 #include "GameObject/Character/Enemy/Component/EnemySensorComponent.h"
 #include "GameObject/Character/Enemy/Component/EnemyMovementComponent.h"
@@ -42,6 +44,9 @@ public:
     /// <summary>骸骨なので、斬ると白い骨の欠片が飛ぶ</summary>
     HitMaterial GetHitMaterial() const override { return HitMaterial::Bone; }
 
+    const char* GetSpawnSound() const override { return GameSound::kSkeletonSpawn; }
+    const char* GetDeathSound() const override { return GameSound::kSkeletonDeath; }
+
 protected:
     /// <summary>死亡演出終了時に武器を後始末する</summary>
     void OnDeathEffectFinished() override;
@@ -56,4 +61,7 @@ private:
     std::unique_ptr<EnemySensorComponent>      sensor_;
     std::unique_ptr<EnemyMovementComponent>    movement_;
     std::unique_ptr<EnemyMeleeAttackComponent> meleeAttack_;
+
+    // 足音の刻み。骸骨は軽いので歩幅を短めに取る
+    FootstepTracker footstep_;
 };

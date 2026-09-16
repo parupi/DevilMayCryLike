@@ -2,6 +2,8 @@
 #include <Utility/DeltaTime.h>
 #include <Debugger/GlobalVariables.h>
 #include <GameData/GameData.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <algorithm>
 #ifdef _DEBUG
 #endif
@@ -395,10 +397,10 @@ void StylishScoreManager::UpdateRank()
 
 void StylishScoreManager::OnRankChanged(StyleRank oldRank, StyleRank newRank)
 {
-	// ランクアップ/ダウンの演出フック。
-	// SE・ボイス・UI演出はここから鳴らす（Phase B で実装予定）。
-	(void)oldRank;
-	(void)newRank;
+	// ランクアップ/ダウンの演出フック。UI 側の表示は StyleHUD が currentRank_ を見て出す。
+	// 上がったか下がったかは enum の並び（D が最小）で決まる
+	const bool isUp = static_cast<int>(newRank) > static_cast<int>(oldRank);
+	SoundManager::GetInstance().PlaySE(isUp ? GameSound::kRankUp : GameSound::kRankDown, 0.6f);
 }
 
 std::string StylishScoreManager::RankToCode(StyleRank rank)

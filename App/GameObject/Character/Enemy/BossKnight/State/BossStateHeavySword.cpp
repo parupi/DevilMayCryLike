@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
 
 namespace {
     // 叩きつけ。翼と体を使って前方を薙ぎ払う、遅くて重い攻撃。
@@ -44,6 +45,11 @@ namespace {
         // どちらを向いても範囲は同じなので、溜めの間の向き直りは遅くしない
         p.telegraph.shape = TelegraphShape::Circle;
         p.telegraph.radius = 2.4f;
+
+        // 振り上げている間の地鳴りと、叩きつけた瞬間の衝撃
+        p.windupSound = GameSound::kDragonSlamCharge;
+        p.strikeSound = GameSound::kDragonSlamImpact;
+        p.soundVolume = 1.0f;
         return p;
     }
 }

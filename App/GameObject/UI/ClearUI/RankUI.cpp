@@ -1,7 +1,9 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "RankUI.h"
 #include <Utility/DeltaTime.h>
 #include <GameData/GameData.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void RankUI::Initialize()
@@ -88,6 +90,9 @@ void RankUI::Start()
 
     isStart_ = true;
     timer_ = 0.0f;
+
+    // ランクが出る瞬間の和音
+    SoundManager::GetInstance().PlaySE(GameSound::kRankReveal, 0.8f);
 
     // 初期位置とサイズをリセット
     rank_->SetPosition(startPos_);

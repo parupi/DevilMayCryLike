@@ -1,5 +1,8 @@
 #include "TutorialSystem.h"
 
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
+
 namespace {
 	// チュートリアルごとの設定（表示画像名・説明文・完了に必要な回数）
 	struct TutorialConfig {
@@ -88,6 +91,9 @@ void TutorialSystem::StartTutorial(TutorialState state) {
 		decoration_->Start();
 	}
 
+	// 説明が出たことを音でも知らせる
+	SoundManager::GetInstance().PlaySE(GameSound::kTutorialShow, 0.5f);
+
 	// チュートリアルの状態を設定
 	state_ = state;
 	currentTutorial_ = tutorials_[state].get();
@@ -124,6 +130,9 @@ void TutorialSystem::StepTutorial(TutorialState state) {
 }
 
 void TutorialSystem::AdvanceTutorial() {
+	// 1項目クリアの音。次の説明が出る音（TutorialShow）より先に鳴らす
+	SoundManager::GetInstance().PlaySE(GameSound::kTutorialClear, 0.6f);
+
 	// 現在のチュートリアルの表示のみ終了させる（背景マスクはここでは触らない）
 	// フェードアウトはUpdateで全チュートリアルを更新しているため、消えきるまで自動で進む
 	currentTutorial_->End();

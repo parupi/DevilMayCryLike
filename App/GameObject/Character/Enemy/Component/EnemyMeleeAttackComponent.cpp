@@ -1,6 +1,7 @@
 #include "EnemyMeleeAttackComponent.h"
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "World3D/Object/Object3d.h"
+#include "Audio/SoundManager.h"
 #include <algorithm>
 
 EnemyMeleeAttackComponent::EnemyMeleeAttackComponent(Object3d* weapon)
@@ -15,7 +16,14 @@ void EnemyMeleeAttackComponent::BeginAttack(Enemy& enemy, const MeleeAttackParam
 
 	timer_ = 0.0f;
 	finished_ = false;
+	swingSoundPlayed_ = false;
 	enemy.SetIsAttack(true);
+
+	// 構えの音。3D で鳴らすので、遠くの敵は小さく・横の敵は横から聞こえる
+	if (params_.windupSound) {
+		SoundManager::GetInstance().PlaySE3D(
+			params_.windupSound, enemy.GetWorldTransform()->GetTranslation(), params_.soundVolume);
+	}
 	// 武器の動き（構え→振り抜き）は据え置きで、体のクリップの方を合わせる。
 	// 渡すのは「武器が斬り抜ける瞬間まで」＝構えの終わり＋振りの中間まで。
 	// 攻撃ごとに長さが違うので、始めるたびに渡し直す
@@ -58,6 +66,15 @@ void EnemyMeleeAttackComponent::Update(Enemy& enemy, float deltaTime) {
 		// 以降は体も突進もプレイヤーを追わないので、剣は予兆の上をなぞって振られる
 		// （予兆はここで出されなくなるので、マーカー側が閃光を出しながら畳む）
 		aim_.Lock(enemy);
+
+		// 振り始めの音。Attack フェーズは毎フレーム通るので1回だけに絞る
+		if (!swingSoundPlayed_) {
+			swingSoundPlayed_ = true;
+			if (params_.swingSound) {
+				SoundManager::GetInstance().PlaySE3D(
+					params_.swingSound, enemy.GetWorldTransform()->GetTranslation(), params_.soundVolume);
+			}
+		}
 
 		float t = (timer_ - params_.windupDuration) / params_.attackDuration;
 		t = std::min(t, 1.0f);

@@ -1,7 +1,9 @@
-﻿#include "VignetteExpandTransition.h"
+#include "VignetteExpandTransition.h"
 #include <Graphics/Rendering/PostEffect/VignetteEffect.h>
 #include <Graphics/Rendering/PostEffect/OffScreenManager.h>
 #include <Utility/DeltaTime.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 
 VignetteExpandTransition::VignetteExpandTransition(const std::string& transitionName)
 {
@@ -24,6 +26,11 @@ void VignetteExpandTransition::Start(bool isFadeOut)
 {
 	isFadeOut_ = isFadeOut;
 	finished_ = false;
+
+	// 暗転していく側だけ鳴らす。明けるときは次のシーンの音が始まるので重ねない
+	if (isFadeOut) {
+		SoundManager::GetInstance().PlaySE(GameSound::kSceneTransition, 0.55f);
+	}
 
 	// softness の初期値を設定
 	// フェードアウトなら 2.0f → 0.0f、フェードインなら 0.0f → 2.0f に変化

@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.10000000149011612,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.003000000026077032,
+                "Curve": 2.4000000953674316,
+                "Decay": 0.07999999821186066,
+                "Hold": 0.009999999776482582,
+                "Release": 0.014999999664723873,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 1050.0,
+            "Name": "Note1",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.550000011920929,
+            "Wave": "Sine"
+        },
+        {
+            "Duration": 0.30000001192092896,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.003000000026077032,
+                "Curve": 2.5999999046325684,
+                "Decay": 0.25999999046325684,
+                "Hold": 0.009999999776482582,
+                "Release": 0.02500000037252903,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.25,
+            "FMRatio": 2.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 1575.0,
+            "Name": "Note2",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.08500000089406967,
+            "Volume": 0.550000011920929,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "TutorialClear",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 55,
+    "Reverb": {
+        "Damping": 0.44999998807907104,
+        "Enabled": true,
+        "Mix": 0.20000000298023224,
+        "RoomSize": 0.4000000059604645,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

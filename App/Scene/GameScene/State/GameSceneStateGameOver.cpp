@@ -2,6 +2,8 @@
 #include "Scene/GameScene/GameScene.h"
 
 #include <Scene/Transition/SceneTransitionController.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <Scene/Transition/TransitionManager.h>
 
 void GameSceneStateGameOver::Enter(GameScene& scene) {
@@ -10,6 +12,9 @@ void GameSceneStateGameOver::Enter(GameScene& scene) {
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);
 	scene.GetInputContext()->SetCanCameraMove(false);
+
+	// YOU DIED が出る音。BGM は死亡演出の中で止まっているので埋もれない
+	SoundManager::GetInstance().PlaySE(GameSound::kGameOver, 0.85f);
 
 	// HUDは死亡演出の中でフェードアウト済みなので、ここで表示を戻す必要はない
 	// （UIレイヤーごと切ると、同じレイヤーにいるゲームオーバーの選択肢まで消える）

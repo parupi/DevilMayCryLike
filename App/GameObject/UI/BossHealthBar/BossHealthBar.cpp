@@ -6,6 +6,8 @@
 #include "GameObject/Character/Enemy/BossKnight/State/BossStateCombatIdle.h"
 #include <World3D/Object/Object3dManager.h>
 #include <Utility/DeltaTime.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <Math/Vector3.h>
 #include <algorithm>
 #include <cmath>
@@ -157,6 +159,8 @@ BossKnight* BossHealthBar::FindBoss() const {
 void BossHealthBar::StartIntro(BossKnight& boss) {
 	state_ = State::Intro;
 	stateTimer_ = 0.0f;
+	// バーがせり上がってくる音
+	SoundManager::GetInstance().PlaySE(GameSound::kBossBarAppear, 0.7f);
 	bossName_ = boss.name_;
 	name_->SetText(BossKnight::kDisplayName);
 
@@ -179,6 +183,8 @@ void BossHealthBar::StartIntro(BossKnight& boss) {
 void BossHealthBar::StartDefeat() {
 	state_ = State::Defeat;
 	stateTimer_ = 0.0f;
+	// 削り切った音。ボスの断末魔と重なるので控えめにする
+	SoundManager::GetInstance().PlaySE(GameSound::kBossBarDeplete, 0.6f);
 	// 赤ゲージはその場で消し、白ゲージを今の位置から0まで追いつかせる
 	hpRatio_ = 0.0f;
 	delayFrom_ = delayRatio_;
@@ -207,6 +213,8 @@ void BossHealthBar::OnDamaged(float previousRatio, float newRatio) {
 void BossHealthBar::OnPhaseChanged() {
 	// まず一瞬止めてから、白い発光と波紋を出す（UpdateTimers が止め終わりで始める）
 	phaseFreezeTimer_ = kPhaseFreezeTime;
+	// 咆哮に重ねる。咆哮そのものより短く軽い音にして、UI の合図だと分かるようにする
+	SoundManager::GetInstance().PlaySE(GameSound::kBossBarPhase, 0.55f);
 	phaseEffectPending_ = true;
 	shakeTimer_ = 0.0f;
 }

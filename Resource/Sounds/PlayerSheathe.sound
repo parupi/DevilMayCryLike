@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.2199999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.019999999552965164,
+                "Curve": 1.7999999523162842,
+                "Decay": 0.17000000178813934,
+                "Hold": 0.0,
+                "Release": 0.029999999329447746,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 3000.0,
+                "CutoffEnd": 1800.0,
+                "Resonance": 2.5999999046325684,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Slide",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 2500.0,
+                "Start": 6000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.6000000238418579,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.11999999731779099,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.10000000149011612,
+                "Hold": 0.0,
+                "Release": 0.014999999664723873,
+                "Sustain": 0.0
+            },
+            "FMAmount": 1.0,
+            "FMRatio": 3.700000047683716,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 1500.0,
+            "Name": "Click",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.1899999976158142,
+            "Volume": 0.5,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "PlayerSheathe",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 45,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

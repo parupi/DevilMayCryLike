@@ -1,4 +1,5 @@
 #pragma once
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -13,6 +14,24 @@
 /// </summary>
 namespace SoundPresets {
 
+	/// <summary>プリセット1つを作る関数</summary>
+	using CreateFunc = std::function<SoundDefinition()>;
+
+	/// <summary>
+	/// ゲーム固有の SE をプリセット一覧へ足す（App から呼ぶ）。
+	///
+	/// Engine 側にゲームの音を並べたくないので、この窓口だけ用意して中身は App に置く。
+	/// 登録すると、組み込みプリセットと同じようにエディタの「プリセットから作る」に並び、
+	/// <see cref="ExportAll"/> の対象にもなる。
+	///
+	/// 同じ名前で二度登録した場合は後勝ち（ホットリロードのように差し替えられる）。
+	/// </summary>
+	void RegisterExternal(std::string name, std::string description, CreateFunc create);
+
+	/// <summary>登録済みのゲーム固有プリセットを全部忘れる</summary>
+	void ClearExternal();
+
+	/// <summary>組み込み＋登録されたものの合計</summary>
 	int Count();
 	/// <summary>プリセット名（そのまま .sound のファイル名になる）</summary>
 	const char* GetName(int index);

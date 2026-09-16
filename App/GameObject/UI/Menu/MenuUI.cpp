@@ -2,6 +2,7 @@
 #include "Scene/GameScene/GameScene.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
 #include <Utility/DeltaTime.h>
@@ -133,7 +134,7 @@ void MenuUI::UpdateRoot() {
 	// メニューを開いたボタンでそのまま閉じられるようにする
 	const Input& input = Input::GetInstance();
 	if (input.TriggerKey(DIK_M) || input.TriggerButton(ButtonStart) || navigator_.IsCancel()) {
-		SoundManager::GetInstance().PlaySE("SwordSlash", 0.3f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 		Exit();
 		return;
 	}
@@ -146,7 +147,7 @@ void MenuUI::UpdateRoot() {
 }
 
 void MenuUI::Decide() {
-	SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+	SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 
 	switch (static_cast<Item>(itemList_.GetSelectedIndex())) {
 	case Item::Continue:

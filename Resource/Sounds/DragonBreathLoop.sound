@@ -1,0 +1,141 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 2.5,
+        "Enabled": true,
+        "Mix": 0.3499999940395355
+    },
+    "Layers": [
+        {
+            "Duration": 0.699999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.18000000715255737,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.18000000715255737,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 1100.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.2000000476837158,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 900.0,
+            "Name": "Body",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.8999999761581421,
+            "Wave": "PinkNoise"
+        },
+        {
+            "Duration": 0.699999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.18000000715255737,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.18000000715255737,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.8999999761581421,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 6000.0,
+            "Name": "Hiss",
+            "NoiseSeed": 2291,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.44999998807907104,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.699999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.18000000715255737,
+                "Curve": 1.399999976158142,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.18000000715255737,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 58.0,
+            "Name": "Sub",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.5,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "DragonBreathLoop",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 95,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

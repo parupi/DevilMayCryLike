@@ -1,6 +1,7 @@
 #include "TitleMenu.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Resource/TextureManager.h>
 #include <Input/Input.h>
@@ -139,27 +140,27 @@ void TitleMenu::Decide()
 {
 	switch (static_cast<Item>(itemList_.GetSelectedIndex())) {
 	case Item::GameStart:
-		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 		// 実際にシーンを進めるのは TitleScene
 		result_ = Result::StartGame;
 		break;
 	case Item::Training:
-		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 		// 戦う相手は部屋の中の設定メニューで選ぶので、ここでは何も聞かずに移動する
 		result_ = Result::StartTraining;
 		break;
 	case Item::Controls:
-		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 		controlsPanel_->Open();
 		phase_ = Phase::Controls;
 		break;
 	case Item::Option:
-		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 		optionPanel_->Open();
 		phase_ = Phase::Option;
 		break;
 	case Item::Quit:
-		SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUIDialogOpen, 0.6f);
 		// 押し間違いでアプリが落ちないよう、必ず一段挟む
 		confirmDialog_.Open("QUIT THE GAME?");
 		phase_ = Phase::Confirm;

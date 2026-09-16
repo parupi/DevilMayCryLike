@@ -6,6 +6,8 @@
 #include "GameObject/Camera/GameCamera.h"
 #include "World3D/Camera/CameraManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 
 BossStateRoar::BossStateRoar(EnemyMovementComponent* movement)
 	: movement_(movement) {}
@@ -15,6 +17,10 @@ void BossStateRoar::Enter(Enemy& enemy) {
 	burst_ = false;
 	movement_->Stop(enemy);
 	enemy.SetAttackAnimationSpeed(kWingFlapSpeed);
+
+	// フェーズ移行の咆哮。立ち上がりが遅い音なので、衝撃波（Burst）に向かって膨らむ
+	SoundManager::GetInstance().PlaySE3D(
+		GameSound::kDragonPhaseRoar, enemy.GetWorldTransform()->GetTranslation(), 1.0f);
 }
 
 void BossStateRoar::Update(Enemy& enemy, float deltaTime) {

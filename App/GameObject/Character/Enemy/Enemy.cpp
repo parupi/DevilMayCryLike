@@ -10,6 +10,7 @@
 #include "GameObject/Character/Combat/CombatHitResolver.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include <Scene/Transition/TransitionManager.h>
+#include "Audio/SoundManager.h"
 #include "Utility/TimeManager.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
@@ -463,6 +464,11 @@ void Enemy::Spawn() {
 	if (appearanceFx_) {
 		appearanceFx_->StartAppear();
 	}
+
+	// 出現音。敵の位置で鳴らすので、背後に湧いたことが音でも分かる
+	if (const char* se = GetSpawnSound(); se && *se) {
+		SoundManager::GetInstance().PlaySE3D(se, GetWorldTransform()->GetTranslation(), 0.9f);
+	}
 }
 
 void Enemy::ClampToMovementBounds() {
@@ -619,6 +625,15 @@ void Enemy::OnDeath() {
 			if (auto* score = player_->GetScoreManager()) {
 				score->OnEnemyKilled(GetStyleMultiplier());
 			}
+		}
+	}
+
+	// 死亡音。killScored_ と同じくここを複数回通るので、1回目だけ鳴らす
+	// （このブロックの直前で killScored_ が立っているので、それを目印にはできない）
+	if (!deathSoundPlayed_) {
+		deathSoundPlayed_ = true;
+		if (const char* se = GetDeathSound(); se && *se) {
+			SoundManager::GetInstance().PlaySE3D(se, GetWorldTransform()->GetTranslation(), 1.0f);
 		}
 	}
 

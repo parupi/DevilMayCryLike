@@ -1,0 +1,177 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": true,
+        "Mix": 0.550000011920929
+    },
+    "Layers": [
+        {
+            "Duration": 2.299999952316284,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.10000000149011612,
+                "Curve": 1.399999976158142,
+                "Decay": 1.399999976158142,
+                "Hold": 0.4000000059604645,
+                "Release": 0.3499999940395355,
+                "Sustain": 0.0
+            },
+            "FMAmount": 1.2000000476837158,
+            "FMRatio": 1.7300000190734863,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 600.0,
+                "Resonance": 1.7000000476837158,
+                "Sweep": true,
+                "Type": "LowPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Growl",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseOut",
+                "Enabled": true,
+                "End": 78.0,
+                "Start": 130.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 1.0,
+            "Wave": "Saw"
+        },
+        {
+            "Duration": 2.0999999046325684,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.11999999731779099,
+                "Curve": 1.399999976158142,
+                "Decay": 1.2999999523162842,
+                "Hold": 0.3499999940395355,
+                "Release": 0.30000001192092896,
+                "Sustain": 0.0
+            },
+            "FMAmount": 1.600000023841858,
+            "FMRatio": 2.9100000858306885,
+            "Filter": {
+                "Cutoff": 1300.0,
+                "CutoffEnd": 600.0,
+                "Resonance": 1.100000023841858,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Scream",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseOut",
+                "Enabled": true,
+                "End": 210.0,
+                "Start": 320.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.550000011920929,
+            "Wave": "Saw"
+        },
+        {
+            "Duration": 2.200000047683716,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.10000000149011612,
+                "Curve": 1.399999976158142,
+                "Decay": 1.5,
+                "Hold": 0.30000001192092896,
+                "Release": 0.30000001192092896,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 700.0,
+                "Resonance": 0.8999999761581421,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Breath",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 900.0,
+                "Start": 3400.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.4000000059604645,
+            "Wave": "PinkNoise"
+        },
+        {
+            "Duration": 2.0,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.07999999821186066,
+                "Curve": 1.5,
+                "Decay": 1.2000000476837158,
+                "Hold": 0.5,
+                "Release": 0.2199999988079071,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 440.0,
+            "Name": "Sub",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 32.0,
+                "Start": 52.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.699999988079071,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "DragonPhaseRoar",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 100,
+    "Reverb": {
+        "Damping": 0.3499999940395355,
+        "Enabled": true,
+        "Mix": 0.3799999952316284,
+        "RoomSize": 0.8500000238418579,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

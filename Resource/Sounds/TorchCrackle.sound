@@ -1,0 +1,357 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 4.0,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.30000001192092896,
+                "Curve": 1.2999999523162842,
+                "Decay": 0.0,
+                "Hold": 0.0,
+                "Release": 0.30000001192092896,
+                "Sustain": 1.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 900.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.0,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 700.0,
+            "Name": "Flame",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.44999998807907104,
+            "Wave": "PinkNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop1",
+            "NoiseSeed": 1301,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 6000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.12999999523162842,
+            "Volume": 0.5,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop2",
+            "NoiseSeed": 2278,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 5600.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.4699999988079071,
+            "Volume": 0.3499999940395355,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop3",
+            "NoiseSeed": 3255,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 5200.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.8899999856948853,
+            "Volume": 0.550000011920929,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop4",
+            "NoiseSeed": 4232,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 4800.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 1.2100000381469727,
+            "Volume": 0.30000001192092896,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop5",
+            "NoiseSeed": 5209,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 4400.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 1.6299999952316284,
+            "Volume": 0.44999998807907104,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop6",
+            "NoiseSeed": 6186,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 4000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 2.2699999809265137,
+            "Volume": 0.5,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop7",
+            "NoiseSeed": 7163,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 3600.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 2.7100000381469727,
+            "Volume": 0.2800000011920929,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.05000000074505806,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.03999999910593033,
+                "Hold": 0.0,
+                "Release": 0.00800000037997961,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": false,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Pop8",
+            "NoiseSeed": 8140,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 1800.0,
+                "Start": 3200.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 3.4100000858306885,
+            "Volume": 0.41999998688697815,
+            "Wave": "WhiteNoise"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 0.800000011920929,
+    "Name": "TorchCrackle",
+    "Normalize": false,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 10,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

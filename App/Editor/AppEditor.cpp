@@ -24,6 +24,7 @@
 #include "GameObject/Prop/WallTorch.h"
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneSaver.h"
+#include "Audio/GameSoundLibrary.h"
 #include "Stage/StageDocument.h"
 
 #include <algorithm>
@@ -432,6 +433,11 @@ void AppEditor::Register()
 {
 	// 前回どのステージを編集していたかを復元する（GameScene が読む前に呼ばれる）
 	LoadStageSettings();
+
+	// このゲームの SE をエディタのプリセット一覧へ載せる。
+	// 実体は Resource/Sounds/*.sound なので、ここを通さなくてもゲームからは鳴る。
+	// 登録しておくと Sound Editor で開いて調整し直せる
+	GameSound::Register();
 
 	RegisterLayoutPresets();
 

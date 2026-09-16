@@ -29,6 +29,10 @@ private:
 
 	bool isStart_ = false;
 	bool isFinish_ = false;
+
+	// カウント音を刻む間隔[秒]。毎フレーム鳴らすと連続音になって耳障りになる
+	static constexpr float kTickInterval = 0.05f;
+	float tickTimer_ = 0.0f;
 	int32_t currentScore_ = 0;  // 画面に表示しているスコア
 	int32_t targetScore_ = 0;   // 実際のスコア（GameData から取得）
 	float countSpeed_ = 300.0f;  // 1秒でどれくらい進めるか（調整可）

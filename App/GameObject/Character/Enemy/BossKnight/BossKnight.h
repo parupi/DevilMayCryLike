@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject/Character/Enemy/Enemy.h"
+#include "Audio/GameSoundLibrary.h"
 #include "GameObject/Character/Enemy/Component/EnemySensorComponent.h"
 #include "GameObject/Character/Enemy/Component/EnemyMovementComponent.h"
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
@@ -120,6 +121,9 @@ public:
 
     /// <summary>硬い鱗に覆われているので、斬ると金属のような火花が散る</summary>
     HitMaterial GetHitMaterial() const override { return HitMaterial::Armor; }
+
+    const char* GetSpawnSound() const override { return GameSound::kDragonAppear; }
+    const char* GetDeathSound() const override { return GameSound::kDragonDeath; }
 
     /// <summary>画面上部のHPバー（BossHealthBar）に出す名前</summary>
     static constexpr const char* kDisplayName = "DRAGON";

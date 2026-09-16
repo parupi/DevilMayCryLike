@@ -6,6 +6,8 @@
 #include <string>
 
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include "Math/MathUtils.h"
 #include "Utility/Logger.h"
 #include "World3D/Camera/BaseCamera.h"
@@ -52,11 +54,23 @@ void WallTorch::Initialize() {
 	emberTimer_ = std::fmod(phase, kEmberInterval);
 }
 
+WallTorch::~WallTorch() {
+	// ステージを作り直しても炎の音が残らないようにする
+	StopCrackle();
+}
+
+void WallTorch::StopCrackle() {
+	if (crackleVoice_ < 0) { return; }
+	SoundManager::GetInstance().StopSE(crackleVoice_);
+	crackleVoice_ = -1;
+}
+
 void WallTorch::Update(float deltaTime) {
 	// ライトをトランスフォームへ追従させる（Prop の仕事）
 	Prop::Update(deltaTime);
 
 	if (!isLit_) {
+		StopCrackle();
 		return;
 	}
 
@@ -74,6 +88,22 @@ void WallTorch::Update(float deltaTime) {
 			FlickerNoise(flickerTime_ * 0.7f + 3.1f) * kFlickerShake,
 			FlickerNoise(flickerTime_ * 0.9f + 8.4f) * kFlickerShake,
 			FlickerNoise(flickerTime_ * 0.8f + 5.6f) * kFlickerShake });
+	}
+
+	// ── パチパチという音 ──
+	// 位置つきのループ。SoundManager は鳴らした瞬間の位置でしか計算しないので、
+	// 毎フレーム計算し直さないと、横を通り過ぎても音が動かない。
+	// 離れると音量 0 になるだけでボイスは保持される（近づけばまた聞こえる）
+	if (crackleVoice_ < 0) {
+		SEPlayParams crackle;
+		crackle.name = GameSound::kTorchCrackle;
+		crackle.volume = 0.0f; // 実際の音量は直後の UpdateSE3D が決める
+		crackle.loop = true;
+		crackleVoice_ = SoundManager::GetInstance().PlaySE(crackle);
+	}
+	if (!SoundManager::GetInstance().UpdateSE3D(crackleVoice_, tip, kCrackleVolume)) {
+		// 優先度の取り合いで席を奪われた。次のフレームに取り直す
+		crackleVoice_ = -1;
 	}
 
 	// ── 炎のパーティクル ──

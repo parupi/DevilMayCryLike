@@ -7,6 +7,8 @@
 #include "Utility/DeltaTime.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 #include "Audio/SoundManager.h"
+#include "Audio/GameSoundLibrary.h"
+#include "GameObject/Effect/PlayerAttackEffect.h"
 #ifdef _DEBUG
 #include "Editor/Core/EditorDebugDraw.h"
 #endif
@@ -17,6 +19,30 @@ namespace {
 	// 攻撃に割り当てたボタンで出せるか（ボタン指定なしの攻撃はどのボタンでもよい）
 	bool AcceptsButton(const AttackNode& node, InputButton button) {
 		return node.condition.button == InputButton::None || node.condition.button == button;
+	}
+
+	/// <summary>
+	/// 技ごとの振りの音。見た目の種類（AttackVfxStyle）と同じ分け方にしてある。
+	///
+	/// 音だけ別の基準で分けると、金色の大振りエフェクトなのに軽い風切りが鳴る、といった
+	/// ちぐはぐが起きる。演出の分類を1つに寄せておけば、攻撃エディタで VFX Style を
+	/// 変えるだけで音も付いてくる
+	/// </summary>
+	const char* SwingSoundFor(AttackVfxStyle style) {
+		switch (style) {
+		case AttackVfxStyle::Heavy:  return GameSound::kSwordSlashHeavy;
+		case AttackVfxStyle::Thrust: return GameSound::kSwordStinger;
+		case AttackVfxStyle::Launch: return GameSound::kSwordLaunch;
+		case AttackVfxStyle::Slam:   return GameSound::kSwordSlam;
+		case AttackVfxStyle::Slash:
+		case AttackVfxStyle::Auto:
+		default:                     return GameSound::kSwordSlash;
+		}
+	}
+
+	// 強い技ほど少し大きく鳴らす。通常斬りは連打されるので控えめのまま
+	float SwingVolumeFor(AttackVfxStyle style) {
+		return (style == AttackVfxStyle::Slash || style == AttackVfxStyle::Auto) ? 0.55f : 0.7f;
 	}
 }
 
@@ -151,10 +177,13 @@ void PlayerStateAttack::Enter(Player& player) {
 	}
 
 	// 振り始めに剣風の音を鳴らす。
-	// 納刀モーションも同じ仕組みで流れてくるが、あれは攻撃ではないので鳴らさない。
+	// 納刀モーションも同じ仕組みで流れてくるので、そちらは専用の音に振り分ける。
 	// 溜め攻撃は構えで止まるので、振り始める ReleaseCharge で鳴らす
-	if (name_ != "Sheathe" && !attackData_.isCharge) {
-		SoundManager::GetInstance().PlaySE("SwordSlash", 0.55f);
+	if (name_ == "Sheathe") {
+		SoundManager::GetInstance().PlaySE(GameSound::kPlayerSheathe, 0.6f);
+	} else if (!attackData_.isCharge) {
+		const AttackVfxStyle style = PlayerAttackEffect::ResolveStyle(name_, attackData_);
+		SoundManager::GetInstance().PlaySE(SwingSoundFor(style), SwingVolumeFor(style));
 	}
 
 	isFinish_ = false;
@@ -224,7 +253,9 @@ void PlayerStateAttack::Exit(Player& player) {
 	hasPendingBuffer_ = false;
 	pendingRequest_ = {};
 
-	// 溜めの途中で中断された（回避・被弾）ときに、溜めた状態を次へ持ち越さない
+	// 溜めの途中で中断された（回避・被弾）ときに、溜めた状態を次へ持ち越さない。
+	// 唸りはループなので、ここを通らないと中断したまま鳴り続ける
+	StopChargeSound();
 	chargeTime_ = 0.0f;
 	chargeRatio_ = 0.0f;
 	isChargeReleased_ = false;
@@ -440,6 +471,13 @@ bool PlayerStateAttack::UpdateCharge(Player& player, float deltaTime) {
 		// 構えきったので溜めに入る
 		stateTime_.current = attackData_.preDelay;
 		attackPhase_ = AttackPhase::Charge;
+
+		// 溜め中の唸りを鳴らし始める。止めるのは ReleaseCharge / Exit の役目
+		SEPlayParams charge;
+		charge.name = GameSound::kSwordCharge;
+		charge.volume = 0.5f;
+		charge.loop = true;
+		chargeVoice_ = SoundManager::GetInstance().PlaySE(charge);
 	}
 
 	chargeTime_ += deltaTime;
@@ -450,6 +488,8 @@ bool PlayerStateAttack::UpdateCharge(Player& player, float deltaTime) {
 		if (CharacterLight* light = player.GetCharacterLight()) {
 			light->Flash();
 		}
+		// 光らせるだけだと自分の手元を見ていないと気づけないので、音でも知らせる
+		SoundManager::GetInstance().PlaySE(GameSound::kSwordChargeReady, 0.75f);
 	}
 
 	// 構えたまま止まる。向きだけはスティックで変えられる（ロックオン中は敵を向いたまま）
@@ -469,6 +509,12 @@ bool PlayerStateAttack::UpdateCharge(Player& player, float deltaTime) {
 	return true;
 }
 
+void PlayerStateAttack::StopChargeSound() {
+	if (chargeVoice_ < 0) { return; }
+	SoundManager::GetInstance().StopSE(chargeVoice_);
+	chargeVoice_ = -1;
+}
+
 void PlayerStateAttack::ReleaseCharge(Player& player) {
 	isChargeReleased_ = true;
 
@@ -481,8 +527,13 @@ void PlayerStateAttack::ReleaseCharge(Player& player) {
 	}
 	ApplyHitData(player);
 
-	// 溜め攻撃の剣風は、構えた瞬間ではなく振り始めに鳴らす
-	SoundManager::GetInstance().PlaySE("SwordSlash", 0.55f);
+	// 溜め中のループを止める。ここを飛ばすと唸りが鳴りっぱなしになる
+	StopChargeSound();
+
+	// 溜め攻撃の剣風は、構えた瞬間ではなく振り始めに鳴らす。
+	// 溜めきっていれば音も大きくする（見た目のエフェクトも同じ基準で強くなる）
+	const AttackVfxStyle style = PlayerAttackEffect::ResolveStyle(name_, attackData_);
+	SoundManager::GetInstance().PlaySE(SwingSoundFor(style), SwingVolumeFor(style) + chargeRatio_ * 0.25f);
 }
 
 bool PlayerStateAttack::IsAttackButtonHeld(Player& player) const {

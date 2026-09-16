@@ -2,6 +2,7 @@
 #include "MenuNavigator.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Resource/TextureManager.h>
 
@@ -60,7 +61,7 @@ bool MenuItemList::UpdateSelection(const MenuNavigator& navigator) {
 	}
 
 	if (moved) {
-		SoundManager::GetInstance().PlaySE("SwordSlash", 0.25f);
+		SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 	}
 	return moved;
 }

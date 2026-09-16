@@ -2,6 +2,7 @@
 #include "EnemyHitbox.h"
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
+#include "Audio/SoundManager.h"
 #include <algorithm>
 
 EnemyBoneAttackComponent::EnemyBoneAttackComponent(EnemyHitbox* hitbox)
@@ -61,6 +62,12 @@ void EnemyBoneAttackComponent::BeginAttack(Enemy& enemy, const BoneAttackParams&
 		enemy.SetAttackAnimationSpeed(windupClipSeconds_ / windupDuration_);
 	} else {
 		enemy.ClearAttackAnimationSpeed();
+	}
+
+	// 溜めの音。3D で鳴らすので、画面外から来る大振りも位置が分かる
+	if (params_.windupSound) {
+		SoundManager::GetInstance().PlaySE3D(
+			params_.windupSound, enemy.GetWorldTransform()->GetTranslation(), params_.soundVolume);
 	}
 }
 
@@ -196,6 +203,14 @@ void EnemyBoneAttackComponent::SetHitActive(Enemy& enemy, bool active) {
 		aim_.Lock(enemy);
 		// 向きは固定されたので、溜めの間だけの遅い向き直りはここで終わり
 		enemy.ClearFaceTurnSpeedOverride();
+
+		// 判定が出た瞬間の音。呼び出し元が状態の変わり目でしか呼ばないので、
+		// 判定が出ている間ずっと鳴り続けることはない。
+		// イベントで窓が2回開く攻撃では2回鳴る（多段攻撃なので、それが正しい）
+		if (params_.strikeSound) {
+			SoundManager::GetInstance().PlaySE3D(
+				params_.strikeSound, enemy.GetWorldTransform()->GetTranslation(), params_.soundVolume);
+		}
 	}
 	if (!hitbox_) return;
 

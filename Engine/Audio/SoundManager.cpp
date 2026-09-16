@@ -186,68 +186,107 @@ int SoundManager::PlaySE(const SEPlayParams& params) {
 	}
 
 	Audio& audio = Audio::GetInstance();
-	const int handle = audio.SoundPlayWave(params.name.c_str(), false);
+	const int handle = audio.SoundPlayWave(params.name.c_str(), params.loop);
 	if (handle < 0) { return -1; }
 
 	audio.SetBGMVolume(handle, std::clamp(params.volume, 0.0f, 1.0f) * seVolume_ * masterVolume_);
 	if (params.pitch != 1.0f) { audio.SetPitch(handle, params.pitch); }
 	if (params.pan != 0.0f) { audio.SetPan(handle, params.pan); }
 
-	seVoices_.push_back(SEVoice{ handle, params.name, priority });
+	seVoices_.push_back(SEVoice{ handle, params.name, priority, params.loop });
 	return handle;
+}
+
+bool SoundManager::Compute3D(const Vector3& worldPosition, const Vector3& velocity,
+	float& outAttenuation, float& outPan, float& outPitch) const {
+	outAttenuation = 1.0f;
+	outPan = 0.0f;
+	outPitch = 1.0f;
+
+	// 聞き手が渡されていなければ普通の SE として扱う
+	if (!hasListener_) { return true; }
+
+	const Vector3 toSource = worldPosition - listenerPosition_;
+	const float distance = Length(toSource);
+
+	// 遠すぎる音は鳴らさない
+	if (distance >= seMaxDistance_) { return false; }
+
+	// 距離減衰。逆二乗だと近づいた瞬間だけ極端に大きくなるので逆距離にする
+	if (distance > seMinDistance_) {
+		outAttenuation = seMinDistance_ / distance;
+		// 打ち切り点で「ブツッ」と消えないよう、最後の1/4でフェードさせる
+		const float fadeStart = seMaxDistance_ * 0.75f;
+		if (distance > fadeStart) {
+			outAttenuation *= (seMaxDistance_ - distance) / (seMaxDistance_ - fadeStart);
+		}
+	}
+	outAttenuation = std::clamp(outAttenuation, 0.0f, 1.0f);
+
+	if (distance > 0.001f) {
+		const Vector3 direction = Normalize(toSource);
+		// パンは聞き手の右方向との内積。真横で振り切らないよう 0.85 まで
+		// （振り切ると片耳から完全に消えて不自然に聞こえる）
+		outPan = std::clamp(Dot(direction, listenerRight_) * 0.85f, -1.0f, 1.0f);
+
+		// ドップラー。音源と聞き手の、視線方向の速度差で再生速度を変える
+		const float sourceSpeed = Dot(velocity, direction);
+		const float listenerSpeed = Dot(listenerVelocity_, direction);
+		const float denominator = kSpeedOfSound + sourceSpeed;
+		if (std::fabs(denominator) > 1.0f) {
+			outPitch = std::clamp((kSpeedOfSound + listenerSpeed) / denominator, 0.5f, 2.0f);
+		}
+	}
+	return true;
 }
 
 int SoundManager::PlaySE3D(const std::string& name, const Vector3& worldPosition,
 	float volume, const Vector3& velocity) {
+	float attenuation = 1.0f;
+	float pan = 0.0f;
+	float pitch = 1.0f;
+	// 遠すぎる音はボイスを取らない。優先度の取り合いにも参加させない
+	if (!Compute3D(worldPosition, velocity, attenuation, pan, pitch)) { return -1; }
+
 	SEPlayParams params;
 	params.name = name;
-	params.volume = volume;
-
-	if (hasListener_) {
-		const Vector3 toSource = worldPosition - listenerPosition_;
-		const float distance = Length(toSource);
-
-		// 遠すぎる音はボイスを取らない。優先度の取り合いにも参加させない
-		if (distance >= seMaxDistance_) { return -1; }
-
-		// 距離減衰。逆二乗だと近づいた瞬間だけ極端に大きくなるので逆距離にする
-		float attenuation = 1.0f;
-		if (distance > seMinDistance_) {
-			attenuation = seMinDistance_ / distance;
-			// 打ち切り点で「ブツッ」と消えないよう、最後の1/4でフェードさせる
-			const float fadeStart = seMaxDistance_ * 0.75f;
-			if (distance > fadeStart) {
-				attenuation *= (seMaxDistance_ - distance) / (seMaxDistance_ - fadeStart);
-			}
-		}
-		params.volume = volume * std::clamp(attenuation, 0.0f, 1.0f);
-
-		// パンは聞き手の右方向との内積。真後ろでも左右が入れ替わらない
-		if (distance > 0.001f) {
-			const Vector3 direction = Normalize(toSource);
-			// 真横で振り切らないよう 0.85 まで。振り切ると片耳から消えて不自然に聞こえる
-			params.pan = std::clamp(Dot(direction, listenerRight_) * 0.85f, -1.0f, 1.0f);
-
-			// ドップラー。音源と聞き手の視線方向の速度差で再生速度を変える
-			const float sourceSpeed = Dot(velocity, direction);
-			const float listenerSpeed = Dot(listenerVelocity_, direction);
-			const float denominator = kSpeedOfSound + sourceSpeed;
-			if (std::fabs(denominator) > 1.0f) {
-				params.pitch = std::clamp((kSpeedOfSound + listenerSpeed) / denominator, 0.5f, 2.0f);
-			}
-		}
-	}
-
+	params.volume = volume * attenuation;
+	params.pan = pan;
+	params.pitch = pitch;
 	return PlaySE(params);
+}
+
+bool SoundManager::UpdateSE3D(int handle, const Vector3& worldPosition, float volume) {
+	if (handle < 0) { return false; }
+
+	// 一覧に無い＝もう鳴り終わったか席を奪われた後。番号を使い回している別の音を触らない
+	const auto it = std::find_if(seVoices_.begin(), seVoices_.end(),
+		[handle](const SEVoice& voice) { return voice.handle == handle; });
+	if (it == seVoices_.end()) { return false; }
+
+	float attenuation = 1.0f;
+	float pan = 0.0f;
+	float pitch = 1.0f;
+	// 範囲外へ出たら止めずに無音にする。戻ってきたらまた聞こえる
+	if (!Compute3D(worldPosition, {}, attenuation, pan, pitch)) { attenuation = 0.0f; }
+
+	Audio& audio = Audio::GetInstance();
+	audio.SetBGMVolume(handle, std::clamp(volume * attenuation, 0.0f, 1.0f) * seVolume_ * masterVolume_);
+	audio.SetPan(handle, pan);
+	return true;
 }
 
 void SoundManager::StopSE(int handle) {
 	if (handle < 0) { return; }
+
+	// 一覧に無い＝もう鳴り終わったか、優先度の高い音に席を奪われた後。
+	// そのまま Audio へ渡すと、同じ番号を使い回している別の音を止めてしまう
+	const auto it = std::find_if(seVoices_.begin(), seVoices_.end(),
+		[handle](const SEVoice& voice) { return voice.handle == handle; });
+	if (it == seVoices_.end()) { return; }
+
 	Audio::GetInstance().StopBGM(handle);
-	seVoices_.erase(
-		std::remove_if(seVoices_.begin(), seVoices_.end(),
-			[handle](const SEVoice& voice) { return voice.handle == handle; }),
-		seVoices_.end());
+	seVoices_.erase(it);
 }
 
 void SoundManager::SetListener(const Vector3& position, const Vector3& forward, const Vector3& right,

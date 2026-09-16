@@ -1,4 +1,6 @@
 #include "EnemySpawnEvent.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 
 EnemySpawnEvent::EnemySpawnEvent(std::string objectName) : BaseEvent(objectName, EventType::EnemySpawn) {
 	Object3d::Initialize();
@@ -28,6 +30,11 @@ void EnemySpawnEvent::Update(float deltaTime) {
 
 void EnemySpawnEvent::Execute() {
 	isTriggered_ = true;
+
+	// 湧きの合図。敵それぞれの出現音は Enemy::Spawn が鳴らすので、
+	// ここは「戦闘が始まる」ことを伝える1発だけにする
+	SoundManager::GetInstance().PlaySE(GameSound::kEnemySpawnEvent, 0.7f);
+
 	for (auto& enemy : enemies_) {
 		enemy->Spawn();
 	}

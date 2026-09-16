@@ -4,6 +4,7 @@
 #include "GameObject/Training/TrainingController.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
 #include <Utility/DeltaTime.h>
@@ -140,11 +141,11 @@ void TrainingMenu::Update(TrainingController* controller)
 
 		if (navigator_.IsUp()) {
 			selectedIndex_ = (selectedIndex_ + kRowCount - 1) % kRowCount;
-			SoundManager::GetInstance().PlaySE("SwordSlash", 0.25f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 		}
 		if (navigator_.IsDown()) {
 			selectedIndex_ = (selectedIndex_ + 1) % kRowCount;
-			SoundManager::GetInstance().PlaySE("SwordSlash", 0.25f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 		}
 		if (navigator_.IsLeft()) ChangeValue(*controller, -1);
 		if (navigator_.IsRight()) ChangeValue(*controller, +1);
@@ -204,12 +205,12 @@ void TrainingMenu::ChangeValue(TrainingController& controller, int32_t direction
 		return;
 	}
 
-	SoundManager::GetInstance().PlaySE("SwordSlash", 0.3f);
+	SoundManager::GetInstance().PlaySE(GameSound::kUICancel, 0.5f);
 }
 
 void TrainingMenu::Decide(TrainingController& controller)
 {
-	SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+	SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 
 	switch (static_cast<Row>(selectedIndex_)) {
 	// 値の行は1つ先へ進める。端まで行ったら先頭へ戻すので、決定だけでも一周できる

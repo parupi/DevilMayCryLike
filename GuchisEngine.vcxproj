@@ -109,6 +109,9 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App\Audio\FootstepTracker.h" />
+    <ClInclude Include="App\Audio\GameSoundBuilders.h" />
+    <ClInclude Include="App\Audio\GameSoundLibrary.h" />
     <ClInclude Include="App\Editor\AppEditor.h" />
     <ClInclude Include="App\Editor\Windows\AppEditorWindows.h" />
     <ClInclude Include="App\GameData\CollisionCategory.h" />
@@ -460,6 +463,11 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\Audio\FootstepTracker.cpp" />
+    <ClCompile Include="App\Audio\GameSoundEnemy.cpp" />
+    <ClCompile Include="App\Audio\GameSoundLibrary.cpp" />
+    <ClCompile Include="App\Audio\GameSoundPlayer.cpp" />
+    <ClCompile Include="App\Audio\GameSoundSystem.cpp" />
     <ClCompile Include="App\Editor\AppEditor.cpp" />
     <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />

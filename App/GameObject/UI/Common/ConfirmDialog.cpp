@@ -2,6 +2,7 @@
 #include "MenuNavigator.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Resource/TextureManager.h>
 #include <Utility/DeltaTime.h>
@@ -68,18 +69,18 @@ ConfirmDialog::Answer ConfirmDialog::Update(const MenuNavigator& navigator) {
 	if (isOpen_ && alpha_ >= 1.0f) {
 		if (navigator.IsLeft() || navigator.IsRight()) {
 			selectedIndex_ = (selectedIndex_ == 0) ? 1 : 0;
-			SoundManager::GetInstance().PlaySE("SwordSlash", 0.25f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 		}
 
 		if (navigator.IsCancel()) {
-			SoundManager::GetInstance().PlaySE("SwordSlash", 0.3f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUIDialogNo, 0.5f);
 			answer = Answer::No;
 		} else if (navigator.IsDecide()) {
 			if (selectedIndex_ == 0) {
-				SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+				SoundManager::GetInstance().PlaySE(GameSound::kUIDialogYes, 0.6f);
 				answer = Answer::Yes;
 			} else {
-				SoundManager::GetInstance().PlaySE("SwordSlash", 0.3f);
+				SoundManager::GetInstance().PlaySE(GameSound::kUIDialogNo, 0.5f);
 				answer = Answer::No;
 			}
 		}

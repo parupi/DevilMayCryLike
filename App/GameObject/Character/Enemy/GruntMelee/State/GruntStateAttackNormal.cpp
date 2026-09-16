@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyMeleeAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
 
 namespace
 {
@@ -32,6 +33,11 @@ namespace
         p.telegraph.shape = TelegraphShape::Fan;
         p.telegraph.radius = 2.0f;
         p.telegraph.halfAngleDeg = 55.0f;
+
+        // 構えの溜めと剣の振り。チャージリングが縮むのに合わせて音が上がる
+        p.windupSound = GameSound::kSkeletonCharge;
+        p.swingSound = GameSound::kSkeletonSwing;
+        p.soundVolume = 0.75f;
         return p;
     }
 }

@@ -16,5 +16,10 @@ public:
     void Exit(Enemy& enemy) override;
 
 private:
+    // 突進中のループ音を止める。鳴っていなければ何もしない
+    void StopRushLoop();
+
     EnemyBoneAttackComponent* attack_;
+    // 突進中に鳴らしているループの再生番号。-1 なら鳴っていない
+    int rushVoice_ = -1;
 };

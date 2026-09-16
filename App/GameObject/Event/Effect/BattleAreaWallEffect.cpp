@@ -1,5 +1,7 @@
 #include "BattleAreaWallEffect.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <algorithm>
 #include <cmath>
 #include <random>
@@ -18,11 +20,19 @@ void BattleAreaWallEffect::Initialize(const MovementBounds& bounds) {
 
 void BattleAreaWallEffect::Start() {
 	if (points_.empty()) return;
+	// 既に出ているなら鳴らし直さない（毎フレーム呼ばれても平気なようにしておく）
+	const bool wasActive = isActive_;
 	isActive_ = true;
 	emitTimer_ = 0.0f;
+	if (!wasActive) {
+		SoundManager::GetInstance().PlaySE(GameSound::kBattleWallOn, 0.7f);
+	}
 }
 
 void BattleAreaWallEffect::Stop() {
+	if (isActive_) {
+		SoundManager::GetInstance().PlaySE(GameSound::kBattleWallOff, 0.6f);
+	}
 	isActive_ = false;
 }
 
