@@ -5,12 +5,15 @@
 #include <Scene/Transition/TransitionManager.h>
 #include <Utility/DeltaTime.h>
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 
 void GameSceneStateMenu::Enter(GameScene& scene)
 {
 	menuState_ = MenuState::Enter;
 	// ゲームが止まっている間はBGMも止める
 	SoundManager::GetInstance().PauseBGM();
+	// ポーズを開く音。BGM を止めた後に鳴らすので埋もれない
+	SoundManager::GetInstance().PlaySE(GameSound::kUIPauseOpen, 0.6f);
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);
 	scene.GetInputContext()->SetCanCameraMove(false);
@@ -63,6 +66,7 @@ void GameSceneStateMenu::Update(GameScene& scene)
 
 void GameSceneStateMenu::Exit(GameScene& scene)
 {
+	SoundManager::GetInstance().PlaySE(GameSound::kUIPauseClose, 0.6f);
 	SoundManager::GetInstance().ResumeBGM();
 	scene.GetMenuUI()->Exit();
 }

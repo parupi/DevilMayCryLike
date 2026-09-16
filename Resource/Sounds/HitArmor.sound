@@ -1,0 +1,141 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.41999998688697815,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.3799999952316284,
+                "Hold": 0.0,
+                "Release": 0.03500000014901161,
+                "Sustain": 0.0
+            },
+            "FMAmount": 1.5,
+            "FMRatio": 4.300000190734863,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 2100.0,
+            "Name": "Clang",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.8500000238418579,
+            "Wave": "Sine"
+        },
+        {
+            "Duration": 0.07999999821186066,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.07000000029802322,
+                "Hold": 0.0,
+                "Release": 0.009999999776482582,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2100.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.800000011920929,
+                "Sweep": false,
+                "Type": "HighPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Spark",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 3000.0,
+                "Start": 11000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.5,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.30000001192092896,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0010000000474974513,
+                "Curve": 3.0,
+                "Decay": 0.27000001072883606,
+                "Hold": 0.0,
+                "Release": 0.02500000037252903,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.800000011920929,
+            "FMRatio": 1.409999966621399,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 3300.0,
+            "Name": "Ring",
+            "NoiseSeed": 12345,
+            "Pan": 0.20000000298023224,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.30000001192092896,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "HitArmor",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 78,
+    "Reverb": {
+        "Damping": 0.4000000059604645,
+        "Enabled": true,
+        "Mix": 0.2800000011920929,
+        "RoomSize": 0.44999998807907104,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

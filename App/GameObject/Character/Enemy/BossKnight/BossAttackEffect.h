@@ -127,6 +127,8 @@ private:
 	bool prevOnGround_ = true;
 	float prevVelocityY_ = 0.0f;
 	float moveDustTimer_ = 0.0f;
+	// 羽ばたきの音の間隔用。待機中も飛んでいるので、行動していなくても刻む
+	float wingbeatTimer_ = 0.0f;
 
 	// ── 画面効果の残り時間 ──
 	float hitFlashTimer_ = 0.0f;

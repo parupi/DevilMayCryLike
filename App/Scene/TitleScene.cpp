@@ -17,6 +17,7 @@
 #include <Debugger/GlobalVariables.h>
 #include <Utility/DeltaTime.h>
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <GameObject/Character/Player/Player.h> // 先読みするモデル名をゲーム中と共有する
 #include <GameData/GameSession.h>
 #include <Graphics/Rendering/PostEffect/OffScreenManager.h>
@@ -200,6 +201,7 @@ void TitleScene::ChangePhase() {
 	}
 
 	// 操作案内を消して、入れ替わりにメニューを開く
+	SoundManager::GetInstance().PlaySE(GameSound::kTitlePress, 0.8f);
 	titleUI_->Exit();
 	titleMenu_->Open();
 }

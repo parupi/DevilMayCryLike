@@ -81,6 +81,8 @@ private:
 	bool UpdateCharge(Player& player, float deltaTime);
 	// 溜めを終えて振り始める。溜めた時間から倍率を決める
 	void ReleaseCharge(Player& player);
+	// 溜め中のループ音を止める。鳴っていなければ何もしない
+	void StopChargeSound();
 	// この攻撃に割り当てたボタンを押し続けているか
 	bool IsAttackButtonHeld(Player& player) const;
 	// 多段ヒットの段を進める。段が変わるたびに当たり直させる
@@ -132,6 +134,8 @@ private:
 	bool isChargeReleased_ = false;
 	// 溜めきったことを知らせたか
 	bool isChargeFullNotified_ = false;
+	// 溜め中のループ音の再生番号。-1 なら鳴っていない
+	int chargeVoice_ = -1;
 
 	// ── 多段ヒット ──
 	// 今が何段目か（0 始まり）

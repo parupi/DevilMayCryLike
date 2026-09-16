@@ -2,6 +2,8 @@
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 #include <Utility/DeltaTime.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #ifdef _DEBUG
 #endif
 
@@ -280,6 +282,9 @@ void PlayerCombat::StartRootAttack(const AttackNode& node) {
 
 	// カウンターを出したら受付を閉じて、クールタイムに入る
 	if (node.condition.requireCounter) {
+		// カウンターが成立した合図。この後すぐ攻撃の振りの音も鳴るので、
+		// 重なっても濁らないよう金属質で短い音にしてある
+		SoundManager::GetInstance().PlaySE(GameSound::kSwordCounter, 0.85f);
 		counterWindowTimer_ = 0.0f;
 		counterCooldownTimer_ = player_->GetDodgeParams().counterCooldown;
 	}

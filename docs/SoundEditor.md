@@ -139,9 +139,70 @@ SoundManager::GetInstance().PlaySE3D("Explosion", enemyPosition);
 
 ---
 
+## このゲームの SE 一覧（Sound.txt 対応）
+
+音の定義は **`App/Audio/`** にある。Engine 側はゲームの音を知らない。
+
+| ファイル | 中身 |
+|---|---|
+| `GameSoundLibrary.h` | ゲームから呼ぶ名前の定数（`GameSound::kDodge` など）。**呼ぶときは必ずこれを使う** |
+| `GameSoundLibrary.cpp` | 名前・説明・作る関数の対応表と `Register()` / `ExportMissing()` |
+| `GameSoundBuilders.h` | 定義を短く書くための部品（`Layer` / `Pitch` / `Env` / `Filt` / `FM`） |
+| `GameSoundPlayer.cpp` | プレイヤー（移動・被弾・攻撃・手応え・ロックオン） |
+| `GameSoundEnemy.cpp` | 骸骨とドラゴン |
+| `GameSoundSystem.cpp` | 予兆・ランク・HPバー・UI・環境音 |
+| `FootstepTracker.{h,cpp}` | 足音を刻むタイミング（プレイヤーと骸骨で共用） |
+
+`AppEditor::Register()` が全部をエディタのプリセット一覧へ載せるので、
+**Sound Editor で開いて保存すれば、コードを触らずに音を差し替えられる**
+（保存した `.sound` のほうが優先される）。
+
+### 音を変えたいとき
+
+1. `Window > Engine > Sound Editor` を開く
+2. 左の一覧から名前を選ぶ（例: `HitBone`）
+3. いじって「保存」
+4. ゲームを動かすと新しい音で鳴る
+
+コード側の定義に戻したいときは `Resource/Sounds/<名前>.sound` を消して
+エディタの「プリセットを全部書き出す」を押す。
+
+### 鳴らしている場所
+
+音の鳴らし方は3通りある。
+
+- **ステートの `Enter` / 遷移**: `PlayerStateJump`、`BossStateRoar` など
+- **攻撃パラメータに書く**: `MeleeAttackParams` / `BoneAttackParams` の
+  `windupSound` / `swingSound`(`strikeSound`) にセットすると、
+  コンポーネントが構え・振りの瞬間に鳴らす。**敵の攻撃音はここで足すのがいちばん楽**
+- **状態を見て勝手に鳴る**: `Player::UpdateMovementSound`（足音・心音）、
+  `BossAttackEffect::UpdateLocomotion`（羽ばたき・着地）
+
+材質ごとの手応えは `PlayerWeapon::OnCollisionEnter` が `Enemy::GetHitMaterial()` を見て選ぶ。
+敵を増やしたときは `GetHitMaterial` / `GetSpawnSound` / `GetDeathSound` を override すればよい。
+
+### ループする音を足すときの決まり
+
+`SEPlayParams::loop = true` で鳴らしたら、**戻り値を持って必ず `StopSE` する**。
+今あるループは 溜め（`PlayerStateAttack`）/ 突進（`BossStateRush`）/ 炎（`BossStateBreath`）/
+心音（`Player`）/ 松明（`WallTorch`）/ 環境音（`GameScene`）で、どれも中断経路（被弾・崩れ・
+シーン遷移）から止めている。
+
+位置つきのループは `UpdateSE3D` を毎フレーム呼ぶこと。`PlaySE3D` は鳴らした瞬間の位置でしか
+計算しないので、呼ばないと横を通り過ぎても音が動かない。
+
+ループ用の `.sound` は **リバーブを掛けない**（尾がレイヤーの長さより後ろへ伸びて、
+継ぎ目に無音が挟まる）。詳しくは `GameSoundSystem.cpp` の `AmbienceDungeon` のコメント。
+
 ## 残っているもの
 
 - **Phase 9 のノードベースエディタ**（設計書で★1・発展扱い）。
   `Externals/imgui-node-editor` は入っているので、やるならそこから
 - LFO / ランダマイズ（同じ SE に毎回わずかな揺らぎを付ける）
 - ドップラーは API はあるが、音源側の速度を渡している呼び出しがまだ無い
+- **BGM とボイスはこの合成器では作れない**（Sound.txt の 7. と 8.）。
+  ボス戦専用曲・ゲームオーバーのジングル・トレーニングの曲は音楽なので、
+  素材を用意して `Resource/sound/*.wav` に置き、`SoundManager::PlayBGM` で差し替える。
+  咆哮だけは「低い唸り＋濁った倍音＋歪み」で代用してある（`DragonRoar`）
+- 足音は歩いた距離で刻んでいる。Animation ウィンドウで走りクリップに `footstep` の
+  イベントを打てば、`FootstepTracker` が自動でそちら（＝足が着く瞬間）に切り替わる

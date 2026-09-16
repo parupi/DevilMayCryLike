@@ -21,6 +21,13 @@ struct MeleeAttackParams {
 	// （当たり判定そのものは武器のコライダーが持つ）。
 	// 大きさは **オブジェクトのスケール1 のときのワールド単位** で書く
 	AttackTelegraphParams telegraph;
+
+	// 攻撃の音。null なら鳴らさない。
+	// ステート側に書かず params に持たせているのは、予兆や武器の軌道と同じ場所で
+	// 1つの攻撃の性格をまとめて見られるようにするため
+	const char* windupSound = nullptr;  // 構えに入った瞬間
+	const char* swingSound = nullptr;   // 振り始めた瞬間
+	float soundVolume = 0.8f;
 };
 
 /// <summary>
@@ -55,4 +62,6 @@ private:
 	EnemyAttackAim aim_;
 	float timer_ = 0.0f;
 	bool finished_ = true;
+	// 振りの音は1回だけ。Attack フェーズは毎フレーム通るので、鳴らしたかを覚えておく
+	bool swingSoundPlayed_ = false;
 };

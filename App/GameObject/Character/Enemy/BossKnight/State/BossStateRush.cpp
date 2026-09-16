@@ -2,6 +2,8 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 
 namespace {
     // 突進。体当たりで正面へまっすぐ突っ込む。判定は体全体。
@@ -47,6 +49,11 @@ namespace {
         p.telegraph.halfWidth = 1.9f;
         p.telegraph.length = 8.2f;
         p.telegraph.forwardOffset = -1.7f;
+
+        // 踏み込みの音だけここで指定する。
+        // 突進中のループと止まったときの衝撃は、長さを自分で持つ必要があるので BossStateRush 側
+        p.windupSound = GameSound::kDragonRushStep;
+        p.soundVolume = 0.95f;
         return p;
     }
 }
@@ -61,10 +68,41 @@ void BossStateRush::Enter(Enemy& enemy)
 
 void BossStateRush::Update(Enemy& enemy, float deltaTime)
 {
+    const bool wasRushing = attack_->IsHitActive();
+
     attack_->Update(enemy, deltaTime);
+
+    // 走っている間だけ風を切る音を鳴らし続ける。
+    // 判定が出ている間 = 前へ進んでいる間なので、突進の見た目とぴったり合う
+    const bool isRushing = attack_->IsHitActive();
+    if (isRushing && rushVoice_ < 0) {
+        SEPlayParams loop;
+        loop.name = GameSound::kDragonRushLoop;
+        loop.volume = 0.8f;
+        loop.loop = true;
+        rushVoice_ = SoundManager::GetInstance().PlaySE(loop);
+    } else if (!isRushing && wasRushing) {
+        // 止まった瞬間。ループを切って、踏ん張った衝撃を出す
+        StopRushLoop();
+        SoundManager::GetInstance().PlaySE3D(
+            GameSound::kDragonRushStop, enemy.GetWorldTransform()->GetTranslation(), 0.95f);
+    }
+
     if (attack_->IsFinished()) {
         enemy.ChangeState(BossStateName::CombatIdle);
     }
 }
 
-void BossStateRush::Exit(Enemy& enemy) { attack_->Cancel(enemy); }
+void BossStateRush::Exit(Enemy& enemy)
+{
+    // 被弾やブレイクで突進が中断されてもループを残さない
+    StopRushLoop();
+    attack_->Cancel(enemy);
+}
+
+void BossStateRush::StopRushLoop()
+{
+    if (rushVoice_ < 0) { return; }
+    SoundManager::GetInstance().StopSE(rushVoice_);
+    rushVoice_ = -1;
+}

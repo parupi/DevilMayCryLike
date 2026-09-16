@@ -97,6 +97,8 @@ public:
 private:
 	std::unordered_map<std::string, std::unique_ptr<GameSceneStateBase>> states_;
 	GameSceneStateBase* currentState_ = nullptr;
+	// ダンジョンの空気（ループ）の再生番号。Finalize で必ず止める
+	int ambienceVoice_ = -1;
 	// 入力をまとめたクラス
 	std::unique_ptr<InputContext> inputContext_ = nullptr;
 	// ロックオンの処理を行うクラス

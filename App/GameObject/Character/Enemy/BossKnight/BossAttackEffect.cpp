@@ -8,6 +8,8 @@
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
 #include "GameObject/Character/Player/Player.h"
 #include "Graphics/Rendering/Effect/WeaponTrail.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/PostEffect/HitFlashEffect.h"
@@ -88,6 +90,8 @@ namespace {
 	constexpr float kLandingSpeed = 3.0f;       // この速さ以上で落ちてきた着地だけ衝撃を出す
 	constexpr float kLandingImpact = 1.0f;
 	constexpr float kLandingShake = 0.35f;
+	// 羽ばたきの間隔[秒]。待機中もゆっくり羽ばたいている想定
+	constexpr float kWingbeatInterval = 1.6f;
 
 	// 大きく飛んだフレームで一度に大量に出さない
 	constexpr float kMaxStep = 0.1f;
@@ -495,6 +499,7 @@ void BossAttackEffect::UpdateLocomotion(float deltaTime, BossActionKind action, 
 	if (onGround && !prevOnGround_ && prevVelocityY_ < -kLandingSpeed) {
 		ParticleManager::GetInstance().PlayVFX(kImpactVfx, foot_ + kUp * 0.05f, kUp, kLandingImpact);
 		BossVfxUtil::AddCameraShake(kLandingShake);
+		SoundManager::GetInstance().PlaySE3D(GameSound::kDragonLand, foot_, 0.9f);
 	}
 	prevOnGround_ = onGround;
 	prevVelocityY_ = velocityY;
@@ -508,6 +513,18 @@ void BossAttackEffect::UpdateLocomotion(float deltaTime, BossActionKind action, 
 		}
 	} else {
 		moveDustTimer_ = 0.0f;
+	}
+
+	// 羽ばたき。攻撃中は攻撃の音でいっぱいになるので出さない。
+	// 待機中も飛んでいるので、止まっていても鳴らす
+	if (action == BossActionKind::None) {
+		wingbeatTimer_ += deltaTime;
+		if (wingbeatTimer_ >= kWingbeatInterval) {
+			wingbeatTimer_ = 0.0f;
+			SoundManager::GetInstance().PlaySE3D(GameSound::kDragonWingbeat, foot_, 0.45f);
+		}
+	} else {
+		wingbeatTimer_ = 0.0f;
 	}
 }
 

@@ -4,6 +4,8 @@
 #include "GameObject/Character/Player/Player.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Graphics/Resource/TextureManager.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <algorithm>
 #include <cmath>
 #include <vector>
@@ -61,6 +63,9 @@ void LockOnSystem::Initialize(LockOnInput* input, Player* player) {
 void LockOnSystem::Update() {
 	// ロックオンが成立した瞬間を検知するため、更新前の状態を保持しておく
 	bool hadTarget = currentTarget_ != nullptr;
+	// 音を鳴らし分けるために「どの相手だったか」も覚えておく。
+	// 生死は見ないので**この値を参照しないこと**（消えた敵を指している可能性がある）
+	const LockOnTarget* previousTarget = currentTarget_;
 
 	FindBestTarget();
 	// ロックオン入力
@@ -83,6 +88,17 @@ void LockOnSystem::Update() {
 	// ロックオンが成立した瞬間にチュートリアルを進める
 	if (!hadTarget && currentTarget_) {
 		player_->GetTutorialService()->StepTutorial(TutorialState::LockOn);
+	}
+
+	// 成立・解除・切り替えで音を分ける。
+	// 切り替えは「掴んだままなのに相手が変わった」なので、前後のポインタを比べる
+	SoundManager& sound = SoundManager::GetInstance();
+	if (!hadTarget && currentTarget_) {
+		sound.PlaySE(GameSound::kLockOn, 0.55f);
+	} else if (hadTarget && !currentTarget_) {
+		sound.PlaySE(GameSound::kLockOnRelease, 0.45f);
+	} else if (hadTarget && currentTarget_ && currentTarget_ != previousTarget) {
+		sound.PlaySE(GameSound::kLockOnSwitch, 0.5f);
 	}
 
 	if (IsLockOn()) {

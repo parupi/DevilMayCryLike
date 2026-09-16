@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyBoneAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
 #include "GameObject/Character/Enemy/BossKnight/BossKnight.h"
 
 namespace {
@@ -47,6 +48,10 @@ namespace {
 		p.telegraph.shape = TelegraphShape::Fan;
 		p.telegraph.radius = 2.6f;
 		p.telegraph.halfAngleDeg = 50.0f;
+
+		// 顎を鳴らす音。溜めは短いので鳴らさず、噛みついた瞬間だけ出す
+		p.strikeSound = GameSound::kDragonBite;
+		p.soundVolume = 0.95f;
 		return p;
 	}
 }

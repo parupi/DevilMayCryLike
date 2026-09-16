@@ -34,8 +34,15 @@ public:
     void Exit(Enemy& enemy) override;
 
 private:
+    // 炎のループ音を止める。鳴っていなければ何もしない
+    void StopBreathLoop();
+
     EnemyBoneAttackComponent* attack_;
     BossBreathEffect* effect_;
     // 吐き始めてからの経過[s]。炎が細くなっていく終わり際を演出側へ伝えるのに使う
     float fireTimer_ = 0.0f;
+    // 炎のループ音の再生番号。-1 なら鳴っていない
+    int breathVoice_ = -1;
+    // 前のフレームに炎を吐いていたか。着火と消える瞬間を1回だけ拾うために持つ
+    bool wasFiring_ = false;
 };

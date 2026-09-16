@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.8999999761581421,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.4000000059604645,
+                "Curve": 1.600000023841858,
+                "Decay": 0.41999998688697815,
+                "Hold": 0.0,
+                "Release": 0.07000000029802322,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.4000000059604645,
+            "FMRatio": 1.5,
+            "Filter": {
+                "Cutoff": 700.0,
+                "CutoffEnd": 1400.0,
+                "Resonance": 1.600000023841858,
+                "Sweep": true,
+                "Type": "LowPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Swell",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseIn",
+                "Enabled": true,
+                "End": 220.0,
+                "Start": 90.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.699999988079071,
+            "Wave": "Saw"
+        },
+        {
+            "Duration": 0.3499999940395355,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0020000000949949026,
+                "Curve": 3.0,
+                "Decay": 0.3100000023841858,
+                "Hold": 0.0,
+                "Release": 0.029999999329447746,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.8999999761581421,
+            "FMRatio": 2.5999999046325684,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 520.0,
+            "Name": "Set",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.550000011920929,
+            "Volume": 0.550000011920929,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "BossBarAppear",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 80,
+    "Reverb": {
+        "Damping": 0.44999998807907104,
+        "Enabled": true,
+        "Mix": 0.25999999046325684,
+        "RoomSize": 0.550000011920929,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

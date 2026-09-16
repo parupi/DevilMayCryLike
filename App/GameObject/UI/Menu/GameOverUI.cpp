@@ -1,6 +1,7 @@
 #include "GameOverUI.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Resource/TextureManager.h>
 #include <Input/Input.h>
@@ -64,7 +65,7 @@ void GameOverUI::Update() {
 		itemList_.UpdateSelection(navigator_);
 
 		if (navigator_.IsDecide()) {
-			SoundManager::GetInstance().PlaySE("SwordHit", 0.6f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUIConfirm, 0.6f);
 			result_ = (static_cast<Item>(itemList_.GetSelectedIndex()) == Item::Retry)
 				? Result::Retry : Result::ToTitle;
 		}

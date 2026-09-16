@@ -2,6 +2,8 @@
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "Math/Vector3.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 
 void PlayerStateKnockBack::Enter(Player& player) {
 	timer_ = 0.0f;
@@ -29,6 +31,10 @@ void PlayerStateKnockBack::Update(Player& player, float deltaTime) {
 	// そのため、動き出しても少し滑りながら立て直す形になる
 	const bool landed = player.GetOnGround() && timer_ >= kMinDuration;
 	if (landed || timer_ >= maxDuration_) {
+		// 吹き飛ばされて落ちた着地。被弾音と重なるので控えめに鳴らす
+		if (landed) {
+			SoundManager::GetInstance().PlaySE(GameSound::kPlayerLand, 0.45f);
+		}
 		player.GetAcceleration() = {};
 		player.ChangeState("Idle");
 	}

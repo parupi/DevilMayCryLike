@@ -2,6 +2,7 @@
 #include "MenuNavigator.h"
 
 #include <Audio/SoundManager.h>
+#include "Audio/GameSoundLibrary.h"
 #include <GameData/GameSettings.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
@@ -152,11 +153,11 @@ void OptionPanel::Update(const MenuNavigator& navigator)
 
 		if (navigator.IsUp()) {
 			selectedIndex_ = (selectedIndex_ + kRowCount - 1) % kRowCount;
-			SoundManager::GetInstance().PlaySE("SwordSlash", 0.25f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 		}
 		if (navigator.IsDown()) {
 			selectedIndex_ = (selectedIndex_ + 1) % kRowCount;
-			SoundManager::GetInstance().PlaySE("SwordSlash", 0.25f);
+			SoundManager::GetInstance().PlaySE(GameSound::kUICursor, 0.5f);
 		}
 		if (navigator.IsLeft()) ChangeValue(-1);
 		if (navigator.IsRight()) ChangeValue(+1);
@@ -180,7 +181,7 @@ void OptionPanel::ChangeValue(int32_t direction)
 	case Row::SeVolume:
 		sound.SetSEVolume(sound.GetSEVolume() + kVolumeStep * direction);
 		// 変えた音量をその場で確かめられるように鳴らす
-		sound.PlaySE("SwordHit", 1.0f);
+		sound.PlaySE(GameSound::kUISlider, 0.7f);
 		break;
 	case Row::Sensitivity:
 		settings.SetCameraSensitivity(settings.GetCameraSensitivity() + GameSettings::kSensitivityStep * direction);
@@ -199,7 +200,7 @@ void OptionPanel::ChangeValue(int32_t direction)
 
 	// SE の行は音量確認のSEを鳴らしているので、そちらに任せる
 	if (static_cast<Row>(selectedIndex_) != Row::SeVolume) {
-		sound.PlaySE("SwordSlash", 0.3f);
+		sound.PlaySE(GameSound::kUICancel, 0.5f);
 	}
 }
 

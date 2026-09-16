@@ -4,6 +4,8 @@
 #include "World3D/Camera/BaseCamera.h"
 #include <World3D/Object/Object3d.h>
 #include "GameObject/Camera/GameCamera.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include <Scene/Transition/TransitionManager.h>
 #include <Input/Input.h>
 
@@ -34,6 +36,9 @@ void StageStart::Initialize() {
 	cam->LookAt(playerPos + Vector3{0.0f, kLookAtHeight, 0.0f});
 	CameraManager::GetInstance().AddCamera(std::move(cam));
 	CameraManager::GetInstance().SetActiveCamera("StartCamera");
+
+	// ステージ開始の演出音。カメラが引き始めるのと同時に鳴る
+	SoundManager::GetInstance().PlaySE(GameSound::kStageStart, 0.8f);
 }
 
 void StageStart::Complete() {

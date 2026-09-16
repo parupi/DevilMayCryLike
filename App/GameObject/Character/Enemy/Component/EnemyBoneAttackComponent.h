@@ -61,6 +61,12 @@ struct BoneAttackParams {
 	// （当たり判定そのものは上の halfExtents の箱が持つ）。
 	// 大きさは halfExtents と同じくスケール1基準で書く（BeginAttack が配置スケールを掛ける）
 	AttackTelegraphParams telegraph;
+
+	// 攻撃の音。null なら鳴らさない。
+	// 予兆や判定と同じ場所に置いて、1つの攻撃の性格をまとめて見られるようにしている
+	const char* windupSound = nullptr;  // 溜めに入った瞬間
+	const char* strikeSound = nullptr;  // 判定が出た瞬間
+	float soundVolume = 0.9f;
 };
 
 /// <summary>

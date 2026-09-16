@@ -3,6 +3,8 @@
 #include <GameData/GameData.h>
 #include <string>
 #include <Utility/DeltaTime.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 namespace {
@@ -45,6 +47,16 @@ void ScoreUI::Update()
 		}
 	} else {
 		isFinish_ = true;
+	}
+
+	// カウント中の音。毎フレーム鳴らすと連続音になって耳障りなので、
+	// 一定の間隔を置いて刻む
+	if (!isFinish_) {
+		tickTimer_ += DeltaTime::GetDeltaTime();
+		if (tickTimer_ >= kTickInterval) {
+			tickTimer_ = 0.0f;
+			SoundManager::GetInstance().PlaySE(GameSound::kScoreCount, 0.4f);
+		}
 	}
 
 	// ↓ currentScore_ を用いて数字を描画

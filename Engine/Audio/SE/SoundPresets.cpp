@@ -515,28 +515,58 @@ namespace {
 		{ "Explosion",   "爆発。低音の轟き＋広い帯域のノイズ",                     MakeExplosion },
 	};
 
+	// App から登録されたゲーム固有のプリセット。組み込みの後ろに並ぶ
+	struct ExternalEntry {
+		std::string name;
+		std::string description;
+		SoundPresets::CreateFunc create;
+	};
+	std::vector<ExternalEntry> g_external;
+
+	constexpr int kBuiltinCount = static_cast<int>(std::size(kPresets));
+
 } // namespace
 
 namespace SoundPresets {
 
-	int Count() { return static_cast<int>(std::size(kPresets)); }
+	void RegisterExternal(std::string name, std::string description, CreateFunc create)
+	{
+		if (name.empty() || !create) { return; }
+
+		// 同じ名前は差し替える。二重登録で一覧が増え続けるのを防ぐ
+		for (ExternalEntry& entry : g_external) {
+			if (entry.name == name) {
+				entry.description = std::move(description);
+				entry.create = std::move(create);
+				return;
+			}
+		}
+		g_external.push_back({ std::move(name), std::move(description), std::move(create) });
+	}
+
+	void ClearExternal() { g_external.clear(); }
+
+	int Count() { return kBuiltinCount + static_cast<int>(g_external.size()); }
 
 	const char* GetName(int index)
 	{
 		if (index < 0 || index >= Count()) { return ""; }
-		return kPresets[index].name;
+		if (index < kBuiltinCount) { return kPresets[index].name; }
+		return g_external[index - kBuiltinCount].name.c_str();
 	}
 
 	const char* GetDescription(int index)
 	{
 		if (index < 0 || index >= Count()) { return ""; }
-		return kPresets[index].description;
+		if (index < kBuiltinCount) { return kPresets[index].description; }
+		return g_external[index - kBuiltinCount].description.c_str();
 	}
 
 	SoundDefinition Create(int index)
 	{
 		if (index < 0 || index >= Count()) { return CreateEmpty("NewSound"); }
-		return kPresets[index].create();
+		if (index < kBuiltinCount) { return kPresets[index].create(); }
+		return g_external[index - kBuiltinCount].create();
 	}
 
 	bool CreateByName(const std::string& name, SoundDefinition& outDefinition)
@@ -544,6 +574,12 @@ namespace SoundPresets {
 		for (const PresetEntry& preset : kPresets) {
 			if (name == preset.name) {
 				outDefinition = preset.create();
+				return true;
+			}
+		}
+		for (const ExternalEntry& entry : g_external) {
+			if (name == entry.name) {
+				outDefinition = entry.create();
 				return true;
 			}
 		}
@@ -566,17 +602,26 @@ namespace SoundPresets {
 	int ExportAll(bool overwrite)
 	{
 		int written = 0;
-		for (const PresetEntry& preset : kPresets) {
+
+		// 書き出してよいか。組み込みも登録ぶんも判定は同じ
+		auto shouldWrite = [overwrite](const std::string& name) {
 			// 触った後のファイルを黙って潰さない。上書きは明示的に選んでもらう
-			if (!overwrite && SoundFile::Exists(preset.name)) { continue; }
+			if (!overwrite && SoundFile::Exists(name)) { return false; }
 
 			// 同じ名前の WAV 素材があるものは書き出さない。
 			// SoundManager は .sound を優先するので、ここで作ると
 			// SwordSlash のように既にゲームで鳴っている音が黙って差し替わってしまう。
 			// 差し替えたいときは「プリセットから作る」で開いて、自分で保存すればよい
-			if (WavAssetExists(preset.name)) { continue; }
+			return !WavAssetExists(name);
+		};
 
+		for (const PresetEntry& preset : kPresets) {
+			if (!shouldWrite(preset.name)) { continue; }
 			if (SoundFile::Save(preset.create())) { ++written; }
+		}
+		for (const ExternalEntry& entry : g_external) {
+			if (!shouldWrite(entry.name)) { continue; }
+			if (SoundFile::Save(entry.create())) { ++written; }
 		}
 		return written;
 	}

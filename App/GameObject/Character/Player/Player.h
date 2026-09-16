@@ -29,6 +29,7 @@
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 #include "Tutorial/Service/TutorialService.h"
+#include "Audio/FootstepTracker.h"
 
 class PlayerInput;
 class AnimationPlayer;
@@ -374,6 +375,12 @@ private:
 	// ステートと戦闘状態から再生するクリップを決めて流す。毎フレーム呼ぶ
 	void UpdateAnimation();
 
+	/// <summary>
+	/// ステートが自分で鳴らさない音（足音・HPが少ないときの心音）を面倒みる。
+	/// どちらも「状態を見て勝手に鳴る」類なので、ステート側には置かずここでまとめる
+	/// </summary>
+	void UpdateMovementSound();
+
 	// 直前のフレームに再生していた攻撃名。コンボで技が変わったら振りを出し直すために覚えておく
 	std::string lastAttackName_;
 
@@ -425,6 +432,10 @@ private:
 	bool isDeathFinished_ = false;
 	// 被ダメージ情報（ノックバックステートで参照）
 	DamageInfo pendingDamageInfo_;
+	// 足音の刻み。詳細は UpdateMovementSound()
+	FootstepTracker footstep_;
+	// HPが少ないときの心音。ループなので再生番号を持って止める
+	int lowHealthVoice_ = -1;
 	// 被弾時のビネットエフェクト
 	std::unique_ptr<HitVignetteEffect> hitVignette_;
 	std::unique_ptr<HitPostEffect> hitPostEffect_;

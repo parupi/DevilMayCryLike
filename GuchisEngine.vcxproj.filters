@@ -4,6 +4,9 @@
     <Filter Include="App">
       <UniqueIdentifier>{46D6870B-B2DF-877C-3B5B-9E7CA763937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Audio">
+      <UniqueIdentifier>{C7807902-33EB-2D79-7C29-DF1EE8D20BCE}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Editor">
       <UniqueIdentifier>{BC88CD59-A840-0FA7-1148-E802FD1EAA97}</UniqueIdentifier>
     </Filter>
@@ -297,6 +300,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\Audio\FootstepTracker.h">
+      <Filter>App\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Audio\GameSoundBuilders.h">
+      <Filter>App\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Audio\GameSoundLibrary.h">
+      <Filter>App\Audio</Filter>
+    </ClInclude>
     <ClInclude Include="App\Editor\AppEditor.h">
       <Filter>App\Editor</Filter>
     </ClInclude>
@@ -1346,6 +1358,21 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\Audio\FootstepTracker.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundEnemy.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundLibrary.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundPlayer.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundSystem.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
     <ClCompile Include="App\Editor\AppEditor.cpp">
       <Filter>App\Editor</Filter>
     </ClCompile>

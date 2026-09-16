@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyMeleeAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
 
 namespace
 {
@@ -35,6 +36,11 @@ namespace
         p.telegraph.halfWidth = 0.9f;
         p.telegraph.length = 6.5f;
         p.telegraph.forwardOffset = -0.6f;
+
+        // 突進は溜めの後に踏み込む。振りの音は突進そのものの音にする
+        p.windupSound = GameSound::kSkeletonCharge;
+        p.swingSound = GameSound::kSkeletonRush;
+        p.soundVolume = 0.85f;
         return p;
     }
 }
