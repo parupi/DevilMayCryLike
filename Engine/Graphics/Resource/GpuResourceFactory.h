@@ -14,8 +14,9 @@ public:
 	};
 
 	struct TextureDesc {
-		uint32_t width = WindowManager::kClientWidth;
-		uint32_t height = WindowManager::kClientHeight;
+		// 既定はゲームの描画解像度。バックバッファと同じ大きさが要るものは明示的に指定すること
+		uint32_t width = WindowManager::kGameWidth;
+		uint32_t height = WindowManager::kGameHeight;
 		DXGI_FORMAT format = DXGI_FORMAT_R8G8B8A8_UNORM;
 		Usage usage = Usage::ShaderResource;
 

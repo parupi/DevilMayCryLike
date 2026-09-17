@@ -1,6 +1,10 @@
 #include "PlayerStateAir.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
+
+#include <algorithm>
 
 void PlayerStateAir::Enter(Player& player)
 {
@@ -18,6 +22,12 @@ void PlayerStateAir::Update(Player& player, float deltaTime)
 
 	// 地面についたら待機状態にする
 	if (player.GetOnGround()) {
+		// 落ちた勢いが強いほど着地音を大きくする。
+		// Exit で velocity を捨てるので、遷移より前にここで見ておくこと
+		const float fallSpeed = -player.GetVelocity().y;
+		const float volume = std::clamp(0.35f + fallSpeed * 0.045f, 0.35f, 0.9f);
+		SoundManager::GetInstance().PlaySE(GameSound::kPlayerLand, volume);
+
  		player.ChangeState("Idle");
 		return;
 	}

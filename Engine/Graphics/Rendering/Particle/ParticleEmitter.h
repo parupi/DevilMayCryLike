@@ -29,10 +29,23 @@ public:
 
 	// 初期化
 	void Initialize(ParticleManager* particleManager, const std::string& name, const std::string& dataName = "");
-	// 更新
-	void Update();
+	/// <summary>更新</summary>
+	/// <param name="deltaTime">VFX用のデルタタイム（ParticleManager から渡される）</param>
+	void Update(float deltaTime);
 	// 発生
 	void Emit();
+
+	/// <summary>
+	/// 位置を指定して1回だけ発生させる（攻撃ヒット等のワンショット用）。
+	/// isActive / frequency とは無関係に必ず発生する。
+	/// </summary>
+	/// <param name="countScale">発生数の倍率。攻撃の強さで演出量を変えるのに使う</param>
+	void PlayOneShot(const Vector3& position, float countScale = 1.0f);
+	/// <summary>
+	/// 方向も指定して1回だけ発生させる。
+	/// 方向が効くのはパーティクルグループ側で UseDirectional を有効にした場合のみ。
+	/// </summary>
+	void PlayOneShot(const Vector3& position, const Vector3& direction, float countScale = 1.0f);
 	// パーティクルを追加
 	void AddParticle(const std::string& name);
 	// 発生対象から削除
@@ -44,11 +57,17 @@ public:
 	// 保存したエミッターのファイルを読み込む
 	void Load(const std::string& path);
 private:
+	// Emit / PlayOneShot の共通実装
+	void EmitAt(const Vector3& position, const Vector3* direction, float countScale);
+
 	ParticleManager* particleManager_;
 	bool emitAll_ = false;
 	Emitter emitter{};
 	// 発生対象のパーティクル
 	std::vector<EmitterParticle> particles_;
+
+	// メッシュ形状エミット用のモデル名（空なら通常の点エミット）
+	std::string shapeModelName_;
 
 	std::unique_ptr<WorldTransform> transform_;
 public:
@@ -57,4 +76,17 @@ public:
 	void SetParent(WorldTransform* transform) { transform_->SetParent(transform); }
 	void SetTranslate(const Vector3& translate) { emitter.transform.translate = translate; }
 
+	// ======================
+	// メッシュ形状エミット
+	// ======================
+
+	/// <summary>
+	/// エミッターの形状を ModelManager に読み込み済みのモデルにする。
+	/// 設定するとモデルのメッシュ表面からパーティクルが発生する。
+	/// SetParent した親のワールド行列（回転・スケール込み）で形状が追従する。
+	/// </summary>
+	void SetShapeModel(const std::string& modelName) { shapeModelName_ = modelName; }
+	/// <summary>メッシュ形状エミットを解除して通常の点エミットに戻す</summary>
+	void ClearShapeModel() { shapeModelName_.clear(); }
+	const std::string& GetShapeModelName() const { return shapeModelName_; }
 };

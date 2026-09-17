@@ -20,6 +20,10 @@ public:
 	bool IsFinished() const override { return finished_; };
 
 private:
+	// softness が 2.0 ⇔ 0.0 を往復するのにかかる秒数。
+	// FadeTransition と同じく、フレーム数ではなく秒で進めるための基準
+	static constexpr float kTransitionTime = 0.667f;
+
 	bool isFadeOut_ = true;
 	bool finished_ = false;
 	float currentSoftness_ = 2.0f;

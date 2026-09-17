@@ -2,7 +2,7 @@
     "AttackComboB2": {
         "AttackDuration": 0.30000001192092896,
         "AttackPosture": 0,
-        "ButtonIndex": 0,
+        "ButtonIndex": 2,
         "ControlPoint_0": [
             -0.6000000238418579,
             -0.30000001192092896,
@@ -137,15 +137,11 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.03999999910593033,
+        "HitStopStrength": 1,
         "HitStopTime": 0.029999999329447746,
         "ImpulseForce": 18.0,
         "IsAir": false,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            0.0,
-            2.0
-        ],
         "LockOnFlag": false,
         "MoveSpeed": [
             0.0,

@@ -27,6 +27,10 @@ public:
 	const Vector3& GetWorldHalfExtents() const { return worldHalfExtents_; }
 
 	OBBData& GetColliderData() { return obbData_; }
+	const OBBData& GetColliderData() const { return obbData_; }
+
+	void SetColliderActive(bool active) override { obbData_.isActive = active; }
+	bool IsColliderActive() const override { return obbData_.isActive; }
 
 private:
 };

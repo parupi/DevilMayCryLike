@@ -18,7 +18,21 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> ParticlePipeline::CreateRootSignatur
 	descriptorRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[3] = {};
+	// t1: ノイズテクスチャ
+	D3D12_DESCRIPTOR_RANGE descriptorRangeForNoise[1] = {};
+	descriptorRangeForNoise[0].BaseShaderRegister = 1;
+	descriptorRangeForNoise[0].NumDescriptors = 1;
+	descriptorRangeForNoise[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeForNoise[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// t2: シーンのワールド座標（ソフトパーティクル）
+	D3D12_DESCRIPTOR_RANGE descriptorRangeForScene[1] = {};
+	descriptorRangeForScene[0].BaseShaderRegister = 2;
+	descriptorRangeForScene[0].NumDescriptors = 1;
+	descriptorRangeForScene[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeForScene[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParameters[6] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
@@ -30,8 +44,20 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> ParticlePipeline::CreateRootSignatur
 	rootParameters[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[2].DescriptorTable.pDescriptorRanges = descriptorRange;
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
+	// b1: グループ単位の設定（ノイズ・ソフトパーティクル）
+	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[3].Descriptor.ShaderRegister = 1;
+	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[4].DescriptorTable.pDescriptorRanges = descriptorRangeForNoise;
+	rootParameters[4].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForNoise);
+	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	rootParameters[5].DescriptorTable.pDescriptorRanges = descriptorRangeForScene;
+	rootParameters[5].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForScene);
 
-	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
+	D3D12_STATIC_SAMPLER_DESC staticSamplers[2] = {};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
 	staticSamplers[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -40,6 +66,12 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> ParticlePipeline::CreateRootSignatur
 	staticSamplers[0].MaxLOD = D3D12_FLOAT32_MAX;
 	staticSamplers[0].ShaderRegister = 0;
 	staticSamplers[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// s1: ノイズ用。繰り返し用に作られていない写真でも継ぎ目が線にならないよう鏡映しにする
+	staticSamplers[1] = staticSamplers[0];
+	staticSamplers[1].AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	staticSamplers[1].AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	staticSamplers[1].AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+	staticSamplers[1].ShaderRegister = 1;
 
 	D3D12_ROOT_SIGNATURE_DESC descriptionRootSignature{};
 	descriptionRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
@@ -152,5 +184,6 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> ParticlePipeline::CreatePSO(
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;
 	HRESULT hr = dxManager->GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pso));
 	assert(SUCCEEDED(hr));
+	(void)hr; // Release では assert が消えるため明示的に未使用にする
 	return pso;
 }

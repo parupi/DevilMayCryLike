@@ -2,6 +2,9 @@
 #include <vector>
 #include <Graphics/Rendering/Sprite/Sprite.h>
 #include <memory>
+
+class TextLabel;
+
 class ScoreUI
 {
 public:
@@ -14,17 +17,22 @@ public:
 	// 描画用に数字を整える
 	void DrawScore(int32_t score);
 
-	void Draw();
+	// 描画は SpriteManager が UI レイヤーとして自動で行う
 
 	void Start();
 
 	bool isFinished() const { return isFinish_; }
 private:
 
-	std::vector<Sprite*> scoreNums_;
-	
+	// 数えている途中のスコアを出す文字（以前は Numbers.png を桁ぶん並べていた）
+	TextLabel* scoreLabel_ = nullptr;
+
 	bool isStart_ = false;
 	bool isFinish_ = false;
+
+	// カウント音を刻む間隔[秒]。毎フレーム鳴らすと連続音になって耳障りになる
+	static constexpr float kTickInterval = 0.05f;
+	float tickTimer_ = 0.0f;
 	int32_t currentScore_ = 0;  // 画面に表示しているスコア
 	int32_t targetScore_ = 0;   // 実際のスコア（GameData から取得）
 	float countSpeed_ = 300.0f;  // 1秒でどれくらい進めるか（調整可）

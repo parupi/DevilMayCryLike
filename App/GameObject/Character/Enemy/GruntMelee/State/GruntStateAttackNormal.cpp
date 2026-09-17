@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyMeleeAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
 
 namespace
 {
@@ -26,6 +27,17 @@ namespace
             { -80.0f,   0.0f,  20.0f },  // 振り切り
             {-125.0f,   0.0f,  20.0f },  // ghost
         };
+
+        // 予兆。正面へ振り下ろすので扇形。剣の届く範囲に合わせて小さめに取る。
+        // 振り始めた瞬間に体の向きがここで固定されるので、剣はこの扇の上をなぞって振り下ろされる
+        p.telegraph.shape = TelegraphShape::Fan;
+        p.telegraph.radius = 2.0f;
+        p.telegraph.halfAngleDeg = 55.0f;
+
+        // 構えの溜めと剣の振り。チャージリングが縮むのに合わせて音が上がる
+        p.windupSound = GameSound::kSkeletonCharge;
+        p.swingSound = GameSound::kSkeletonSwing;
+        p.soundVolume = 0.75f;
         return p;
     }
 }
@@ -51,5 +63,7 @@ void GruntStateAttackNormal::Update(Enemy& enemy, float deltaTime)
 
 void GruntStateAttackNormal::Exit(Enemy& enemy)
 {
-    enemy;
+    // 予備動作の途中で中断されたら予兆も消す（放置すると「攻撃が来た」と誤認して光る）。
+    // 振り始めた後に中断された場合は、固定した体の向きをここで解く
+    attack_->Cancel(enemy);
 }

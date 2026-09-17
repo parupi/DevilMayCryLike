@@ -1,0 +1,83 @@
+{
+    "Name": "BossBreath",
+    "Emitter": {
+        "Frequency": 0.5,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [ 0.0, 0.0, 0.0 ],
+        "Particles": [
+            { "ParticleName": "BreathCore", "Count": 3, "SpawnRate": 1.0 },
+            { "ParticleName": "BreathEmber", "Count": 2, "SpawnRate": 1.0 }
+        ]
+    },
+    "Particles": {
+        "BreathCore": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 0, "BlendMode": 2,
+                "Drag": 0.55, "FadeType": 1, "Gravity": [ 0.0, 0.5, 0.0 ],
+                "IsBillboard": true, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 21.0, "SpeedMin": 16.0, "SpreadDegrees": 5.0,
+                "UseDirectional": true, "VelocityStretch": 0.0,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 1.0, 1.0, 1.0 ], "minColor": [ 1.0, 0.95, 0.8 ],
+                "maxLifeTime": 0.6, "minLifeTime": 0.45,
+                "maxRotate": [ 0.0, 0.0, 3.14 ], "minRotate": [ 0.0, 0.0, -3.14 ],
+                "maxAngularVelocity": [ 0.0, 0.0, 2.5 ], "minAngularVelocity": [ 0.0, 0.0, -2.5 ],
+                "maxScale": [ 0.8, 0.8, 0.8 ], "minScale": [ 0.5, 0.5, 0.5 ],
+                "maxTranslate": [ 0.1, 0.1, 0.1 ], "minTranslate": [ -0.1, -0.1, -0.1 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "NoiseEnabled": true,
+                "NoiseTiling": [ 0.8, 0.8, 0.0 ], "NoiseScroll": [ 0.0, -3.0, 0.0 ],
+                "NoiseDistortion": 0.12, "NoiseColorBlend": 1.0, "NoiseGrayscale": false,
+                "NoiseErosion": 0.9, "NoiseErosionSoftness": 0.15,
+                "EmissiveIntensity": 2.4,
+                "SortOrder": 20, "SortByDepth": false, "SoftDistance": 0.6
+            },
+            "Curves": {
+                "SizeCurve": [ { "t": 0.0, "v": 0.4 }, { "t": 0.3, "v": 1.0 }, { "t": 1.0, "v": 1.6 } ],
+                "AlphaCurve": [ { "t": 0.0, "v": 0.0 }, { "t": 0.08, "v": 1.0 }, { "t": 0.6, "v": 0.9 }, { "t": 1.0, "v": 0.0 } ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 1.0, 1.0, 1.0 ] },
+                    { "t": 0.45, "c": [ 1.0, 0.85, 0.5, 1.0 ] },
+                    { "t": 1.0, "c": [ 1.0, 0.5, 0.2, 1.0 ] }
+                ]
+            }
+        },
+        "BreathEmber": {
+            "Texture": "white.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1, "AnimFps": 0.0, "AnimLoop": true, "AnimRows": 1,
+                "BillboardType": 2, "BlendMode": 2,
+                "Drag": 0.25, "FadeType": 1, "Gravity": [ 0.0, -4.5, 0.0 ],
+                "IsBillboard": true, "OrientToDirection": false,
+                "RadialMode": 0, "RadialSpeed": 1.0, "ShrinkStartRatio": 0.0,
+                "SpeedMax": 24.0, "SpeedMin": 14.0, "SpreadDegrees": 22.0,
+                "UseDirectional": true, "VelocityStretch": 0.14,
+                "maxAlpha": 0.0, "minAlpha": 0.0,
+                "maxColor": [ 1.0, 0.9, 0.6 ], "minColor": [ 1.0, 0.65, 0.25 ],
+                "maxLifeTime": 0.8, "minLifeTime": 0.45,
+                "maxRotate": [ 0.0, 0.0, 0.0 ], "minRotate": [ 0.0, 0.0, 0.0 ],
+                "maxScale": [ 0.12, 0.12, 0.12 ], "minScale": [ 0.05, 0.05, 0.05 ],
+                "maxTranslate": [ 0.2, 0.2, 0.2 ], "minTranslate": [ -0.2, -0.2, -0.2 ],
+                "maxVelocity": [ 0.0, 0.0, 0.0 ], "minVelocity": [ 0.0, 0.0, 0.0 ],
+                "EmissiveIntensity": 1.5,
+                "SortOrder": 30
+            },
+            "Curves": {
+                "SizeCurve": [ { "t": 0.0, "v": 1.0 }, { "t": 0.65, "v": 0.85 }, { "t": 1.0, "v": 0.0 } ],
+                "AlphaCurve": [ { "t": 0.0, "v": 0.0 }, { "t": 0.06, "v": 1.0 }, { "t": 0.5, "v": 0.85 }, { "t": 1.0, "v": 0.0 } ],
+                "ColorGradient": [
+                    { "t": 0.0, "c": [ 1.0, 0.97, 0.75, 1.0 ] },
+                    { "t": 0.4, "c": [ 1.0, 0.62, 0.2, 1.0 ] },
+                    { "t": 0.8, "c": [ 0.9, 0.2, 0.04, 1.0 ] },
+                    { "t": 1.0, "c": [ 0.55, 0.06, 0.02, 1.0 ] }
+                ]
+            }
+        }
+    }
+}

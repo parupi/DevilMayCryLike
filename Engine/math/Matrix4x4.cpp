@@ -308,7 +308,7 @@ Matrix4x4 MakeAffineMatrix(const Vector3& scale, const Quaternion& rotate, const
     return result;
 }
 
-void PrintOnImGui(const Matrix4x4& matrix, const char* label) {
+void PrintOnImGui([[maybe_unused]] const Matrix4x4& matrix, [[maybe_unused]] const char* label) {
 #ifdef _DEBUG
     ImGui::Begin("Matrix4x4");
     ImGui::Text("%s:", label);

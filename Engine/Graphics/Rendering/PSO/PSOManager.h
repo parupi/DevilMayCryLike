@@ -13,7 +13,8 @@ public:
 public:
 	// スプライト
 	ID3D12RootSignature* GetSpriteSignature() { return spriteSignature_.Get(); }
-	ID3D12PipelineState* GetSpritePSO(BlendMode blendMode);
+	// toBackBuffer = true でポストエフェクト後のバックバッファ向けPSOを返す
+	ID3D12PipelineState* GetSpritePSO(BlendMode blendMode, bool toBackBuffer = false);
 
 	ID3D12RootSignature* GetParticleSignature() { return particleSignature_.Get(); }
 	ID3D12PipelineState* GetParticlePSO(BlendMode blendMode);
@@ -21,8 +22,6 @@ public:
 	ID3D12RootSignature* GetObjectSignature() { return objectSignature_.Get(); }
 	ID3D12PipelineState* GetObjectPSO(BlendMode blendMode);
 
-	ID3D12RootSignature* GetAnimationSignature() { return animationSignature_.Get(); }
-	ID3D12PipelineState* GetAnimationPSO();
 
 	ID3D12RootSignature* GetOffScreenSignature() { return offScreenSignature_.Get(); }
 	ID3D12PipelineState* GetOffScreenPSO(OffScreenEffectType effectType);
@@ -58,17 +57,20 @@ public:
 
 	// Trail
 	ID3D12RootSignature* GetTrailSignature() { return trailSignature_.Get(); }
-	ID3D12PipelineState* GetTrailPSO();
+	// additive = false で半透明の合成（明るい床の上でも色が残る）
+	ID3D12PipelineState* GetTrailPSO(bool additive = true);
+
+	// AttackMarker（敵の攻撃予兆マーカー）
+	ID3D12RootSignature* GetAttackMarkerSignature() { return attackMarkerSignature_.Get(); }
+	ID3D12PipelineState* GetAttackMarkerPSO();
 
 private:
 	void CreateSpriteSignature();
-	void CreateSpritePSO(BlendMode blendMode);
+	void CreateSpritePSO(BlendMode blendMode, bool toBackBuffer);
 	void CreateParticleSignature();
 	void CreateParticlePSO(BlendMode blendMode);
 	void CreateObjectSignature();
 	void CreateObjectPSO(BlendMode blendMode);
-	void CreateAnimationSignature();
-	void CreateAnimationPSO();
 	void CreateOffScreenSignature();
 	void CreateOffScreenPSO(OffScreenEffectType effectType);
 	void CreatePrimitiveSignature();
@@ -89,26 +91,27 @@ private:
 	void CreateCSMPSO();
 	void CreateTrailSignature();
 	void CreateTrailPSO();
+	void CreateAttackMarkerSignature();
+	void CreateAttackMarkerPSO();
 
 private:
 	DirectXManager* dxManager_ = nullptr;
 
 private:
-	// スプライト
+	// スプライト（[0] = シーン用RT向け, [1] = バックバッファ向け）
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> spriteSignature_;
-	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> spriteGraphicsPipelineState_;
+	std::array<std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6>, 2> spriteGraphicsPipelineState_;
 	// パーティクル
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> particleSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> particleGraphicsPipelineState_;
 	// オブジェクト
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> objectSignature_;
 	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> objectGraphicsPipelineState_;
-	// アニメーション
-	Microsoft::WRL::ComPtr<ID3D12RootSignature> animationSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> animationGraphicsPipelineState_;
+	// スキニングはCS（GetSkinningPSO）で行う。VSでスキニングするPSOは使っていないので持たない
 	// オフスクリーン
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> offScreenSignature_;
-	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 6> offScreenGraphicsPipelineState_;
+	// OffScreenEffectType の要素数分（増やしたら合わせて広げること）
+	std::array<Microsoft::WRL::ComPtr<ID3D12PipelineState>, 15> offScreenGraphicsPipelineState_;
 	// プリミティブ
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> primitiveSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> primitiveGraphicsPipelineState_;
@@ -135,5 +138,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmPSO_;
 	// Trail
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> trailSignature_;
-	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;      // 加算
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailAlphaPSO_; // 半透明
+	// AttackMarker
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> attackMarkerSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> attackMarkerPSO_;
 };

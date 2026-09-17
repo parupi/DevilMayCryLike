@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.2199999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.004000000189989805,
+                "Curve": 2.0,
+                "Decay": 0.11999999731779099,
+                "Hold": 0.05999999865889549,
+                "Release": 0.029999999329447746,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 3600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.0,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 1180.0,
+            "Name": "Alarm",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.30000001192092896,
+            "StartDelay": 0.0,
+            "Volume": 0.699999988079071,
+            "Wave": "Square"
+        },
+        {
+            "Duration": 0.2199999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.004000000189989805,
+                "Curve": 2.0,
+                "Decay": 0.11999999731779099,
+                "Hold": 0.05000000074505806,
+                "Release": 0.029999999329447746,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 3600.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 1.0,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 1570.0,
+            "Name": "Beat",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.3499999940395355,
+            "StartDelay": 0.0,
+            "Volume": 0.44999998807907104,
+            "Wave": "Square"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "AttackWarning",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 88,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

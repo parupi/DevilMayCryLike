@@ -1,7 +1,9 @@
 ﻿#include "CameraManager.h"
 #include <World3D/Object/Object3dManager.h>
+#include "Audio/SoundManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include <Utility/DeltaTime.h>
+#include <algorithm>
 
 CameraManager& CameraManager::GetInstance()
 {
@@ -46,16 +48,50 @@ void CameraManager::Update()
 		TransitionUpdate();
 		camera = transitionCamera_.get();
 	} else {
-		camera = GetActiveCamera();
+		// ここは GetActiveCamera() ではなく実体側を引く。
+		// デバッグカメラが割り込んでいてもゲーム側のカメラを更新し続けたいため
+		camera = FindActiveCameraEntry();
 		if (camera) {
 			camera->Update();
 		}
 	}
 
+#ifdef _DEBUG
+	// デバッグカメラが立っていれば、絵に使うのはそちら。
+	// SetActiveCamera() を挟まれても毎フレームここで引き戻す
+	if (debugCamera_) {
+		debugCamera_->Update();
+		camera = debugCamera_;
+		ParticleManager::GetInstance().SetCamera(camera);
+	}
+#endif
+
 	if (camera) {
 		cameraData_->worldPosition = camera->GetTranslate();
 		Object3dManager::GetInstance().SetDefaultCamera(camera);
+		UpdateSoundListener(camera);
 	}
+}
+
+void CameraManager::UpdateSoundListener(BaseCamera* camera)
+{
+	// 3D SE（SoundManager::PlaySE3D）の聞き手はいま絵を出しているカメラ。
+	// カメラの更新が終わったここで渡しておけば、ゲーム側は何もしなくてよい
+	const Vector3 position = camera->GetTranslate();
+
+	// 速度は位置の差から出す。ドップラーにしか使わないので実時間で構わない
+	Vector3 velocity{};
+	const float deltaTime = DeltaTime::GetUnscaledDeltaTime();
+	if (hasListenerHistory_ && deltaTime > 0.0f) {
+		velocity = (position - previousListenerPosition_) / deltaTime;
+		// シーン切り替えやカメラの切り替えで位置が飛ぶと、その1フレームだけ
+		// 音速級の速度が出てピッチが跳ねる。常識的な範囲で頭打ちにする
+		velocity = ClampLength(velocity, 60.0f);
+	}
+	previousListenerPosition_ = position;
+	hasListenerHistory_ = true;
+
+	SoundManager::GetInstance().SetListener(position, camera->GetForward(), camera->GetRight(), velocity);
 }
 
 void CameraManager::SetActiveCamera(const std::string& cameraName, float transitionTime)
@@ -106,12 +142,8 @@ void CameraManager::SetActiveCamera(const std::string& cameraName, float transit
 	Logger::Log("[CameraManager] Transition started from \"" + activeCameraName_ + "\" to \"" + nextCameraName_ + "\" (" + std::to_string(transitionTime) + "s)\n");
 }
 
-BaseCamera* CameraManager::GetActiveCamera() const
+BaseCamera* CameraManager::FindActiveCameraEntry() const
 {
-	if (isTransitioning_) {
-		return transitionCamera_.get();
-	}
-
 	if (activeCameraName_.empty()) return nullptr;
 
 	auto it = cameras_.find(activeCameraName_);
@@ -121,13 +153,40 @@ BaseCamera* CameraManager::GetActiveCamera() const
 	return nullptr;
 }
 
-BaseCamera* CameraManager::GetCurrentCamera() const
+BaseCamera* CameraManager::GetActiveCamera() const
 {
+#ifdef _DEBUG
+	// デバッグカメラが最優先。切り替え補間中でもこちらを見せる
+	if (debugCamera_) {
+		return debugCamera_;
+	}
+#endif
+
 	if (isTransitioning_) {
 		return transitionCamera_.get();
 	}
+
+	return FindActiveCameraEntry();
+}
+
+BaseCamera* CameraManager::GetCurrentCamera() const
+{
 	return GetActiveCamera();
 }
+
+#ifdef _DEBUG
+void CameraManager::SetDebugCamera(BaseCamera* camera)
+{
+	debugCamera_ = camera;
+
+	// 下流が握っているポインタを今すぐ付け替える。
+	// 次の Update() を待たずに1フレーム目から正しい絵になる
+	if (BaseCamera* target = GetActiveCamera()) {
+		Object3dManager::GetInstance().SetDefaultCamera(target);
+		ParticleManager::GetInstance().SetCamera(target);
+	}
+}
+#endif // _DEBUG
 
 void CameraManager::BindCameraToShader()
 {
@@ -176,7 +235,12 @@ void CameraManager::TransitionUpdate()
 
 	// 補間
 	Vector3 interpPos = Lerp(startPos_, endPos_, t);
-	Vector3 interpRot = Lerp(startRot_, endRot_, t);
+	// 回転はEuler角なので、各成分を最短経路で補間する。
+	// 単純なLerpだと yaw が ±π をまたぐとき（例: 3.0→-3.0）に反対回りしてしまう。
+	Vector3 interpRot;
+	interpRot.x = LerpAngle(startRot_.x, endRot_.x, t);
+	interpRot.y = LerpAngle(startRot_.y, endRot_.y, t);
+	interpRot.z = LerpAngle(startRot_.z, endRot_.z, t);
 
 	// 一時的なカメラに適用
 	transitionCamera_->GetTranslate() = interpPos;
@@ -209,4 +273,14 @@ void CameraManager::CreateCameraResource()
 	cameraData_ = reinterpret_cast<CameraForGPU*>(ptr);
 	// 初期値を入れる
 	cameraData_->worldPosition = { 1.0f, 1.0f, 1.0f };
+}
+
+std::vector<std::string> CameraManager::GetCameraNames() const {
+	std::vector<std::string> names;
+	names.reserve(cameras_.size());
+	for (const auto& [name, unused] : cameras_) {
+		names.push_back(name);
+	}
+	std::sort(names.begin(), names.end());
+	return names;
 }

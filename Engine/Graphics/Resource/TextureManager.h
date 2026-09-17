@@ -5,6 +5,7 @@
 #include "Graphics/Resource/SrvManager.h"
 #include <string>
 #include <unordered_map>
+#include <vector>
 #include <wrl.h>
 #include <mutex>
 #include <memory>
@@ -26,12 +27,32 @@ public:
 	// メモリ上のRGBAピクセルデータからテクスチャを登録する (GifLoader から呼ばれる)
 	void LoadTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height);
 
+	/// <summary>
+	/// 登録済みテクスチャの中身をRGBAピクセルデータで差し替える。未登録なら新規登録する。
+	///
+	/// フォントのグリフアトラスのように、実行中に描き足されていく絵のためのもの。
+	/// コマンドリストへコピーを積むので、**そのフレームでそれを読む描画より前に**呼ぶこと。
+	/// 大きさが変わる場合はリソースを作り直して同じSRVスロットへ張り直す
+	/// </summary>
+	void UpdateTextureFromMemory(const std::string& fileName, const uint8_t* pixels, uint32_t width, uint32_t height);
+
 	uint32_t GetTextureIndexByFilePath(const std::string& filePath);
 	// テクスチャ番号からGPUハンドルを取得
 	D3D12_GPU_DESCRIPTOR_HANDLE GetSrvHandleGPU(const std::string& filePath);
 
 	// メタデータを取得
 	const DirectX::TexMetadata& GetMetaData(const std::string& fileName);
+
+	// ── エディタ用 ──
+	// 読み込み済みテクスチャのファイル名一覧（昇順）
+	std::vector<std::string> GetLoadedTextureNames() const;
+	// 見つからなければ nullptr。
+	// GetMetaData() は operator[] で引くので、未登録の名前を渡すと空要素が生えてしまう。
+	// 一覧を舐めるような用途ではこちらを使うこと
+	const DirectX::TexMetadata* TryGetMetaData(const std::string& fileName) const;
+	size_t GetLoadedTextureCount() const { return textureData_.size(); }
+	// プレビュー用にSRVを作り直したいときに使う。未読み込みなら nullptr
+	ID3D12Resource* GetResource(const std::string& filePath);
 
 	// 白テクスチャを生成して取得
 	uint32_t CreateWhiteTexture();
@@ -42,9 +63,15 @@ public:
 	uint32_t GetDissolveNoiseSrvIndex() const { return dissolveNoiseIndex_; }
 	D3D12_GPU_DESCRIPTOR_HANDLE GetDissolveNoiseSrvHandleGPU();
 
+	// 方向性のない全面ランダムなDissolveノイズテクスチャを生成（初期化時に自動生成）
+	// 3Dモデルのディゾルブ（ランダムにちぎれて消える見た目）に使う
+	uint32_t CreateRandomDissolveNoiseTexture();
+	uint32_t GetRandomDissolveNoiseSrvIndex() const { return randomDissolveNoiseIndex_; }
+
 private:
 	uint32_t whiteTextureIndex_ = 0;
 	uint32_t dissolveNoiseIndex_ = 0;
+	uint32_t randomDissolveNoiseIndex_ = 0;
 
 	// テクスチャ1枚分のデータ
 	struct TextureData {

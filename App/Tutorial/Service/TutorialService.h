@@ -2,6 +2,7 @@
 
 enum class TutorialState {
 	Move, // 移動のチュートリアル
+	Jump, // ジャンプのチュートリアル
 	AttackA, // 攻撃Aコンボのチュートリアル
 	AttackB, // 攻撃Bコンボのチュートリアル
 	LockOn, // ロックオンのチュートリアル
@@ -15,6 +16,14 @@ class TutorialService {
 public:
 	// チュートリアルの開始
 	virtual void StartTutorial(TutorialState state) = 0;
-	// 進行度を進める
-	virtual void StepTutorial() = 0;
+	// 進行度を進める（引数は発生したイベントの種類。現在表示中のチュートリアルと一致する場合のみ進行する）
+	virtual void StepTutorial(TutorialState state) = 0;
+	// 全チュートリアルが完了したか（最後の種類まで進み切ったか）
+	virtual bool IsAllFinished() const = 0;
+	// チュートリアルを流さずに完了扱いにする。
+	// TutorialDummy が IsAllFinished() を倒せる条件にしているので、
+	// OPTION でチュートリアルを切った場合はここを通さないと進行が止まる
+	virtual void SkipAllTutorials() = 0;
+	// チュートリアルを流すシーンか。false のときは表示物を1つも作っていない
+	virtual bool IsEnabled() const = 0;
 };

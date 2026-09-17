@@ -15,13 +15,45 @@
 #include "ParticleGroup.h"
 #include "ParticleRenderer.h"
 #include "ParticleEmitter.h"
+#include "MeshShapeSampler.h"
+#include "ParticleMath.h"
+#include "VFXFile.h"
 #include <memory>
-#include "ParticleEditor.h"
+#include "Editor/Windows/ParticleEditor.h"
 
+// StructuredBuffer の要素。Particle.VS.hlsl の同名構造体と並び順を合わせること
 struct ParticleForGPU {
 	Matrix4x4 WVP;
 	Matrix4x4 World;
 	Vector4 color;
+	Vector4 uvOffsetScale; // xy=UVオフセット / zw=UVスケール（スプライトシートのコマ）
+	Vector4 misc;          // x=粒ごとの乱数 / y=寿命の進み具合
+};
+
+// グループ単位の定数。Particle.PS.hlsl の ParticleGroupParam と並び順を合わせること（64バイト）
+struct ParticleGroupConstantsGPU {
+	float time;
+	float noiseDistortion;
+	float noiseColorBlend;
+	float emissiveIntensity;
+
+	Vector2 noiseTiling;
+	Vector2 noiseScroll;
+
+	float noiseErosion;
+	float noiseErosionSoftness;
+	float softDistance;
+	uint32_t flags; // ParticleShaderFlag の組み合わせ
+
+	Vector3 cameraPosition;
+	float _pad0;
+};
+
+// Particle.PS.hlsl の kFlag* と合わせること
+enum ParticleShaderFlag : uint32_t {
+	kParticleFlagNoise = 1u << 0,     // ノイズで質感を付ける
+	kParticleFlagGrayscale = 1u << 1, // ノイズの色ではなく明るさだけを使う
+	kParticleFlagSoft = 1u << 2,      // ソフトパーティクル
 };
 
 struct ParticleGroupGPU
@@ -34,6 +66,9 @@ struct ParticleGroupGPU
 	D3D12_VERTEX_BUFFER_VIEW vbv{};
 	D3D12_INDEX_BUFFER_VIEW  ibv{};
 	uint32_t indexCount = 0;
+	// グループ単位の定数（ノイズ・ソフトパーティクルの設定）
+	BufferHandle constantsHandle = kInvalidBufferHandle;
+	ParticleGroupConstantsGPU* constantsPtr = nullptr;
 };
 
 struct ParticleRenderState
@@ -41,6 +76,7 @@ struct ParticleRenderState
 	BlendMode blendMode;
 	bool isBillboard;
 	uint32_t textureIndex;
+	uint32_t noiseTextureIndex = 0;
 };
 
 class ParticleManager
@@ -56,18 +92,38 @@ public:
 	void Finalize();
 	// 初期化
 	void Initialize(DirectXManager* dxManager, PSOManager* psoManager);
-	// 更新
-	void Update();
+	/// <summary>更新</summary>
+	/// <param name="deltaTime">
+	/// VFX用のデルタタイム（TimeManager::GetVFXDelta()）を渡すこと。
+	/// 実時間を渡すとヒットストップ中もパーティクルだけ通常速度で動いてしまう。
+	/// </param>
+	void Update(float deltaTime);
 	// 描画
 	void Draw();
 	// パーティクルグループを登録する
 	void CreateParticleGroup(const std::string name_, const std::string textureFilePath, PrimitiveType shape = PrimitiveType::Plane);
+
+	/// <summary>
+	/// グループのノイズテクスチャを差し替える（Resource/Images/ 以下のファイル名）。
+	/// 空文字を渡すと既定（kDefaultNoiseTexture）に戻る
+	/// </summary>
+	void SetParticleGroupNoiseTexture(const std::string& groupName, const std::string& textureFilePath);
+
+	/// <summary>ノイズテクスチャを指定しないグループが使うテクスチャ</summary>
+	static constexpr const char* kDefaultNoiseTexture = "FireNoise.jpg";
+
+	/// <summary>
+	/// シーンのワールド座標テクスチャ（GBuffer の WorldPos）を渡す。ソフトパーティクルが地面との距離を測るのに使う。
+	/// 渡されていない間はソフトパーティクルが効かないだけで、描画は壊れない
+	/// </summary>
+	void SetSceneWorldPositionSrv(D3D12_GPU_DESCRIPTOR_HANDLE srv) { sceneWorldPositionSrv_ = srv; hasSceneWorldPositionSrv_ = true; }
 	// エミッターを生成する関数
 	void CreateEmitter(const std::string& emitterName, const std::string& dataName = "");
 	// 全てのエミッターを削除する関数
 	void DeleteAllEmitters();
 #ifdef _DEBUG
-	void DebugGui();
+	// パーティクル用エディタ。描画は Engine/Editor/Windows/ が回すので、ここでは実体を貸すだけ
+	ParticleEditor* GetEditor() { return editor_.get(); }
 #endif // DEBUG
 
 public: // 構造体
@@ -113,7 +169,11 @@ private:
 	// WVP用のリソースを生成 
 	void CreateMaterialResource();
 	// パーティクルを生成する関数
-	Particle MakeNewParticle(const std::string name_, const Vector3& translate);
+	// direction に nullptr 以外を渡すと、useDirectional が有効なグループでは方向付きの速度になる
+	Particle MakeNewParticle(const std::string& name_, const Vector3& translate, const Vector3* direction);
+
+	// Emit / EmitFromMesh の共通実装
+	void EmitInternal(const std::string& name, const Vector3& position, uint32_t count, const Vector3* direction);
 
 	ParticleParameters LoadParticleParameters(GlobalVariables* global, const std::string& groupName);
 
@@ -123,14 +183,46 @@ private:
 
 	void RegisterEditorParameters(const std::string& name);
 
-	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList);
+	void UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList, size_t instanceCount);
 public:
 
 	// nameで指定した名前のパーティクルグループにパーティクルを発生させる関数
 	void Emit(const std::string name_, const Vector3& position, uint32_t count);
 
+	/// <summary>
+	/// 方向を指定してパーティクルを発生させる（ヒット方向へ火花を飛ばす等）。
+	/// グループの useDirectional が false の場合、方向は無視され通常の Emit と同じ挙動になる。
+	/// </summary>
+	void Emit(const std::string& name, const Vector3& position, uint32_t count, const Vector3& direction);
+
+	/// <summary>
+	/// 登録済みエミッターをワンショットで再生する。
+	/// エミッターは複数のパーティクルグループを束ねられるので、
+	/// 「火花＋煙＋リング」のような複合VFXを Resource/Emitter/*.json の1定義で扱える。
+	/// </summary>
+	/// <param name="countScale">発生数の倍率（攻撃の強さで演出量を変えるのに使う）</param>
+	/// <returns>そのエミッターが登録されていれば true</returns>
+	bool PlayVFX(const std::string& emitterName, const Vector3& position, float countScale = 1.0f);
+	bool PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale = 1.0f);
+	/// <summary>
+	/// 大きさの倍率つきで再生する（大きな敵へのヒットほど火花を大きくする、ボス用のVFXを小さくして使い回す、など）。
+	/// 大きさと発生位置のばらつきに sizeScale が掛かる
+	/// </summary>
+	bool PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale, float sizeScale);
 private:
-	const uint32_t kNumMaxInstance = 512;	// 最大インスタンス数
+	// 大きさつきの PlayVFX の間だけ 1 以外になる。MakeNewParticle が大きさと発生位置のばらつきに掛ける
+	float emitSizeScale_ = 1.0f;
+public:
+
+	// モデルのメッシュ表面からパーティクルを発生させる関数
+	// worldMatrix でモデルローカル座標→ワールド座標に変換する（回転・スケール込み）
+	void EmitFromMesh(const std::string& groupName, const std::string& modelName, const Matrix4x4& worldMatrix, uint32_t count);
+
+private:
+	// 1グループあたりの最大インスタンス数。
+	// 格子状の壁のように「細かい粒を面で敷き詰める」表現は512では足りないため引き上げてある。
+	// 1グループあたり 2048 * 144byte ≒ 288KB のアップロードバッファを確保する。
+	const uint32_t kNumMaxInstance = 2048;
 	// パーティクル用リソースの宣言
 	uint32_t instancingHandle_ = 0;
 	uint32_t materialHandle_ = 0;
@@ -166,10 +258,30 @@ private:
 	// ランダム用変数宣言
 	std::mt19937 randomEngine;
 
+	// ノイズのスクロールに使う経過時間[s]（VFX時間）。桁落ちしないよう一定時間で畳む
+	float shaderTime_ = 0.0f;
+	// ソフトパーティクル用のシーンのワールド座標テクスチャ
+	D3D12_GPU_DESCRIPTOR_HANDLE sceneWorldPositionSrv_{};
+	bool hasSceneWorldPositionSrv_ = false;
+	// 描画順に並べたグループ名（毎フレーム並べ直す。使い回して確保を減らす）
+	std::vector<std::pair<int, const std::string*>> drawOrder_;
+	// グループ単位の定数を書き込む
+	void WriteGroupConstants(const ParticleGroup& group, ParticleGroupGPU& gpu);
+
+	// モデル名→メッシュ表面サンプラーのキャッシュ（初回要求時に構築、有効なものだけ保持）
+	MeshShapeSampler* GetMeshSampler(const std::string& modelName);
+
 	std::unordered_map<std::string, ParticleGroup> particleGroups_;
+	// エディタ編集を反映するための読み直し位置（1フレーム1グループずつ回す）
+	size_t paramReloadCursor_ = 0;
+#ifdef _DEBUG
+	// パーティクルエディタで開いているグループ。ここだけは毎フレーム読み直す
+	std::string liveEditGroup_;
+#endif
 	std::unordered_map<std::string, ParticleGroupGPU> particleGPU_;
 	std::unordered_map<std::string, ParticleRenderState> renderStates_;
 	std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>> emitters_;
+	std::unordered_map<std::string, std::unique_ptr<MeshShapeSampler>> meshSamplers_;
 
 public:
 	DirectXManager* GetDxManager() { return dxManager_; }
@@ -178,6 +290,61 @@ public:
 	void SetCamera(BaseCamera* camera) { camera_ = camera; }
 
 	const std::unordered_map<std::string, ParticleGroup>& GetParticleGroups() { return particleGroups_; }
+
+#ifdef _DEBUG
+	/// <summary>
+	/// パーティクルエディタで編集中のグループを伝える。
+	/// そのグループだけ毎フレーム GlobalVariables から読み直し、編集を即座に反映する
+	/// （全グループを毎フレーム引くと文字列検索だけで数ミリ秒かかるため）。
+	/// </summary>
+	void SetLiveEditGroup(const std::string& groupName) { liveEditGroup_ = groupName; }
+#endif
 	const std::unordered_map<std::string, std::unique_ptr<ParticleEmitter>>& GetEmitters() { return emitters_; }
-	
+
+	/// <summary>
+	/// カーブを編集するための可変アクセス（エディタ用）。存在しないグループ名なら nullptr。
+	/// カーブは GlobalVariables ではなく別ファイル管理なので、変更後は SaveParticleCurves() を呼ぶこと。
+	/// </summary>
+	ParticleCurves* GetParticleCurves(const std::string& groupName);
+	/// <summary>カーブを Resource/Particle/&lt;groupName&gt;.curve.json へ保存する</summary>
+	void SaveParticleCurves(const std::string& groupName);
+
+	// ======================
+	// VFX ファイル（設計書 §21-22）
+	// ======================
+
+	/// <summary>
+	/// Resource/VFX/&lt;vfxName&gt;.vfx.json を読み、パーティクルグループとエミッターをまとめて登録する。
+	///
+	/// テクスチャ・形状もファイルに入っているので、**新しいVFXを足すのに C++ の変更が要らない**。
+	/// パラメータは GlobalVariables へ流し込むため、エディタの編集経路は従来のまま使える。
+	/// </summary>
+	/// <returns>ファイルが無い・壊れている場合は false（呼び出し側で従来の登録へ落とせる）</returns>
+	bool LoadVFX(const std::string& vfxName);
+
+	/// <summary>
+	/// 読み込み済みのVFXを現在の値で .vfx.json へ書き戻す。
+	/// エディタで調整した内容（パラメータ・カーブ・エミッターの構成）がそのまま保存される。
+	/// </summary>
+	bool SaveVFX(const std::string& vfxName);
+
+	/// <summary>
+	/// 既存のエミッター（Resource/Emitter/*.json 経路で作ったもの）と、
+	/// それが束ねているパーティクルグループを1つの .vfx.json に書き出す移行用。
+	/// </summary>
+	bool ExportEmitterAsVFX(const std::string& emitterName, const std::string& vfxName);
+
+	/// <summary>そのグループがどのVFXに属しているか。属していなければ nullptr</summary>
+	const std::string* GetOwningVFX(const std::string& groupName) const;
+
+	/// <summary>Resource/VFX/ にある .vfx.json の一覧</summary>
+	std::vector<std::string> ListVFXNames() const;
+
+private:
+	/// <summary>VFX定義を組み立てる（SaveVFX / ExportEmitterAsVFX の共通処理）</summary>
+	bool BuildVFXDefinition(const std::string& vfxName, const std::string& emitterName, VFXDefinition& outDefinition);
+
+	// パーティクルグループ名 → それを定義している .vfx.json の名前。
+	// エディタの保存先をどちらにするか決めるのに使う
+	std::unordered_map<std::string, std::string> groupOwnerVFX_;
 };

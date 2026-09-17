@@ -3,68 +3,59 @@
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 
 void EnemyStateKnockBack::Enter(Enemy& enemy) {
-	const DamageInfo& info = enemy.GetPendingDamageInfo();
+	const KnockbackComponent& knockback = enemy.GetKnockback();
 
-	currentType_ = info.type;
-	velocity_ = info.direction * info.impulseForce;
-	stateTime_.current = 0.0f;
 	currentTilt_ = 0.0f;
-	targetTilt_ = 20.0f;
+	targetTilt_ = TiltFor(knockback.GetType());
+}
 
-	switch (info.type) {
-	case ReactionType::HitStun:
-		stunTimer_ = info.stunTime;
-		velocity_ *= 0.25f;
-		targetTilt_ = 15.0f;
-		break;
-
-	case ReactionType::Knockback:
-		velocity_.y += info.impulseForce * info.upwardRatio;
-		angularVel_ = info.torqueForce;
-		enemy.GetWorldTransform()->GetTranslation().y += 0.3f;
-		enemy.SetOnGround(false);
-		break;
-
-	case ReactionType::Launch:
-		velocity_.y += info.impulseForce * info.upwardRatio * 1.4f;
-		angularVel_ = info.torqueForce;
-		break;
-	}
+float EnemyStateKnockBack::TiltFor(ReactionType type) {
+	return (type == ReactionType::HitStun) ? kStunTiltDegree : kBlowTiltDegree;
 }
 
 void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
-	stateTime_.current += deltaTime;
+	const KnockbackComponent& knockback = enemy.GetKnockback();
 
-	velocity_.y += -9.8f * deltaTime;
-	enemy.SetVelocity(velocity_);
-
-	if (currentType_ != ReactionType::HitStun) {
-		float rotate = Lerp(0.0f, angularVel_, stateTime_.current);
-		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ rotate, rotate, rotate });
+	// ── 見た目 ──
+	// レンダラーの回転を直接書かずに Enemy 経由で渡す。
+	// モデルごとの向き補正（SetModelRotationOffset）と合成されるので、
+	// 直接書くと吹き飛んだ敵が正面を向き直してしまう。
+	if (knockback.GetType() != ReactionType::HitStun) {
+		// 吹き飛び・打ち上げはくるくる回す。経過時間に比例させるので回り続ける
+		const float rotate = knockback.GetTorque() * knockback.GetElapsed();
+		enemy.SetModelReactionRotation(EulerDegree({ rotate, rotate, rotate }));
 	}
 	else {
-		currentTilt_ = Lerp(currentTilt_, targetTilt_, deltaTime * 5.0f);
-		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = EulerDegree({ currentTilt_, 0.0f, 0.0f });
-
-		if ((stunTimer_ -= deltaTime) <= 0.0f) {
-			enemy.ChangeState(EnemyStateName::Idle);
-			return;
-		}
+		// 追撃でリアクションの種類が変わってもステートは入れ直さないので、傾き先は毎フレーム引き直す
+		targetTilt_ = TiltFor(knockback.GetType());
+		currentTilt_ = Lerp(currentTilt_, targetTilt_, deltaTime * kTiltFollowRate);
+		enemy.SetModelReactionRotation(EulerDegree({ currentTilt_, 0.0f, 0.0f }));
 	}
 
-	if (enemy.GetOnGround() && deltaTime != 0.0f) {
-		OnLand(enemy);
+	// ── 復帰の判定（仕様書 §11）──
+	if (knockback.GetType() == ReactionType::HitStun) {
+		// のけぞりは地上なので、時間が来たらすぐ戻す（拘束を長引かせない）。
+		// 追撃を受けると KnockbackComponent 側でのけぞりが延長される
+		if (!knockback.IsStunned() && knockback.IsHorizontalFinished()) {
+			enemy.ChangeState(NextState());
+		}
+		return;
+	}
+
+	// 吹き飛び・打ち上げは着地して勢いが収まるまで。
+	// 着地の処理（落下速度を消して水平を弱める）は Enemy::ResolveGroundCollision が行う
+	if (!knockback.IsActive()) {
+		enemy.ChangeState(NextState());
 	}
 }
 
-void EnemyStateKnockBack::OnLand(Enemy& enemy) {
-	if (currentType_ == ReactionType::Launch || currentType_ == ReactionType::Knockback) {
-		velocity_ *= 0.3f;
-		enemy.GetRenderer(enemy.name_)->GetWorldTransform()->GetRotation() = { 0.0f, 0.0f, 0.0f };
-		enemy.ChangeState(EnemyStateName::Idle);
-	}
+const char* EnemyStateKnockBack::NextState() const {
+	return EnemyStateName::Idle;
 }
 
 void EnemyStateKnockBack::Exit(Enemy& enemy) {
-	enemy;
+	// のけぞり・吹き飛びで付けた傾きをここで必ず戻す。
+	// （以前は着地時にしか戻していなかったので、のけぞりで終わると傾いたままだった。
+	//   立方体のときは気づけなかったが、人型のモデルでは傾きっぱなしが目に見える）
+	enemy.ClearModelReactionRotation();
 }

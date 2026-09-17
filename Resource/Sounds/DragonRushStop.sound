@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 3.5,
+        "Enabled": true,
+        "Mix": 0.44999998807907104
+    },
+    "Layers": [
+        {
+            "Duration": 0.44999998807907104,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.009999999776482582,
+                "Curve": 1.7999999523162842,
+                "Decay": 0.3799999952316284,
+                "Hold": 0.0,
+                "Release": 0.05000000074505806,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 1500.0,
+                "CutoffEnd": 450.0,
+                "Resonance": 1.2999999523162842,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Skid",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 350.0,
+                "Start": 2400.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.8500000238418579,
+            "Wave": "PinkNoise"
+        },
+        {
+            "Duration": 0.550000011920929,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.0020000000949949026,
+                "Curve": 2.299999952316284,
+                "Decay": 0.49000000953674316,
+                "Hold": 0.009999999776482582,
+                "Release": 0.05000000074505806,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 440.0,
+            "Name": "Thud",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 30.0,
+                "Start": 140.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.8999999761581421,
+            "Wave": "Sine"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "DragonRushStop",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 92,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": true,
+        "Mix": 0.23999999463558197,
+        "RoomSize": 0.550000011920929,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

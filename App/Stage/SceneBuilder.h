@@ -12,11 +12,11 @@ public:
 private:
 	static bool IsEvent(const SceneObject& obj);
 
-	// エディタとエンジンの座標系変換を適用 (Y↔Z スワップ)
-	static void ApplyTransform(WorldTransform* transform, const EulerTransform& src);
+	// ステージデータはエンジン空間なのでそのまま流し込む
+	static void ApplyTransform(WorldTransform* transform, const SceneObject& src);
 
 	// コライダーを生成してオブジェクトに登録
-	static void ApplyCollider(Object3d* object, const std::string& name, const Collider& col);
+	static void ApplyCollider(Object3d* object, const std::string& name, const ColliderInfo& col);
 
 	// 通常オブジェクトを生成してマネージャーに登録
 	static void BuildObject(const SceneObject& sceneObj, std::vector<SceneObject>& outPendingEvents);

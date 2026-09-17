@@ -1,6 +1,5 @@
 ﻿#include "VignetteEffect.h"
 #include "OffScreenManager.h"
-#include <imgui/imgui.h>
 
 VignetteEffect::VignetteEffect(const std::string& name)
 {
@@ -22,20 +21,6 @@ VignetteEffect::~VignetteEffect()
 
 void VignetteEffect::Update()
 {
-#ifdef _DEBUG
-	ImGui::Begin(name_.c_str());
-	ImGui::Checkbox("isActive", &isActive_);
-	ImGui::DragFloat("radius",    &effectData_.radius,    0.01f);
-	ImGui::DragFloat("intensity", &effectData_.intensity, 0.01f);
-	ImGui::DragFloat("softness",  &effectData_.softness,  0.01f);
-	float col[3] = { effectData_.colorR, effectData_.colorG, effectData_.colorB };
-	if (ImGui::ColorEdit3("edgeColor", col)) {
-		effectData_.colorR = col[0];
-		effectData_.colorG = col[1];
-		effectData_.colorB = col[2];
-	}
-	ImGui::End();
-#endif // _DEBUG
 
 	// CPU → GPU に全フィールドをコピー（パディング含む）
 	*effectDataPtr_ = effectData_;

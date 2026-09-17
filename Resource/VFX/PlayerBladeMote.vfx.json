@@ -1,0 +1,135 @@
+{
+  "Name": "PlayerBladeMote",
+  "Emitter": {
+    "Frequency": 0.5,
+    "IsActive": false,
+    "ShapeModel": "",
+    "Position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Particles": [
+      {
+        "ParticleName": "PAtkBladeMote",
+        "Count": 1,
+        "SpawnRate": 1.0
+      }
+    ]
+  },
+  "Particles": {
+    "PAtkBladeMote": {
+      "Texture": "SoftCircle.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 0,
+        "BlendMode": 2,
+        "Drag": 0.3,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 2.6,
+        "SpeedMin": 1.2,
+        "SpreadDegrees": 18.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.0,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          0.8,
+          0.95,
+          1.0
+        ],
+        "minColor": [
+          0.55,
+          0.8,
+          1.0
+        ],
+        "maxLifeTime": 0.3,
+        "minLifeTime": 0.18,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.1,
+          0.1,
+          0.1
+        ],
+        "minScale": [
+          0.05,
+          0.05,
+          0.05
+        ],
+        "maxTranslate": [
+          0.03,
+          0.03,
+          0.03
+        ],
+        "minTranslate": [
+          -0.03,
+          -0.03,
+          -0.03
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "SizeCurve": [
+          {
+            "t": 0.0,
+            "v": 0.4
+          },
+          {
+            "t": 0.3,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.2
+          }
+        ],
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.2,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

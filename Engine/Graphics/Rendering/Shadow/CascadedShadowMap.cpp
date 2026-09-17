@@ -7,9 +7,6 @@
 #include <Math/MathUtils.h>
 #include <algorithm>
 #include <cfloat>
-#ifdef _DEBUG
-#include <imgui.h>
-#endif
 
 void CascadedShadowMap::Initialize(DirectXManager* dxManager, uint32_t shadowMapSize) {
 	dxManager_ = dxManager;
@@ -239,38 +236,3 @@ void CascadedShadowMap::CreateDSV() {
 	}
 }
 
-#ifdef _DEBUG
-void CascadedShadowMap::DrawDebugUI() {
-	ImGui::Begin("Shadow Map (CSM)");
-
-	ImGui::Text("Parameters");
-	ImGui::Separator();
-	ImGui::DragFloat("Light Distance", &shadowDistance_, 1.0f, 10.0f, 500.0f, "%.1f");
-	ImGui::DragFloat("Shadow Far",     &shadowFar_,      1.0f, 1.0f,  2000.0f, "%.1f");
-	ImGui::SliderFloat("Split Lambda", &splitLambda_,    0.0f, 1.0f,  "%.2f");
-
-	ImGui::Spacing();
-	ImGui::Text("Cascade Split Depths (view-space Z)");
-	ImGui::Separator();
-	for (uint32_t i = 0; i < kCascadeCount; ++i) {
-		ImGui::Text("  Cascade %u far: %.1f", i, cascades_[i].splitDepth);
-	}
-
-	if (!lights_.empty()) {
-		ImGui::Spacing();
-		ImGui::Text("Light Direction");
-		ImGui::Separator();
-		ImGui::Text("  (%.2f, %.2f, %.2f)", lights_[0].direction.x, lights_[0].direction.y, lights_[0].direction.z);
-	}
-
-	if (camera_) {
-		ImGui::Spacing();
-		Vector3 p = camera_->GetTranslate();
-		ImGui::Text("Camera Pos");
-		ImGui::Separator();
-		ImGui::Text("  (%.1f, %.1f, %.1f)", p.x, p.y, p.z);
-	}
-
-	ImGui::End();
-}
-#endif

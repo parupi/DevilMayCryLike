@@ -52,6 +52,7 @@ ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const TextureDesc& de
         IID_PPV_ARGS(&resource)
     );
     assert(SUCCEEDED(hr));
+    (void)hr; // Release では assert が消えるため明示的に未使用にする
 
 #ifdef _DEBUG
     resource->SetName(L"CreatedTexture2D");
@@ -89,6 +90,7 @@ ComPtr<ID3D12Resource> GpuResourceFactory::CreateTexture2D(const DirectX::TexMet
     );
 
     assert(SUCCEEDED(hr));
+    (void)hr; // Release では assert が消えるため明示的に未使用にする
 
     return tex;
 }

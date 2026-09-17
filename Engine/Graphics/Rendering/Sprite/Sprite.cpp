@@ -37,7 +37,7 @@ void Sprite::Update()
 	// Transform情報を作る
 	Matrix4x4 worldMatrix = MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate);
 	Matrix4x4 viewMatrix = MakeIdentity4x4();
-	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowManager::kClientWidth), float(WindowManager::kClientHeight), 0.0f, 100.0f);
+	Matrix4x4 projectionMatrix = MakeOrthographicMatrix(0.0f, 0.0f, float(WindowManager::kGameWidth), float(WindowManager::kGameHeight), 0.0f, 100.0f);
 	Matrix4x4 worldViewProjectionMatrix = worldMatrix * viewMatrix * projectionMatrix;
 	transformationMatrixData_->World = worldViewProjectionMatrix;
 	transformationMatrixData_->WVP = worldViewProjectionMatrix;
@@ -122,6 +122,7 @@ void Sprite::CreateMaterialResource()
 	materialData_->uvTransform = MakeIdentity4x4();
 	materialData_->dissolveThreshold = -1.0f;
 	materialData_->dissolveEdgeWidth = 0.05f;
+	materialData_->radialFill = -1.0f;
 	materialData_->dissolveEdgeColor = { 1.0f, 0.3f, 0.0f, 8.0f };
 }
 

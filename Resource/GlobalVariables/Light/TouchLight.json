@@ -1,0 +1,19 @@
+{
+    "TouchLight": {
+        "Color": [
+            1.0,
+            0.09803921729326248,
+            0.0,
+            1.0
+        ],
+        "Decay": 1.0,
+        "Enabled": true,
+        "Intensity": 6.0,
+        "Position": [
+            7.0,
+            -2.5,
+            -12.0
+        ],
+        "Radius": 20.0
+    }
+}

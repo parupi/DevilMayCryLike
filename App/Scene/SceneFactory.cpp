@@ -14,3 +14,7 @@ std::unique_ptr<BaseScene> SceneFactory::CreateScene(const std::string& sceneNam
 	if (sceneName == "SAMPLE") return std::make_unique<SampleScene>();
 	return nullptr;
 }
+
+std::vector<std::string> SceneFactory::GetSceneNames() const {
+	return { "TITLE", "GAMEPLAY", "CLEAR", "Edit", "SAMPLE" };
+}

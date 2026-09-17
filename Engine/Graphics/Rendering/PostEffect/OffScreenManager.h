@@ -28,6 +28,9 @@ public:
 	BaseOffScreen* FindEffect(const std::string& name);
 	// 全エフェクトを取得
 	std::vector<BaseOffScreen*> GetEffects();
+	// 適用順を1つ入れ替える（direction: -1で前へ、+1で後ろへ）。
+	// 端に達している場合は何もしない
+	void MoveEffect(size_t index, int direction);
 	// 描画前処理
 	void BeginDrawToPingPong();
 	// 描画終了処理

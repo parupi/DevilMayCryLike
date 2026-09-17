@@ -1,8 +1,12 @@
 #include "MyGameTitle.h"
 #include <Scene/SceneFactory.h>
 #include <GameObjectRegister.h>
+// App側。SceneFactory.h と同じくAppのincludeディレクトリから引かれる。
+// 最初に入るシーンはゲーム側の都合（Debugのトレーニング直行）で変わるので、判断はあちらに任せる
+#include <GameData/GameSession.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#include "Graphics/Rendering/PostEffect/BloomEffect.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -13,6 +17,13 @@
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
+#include <Graphics/Text/FontManager.h>
+#include <Utility/TimeManager.h>
+#include <Utility/ScopeProfiler.h>
+#ifdef _DEBUG
+#include <Editor/Core/EditorHost.h>
+#include <Editor/AppEditor.h>   // App側。SceneFactory.h と同じくAppのincludeディレクトリから引かれる
+#endif // _DEBUG
 
 void MyGameTitle::Initialize() {
 	GuchisFramework::Initialize();
@@ -28,10 +39,21 @@ void MyGameTitle::Initialize() {
 	ParticleManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 	// スプライト共通部の初期化
 	SpriteManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
+	// 文字描画用のフォント。焼く大きさは、UIで使う一番大きい文字に合わせてある。
+	// ここより大きく表示するとぼやけるので、必要になったら値を上げること
+	FontManager::GetInstance().LoadFont("Main", "Resource/Font/Noto_Sans_JP/static/NotoSansJP-Bold.ttf", 64.0f);
 	// オブジェクト共通部
 	Object3dManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
 	OffScreenManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
+
+	// ブルームは全シーン共通の画作りなので、ここで一度だけ登録して常時有効にする。
+	// チェーンの先頭に入れて、この後に追加される演出用エフェクトより先に適用させる
+	{
+		auto bloom = std::make_unique<BloomEffect>("Bloom");
+		bloom->SetActive(true);
+		OffScreenManager::GetInstance().AddEffect(std::move(bloom));
+	}
 
 	PrimitiveLineDrawer::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
@@ -50,10 +72,18 @@ void MyGameTitle::Initialize() {
 	// 最初のシーンを生成
 	sceneFactory_ = std::make_unique<SceneFactory>();
 	SceneManager::GetInstance().SetSceneFactory(sceneFactory_.get());
-	SceneManager::GetInstance().ChangeScene("TITLE");
+	// シーン初期化中のアップロードをスコープで囲めるようにする（ピークメモリ対策）
+	SceneManager::GetInstance().SetDXManager(GetDXManager());
+	// 通常は "TITLE"。Debug で「起動時トレーニング」が有効なときだけ "GAMEPLAY" になる
+	SceneManager::GetInstance().ChangeScene(GameSession::ResolveBootScene());
 
 	// EngineContext に全サービスを登録（GuchisFramework::Initialize でコアサービスは登録済み）
+	ctx_.winManager = winManager.get();
 	ctx_.object3dManager = &Object3dManager::GetInstance();
+	ctx_.modelManager = &ModelManager::GetInstance();
+	ctx_.textureManager = &TextureManager::GetInstance();
+	ctx_.particleManager = &ParticleManager::GetInstance();
+	ctx_.rendererManager = &RendererManager::GetInstance();
 	ctx_.lightManager = &LightManager::GetInstance();
 	ctx_.cameraManager = &CameraManager::GetInstance();
 	ctx_.skySystem = &SkySystem::GetInstance();
@@ -63,13 +93,22 @@ void MyGameTitle::Initialize() {
 	ctx_.transitionManager = &TransitionManager::GetInstance();
 	ctx_.collisionManager = &CollisionManager::GetInstance();
 	ctx_.primitiveLineDrawer = &PrimitiveLineDrawer::GetInstance();
+	ctx_.audio = &Audio::GetInstance();
+	ctx_.input = &Input::GetInstance();
 #ifdef _DEBUG
 	ctx_.imGuiManager = &ImGuiManager::GetInstance();
+
+	// ここでエディタにエンジンのサービス一覧を渡す。
+	// 以降、エディタのウィンドウは Editor::Ctx() 経由でエンジン機能を呼べる
+	Editor::SetContext(ctx_);
+	// App固有のエディタを差し込む。
+	AppEditor::Register();
 #endif
 
 	renderPipeline_ = std::make_unique<RenderPipeline>();
 	renderPipeline_->Initialize(ctx_);
 
+	dxManager->SetFrameRateLimit(72.0f);
 }
 
 void MyGameTitle::Finalize() {
@@ -88,7 +127,9 @@ void MyGameTitle::Finalize() {
 	TransitionManager::GetInstance().Finalize();
 	SceneTransitionController::GetInstance().Finalize();
 	ParticleManager::GetInstance().Finalize();
+	// 文字列は SpriteManager が持っているので、フォントより先に消えるようにする
 	SpriteManager::GetInstance().Finalize();
+	FontManager::GetInstance().Finalize();
 	Object3dManager::GetInstance().Finalize();
 	ModelManager::GetInstance().Finalize();
 
@@ -107,21 +148,54 @@ void MyGameTitle::Finalize() {
 
 void MyGameTitle::Update() {
 #ifdef _DEBUG
-	ImGuiManager::GetInstance().Begin();
+	// 1フレーム分の計測を確定させる。エディタの Profiler ウィンドウはこの結果を読む。
+	// 描画の計測は Update より後に走るので、ここで区切ると1フレームが揃った状態で出せる
+	ScopeProfiler::EndFrame();
+	{
+		PROF_SCOPE("ImGui::Begin");
+		ImGuiManager::GetInstance().Begin();
+	}
 #endif // DEBUG
-	GuchisFramework::Update();
-	CameraManager::GetInstance().Update();
-	ParticleManager::GetInstance().Update();
+	{
+		PROF_SCOPE("Scene::Update");
+		GuchisFramework::Update();
+	}
+	{
+		PROF_SCOPE("Camera");
+		CameraManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Particle");
+		// パーティクルはVFX時間で動かす（ヒットストップ中はゆっくりになる）
+		ParticleManager::GetInstance().Update(TimeManager::GetVFXDelta());
+	}
 	SceneTransitionController::GetInstance().Update();
-	Object3dManager::GetInstance().Update();
-	RendererManager::GetInstance().Update();
-	CollisionManager::GetInstance().Update();
-
-	LightManager::GetInstance().Update();
+	{
+		PROF_SCOPE("Object3d");
+		Object3dManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Renderer");
+		RendererManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Collision");
+		CollisionManager::GetInstance().Update();
+	}
+	{
+		PROF_SCOPE("Light");
+		LightManager::GetInstance().Update();
+	}
 	OffScreenManager::GetInstance().Update();
 #ifdef _DEBUG
-	SceneManager::GetInstance().DebugUpdate();
-	ImGuiManager::GetInstance().End();
+	{
+		PROF_SCOPE("Editor(ImGui構築)");
+		SceneManager::GetInstance().DebugUpdate();
+	}
+	{
+		PROF_SCOPE("ImGui::End");
+		ImGuiManager::GetInstance().End();
+	}
 #endif // DEBUG
 }
 

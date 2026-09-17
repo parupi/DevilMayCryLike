@@ -1,6 +1,6 @@
 #pragma once
 #include <World3D/Object/Model/ModelStructs.h>
-#include <World3D/Object/Model/Animation/SkinCluster.h>
+#include <World3D/Object/Model/Animation/SkinningResource.h>
 #include <memory>
 #include "Graphics/Resource/ResourceManager.h"
 
@@ -15,21 +15,22 @@ public:
 	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, const MeshData& meshData);
 
 	void Initialize(DirectXManager* directXManager, SrvManager* srvManager, const SkinnedMeshData& meshData);
-	// 描画処理
-	void Update();
 
-	void Bind();
-	// GBufferへのバインド
-	void BindForGBuffer();
+	/// <summary>
+	/// 頂点/インデックスバッファをバインドする。
+	/// スキンモデルは変形後の頂点がインスタンス側にあるので、そのVBVを vbvOverride で渡す
+	/// </summary>
+	void Bind(const D3D12_VERTEX_BUFFER_VIEW* vbvOverride = nullptr);
 
-	void CreateSkinCluster(const SkeletonData& skeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
+	// スキニングの入力側リソース（インフルエンス・入力頂点）を作る。全インスタンスで共有される
+	void CreateSkinningResource(const SkeletonData& bindSkeleton, const SkinnedMeshData& meshData, const std::map<std::string, JointWeightData>& skinClusterData);
 
 	D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const { return vertexBufferView_; }
 
 	const MeshData& GetMeshData() { return meshData_; }
 	const SkinnedMeshData& GetSkinnedMeshData() { return skinnedMeshData_; }
 
-	SkinCluster* GetSkinCluster() { return skinCluster_.get(); }
+	const SkinningResource* GetSkinningResource() const { return skinningResource_.get(); }
 private:
 
 	// 頂点データの生成
@@ -50,5 +51,6 @@ private:
 	MeshData meshData_;
 	SkinnedMeshData skinnedMeshData_;
 
-	std::unique_ptr<SkinCluster> skinCluster_; // 追加
+	// スキンメッシュのみ。アセット側で1つだけ持ち、全インスタンスが読む
+	std::unique_ptr<SkinningResource> skinningResource_;
 };

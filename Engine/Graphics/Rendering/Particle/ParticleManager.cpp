@@ -1,9 +1,14 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "ParticleManager.h"
 #include "Math/MathUtils.h"
 #include <Debugger/ImGuiManager.h>
 #include <algorithm>
+#include <cmath>
+#include <iterator>
+#include <numbers>
 #include <Utility/DeltaTime.h>
+#include <Utility/Logger.h>
+#include <Utility/ScopeProfiler.h>
 #include "Graphics/Resource/TextureManager.h"
 #include <World3D/Object/Renderer/MeshGenerator.h>
 
@@ -21,6 +26,9 @@ void ParticleManager::Finalize()
 	}
 	particleGroups_.clear();
 
+	// メッシュ表面サンプラーのキャッシュを解放
+	meshSamplers_.clear();
+
 	// グループごとの頂点・インデックスバッファを解放
 	if (dxManager_) {
 		auto* rm = dxManager_->GetResourceManager();
@@ -31,9 +39,14 @@ void ParticleManager::Finalize()
 			if (gpu.indexHandle != kInvalidBufferHandle) {
 				rm->ReleaseBuffer(gpu.indexHandle);
 			}
+			if (gpu.constantsHandle != kInvalidBufferHandle) {
+				rm->ReleaseBuffer(gpu.constantsHandle);
+			}
 		}
 	}
 	particleGPU_.clear();
+	drawOrder_.clear();
+	hasSceneWorldPositionSrv_ = false;
 
 	// パーティクル用のリソース
 	vertexResource.Reset();
@@ -76,6 +89,10 @@ void ParticleManager::Initialize(DirectXManager* dxManager, PSOManager* psoManag
 	CreateParticleResource();
 	CreateMaterialResource();
 
+	// ノイズを使うグループが既定で読むテクスチャ。
+	// ノイズを使わないグループにもダミーとして同じものを差す（ルートパラメータを空にできないため）
+	TextureManager::GetInstance().LoadTexture(kDefaultNoiseTexture);
+
 	// jsonファイルの読み込み
 	global_->LoadFiles("Particle");
 
@@ -85,28 +102,53 @@ void ParticleManager::Initialize(DirectXManager* dxManager, PSOManager* psoManag
 #endif
 }
 
-void ParticleManager::Update()
+void ParticleManager::Update(float deltaTime)
 {
 	if (!camera_) return;
 
-	float delta = DeltaTime::GetDeltaTime();
+	// ノイズのスクロール用。float の桁が落ちてUVが粗くならないよう1時間で畳む
+	shaderTime_ = std::fmod(shaderTime_ + deltaTime, 3600.0f);
 
 	for (auto& [name, emitter] : emitters_) {
-		emitter->Update();
+		emitter->Update(deltaTime);
 	}
 
-	for (auto& [groupName, group] : particleGroups_) {
-
-		// ① シミュレーション更新
-		updateSystem_.Update(group.particles, delta);
-
-		// ② Editorパラメータ読み込み（必要なら）
-		group.params = LoadParticleParameters(global_, groupName);
+	size_t aliveParticles = 0;
+	{
+		PROF_SCOPE("Ptc:シミュレーション");
+		for (auto& [groupName, group] : particleGroups_) {
+			updateSystem_.Update(group, deltaTime);
+			aliveParticles += group.particles.size();
+		}
 	}
 
 #ifdef _DEBUG
-	editor_->Draw();
+	// パラメータはグループ生成時に読み込み済み。エディタでの編集を反映するために読み直すが、
+	// 全グループを毎フレーム引くと GlobalVariables の文字列検索だけで数ミリ秒かかる
+	// （1グループ約45項目 × グループ数）。編集中の1グループ＋1フレーム1グループの巡回に絞る。
+	// Release ではそもそもエディタが無いので読み直さない
+	if (!particleGroups_.empty()) {
+		PROF_SCOPE("Ptc:パラメータ再読込");
+
+		// 巡回ぶん
+		paramReloadCursor_ %= particleGroups_.size();
+		auto it = std::next(particleGroups_.begin(), static_cast<ptrdiff_t>(paramReloadCursor_));
+		it->second.params = LoadParticleParameters(global_, it->first);
+		++paramReloadCursor_;
+
+		// パーティクルエディタで開いているグループぶん（巡回と重なったら省く）
+		if (!liveEditGroup_.empty() && liveEditGroup_ != it->first) {
+			if (auto live = particleGroups_.find(liveEditGroup_); live != particleGroups_.end()) {
+				live->second.params = LoadParticleParameters(global_, live->first);
+			}
+		}
+	}
 #endif
+
+	PROF_COUNT("Ptc:グループ数", particleGroups_.size());
+	PROF_COUNT("Ptc:生存パーティクル数", aliveParticles);
+
+	// エディタの描画は Engine/Editor/Windows/ParticleEditorWindow.cpp が回す
 }
 
 void ParticleManager::Draw()
@@ -118,15 +160,37 @@ void ParticleManager::Draw()
 
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	for (auto& [groupName, group] : particleGroups_)
+	// ── 描画順 ──
+	// unordered_map の並びは実行ごとに変わりうるので、SortOrder → 名前 の順に並べ直してから描く。
+	// 通常ブレンドの煙と加算の炎が重なるとき、どちらが上に来るかがこれで決まる
+	drawOrder_.clear();
+	drawOrder_.reserve(particleGroups_.size());
+	for (const auto& [groupName, group] : particleGroups_) {
+		if (group.particles.empty()) continue;
+		drawOrder_.emplace_back(group.params.sortOrder, &groupName);
+	}
+	std::sort(drawOrder_.begin(), drawOrder_.end(),
+		[](const auto& a, const auto& b) {
+			if (a.first != b.first) return a.first < b.first;
+			return *a.second < *b.second;
+		});
+
+	for (const auto& [sortOrder, groupNamePtr] : drawOrder_)
 	{
+		const std::string& groupName = *groupNamePtr;
+		ParticleGroup& group = particleGroups_.at(groupName);
+
 		// ① Instance生成
 		std::vector<InstanceData> instanceList;
 		instanceList.reserve(group.particles.size());
 
-		renderSystem_.BuildInstances(group.particles, camera_, instanceList);
+		renderSystem_.BuildInstances(group, camera_, instanceList);
 
 		if (instanceList.empty()) continue;
+
+		// インスタンシングバッファは kNumMaxInstance 個ぶんしか確保していないため、
+		// 溢れたぶんは描画しない（超過分を書き込むとバッファ外破壊になる）
+		const size_t instanceCount = (std::min)(instanceList.size(), static_cast<size_t>(kNumMaxInstance));
 
 		// ② PSO取得（globalから）
 		BlendMode blendMode = static_cast<BlendMode>(global_->GetValueRef<int>(groupName, "BlendMode"));
@@ -138,7 +202,7 @@ void ParticleManager::Draw()
 		commandList->SetGraphicsRootSignature(psoManager_->GetParticleSignature());
 
 		// ③ GPU転送
-		UploadInstanceData(groupName, instanceList);
+		UploadInstanceData(groupName, instanceList, instanceCount);
 
 		// === 頂点・インデックスバッファ設定（グループごとの形状）===
 		auto& gpu = particleGPU_[groupName];
@@ -152,10 +216,23 @@ void ParticleManager::Draw()
 		srvManager_->SetGraphicsRootDescriptorTable(1, gpu.srvIndex);
 
 		// === テクスチャ設定 ===
-		srvManager_->SetGraphicsRootDescriptorTable(2, renderStates_[groupName].textureIndex);
+		const ParticleRenderState& renderState = renderStates_[groupName];
+		srvManager_->SetGraphicsRootDescriptorTable(2, renderState.textureIndex);
+
+		// === グループ単位の設定（ノイズ・ソフトパーティクル）===
+		WriteGroupConstants(group, gpu);
+		commandList->SetGraphicsRootConstantBufferView(3, dxManager_->GetResourceManager()->GetGPUVirtualAddress(gpu.constantsHandle));
+		srvManager_->SetGraphicsRootDescriptorTable(4, renderState.noiseTextureIndex);
+		if (hasSceneWorldPositionSrv_) {
+			commandList->SetGraphicsRootDescriptorTable(5, sceneWorldPositionSrv_);
+		} else {
+			// ワールド座標テクスチャがまだ無い（描画パイプライン生成前など）。
+			// 空のままだと描画できないのでノイズを差しておく。フラグを立てないのでシェーダは読まない
+			srvManager_->SetGraphicsRootDescriptorTable(5, renderState.noiseTextureIndex);
+		}
 
 		// ④ 描画
-		particleRenderer_.Draw(commandList, instanceList.size(), gpu.indexCount);
+		particleRenderer_.Draw(commandList, instanceCount, gpu.indexCount);
 	}
 }
 
@@ -166,11 +243,19 @@ void ParticleManager::CreateParticleGroup(const std::string name, const std::str
 		return;
 	}
 
+	TextureManager::GetInstance().LoadTexture(textureFilePath);
+
 	ParticleGroup group{};
 	group.shape = shape;
+	group.texturePath = textureFilePath;
+	// カーブ定義ファイルがあれば読む。無ければ空のまま＝従来のFadeType挙動で動く
+	group.curves.Load(name);
 	particleGroups_.emplace(name, std::move(group));
 
 	RegisterEditorParameters(name);
+	// パラメータはここで一度だけ読み込む。以降 Update() は編集反映のために
+	// 1フレーム1グループずつ読み直すだけ（毎フレーム全部引くと重い）
+	particleGroups_[name].params = LoadParticleParameters(global_, name);
 	CreateParticleGPU(name, shape);
 	CreateParticleRenderer(name, textureFilePath);
 }
@@ -251,6 +336,12 @@ void ParticleManager::CreateParticleGPU(const std::string& name, PrimitiveType s
 	gpu.ibv.Format         = DXGI_FORMAT_R32_UINT;
 	gpu.indexCount         = static_cast<uint32_t>(meshData.indices.size());
 
+	// --- グループ単位の定数 ---
+	gpu.constantsHandle = rm->CreateUploadBuffer(sizeof(ParticleGroupConstantsGPU), L"ParticleGroupConstants");
+	gpu.constantsPtr = reinterpret_cast<ParticleGroupConstantsGPU*>(rm->Map(gpu.constantsHandle));
+	*gpu.constantsPtr = ParticleGroupConstantsGPU{};
+	gpu.constantsPtr->emissiveIntensity = 1.0f;
+
 	particleGPU_.emplace(name, std::move(gpu));
 }
 
@@ -258,10 +349,54 @@ void ParticleManager::CreateParticleRenderer(const std::string& name, const std:
 {
 	ParticleRenderState state{};
 	state.textureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(textureFilePath);
+	state.noiseTextureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(kDefaultNoiseTexture);
 
 	TextureManager::GetInstance().LoadTexture(textureFilePath);
 
 	renderStates_.emplace(name, std::move(state));
+}
+
+void ParticleManager::SetParticleGroupNoiseTexture(const std::string& groupName, const std::string& textureFilePath)
+{
+	auto groupIt = particleGroups_.find(groupName);
+	auto stateIt = renderStates_.find(groupName);
+	if (groupIt == particleGroups_.end() || stateIt == renderStates_.end()) {
+		return;
+	}
+
+	const std::string& fileName = textureFilePath.empty() ? std::string{ kDefaultNoiseTexture } : textureFilePath;
+	TextureManager::GetInstance().LoadTexture(fileName);
+	stateIt->second.noiseTextureIndex = TextureManager::GetInstance().GetTextureIndexByFilePath(fileName);
+	// 既定のままなら空で覚えておく（.vfx.json に書き出さないため）
+	groupIt->second.noiseTexturePath = (fileName == kDefaultNoiseTexture) ? std::string{} : fileName;
+}
+
+void ParticleManager::WriteGroupConstants(const ParticleGroup& group, ParticleGroupGPU& gpu)
+{
+	if (!gpu.constantsPtr) return;
+
+	const ParticleParameters& params = group.params;
+	ParticleGroupConstantsGPU& constants = *gpu.constantsPtr;
+
+	constants.time = shaderTime_;
+	constants.noiseDistortion = params.noiseDistortion;
+	constants.noiseColorBlend = params.noiseColorBlend;
+	constants.emissiveIntensity = params.emissiveIntensity;
+	constants.noiseTiling = Vector2{ params.noiseTiling.x, params.noiseTiling.y };
+	constants.noiseScroll = Vector2{ params.noiseScroll.x, params.noiseScroll.y };
+	constants.noiseErosion = params.noiseErosion;
+	constants.noiseErosionSoftness = (std::max)(params.noiseErosionSoftness, 0.001f);
+	constants.softDistance = params.softDistance;
+
+	uint32_t flags = 0;
+	if (params.noiseEnabled) flags |= kParticleFlagNoise;
+	if (params.noiseGrayscale) flags |= kParticleFlagGrayscale;
+	if (params.softDistance > 0.0f && hasSceneWorldPositionSrv_) flags |= kParticleFlagSoft;
+	constants.flags = flags;
+
+	// 行ベクトル規約なので、カメラのワールド行列の4行目がカメラの位置
+	const Matrix4x4& cameraMatrix = camera_->GetWorldMatrix();
+	constants.cameraPosition = Vector3{ cameraMatrix.m[3][0], cameraMatrix.m[3][1], cameraMatrix.m[3][2] };
 }
 
 void ParticleManager::RegisterEditorParameters(const std::string& name)
@@ -295,27 +430,67 @@ void ParticleManager::RegisterEditorParameters(const std::string& name)
 	global_->AddItem(name, "ShrinkStartRatio", float{});
 
 	global_->AddItem(name, "BlendMode", int{ 2 });
+
+	// 放射方向速度モード (0:None 1:Converge 2:Diverge)
+	global_->AddItem(name, "RadialMode", int{});
+	global_->AddItem(name, "RadialSpeed", float{ 1.0f });
+
+	// 簡易物理。既存グループのjsonにキーが無い場合はここの既定値が入るので、
+	// Gravity=0 / Drag=1 となり従来どおり等速直線運動になる
+	global_->AddItem(name, "Gravity", Vector3{});
+	global_->AddItem(name, "Drag", float{ 1.0f });
+
+	// 方向付き発生。UseDirectional の既定値が false なので既存グループの挙動は変わらない
+	global_->AddItem(name, "UseDirectional", bool{});
+	global_->AddItem(name, "SpeedMin", float{});
+	global_->AddItem(name, "SpeedMax", float{});
+	global_->AddItem(name, "SpreadDegrees", float{});
+	global_->AddItem(name, "OrientToDirection", bool{});
+
+	// ビルボードの種類。既定値 0 が従来の Screen なので既存グループの見た目は変わらない
+	global_->AddItem(name, "BillboardType", int{});
+	global_->AddItem(name, "VelocityStretch", float{});
+
+	// テクスチャアニメーション。1x1 = コマ分割なし＝テクスチャ全体をそのまま使う
+	global_->AddItem(name, "AnimColumns", int{ 1 });
+	global_->AddItem(name, "AnimRows", int{ 1 });
+	global_->AddItem(name, "AnimFps", float{});
+	global_->AddItem(name, "AnimLoop", bool{ true });
+
+	// 回転の速さ[rad/s]。既定値 0 なので既存グループは回らない
+	global_->AddItem(name, "minAngularVelocity", Vector3{});
+	global_->AddItem(name, "maxAngularVelocity", Vector3{});
+
+	// ノイズ（炎・煙の質感）。NoiseEnabled の既定値が false なので既存グループの見た目は変わらない
+	global_->AddItem(name, "NoiseEnabled", bool{});
+	global_->AddItem(name, "NoiseTiling", Vector3{ 1.0f, 1.0f, 0.0f });
+	global_->AddItem(name, "NoiseScroll", Vector3{ 0.0f, -1.0f, 0.0f });
+	global_->AddItem(name, "NoiseDistortion", float{});
+	global_->AddItem(name, "NoiseColorBlend", float{ 1.0f });
+	global_->AddItem(name, "NoiseGrayscale", bool{});
+	global_->AddItem(name, "NoiseErosion", float{});
+	global_->AddItem(name, "NoiseErosionSoftness", float{ 0.15f });
+	global_->AddItem(name, "EmissiveIntensity", float{ 1.0f });
+
+	// 描画順・ソフトパーティクル。既定値のままなら従来と同じ描き方
+	global_->AddItem(name, "SortOrder", int{});
+	global_->AddItem(name, "SortByDepth", bool{});
+	global_->AddItem(name, "SoftDistance", float{});
 }
 
-void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList)
+void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList, size_t instanceCount)
 {
 	auto& gpuBuffer = particleGPU_[groupName];
 
 	auto* dst = reinterpret_cast<ParticleForGPU*>(gpuBuffer.mappedPtr);
 
-	for (size_t i = 0; i < instanceList.size(); ++i) {
+	for (size_t i = 0; i < instanceCount; ++i) {
 		dst[i].WVP = instanceList[i].wvp;
 		dst[i].World = instanceList[i].world;
 		dst[i].color = instanceList[i].color;
+		dst[i].uvOffsetScale = instanceList[i].uvOffsetScale;
 	}
 }
-
-#ifdef _DEBUG
-void ParticleManager::DebugGui()
-{
-
-}
-#endif // DEBUG
 
 void ParticleManager::CreateParticleResource()
 {
@@ -333,6 +508,7 @@ void ParticleManager::CreateParticleResource()
 		instancingData_[i].WVP = MakeIdentity4x4();
 		instancingData_[i].World = MakeIdentity4x4();
 		instancingData_[i].color = { 1, 1, 1, 1 };
+		instancingData_[i].uvOffsetScale = { 0, 0, 1, 1 };
 	}
 
 	// -----------------------------
@@ -376,7 +552,7 @@ void ParticleManager::CreateMaterialResource()
 	materialData_->uvTransform = MakeIdentity4x4();
 }
 
-Particle ParticleManager::MakeNewParticle(const std::string name, const Vector3& translate)
+Particle ParticleManager::MakeNewParticle(const std::string& name, const Vector3& translate, const Vector3* direction)
 {
 	Particle particle{};
 
@@ -437,15 +613,93 @@ Particle ParticleManager::MakeNewParticle(const std::string name, const Vector3&
 	std::uniform_real_distribution<float> distColorR(params.colorMin.x, params.colorMax.x);
 	std::uniform_real_distribution<float> distColorG(params.colorMin.y, params.colorMax.y);
 	std::uniform_real_distribution<float> distColorB(params.colorMin.z, params.colorMax.z);
-	particle.transform.scale = { distScaleX(randomEngine), distScaleY(randomEngine), distScaleZ(randomEngine) };
+	// emitSizeScale_ は大きさつきの PlayVFX の間だけ 1 以外になる
+	particle.transform.scale = {
+		distScaleX(randomEngine) * emitSizeScale_,
+		distScaleY(randomEngine) * emitSizeScale_,
+		distScaleZ(randomEngine) * emitSizeScale_ };
 	particle.transform.rotate = { distRotationX(randomEngine), distRotationY(randomEngine), distRotationZ(randomEngine) };
-	Vector3 randomTranslate = { distTranslationX(randomEngine), distTranslationY(randomEngine), distTranslationZ(randomEngine) };
+	Vector3 randomTranslate = {
+		distTranslationX(randomEngine) * emitSizeScale_,
+		distTranslationY(randomEngine) * emitSizeScale_,
+		distTranslationZ(randomEngine) * emitSizeScale_ };
 	particle.transform.translate = translate + randomTranslate;
 	particle.velocity = { distVelocityX(randomEngine), distVelocityY(randomEngine), distVelocityZ(randomEngine) };
 	particle.color = { distColorR(randomEngine) , distColorG(randomEngine) , distColorB(randomEngine) , 1.0f };
 	particle.lifeTime = distTime(randomEngine);
 	particle.currentTime = 0.0f;
 	particle.isBillboard = params.isBillboard;
+
+	// Curve / Gradient は「生成時の値 × カーブ値」で毎フレーム作り直すので、基準値を控えておく
+	particle.baseScale = particle.transform.scale;
+	particle.baseColor = particle.color;
+
+	// 回転の速さ。範囲が 0〜0 のグループは分布を作らずに済ませる（ほとんどのグループがそう）
+	auto randomInRange = [this](const Vector2& range) {
+		auto [minVal, maxVal] = std::minmax(range.x, range.y);
+		if (minVal == maxVal) return minVal;
+		return std::uniform_real_distribution<float>(minVal, maxVal)(randomEngine);
+		};
+	particle.angularVelocity = {
+		randomInRange(params.angularVelocityX),
+		randomInRange(params.angularVelocityY),
+		randomInRange(params.angularVelocityZ)
+	};
+	particle.seed = std::uniform_real_distribution<float>(0.0f, 1.0f)(randomEngine);
+
+	// ── 方向付き発生 ──
+	// 方向が渡されている場合はそれを最優先にし、min/maxVelocity と RadialMode は使わない
+	// （両方を混ぜると「どちらが効いているのか」が分からなくなるため）
+	if (params.useDirectional && direction != nullptr) {
+		Vector3 axis = *direction;
+		const float axisLength = Length(axis);
+		if (axisLength < 0.0001f) {
+			// 方向が潰れている場合は上向きに逃がす
+			axis = Vector3{ 0.0f, 1.0f, 0.0f };
+		} else {
+			axis = axis / axisLength;
+		}
+
+		const auto [speedMin, speedMax] = std::minmax(params.speedMin, params.speedMax);
+		std::uniform_real_distribution<float> distSpeed(speedMin, speedMax);
+
+		particle.velocity =
+			ParticleMath::RandomDirectionInCone(axis, params.spreadDegrees, randomEngine) * distSpeed(randomEngine);
+
+		if (params.orientToDirection) {
+			particle.orientToDirection = true;
+			particle.orientDir = axis;
+		}
+
+		return particle;
+	}
+
+	// 放射方向速度モード（発生位置オフセットに応じた速度を与える）
+	switch (static_cast<RadialMode>(params.radialMode)) {
+	case RadialMode::Converge:
+		// 寿命が尽きる瞬間に発生中心へちょうど到達する速度（RadialSpeedは倍率）
+		if (particle.lifeTime > 0.0f) {
+			particle.velocity = randomTranslate * (-params.radialSpeed / particle.lifeTime);
+		}
+		break;
+	case RadialMode::Diverge: {
+		// 発生中心から外向きに RadialSpeed [m/s] で飛ばす（±50%のばらつき付き）
+		Vector3 dir = randomTranslate;
+		float len = Length(dir);
+		if (len < 0.0001f) {
+			// 中心ぴったりに湧いた場合はランダム方向へ
+			std::uniform_real_distribution<float> distDir(-1.0f, 1.0f);
+			dir = { distDir(randomEngine), distDir(randomEngine), distDir(randomEngine) };
+			len = Length(dir);
+			if (len < 0.0001f) { dir = { 0.0f, 1.0f, 0.0f }; len = 1.0f; }
+		}
+		std::uniform_real_distribution<float> distSpeedScale(0.5f, 1.5f);
+		particle.velocity = dir * (params.radialSpeed * distSpeedScale(randomEngine) / len);
+		break;
+	}
+	default:
+		break;
+	}
 
 	return particle;
 }
@@ -483,16 +737,291 @@ ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* glob
 
 	params.isBillboard = global->GetValueRef<bool>(groupName, "IsBillboard");
 
+	// Radial
+	params.radialMode = global->GetValueRef<int>(groupName, "RadialMode");
+	params.radialSpeed = global->GetValueRef<float>(groupName, "RadialSpeed");
+
+	// 簡易物理
+	params.gravity = global->GetValueRef<Vector3>(groupName, "Gravity");
+	params.drag = global->GetValueRef<float>(groupName, "Drag");
+
+	// 方向付き発生
+	params.useDirectional = global->GetValueRef<bool>(groupName, "UseDirectional");
+	params.speedMin = global->GetValueRef<float>(groupName, "SpeedMin");
+	params.speedMax = global->GetValueRef<float>(groupName, "SpeedMax");
+	params.spreadDegrees = global->GetValueRef<float>(groupName, "SpreadDegrees");
+	params.orientToDirection = global->GetValueRef<bool>(groupName, "OrientToDirection");
+
+	// ビルボードの種類
+	params.billboardType = global->GetValueRef<int>(groupName, "BillboardType");
+	params.velocityStretch = global->GetValueRef<float>(groupName, "VelocityStretch");
+
+	// テクスチャアニメーション
+	params.animColumns = global->GetValueRef<int>(groupName, "AnimColumns");
+	params.animRows = global->GetValueRef<int>(groupName, "AnimRows");
+	params.animFps = global->GetValueRef<float>(groupName, "AnimFps");
+	params.animLoop = global->GetValueRef<bool>(groupName, "AnimLoop");
+
+	// 回転の速さ
+	const Vector3& minAngular = global->GetValueRef<Vector3>(groupName, "minAngularVelocity");
+	const Vector3& maxAngular = global->GetValueRef<Vector3>(groupName, "maxAngularVelocity");
+	params.angularVelocityX = { minAngular.x, maxAngular.x };
+	params.angularVelocityY = { minAngular.y, maxAngular.y };
+	params.angularVelocityZ = { minAngular.z, maxAngular.z };
+
+	// ノイズ
+	params.noiseEnabled = global->GetValueRef<bool>(groupName, "NoiseEnabled");
+	params.noiseTiling = global->GetValueRef<Vector3>(groupName, "NoiseTiling");
+	params.noiseScroll = global->GetValueRef<Vector3>(groupName, "NoiseScroll");
+	params.noiseDistortion = global->GetValueRef<float>(groupName, "NoiseDistortion");
+	params.noiseColorBlend = global->GetValueRef<float>(groupName, "NoiseColorBlend");
+	params.noiseGrayscale = global->GetValueRef<bool>(groupName, "NoiseGrayscale");
+	params.noiseErosion = global->GetValueRef<float>(groupName, "NoiseErosion");
+	params.noiseErosionSoftness = global->GetValueRef<float>(groupName, "NoiseErosionSoftness");
+	params.emissiveIntensity = global->GetValueRef<float>(groupName, "EmissiveIntensity");
+
+	// 描画順・ソフトパーティクル
+	params.sortOrder = global->GetValueRef<int>(groupName, "SortOrder");
+	params.sortByDepth = global->GetValueRef<bool>(groupName, "SortByDepth");
+	params.softDistance = global->GetValueRef<float>(groupName, "SoftDistance");
+
 	return params;
 }
 
 void ParticleManager::Emit(const std::string name, const Vector3& position, uint32_t count)
+{
+	EmitInternal(name, position, count, nullptr);
+}
+
+void ParticleManager::Emit(const std::string& name, const Vector3& position, uint32_t count, const Vector3& direction)
+{
+	EmitInternal(name, position, count, &direction);
+}
+
+void ParticleManager::EmitInternal(const std::string& name, const Vector3& position, uint32_t count, const Vector3* direction)
 {
 	auto& particles = particleGroups_[name].particles;
 
 	particles.reserve(particles.size() + count);
 
 	for (uint32_t i = 0; i < count; ++i) {
-		particles.emplace_back(MakeNewParticle(name, position));
+		particles.emplace_back(MakeNewParticle(name, position, direction));
+	}
+}
+
+bool ParticleManager::PlayVFX(const std::string& emitterName, const Vector3& position, float countScale)
+{
+	auto it = emitters_.find(emitterName);
+	if (it == emitters_.end()) {
+		return false;
+	}
+	it->second->PlayOneShot(position, countScale);
+	return true;
+}
+
+bool ParticleManager::PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale)
+{
+	auto it = emitters_.find(emitterName);
+	if (it == emitters_.end()) {
+		return false;
+	}
+	it->second->PlayOneShot(position, direction, countScale);
+	return true;
+}
+
+bool ParticleManager::PlayVFX(const std::string& emitterName, const Vector3& position, const Vector3& direction, float countScale, float sizeScale)
+{
+	auto it = emitters_.find(emitterName);
+	if (it == emitters_.end()) {
+		return false;
+	}
+	// この1回の発生にだけ大きさの倍率を掛ける（MakeNewParticle が読む）
+	emitSizeScale_ = sizeScale;
+	it->second->PlayOneShot(position, direction, countScale);
+	emitSizeScale_ = 1.0f;
+	return true;
+}
+
+ParticleCurves* ParticleManager::GetParticleCurves(const std::string& groupName)
+{
+	auto it = particleGroups_.find(groupName);
+	if (it == particleGroups_.end()) {
+		return nullptr;
+	}
+	return &it->second.curves;
+}
+
+void ParticleManager::SaveParticleCurves(const std::string& groupName)
+{
+	auto it = particleGroups_.find(groupName);
+	if (it == particleGroups_.end()) {
+		return;
+	}
+	it->second.curves.Save(groupName);
+}
+
+bool ParticleManager::LoadVFX(const std::string& vfxName)
+{
+	VFXDefinition definition;
+	if (!VFXFile::Load(vfxName, definition)) {
+		Logger::Log("VFX load failed: " + VFXFile::MakeFilePath(vfxName));
+		return false;
+	}
+
+	for (const VFXParticleDef& particleDef : definition.particles) {
+		if (particleDef.name.empty()) continue;
+
+		// エミッターとパーティクルグループはどちらも「名前」で GlobalVariables のグループを引く。
+		// 同名だと EmitPosition/Frequency とパーティクルのパラメータが同じグループに同居してしまう
+		// （タイトル画面の TitleSmoke が実際にそうなっている）
+		if (particleDef.name == vfxName) {
+			Logger::Log("VFX名とパーティクル名が同じです。GlobalVariablesのグループが衝突します: " + vfxName);
+		}
+
+		// 既に登録済みなら何もしない。新規なら GlobalVariables の項目もここで一式作られる
+		CreateParticleGroup(particleDef.name, particleDef.texture, particleDef.shape);
+		SetParticleGroupNoiseTexture(particleDef.name, particleDef.noiseTexture);
+
+		// パラメータは GlobalVariables 経由で毎フレーム読まれるので、そこへ流し込む。
+		// ファイルに無いキーは AddItem の既定値のまま残る（古い .vfx.json でも壊れない）
+		global_->ImportGroup(particleDef.name, particleDef.params);
+
+		auto groupIt = particleGroups_.find(particleDef.name);
+		if (groupIt != particleGroups_.end()) {
+			// ImportGroup の値を反映する。Release は編集用の読み直しをしないので、ここで読まないと
+			// CreateParticleGroup 時点の既定値のまま描かれてしまう
+			groupIt->second.params = LoadParticleParameters(global_, particleDef.name);
+			// カーブは GlobalVariables では表現できないのでグループへ直接入れる。
+			// CreateParticleGroup が読んだ .curve.json より .vfx.json を優先する
+			groupIt->second.curves = particleDef.curves;
+		}
+
+		groupOwnerVFX_[particleDef.name] = vfxName;
+	}
+
+	CreateEmitter(vfxName);
+
+	auto emitterIt = emitters_.find(vfxName);
+	if (emitterIt == emitters_.end()) {
+		return false;
+	}
+	ParticleEmitter* emitter = emitterIt->second.get();
+
+	emitter->SetShapeModel(definition.emitter.shapeModel);
+	emitter->GetParticles() = definition.emitter.particles;
+
+	// ParticleEmitter::Update() は Frequency / IsActive / EmitPosition を毎フレーム
+	// GlobalVariables から読み直すので、そちらへ書かないと即座に上書きされる
+	global_->SetValue(vfxName, "Frequency", definition.emitter.frequency);
+	global_->SetValue(vfxName, "IsActive", definition.emitter.isActive);
+	global_->SetValue(vfxName, "EmitPosition", definition.emitter.position);
+
+	Logger::Log("VFX loaded: " + vfxName
+		+ " (groups=" + std::to_string(definition.particles.size())
+		+ ", emit=" + std::to_string(definition.emitter.particles.size()) + ")");
+
+	return true;
+}
+
+bool ParticleManager::BuildVFXDefinition(const std::string& vfxName, const std::string& emitterName, VFXDefinition& outDefinition)
+{
+	auto emitterIt = emitters_.find(emitterName);
+	if (emitterIt == emitters_.end()) {
+		return false;
+	}
+	ParticleEmitter* emitter = emitterIt->second.get();
+
+	VFXDefinition definition;
+	definition.name = vfxName;
+
+	definition.emitter.shapeModel = emitter->GetShapeModelName();
+	definition.emitter.particles = emitter->GetParticles();
+	// 実際に効いているのは GlobalVariables 側の値なのでそこから拾う
+	definition.emitter.frequency = global_->GetValueRef<float>(emitterName, "Frequency");
+	definition.emitter.isActive = global_->GetValueRef<bool>(emitterName, "IsActive");
+	definition.emitter.position = global_->GetValueRef<Vector3>(emitterName, "EmitPosition");
+
+	for (const EmitterParticle& emitterParticle : definition.emitter.particles) {
+		auto groupIt = particleGroups_.find(emitterParticle.name);
+		if (groupIt == particleGroups_.end()) continue;
+
+		VFXParticleDef particleDef;
+		particleDef.name = emitterParticle.name;
+		particleDef.texture = groupIt->second.texturePath;
+		particleDef.noiseTexture = groupIt->second.noiseTexturePath;
+		particleDef.shape = groupIt->second.shape;
+		particleDef.params = global_->ExportGroup(emitterParticle.name);
+		particleDef.curves = groupIt->second.curves;
+
+		definition.particles.push_back(std::move(particleDef));
+	}
+
+	outDefinition = std::move(definition);
+	return true;
+}
+
+bool ParticleManager::SaveVFX(const std::string& vfxName)
+{
+	VFXDefinition definition;
+	// 読み込み済みのVFXはエミッター名＝VFX名で登録されている
+	if (!BuildVFXDefinition(vfxName, vfxName, definition)) {
+		return false;
+	}
+	return VFXFile::Save(definition);
+}
+
+bool ParticleManager::ExportEmitterAsVFX(const std::string& emitterName, const std::string& vfxName)
+{
+	VFXDefinition definition;
+	if (!BuildVFXDefinition(vfxName, emitterName, definition)) {
+		return false;
+	}
+	return VFXFile::Save(definition);
+}
+
+const std::string* ParticleManager::GetOwningVFX(const std::string& groupName) const
+{
+	auto it = groupOwnerVFX_.find(groupName);
+	return (it != groupOwnerVFX_.end()) ? &it->second : nullptr;
+}
+
+std::vector<std::string> ParticleManager::ListVFXNames() const
+{
+	return VFXFile::ListNames();
+}
+
+MeshShapeSampler* ParticleManager::GetMeshSampler(const std::string& modelName)
+{
+	auto it = meshSamplers_.find(modelName);
+	if (it != meshSamplers_.end()) {
+		return it->second.get();
+	}
+
+	// 初回要求時に構築する。モデルが未ロードなら構築失敗として何も返さない
+	// （キャッシュしないので、あとからロードされれば次回の要求で構築される）
+	auto sampler = std::make_unique<MeshShapeSampler>();
+	if (!sampler->Build(modelName)) {
+		return nullptr;
+	}
+
+	MeshShapeSampler* raw = sampler.get();
+	meshSamplers_.emplace(modelName, std::move(sampler));
+	return raw;
+}
+
+void ParticleManager::EmitFromMesh(const std::string& groupName, const std::string& modelName, const Matrix4x4& worldMatrix, uint32_t count)
+{
+	MeshShapeSampler* sampler = GetMeshSampler(modelName);
+	if (!sampler) return;
+
+	auto& particles = particleGroups_[groupName].particles;
+
+	particles.reserve(particles.size() + count);
+
+	for (uint32_t i = 0; i < count; ++i) {
+		// メッシュ表面上の点（モデルローカル）をワールドへ変換して発生させる
+		Vector3 localPos = sampler->Sample(randomEngine);
+		Vector3 worldPos = Transform(localPos, worldMatrix);
+		particles.emplace_back(MakeNewParticle(groupName, worldPos, nullptr));
 	}
 }

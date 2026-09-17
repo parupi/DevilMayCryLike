@@ -367,3 +367,7 @@ dxcompiler.dll
 
 # ImGui settings file
 imgui.ini
+
+# 提出用パッケージ（tools/make_submission.bat が生成する）
+提出用/
+提出用.zip

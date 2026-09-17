@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.4000000059604645,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.09000000357627869,
+                "Curve": 1.600000023841858,
+                "Decay": 0.23999999463558197,
+                "Hold": 0.0,
+                "Release": 0.07000000029802322,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 900.0,
+                "CutoffEnd": 2600.0,
+                "Resonance": 1.399999976158142,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Wind",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseOut",
+                "Enabled": true,
+                "End": 6000.0,
+                "Start": 1600.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.8500000238418579,
+            "Wave": "WhiteNoise"
+        },
+        {
+            "Duration": 0.2199999988079071,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.009999999776482582,
+                "Curve": 2.0,
+                "Decay": 0.18000000715255737,
+                "Hold": 0.0,
+                "Release": 0.029999999329447746,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 900.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.800000011920929,
+                "Sweep": false,
+                "Type": "LowPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Thrust",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 80.0,
+                "Start": 260.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.3499999940395355,
+            "Wave": "Saw"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "Dash",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 60,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": false,
+        "Mix": 0.30000001192092896,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

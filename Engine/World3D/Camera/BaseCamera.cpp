@@ -8,7 +8,7 @@
 BaseCamera::BaseCamera(std::string cameraName)
 	: transform_({ {1.0f,1.0f,1.0f},{0.3f,0.0f,0.0f},{0.0f,4.0f,-10.0f} })
 	, horizontalFOV_(0.45f)
-	, aspectRatio_(float(WindowManager::kClientWidth) / float(WindowManager::kClientHeight))
+	, aspectRatio_(float(WindowManager::kGameWidth) / float(WindowManager::kGameHeight))
 	, nearClip_(0.1f)
 	, farClip_(200.0f)
 	, worldMatrix_(MakeAffineMatrix(transform_.scale, transform_.rotate, transform_.translate))

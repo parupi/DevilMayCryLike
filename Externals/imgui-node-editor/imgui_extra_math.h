@@ -34,9 +34,18 @@ struct ImLine
 inline bool operator==(const ImVec2& lhs, const ImVec2& rhs);
 inline bool operator!=(const ImVec2& lhs, const ImVec2& rhs);
 # endif
+# if IMGUI_VERSION_NUM < 19002
 inline ImVec2 operator*(const float lhs, const ImVec2& rhs);
+# endif
 # if IMGUI_VERSION_NUM < 18955
 inline ImVec2 operator-(const ImVec2& lhs);
+# endif
+
+
+//------------------------------------------------------------------------------
+// 1.92 で ImRect::Floor() が削除されたので、同じことをする関数で代用する
+# if IMGUI_VERSION_NUM >= 19200
+inline void   ImRect_Floor(ImRect& rect);
 # endif
 
 

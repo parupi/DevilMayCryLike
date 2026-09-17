@@ -11,7 +11,7 @@ class LockOnSystem
 {
 public:
 	LockOnSystem() = default;
-	~LockOnSystem() = default;
+	~LockOnSystem();
 
 	// 初期化
 	void Initialize(LockOnInput* input, Player* player);
@@ -27,6 +27,8 @@ public:
 	LockOnTarget* GetCurrentTarget() const { return currentTarget_; }
 	// ターゲットがいるかどうかを確認
 	bool IsLockOn() { return currentTarget_ != nullptr; }
+	// 非ロックオン時でも、画面内で最も注目すべきターゲットを取得する（Enemy Framing用）。いなければnullptr
+	LockOnTarget* GetBestVisibleTarget() { return FindBestTarget(); }
 private:
 	// ロックオンの入力を判別するクラス
 	LockOnInput* input_ = nullptr;
@@ -34,6 +36,8 @@ private:
 	Player* player_ = nullptr;
 	// レティクル描画用のスプライト
 	Sprite* reticle_ = nullptr;
+	// レティクルの一回り外側に表示するHPリング（敵の残りHPで時計回りに欠ける）
+	Sprite* hpRing_ = nullptr;
 
 	std::vector<LockOnTarget*> targets_;
 	LockOnTarget* currentTarget_ = nullptr;

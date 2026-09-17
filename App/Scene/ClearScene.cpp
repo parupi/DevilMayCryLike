@@ -11,15 +11,15 @@
 #include <Scene/Transition/SceneTransitionController.h>
 #include <GameData/GameData.h>
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include <Audio/SoundManager.h>
 
 void ClearScene::Initialize()
 {
+	SoundManager::GetInstance().PlayBGM("ClearBGM", 0.8f);
+
+	// 見出しとスコアの数字はフォントから描くので、読むのは絵だけ
 	TextureManager::GetInstance().LoadTexture("ClearUI.png");
-	TextureManager::GetInstance().LoadTexture("Result.png");
-	TextureManager::GetInstance().LoadTexture("Numbers.png");
 	TextureManager::GetInstance().LoadTexture("Ranks.png");
-	TextureManager::GetInstance().LoadTexture("Stage1.png");
-	TextureManager::GetInstance().LoadTexture("Score.png");
 
 	// カメラの生成
 	std::unique_ptr<BaseCamera> clearCamera = std::make_unique<BaseCamera>("ClearCamera");
@@ -63,9 +63,7 @@ void ClearScene::Update()
 
 void ClearScene::Draw()
 {
-	SpriteManager::GetInstance().DrawSet();
-	clearUI_->Draw();
-
+	// ClearUI のスプライトは SpriteManager が UI レイヤーとして自動描画する
 }
 
 #ifdef _DEBUG

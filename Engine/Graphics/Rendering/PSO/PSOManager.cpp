@@ -2,7 +2,6 @@
 #include "PSOBuilder/SpritePipeline.h"
 #include "PSOBuilder/ParticlePipeline.h"
 #include "PSOBuilder/ObjectPipeline.h"
-#include "PSOBuilder/AnimationPipeline.h"
 #include "PSOBuilder/OffScreenPipeline.h"
 #include "PSOBuilder/PrimitivePipeline.h"
 #include "PSOBuilder/SkyboxPipeline.h"
@@ -13,6 +12,7 @@
 #include "PSOBuilder/CompositePipeline.h"
 #include "PSOBuilder/CSMPipeline.h"
 #include "PSOBuilder/TrailPipeline.h"
+#include "PSOBuilder/AttackMarkerPipeline.h"
 #include <cassert>
 
 void PSOManager::Initialize(DirectXManager* dxManager) {
@@ -21,16 +21,15 @@ void PSOManager::Initialize(DirectXManager* dxManager) {
 
 void PSOManager::Finalize() {
 	spriteSignature_.Reset();
-	for (auto& pso : spriteGraphicsPipelineState_) { pso.Reset(); }
+	for (auto& target : spriteGraphicsPipelineState_) {
+		for (auto& pso : target) { pso.Reset(); }
+	}
 
 	particleSignature_.Reset();
 	for (auto& pso : particleGraphicsPipelineState_) { pso.Reset(); }
 
 	objectSignature_.Reset();
 	for (auto& pso : objectGraphicsPipelineState_) { pso.Reset(); }
-
-	animationSignature_.Reset();
-	animationGraphicsPipelineState_.Reset();
 
 	offScreenSignature_.Reset();
 	for (auto& pso : offScreenGraphicsPipelineState_) { pso.Reset(); }
@@ -62,17 +61,21 @@ void PSOManager::Finalize() {
 	trailSignature_.Reset();
 	trailPSO_.Reset();
 
+	attackMarkerSignature_.Reset();
+	attackMarkerPSO_.Reset();
+
 	dxManager_ = nullptr;
 }
 
 // ---------------------------------------------------------------------------
 // Sprite
 // ---------------------------------------------------------------------------
-ID3D12PipelineState* PSOManager::GetSpritePSO(BlendMode blendMode) {
-	if (!spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)]) {
-		CreateSpritePSO(blendMode);
+ID3D12PipelineState* PSOManager::GetSpritePSO(BlendMode blendMode, bool toBackBuffer) {
+	const UINT target = toBackBuffer ? 1u : 0u;
+	if (!spriteGraphicsPipelineState_[target][static_cast<UINT>(blendMode)]) {
+		CreateSpritePSO(blendMode, toBackBuffer);
 	}
-	return spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)].Get();
+	return spriteGraphicsPipelineState_[target][static_cast<UINT>(blendMode)].Get();
 }
 
 void PSOManager::CreateSpriteSignature() {
@@ -81,10 +84,10 @@ void PSOManager::CreateSpriteSignature() {
 	}
 }
 
-void PSOManager::CreateSpritePSO(BlendMode blendMode) {
+void PSOManager::CreateSpritePSO(BlendMode blendMode, bool toBackBuffer) {
 	CreateSpriteSignature();
-	spriteGraphicsPipelineState_[static_cast<UINT>(blendMode)] =
-		SpritePipeline::CreatePSO(dxManager_, spriteSignature_.Get(), blendMode);
+	spriteGraphicsPipelineState_[toBackBuffer ? 1u : 0u][static_cast<UINT>(blendMode)] =
+		SpritePipeline::CreatePSO(dxManager_, spriteSignature_.Get(), blendMode, toBackBuffer);
 }
 
 // ---------------------------------------------------------------------------
@@ -129,28 +132,6 @@ void PSOManager::CreateObjectPSO(BlendMode blendMode) {
 	CreateObjectSignature();
 	objectGraphicsPipelineState_[static_cast<UINT>(blendMode)] =
 		ObjectPipeline::CreatePSO(dxManager_, objectSignature_.Get(), blendMode);
-}
-
-// ---------------------------------------------------------------------------
-// Animation
-// ---------------------------------------------------------------------------
-ID3D12PipelineState* PSOManager::GetAnimationPSO() {
-	if (!animationGraphicsPipelineState_) {
-		CreateAnimationPSO();
-	}
-	return animationGraphicsPipelineState_.Get();
-}
-
-void PSOManager::CreateAnimationSignature() {
-	if (!animationSignature_) {
-		animationSignature_ = AnimationPipeline::CreateRootSignature(dxManager_);
-	}
-}
-
-void PSOManager::CreateAnimationPSO() {
-	CreateAnimationSignature();
-	animationGraphicsPipelineState_ =
-		AnimationPipeline::CreatePSO(dxManager_, animationSignature_.Get());
 }
 
 // ---------------------------------------------------------------------------
@@ -354,11 +335,11 @@ void PSOManager::CreateCSMPSO() {
 // ---------------------------------------------------------------------------
 // Trail
 // ---------------------------------------------------------------------------
-ID3D12PipelineState* PSOManager::GetTrailPSO() {
+ID3D12PipelineState* PSOManager::GetTrailPSO(bool additive) {
 	if (!trailPSO_) {
 		CreateTrailPSO();
 	}
-	return trailPSO_.Get();
+	return additive ? trailPSO_.Get() : trailAlphaPSO_.Get();
 }
 
 void PSOManager::CreateTrailSignature() {
@@ -369,5 +350,27 @@ void PSOManager::CreateTrailSignature() {
 
 void PSOManager::CreateTrailPSO() {
 	CreateTrailSignature();
-	trailPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get());
+	trailPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get(), true);
+	trailAlphaPSO_ = TrailPipeline::CreatePSO(dxManager_, trailSignature_.Get(), false);
+}
+
+// ---------------------------------------------------------------------------
+// AttackMarker（敵の攻撃予兆）
+// ---------------------------------------------------------------------------
+ID3D12PipelineState* PSOManager::GetAttackMarkerPSO() {
+	if (!attackMarkerPSO_) {
+		CreateAttackMarkerPSO();
+	}
+	return attackMarkerPSO_.Get();
+}
+
+void PSOManager::CreateAttackMarkerSignature() {
+	if (!attackMarkerSignature_) {
+		attackMarkerSignature_ = AttackMarkerPipeline::CreateRootSignature(dxManager_);
+	}
+}
+
+void PSOManager::CreateAttackMarkerPSO() {
+	CreateAttackMarkerSignature();
+	attackMarkerPSO_ = AttackMarkerPipeline::CreatePSO(dxManager_, attackMarkerSignature_.Get());
 }

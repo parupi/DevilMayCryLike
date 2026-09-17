@@ -67,22 +67,18 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.11999999731779099,
+        "HitStopStrength": 0,
         "HitStopTime": 0.009999999776482582,
         "ImpulseForce": 10.0,
         "IsAir": false,
         "IsMove": false,
-        "KnockBackSpeed": [
-            0.0,
-            1.0,
-            1.5
-        ],
         "LockOnFlag": false,
         "MoveSpeed": [
             0.0,
             0.0,
             1.0
         ],
-        "NextAttackCount": 2,
+        "NextAttackCount": 3,
         "NextAttackDelay": 0.3499999940395355,
         "NextAttackIndex_0": 4,
         "NextAttackIndex_1": 5,
@@ -91,7 +87,7 @@
         "NextAttackIndex_4": 0,
         "NextAttack_0": "AttackComboA2",
         "NextAttack_1": "AttackComboB2",
-        "NextAttack_2": "",
+        "NextAttack_2": "AttackSpin",
         "PointCount": 6,
         "PostDelay": 0.07999999821186066,
         "PreDelay": 0.07999999821186066,

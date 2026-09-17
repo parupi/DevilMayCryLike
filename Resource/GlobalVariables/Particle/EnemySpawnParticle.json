@@ -1,0 +1,64 @@
+{
+    "EnemySpawnParticle": {
+        "BlendMode": 1,
+        "FadeType": 1,
+        "IsBillboard": true,
+        "RadialMode": 1,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "maxAlpha": 1.0,
+        "maxColor": [
+            0.06,
+            0.02,
+            0.08
+        ],
+        "maxLifeTime": 0.7,
+        "maxRotate": [
+            0.0,
+            0.0,
+            3.14
+        ],
+        "maxScale": [
+            0.28,
+            0.28,
+            1.0
+        ],
+        "maxTranslate": [
+            1.8,
+            2.2,
+            1.8
+        ],
+        "maxVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minAlpha": 1.0,
+        "minColor": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "minLifeTime": 0.35,
+        "minRotate": [
+            0.0,
+            0.0,
+            -3.14
+        ],
+        "minScale": [
+            0.12,
+            0.12,
+            1.0
+        ],
+        "minTranslate": [
+            -1.8,
+            0.0,
+            -1.8
+        ],
+        "minVelocity": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}

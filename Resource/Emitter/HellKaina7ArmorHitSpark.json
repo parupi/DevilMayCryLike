@@ -1,0 +1,25 @@
+{
+    "EmitterName": "HellKaina7ArmorHitSpark",
+    "Frequency": 0.0,
+    "IsActive": false,
+    "Particles": [
+        {
+            "Count": 16,
+            "ParticleName": "BossArmorHitSpark",
+            "SpawnRate": 1.0
+        }
+    ],
+    "ShapeModel": "",
+    "Transform": {
+        "Position": [
+            -21.57962989807129,
+            -0.48660483956336975,
+            47.349998474121094
+        ],
+        "Scale": [
+            0.0,
+            0.0,
+            0.0
+        ]
+    }
+}

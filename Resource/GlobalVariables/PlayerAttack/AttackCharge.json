@@ -1,0 +1,134 @@
+{
+    "AttackCharge": {
+        "AttackDuration": 0.18,
+        "AttackPosture": 0,
+        "ButtonIndex": 1,
+        "ChargeDamageScale": 3.0,
+        "ChargeHitStopScale": 2.5,
+        "ChargeImpulseScale": 2.0,
+        "ChargeMaxTime": 1.2,
+        "ChargeMinTime": 0.15,
+        "ControlPoint_0": [
+            0.25,
+            1.5,
+            -0.6
+        ],
+        "ControlPoint_1": [
+            0.25,
+            1.5,
+            -0.6
+        ],
+        "ControlPoint_2": [
+            0.2,
+            2.0,
+            0.1
+        ],
+        "ControlPoint_3": [
+            0.15,
+            1.8,
+            1.0
+        ],
+        "ControlPoint_4": [
+            0.1,
+            0.9,
+            1.6
+        ],
+        "ControlPoint_5": [
+            0.05,
+            -0.1,
+            1.8
+        ],
+        "ControlPoint_6": [
+            0.0,
+            -0.4,
+            1.7
+        ],
+        "ControlPoint_7": [
+            0.0,
+            -0.4,
+            1.7
+        ],
+        "ControlRotation_0": [
+            -40.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_1": [
+            -40.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_2": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_3": [
+            50.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_4": [
+            110.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_5": [
+            150.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_6": [
+            170.0,
+            0.0,
+            0.0
+        ],
+        "ControlRotation_7": [
+            170.0,
+            0.0,
+            0.0
+        ],
+        "CounterFlag": false,
+        "Damage": 2.0,
+        "DirIndex": 0,
+        "DrawDebugControlPoints": false,
+        "FinalDamage": 0.0,
+        "FinalHitStopTime": 0.0,
+        "FinalImpulseForce": 0.0,
+        "FinalReactionType": 1,
+        "FinalStunTime": 0.0,
+        "FinalTorqueForce": 0.0,
+        "FinalUpwardRatio": 0.0,
+        "HitCount": 1,
+        "HitStopIntensity": 0.1,
+        "HitStopStrength": 2,
+        "HitStopTime": 0.08,
+        "HitboxScale": 1.2,
+        "ImpulseForce": 10.0,
+        "InvincibleTime": 0.0,
+        "IsAir": false,
+        "IsCharge": true,
+        "IsMove": false,
+        "LockOnFlag": false,
+        "MoveSpeed": [
+            0.0,
+            0.0,
+            6.0
+        ],
+        "NextAttackCount": 0,
+        "NextAttackDelay": 0.0,
+        "NextAttack_0": "",
+        "NextAttack_1": "",
+        "NextAttack_2": "",
+        "PointCount": 8,
+        "PostDelay": 0.45,
+        "PreDelay": 0.25,
+        "ReactionType": 1,
+        "RootAttackFlag": true,
+        "StunTime": 0.0,
+        "TorqueForce": 40.0,
+        "TotalDuration": 0.95,
+        "UpwardRatio": 0.6,
+        "UseFinalHit": false
+    }
+}

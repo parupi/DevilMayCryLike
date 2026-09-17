@@ -6,12 +6,12 @@ void MenuDivider::Initialize() {
 	TextureManager::GetInstance().LoadTexture("UI/Menu/UpperDivider.png");
 	TextureManager::GetInstance().LoadTexture("UI/Menu/UnderDivider.png");
 
-	upperDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "upperDivider", "UI/Menu/UpperDivider.png");
+	upperDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "upperDivider", "UI/Menu/UpperDivider.png");
 	upperDivider_->SetPosition({320.0f, 480.0f});
 	upperDivider_->SetSize({640.0f, 380.0f});
 	upperDivider_->SetDissolveThreshold(1.0f);
 
-	underDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "underDivider", "UI/Menu/UnderDivider.png");
+	underDivider_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "underDivider", "UI/Menu/UnderDivider.png");
 	underDivider_->SetPosition({320.0f, 0.0f});
 	underDivider_->SetSize({640.0f, 380.0f});
 	underDivider_->SetDissolveThreshold(1.0f);
@@ -55,7 +55,3 @@ void MenuDivider::Update() {
 	underDivider_->Update();
 }
 
-void MenuDivider::Draw() {
-	upperDivider_->Draw();
-	underDivider_->Draw();
-}

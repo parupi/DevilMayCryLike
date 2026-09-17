@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": false,
+        "Feedback": 0.3499999940395355,
+        "Mix": 0.4000000059604645,
+        "Time": 0.11999999731779099
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.800000011920929,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.019999999552965164,
+                "Curve": 1.7999999523162842,
+                "Decay": 0.699999988079071,
+                "Hold": 0.0,
+                "Release": 0.07000000029802322,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.5,
+            "FMRatio": 1.409999966621399,
+            "Filter": {
+                "Cutoff": 1200.0,
+                "CutoffEnd": 380.0,
+                "Resonance": 2.0,
+                "Sweep": true,
+                "Type": "BandPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Fall",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 110.0,
+                "Start": 480.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.6000000238418579,
+            "Wave": "Saw"
+        },
+        {
+            "Duration": 0.5,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.009999999776482582,
+                "Curve": 2.0,
+                "Decay": 0.4399999976158142,
+                "Hold": 0.0,
+                "Release": 0.04500000178813934,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 900.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.8999999761581421,
+                "Sweep": false,
+                "Type": "HighPass"
+            },
+            "Frequency": 440.0,
+            "Name": "Air",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": true,
+                "End": 700.0,
+                "Start": 3000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.30000001192092896,
+            "Wave": "WhiteNoise"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "BattleWallOff",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 75,
+    "Reverb": {
+        "Damping": 0.5,
+        "Enabled": true,
+        "Mix": 0.23999999463558197,
+        "RoomSize": 0.5,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

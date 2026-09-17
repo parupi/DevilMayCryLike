@@ -66,9 +66,14 @@ void GruntStateCombatIdle::Update(Enemy& enemy, float deltaTime)
     float dist = sensor_->GetDistanceToPlayer();
     int   r    = std::rand() % 100;
 
+    // 攻撃行動が許可されていない敵（チュートリアルの練習台など）は、
+    // 攻撃の抽選結果を移動行動に置き換える
+    const bool canAttack = enemy.CanAttack();
+
     if (dist <= kNearDist) {
         if (r < kNear_AttackNormal) {
-            enemy.ChangeState(GruntMeleeStateName::AttackNormal);
+            enemy.ChangeState(canAttack ? GruntMeleeStateName::AttackNormal
+                                        : GruntMeleeStateName::SideMove);
         } else if (r < kNear_SideMove) {
             enemy.ChangeState(GruntMeleeStateName::SideMove);
         } else if (r < kNear_Retreat) {
@@ -78,13 +83,15 @@ void GruntStateCombatIdle::Update(Enemy& enemy, float deltaTime)
         }
     } else if (dist <= kMidDist) {
         if (r < kMid_RushAttack) {
-            enemy.ChangeState(GruntMeleeStateName::RushAttack);
+            enemy.ChangeState(canAttack ? GruntMeleeStateName::RushAttack
+                                        : GruntMeleeStateName::Approach);
         } else if (r < kMid_Approach) {
             enemy.ChangeState(GruntMeleeStateName::Approach);
         } else if (r < kMid_SideMove) {
             enemy.ChangeState(GruntMeleeStateName::SideMove);
         } else {
-            enemy.ChangeState(GruntMeleeStateName::AttackNormal);
+            enemy.ChangeState(canAttack ? GruntMeleeStateName::AttackNormal
+                                        : GruntMeleeStateName::SideMove);
         }
     } else {
         if (r < kFar_Approach) {

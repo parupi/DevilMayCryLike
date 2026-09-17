@@ -18,7 +18,7 @@ public:
 	void Enter();
 	void Exit();
 	void Update();
-	void Draw();
+	// 描画は SpriteManager が UI レイヤーとして自動で行う
 
 private:
 	Sprite* upperDivider_ = nullptr;

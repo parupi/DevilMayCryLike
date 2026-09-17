@@ -1,0 +1,105 @@
+{
+    "Delay": {
+        "Enabled": true,
+        "Feedback": 0.44999998807907104,
+        "Mix": 0.4000000059604645,
+        "Time": 0.09000000357627869
+    },
+    "Distortion": {
+        "Drive": 4.0,
+        "Enabled": false,
+        "Mix": 1.0
+    },
+    "Layers": [
+        {
+            "Duration": 0.41999998688697815,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.019999999552965164,
+                "Curve": 2.200000047683716,
+                "Decay": 0.36000001430511475,
+                "Hold": 0.0,
+                "Release": 0.03999999910593033,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.800000011920929,
+            "FMRatio": 1.5,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 440.0,
+            "Name": "Sparkle",
+            "NoiseSeed": 12345,
+            "Pan": 0.0,
+            "PitchEnvelope": {
+                "Curve": "EaseOut",
+                "Enabled": true,
+                "End": 2500.0,
+                "Start": 900.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.0,
+            "Volume": 0.699999988079071,
+            "Wave": "Sine"
+        },
+        {
+            "Duration": 0.3199999928474426,
+            "Enabled": true,
+            "Envelope": {
+                "Attack": 0.019999999552965164,
+                "Curve": 2.200000047683716,
+                "Decay": 0.27000001072883606,
+                "Hold": 0.0,
+                "Release": 0.029999999329447746,
+                "Sustain": 0.0
+            },
+            "FMAmount": 0.0,
+            "FMRatio": 0.0,
+            "Filter": {
+                "Cutoff": 2000.0,
+                "CutoffEnd": 500.0,
+                "Resonance": 0.7070000171661377,
+                "Sweep": false,
+                "Type": "None"
+            },
+            "Frequency": 1850.0,
+            "Name": "Air",
+            "NoiseSeed": 12345,
+            "Pan": -0.30000001192092896,
+            "PitchEnvelope": {
+                "Curve": "Exponential",
+                "Enabled": false,
+                "End": 500.0,
+                "Start": 2000.0,
+                "Time": 0.0
+            },
+            "PulseWidth": 0.5,
+            "StartDelay": 0.05000000074505806,
+            "Volume": 0.30000001192092896,
+            "Wave": "Triangle"
+        }
+    ],
+    "MasterFilter": {
+        "Cutoff": 8000.0,
+        "Resonance": 0.7070000171661377,
+        "Type": "None"
+    },
+    "MasterVolume": 1.0,
+    "Name": "Magic",
+    "Normalize": true,
+    "NormalizePeak": 0.949999988079071,
+    "Priority": 70,
+    "Reverb": {
+        "Damping": 0.4000000059604645,
+        "Enabled": true,
+        "Mix": 0.3499999940395355,
+        "RoomSize": 0.6000000238418579,
+        "Width": 1.0
+    },
+    "SampleRate": 44100
+}

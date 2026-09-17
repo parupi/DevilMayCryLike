@@ -27,7 +27,7 @@ void ParticleEmitter::Initialize(ParticleManager* particleManager, const std::st
 	}
 }
 
-void ParticleEmitter::Update()
+void ParticleEmitter::Update(float deltaTime)
 {
 	emitter.isActive = GlobalVariables::GetInstance().GetValueRef<bool>(emitter.name, "IsActive");
 
@@ -49,7 +49,7 @@ void ParticleEmitter::Update()
 			emitter.count = 0;
 		}
 
-		emitter.frequencyTime += DeltaTime::GetDeltaTime();
+		emitter.frequencyTime += deltaTime;
 		if (emitter.frequency <= emitter.frequencyTime) {
 			// パーティクルを生成してグループに追加
 			Emit();
@@ -67,6 +67,31 @@ void ParticleEmitter::Update()
 
 void ParticleEmitter::Emit()
 {
+	// ── メッシュ形状エミット ──
+	// 形状モデルが設定されていれば、モデルのメッシュ表面からパーティクルを発生させる
+	if (!shapeModelName_.empty()) {
+		Matrix4x4 worldMatrix;
+		if (transform_->GetParent()) {
+			// 親（オブジェクトやレンダラー）のワールド行列で回転・スケールごと追従させる
+			worldMatrix = transform_->GetParent()->GetMatWorld();
+		} else {
+			Vector3 position = GlobalVariables::GetInstance().GetValueRef<Vector3>(emitter.name, "EmitPosition");
+			worldMatrix = MakeAffineMatrix(Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, position);
+		}
+
+		for (auto& p : particles_)
+		{
+			int finalCount = static_cast<int>(p.count * p.spawnRate);
+
+			if (finalCount > 0)
+			{
+				particleManager_->EmitFromMesh(p.name, shapeModelName_, worldMatrix, finalCount);
+			}
+		}
+		return;
+	}
+
+	// ── 通常の点エミット ──
 	Vector3 position = transform_->GetWorldPos();
 
 	if (!transform_->GetParent()) {
@@ -75,12 +100,46 @@ void ParticleEmitter::Emit()
 		position = transform_->GetParent()->GetWorldPos();
 	}
 
+	EmitAt(position, nullptr, 1.0f);
+}
+
+void ParticleEmitter::PlayOneShot(const Vector3& position, float countScale)
+{
+	EmitAt(position, nullptr, countScale);
+}
+
+void ParticleEmitter::PlayOneShot(const Vector3& position, const Vector3& direction, float countScale)
+{
+	EmitAt(position, &direction, countScale);
+}
+
+void ParticleEmitter::EmitAt(const Vector3& position, const Vector3* direction, float countScale)
+{
+	// 形状モデルが設定されている場合はメッシュ表面から発生させる。
+	// この経路では発生位置がメッシュ表面で決まるため direction は使わない。
+	if (!shapeModelName_.empty()) {
+		const Matrix4x4 worldMatrix = MakeAffineMatrix(
+			Vector3{ 1.0f, 1.0f, 1.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, position);
+
+		for (auto& p : particles_) {
+			const int finalCount = static_cast<int>(p.count * p.spawnRate * countScale);
+			if (finalCount > 0) {
+				particleManager_->EmitFromMesh(p.name, shapeModelName_, worldMatrix, finalCount);
+			}
+		}
+		return;
+	}
+
 	for (auto& p : particles_)
 	{
-		int finalCount = static_cast<int>(p.count * p.spawnRate);
+		const int finalCount = static_cast<int>(p.count * p.spawnRate * countScale);
+		if (finalCount <= 0) {
+			continue;
+		}
 
-		if (finalCount > 0)
-		{
+		if (direction) {
+			particleManager_->Emit(p.name, position, finalCount, *direction);
+		} else {
 			particleManager_->Emit(p.name, position, finalCount);
 		}
 	}
@@ -121,6 +180,7 @@ void ParticleEmitter::Save(const std::string& path)
 	j["EmitterName"] = emitter.name;
 	j["Frequency"] = emitter.frequency;
 	j["IsActive"] = emitter.isActive;
+	j["ShapeModel"] = shapeModelName_;
 
 	// ===== Transform 保存 =====
 	j["Transform"]["Position"] =
@@ -166,6 +226,7 @@ void ParticleEmitter::Load(const std::string& path)
 
 	emitter.frequency = j.value("Frequency", 0.5f);
 	emitter.isActive = j.value("IsActive", true);
+	shapeModelName_ = j.value("ShapeModel", "");
 
 	// ===== Transform 読み込み =====
 	if (j.contains("Transform"))

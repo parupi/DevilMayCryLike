@@ -7,9 +7,9 @@ void GameUI::Initialize()
 	TextureManager::GetInstance().LoadTexture("UI/Jump.png");
 	TextureManager::GetInstance().LoadTexture("UI/LockOn.png");
 
-	attackUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "attack", "UI/attack.png");
-	jumpUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "jump", "UI/Jump.png");
-	lockOnUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "lockOn", "UI/LockOn.png");
+	attackUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "attack", "UI/attack.png");
+	jumpUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "jump", "UI/Jump.png");
+	lockOnUI_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "lockOn", "UI/LockOn.png");
 
 	attackUI_->SetSize({256.0f, 64.0f});
 	jumpUI_->SetSize({ 256.0f, 64.0f });
@@ -27,9 +27,3 @@ void GameUI::Update()
 	lockOnUI_->Update();
 }
 
-void GameUI::Draw()
-{
-	attackUI_->Draw();
-	jumpUI_->Draw();
-	lockOnUI_->Draw();
-}

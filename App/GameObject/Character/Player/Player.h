@@ -14,11 +14,25 @@
 #include <GameObject/Effect/HitStop.h>
 #include "StateMachine/PlayerStateMachine.h"
 #include "GameObject/Character/CharacterStructs.h"
+#include "GameObject/Character/Combat/KnockbackComponent.h"
+#include "GameObject/Character/MovementBounds.h"
 #include "GameObject/Effect/HitVignetteEffect.h"
+#include "GameObject/Effect/HitPostEffect.h"
+#include "GameObject/Effect/CharacterLight.h"
+#include "GameObject/Effect/HitFlashComponent.h"
+#include "GameObject/Effect/DeathScreenEffect.h"
+#include "GameObject/Effect/DissolveOutEffect.h"
+#include "GameObject/Effect/JustDodgeEffect.h"
+#include "GameObject/Effect/PlayerAttackEffect.h"
+#include "Graphics/Rendering/Effect/WeaponTrail.h"
+#include "PlayerDodge.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
+#include "Tutorial/Service/TutorialService.h"
+#include "Audio/FootstepTracker.h"
 
 class PlayerInput;
+class AnimationPlayer;
 
 struct PlayerCommand;
 
@@ -30,6 +44,84 @@ struct PlayerCommand;
 /// </summary>
 class Player : public Object3d {
 public:
+	/// 見た目のモデル。Resource/models/Player/Alien/Alien.obj を指す
+	/// （ヘルメット付きにするなら "Player/Alien_Helmet" に変えるだけでよい）
+	static constexpr const char* kModelName = "Player/Alien";
+	/// 素の高さ約2.9m を約1.1m にするスケール。大きさを変えるならここ
+	static constexpr float kModelScale = 0.38f;
+	/// レンダラーの登録名。モデル名とは別物で、Player 内から GetRenderer() で引くのに使う
+	static constexpr const char* kRendererName = "PlayerModel";
+	/// モデルの足元(y=0)をコライダーの底に合わせるための縦オフセット
+	static constexpr float kModelOffsetY = -0.5f;
+
+	/// 回避・ダッシュの残像（リボン）を張る高さ。モデルの頭と足元に合わせてある
+	static constexpr float kTrailTopOffsetY = 0.7f;
+	static constexpr float kTrailBottomOffsetY = -0.45f;
+
+	// ── アニメーションクリップ名（Alien.gltf が持つ15種のうち使うもの）──
+	// 差し替えは Player::UpdateAnimation() の対応表と合わせて見ること
+	static constexpr const char* kClipIdle      = "Alien_Idle";
+	static constexpr const char* kClipMove      = "Alien_Run";
+	static constexpr const char* kClipJump      = "Alien_Jump";
+	static constexpr const char* kClipAttack    = "Alien_SwordSlash";
+	static constexpr const char* kClipKnockBack = "Alien_Roll";
+	static constexpr const char* kClipDeath     = "Alien_Death";
+	static constexpr const char* kClipClear     = "Alien_Clapping";
+	/// 回避の前転。ノックバックと同じクリップだが、再生速度と入り方が違うので別名で持つ
+	static constexpr const char* kClipDodge     = "Alien_Roll";
+	/// ダッシュは走りを速回しして使う
+	static constexpr const char* kClipDash      = "Alien_Run";
+
+	/// 回避モーションの再生速度の上下限。回避時間(0.25秒)に対して前転クリップが長いので速める
+	static constexpr float kDodgeSpeedMin = 1.0f;
+	static constexpr float kDodgeSpeedMax = 2.5f;
+	/// ダッシュ中の走りモーションの速回し倍率
+	static constexpr float kDashClipSpeed = 1.5f;
+
+	/// Alien_SwordSlash(1.04秒)で振り切る瞬間の位置。
+	/// gltf のキーフレームで Palm.R / Torso の角速度ピークが 0.458秒＝44%だった。
+	/// クリップを差し替えたら測り直すこと
+	static constexpr float kAttackClipImpactRatio = 0.44f;
+	/// 攻撃の再生速度の上下限。0.15秒しかない空中攻撃で倍率が跳ね上がって残像になるのを防ぐ
+	static constexpr float kAttackSpeedMin = 0.75f;
+	static constexpr float kAttackSpeedMax = 3.0f;
+
+	/// 落下加速度[m/s^2]。他のステート（Air / Dodge / Death）と同じ値
+	static constexpr float kGravity = -12.0f;
+
+	/// とどめの一撃で入れるヒットストップ。普段の攻撃（0.01〜0.03秒）よりはっきり長く止める
+	static constexpr float kDeathHitStopTime = 0.18f;
+	static constexpr float kDeathHitStopIntensity = 0.15f;
+
+	// ── 被弾時のヒットストップ（仕様書 §12・§13）──
+	// 敵を殴ったときと同じく「一度止まってから動く」を作る。
+	// プレイヤーは拘束を嫌うので、敵に与える長さより短くしてある
+	static constexpr float kLightHitStopTime = 0.04f;
+	static constexpr float kHeavyHitStopTime = 0.09f;
+	static constexpr float kHitStopIntensity = 0.12f;
+
+	/// <summary>
+	/// これ以上のノックバックを受けたら「強被弾」として扱う速度[m/s]（仕様書 §11・§12）。
+	/// 軽い攻撃はすぐ操作へ戻し、強い攻撃だけ長めに拘束する
+	/// </summary>
+	static constexpr float kHeavyHitPowerThreshold = 14.0f;
+
+	// 被弾後の無敵時間[秒]。強い攻撃ほど長く取って立て直す間を作る
+	static constexpr float kLightHitInvincibleTime = 0.8f;
+	static constexpr float kHeavyHitInvincibleTime = 1.2f;
+
+	/// <summary>
+	/// プレイヤーのノックバック耐性（仕様書 §9）。
+	/// 打ち上げだけ禁止にしてある。プレイヤーには空中被弾のステートが無いので、
+	/// 打ち上げられると落ちるまで操作できない時間が伸びて §23 ⑦に反する
+	/// </summary>
+	static constexpr KnockbackResistance kPlayerKnockbackResistance{
+		/*resistance=*/ 0.0f,
+		/*canStagger=*/ true,
+		/*canBlowAway=*/ true,
+		/*canLaunch=*/ false,
+	};
+
 	Player(std::string objectName);
 	~Player() override = default;
 
@@ -82,7 +174,6 @@ public:
 	/// デバッグ用GUI描画処理  
 	/// ImGuiを用いて内部情報（速度・ステートなど）を可視化する。
 	/// </summary>
-	void DebugGui() override;
 #endif // _DEBUG
 
 	/// <summary>
@@ -101,15 +192,84 @@ public:
 
 	// プレイヤーの移動方向を取得する。
 	Vector3 GetMoveDirection() const;
-	// プレイヤーの移動処理  
+
+	/// <summary>
+	/// 体が向いている水平方向（正規化済み）。ノックバックの向き指定などに使う。
+	///
+	/// プレイヤーの前方向はローカル +Z だが、Rotate/LockOn が LookRotation へ渡す前に
+	/// X を反転しているため、ワールド行列から取り出した +Z も X が反転している。
+	/// ここで戻さないと、左右が逆の「正面」が返る。
+	/// 向きが取れないときは +Z を返す。
+	/// </summary>
+	Vector3 GetForward();
+	// プレイヤーの移動処理
 	void Move(Vector3 moveDir, float deltaTime);
 	// プレイヤーの向き更新処理
 	void Rotate(Vector3 moveDir, float deltaTime);
-	/// ロックオン処理  
+	// 指定方向へ即座に向き直る。回避・ダッシュのように「入力した瞬間にその方向を向く」用
+	void FaceDirection(const Vector3& direction);
+	/// ロックオン処理
 	void LockOn();
+
+	// ======================
+	// 回避・ダッシュ
+	// ======================
+
+	/// 調整値（GlobalVariables の PlayerDodge グループ）
+	const PlayerDodgeParams& GetDodgeParams() const { return dodgeParams_; }
+	/// Dodge / JustDodge / Dash の3ステートがまたいで使う実行時状態
+	PlayerDodgeRuntime& GetDodgeRuntime() { return dodgeRuntime_; }
+
+	/// <summary>
+	/// 今このフレームに回避を始められるか。
+	/// 死亡・クリア・ノックバック中、クールダウン中、空中では回避できない
+	/// </summary>
+	bool CanStartDodge() const;
+
+	/// <summary>
+	/// 回避方向を決める。スティック入力があればその方向（カメラ基準）、無ければキャラクターの前方向。
+	/// 返るのは水平の単位ベクトル
+	/// </summary>
+	/// <remarks>ワールド行列を引くため const にはできない（Object3d::GetWorldTransform が非const）</remarks>
+	Vector3 CalcDodgeDirection();
+
+	/// 回避開始時の共通処理（無敵とクールダウンの開始・SE・残像の開始・足元の砂埃）
+	void OnDodgeStart();
+	/// ダッシュ開始時の共通処理（SE・カメラのFOVパンチ・残像の強化）
+	void OnDashStart();
+	/// ジャスト回避成立時の処理（無敵の延長・スローモーション・専用演出）
+	void OnJustDodge();
+
+	/// 回避中（Dodge / JustDodge ステート）か
+	bool IsDodging() const;
+	/// ダッシュ中か
+	bool IsDashing() const;
+	/// 回避の無敵が残っているか
+	bool IsDodgeInvincible() const { return dodgeInvincibleTimer_ > 0.0f; }
+	/// ジャスト回避のスローモーション中か
+	bool IsJustDodgeSlow() const { return justDodgeSlowTimer_ > 0.0f; }
+
+	/// <summary>
+	/// 攻撃の出始めの無敵を与える。回避の無敵と同じ枠で数える
+	/// （ジャスト回避は成立させず、通常の被弾より先に弾く、という扱いが同じなので）。
+	/// 残っている無敵の方が長ければそちらを残す
+	/// </summary>
+	void GrantAttackInvincibility(float seconds) {
+		if (seconds > dodgeInvincibleTimer_) {
+			dodgeInvincibleTimer_ = seconds;
+		}
+	}
+
+	/// <summary>
+	/// 世界（敵・イベント）に掛けてほしい時間倍率。
+	/// ジャスト回避のスロー中だけ1未満を返す。適用するのは GameSceneStatePlay
+	/// </summary>
+	float GetWorldTimeScale() const;
 
 	PlayerCombat* GetCombat() { return combat_.get(); }
 	PlayerInput* GetInput() { return input_; }
+	StylishScoreManager* GetScoreManager() { return scoreManager.get(); }
+	PlayerStateMachine* GetStateMachine() { return stateMachine_.get(); }
 
 	// ======================
 	// アクセッサ
@@ -117,6 +277,19 @@ public:
 
 	Vector3& GetVelocity() { return velocity_; } ///< 現在の速度ベクトルを取得
 	Vector3& GetAcceleration() { return acceleration_; } ///< 現在の加速度ベクトルを取得
+
+	/// <summary>
+	/// ノックバックの速度を持つ部品（仕様書 §6）。敵と同じ減衰・合成の式を使う。
+	/// 移動の速度（velocity_）とは分けて持ち、Player::Update が両方を足して位置へ反映する
+	/// </summary>
+	KnockbackComponent& GetKnockback() { return knockback_; }
+	const KnockbackComponent& GetKnockback() const { return knockback_; }
+
+	/// <summary>
+	/// 直前の被弾が「強被弾」だったか（仕様書 §11・§12）。
+	/// 軽い攻撃はすぐ操作へ戻し、強い攻撃だけ長めに拘束する
+	/// </summary>
+	bool IsHeavyHit() const { return heavyHit_; }
 	PlayerWeapon* GetWeapon() { return weapon_.get(); } ///< プレイヤーの武器クラス取得
 	AttackData GetAttackData() const { return attackData_; } ///< 現在の攻撃データを取得
 	void SetAttackData(const AttackData& attackData) { attackData_ = attackData; } ///< 攻撃データを設定
@@ -127,19 +300,89 @@ public:
 	bool IsLockOn() const { return lockOn_->IsLockOn(); }
 
 	HitStop* GetHitStop() const { return hitStop_.get(); }
+	/// <summary>
+	/// 攻撃ヒット時のポストエフェクト（放射状ブラー・色収差・フラッシュ）を取得する。
+	/// </summary>
+	HitPostEffect* GetHitPostEffect() const { return hitPostEffect_.get(); }
 	bool IsAttack() const { return combat_->IsAttacking(); }
+
+	/// <summary>
+	/// プレイヤーに追従するポイントライトを取得する。
+	/// 攻撃ヒット時に Flash() を呼ぶとひときわ強く光る。
+	/// </summary>
+	CharacterLight* GetCharacterLight() const { return characterLight_.get(); }
 
 	// 被ダメージ処理
 	void TakeDamage(const DamageInfo& info);
 	const DamageInfo& GetPendingDamageInfo() const { return pendingDamageInfo_; }
 
 	int32_t GetHp() const { return hp_; }
+	int32_t GetMaxHp() const { return maxHp_; }
+	/// <summary>HPを直接設定する（トレーニングのリセット用）。0以下にしても死亡処理は走らない</summary>
+	void SetHp(int32_t hp) { hp_ = hp; }
+
+	/// <summary>
+	/// true の間、被弾しない（TakeDamage が何もしない）。
+	/// 敵の攻撃モーションを何度も見たいときに使う、トレーニング用のスイッチ
+	/// </summary>
+	void SetInvincible(bool invincible) { invincible_ = invincible; }
+	bool IsInvincible() const { return invincible_; }
+
+	/// <summary>
+	/// 死亡演出が終わったことを知らせる。PlayerStateDeath から呼ぶ。
+	///
+	/// シーンを切り替えるのはプレイヤーの仕事ではないので、
+	/// ここで印を付けておいて GameScene 側に拾ってもらう
+	/// </summary>
+	void NotifyDeathFinished() { isDeathFinished_ = true; }
+	bool IsDeathFinished() const { return isDeathFinished_; }
+
+	/// <summary>
+	/// 死亡演出中か（Death ステートにいるか）。演出が終わってもステートは Death のままなので、
+	/// ゲームオーバーの選択中も true を返す。
+	/// 世界の時間を止める・HUDを引っ込める、といった判断に使う
+	/// </summary>
+	bool IsDying() const;
+
+	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
+	AnimationPlayer* GetAnimationPlayer();
+
+	/// <summary>死亡演出の画面効果（グレースケール＋暗転ビネット）</summary>
+	DeathScreenEffect* GetDeathScreen() const { return deathScreen_.get(); }
+	/// <summary>死亡演出の消滅（ディゾルブ＋黒いもや）</summary>
+	DissolveOutEffect* GetDeathDissolve() const { return deathDissolve_.get(); }
+
+	/// <summary>HUD（ハート）の不透明度。死亡演出でフェードアウトさせるのに使う</summary>
+	void SetHudAlpha(float alpha) { hudAlpha_ = alpha; }
 
 	void SetInput(PlayerInput* input) { input_ = input; }
 	void SetLockOn(LockOnSystem* lockOn) { lockOn_ = lockOn; }
+	void SetTutorialService(TutorialService* tutorialService) { tutorialService_ = tutorialService; }
+	TutorialService* GetTutorialService() const { return tutorialService_; }
+
+	// 移動可能範囲(水平方向)を設定する。強制戦闘イベントなどでプレイヤーをエリア内に閉じ込めるのに使う。
+	void SetMovementBounds(const MovementBounds& bounds) {
+		movementBounds_ = bounds; hasMovementBounds_ = true;
+	}
+	// 移動可能範囲の制限を解除する。
+	void ClearMovementBounds() { hasMovementBounds_ = false; }
 private:
-	// Ground/Enemyコライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
+	// 地形コライダーとのめり込みを解消する（OnCollisionEnter/Stay共通処理）
 	void ResolveGroundCollision(BaseCollider* other);
+	// 敵とのめり込みを水平方向だけで解消する（OnCollisionEnter/Stay共通処理）
+	void ResolveCharacterCollision(BaseCollider* other);
+
+	// ステートと戦闘状態から再生するクリップを決めて流す。毎フレーム呼ぶ
+	void UpdateAnimation();
+
+	/// <summary>
+	/// ステートが自分で鳴らさない音（足音・HPが少ないときの心音）を面倒みる。
+	/// どちらも「状態を見て勝手に鳴る」類なので、ステート側には置かずここでまとめる
+	/// </summary>
+	void UpdateMovementSound();
+
+	// 直前のフレームに再生していた攻撃名。コンボで技が変わったら振りを出し直すために覚えておく
+	std::string lastAttackName_;
 
 	std::unique_ptr<PlayerStateMachine> stateMachine_ = nullptr;
 
@@ -149,10 +392,20 @@ private:
 
 	LockOnSystem* lockOn_ = nullptr;
 
+	// チュートリアルへゲームプレイのイベントを伝えるためのサービス
+	TutorialService* tutorialService_ = nullptr;
+
+	GlobalVariables* gv = &GlobalVariables::GetInstance(); ///< グローバル変数管理
+
 	std::unique_ptr<StylishScoreManager> scoreManager; ///< スタイリッシュスコア管理クラス
 
-	Vector3 velocity_{}; ///< プレイヤーの速度
+	Vector3 velocity_{}; ///< プレイヤーの速度（移動。ノックバックはここには混ぜない）
 	Vector3 acceleration_{0.0f, 0.0f, 0.0f}; ///< プレイヤーの加速度
+
+	/// ノックバックの速度（仕様書 §6 の knockbackVelocity）。敵と同じ部品を使う
+	KnockbackComponent knockback_;
+	/// 直前の被弾が強被弾だったか（仕様書 §11）
+	bool heavyHit_ = false;
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ
 
@@ -173,8 +426,56 @@ private:
 	int32_t hp_ = 5;
 	// 無敵時間（被弾直後の連続ヒット防止）
 	float invincibleTimer_ = 0.0f;
+	// 常時無敵（トレーニング用。通常のプレイでは false のまま）
+	bool invincible_ = false;
+	// 死亡演出を最後まで再生し終えたか
+	bool isDeathFinished_ = false;
 	// 被ダメージ情報（ノックバックステートで参照）
 	DamageInfo pendingDamageInfo_;
+	// 足音の刻み。詳細は UpdateMovementSound()
+	FootstepTracker footstep_;
+	// HPが少ないときの心音。ループなので再生番号を持って止める
+	int lowHealthVoice_ = -1;
 	// 被弾時のビネットエフェクト
 	std::unique_ptr<HitVignetteEffect> hitVignette_;
+	std::unique_ptr<HitPostEffect> hitPostEffect_;
+	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュ）
+	std::unique_ptr<CharacterLight> characterLight_;
+	// 被弾時に体と武器を一瞬白く光らせるコンポーネント（EmissiveTintを使う）
+	std::unique_ptr<HitFlashComponent> hitFlash_;
+	// 死亡演出で画面から色を抜き、視界を閉じていくエフェクト
+	std::unique_ptr<DeathScreenEffect> deathScreen_;
+	// 死亡演出の最後に体と武器を溶かして消すエフェクト
+	std::unique_ptr<DissolveOutEffect> deathDissolve_;
+	// HUD（ハート）の不透明度。死亡演出で 1 → 0 にする
+	float hudAlpha_ = 1.0f;
+
+	// 移動可能範囲(水平方向)。強制戦闘イベント発動中などに有効化される。
+	bool hasMovementBounds_ = false;
+	MovementBounds movementBounds_{};
+
+	// ── 回避・ダッシュ ──
+	PlayerDodgeParams dodgeParams_{};
+	PlayerDodgeRuntime dodgeRuntime_{};
+	// 回避の無敵の残り時間。被弾直後の invincibleTimer_ とは別枠で持つ
+	// （ジャスト回避判定より後・通常被弾より先に見るため）
+	float dodgeInvincibleTimer_ = 0.0f;
+	// 次に回避できるようになるまでの残り時間
+	float dodgeCooldownTimer_ = 0.0f;
+	// ジャスト回避のスローモーションの残り時間。実時間で減る
+	float justDodgeSlowTimer_ = 0.0f;
+	// 回避・ダッシュ中の残像（リボン）。武器の軌跡と同じ仕組みを使っている
+	std::unique_ptr<WeaponTrail> dodgeTrail_;
+	// 残像に点を積んでいる最中か
+	bool dodgeTrailActive_ = false;
+	// 回避モーションを頭から出し直す印。OnDodgeStart で立てて UpdateAnimation が消す
+	bool dodgeAnimRestart_ = false;
+	// ジャスト回避の演出（白フラッシュ・衝撃波・SE・シェイク）
+	std::unique_ptr<JustDodgeEffect> justDodgeEffect_;
+	// 剣の攻撃演出（軌跡・刀身の光・溜め・技ごとの追加演出）
+	std::unique_ptr<PlayerAttackEffect> attackEffect_;
+
+public:
+	/// <summary>剣の攻撃演出。武器のヒット処理が刃先の速度と見た目の種類を読む</summary>
+	PlayerAttackEffect* GetAttackEffect() const { return attackEffect_.get(); }
 };

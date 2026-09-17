@@ -1,0 +1,48 @@
+#include "GameSceneStateGameOver.h"
+#include "Scene/GameScene/GameScene.h"
+
+#include <Scene/Transition/SceneTransitionController.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
+#include <Scene/Transition/TransitionManager.h>
+
+void GameSceneStateGameOver::Enter(GameScene& scene) {
+	requested_ = false;
+
+	scene.GetInputContext()->SetCanPlayerMove(false);
+	scene.GetInputContext()->SetCanLockOn(false);
+	scene.GetInputContext()->SetCanCameraMove(false);
+
+	// YOU DIED が出る音。BGM は死亡演出の中で止まっているので埋もれない
+	SoundManager::GetInstance().PlaySE(GameSound::kGameOver, 0.85f);
+
+	// HUDは死亡演出の中でフェードアウト済みなので、ここで表示を戻す必要はない
+	// （UIレイヤーごと切ると、同じレイヤーにいるゲームオーバーの選択肢まで消える）
+	scene.GetGameOverUI()->Enter();
+}
+
+void GameSceneStateGameOver::Update(GameScene& scene) {
+	// 時間は止める。演出だけ実時間で動く
+	scene.SetSceneTime(0.0f);
+
+	if (requested_) return;
+
+	switch (scene.GetGameOverUI()->GetResult()) {
+	case GameOverUI::Result::Retry:
+		requested_ = true;
+		// 死亡演出のビネットをそのまま切り替えにも使う
+		TransitionManager::GetInstance().SetTransition("Death");
+		SceneTransitionController::GetInstance().RequestSceneChange("GAMEPLAY", true);
+		break;
+	case GameOverUI::Result::ToTitle:
+		requested_ = true;
+		TransitionManager::GetInstance().SetTransition("Fade");
+		SceneTransitionController::GetInstance().RequestSceneChange("TITLE", true);
+		break;
+	default:
+		break;
+	}
+}
+
+void GameSceneStateGameOver::Exit(GameScene&) {
+}

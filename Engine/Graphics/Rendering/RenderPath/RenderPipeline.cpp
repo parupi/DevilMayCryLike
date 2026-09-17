@@ -1,4 +1,5 @@
 #include "RenderPipeline.h"
+#include "Pass/SkinningRenderPass.h"
 #include "Pass/ShadowRenderPass.h"
 #include "Pass/GBufferRenderPass.h"
 #include "Pass/LightingRenderPass.h"
@@ -6,6 +7,12 @@
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Graphics/Text/FontManager.h"
+#include "Scene/Transition/TransitionManager.h"
+#include "Utility/ScopeProfiler.h"
+#include <iterator>
 #ifdef _DEBUG
 #include <Debugger/ImGuiManager.h>
 #endif
@@ -53,7 +60,19 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 	gBufferManager_ = std::make_unique<GBufferManager>();
 	gBufferManager_->Initialize(ctx_.dxManager);
 
+	// ソフトパーティクル用。パーティクルは Forward パスで描かれ、その時点の GBuffer は読める状態にある
+	if (ctx_.particleManager) {
+		ctx_.particleManager->SetSceneWorldPositionSrv(
+			gBufferManager_->GetSRVHandle(GBufferManager::GBufferType::WorldPos));
+	}
+
 	// --- パスを順番に登録 ---
+	{
+		// スキニングは影とGBufferの両方が結果を読むので必ず先頭
+		auto pass = std::make_unique<SkinningRenderPass>();
+		pass->Initialize(ctx_);
+		passes_.push_back(std::move(pass));
+	}
 	{
 		auto pass = std::make_unique<ShadowRenderPass>();
 		pass->Initialize(ctx_);
@@ -84,23 +103,57 @@ void RenderPipeline::Finalize() {
 }
 
 void RenderPipeline::Execute() {
+	// このフレームで新しく出てきた文字をアトラスへ上げる。
+	// アトラスを読む描画より前で、かつフレームに1回で済むのがここ
+	FontManager::GetInstance().FlushAtlases();
+
 	// 各描画パスを順番に実行
-	for (auto& pass : passes_) {
-		pass->Execute();
+	static const char* kPassNames[] = { "Pass:Skinning", "Pass:Shadow", "Pass:GBuffer", "Pass:Lighting", "Pass:Forward" };
+	for (size_t i = 0; i < passes_.size(); ++i) {
+		PROF_SCOPE(i < std::size(kPassNames) ? kPassNames[i] : "Pass:?");
+		passes_[i]->Execute();
 	}
 
 	// OffScreen / PostEffect / 最終合成
-	ctx_.offScreenManager->CopyLightingToPing(srvIndex_);
-	ctx_.offScreenManager->BeginDrawToPingPong();
-	ctx_.offScreenManager->EndDrawToPingPong();
-	ctx_.offScreenManager->ExecutePostEffects();
-
-	ctx_.dxManager->BeginDraw();
-	ctx_.dxManager->Render(ctx_.psoManager, ctx_.offScreenManager->GetFinalSrvIndex());
+	{
+		PROF_SCOPE("PostEffect");
+		ctx_.offScreenManager->CopyLightingToPing(srvIndex_);
+		ctx_.offScreenManager->BeginDrawToPingPong();
+		ctx_.offScreenManager->EndDrawToPingPong();
+		ctx_.offScreenManager->ExecutePostEffects();
+	}
 
 #ifdef _DEBUG
-	ctx_.imGuiManager->Draw();
+	// エディタ中はゲームの絵をバックバッファではなく専用のオフスクリーン(1280x720固定)へ描き、
+	// ImGuiのGameウィンドウに ImGui::Image で表示する
+	ctx_.imGuiManager->BeginGameViewRender();
+#else
+	ctx_.dxManager->BeginDraw();
+#endif
+	ctx_.dxManager->Render(ctx_.psoManager, ctx_.offScreenManager->GetFinalSrvIndex());
+
+	{
+		PROF_SCOPE("UI/Sprite");
+		// UIはポストエフェクトの影響を受けないよう、合成後のバックバッファへ直接描く。
+		// フェードはPersistentレイヤーのスプライトとして DrawUILayers() 内で描かれる。
+		ctx_.spriteManager->DrawUILayers();
+		// スプライトを使わないトランジション用のフック
+		ctx_.transitionManager->Draw();
+	}
+
+#ifdef _DEBUG
+	// ゲームの絵を出し終えたのでSRVへ戻し、バックバッファにはImGuiだけを描く
+	ctx_.imGuiManager->EndGameViewRender();
+	ctx_.dxManager->BeginDraw();
+	{
+		PROF_SCOPE("ImGui::Draw");
+		ctx_.imGuiManager->Draw();
+	}
 #endif
 
-	ctx_.dxManager->EndDraw();
+	{
+		// Present とGPU待ち。ここが大きければGPUバウンド
+		PROF_SCOPE("EndDraw(GPU待ち)");
+		ctx_.dxManager->EndDraw();
+	}
 }

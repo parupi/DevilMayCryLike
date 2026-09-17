@@ -4,6 +4,8 @@
 #include "ScoreUI.h"
 #include <Graphics/Rendering/Sprite/Sprite.h>
 
+class TextLabel;
+
 enum class State {
 	ResultDrop,
 	StageDrop,
@@ -21,7 +23,7 @@ public:
 
 	void Update();
 
-	void Draw();
+	// 描画は SpriteManager が UI レイヤーとして自動で行うため Draw() は持たない
 
 	float EaseOutBack(float t);
 
@@ -36,9 +38,10 @@ private:
 	Vector2 stageDefaultPos_;
 	Vector2 scoreDefaultPos_;
 
-	Sprite* resultUI_;
-	Sprite* stageNumUI_;
-	Sprite* score_;
+	// 見出しの文字（以前は文字入りの PNG だった）
+	TextLabel* resultUI_ = nullptr;
+	TextLabel* stageNumUI_ = nullptr;
+	TextLabel* score_ = nullptr;
 
 
 	std::unique_ptr<ScoreUI> scoreUI_;

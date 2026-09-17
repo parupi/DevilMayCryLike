@@ -8,6 +8,7 @@
 #include <Scene/Transition/SceneTransitionController.h>
 #include <GameObject/Camera/TitleCamera.h>
 #include <GameObject/UI/TitleUI/TitleUI.h>
+#include <GameObject/UI/TitleUI/TitleMenu.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
 
 /// <summary>
@@ -57,25 +58,39 @@ public:
 
 private:
 	/// <summary>
-	/// シーンの状態を変更する  
+	/// シーンの状態を変更する
 	/// フェーズごとの制御（例：タイトル表示 → フェードアウト → 次シーン遷移）を管理する。
 	/// </summary>
 	void ChangePhase();
+
+	/// <summary>
+	/// メニューで選ばれた結果を実行する
+	/// </summary>
+	void ApplyMenuResult();
+
+	/// <summary>
+	/// プレイヤーを照らすポイントライトを明滅させる
+	/// </summary>
+	void UpdateLightPulse();
 
 private:
 	TitleCamera* camera_ = nullptr; ///< タイトルシーン専用カメラ
 	CameraManager* cameraManager_ = &CameraManager::GetInstance(); ///< カメラ管理クラス
 
 	// ==========================
-	// パーティクルエフェクト
-	// ==========================
-	ParticleEmitter* smokeEmitter_ = nullptr;  ///< 煙パーティクルエミッター①
-	ParticleEmitter* smokeEmitter2_ = nullptr; ///< 煙パーティクルエミッター②
-	ParticleEmitter* sphereEmitter_ = nullptr; ///< 球状パーティクルエミッター
-
-	// ==========================
 	// ライト・遷移・UI
 	// ==========================
 	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 	std::unique_ptr<TitleUI> titleUI_ = nullptr; ///< タイトル画面のUI要素管理
+	std::unique_ptr<TitleMenu> titleMenu_ = nullptr; ///< 操作案内のあとに出る選択メニュー
+
+	/// <summary>アプリの終了処理に入ったか。暗転中に再入力を拾わないための見張り</summary>
+	bool isQuitting_ = false;
+
+	/// <summary>明滅させるポイントライトの名前（GlobalVariablesのグループ名）</summary>
+	static constexpr const char* kPointLightName = "TitlePoint";
+	/// <summary>明滅の中心になる明るさ。json で設定された値を初期化時に控える</summary>
+	float basePointLightIntensity_ = 0.0f;
+	/// <summary>明滅の位相に使う経過時間</summary>
+	float lightPulseTimer_ = 0.0f;
 };

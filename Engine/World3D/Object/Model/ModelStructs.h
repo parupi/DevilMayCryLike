@@ -17,6 +17,9 @@
 // 骨
 struct Joint {
 	QuaternionTransform transform;
+	// ノード階層から作った時点の姿勢。再生中のクリップにこのジョイントのチャンネルが無いときは
+	// 単位変換ではなくこれへ戻す（そうしないとチャンネルを持たないノードのスケールや軸合わせが飛ぶ）
+	QuaternionTransform bindTransform;
 	Matrix4x4 localMatrix;
 	Matrix4x4 skeletonSpaceMatrix;
 	std::string name;
@@ -79,20 +82,24 @@ struct MeshData {
 };
 
 struct Color {
-	float r, g, b;
+	float r = 1.0f, g = 1.0f, b = 1.0f;
 };
 
 struct MaterialData {
 	std::string name;
-	float Ns;
-	Color Ka;	// 環境光色
-	Color Kd;	// 拡散反射色
-	Color Ks;	// 鏡面反射光
-	float Ni;
-	float d;
-	uint32_t illum;
+	float Ns = 50.0f;			// 光沢度
+	Color Ka{};					// 環境光色
+	Color Kd{};					// 拡散反射色
+	Color Ks{};					// 鏡面反射光
+	float Ni = 1.0f;
+	float d = 1.0f;				// 不透明度
+	uint32_t illum = 2;
 	std::string textureFilePath;
 	uint32_t textureIndex = 0;
+	bool hasTexture = false;	// mtlのmap_Kd等で有効なテクスチャが指定されていたか
+	// シェーダーに渡す基本色。テクスチャ付きなら白(テクスチャそのまま)、
+	// テクスチャ無しならmtlのKd/dが入る
+	Vector4 baseColor{1.0f, 1.0f, 1.0f, 1.0f};
 };
 
 struct ModelData {
@@ -136,9 +143,19 @@ struct NodeAnimation {
 	AnimationCurve<Vector3> scale;
 };
 
+// クリップ上の一点で鳴らしたい合図。
+// 「この瞬間に当たり判定を出す」「ここでSEを鳴らす」をモーション側に持たせるためのもの。
+// ゲーム側でタイマーを別管理すると、モーションを調整するたびに数値合わせが発生する
+struct AnimationEvent {
+	float time = 0.0f;
+	std::string tag;
+};
+
 struct AnimationData {
 	float duration; // アニメーション全体の尺
 	std::map<std::string, NodeAnimation> nodeAnimations;
+	// time 昇順で保持する（AnimationClipSet::AddEvent がソートを維持する）
+	std::vector<AnimationEvent> events;
 };
 
 struct MaterialForGPU {
@@ -159,6 +176,7 @@ struct GBufferMaterialParam
 	float dissolveEdgeWidth; // width of edge emissive glow in noise space
 	Matrix4x4 uvTransform;
 	Vector4 dissolveEdgeColor; // rgb = emissive color, a = intensity multiplier
+	Vector4 materialColor;     // baseColorテクスチャに乗算する色(mtlのKd等)
 };
 
 struct UVData {

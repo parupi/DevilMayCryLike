@@ -8,12 +8,14 @@ void EnemySensorComponent::Update(Enemy& enemy)
     if (!player) {
         detected_  = false;
         distance_  = 0.0f;
+        horizontalDistance_ = 0.0f;
         direction_ = {};
         return;
     }
 
     Vector3 toPlayer = player->GetWorldTransform()->GetTranslation() - enemy.GetWorldTransform()->GetTranslation();
     distance_  = Length(toPlayer);
+    horizontalDistance_ = Length(Vector3{ toPlayer.x, 0.0f, toPlayer.z });
     direction_ = (distance_ > 0.0001f) ? Normalize(toPlayer) : Vector3{};
 
     if (!detected_ && distance_ <= detectionRange_) {

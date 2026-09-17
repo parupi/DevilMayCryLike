@@ -23,7 +23,7 @@ public:
     void SetAttacks(std::vector<PlayerStateAttack*> attacks);
 
     void Update(float deltaTime);
-    void DrawImGui();
+    void DrawEditorContents(); // ウィンドウは App/Editor/Windows/PlayerWindow.cpp が開く
 
 private:
     void Play();

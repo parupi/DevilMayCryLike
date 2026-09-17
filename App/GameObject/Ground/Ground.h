@@ -12,8 +12,6 @@ public:
 	// 描画
 	void Draw() override;
 
-#ifdef _DEBUG
-	void DebugGui() override;
-#endif // _DEBUG
+	// 使用するモデル名は Object3d::SetModelName()。未設定なら Initialize() で "Cube" になる
 };
 

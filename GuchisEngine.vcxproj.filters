@@ -4,6 +4,15 @@
     <Filter Include="App">
       <UniqueIdentifier>{46D6870B-B2DF-877C-3B5B-9E7CA763937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Audio">
+      <UniqueIdentifier>{C7807902-33EB-2D79-7C29-DF1EE8D20BCE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Editor">
+      <UniqueIdentifier>{BC88CD59-A840-0FA7-1148-E802FD1EAA97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\Editor\Windows">
+      <UniqueIdentifier>{F62E4604-E212-075A-4B73-01AD3776F1DB}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameData">
       <UniqueIdentifier>{E90015FD-D563-A4A1-7EE9-DC576A2B7024}</UniqueIdentifier>
     </Filter>
@@ -18,6 +27,9 @@
     </Filter>
     <Filter Include="App\GameObject\Character">
       <UniqueIdentifier>{6236CF65-4E5B-1EE6-77A6-0376632A1D04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Character\Combat">
+      <UniqueIdentifier>{C7D05A01-33B4-6941-3CB7-977DA8193092}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Enemy">
       <UniqueIdentifier>{0F166CF8-FB3B-365F-E481-BB2AD0465B2B}</UniqueIdentifier>
@@ -34,17 +46,20 @@
     <Filter Include="App\GameObject\Character\Enemy\Component">
       <UniqueIdentifier>{310D60B6-1D8A-53F9-4607-540D32E3EF8C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\Effect">
+      <UniqueIdentifier>{EB566711-571B-6601-2081-96CB8C040237}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Character\Enemy\GruntMelee">
       <UniqueIdentifier>{D61070C1-422B-D362-8B4D-E3F6F7A6FA69}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Enemy\GruntMelee\State">
       <UniqueIdentifier>{A6882C86-12C4-8C49-1BB9-09D98773117A}</UniqueIdentifier>
     </Filter>
-    <Filter Include="App\GameObject\Character\Enemy\Hellkaina">
-      <UniqueIdentifier>{27A09D6B-131D-91AE-3C9A-91C228762D42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="App\GameObject\Character\Enemy\State">
       <UniqueIdentifier>{9FD40F11-8BBB-D108-340C-382620D24A6F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Character\Enemy\TutorialDummy">
+      <UniqueIdentifier>{DEC70D66-CADA-0DBF-73C4-EAAB5FB6AA0C}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\Character\Player">
       <UniqueIdentifier>{3E65711F-AA48-805F-B34B-AE9B1FAE46B0}</UniqueIdentifier>
@@ -70,17 +85,35 @@
     <Filter Include="App\GameObject\Event">
       <UniqueIdentifier>{D7065042-C395-D90B-6CB4-ED065822EAB1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Event\Effect">
+      <UniqueIdentifier>{B396EB48-1FA4-192F-A88A-151A1497E5E5}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\Ground">
       <UniqueIdentifier>{246AB890-90D6-738B-59CA-0BE9C5F595F3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Light">
+      <UniqueIdentifier>{2D99C742-1928-510C-C246-6507AEB461B2}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\LockOn">
       <UniqueIdentifier>{BB28259C-2795-E096-F088-78F45CB402FF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\Prop">
+      <UniqueIdentifier>{763E6D95-E29F-4AA3-6B0D-9155D76D8162}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\Training">
+      <UniqueIdentifier>{9117527E-FD4E-9A15-0659-FE38720FC10E}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI">
       <UniqueIdentifier>{73D61F8E-DFEC-1D24-2864-A94594B9EEAB}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\BossHealthBar">
+      <UniqueIdentifier>{44FC8DD9-B0DF-9C19-B9E2-CA552545636A}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\ClearUI">
       <UniqueIdentifier>{07855820-7347-8CAA-BCF7-1A3728F96488}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\UI\Common">
+      <UniqueIdentifier>{4BC41685-37E9-6505-6034-4B954CB86423}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\GameObject\UI\GameUI">
       <UniqueIdentifier>{3AEA6D8D-260F-BD0D-4F5A-A29D3BDEBB2B}</UniqueIdentifier>
@@ -91,8 +124,14 @@
     <Filter Include="App\GameObject\UI\StageStart">
       <UniqueIdentifier>{A4ED4E8D-90A8-3E39-3960-B78325FA88C9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\StyleHUD">
+      <UniqueIdentifier>{B43DBF86-A04D-6B57-0907-D075F5355AF0}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\TitleUI">
       <UniqueIdentifier>{62540C37-CE16-40C1-17C7-CE4D83C8189F}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="App\GameObject\UI\Training">
+      <UniqueIdentifier>{9EFFDFA0-8A0F-8C71-F3C8-F08FDFF77A0A}</UniqueIdentifier>
     </Filter>
     <Filter Include="App\Input">
       <UniqueIdentifier>{C5A20603-310D-BB79-7A4B-6C1FE6F498CE}</UniqueIdentifier>
@@ -133,11 +172,23 @@
     <Filter Include="Engine\Audio">
       <UniqueIdentifier>{1C8EDB94-08F1-6A39-B176-A3EF9DB836BC}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Audio\SE">
+      <UniqueIdentifier>{83FBE878-EF86-563D-F897-D93164A2B23D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Core">
       <UniqueIdentifier>{130D9B61-7FC2-1357-08B7-0D2E746B0A5B}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Debugger">
       <UniqueIdentifier>{8F10366A-FB9B-A32E-04AD-262370B7FF2E}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor">
+      <UniqueIdentifier>{B1407138-1D01-ED6E-E63B-36EC52BB314B}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor\Core">
+      <UniqueIdentifier>{A97B9311-955F-5467-FEBF-4EBAEAC23EE9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Editor\Windows">
+      <UniqueIdentifier>{EB0BC945-5778-8440-206C-1C9E8C97A6A8}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Graphics">
       <UniqueIdentifier>{7B960115-E721-6FD9-F032-F2CD5C3DCBD9}</UniqueIdentifier>
@@ -183,6 +234,9 @@
     </Filter>
     <Filter Include="Engine\Graphics\Resource">
       <UniqueIdentifier>{F2F242EB-DE17-926B-0763-77FBF3E69089}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\Text">
+      <UniqueIdentifier>{6F28DC65-5BB7-652F-04D6-792AF04376D5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Input">
       <UniqueIdentifier>{1AB06895-0613-F839-AF98-30F09BDAC3BC}</UniqueIdentifier>
@@ -246,10 +300,34 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\Audio\FootstepTracker.h">
+      <Filter>App\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Audio\GameSoundBuilders.h">
+      <Filter>App\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Audio\GameSoundLibrary.h">
+      <Filter>App\Audio</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Editor\AppEditor.h">
+      <Filter>App\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Editor\Windows\AppEditorWindows.h">
+      <Filter>App\Editor\Windows</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameData\CollisionCategory.h">
       <Filter>App\GameData</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameData\EnemyCatalog.h">
+      <Filter>App\GameData</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameData\GameData.h">
+      <Filter>App\GameData</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameData\GameSession.h">
+      <Filter>App\GameData</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameData\GameSettings.h">
       <Filter>App\GameData</Filter>
     </ClInclude>
     <ClInclude Include="App\GameData\Score\StylishScoreManager.h">
@@ -270,22 +348,43 @@
     <ClInclude Include="App\GameObject\Character\CharacterStructs.h">
       <Filter>App\GameObject\Character</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Combat\CombatHitResolver.h">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Combat\KnockbackComponent.h">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BaseState\EnemyStateBase.h">
       <Filter>App\GameObject\Character\Enemy\BaseState</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.h">
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateDown.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.h">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRoar.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.h">
@@ -293,6 +392,15 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.h">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyAttackAim.h">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.h">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyHitbox.h">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
@@ -303,7 +411,13 @@
     <ClInclude Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.h">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.h">
+      <Filter>App\GameObject\Character\Enemy\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\Enemy.h">
+      <Filter>App\GameObject\Character\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Enemy\EnemySpawner.h">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\EnemyStateNames.h">
@@ -336,29 +450,17 @@
     <ClInclude Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.h">
       <Filter>App\GameObject\Character\Enemy\GruntMelee\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.h">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.h">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateAir.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.h">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateMove.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
+    <ClInclude Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.h">
+      <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.h">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
+    <ClInclude Include="App\GameObject\Character\MovementBounds.h">
+      <Filter>App\GameObject\Character</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Combat\AttackPlayer.h">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
@@ -370,6 +472,9 @@
       <Filter>App\GameObject\Character\Player\Controller</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\Player.h">
+      <Filter>App\GameObject\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\PlayerDodge.h">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\PlayerWeapon.h">
@@ -390,13 +495,22 @@
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateClear.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateDash.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateDeath.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateDodge.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateIdle.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateJump.h">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateJustDodge.h">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateKnockBack.h">
@@ -408,35 +522,83 @@
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\AttackTelegraph.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\DeathScreenEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\DissolveOutEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitEffectSystem.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitFlashComponent.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\HitPostEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitStop.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Effect\HitVignetteEffect.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\JustDodgeEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\PlayerAttackEffect.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Event\BaseEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Event\BossSpawnEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\ClearEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h">
-      <Filter>App\GameObject\Event</Filter>
+    <ClInclude Include="App\GameObject\Event\Effect\BattleAreaWallEffect.h">
+      <Filter>App\GameObject\Event\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\Event\EventFactory.h">
+    <ClInclude Include="App\GameObject\Event\EnemySpawnEvent.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\Event\EventManager.h">
       <Filter>App\GameObject\Event</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h">
+      <Filter>App\GameObject\Event</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Ground\Ground.h">
       <Filter>App\GameObject\Ground</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Light\StagePointLight.h">
+      <Filter>App\GameObject\Light</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h">
       <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h">
       <Filter>App\GameObject\LockOn</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Prop\Prop.h">
+      <Filter>App\GameObject\Prop</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Prop\WallTorch.h">
+      <Filter>App\GameObject\Prop</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Training\TrainingController.h">
+      <Filter>App\GameObject\Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\BossHealthBar\BossHealthBar.h">
+      <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -447,13 +609,25 @@
     <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\ConfirmDialog.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\ControlsPanel.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\MenuItemList.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\MenuNavigator.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Common\OptionPanel.h">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\UI\GameUI\GameUI.h">
       <Filter>App\GameObject\UI\GameUI</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\UI\Menu\MenuChoices.h">
-      <Filter>App\GameObject\UI\Menu</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\UI\Menu\MenuController.h">
+    <ClInclude Include="App\GameObject\UI\Menu\GameOverUI.h">
       <Filter>App\GameObject\UI\Menu</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h">
@@ -465,8 +639,20 @@
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h">
       <Filter>App\GameObject\UI\StageStart</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h">
+      <Filter>App\GameObject\UI\StyleHUD</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\TitleUI\TitleMenu.h">
+      <Filter>App\GameObject\UI\TitleUI</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleUI.h">
       <Filter>App\GameObject\UI\TitleUI</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Training\TrainingHUD.h">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\Training\TrainingMenu.h">
+      <Filter>App\GameObject\UI\Training</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObjectRegister.h">
       <Filter>App</Filter>
@@ -495,6 +681,9 @@
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateClear.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateGameOver.h">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClInclude>
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateMenu.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
@@ -504,8 +693,8 @@
     <ClInclude Include="App\Scene\GameScene\State\GameSceneStateStart.h">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
-    <ClInclude Include="App\Scene\Object3dFactory.h">
-      <Filter>App\Scene</Filter>
+    <ClInclude Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.h">
+      <Filter>App\Scene\GameScene\State</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\SceneFactory.h">
       <Filter>App\Scene</Filter>
@@ -520,6 +709,12 @@
       <Filter>App\Stage</Filter>
     </ClInclude>
     <ClInclude Include="App\Stage\SceneLoader.h">
+      <Filter>App\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Stage\SceneSaver.h">
+      <Filter>App\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Stage\StageDocument.h">
       <Filter>App\Stage</Filter>
     </ClInclude>
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h">
@@ -540,6 +735,27 @@
     <ClInclude Include="Engine\Audio\Audio.h">
       <Filter>Engine\Audio</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\AudioBuffer.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundAssetLibrary.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundDSP.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundDefinition.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundPresets.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SE\SoundSynthesizer.h">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Audio\SoundManager.h">
+      <Filter>Engine\Audio</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Core\EngineContext.h">
       <Filter>Engine\Core</Filter>
     </ClInclude>
@@ -554,6 +770,93 @@
     </ClInclude>
     <ClInclude Include="Engine\Debugger\LeakChecker.h">
       <Filter>Engine\Debugger</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorAssetUtil.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorCamera.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorContext.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorDebugDraw.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorGameView.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorGizmo.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorHost.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorLayout.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorMenuBar.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorPicking.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorSelection.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorStats.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorUndo.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorViewMath.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Core\EditorWindowRegistry.h">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\AnimationWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\AssetBrowserWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\AudioWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\CameraWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\DebugLogWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\HierarchyWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\InspectorWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\LightWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\ParticleEditor.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\ParticleEditorWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\ProfilerWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\RenderWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\SoundEditorWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Editor\Windows\TimeWindow.h">
+      <Filter>Engine\Editor\Windows</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Device\CommandContext.h">
       <Filter>Engine\Graphics\Device</Filter>
@@ -576,7 +879,7 @@
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AnimationPipeline.h">
+    <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h">
@@ -624,13 +927,22 @@
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOManager.h">
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\Curve.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\Gradient.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\InstanceData.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\Particle.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleEditor.h">
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleCurves.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleEmitter.h">
@@ -642,6 +954,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleManager.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleMath.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleRenderSystem.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
@@ -651,13 +966,31 @@
     <ClInclude Include="Engine\Graphics\Rendering\Particle\ParticleUpdateSystem.h">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Particle\VFXFile.h">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BaseOffScreen.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.h">
@@ -669,7 +1002,13 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h">
@@ -700,6 +1039,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.h">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h">
@@ -753,6 +1095,18 @@
     <ClInclude Include="Engine\Graphics\Resource\TextureManager.h">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\Font.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\FontManager.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\TextEncoding.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Text\TextLabel.h">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Input\Input.h">
       <Filter>Engine\Input</Filter>
     </ClInclude>
@@ -786,6 +1140,9 @@
     <ClInclude Include="Engine\Scene\BaseScene.h">
       <Filter>Engine\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Scene\Object3dFactory.h">
+      <Filter>Engine\Scene</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Scene\SampleScene.h">
       <Filter>Engine\Scene</Filter>
     </ClInclude>
@@ -810,7 +1167,13 @@
     <ClInclude Include="Engine\Utility\Logger.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Utility\ScopeProfiler.h">
+      <Filter>Engine\Utility</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Utility\StringUtility.h">
+      <Filter>Engine\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Utility\TimeManager.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Camera\BaseCamera.h">
@@ -843,6 +1206,12 @@
     <ClInclude Include="Engine\World3D\Light\DirectionalLight.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\World3D\Light\DynamicPointLight.h">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Light\DynamicSpotLight.h">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\World3D\Light\LightManager.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
@@ -855,16 +1224,28 @@
     <ClInclude Include="Engine\World3D\Light\SpotLight.h">
       <Filter>Engine\World3D\Light</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\World3D\Object\Model\Animation\Animation.h">
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\AnimationClipSet.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\AnimationPlayer.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\BoneAttachment.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\Animation\Skeleton.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
-    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinCluster.h">
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinnedInstance.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\SkinningResource.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\BaseModel.h">
+      <Filter>Engine\World3D\Object\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\GltfAxis.h">
       <Filter>Engine\World3D\Object\Model</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\Material\Material.h">
@@ -977,7 +1358,58 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\Audio\FootstepTracker.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundEnemy.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundLibrary.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundPlayer.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Audio\GameSoundSystem.cpp">
+      <Filter>App\Audio</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\AppEditor.cpp">
+      <Filter>App\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\PlayerWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\StylishWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\TrainingWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameData\EnemyCatalog.cpp">
+      <Filter>App\GameData</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameData\GameData.cpp">
+      <Filter>App\GameData</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameData\GameSession.cpp">
+      <Filter>App\GameData</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameData\GameSettings.cpp">
       <Filter>App\GameData</Filter>
     </ClCompile>
     <ClCompile Include="App\GameData\Score\StylishScoreManager.cpp">
@@ -995,19 +1427,40 @@
     <ClCompile Include="App\GameObject\Camera\TitleCamera.cpp">
       <Filter>App\GameObject\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Combat\CombatHitResolver.cpp">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Combat\KnockbackComponent.cpp">
+      <Filter>App\GameObject\Character\Combat</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossAttackEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossBreathEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossKnight.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossWeapon.cpp">
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\BossVfxUtil.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateApproach.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateBreath.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateCombatIdle.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateDown.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateHeavySword.cpp">
+      <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRoar.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateRush.cpp">
@@ -1015,6 +1468,15 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\BossKnight\State\BossStateSlash.cpp">
       <Filter>App\GameObject\Character\Enemy\BossKnight\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyAttackAim.cpp">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyBoneAttackComponent.cpp">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyHitbox.cpp">
+      <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemyMeleeAttackComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
@@ -1025,7 +1487,13 @@
     <ClCompile Include="App\GameObject\Character\Enemy\Component\EnemySensorComponent.cpp">
       <Filter>App\GameObject\Character\Enemy\Component</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\Effect\EnemyAppearanceEffect.cpp">
+      <Filter>App\GameObject\Character\Enemy\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\Enemy.cpp">
+      <Filter>App\GameObject\Character\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Enemy\EnemySpawner.cpp">
       <Filter>App\GameObject\Character\Enemy</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\GruntMelee.cpp">
@@ -1055,29 +1523,14 @@
     <ClCompile Include="App\GameObject\Character\Enemy\GruntMelee\State\GruntStateSideMove.cpp">
       <Filter>App\GameObject\Character\Enemy\GruntMelee\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\Hellkaina.cpp">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\Hellkaina\HellkainaWeapon.cpp">
-      <Filter>App\GameObject\Character\Enemy\Hellkaina</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateAir.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateIdle.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateKnockBack.cpp">
       <Filter>App\GameObject\Character\Enemy\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateMove.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\EnemyStateSideMove.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\Character\Enemy\State\HellkainaStateAttackA.cpp">
-      <Filter>App\GameObject\Character\Enemy\State</Filter>
+    <ClCompile Include="App\GameObject\Character\Enemy\TutorialDummy\TutorialDummy.cpp">
+      <Filter>App\GameObject\Character\Enemy\TutorialDummy</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Combat\AttackPlayer.cpp">
       <Filter>App\GameObject\Character\Player\Combat</Filter>
@@ -1089,6 +1542,9 @@
       <Filter>App\GameObject\Character\Player\Controller</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp">
+      <Filter>App\GameObject\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\PlayerDodge.cpp">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\PlayerWeapon.cpp">
@@ -1103,13 +1559,22 @@
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateClear.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDash.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDeath.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateDodge.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateIdle.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateJump.cpp">
+      <Filter>App\GameObject\Character\Player\State</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateJustDodge.cpp">
       <Filter>App\GameObject\Character\Player\State</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateKnockBack.cpp">
@@ -1121,35 +1586,83 @@
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp">
       <Filter>App\GameObject\Character\Player\StateMachine</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\AttackTelegraph.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\DeathScreenEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\DissolveOutEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitEffectSystem.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitFlashComponent.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\HitPostEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitStop.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Effect\HitVignetteEffect.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\JustDodgeEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\PlayerAttackEffect.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Event\BaseEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Event\BossSpawnEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\ClearEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp">
-      <Filter>App\GameObject\Event</Filter>
+    <ClCompile Include="App\GameObject\Event\Effect\BattleAreaWallEffect.cpp">
+      <Filter>App\GameObject\Event\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\Event\EventFactory.cpp">
+    <ClCompile Include="App\GameObject\Event\EnemySpawnEvent.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Event\EventManager.cpp">
       <Filter>App\GameObject\Event</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp">
+      <Filter>App\GameObject\Event</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Ground\Ground.cpp">
       <Filter>App\GameObject\Ground</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Light\StagePointLight.cpp">
+      <Filter>App\GameObject\Light</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp">
       <Filter>App\GameObject\LockOn</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp">
       <Filter>App\GameObject\LockOn</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Prop\Prop.cpp">
+      <Filter>App\GameObject\Prop</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Prop\WallTorch.cpp">
+      <Filter>App\GameObject\Prop</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Training\TrainingController.cpp">
+      <Filter>App\GameObject\Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\BossHealthBar\BossHealthBar.cpp">
+      <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
@@ -1160,13 +1673,25 @@
     <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\ConfirmDialog.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\ControlsPanel.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\MenuItemList.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\MenuNavigator.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Common\OptionPanel.cpp">
+      <Filter>App\GameObject\UI\Common</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\UI\GameUI\GameUI.cpp">
       <Filter>App\GameObject\UI\GameUI</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\UI\Menu\MenuChoices.cpp">
-      <Filter>App\GameObject\UI\Menu</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\UI\Menu\MenuController.cpp">
+    <ClCompile Include="App\GameObject\UI\Menu\GameOverUI.cpp">
       <Filter>App\GameObject\UI\Menu</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp">
@@ -1178,8 +1703,20 @@
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp">
       <Filter>App\GameObject\UI\StageStart</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp">
+      <Filter>App\GameObject\UI\StyleHUD</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\TitleUI\TitleMenu.cpp">
+      <Filter>App\GameObject\UI\TitleUI</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleUI.cpp">
       <Filter>App\GameObject\UI\TitleUI</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Training\TrainingHUD.cpp">
+      <Filter>App\GameObject\UI\Training</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\Training\TrainingMenu.cpp">
+      <Filter>App\GameObject\UI\Training</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObjectRegister.cpp">
       <Filter>App</Filter>
@@ -1208,6 +1745,9 @@
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateClear.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateGameOver.cpp">
+      <Filter>App\Scene\GameScene\State</Filter>
+    </ClCompile>
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateMenu.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
@@ -1217,8 +1757,8 @@
     <ClCompile Include="App\Scene\GameScene\State\GameSceneStateStart.cpp">
       <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
-    <ClCompile Include="App\Scene\Object3dFactory.cpp">
-      <Filter>App\Scene</Filter>
+    <ClCompile Include="App\Scene\GameScene\State\GameSceneStateTrainingMenu.cpp">
+      <Filter>App\Scene\GameScene\State</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\SceneFactory.cpp">
       <Filter>App\Scene</Filter>
@@ -1233,6 +1773,12 @@
       <Filter>App\Stage</Filter>
     </ClCompile>
     <ClCompile Include="App\Stage\SceneLoader.cpp">
+      <Filter>App\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Stage\SceneSaver.cpp">
+      <Filter>App\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Stage\StageDocument.cpp">
       <Filter>App\Stage</Filter>
     </ClCompile>
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
@@ -1250,6 +1796,27 @@
     <ClCompile Include="Engine\Audio\Audio.cpp">
       <Filter>Engine\Audio</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\AudioBuffer.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundAssetLibrary.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundDSP.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundDefinition.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundPresets.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SE\SoundSynthesizer.cpp">
+      <Filter>Engine\Audio\SE</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Audio\SoundManager.cpp">
+      <Filter>Engine\Audio</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Core\GuchisFramework.cpp">
       <Filter>Engine\Core</Filter>
     </ClCompile>
@@ -1261,6 +1828,93 @@
     </ClCompile>
     <ClCompile Include="Engine\Debugger\LeakChecker.cpp">
       <Filter>Engine\Debugger</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorAssetUtil.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorCamera.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorContext.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorDebugDraw.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorGameView.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorGizmo.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorHost.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorLayout.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorMenuBar.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorPicking.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorSelection.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorStats.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorUndo.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorViewMath.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Core\EditorWindowRegistry.cpp">
+      <Filter>Engine\Editor\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\AnimationWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\AssetBrowserWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\AudioWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\CameraWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\DebugLogWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\HierarchyWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\InspectorWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\LightWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\ParticleEditor.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\ParticleEditorWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\ProfilerWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\RenderWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\SoundEditorWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Editor\Windows\TimeWindow.cpp">
+      <Filter>Engine\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Device\CommandContext.cpp">
       <Filter>Engine\Graphics\Device</Filter>
@@ -1283,7 +1937,7 @@
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AnimationPipeline.cpp">
+    <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp">
@@ -1328,13 +1982,25 @@
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOManager.cpp">
       <Filter>Engine\Graphics\Rendering\PSO</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEditor.cpp">
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\Curve.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\Gradient.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\MeshShapeSampler.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleCurves.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleEmitter.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleManager.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleMath.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleRenderSystem.cpp">
@@ -1346,10 +2012,28 @@
     <ClCompile Include="Engine\Graphics\Rendering\Particle\ParticleUpdateSystem.cpp">
       <Filter>Engine\Graphics\Rendering\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Particle\VFXFile.cpp">
+      <Filter>Engine\Graphics\Rendering\Particle</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HitFlashEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\OffScreenManager.cpp">
@@ -1361,7 +2045,13 @@
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\PostEffectPath.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp">
@@ -1389,6 +2079,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.cpp">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp">
@@ -1433,6 +2126,21 @@
     <ClCompile Include="Engine\Graphics\Resource\TextureManager.cpp">
       <Filter>Engine\Graphics\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\Font.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\FontManager.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\StbTrueType.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\TextEncoding.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Text\TextLabel.cpp">
+      <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>
     </ClCompile>
@@ -1460,6 +2168,9 @@
     <ClCompile Include="Engine\Scene\BaseScene.cpp">
       <Filter>Engine\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Scene\Object3dFactory.cpp">
+      <Filter>Engine\Scene</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Scene\SampleScene.cpp">
       <Filter>Engine\Scene</Filter>
     </ClCompile>
@@ -1484,6 +2195,9 @@
     <ClCompile Include="Engine\Utility\StringUtility.cpp">
       <Filter>Engine\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Utility\TimeManager.cpp">
+      <Filter>Engine\Utility</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\World3D\Camera\BaseCamera.cpp">
       <Filter>Engine\World3D\Camera</Filter>
     </ClCompile>
@@ -1505,6 +2219,12 @@
     <ClCompile Include="Engine\World3D\Light\DirectionalLight.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\World3D\Light\DynamicPointLight.cpp">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Light\DynamicSpotLight.cpp">
+      <Filter>Engine\World3D\Light</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\World3D\Light\LightManager.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
@@ -1514,13 +2234,22 @@
     <ClCompile Include="Engine\World3D\Light\SpotLight.cpp">
       <Filter>Engine\World3D\Light</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\World3D\Object\Model\Animation\Animation.cpp">
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\AnimationClipSet.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\AnimationPlayer.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\BoneAttachment.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Model\Animation\Skeleton.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
-    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinCluster.cpp">
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinnedInstance.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\SkinningResource.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Model\Material\Material.cpp">

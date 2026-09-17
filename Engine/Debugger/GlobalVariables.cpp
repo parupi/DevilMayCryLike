@@ -24,60 +24,70 @@ void GlobalVariables::RemoveItem(const std::string& groupName, const std::string
 	itGroup->second.items.erase(key);
 }
 
-void GlobalVariables::SaveFile(const std::string& directoryName, const string& groupName) {
-	// グループを検索
-	map<string, Group>::iterator itGroup = datas_.find(groupName);
+GlobalVariables::json GlobalVariables::ExportGroup(const std::string& groupName) const {
+	json object = json::object();
 
-	// 未登録チェック
-	assert(itGroup != datas_.end());
+	auto itGroup = datas_.find(groupName);
+	if (itGroup == datas_.end()) {
+		return object;
+	}
 
-	json root;
-	root = json::object();
-
-	// jsonオブジェクト登録
-	root[groupName] = json::object();
-
-	// 各項目について
-	for (map<string, Item>::iterator itItem = itGroup->second.items.begin();
-		itItem != itGroup->second.items.end(); ++itItem) {
-
-		// 項目名を取得
-		const string& itemName = itItem->first;
-		// 項目の参照を取得
-		Item& item = itItem->second;
-
-		// int32_t型の値を保持していれば
+	for (const auto& [itemName, item] : itGroup->second.items) {
 		if (holds_alternative<int32_t>(item.value)) {
-			// int32_t型の値を登録
-			root[groupName][itemName] = get<int32_t>(item.value);
-		}
-		// float型の値を保持していれば
-		else if (holds_alternative<float>(item.value)) {
-			// float型の値を登録
-			root[groupName][itemName] = get<float>(item.value);
-		}
-		// Vector3型の値を保持していれば
-		else if (holds_alternative<Vector3>(item.value)) {
-			// float型のjson配列を登録
-			Vector3 value = get<Vector3>(item.value);
-			root[groupName][itemName] = json::array({ value.x, value.y, value.z });
-		}
-		// Vector4型の値を保持していれば
-		else if (holds_alternative<Vector4>(item.value)) {
-			// float型のjson配列を登録
-			Vector4 value = get<Vector4>(item.value);
-			root[groupName][itemName] = json::array({ value.x, value.y, value.z, value.w });
-		}
-		// bool型の値を保持していれば
-		else if (std::holds_alternative<bool>(item.value)) {
-			// bool型の値を登録
-			root[groupName][itemName] = std::get<bool>(item.value);
-		}
-		// string型の値を保持していれば
-		else if (std::holds_alternative<std::string>(item.value)) {
-			root[groupName][itemName] = std::get<std::string>(item.value);
+			object[itemName] = get<int32_t>(item.value);
+		} else if (holds_alternative<float>(item.value)) {
+			object[itemName] = get<float>(item.value);
+		} else if (holds_alternative<Vector3>(item.value)) {
+			const Vector3 value = get<Vector3>(item.value);
+			object[itemName] = json::array({ value.x, value.y, value.z });
+		} else if (holds_alternative<Vector4>(item.value)) {
+			const Vector4 value = get<Vector4>(item.value);
+			object[itemName] = json::array({ value.x, value.y, value.z, value.w });
+		} else if (holds_alternative<bool>(item.value)) {
+			object[itemName] = get<bool>(item.value);
+		} else if (holds_alternative<std::string>(item.value)) {
+			object[itemName] = get<std::string>(item.value);
 		}
 	}
+
+	return object;
+}
+
+void GlobalVariables::ImportGroup(const std::string& groupName, const json& object) {
+	if (!object.is_object()) {
+		return;
+	}
+
+	for (auto itItem = object.begin(); itItem != object.end(); ++itItem) {
+		const string& itemName = itItem.key();
+
+		// bool は is_number_integer() が false なので、int より先に判定しなくてよい
+		if (itItem->is_number_integer()) {
+			SetValue(groupName, itemName, itItem->get<int32_t>());
+		} else if (itItem->is_number_float()) {
+			SetValue(groupName, itemName, static_cast<float>(itItem->get<double>()));
+		} else if (itItem->is_array() && itItem->size() == 3) {
+			SetValue(groupName, itemName, Vector3{ itItem->at(0), itItem->at(1), itItem->at(2) });
+		} else if (itItem->is_array() && itItem->size() == 4) {
+			SetValue(groupName, itemName, Vector4{ itItem->at(0), itItem->at(1), itItem->at(2), itItem->at(3) });
+		} else if (itItem->is_boolean()) {
+			SetValue(groupName, itemName, itItem->get<bool>());
+		} else if (itItem->is_string()) {
+			SetValue(groupName, itemName, itItem->get<std::string>());
+		}
+	}
+}
+
+void GlobalVariables::SaveFile(const std::string& directoryName, const string& groupName) {
+	// 未登録チェック
+	assert(datas_.find(groupName) != datas_.end());
+
+	// 保存先を覚えておく（SaveAllFiles / ReloadAllFiles が使う）
+	groupDirectories_[groupName] = directoryName;
+
+	json root = json::object();
+	root[groupName] = ExportGroup(groupName);
+
 	// ディレクトリが無ければ作成する
 	filesystem::path dir = std::filesystem::path(kDirectoryPath) / directoryName;
 	if (!filesystem::exists(dir)) {
@@ -100,6 +110,31 @@ void GlobalVariables::SaveFile(const std::string& directoryName, const string& g
 	ofs << setw(4) << root << endl;
 	// ファイルを閉じる
 	ofs.close();
+}
+
+size_t GlobalVariables::SaveAllFiles() {
+	size_t saved = 0;
+	for (const auto& [groupName, directoryName] : groupDirectories_) {
+		// グループごと消えている可能性があるので、SaveFile のassertに当たらないよう確認する
+		if (datas_.find(groupName) == datas_.end()) {
+			continue;
+		}
+		SaveFile(directoryName, groupName);
+		++saved;
+	}
+	return saved;
+}
+
+size_t GlobalVariables::ReloadAllFiles() {
+	// LoadFile が groupDirectories_ を書き換えるので、走査用にコピーを取る
+	const std::map<std::string, std::string> targets = groupDirectories_;
+
+	size_t loaded = 0;
+	for (const auto& [groupName, directoryName] : targets) {
+		LoadFile(directoryName, groupName);
+		++loaded;
+	}
+	return loaded;
 }
 
 void GlobalVariables::LoadFiles(const std::string& directoryName) {
@@ -156,6 +191,9 @@ std::vector<std::string> GlobalVariables::GetGroupNames(const std::string& direc
 
 
 void GlobalVariables::LoadFile(const std::string& directoryName, const std::string& groupName) {
+	// 読み込み元＝保存先として覚えておく（ファイルが無くても、次に保存する場所はここ）
+	groupDirectories_[groupName] = directoryName;
+
 	// 読み込むJSONファイルのフルパスを合成する
 	string filePath = kDirectoryPath + directoryName + "/" + groupName + ".json";
 	// 読み込む用ファイルストリーム
@@ -180,44 +218,5 @@ void GlobalVariables::LoadFile(const std::string& directoryName, const std::stri
 	// 未登録チェック
 	assert(itGroup != root.end());
 
-	// 各アイテムについて
-	for (json::iterator itItem = itGroup->begin(); itItem != itGroup->end(); ++itItem) {
-		// アイテム名を取得
-		const string& itemName = itItem.key();
-		// int32_t型の値を保持していれば
-		if (itItem->is_number_integer()) {
-			// int型の値を登録
-			int32_t value = itItem->get<int32_t>();
-			SetValue(groupName, itemName, value);
-		}
-		// float型の値を保持していれば
-		else if (itItem->is_number_float()) {
-			// int型の値を登録
-			double value = itItem->get<double>();
-			SetValue(groupName, itemName, static_cast<float>(value));
-		}
-		// Vector3型の値を保持していれば
-		else if (itItem->is_array() && itItem->size() == 3) {
-			// float型のjson配列登録
-			Vector3 value = { itItem->at(0), itItem->at(1), itItem->at(2) };
-			SetValue(groupName, itemName, value);
-		}
-		// Vector4型の値を保持していれば
-		else if (itItem->is_array() && itItem->size() == 4) {
-			// float型のjson配列登録
-			Vector4 value = { itItem->at(0), itItem->at(1), itItem->at(2), itItem->at(3) };
-			SetValue(groupName, itemName, value);
-		}
-		// bool型の値を保持していれば
-		else if (itItem->is_boolean()) {
-			// bool型の値を登録
-			bool value = itItem->get<bool>();
-			SetValue(groupName, itemName, value);
-		}
-		// string型の値を保持していれば
-		else if (itItem->is_string()) {
-			std::string value = itItem->get<std::string>();
-			SetValue(groupName, itemName, value);
-		}
-	}
+	ImportGroup(groupName, *itGroup);
 }

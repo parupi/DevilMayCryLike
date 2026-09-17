@@ -2,6 +2,7 @@
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "GameObject/Character/Enemy/EnemyStateNames.h"
 #include "GameObject/Character/Enemy/Component/EnemyMeleeAttackComponent.h"
+#include "Audio/GameSoundLibrary.h"
 
 namespace
 {
@@ -10,7 +11,7 @@ namespace
         MeleeAttackParams p;
         p.windupDuration = 0.65f;   // 大きく引いて溜める時間
         p.attackDuration = 0.30f;   // 突進・振り抜く時間（短く・鋭く）
-        p.rushSpeed      = 18.0f;   // 突進速度（攻撃フェーズのみ）
+        p.rushSpeed      = 18.0f;   // 突進速度（攻撃フェーズのみ。振り始めの正面へまっすぐ）
 
         // 構えポーズ: 武器を大きく後方・横に引く（突進前の溜め）
         // t=1: 突進しながら振り抜いた状態
@@ -26,6 +27,20 @@ namespace
             { -55.0f,   0.0f,  25.0f },  // 振り抜き中
             {-115.0f,   0.0f,  25.0f },  // ghost
         };
+
+        // 予兆。突進の進路を帯で示す。
+        // 長さは攻撃フェーズで進む距離（18m/s × 0.30秒 = 5.4m）に体の厚みを足したもの。
+        // 帯の手前の端（forwardOffset）が体の後ろ端で、体の前端が奥の端へ届いたところで止まる
+        // ＝ 進む距離は 6.5 - 0.6×2 = 5.3m。体はこの帯の上をなぞって走る
+        p.telegraph.shape = TelegraphShape::Rect;
+        p.telegraph.halfWidth = 0.9f;
+        p.telegraph.length = 6.5f;
+        p.telegraph.forwardOffset = -0.6f;
+
+        // 突進は溜めの後に踏み込む。振りの音は突進そのものの音にする
+        p.windupSound = GameSound::kSkeletonCharge;
+        p.swingSound = GameSound::kSkeletonRush;
+        p.soundVolume = 0.85f;
         return p;
     }
 }
@@ -51,5 +66,7 @@ void GruntStateRushAttack::Update(Enemy& enemy, float deltaTime)
 
 void GruntStateRushAttack::Exit(Enemy& enemy)
 {
-    enemy;
+    // 予備動作の途中で中断されたら予兆も消す（放置すると「攻撃が来た」と誤認して光る）。
+    // 振り始めた後に中断された場合は、固定した体の向きをここで解く
+    attack_->Cancel(enemy);
 }

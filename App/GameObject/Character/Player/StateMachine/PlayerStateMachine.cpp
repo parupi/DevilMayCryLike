@@ -1,6 +1,8 @@
 #include "PlayerStateMachine.h"
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
+#ifdef _DEBUG
 #include <imgui.h>
+#endif // _DEBUG
 
 using namespace std;
 
@@ -53,9 +55,3 @@ void PlayerStateMachine::ExecuteCommand(Player& player, const PlayerCommand& com
 	}
 }
 
-void PlayerStateMachine::DebugGui()
-{
-	ImGui::Begin("Player");
-	ImGui::Text("Current State: %s", currentState_->GetDebugName());
-	ImGui::End();
-}

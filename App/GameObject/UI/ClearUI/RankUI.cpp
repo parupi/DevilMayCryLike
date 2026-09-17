@@ -1,12 +1,14 @@
-﻿#define NOMINMAX
+#define NOMINMAX
 #include "RankUI.h"
 #include <Utility/DeltaTime.h>
 #include <GameData/GameData.h>
+#include "Audio/GameSoundLibrary.h"
+#include "Audio/SoundManager.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 
 void RankUI::Initialize()
 {
-    rank_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::Game, "rankUI", "Ranks.png");
+    rank_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "rankUI", "Ranks.png");
     rank_->SetUVSize({ 0.2f, 1.0f });
     rank_->SetAnchorPoint({ 0.5f, 0.5f });
 
@@ -81,11 +83,6 @@ void RankUI::Update()
 }
 
 
-void RankUI::Draw()
-{
-	rank_->Draw();
-}
-
 void RankUI::Start()
 {
     // スタートしてたら抜ける
@@ -93,6 +90,9 @@ void RankUI::Start()
 
     isStart_ = true;
     timer_ = 0.0f;
+
+    // ランクが出る瞬間の和音
+    SoundManager::GetInstance().PlaySE(GameSound::kRankReveal, 0.8f);
 
     // 初期位置とサイズをリセット
     rank_->SetPosition(startPos_);
