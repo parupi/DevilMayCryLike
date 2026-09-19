@@ -1,42 +1,39 @@
 #include "Tutorial.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
+#include "Graphics/Text/TextLabel.h"
 #include "Input/Input.h"
 
 namespace {
-	// 説明文は画面左の暗幕（幅426）の中、GIF の下に置く
+	// 暗幕（TutorialDecoration）の中央に合わせる。位置を変えるならあちらの定数も一緒に見ること
 	constexpr float kTextCenterX = 210.0f;
-	// 1行目: 操作（小さめ）、2行目: 何の操作か（大きめ）
-	constexpr float kCommandY = 508.0f;
-	constexpr float kTitleY = 566.0f;
+	// 1行目: 操作（小さめ）、2行目: 何の操作か（大きめ）。2行で暗幕の中央に収まる位置
+	constexpr float kCommandY = 328.0f;
+	constexpr float kTitleY = 386.0f;
 	constexpr float kCommandFontSize = 26.0f;
 	constexpr float kTitleFontSize = 42.0f;
+	// 1フレームぶんのフェード量
+	constexpr float kFadeSpeed = 0.01f;
 }
 
-void Tutorial::Initialize(const std::string& name, const TutorialText& text, uint32_t maxCounter) {
+void Tutorial::Initialize(const std::string& id, const TutorialText& text, uint32_t maxCounter) {
 	// チュートリアルの初期化処理
 	state_ = State::Inactive;
 	// 進行度の最大値を設定
 	maxCounter_ = maxCounter;
 	text_ = text;
-	// スプライトの生成と初期設定
-	tutorialImage = SpriteManager::GetInstance().CreateAnimatedSprite(SpriteLayer::UI, "TutorialImage", "Tutorial/" + name + ".gif");
-	tutorialImage->GetSprite()->SetAnchorPoint({0.5f, 0.5f});
-	tutorialImage->GetSprite()->SetPosition({210.0f, 340.0f});
-	tutorialImage->GetSprite()->SetSize({350.0f, 240.0f});
-	tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, 0.0f});
-	tutorialImage->GetSprite()->GetRenderState().blendMode = BlendMode::kNormal;
+	alpha_ = 0.0f;
 
-	// 説明文。以前は項目ごとに文字入りの PNG を用意していたが、
-	// 操作の表記をパッド／キーボードで出し分けるためフォントから描く
+	// 説明文。以前は手順の GIF ＋ 文字入りの PNG だったが、
+	// 絵をやめて文字だけにした（操作の表記をパッド／キーボードで出し分けるためフォントから描く）
 	SpriteManager& sprites = SpriteManager::GetInstance();
 
-	commandLabel_ = sprites.CreateTextLabel(SpriteLayer::UI, "TutorialCommand" + name);
+	commandLabel_ = sprites.CreateTextLabel(SpriteLayer::UI, "TutorialCommand" + id);
 	commandLabel_->SetFontSize(kCommandFontSize);
 	commandLabel_->SetAlign(TextAlignX::Center, TextAlignY::Middle);
 	commandLabel_->SetPosition({kTextCenterX, kCommandY});
 	commandLabel_->SetShadow(true);
 
-	titleLabel_ = sprites.CreateTextLabel(SpriteLayer::UI, "TutorialTitle" + name);
+	titleLabel_ = sprites.CreateTextLabel(SpriteLayer::UI, "TutorialTitle" + id);
 	titleLabel_->SetText(text_.title);
 	titleLabel_->SetFontSize(kTitleFontSize);
 	titleLabel_->SetAlign(TextAlignX::Center, TextAlignY::Middle);
@@ -54,45 +51,29 @@ void Tutorial::Update() {
 		break;
 	case State::Start:
 		// 開始中の処理
-	{
-		float alpha = tutorialImage->GetSprite()->GetColor().w;
-		// アルファ値を徐々に増加させる
-		alpha += 0.01f;
-
-		if (alpha >= 1.0f) {
-			alpha = 1.0f; // 最大値を超えないようにする
+		// 濃さを徐々に増加させる
+		alpha_ += kFadeSpeed;
+		if (alpha_ >= 1.0f) {
+			alpha_ = 1.0f; // 最大値を超えないようにする
 			state_ = State::Active; // アクティブな状態に遷移
 		}
-
-		// スプライトのカラーにアルファ値を適用
-		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
-	}
-	break;
+		break;
 	case State::Active:
 		// アクティブな状態の処理
 		break;
 	case State::End:
 		// 終了中の処理
-	{
-		float alpha = tutorialImage->GetSprite()->GetColor().w;
-		// アルファ値を徐々に減少させる
-		alpha -= 0.01f;
-
-		if (alpha <= 0.0f) {
-			alpha = 0.0f; // 最小値を下回らないようにする
+		// 濃さを徐々に減少させる
+		alpha_ -= kFadeSpeed;
+		if (alpha_ <= 0.0f) {
+			alpha_ = 0.0f; // 最小値を下回らないようにする
 			state_ = State::Inactive; // 非アクティブな状態に遷移
 		}
-
-		// スプライトのカラーにアルファ値を適用
-		tutorialImage->GetSprite()->SetColor({1.0f, 1.0f, 1.0f, alpha});
-	}
-	break;
+		break;
 	}
 
-	// 説明文は絵と同じ濃さで出し入れする
-	UpdateText(tutorialImage->GetSprite()->GetColor().w);
-
-	tutorialImage->Update();
+	// 説明文を今の濃さで出し入れする
+	UpdateText(alpha_);
 }
 
 void Tutorial::UpdateText(float alpha) {

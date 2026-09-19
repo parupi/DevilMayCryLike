@@ -4,9 +4,9 @@
 #include "Audio/SoundManager.h"
 
 namespace {
-	// チュートリアルごとの設定（表示画像名・説明文・完了に必要な回数）
+	// チュートリアルごとの設定（識別子・説明文・完了に必要な回数）
 	struct TutorialConfig {
-		std::string imageName;
+		std::string id; // スプライト名を分けるための識別子
 		TutorialText text;
 		uint32_t maxCounter;
 	};
@@ -17,7 +17,7 @@ void TutorialSystem::Initialize(bool enabled) {
 
 	// 流さないシーン（トレーニング、OPTIONでオフ）では表示物を一切作らない。
 	// 作ったうえでアルファ0にする方式だと、消し忘れた1枚が画面左に残るし、
-	// 使わない GIF を6本ぶん読み込んでVRAMも食う。
+	// 使わない説明文を6項目ぶん作ることになる。
 	// TutorialDummy::CanDie() が全チュートリアル完了を条件にしているので、完了扱いにしておく
 	if (!enabled_) {
 		isFinishing_ = false;
@@ -29,7 +29,7 @@ void TutorialSystem::Initialize(bool enabled) {
 	decoration_ = std::make_unique<TutorialDecoration>();
 	decoration_->Initialize();
 
-	// チュートリアルの種類ごとの、表示画像・説明文・完了に必要な回数。
+	// チュートリアルの種類ごとの、識別子・説明文・完了に必要な回数。
 	// 説明文の操作は { パッド, キーボード, 何の操作か } の順。
 	// PlayerInput / LockOnInput と攻撃の json（ButtonIndex 2 = Y / J）の割り当てに合わせてあるので、
 	// 割り当てを変えたらここも直すこと
@@ -53,7 +53,7 @@ void TutorialSystem::Initialize(bool enabled) {
 		TutorialState state = static_cast<TutorialState>(i);
 		const TutorialConfig& config = kTutorialConfigs.at(state);
 		tutorials_[state] = std::make_unique<Tutorial>();
-		tutorials_[state]->Initialize(config.imageName, config.text, config.maxCounter);
+		tutorials_[state]->Initialize(config.id, config.text, config.maxCounter);
 	}
 	// 最初のチュートリアルを設定
 	currentTutorial_ = tutorials_[TutorialState::Move].get();
@@ -71,10 +71,10 @@ void TutorialSystem::Update() {
 	// 装飾の更新
 	decoration_->Update();
 
-	// 最後のチュートリアルの絵と背景マスクが消えきってから「全部クリア」にする。
+	// 最後のチュートリアルの説明文と背景マスクが消えきってから「全部クリア」にする。
 	// AdvanceTutorial の時点で完了にしてしまうと、最後の1発が
 	// 「チュートリアルを終わらせた攻撃」と「練習台へのとどめ」を兼ねてしまい、
-	// まだ手順の絵が出ているうちに TutorialDummy が倒れる（CanDie() がその場で true になるため）
+	// まだ説明文が出ているうちに TutorialDummy が倒れる（CanDie() がその場で true になるため）
 	if (isFinishing_ && currentTutorial_->IsInactive() && decoration_->IsInactive()) {
 		isFinishing_ = false;
 		isAllFinished_ = true;
