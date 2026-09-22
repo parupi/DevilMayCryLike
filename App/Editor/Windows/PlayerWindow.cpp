@@ -48,6 +48,18 @@ void AppEditor::DrawPlayerWindow()
 	ImGui::TextDisabled("位置 %.2f, %.2f, %.2f", position.x, position.y, position.z);
 	ImGui::TextDisabled("Transform などは Inspector から編集できます");
 
+	// 剣の持ち方（コンボの合間は手のボーン、普段は背中）。振っている間は攻撃の制御点が動かす
+	if (ImGui::CollapsingHeader("剣の持ち方（手・背中）")) {
+		if (PlayerWeapon* weapon = player->GetWeapon()) {
+			weapon->DrawGripEditor();
+		}
+	}
+
+	// 振っている間、腕を剣へ向ける IK（剣そのものは動かさない）
+	if (ImGui::CollapsingHeader("腕IK（振り中に腕を剣へ向ける）")) {
+		player->GetArmIK()->DrawEditor();
+	}
+
 	EditorWindow::End();
 
 	// --- 攻撃プレビュー（もとは AttackPlayer::DrawImGui が自前で開いていた） ---

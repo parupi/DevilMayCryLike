@@ -28,6 +28,7 @@
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include "World3D/Object/Model/Animation/BoneModifier.h"
 #include "World3D/Camera/CameraManager.h"
 #include "GameObject/Camera/GameCamera.h"
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
@@ -101,6 +102,10 @@ void Player::Initialize() {
 	weapon_->GetWorldTransform()->SetParent(GetWorldTransform());
 	// プレイヤークラスのポインタを武器クラスに渡す
 	weapon_->SetPlayer(this);
+	// コンボの合間は剣を手のボーンへ持たせる（普段は背中、振っている間は攻撃の制御点。ResolveWeaponHold）
+	weapon_->InitializeGrip(GetRenderer(kRendererName));
+	// 逆に、振っている間は腕の方を剣へ向ける（剣は制御点のまま動かさない）
+	armIk_.Initialize(GetRenderer(kRendererName));
 
 	scoreManager = std::make_unique<StylishScoreManager>();
 	scoreManager->Initialize();
@@ -189,11 +194,23 @@ void Player::UpdateAnimation() {
 	// ── 攻撃中は斬りモーションを最優先 ──
 	// コンボで攻撃が切り替わったら頭から出し直す（同じ技を連打しても振り直したいので名前で見る）
 	if (combat_ && combat_->IsAttacking()) {
+		const PlayerStateAttack* attack = combat_->GetCurrentAttack();
 		const std::string& attackName = combat_->GetCurrentAttackName();
 		const bool isNewSwing = (attackName != lastAttackName_);
 		lastAttackName_ = attackName;
 
-		anim->Play(kClipAttack, false, 0.05f, isNewSwing);
+		// 攻撃エディタの値をそのまま見る（毎フレーム読み直されるので、調整しながら確認できる）。
+		// Player::GetAttackData() は溜め・最終段の倍率を載せた「当たり判定用」の写しで、
+		// 更新はヒットの区切りだけなので、モーションの設定にはこちらを使う
+		const AttackData& motion = attack ? attack->GetBaseAttackData() : GetAttackData();
+
+		// 攻撃ごとのクリップ。空なら共通の斬りクリップ
+		static const std::string kDefaultAttackClip = kClipAttack;
+		const std::string& clipName = motion.animClip.empty() ? kDefaultAttackClip : motion.animClip;
+		anim->Play(clipName, false, motion.animBlendTime, isNewSwing);
+
+		// 攻撃ごとのボーン補正（1本しかない斬りクリップに技ごとの差を付ける）
+		UpdateAttackPose(attack, motion);
 
 		// 溜め攻撃の溜め中は、構えた姿勢のまま止めておく
 		if (combat_->IsCharging()) {
@@ -208,13 +225,19 @@ void Player::UpdateAnimation() {
 		// （先に取ると切り替え前＝待機モーション4.17秒の長さで割ることになり、初回だけ数倍速で飛ぶ）
 		const AttackData data = GetAttackData();
 		const float weaponImpact = data.preDelay + data.attackDuration * 0.5f;
-		const float clipImpact = anim->GetDuration() * kAttackClipImpactRatio;
-		const float speed = (weaponImpact > 0.01f && clipImpact > 0.01f) ? (clipImpact / weaponImpact) : 1.0f;
+		// 振り切る位置はクリップごとに違うので、攻撃側で上書きできるようにしてある
+		const float impactRatio = (motion.animImpactRatio > 0.0f) ? motion.animImpactRatio : kAttackClipImpactRatio;
+		const float clipImpact = anim->GetDuration() * impactRatio;
+		float speed = (weaponImpact > 0.01f && clipImpact > 0.01f) ? (clipImpact / weaponImpact) : 1.0f;
+		// 攻撃ごとの微調整（1.0 で自動のまま）
+		speed *= (motion.animSpeedScale > 0.01f) ? motion.animSpeedScale : 1.0f;
 		anim->SetSpeed(std::clamp(speed, kAttackSpeedMin, kAttackSpeedMax));
 		return;
 	}
 	lastAttackName_.clear();
 	anim->SetSpeed(1.0f);
+	// 攻撃が終わったら補正を外す。残すと待機モーションが歪んだままになる
+	UpdateAttackPose(nullptr, AttackData{});
 
 	// ── 通常時はステート名で決める ──
 	const PlayerStateBase* state = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
@@ -253,6 +276,90 @@ AnimationPlayer* Player::GetAnimationPlayer() {
 	// 静的モデルに戻した場合はスキンインスタンスが無いので、その場合は素通りさせる
 	SkinnedInstance* instance = renderer->GetSkinnedInstance();
 	return instance ? instance->GetPlayer() : nullptr;
+}
+
+BoneModifier* Player::GetBoneModifier() {
+	BaseRenderer* renderer = GetRenderer(kRendererName);
+	if (!renderer) return nullptr;
+	SkinnedInstance* instance = renderer->GetSkinnedInstance();
+	return instance ? instance->GetBoneModifier() : nullptr;
+}
+
+namespace {
+	// 攻撃の進み具合から補正の強さを出す。
+	// 出た瞬間・終わった瞬間にポーズが切り替わると固く見えるので、両端を滑らかに落とす
+	float AttackPoseEnvelope(float progress, float fadeIn, float fadeOut) {
+		// smoothstep。端の速度が 0 になるので、直線で繋ぐより折れ目が出ない
+		auto smooth = [](float t) {
+			t = std::clamp(t, 0.0f, 1.0f);
+			return t * t * (3.0f - 2.0f * t);
+		};
+
+		float weight = 1.0f;
+		if (fadeIn > 0.001f) {
+			weight = (std::min)(weight, smooth(progress / fadeIn));
+		}
+		if (fadeOut > 0.001f) {
+			weight = (std::min)(weight, smooth((1.0f - progress) / fadeOut));
+		}
+		return weight;
+	}
+}
+
+void Player::UpdateAttackPose(const PlayerStateAttack* attack, const AttackData& motion) {
+	BoneModifier* modifier = GetBoneModifier();
+	if (!modifier) return;
+
+	// 登録は使い捨て。毎フレーム作り直すので、消し忘れで前の技の補正が残ることがない
+	modifier->Clear();
+
+	if (!attack || motion.bonePoses.empty()) return;
+
+	const float envelope = AttackPoseEnvelope(attack->GetMotionProgress(), motion.poseFadeIn, motion.poseFadeOut);
+	if (envelope <= 0.001f) return;
+
+	modifier->SetGlobalWeight(envelope);
+	for (const AttackBonePose& pose : motion.bonePoses) {
+		if (pose.boneName.empty()) continue;
+		modifier->SetEuler(pose.boneName, pose.euler, pose.weight,
+			static_cast<BoneRotationSpace>(std::clamp(pose.space, 0, 2)));
+	}
+}
+
+bool Player::IsSwinging() const {
+	if (!combat_) return false;
+	// 硬直・派生待ちの間は制御点が剣を動かさないので、剣は手へ戻してよい。
+	// ここを「攻撃中かどうか」にすると、派生待ち（技によっては0.35秒ある）の間
+	// 剣が振り抜いた位置で止まったまま浮く
+	if (const PlayerStateAttack* attack = combat_->GetCurrentAttack()) {
+		return attack->IsSwingPhase();
+	}
+#ifdef _DEBUG
+	// エディタの攻撃プレビューも制御点で剣を動かすので、手に持たせたままだと取り合いになる
+	// （プレビューは Debug ビルドにしか無い）
+	const AttackPlayer* attackPlayer = combat_->GetAttackPlayer();
+	return attackPlayer && attackPlayer->IsPlaying();
+#else
+	return false;
+#endif
+}
+
+PlayerWeapon::HoldMode Player::ResolveWeaponHold() const {
+	using HoldMode = PlayerWeapon::HoldMode;
+	if (IsSwinging()) return HoldMode::Swing;
+	if (!combat_) return HoldMode::Back;
+
+	// 硬直・派生待ちの間は手に持つ。ただし納刀モーションは振り終えた時点で剣が背中にあるので、
+	// ここで手に戻すと背負った剣をまた握り直してしまう
+	if (const PlayerStateAttack* attack = combat_->GetCurrentAttack()) {
+		return combat_->IsSheatheAttack(*attack) ? HoldMode::Back : HoldMode::Hand;
+	}
+	// 技と技のあいだ（次の技か納刀モーションを待っている間）もまだ抜いたまま
+	if (combat_->IsWaitingForNextCombo()) return HoldMode::Hand;
+
+	// 攻撃していない。回避・被弾でコンボが切られて納刀モーションが出なかったときも、
+	// ここで背中へ回していく
+	return HoldMode::Back;
 }
 
 bool Player::IsDying() const {
@@ -387,6 +494,16 @@ void Player::Update(float deltaTime) {
 	// ポーズの更新は Object3d::Update の中（レンダラー更新）で走るので、その手前で呼ぶ
 	UpdateAnimation();
 
+	// 振っている間は腕を剣の柄へ向ける。
+	// 剣はすでに combat_->Update() で今フレームの制御点へ動いているので、その姿勢から目標を作る。
+	// ポーズを作るのは下の Object3d::Update（レンダラー更新）なので、必ずその手前で注文しておくこと
+	{
+		Vector3 holdPosition{};
+		Quaternion holdRotation{};
+		weapon_->GetHoldPoseLocal(holdPosition, holdRotation);
+		armIk_.Update(IsSwinging(), holdPosition, holdRotation, dt);
+	}
+
 	// 足音と心音。クリップが決まった後に呼ぶ（足音がアニメーションイベントを見るため）
 	UpdateMovementSound();
 
@@ -414,6 +531,26 @@ void Player::Update(float deltaTime) {
 
 	// キャラクター追従ライトの更新（ヒットストップ中はフラッシュの減衰も止まる）
 	characterLight_->Update(GetWorldTransform()->GetTranslation(), dt);
+
+	// 剣の置き場所を決める。振っている間は攻撃の制御点へ譲り、コンボの合間は手、普段は背中。
+	// ボーンのポーズはすぐ上の Object3d::Update（レンダラー更新）で今フレームぶんに更新済みなので、
+	// ここで姿勢を決めてから下の UpdateTransformOnly で行列を作り直す
+	{
+		// 背負う姿勢は納刀モーションの最後の制御点（攻撃エディタで直せばそのまま反映される）
+		Vector3 backPosition{};
+		Vector3 backRotation{};
+		if (combat_->GetSheathePose(backPosition, backRotation)) {
+			weapon_->SetBackPose(backPosition, backRotation);
+		}
+		weapon_->SetHoldMode(ResolveWeaponHold());
+		weapon_->UpdateGrip(dt);
+	}
+
+#ifdef _DEBUG
+	// 腕IKの目標とチェーン（Player ウィンドウで表示を切り替える）。
+	// ポーズが確定した後に描くので、線は今フレームの腕に重なる
+	armIk_.DrawDebug(GetWorldTransform());
+#endif // _DEBUG
 
 	// 剣の攻撃演出。刃先の位置から軌跡を作るので、武器の行列をこのフレームの値へ揃えてから呼ぶ
 	// （武器の Update はプレイヤーが動く前に走るため、そのままだと1フレーム遅れた位置になる）。

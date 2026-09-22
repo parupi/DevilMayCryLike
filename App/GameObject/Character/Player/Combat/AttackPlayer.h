@@ -25,6 +25,12 @@ public:
     void Update(float deltaTime);
     void DrawEditorContents(); // ウィンドウは App/Editor/Windows/PlayerWindow.cpp が開く
 
+    /// <summary>
+    /// プレビュー再生中か。プレビューも制御点で剣を動かすので、
+    /// 剣を手のボーンへ持たせる側（PlayerWeapon）がこれを見て譲る
+    /// </summary>
+    bool IsPlaying() const { return isPlaying_; }
+
 private:
     void Play();
     void Stop();

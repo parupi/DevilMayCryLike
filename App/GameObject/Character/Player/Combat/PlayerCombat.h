@@ -61,6 +61,15 @@ public:
 	const PlayerStateAttack* GetCurrentAttack() const { return currentState_.empty() ? nullptr : currentState_.back(); }
 	// 攻撃を強制中断する（被弾時など）
 	void InterruptCombat();
+	// 攻撃を振り終えて、次の技（派生）か納刀モーションを待っている間か
+	bool IsWaitingForNextCombo() const { return waitingForNextCombo_; }
+	// 納刀モーション(Sheathe)か。振り終えた時点で剣は背中に収まっている
+	bool IsSheatheAttack(const PlayerStateAttack& attack) const;
+	/// <summary>
+	/// 納刀モーションの最後の制御点（プレイヤーのローカル空間。回転は度）＝剣を背負ったときの姿勢。
+	/// 攻撃エディタで直せば毎フレーム反映される。納刀モーションが無ければ false で、out は触らない
+	/// </summary>
+	bool GetSheathePose(Vector3& outPosition, Vector3& outRotation) const;
 	// 攻撃ノードを取得
 	const AttackNode& GetAttackNode(const std::string& name) const{ return attackGraph_.at(name); }
 	// プレイヤーからのコマンドを受け取って処理する
@@ -111,6 +120,11 @@ private:
 #ifdef _DEBUG
 	// 選択中の攻撃が、今ルート攻撃として出せるかを並べる（出ないときに理由を探すため）
 	void DrawRootAttackCheck(const std::string& attackName);
+	/// <summary>
+	/// 攻撃ごとのアニメーション設定（クリップ・速度・ボーン補正）。
+	/// クリップ名とジョイント名は、プレイヤーのモデルが持っているものから選ばせる
+	/// </summary>
+	void DrawAttackAnimationEditor(const std::string& attackName);
 #endif // _DEBUG
 
 private:

@@ -10,6 +10,30 @@ enum class AttackPosture {
 	Air, // 空中状態
 };
 
+/// <summary>
+/// 攻撃中だけ体へ掛けるボーン補正1つぶん。
+///
+/// プレイヤーの斬りクリップは Alien.gltf の SwordSlash 1本しかないので、
+/// 「技ごとにモーションを変える」のはここで差を付けて作る。
+/// 腕を上げる・体をひねる・剣を持つ手を返す、といった補正を技ごとに持たせる。
+/// 実際に回すのは Engine 側の BoneModifier（Skeleton::AddJointRotation）。
+/// </summary>
+struct AttackBonePose {
+	/// ジョイント名。Alien.gltf なら "UpperArm.R" / "LowerArm.R" / "Palm.R" / "Torso" など
+	/// （一覧は Animation ウィンドウの「ジョイント」で見られる）
+	std::string boneName;
+	/// 補正回転[度]
+	Vector3 euler{};
+	/// 0〜1。ボーンごとの効き具合
+	float weight = 1.0f;
+	/// 回す軸の空間。0=Local(ボーン自身の軸) / 1=Parent(親の軸) / 2=Model(モデル空間)
+	/// Engine の BoneRotationSpace と同じ並び
+	int32_t space = 0;
+};
+
+/// 1つの攻撃に持たせられるボーン補正の数。増やすなら攻撃エディタの上限も一緒に見ること
+inline constexpr int32_t kMaxAttackBonePoses = 6;
+
 enum class ReactionType {
 	HitStun,   // のけぞり
 	Knockback, // 吹っ飛び
@@ -159,6 +183,25 @@ struct AttackData {
 	// ── 見た目 ──
 	// 剣の軌跡の色・溜めの光・技ごとの追加演出の種類（PlayerAttackEffect）。Auto は攻撃の性能から決める
 	AttackVfxStyle vfxStyle = AttackVfxStyle::Auto;
+
+	// ── アニメーション（攻撃ごとに体のモーションを変える）──
+	// 既定値はどれも「今までと同じ動き」になる値にしてある
+	/// 再生するクリップ名。空なら Player::kClipAttack（共通の斬り）
+	std::string animClip;
+	/// 振り切る瞬間のクリップ上の位置(0〜1)。0 なら Player::kAttackClipImpactRatio。
+	/// クリップを差し替えたとき、体の振り抜きと剣の振り抜きを合わせるために使う
+	float animImpactRatio = 0.0f;
+	/// 攻撃の長さへ合わせた再生速度に、さらに掛ける倍率
+	float animSpeedScale = 1.0f;
+	/// このクリップへ入るときのブレンド時間[秒]
+	float animBlendTime = 0.05f;
+
+	/// 攻撃中だけ掛けるボーン補正
+	std::vector<AttackBonePose> bonePoses;
+	/// 補正の立ち上がり／抜け（構え＋振りを 1 とした割合）。
+	/// 0 にすると出た瞬間にポーズが変わるので、少し取って滑らかに入れる
+	float poseFadeIn = 0.25f;
+	float poseFadeOut = 0.3f;
 };
 
 struct DamageInfo {

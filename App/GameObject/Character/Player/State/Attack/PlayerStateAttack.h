@@ -50,6 +50,25 @@ public:
 	bool IsStartupPhase() const { return attackPhase_ == AttackPhase::Startup; }
 	// 攻撃判定が出ている（剣を振っている）間か
 	bool IsActivePhase() const { return attackPhase_ == AttackPhase::Active; }
+	/// <summary>
+	/// 剣を制御点で動かしている間か（構え〜振り抜き）。
+	/// 硬直・派生待ちでは制御点が剣を動かさないので、その間は手へ戻してよい
+	/// </summary>
+	bool IsSwingPhase() const {
+		return attackPhase_ == AttackPhase::Startup
+			|| attackPhase_ == AttackPhase::Charge
+			|| attackPhase_ == AttackPhase::Active;
+	}
+	/// <summary>
+	/// 構え＋振りを 0〜1 にした進み具合。攻撃ごとのボーン補正の出入りに使う。
+	/// 硬直・派生待ちは含めない（そこまで補正を引っぱると次の技に被る）
+	/// </summary>
+	float GetMotionProgress() const {
+		const float span = attackData_.preDelay + attackData_.attackDuration;
+		if (span <= 0.0f) return 1.0f;
+		const float t = stateTime_.current / span;
+		return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
+	}
 	// 予備動作の進み具合 0〜1
 	float GetStartupProgress() const {
 		if (attackData_.preDelay <= 0.0f) return 1.0f;
