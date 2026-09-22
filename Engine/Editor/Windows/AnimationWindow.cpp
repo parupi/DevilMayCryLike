@@ -12,6 +12,7 @@
 #include "World3D/Object/Model/Animation/AnimationPlayer.h"
 #include "World3D/Object/Model/Animation/AnimationClipSet.h"
 #include "World3D/Object/Model/Animation/Skeleton.h"
+#include "World3D/Object/Model/Animation/BoneModifier.h"
 
 #include <imgui/imgui.h>
 #include <algorithm>
@@ -326,6 +327,107 @@ void DrawEventSection(SkinnedInstance* instance, SkinnedModel* asset)
 		ModelLoader::MakeAssetBasePath(asset->GetModelName()).c_str());
 }
 
+// ── ボーン補正 ──
+// エディタの補正はゲーム側（Player が攻撃ごとに積むもの）と混ざらないよう、
+// SkinnedInstance が持つ BoneModifier ではなくポーズコールバックへ自前のものを載せる。
+// 同じ BoneModifier を共有すると、Player が毎フレーム Clear() するので何も効かない
+BoneModifier g_editorBoneModifier;
+SkinnedInstance* g_boneModifierTarget = nullptr;
+
+struct EditorBoneEntry {
+	std::string joint;
+	Vector3 euler{};
+	float weight = 1.0f;
+	int space = static_cast<int>(BoneRotationSpace::Local);
+};
+std::vector<EditorBoneEntry> g_boneEntries;
+int g_jointToAdd = 0;
+
+void DrawBoneModifierSection(SkinnedInstance* instance)
+{
+	const SkeletonData& skeleton = instance->GetSkeleton()->GetSkeletonData();
+
+	ImGui::TextDisabled("アニメーションの上からボーンを回す。攻撃ごとの補正値を探すのに使う");
+	ImGui::TextDisabled("（見つけた値は Attack Editor の Animation に入れると攻撃ごとに残せる）");
+
+	// 対象が変わったら前の相手からコールバックを外す。
+	// 付けっぱなしにすると、別のモデルに対して毎フレーム空の補正を回し続けることになる
+	if (g_boneModifierTarget && g_boneModifierTarget != instance) {
+		g_boneModifierTarget->RemovePoseCallback("EditorBoneModifier");
+		g_boneModifierTarget = nullptr;
+	}
+
+	// 追加するジョイントを選ぶ
+	std::vector<const char*> jointNames;
+	jointNames.reserve(skeleton.joints.size());
+	for (const Joint& joint : skeleton.joints) {
+		jointNames.push_back(joint.name.c_str());
+	}
+	if (!jointNames.empty()) {
+		if (g_jointToAdd >= static_cast<int>(jointNames.size())) g_jointToAdd = 0;
+		ImGui::Combo("ジョイント", &g_jointToAdd, jointNames.data(), static_cast<int>(jointNames.size()));
+		ImGui::SameLine();
+		if (ImGui::Button("追加")) {
+			EditorBoneEntry entry;
+			entry.joint = jointNames[g_jointToAdd];
+			g_boneEntries.push_back(entry);
+		}
+	}
+
+	static const char* kSpaceLabels[] = { "Local (ボーン自身の軸)", "Parent (親の軸)", "Model (モデル空間)" };
+
+	int removeIndex = -1;
+	for (int i = 0; i < static_cast<int>(g_boneEntries.size()); ++i) {
+		EditorBoneEntry& entry = g_boneEntries[i];
+		ImGui::PushID(i);
+		ImGui::SeparatorText(entry.joint.c_str());
+
+		// 実在しないジョイントは効かないので、その場で分かるようにしておく
+		if (instance->GetSkeleton()->FindJointIndex(entry.joint) < 0) {
+			ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.40f, 1.0f), "このモデルには無いジョイントです");
+		}
+
+		ImGui::DragFloat3("回転(度)", &entry.euler.x, 0.5f);
+		ImGui::SliderFloat("Weight", &entry.weight, 0.0f, 1.0f);
+		ImGui::Combo("Space", &entry.space, kSpaceLabels, IM_ARRAYSIZE(kSpaceLabels));
+		if (ImGui::SmallButton("この補正を消す")) removeIndex = i;
+		ImGui::PopID();
+	}
+	if (removeIndex >= 0) {
+		g_boneEntries.erase(g_boneEntries.begin() + removeIndex);
+	}
+
+	ImGui::Separator();
+	bool enabled = g_editorBoneModifier.IsEnabled();
+	if (ImGui::Checkbox("補正を有効にする", &enabled)) {
+		g_editorBoneModifier.SetEnabled(enabled);
+	}
+	float globalWeight = g_editorBoneModifier.GetGlobalWeight();
+	if (ImGui::SliderFloat("全体 Weight", &globalWeight, 0.0f, 1.0f)) {
+		g_editorBoneModifier.SetGlobalWeight(globalWeight);
+	}
+	ImGui::SameLine();
+	if (ImGui::SmallButton("全部消す")) g_boneEntries.clear();
+
+	// 入力欄の内容を補正へ流し込む。使い捨てなので毎フレーム作り直してよい
+	g_editorBoneModifier.Clear();
+	for (const EditorBoneEntry& entry : g_boneEntries) {
+		g_editorBoneModifier.SetEuler(entry.joint, entry.euler, entry.weight,
+			static_cast<BoneRotationSpace>(entry.space));
+	}
+
+	// 補正が無いときはコールバックを外しておく（毎フレームのポーズ再計算を省くため）
+	if (g_boneEntries.empty()) {
+		if (g_boneModifierTarget == instance) {
+			instance->RemovePoseCallback("EditorBoneModifier");
+			g_boneModifierTarget = nullptr;
+		}
+	} else if (g_boneModifierTarget != instance) {
+		instance->AddPoseCallback("EditorBoneModifier", [](Skeleton& skeleton) { g_editorBoneModifier.Apply(skeleton); });
+		g_boneModifierTarget = instance;
+	}
+}
+
 void DrawSkeletonSection(SkinnedInstance* instance)
 {
 	const SkeletonData& skeleton = instance->GetSkeleton()->GetSkeletonData();
@@ -417,6 +519,9 @@ void Editor::DrawAnimationWindow()
 	}
 	if (ImGui::CollapsingHeader("アニメーションイベント", ImGuiTreeNodeFlags_DefaultOpen)) {
 		DrawEventSection(instance, asset);
+	}
+	if (ImGui::CollapsingHeader("ボーン補正")) {
+		DrawBoneModifierSection(instance);
 	}
 	if (ImGui::CollapsingHeader("ジョイント")) {
 		DrawSkeletonSection(instance);

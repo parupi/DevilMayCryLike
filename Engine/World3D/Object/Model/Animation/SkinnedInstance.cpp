@@ -49,6 +49,24 @@ void SkinnedInstance::Initialize(SkinnedModel* asset)
 	Update(0.0f);
 }
 
+void SkinnedInstance::AddPoseCallback(const std::string& key, std::function<void(Skeleton&)> callback)
+{
+	for (auto& entry : poseCallbacks_) {
+		if (entry.first != key) continue;
+		entry.second = std::move(callback);
+		return;
+	}
+	poseCallbacks_.emplace_back(key, std::move(callback));
+}
+
+void SkinnedInstance::RemovePoseCallback(const std::string& key)
+{
+	poseCallbacks_.erase(
+		std::remove_if(poseCallbacks_.begin(), poseCallbacks_.end(),
+			[&key](const auto& entry) { return entry.first == key; }),
+		poseCallbacks_.end());
+}
+
 void SkinnedInstance::CreatePalette(uint32_t jointCount)
 {
 	auto* resourceManager = dxManager_->GetResourceManager();
@@ -105,6 +123,31 @@ void SkinnedInstance::Update(float deltaTime)
 
 	// ポーズを進める（内部で Skeleton::Update まで済む）
 	player_->Update(deltaTime);
+
+	// ── ポーズ後処理 ──
+	// アニメーションが作ったポーズを上書きするので、行列パレットへ書き込む手前のここに挿す。
+	// どちらもローカル回転しか触らないため、最後にワールド行列を作り直す
+	bool posed = boneModifier_.Apply(skeleton_);
+
+	// IK はボーン補正の結果の上から解く（補正で作った構えを保ったまま手を寄せたいので）
+	if (ikRequest_.active) {
+		if (IKSolver::Solve(skeleton_, ikRequest_.chain, ikRequest_.target, &ikError_)) {
+			posed = true;
+		}
+		if (!ikRequest_.alignJoint.empty() && ikRequest_.alignWeight > 0.0f) {
+			IKSolver::AlignJoint(skeleton_, ikRequest_.alignJoint, ikRequest_.alignRotation, ikRequest_.alignWeight);
+			posed = true;
+		}
+	}
+
+	for (auto& [key, callback] : poseCallbacks_) {
+		if (!callback) continue;
+		callback(skeleton_);
+		posed = true;
+	}
+	if (posed) {
+		skeleton_.Update();
+	}
 
 	// 行列パレットへ書き込む。
 	// パレットは Upload ヒープ（write-combine）なので書くだけにし、

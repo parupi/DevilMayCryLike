@@ -51,6 +51,37 @@ void Skeleton::Update()
 	}
 }
 
+void Skeleton::UpdateSubtree(int32_t index)
+{
+	if (index < 0 || index >= static_cast<int32_t>(skeletonData_.joints.size())) return;
+
+	Joint& joint = skeletonData_.joints[index];
+	joint.localMatrix = MakeAffineMatrix(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+	if (joint.parent) {
+		joint.skeletonSpaceMatrix = joint.localMatrix * skeletonData_.joints[*joint.parent].skeletonSpaceMatrix;
+	} else {
+		joint.skeletonSpaceMatrix = joint.localMatrix;
+	}
+
+	// children はインデックスのコピーを取らずに回せる（この関数はジョイントを増減させない）
+	for (int32_t child : skeletonData_.joints[index].children) {
+		UpdateSubtree(child);
+	}
+}
+
+QuaternionTransform* Skeleton::GetJointTransform(int32_t index)
+{
+	if (index < 0 || index >= static_cast<int32_t>(skeletonData_.joints.size())) return nullptr;
+	return &skeletonData_.joints[index].transform;
+}
+
+Vector3 Skeleton::GetJointPosition(int32_t index) const
+{
+	if (index < 0 || index >= static_cast<int32_t>(skeletonData_.joints.size())) return Vector3{};
+	const Matrix4x4& matrix = skeletonData_.joints[index].skeletonSpaceMatrix;
+	return { matrix.m[3][0], matrix.m[3][1], matrix.m[3][2] };
+}
+
 namespace {
 	// クリップから1ジョイント分の姿勢を取り出す。
 	// チャンネルが無いジョイントは fallback（＝バインドポーズ）をそのまま返す
@@ -162,6 +193,66 @@ void Skeleton::ResetToBindPose()
 	for (auto& joint : skeletonData_.joints) {
 		joint.transform = joint.bindTransform;
 	}
+}
+
+// ---------------------------------------------------------------- ボーン補正
+
+Quaternion Skeleton::GetSkeletonSpaceRotation(int32_t index) const
+{
+	if (index < 0 || index >= static_cast<int32_t>(skeletonData_.joints.size())) return Identity();
+
+	// 行列は「子 * 親」で合成するが、クォータニオンは順番が逆になる。
+	// このエンジンの行ベクトル規約では MakeRotateMatrix(q) が R(q) の転置なので、
+	// 行列の A * B はクォータニオンの b * a に対応する。ここを入れ替えると補正が裏返る
+	Quaternion rotation = skeletonData_.joints[index].transform.rotate;
+	std::optional<int32_t> parent = skeletonData_.joints[index].parent;
+	while (parent.has_value()) {
+		rotation = skeletonData_.joints[*parent].transform.rotate * rotation;
+		parent = skeletonData_.joints[*parent].parent;
+	}
+	return Normalize(rotation);
+}
+
+bool Skeleton::AddJointRotation(int32_t index, const Quaternion& delta, BoneRotationSpace space)
+{
+	if (index < 0 || index >= static_cast<int32_t>(skeletonData_.joints.size())) return false;
+
+	Joint& joint = skeletonData_.joints[index];
+	const Quaternion local = joint.transform.rotate;
+
+	switch (space) {
+	case BoneRotationSpace::Local:
+		// ボーン自身の軸まわり。行列では R補正 * R(local) の順に当たる
+		joint.transform.rotate = Normalize(local * delta);
+		break;
+
+	case BoneRotationSpace::Parent:
+		// 親の軸まわり。ローカル回転（＝親空間での姿勢）にそのまま足す形
+		joint.transform.rotate = Normalize(delta * local);
+		break;
+
+	case BoneRotationSpace::Model: {
+		// モデル空間の補正を親空間へ移してから足す。
+		// parent^-1 * delta * parent が「親から見た同じ回転」
+		const Quaternion parentRotation = joint.parent.has_value()
+			? GetSkeletonSpaceRotation(*joint.parent) : Identity();
+		const Quaternion inParentSpace = Inverse(parentRotation) * delta * parentRotation;
+		joint.transform.rotate = Normalize(inParentSpace * local);
+		break;
+	}
+	}
+	return true;
+}
+
+bool Skeleton::AddJointRotation(const std::string& name, const Quaternion& delta, BoneRotationSpace space)
+{
+	return AddJointRotation(FindJointIndex(name), delta, space);
+}
+
+int32_t Skeleton::FindJointIndex(const std::string& name) const
+{
+	auto it = skeletonData_.jointMap.find(name);
+	return (it == skeletonData_.jointMap.end()) ? -1 : it->second;
 }
 
 const Joint* Skeleton::FindJoint(const std::string& name) const

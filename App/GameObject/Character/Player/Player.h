@@ -26,6 +26,7 @@
 #include "GameObject/Effect/PlayerAttackEffect.h"
 #include "Graphics/Rendering/Effect/WeaponTrail.h"
 #include "PlayerDodge.h"
+#include "PlayerArmIK.h"
 #include "Combat/PlayerCombat.h"
 #include "GameObject/LockOn/LockOnSystem.h"
 #include "Tutorial/Service/TutorialService.h"
@@ -33,6 +34,8 @@
 
 class PlayerInput;
 class AnimationPlayer;
+class BoneModifier;
+class PlayerStateAttack;
 
 struct PlayerCommand;
 
@@ -307,6 +310,19 @@ public:
 	bool IsAttack() const { return combat_->IsAttacking(); }
 
 	/// <summary>
+	/// 剣を攻撃モーション（制御点）で振っている最中か。
+	/// IsAttack() と違い、エディタの攻撃プレビュー中も true を返す。
+	/// 剣を手に持たせるかどうかの判断に使う
+	/// </summary>
+	bool IsSwinging() const;
+
+	/// <summary>
+	/// 剣の持ち方を決める。振っている間は制御点、コンボの合間は手、それ以外は背中。
+	/// 背中へは納刀モーション(Sheathe)が運ぶので、それを振り終えたらもう手には戻さない
+	/// </summary>
+	PlayerWeapon::HoldMode ResolveWeaponHold() const;
+
+	/// <summary>
 	/// プレイヤーに追従するポイントライトを取得する。
 	/// 攻撃ヒット時に Flash() を呼ぶとひときわ強く光る。
 	/// </summary>
@@ -347,6 +363,15 @@ public:
 	/// <summary>体のアニメーション再生窓口。静的モデルを使っている間は nullptr が返る</summary>
 	AnimationPlayer* GetAnimationPlayer();
 
+	/// <summary>
+	/// アニメーションの上から掛けるボーン補正の窓口。静的モデルなら nullptr。
+	/// 攻撃ごとのモーションの差はここへ積む（中身は Player::UpdateAttackPose）
+	/// </summary>
+	BoneModifier* GetBoneModifier();
+
+	/// <summary>振り中に腕を剣へ向ける IK。調整UIは Player ウィンドウから開く</summary>
+	PlayerArmIK* GetArmIK() { return &armIk_; }
+
 	/// <summary>死亡演出の画面効果（グレースケール＋暗転ビネット）</summary>
 	DeathScreenEffect* GetDeathScreen() const { return deathScreen_.get(); }
 	/// <summary>死亡演出の消滅（ディゾルブ＋黒いもや）</summary>
@@ -374,6 +399,12 @@ private:
 
 	// ステートと戦闘状態から再生するクリップを決めて流す。毎フレーム呼ぶ
 	void UpdateAnimation();
+
+	/// <summary>
+	/// 攻撃ごとのボーン補正を流し込む。attack が nullptr なら補正を外す。
+	/// 斬りクリップが1本しかないので、技ごとの見た目の違いはここで作っている
+	/// </summary>
+	void UpdateAttackPose(const PlayerStateAttack* attack, const AttackData& motion);
 
 	/// <summary>
 	/// ステートが自分で鳴らさない音（足音・HPが少ないときの心音）を面倒みる。
@@ -453,6 +484,9 @@ private:
 	// 移動可能範囲(水平方向)。強制戦闘イベント発動中などに有効化される。
 	bool hasMovementBounds_ = false;
 	MovementBounds movementBounds_{};
+
+	// 振り中に腕を剣へ向ける IK。剣は動かさず、腕だけが剣に合わせに行く
+	PlayerArmIK armIk_{};
 
 	// ── 回避・ダッシュ ──
 	PlayerDodgeParams dodgeParams_{};

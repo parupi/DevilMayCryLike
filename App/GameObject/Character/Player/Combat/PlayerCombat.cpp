@@ -5,6 +5,10 @@
 #include "Audio/GameSoundLibrary.h"
 #include "Audio/SoundManager.h"
 #ifdef _DEBUG
+#include "World3D/Object/Renderer/BaseRenderer.h"
+#include "World3D/Object/Model/SkinnedModel.h"
+#include "World3D/Object/Model/Animation/SkinnedInstance.h"
+#include "World3D/Object/Model/Animation/AnimationClipSet.h"
 #endif
 
 namespace {
@@ -308,6 +312,22 @@ bool PlayerCombat::IsReadyForRootAttack(const PlayerStateAttack& attack) const {
 	return attack.CanBeInterrupted() || attack.GetAttackName() == kSheatheName;
 }
 
+bool PlayerCombat::IsSheatheAttack(const PlayerStateAttack& attack) const {
+	return attack.GetAttackName() == kSheatheName;
+}
+
+bool PlayerCombat::GetSheathePose(Vector3& outPosition, Vector3& outRotation) const {
+	const auto it = states_.find(kSheatheName);
+	if (it == states_.end()) return false;
+
+	const AttackData& data = it->second->GetBaseAttackData();
+	if (data.controlPoints.empty() || data.controlRotations.empty()) return false;
+
+	outPosition = data.controlPoints.back();
+	outRotation = data.controlRotations.back();
+	return true;
+}
+
 void PlayerCombat::OpenCounterWindow(float seconds) {
 	// 立て続けにカウンターを出せないよう、クールタイム中は受付を開かない
 	if (counterCooldownTimer_ > 0.0f) return;
@@ -439,6 +459,113 @@ void PlayerCombat::DrawRootAttackCheck(const std::string& attackName) {
 	if (!node.nextAttacks.empty() && pre + active + post >= total) {
 		row(false, std::format("Pre + Attack + Post Delay（{:.2f}）が Total Duration（{:.2f}）以上なので、派生を受け付ける時間が無い",
 			pre + active + post, total));
+	}
+}
+
+void PlayerCombat::DrawAttackAnimationEditor(const std::string& attackName) {
+	ImGui::SeparatorText("Animation（この攻撃の体のモーション）");
+
+	// プレイヤーのモデルが実際に持っているクリップ名・ジョイント名を引く。
+	// 手で打たせると綴り違いで黙って効かなくなるので、必ず一覧から選ばせる
+	std::vector<std::string> clipNames;
+	std::vector<std::string> jointNames;
+	if (player_) {
+		if (BaseRenderer* renderer = player_->GetRenderer(Player::kRendererName)) {
+			if (SkinnedInstance* instance = renderer->GetSkinnedInstance()) {
+				if (const SkinnedModel* asset = instance->GetAsset()) {
+					clipNames = asset->GetClipSet()->GetClipNames();
+				}
+				for (const Joint& joint : instance->GetSkeleton()->GetSkeletonData().joints) {
+					jointNames.push_back(joint.name);
+				}
+			}
+		}
+	}
+	if (clipNames.empty()) {
+		ImGui::TextDisabled("プレイヤーがスキンモデルではないので、モーションは変えられません");
+		return;
+	}
+
+	// ── 再生するクリップ ──
+	std::string& animClip = global_->GetValueRef<std::string>(attackName, "AnimClip");
+	const char* currentClipLabel = animClip.empty() ? "(共通の斬り)" : animClip.c_str();
+	if (ImGui::BeginCombo("Clip", currentClipLabel)) {
+		if (ImGui::Selectable("(共通の斬り)", animClip.empty())) {
+			animClip.clear();
+		}
+		for (const std::string& clip : clipNames) {
+			if (ImGui::Selectable(clip.c_str(), clip == animClip)) {
+				animClip = clip;
+			}
+		}
+		ImGui::EndCombo();
+	}
+	ImGui::SetItemTooltip("この攻撃で流すクリップ。(共通の斬り) なら Player::kClipAttack を使う");
+
+	ImGui::DragFloat("Anim Speed Scale", &global_->GetValueRef<float>(attackName, "AnimSpeedScale"), 0.01f, 0.1f, 4.0f);
+	ImGui::SetItemTooltip("攻撃の長さへ自動で合わせた再生速度に、さらに掛ける倍率。1.0 で自動のまま\n"
+		"（上下限 0.75〜3.0 は Player 側で掛かる）");
+	ImGui::DragFloat("Anim Impact Ratio", &global_->GetValueRef<float>(attackName, "AnimImpactRatio"), 0.01f, 0.0f, 1.0f);
+	ImGui::SetItemTooltip("クリップのどこで振り切るか(0〜1)。0 なら Player::kAttackClipImpactRatio(0.44)。\n"
+		"クリップを差し替えて、体の振り抜きと剣の振り抜きがずれるときに合わせる");
+	ImGui::DragFloat("Anim Blend Time", &global_->GetValueRef<float>(attackName, "AnimBlendTime"), 0.01f, 0.0f, 0.5f, "%.2f 秒");
+	ImGui::SetItemTooltip("前のモーションから繋ぐ時間。長くすると滑らかだが出が鈍く見える");
+
+	// ── ボーン補正 ──
+	ImGui::Spacing();
+	ImGui::TextDisabled("ボーン補正: 同じクリップのまま、技ごとに体の形を変える");
+	ImGui::TextDisabled("（値の当たりは Animation ウィンドウの「ボーン補正」で探すと早い）");
+
+	int32_t& poseCount = global_->GetValueRef<int32_t>(attackName, "PoseBoneCount");
+	poseCount = std::clamp(poseCount, 0, kMaxAttackBonePoses);
+
+	static const char* kSpaceLabels[] = { "Local (ボーン自身の軸)", "Parent (親の軸)", "Model (モデル空間)" };
+
+	for (int32_t i = 0; i < poseCount; ++i) {
+		const std::string prefix = "PoseBone" + std::to_string(i);
+		// 個数だけ増やした直後は項目がまだ無いので、ここで作る（ControlPoint と同じ扱い）
+		if (!global_->HasItem(attackName, prefix + "Name")) {
+			global_->AddItem(attackName, prefix + "Name", std::string(""));
+			global_->AddItem(attackName, prefix + "Rotation", Vector3{});
+			global_->AddItem(attackName, prefix + "Weight", 1.0f);
+			global_->AddItem(attackName, prefix + "Space", int32_t(0));
+		}
+
+		ImGui::PushID(i);
+		std::string& boneName = global_->GetValueRef<std::string>(attackName, prefix + "Name");
+		if (ImGui::BeginCombo("Bone", boneName.empty() ? "(なし)" : boneName.c_str())) {
+			if (ImGui::Selectable("(なし)", boneName.empty())) {
+				boneName.clear();
+			}
+			for (const std::string& joint : jointNames) {
+				if (ImGui::Selectable(joint.c_str(), joint == boneName)) {
+					boneName = joint;
+				}
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::DragFloat3("Rotation(度)", &global_->GetValueRef<Vector3>(attackName, prefix + "Rotation").x, 0.5f);
+		ImGui::SliderFloat("Weight", &global_->GetValueRef<float>(attackName, prefix + "Weight"), 0.0f, 1.0f);
+		ImGui::Combo("Space", &global_->GetValueRef<int32_t>(attackName, prefix + "Space"), kSpaceLabels, IM_ARRAYSIZE(kSpaceLabels));
+		ImGui::Separator();
+		ImGui::PopID();
+	}
+
+	if (poseCount < kMaxAttackBonePoses && ImGui::Button("Add Bone Pose")) {
+		++poseCount;
+	}
+	if (poseCount > 0) {
+		ImGui::SameLine();
+		if (ImGui::Button("Remove Last Bone Pose")) {
+			--poseCount;
+		}
+	}
+
+	if (poseCount > 0) {
+		ImGui::DragFloat("Pose Fade In", &global_->GetValueRef<float>(attackName, "PoseFadeIn"), 0.01f, 0.0f, 1.0f);
+		ImGui::SetItemTooltip("補正が効き始めるまでの割合（構え＋振りを 1 とする）。0 だと出た瞬間に形が変わる");
+		ImGui::DragFloat("Pose Fade Out", &global_->GetValueRef<float>(attackName, "PoseFadeOut"), 0.01f, 0.0f, 1.0f);
+		ImGui::SetItemTooltip("補正が抜けるまでの割合。振り終わりに元のモーションへ戻す");
 	}
 }
 #endif // _DEBUG
@@ -713,6 +840,9 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 		ImGui::DragFloat("Charge HitStop Scale", &global_->GetValueRef<float>(attackName, "ChargeHitStopScale"), 0.01f, 0.0f, 20.0f);
 		ImGui::SetItemTooltip("最大まで溜めたときの HitStopTime の倍率");
 	}
+
+	// ── アニメーション（攻撃ごとに体のモーションを変える）──
+	DrawAttackAnimationEditor(attack->name_);
 
 	// ── 無敵 ──
 	ImGui::SeparatorText("Invincible");

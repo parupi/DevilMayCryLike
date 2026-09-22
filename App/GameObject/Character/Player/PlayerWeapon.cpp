@@ -1,5 +1,7 @@
 #include "PlayerWeapon.h"
 #include "World3D/Collider/OBBCollider.h"
+#include "World3D/Object/Renderer/BaseRenderer.h"
+#include "Debugger/GlobalVariables.h"
 #include "Player.h"
 #include "GameObject/Character/Enemy/Enemy.h"
 #include "Scene/Transition/TransitionManager.h"
@@ -74,6 +76,9 @@ void PlayerWeapon::Initialize() {
 
 	GetWorldTransform()->GetTranslation() = defaultPosition_;
 	GetWorldTransform()->GetRotation() = EulerDegree(defaultRotation_);
+	// 既定の置き場所は納刀モーションの最後と同じ値。Player から渡されるまではこれを背中の姿勢にする
+	backPosition_ = defaultPosition_;
+	backRotation_ = defaultRotation_;
 }
 
 void PlayerWeapon::Update(float deltaTime) {
@@ -96,6 +101,155 @@ void PlayerWeapon::Update(float deltaTime) {
 void PlayerWeapon::Draw() {
 	Object3d::Draw();
 }
+
+// ======================
+// 手のボーンへ持たせる
+// ======================
+
+void PlayerWeapon::InitializeGrip(BaseRenderer* modelRenderer) {
+	gripRenderer_ = modelRenderer;
+	gripReady_ = false;
+	gripWeight_ = 0.0f;
+
+	GlobalVariables& global = GlobalVariables::GetInstance();
+	// 保存済みの設定があれば読む（無ければ下の既定値がそのまま残る）
+	global.LoadFile(kGripDirectoryName, kGripGroupName);
+	global.AddItem(kGripGroupName, "GripEnabled", gripEnabled_);
+	global.AddItem(kGripGroupName, "GripBoneName", gripBoneName_);
+	global.AddItem(kGripGroupName, "GripOffsetPosition", gripOffsetPosition_);
+	global.AddItem(kGripGroupName, "GripOffsetRotation", gripOffsetRotation_);
+	global.AddItem(kGripGroupName, "GripBlendSpeed", gripBlendSpeed_);
+
+	LoadGripParams();
+}
+
+void PlayerWeapon::LoadGripParams() {
+	GlobalVariables& global = GlobalVariables::GetInstance();
+	gripEnabled_ = global.GetValueRef<bool>(kGripGroupName, "GripEnabled");
+	gripOffsetPosition_ = global.GetValueRef<Vector3>(kGripGroupName, "GripOffsetPosition");
+	gripOffsetRotation_ = global.GetValueRef<Vector3>(kGripGroupName, "GripOffsetRotation");
+	gripBlendSpeed_ = global.GetValueRef<float>(kGripGroupName, "GripBlendSpeed");
+
+	const std::string& boneName = global.GetValueRef<std::string>(kGripGroupName, "GripBoneName");
+	if (!boneName.empty() && boneName != gripBoneName_) {
+		gripBoneName_ = boneName;
+		grip_.SetJointName(gripBoneName_);
+	}
+}
+
+bool PlayerWeapon::GetGripPose(Vector3& outPosition, Quaternion& outRotation) const {
+	Matrix4x4 socket{};
+	if (!grip_.GetSocketMatrix(socket)) return false;
+
+	// 手のローカル空間に置いた握りのオフセット。
+	// 剣の原点は柄より上にあるので、刃の向き(+Y)へずらすと柄が手の位置に来る
+	outPosition = Transform(gripOffsetPosition_, socket);
+
+	// **行ベクトル規約の行列からクォータニオンを取り出すときは共役を取ること。**
+	// QuaternionFromMatrix は列ベクトル前提なので、そのまま使うと逆向きの回転になる
+	const Quaternion socketRotation = Conjugate(QuaternionFromMatrix(socket));
+	// 行列で書くと「オフセット * ソケット」。クォータニオンの積は順番が逆になる
+	outRotation = socketRotation * EulerDegree(gripOffsetRotation_);
+	return true;
+}
+
+void PlayerWeapon::GetHoldPoseLocal(Vector3& outPosition, Quaternion& outRotation) const {
+	// GetGripPose は 剣 = 手の姿勢 ∘ 握りのオフセット で作っている。ここはその逆。
+	//   剣の回転 = 手の回転 * オフセット回転  →  手の回転 = 剣の回転 * オフセット回転の逆
+	//   剣の位置 = 手の位置 + 手の回転で回したオフセット位置  →  手の位置 = 剣の位置 - それ
+	WorldTransform* transform = const_cast<PlayerWeapon*>(this)->GetWorldTransform();
+	const Quaternion swordRotation = transform->GetRotation();
+	const Vector3 swordPosition = transform->GetTranslation();
+
+	outRotation = swordRotation * Inverse(EulerDegree(gripOffsetRotation_));
+	outPosition = swordPosition - RotateVector(gripOffsetPosition_, outRotation);
+}
+
+void PlayerWeapon::SetHoldMode(HoldMode mode) {
+	if (mode == holdMode_) return;
+	holdMode_ = mode;
+	// 寄せ直し。重みが 1 のまま行き先だけ変えると、次のフレームで新しい姿勢へ瞬間移動する
+	gripWeight_ = 0.0f;
+}
+
+void PlayerWeapon::UpdateGrip(float deltaTime) {
+	// レンダラーの生成順によってはスキンインスタンスがまだ無いことがあるので、
+	// 取れるようになってから一度だけ繋ぐ
+	if (!gripReady_ && gripRenderer_ && gripRenderer_->GetSkinnedInstance()) {
+		grip_.Initialize(gripRenderer_, gripBoneName_);
+		gripReady_ = true;
+	}
+	if (gripReady_) {
+		LoadGripParams();
+	}
+
+	// 振り始めたら即座に譲る。
+	// ここを緩やかに抜くと、振っている最中も剣が手の方へ引っぱられて軌道が鈍る。
+	// 振りへの繋ぎは PlayerStateAttack::UpdateStartup が
+	// 「今の姿勢 → 制御点の1つ目」へ補間してくれるので、こちらは切るだけでよい
+	// （背中から振り始めれば、それがそのまま剣を抜く動きになる）
+	if (holdMode_ == HoldMode::Swing) {
+		gripWeight_ = 0.0f;
+		return;
+	}
+
+	Vector3 targetPosition{};
+	Quaternion targetRotation{};
+	if (holdMode_ == HoldMode::Back) {
+		// 背中はボーンに付けず、プレイヤーのローカル空間に固定する。
+		// 胴のボーンに付けると走りの上下・ひねりで剣が揺れる（それが嫌で背負わせている）
+		targetPosition = backPosition_;
+		targetRotation = EulerDegree(backRotation_);
+	} else {
+		// 手に持たせないなら、振り終えた位置に置いたまま（ボーン追従を入れる前の挙動）
+		if (!gripReady_ || !gripEnabled_ || !grip_.IsValid()) {
+			gripWeight_ = 0.0f;
+			return;
+		}
+		if (!GetGripPose(targetPosition, targetRotation)) return;
+	}
+
+	// 寄せるときは時間をかける（振り終わりに剣が手へ収まっていく／背中へ回っていく動きになる）。
+	// 納刀モーションを振り終えた直後は、剣がすでに背中の姿勢にあるので何も動かない
+	const float rate = std::clamp(gripBlendSpeed_ * deltaTime, 0.0f, 1.0f);
+	gripWeight_ += (1.0f - gripWeight_) * rate;
+
+	WorldTransform* transform = GetWorldTransform();
+	transform->GetTranslation() = Lerp(transform->GetTranslation(), targetPosition, gripWeight_);
+	transform->GetRotation() = Slerp(transform->GetRotation(), targetRotation, gripWeight_);
+}
+
+#ifdef _DEBUG
+void PlayerWeapon::DrawGripEditor() {
+	GlobalVariables& global = GlobalVariables::GetInstance();
+
+	static const char* const kHoldModeNames[] = { "振り（攻撃の制御点）", "手に持つ", "背中に背負う" };
+	ImGui::Text("持ち方: %s （寄せ %.2f）", kHoldModeNames[static_cast<int>(holdMode_)], gripWeight_);
+	ImGui::TextDisabled("背中の位置は攻撃エディタの Sheathe の最後の制御点 (%.2f, %.2f, %.2f)",
+		backPosition_.x, backPosition_.y, backPosition_.z);
+
+	if (!gripReady_) {
+		ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.40f, 1.0f), "スキンモデルが見つかりません（剣は従来通り制御点で動きます）");
+		return;
+	}
+	if (!grip_.IsValid()) {
+		ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.40f, 1.0f), "ジョイント \"%s\" がモデルにありません", gripBoneName_.c_str());
+	}
+
+	ImGui::Checkbox("コンボの合間は手に持たせる", &global.GetValueRef<bool>(kGripGroupName, "GripEnabled"));
+	ImGui::SetItemTooltip("切ると、コンボの合間は振り終えた位置に剣を置いたままにする（背負うのは変わらない）");
+
+	ImGui::DragFloat3("握りの位置", &global.GetValueRef<Vector3>(kGripGroupName, "GripOffsetPosition").x, 0.01f);
+	ImGui::SetItemTooltip("手のボーンから見た剣の原点。+Y が刃の向きなので、大きくすると柄を深く握る");
+	ImGui::DragFloat3("握りの回転(度)", &global.GetValueRef<Vector3>(kGripGroupName, "GripOffsetRotation").x, 1.0f);
+	ImGui::DragFloat("持ち替えの速さ", &global.GetValueRef<float>(kGripGroupName, "GripBlendSpeed"), 0.1f, 1.0f, 60.0f);
+	ImGui::SetItemTooltip("振り終わりに剣が手へ戻る速さ（回避などで納刀モーションが出なかったときに背中へ回る速さも兼ねる）。小さいほどゆっくり");
+
+	if (ImGui::Button("Save##Grip")) {
+		global.SaveFile(kGripDirectoryName, kGripGroupName);
+	}
+}
+#endif // _DEBUG
 
 Vector3 PlayerWeapon::GetBladeTipWorld() {
 	return Transform(bladeTipOffset_, GetWorldTransform()->GetMatWorld());

@@ -1,11 +1,16 @@
 #pragma once
+#include <functional>
 #include <memory>
+#include <string>
+#include <utility>
 #include <vector>
 #include <d3d12.h>
 #include "World3D/Object/Model/ModelStructs.h"
 #include "Graphics/Resource/ResourceManager.h"
 #include "Skeleton.h"
 #include "AnimationPlayer.h"
+#include "BoneModifier.h"
+#include "IKSolver.h"
 
 class SkinnedModel;
 class SkinningResource;
@@ -40,6 +45,32 @@ public:
 	Skeleton* GetSkeleton() { return &skeleton_; }
 	const Skeleton* GetSkeleton() const { return &skeleton_; }
 
+	/// <summary>
+	/// アニメーションの上から掛けるボーン補正。
+	/// 攻撃ごとにモーションの表情を変える、といった用途はここへ登録する
+	/// </summary>
+	BoneModifier* GetBoneModifier() { return &boneModifier_; }
+	const BoneModifier* GetBoneModifier() const { return &boneModifier_; }
+
+	/// <summary>
+	/// ポーズ後処理の差し込み口。ボーン補正の後、行列パレットへ書き込む前に、
+	/// 登録した順に呼ばれる。IK のように「補正の結果を見てさらに動かす」ものはここへ繋ぐ。
+	///
+	/// key は用途の名前（"ArmIK" など）。同じ key は上書きなので、
+	/// ゲーム側とエディタが別々の後処理を持っても踏み合わない
+	/// </summary>
+	void AddPoseCallback(const std::string& key, std::function<void(Skeleton&)> callback);
+	void RemovePoseCallback(const std::string& key);
+
+	/// <summary>
+	/// IK の注文。ボーン補正の後・ポーズコールバックの前に解かれる。
+	/// 毎フレーム設定する前提で、掛けたくないフレームは active を false にする
+	/// </summary>
+	void SetIKRequest(const IKRequest& request) { ikRequest_ = request; }
+	const IKRequest& GetIKRequest() const { return ikRequest_; }
+	/// <summary>直近に解いた IK の到達誤差（モデル空間の距離）</summary>
+	float GetIKError() const { return ikError_; }
+
 	SkinnedModel* GetAsset() const { return asset_; }
 
 	size_t GetMeshCount() const { return meshOutputs_.size(); }
@@ -68,6 +99,12 @@ private:
 
 	Skeleton skeleton_;
 	std::unique_ptr<AnimationPlayer> player_;
+	// ポーズ後処理。アニメーション → ボーン補正 → コールバック の順に掛かる。
+	// 登録順を保ちたいので map ではなく vector
+	BoneModifier boneModifier_;
+	IKRequest ikRequest_;
+	float ikError_ = 0.0f;
+	std::vector<std::pair<std::string, std::function<void(Skeleton&)>>> poseCallbacks_;
 
 	// モデル全体で1つの行列パレット
 	BufferHandle paletteHandle_ = kInvalidBufferHandle;

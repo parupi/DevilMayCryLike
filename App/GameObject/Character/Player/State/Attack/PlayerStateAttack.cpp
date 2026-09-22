@@ -144,6 +144,17 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 
 	// 見た目の種類（AttackVfxStyle）。0 = Auto は攻撃の性能から決める
 	gv->AddItem(name_, "VfxStyle", int32_t(0));
+
+	// ── アニメーション（攻撃ごとに体のモーションを変える）──
+	// 空 / 0 / 1.0 はどれも「今まで通り」を意味する値にしてある
+	gv->AddItem(name_, "AnimClip", std::string(""));   // 空なら共通の斬りクリップ
+	gv->AddItem(name_, "AnimImpactRatio", float());    // 0 なら Player の既定値
+	gv->AddItem(name_, "AnimSpeedScale", 1.0f);
+	gv->AddItem(name_, "AnimBlendTime", 0.05f);
+	// ボーン補正。枠は使う個数ぶんだけ攻撃エディタが足す（既定は0個＝補正なし）
+	gv->AddItem(name_, "PoseBoneCount", int32_t(0));
+	gv->AddItem(name_, "PoseFadeIn", 0.25f);
+	gv->AddItem(name_, "PoseFadeOut", 0.3f);
 }
 
 void PlayerStateAttack::Enter(Player& player) {
@@ -416,6 +427,27 @@ void PlayerStateAttack::UpdateAttackData() {
 	// 見た目の種類（範囲外の値は Auto に落とさず端へ寄せる）
 	attackData_.vfxStyle = static_cast<AttackVfxStyle>(std::clamp(gv->GetValueRef<int32_t>(name_, "VfxStyle"),
 		0, static_cast<int32_t>(AttackVfxStyle::Count) - 1));
+
+	// ── アニメーション ──
+	attackData_.animClip = gv->GetValueRef<std::string>(name_, "AnimClip");
+	attackData_.animImpactRatio = std::clamp(gv->GetValueRef<float>(name_, "AnimImpactRatio"), 0.0f, 1.0f);
+	attackData_.animSpeedScale = gv->GetValueRef<float>(name_, "AnimSpeedScale");
+	attackData_.animBlendTime = gv->GetValueRef<float>(name_, "AnimBlendTime");
+	attackData_.poseFadeIn = std::clamp(gv->GetValueRef<float>(name_, "PoseFadeIn"), 0.0f, 1.0f);
+	attackData_.poseFadeOut = std::clamp(gv->GetValueRef<float>(name_, "PoseFadeOut"), 0.0f, 1.0f);
+
+	const int32_t poseCount = std::clamp(gv->GetValueRef<int32_t>(name_, "PoseBoneCount"), 0, kMaxAttackBonePoses);
+	attackData_.bonePoses.resize(poseCount);
+	for (int32_t i = 0; i < poseCount; ++i) {
+		const std::string prefix = "PoseBone" + std::to_string(i);
+		// 数だけ増やして中身をまだ足していない状態（エディタで増やした直後）があるので、
+		// 項目の有無を見てから読む
+		if (!gv->HasItem(name_, prefix + "Name")) continue;
+		attackData_.bonePoses[i].boneName = gv->GetValueRef<std::string>(name_, prefix + "Name");
+		attackData_.bonePoses[i].euler = gv->GetValueRef<Vector3>(name_, prefix + "Rotation");
+		attackData_.bonePoses[i].weight = gv->GetValueRef<float>(name_, prefix + "Weight");
+		attackData_.bonePoses[i].space = gv->GetValueRef<int32_t>(name_, prefix + "Space");
+	}
 }
 
 void PlayerStateAttack::DrawControlPoints(Player& player) {
@@ -614,9 +646,17 @@ void PlayerStateAttack::UpdateStartup(Player& player, float deltaTime) {
 	// 武器の初期位置
 	Vector3 firstPos = player.GetWeapon()->GetWorldTransform()->GetTranslation();
 	// 予備動作の時間に応じて線形補間で移動させる
-	Vector3 currentPos = Lerp(firstPos, targetPos, stateTime_.current / attackData_.preDelay);
+	const float t = stateTime_.current / attackData_.preDelay;
+	Vector3 currentPos = Lerp(firstPos, targetPos, t);
 	// 武器の位置を更新
 	player.GetWeapon()->GetWorldTransform()->GetTranslation() = currentPos;
+
+	// 向きも構えへ寄せる。位置だけ合わせていた頃は、剣を手に持たせると
+	// 「手の向きのまま構えの位置まで動いて、振り始めた瞬間に回転だけ飛ぶ」ことになる
+	if (!attackData_.controlRotations.empty()) {
+		Quaternion& rotation = player.GetWeapon()->GetWorldTransform()->GetRotation();
+		rotation = Slerp(rotation, EulerDegree(attackData_.controlRotations[0]), t);
+	}
 }
 
 void PlayerStateAttack::UpdateActive(Player& player) {

@@ -474,6 +474,9 @@
     <ClInclude Include="App\GameObject\Character\Player\Player.h">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Character\Player\PlayerArmIK.h">
+      <Filter>App\GameObject\Character\Player</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Character\Player\PlayerDodge.h">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClInclude>
@@ -1233,6 +1236,12 @@
     <ClInclude Include="Engine\World3D\Object\Model\Animation\BoneAttachment.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\BoneModifier.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Model\Animation\IKSolver.h">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Model\Animation\Skeleton.h">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClInclude>
@@ -1542,6 +1551,9 @@
       <Filter>App\GameObject\Character\Player\Controller</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\Player.cpp">
+      <Filter>App\GameObject\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Character\Player\PlayerArmIK.cpp">
       <Filter>App\GameObject\Character\Player</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Character\Player\PlayerDodge.cpp">
@@ -2241,6 +2253,12 @@
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Model\Animation\BoneAttachment.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\BoneModifier.cpp">
+      <Filter>Engine\World3D\Object\Model\Animation</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Model\Animation\IKSolver.cpp">
       <Filter>Engine\World3D\Object\Model\Animation</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Model\Animation\Skeleton.cpp">
