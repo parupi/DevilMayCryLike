@@ -9,7 +9,7 @@
 /// 保存はしない（ファイルへ残るのは GameSettings の方だけ）。
 /// </summary>
 enum class GameMode {
-	Story,    ///< 本編。ステージは StageDocument が指すものを読む
+	Story,    ///< 本編。チュートリアルの部屋 → ボス戦の部屋の順に進む
 	Training, ///< トレーニングルーム。専用ステージで敵1体と1vs1する
 };
 
@@ -18,10 +18,36 @@ namespace GameSession {
 /// <summary>トレーニングルームのステージ。エディタで開いている本編ステージとは無関係に固定</summary>
 constexpr const char* kTrainingStagePath = "Resource/Stage/Training.json";
 
+/// <summary>本編の前半。トレーニングルームと同じ部屋に練習台を置き、チュートリアルを流す</summary>
+constexpr const char* kTutorialStagePath = "Resource/Stage/Tutorial.json";
+
+/// <summary>本編の後半。トレーニングルームと同じ部屋でボスと戦う。倒すとクリア</summary>
+constexpr const char* kBossStagePath = "Resource/Stage/Boss.json";
+
 GameMode GetMode();
 
-/// <summary>本編として始める。タイトルの GAME START が呼ぶ</summary>
+/// <summary>
+/// 本編として始める。タイトルの GAME START が呼ぶ。
+///
+/// チュートリアルの部屋から始まる。ただし OPTION でチュートリアルを切っているなら
+/// 練習台しか居ない部屋に入る意味が無いので、そのままボス戦の部屋から始める
+/// </summary>
 void BeginStory();
+
+/// <summary>
+/// チュートリアルを終えてボス戦の部屋へ進む。GameScene が読み直す前に呼ぶ。
+/// 以後の RETRY（ポーズ・ゲームオーバー）はボス戦の部屋からやり直しになる
+/// </summary>
+void AdvanceToBossBattle();
+
+/// <summary>
+/// 本編で読むステージを直接指定する。エディタの「開く」が呼ぶ。
+/// チュートリアル → ボス戦の順番を無視して、開いたステージをそのまま遊べるようにする
+/// </summary>
+void BeginStoryAt(const std::string& stagePath);
+
+/// <summary>本編のチュートリアルの部屋にいるか（チュートリアルを流し、終わったらボス戦へ進む）</summary>
+bool IsTutorialStage();
 
 /// <summary>
 /// トレーニングとして始める。タイトルの TRAINING が呼ぶ。

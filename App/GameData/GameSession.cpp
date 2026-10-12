@@ -1,5 +1,6 @@
 #include "GameSession.h"
 #include "EnemyCatalog.h"
+#include "GameSettings.h"
 #include "Stage/StageDocument.h"
 
 #ifdef _DEBUG
@@ -10,6 +11,9 @@ namespace {
 
 GameMode g_mode = GameMode::Story;
 std::string g_trainingEnemyClass;
+// 本編で読むステージ。空のときは StageDocument（エディタで開いているステージ）を読む。
+// タイトルを通らずに Debug の Scene メニューから GAMEPLAY へ入ったときがこれにあたる
+std::string g_storyStagePath;
 
 #ifdef _DEBUG
 // 起動設定の置き場。エディタの設定と同じディレクトリにまとめる
@@ -48,8 +52,25 @@ GameMode GameSession::GetMode()
 
 void GameSession::BeginStory()
 {
+	const bool tutorialEnabled = GameSettings::GetInstance().IsTutorialEnabled();
+	BeginStoryAt(tutorialEnabled ? kTutorialStagePath : kBossStagePath);
+}
+
+void GameSession::AdvanceToBossBattle()
+{
+	BeginStoryAt(kBossStagePath);
+}
+
+void GameSession::BeginStoryAt(const std::string& stagePath)
+{
 	g_mode = GameMode::Story;
 	g_trainingEnemyClass.clear();
+	g_storyStagePath = stagePath;
+}
+
+bool GameSession::IsTutorialStage()
+{
+	return g_mode == GameMode::Story && GetStagePath() == kTutorialStagePath;
 }
 
 void GameSession::BeginTraining(const std::string& enemyClassName)
@@ -74,6 +95,9 @@ std::string GameSession::GetStagePath()
 		// そちらを見るとエディタで開いていたステージへ飛んでしまう
 		return kTrainingStagePath;
 	}
+	if (!g_storyStagePath.empty()) {
+		return g_storyStagePath;
+	}
 	return StageDocument::GetPath();
 }
 
@@ -92,7 +116,8 @@ std::string GameSession::ResolveBootScene()
 	}
 #endif
 
-	BeginStory();
+	// タイトルの GAME START で行き先が決まる。それまでは StageDocument を読む（Scene メニューから直接入った場合）
+	BeginStoryAt(std::string());
 	return "TITLE";
 }
 
