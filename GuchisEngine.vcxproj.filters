@@ -1146,6 +1146,9 @@
     <ClInclude Include="Engine\Graphics\Text\TextLabel.h">
       <Filter>Engine\Graphics\Text</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Input\GamepadRumble.h">
+      <Filter>Engine\Input</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Input\Input.h">
       <Filter>Engine\Input</Filter>
     </ClInclude>
@@ -2218,6 +2221,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Text\TextLabel.cpp">
       <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Input\GamepadRumble.cpp">
+      <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>

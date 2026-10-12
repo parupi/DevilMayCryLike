@@ -34,6 +34,7 @@ private:
 		BgmVolume,
 		SeVolume,
 		Sensitivity,
+		Vibration,
 		InvertY,
 		Tutorial,
 		ActionGuide,
@@ -86,9 +87,9 @@ private:
 	// ==========================
 	// レイアウト
 	// ==========================
-	static constexpr float kRowStartY = 236.0f;
-	// 7行が操作案内（y=654）に重ならない間隔
-	static constexpr float kRowSpacing = 56.0f;
+	// 8行が、上のタイトル（y=128）と下の操作案内（y=654）の間に収まる位置と間隔
+	static constexpr float kRowStartY = 212.0f;
+	static constexpr float kRowSpacing = 52.0f;
 	static constexpr float kLabelX = 330.0f;
 	static constexpr float kValueX = 700.0f;
 	static constexpr float kBarWidth = 240.0f;

@@ -13,6 +13,8 @@
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Effect/HitEffectSystem.h"
 #include "GameObject/Effect/HitPostEffect.h"
+#include "Input/GamepadRumble.h"
+#include "Input/Input.h"
 
 #include <imgui/imgui.h>
 
@@ -75,6 +77,28 @@ void AppEditor::DrawHitEffectWindows()
 			DrawStrengthRow("Medium", HitStopStrength::Medium, false, player);
 			DrawStrengthRow("Heavy", HitStopStrength::Heavy, false, player);
 			DrawStrengthRow("Armor (弾かれ)", HitStopStrength::Medium, true, player);
+
+			// ── コントローラーの振動（全攻撃共通）。攻撃ごとの強さ・長さは Attack Editor の Rumble ──
+			ImGui::SeparatorText("Rumble（コントローラーの振動・全攻撃共通）");
+			{
+				GlobalVariables& global = GlobalVariables::GetInstance();
+				const char* group = HitEffectSystem::GetEditorGroupName();
+				ImGui::SliderFloat("全体の倍率##RumbleGain", &global.GetValueRef<float>(group, "RumbleGain"), 0.0f, 2.0f);
+				ImGui::SetItemTooltip("全攻撃の振動に掛ける倍率。OPTION の VIBRATION はさらにこの後に掛かる");
+				ImGui::SliderFloat("終わりぎわに弱める割合##RumbleFadeRatio", &global.GetValueRef<float>(group, "RumbleFadeRatio"), 0.0f, 1.0f);
+				ImGui::SetItemTooltip("0.4 なら長さの最後の4割で 0 まで下げる。0 だとぶつ切りで止まる");
+				ImGui::TextUnformatted("弾かれたとき（スーパーアーマー）");
+				ImGui::SliderFloat("低周波##ArmorRumbleLow", &global.GetValueRef<float>(group, "ArmorRumbleLow"), 0.0f, 1.0f);
+				ImGui::SliderFloat("高周波##ArmorRumbleHigh", &global.GetValueRef<float>(group, "ArmorRumbleHigh"), 0.0f, 1.0f);
+				ImGui::DragFloat("長さ##ArmorRumbleDuration", &global.GetValueRef<float>(group, "ArmorRumbleDuration"), 0.005f, 0.0f, 2.0f, "%.3f 秒");
+
+				const GamepadRumble& rumble = GamepadRumble::GetInstance();
+				ImGui::Text("パッド : %s   OPTION の倍率 : %.0f%%",
+					Input::GetInstance().IsConnected() ? "接続中" : "未接続（振動しません）", rumble.GetMasterScale() * 100.0f);
+				ImGui::ProgressBar((std::max)(rumble.GetCurrentLow(), 0.0f), ImVec2(-1.0f, 0.0f), "今の低周波");
+				ImGui::ProgressBar((std::max)(rumble.GetCurrentHigh(), 0.0f), ImVec2(-1.0f, 0.0f), "今の高周波");
+			}
+			ImGui::Separator();
 
 			ImGui::Text("Camera : %s", system.GetCamera() ? "connected" : "NOT CONNECTED");
 			ImGui::Text("Player : %s", system.GetPlayer() ? "connected" : "NOT CONNECTED");

@@ -32,6 +32,7 @@
 #include "GameObject/Effect/AttackTelegraph.h"
 #include "World3D/Object/Object3dManager.h"
 #include "Input/Input.h"
+#include "Input/GamepadRumble.h"
 #include "Audio/SoundManager.h"
 #include "Audio/GameSoundLibrary.h"
 #include <cmath>
@@ -260,6 +261,8 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Finalize() {
+	// 振動を次のシーンへ持ち越さない
+	GamepadRumble::GetInstance().StopAll();
 	// 環境音はループなので、シーンを抜けるときに必ず止める
 	SoundManager::GetInstance().StopSE(ambienceVoice_);
 	ambienceVoice_ = -1;

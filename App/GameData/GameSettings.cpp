@@ -1,5 +1,6 @@
 #include "GameSettings.h"
 #include "Debugger/GlobalVariables.h"
+#include "Input/GamepadRumble.h"
 
 #include <algorithm>
 
@@ -11,6 +12,7 @@ namespace {
 	const char* kKeyInvertY = "InvertCameraY";
 	const char* kKeyTutorial = "TutorialEnabled";
 	const char* kKeyActionGuide = "ActionGuideMode";
+	const char* kKeyVibration = "Vibration";
 }
 
 GameSettings& GameSettings::GetInstance() {
@@ -33,6 +35,7 @@ void GameSettings::Initialize() {
 	global->AddItem(kGroup, kKeyInvertY, invertCameraY_);
 	global->AddItem(kGroup, kKeyTutorial, tutorialEnabled_);
 	global->AddItem(kGroup, kKeyActionGuide, actionGuideMode_);
+	global->AddItem(kGroup, kKeyVibration, vibration_);
 	PullValues();
 }
 
@@ -60,6 +63,12 @@ void GameSettings::SetActionGuideMode(int32_t mode) {
 	GlobalVariables::GetInstance().SetValue(kGroup, kKeyActionGuide, actionGuideMode_);
 }
 
+void GameSettings::SetVibration(float scale) {
+	vibration_ = std::clamp(scale, 0.0f, 1.0f);
+	GlobalVariables::GetInstance().SetValue(kGroup, kKeyVibration, vibration_);
+	GamepadRumble::GetInstance().SetMasterScale(vibration_);
+}
+
 void GameSettings::PullValues() {
 	GlobalVariables* global = &GlobalVariables::GetInstance();
 	if (!global->HasItem(kGroup, kKeySensitivity)) { return; }
@@ -67,6 +76,11 @@ void GameSettings::PullValues() {
 	cameraSensitivity_ = std::clamp(global->GetValueRef<float>(kGroup, kKeySensitivity), kMinSensitivity, kMaxSensitivity);
 	invertCameraY_ = global->GetValueRef<bool>(kGroup, kKeyInvertY);
 	tutorialEnabled_ = global->GetValueRef<bool>(kGroup, kKeyTutorial);
+	if (global->HasItem(kGroup, kKeyVibration)) {
+		vibration_ = std::clamp(global->GetValueRef<float>(kGroup, kKeyVibration), 0.0f, 1.0f);
+	}
+	// 振動の部品はエンジン側なので、読んだ値をここで渡しておく
+	GamepadRumble::GetInstance().SetMasterScale(vibration_);
 	if (global->HasItem(kGroup, kKeyActionGuide)) {
 		actionGuideMode_ = std::clamp(global->GetValueRef<int32_t>(kGroup, kKeyActionGuide), 0, kActionGuideModeCount - 1);
 	}

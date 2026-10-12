@@ -389,6 +389,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Text\FontManager.h" />
     <ClInclude Include="Engine\Graphics\Text\TextEncoding.h" />
     <ClInclude Include="Engine\Graphics\Text\TextLabel.h" />
+    <ClInclude Include="Engine\Input\GamepadRumble.h" />
     <ClInclude Include="Engine\Input\Input.h" />
     <ClInclude Include="Engine\Math\Easing.h" />
     <ClInclude Include="Engine\Math\MathUtils.h" />
@@ -748,6 +749,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Text\StbTrueType.cpp" />
     <ClCompile Include="Engine\Graphics\Text\TextEncoding.cpp" />
     <ClCompile Include="Engine\Graphics\Text\TextLabel.cpp" />
+    <ClCompile Include="Engine\Input\GamepadRumble.cpp" />
     <ClCompile Include="Engine\Input\Input.cpp" />
     <ClCompile Include="Engine\Math\Easing.cpp" />
     <ClCompile Include="Engine\Math\MathUtils.cpp" />

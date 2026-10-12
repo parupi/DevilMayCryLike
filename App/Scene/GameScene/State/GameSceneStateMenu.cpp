@@ -1,4 +1,5 @@
 #include "GameSceneStateMenu.h"
+#include <Input/GamepadRumble.h>
 #include "Scene/GameScene/GameScene.h"
 #include "Input/Input.h"
 #include <Scene/Transition/SceneTransitionController.h>
@@ -9,6 +10,8 @@
 
 void GameSceneStateMenu::Enter(GameScene& scene)
 {
+	// 当たった直後に開いても、振動を引きずらない
+	GamepadRumble::GetInstance().StopAll();
 	menuState_ = MenuState::Enter;
 	// ゲームが止まっている間はBGMも止める
 	SoundManager::GetInstance().PauseBGM();

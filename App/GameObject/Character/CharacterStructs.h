@@ -183,6 +183,17 @@ struct AttackData {
 	float chargeDamageScale = 1.0f;   // 最大まで溜めたときのダメージ倍率
 	float chargeImpulseScale = 1.0f;  // 同・吹き飛ばしの強さの倍率
 	float chargeHitStopScale = 1.0f;  // 同・ヒットストップの長さの倍率
+	float chargeRumbleScale = 1.0f;   // 同・振動の強さの倍率
+
+	// ── 振動（当たったときにコントローラーを震わせる）──
+	// 左モーター＝低周波の重い揺れ、右モーター＝高周波の鋭い揺れ。どちらも 0〜1。0 なら震えない
+	float rumbleLow = 0.0f;
+	float rumbleHigh = 0.0f;
+	float rumbleDuration = 0.0f;      // 長さ[秒]（実時間）
+	// 最終段（useFinalHit が true のときだけ使う）
+	float finalRumbleLow = 0.0f;
+	float finalRumbleHigh = 0.0f;
+	float finalRumbleDuration = 0.0f;
 
 	// ── 無敵 ──
 	// 攻撃の出始めから被弾しない時間[秒]

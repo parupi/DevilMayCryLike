@@ -141,6 +141,15 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "ChargeDamageScale", 1.0f);       // 最大まで溜めたときのダメージ倍率
 	gv->AddItem(name_, "ChargeImpulseScale", 1.0f);      // 同・吹き飛ばしの強さの倍率
 	gv->AddItem(name_, "ChargeHitStopScale", 1.0f);      // 同・ヒットストップの長さの倍率
+	gv->AddItem(name_, "ChargeRumbleScale", 1.0f);       // 同・振動の強さの倍率
+
+	// 振動。既定の 0 は「震えない」（今までの挙動を変えない値）
+	gv->AddItem(name_, "RumbleLow", float());
+	gv->AddItem(name_, "RumbleHigh", float());
+	gv->AddItem(name_, "RumbleDuration", float());
+	gv->AddItem(name_, "FinalRumbleLow", float());
+	gv->AddItem(name_, "FinalRumbleHigh", float());
+	gv->AddItem(name_, "FinalRumbleDuration", float());
 
 	// 攻撃の出始めから被弾しない時間
 	gv->AddItem(name_, "InvincibleTime", float());
@@ -459,6 +468,15 @@ void PlayerStateAttack::UpdateAttackData() {
 	attackData_.chargeDamageScale = gv->GetValueRef<float>(name_, "ChargeDamageScale");
 	attackData_.chargeImpulseScale = gv->GetValueRef<float>(name_, "ChargeImpulseScale");
 	attackData_.chargeHitStopScale = gv->GetValueRef<float>(name_, "ChargeHitStopScale");
+	attackData_.chargeRumbleScale = gv->GetValueRef<float>(name_, "ChargeRumbleScale");
+
+	// 振動
+	attackData_.rumbleLow = gv->GetValueRef<float>(name_, "RumbleLow");
+	attackData_.rumbleHigh = gv->GetValueRef<float>(name_, "RumbleHigh");
+	attackData_.rumbleDuration = gv->GetValueRef<float>(name_, "RumbleDuration");
+	attackData_.finalRumbleLow = gv->GetValueRef<float>(name_, "FinalRumbleLow");
+	attackData_.finalRumbleHigh = gv->GetValueRef<float>(name_, "FinalRumbleHigh");
+	attackData_.finalRumbleDuration = gv->GetValueRef<float>(name_, "FinalRumbleDuration");
 
 	// 無敵
 	attackData_.invincibleTime = gv->GetValueRef<float>(name_, "InvincibleTime");
@@ -642,6 +660,9 @@ void PlayerStateAttack::ApplyHitData(Player& player) {
 		data.damage = attackData_.finalDamage;
 		data.hitStopTime = attackData_.finalHitStopTime;
 		data.knockback = attackData_.finalKnockback;
+		data.rumbleLow = attackData_.finalRumbleLow;
+		data.rumbleHigh = attackData_.finalRumbleHigh;
+		data.rumbleDuration = attackData_.finalRumbleDuration;
 	}
 
 	// コンボの締めは最終段だけ。止まり方を完全停止にして、停止 → 衝撃 → 吹き飛び の区切りをはっきりさせる
@@ -659,6 +680,10 @@ void PlayerStateAttack::ApplyHitData(Player& player) {
 		// 水平と上方向を同じ倍率で伸ばす（片方だけだと溜めるほど角度が変わってしまう）
 		data.knockback.power *= impulseScale;
 		data.knockback.verticalPower *= impulseScale;
+		// 溜めるほど強く震える（1 を超えた分は GamepadRumble が頭打ちにする）
+		const float rumbleScale = 1.0f + (attackData_.chargeRumbleScale - 1.0f) * chargeRatio_;
+		data.rumbleLow *= rumbleScale;
+		data.rumbleHigh *= rumbleScale;
 	}
 
 	player.SetAttackData(data);

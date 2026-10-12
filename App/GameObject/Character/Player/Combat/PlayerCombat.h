@@ -162,6 +162,8 @@ private:
 	/// クリップ名とジョイント名は、プレイヤーのモデルが持っているものから選ばせる
 	/// </summary>
 	void DrawAttackAnimationEditor(const std::string& attackName);
+	/// <summary>当たったときのコントローラーの振動（強さ・長さ・最終段・溜め）</summary>
+	void DrawRumbleEditor(const std::string& attackName);
 #endif // _DEBUG
 
 private:

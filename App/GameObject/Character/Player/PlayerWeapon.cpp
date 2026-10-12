@@ -313,6 +313,9 @@ void PlayerWeapon::TryHitEnemy(BaseCollider* other) {
 
 		fx.strength = attack.hitStopStrength;
 		fx.hitStopTime = attack.hitStopTime;
+		fx.rumbleLow = attack.rumbleLow;
+		fx.rumbleHigh = attack.rumbleHigh;
+		fx.rumbleDuration = attack.rumbleDuration;
 		fx.hitStopIntensity = attack.hitStopIntensity;
 		// スーパーアーマーで弾かれた場合は控えめな演出にする
 		fx.isArmorHit = (enemy && enemy->IsKnockbackImmune());

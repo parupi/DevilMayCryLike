@@ -4,6 +4,7 @@
 #include <Utility/DeltaTime.h>
 #include "Audio/GameSoundLibrary.h"
 #include "Audio/SoundManager.h"
+#include "Input/GamepadRumble.h"
 #ifdef _DEBUG
 #include "World3D/Object/Renderer/BaseRenderer.h"
 #include "World3D/Object/Model/SkinnedModel.h"
@@ -636,6 +637,59 @@ void PlayerCombat::AddAttackState(const std::string& attackName) {
 	attackPlayer_->SetAttacks(list);
 }
 
+#ifdef _DEBUG
+void PlayerCombat::DrawRumbleEditor(const std::string& attackName) {
+	ImGui::SeparatorText("Rumble（当たったときのコントローラーの振動）");
+
+	float& low = global_->GetValueRef<float>(attackName, "RumbleLow");
+	float& high = global_->GetValueRef<float>(attackName, "RumbleHigh");
+	float& duration = global_->GetValueRef<float>(attackName, "RumbleDuration");
+
+	// 数字だけでは手触りが分からないので、目安のプリセットを置く
+	struct Preset { const char* label; float low; float high; float duration; };
+	constexpr Preset kPresets[] = {
+		{ "なし", 0.0f, 0.0f, 0.0f },
+		{ "弱", 0.25f, 0.35f, 0.10f },
+		{ "中", 0.5f, 0.45f, 0.16f },
+		{ "強", 0.8f, 0.7f, 0.24f },
+	};
+	for (const Preset& preset : kPresets) {
+		if (ImGui::Button(preset.label)) {
+			low = preset.low;
+			high = preset.high;
+			duration = preset.duration;
+		}
+		ImGui::SameLine();
+	}
+	if (ImGui::Button("試しに振動")) {
+		RumbleRequest request;
+		request.low = low;
+		request.high = high;
+		request.duration = duration;
+		GamepadRumble::GetInstance().Play(request);
+	}
+	ImGui::SetItemTooltip("この攻撃の振動をその場でパッドに出す（全体の倍率と OPTION の倍率は掛けない）");
+
+	ImGui::SliderFloat("Rumble Low", &low, 0.0f, 1.0f);
+	ImGui::SetItemTooltip("左モーター。低周波の重い揺れ（大振り・叩きつけ向き）");
+	ImGui::SliderFloat("Rumble High", &high, 0.0f, 1.0f);
+	ImGui::SetItemTooltip("右モーター。高周波の鋭い揺れ（斬った手応え・突き向き）");
+	ImGui::DragFloat("Rumble Duration", &duration, 0.005f, 0.0f, 2.0f, "%.3f 秒");
+	ImGui::SetItemTooltip("振動の長さ（実時間）。ヒットストップやスローでは伸びない");
+
+	// 多段ヒットの最終段・溜めは、それぞれの設定があるときだけ出す
+	if (global_->GetValueRef<bool>(attackName, "UseFinalHit") && global_->GetValueRef<int32_t>(attackName, "HitCount") >= 2) {
+		ImGui::SliderFloat("Final Rumble Low", &global_->GetValueRef<float>(attackName, "FinalRumbleLow"), 0.0f, 1.0f);
+		ImGui::SliderFloat("Final Rumble High", &global_->GetValueRef<float>(attackName, "FinalRumbleHigh"), 0.0f, 1.0f);
+		ImGui::DragFloat("Final Rumble Duration", &global_->GetValueRef<float>(attackName, "FinalRumbleDuration"), 0.005f, 0.0f, 2.0f, "%.3f 秒");
+	}
+	if (global_->GetValueRef<bool>(attackName, "IsCharge")) {
+		ImGui::DragFloat("Charge Rumble Scale", &global_->GetValueRef<float>(attackName, "ChargeRumbleScale"), 0.01f, 0.0f, 5.0f);
+		ImGui::SetItemTooltip("最大まで溜めたときの振動の強さの倍率");
+	}
+}
+#endif // _DEBUG
+
 void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* attack) {
 #ifdef _DEBUG
 	const char* attackName = attack->name_.c_str();
@@ -845,6 +899,8 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 		"（OFF にすると Launch を指定しても吹き飛びに落ちる）");
 
 	// ── 多段ヒット・当たり判定 ──
+	DrawRumbleEditor(attack->name_);
+
 	ImGui::SeparatorText("Hit");
 	ImGui::Checkbox("Has Hitbox", &global_->GetValueRef<bool>(attackName, "HasHitbox"));
 	ImGui::SetItemTooltip("OFF にすると振っても攻撃判定を出さない（納刀モーションなど、見た目だけの動き）");

@@ -6,6 +6,7 @@
 #include <GameData/GameSettings.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
+#include <Input/GamepadRumble.h>
 #include <Utility/DeltaTime.h>
 
 #include <algorithm>
@@ -26,6 +27,7 @@ namespace {
 		"BGM VOLUME",
 		"SE VOLUME",
 		"CAMERA SENSITIVITY",
+		"VIBRATION",
 		"INVERT CAMERA Y",
 		"TUTORIAL",
 		"ACTION GUIDE",
@@ -190,6 +192,16 @@ void OptionPanel::ChangeValue(int32_t direction)
 	case Row::Sensitivity:
 		settings.SetCameraSensitivity(settings.GetCameraSensitivity() + GameSettings::kSensitivityStep * direction);
 		break;
+	case Row::Vibration: {
+		settings.SetVibration(settings.GetVibration() + GameSettings::kVibrationStep * direction);
+		// 変えた強さをその場で確かめられるように、短く震わせる（OPTION の倍率が掛かる）
+		RumbleRequest test;
+		test.low = 0.5f;
+		test.high = 0.5f;
+		test.duration = 0.15f;
+		GamepadRumble::GetInstance().Play(test);
+		break;
+	}
 	// ON/OFF は左で OFF・右で ON にする。
 	// 押すたびに反転させると、押しっぱなしのリピートで往復してしまう
 	case Row::InvertY:
@@ -268,6 +280,9 @@ void OptionPanel::Refresh()
 			RefreshNumberRow(row, ratio, ToPercent(sensitivity), brightness);
 			break;
 		}
+		case Row::Vibration:
+			RefreshNumberRow(row, settings.GetVibration(), ToPercent(settings.GetVibration()), brightness);
+			break;
 		case Row::InvertY:
 			RefreshToggleRow(row, settings.IsInvertCameraY(), brightness);
 			break;
