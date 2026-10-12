@@ -89,7 +89,7 @@ void PlayerStateDash::Exit(Player& player) {
 void PlayerStateDash::ExecuteCommand(Player& player, const PlayerCommand& command) {
 	// ジャンプでキャンセルできる。
 	// 攻撃と回避は Player::ExecuteCommand が先に拾ってこのステートを畳むので、ここには来ない
-	if (command.action == PlayerAction::Jump) {
+	if (command.action == PlayerAction::Jump && CanJump()) {
 		player.ChangeState("Jump");
 		return;
 	}

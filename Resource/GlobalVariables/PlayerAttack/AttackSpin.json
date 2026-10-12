@@ -18,46 +18,6 @@
             0.5,
             0.6364
         ],
-        "ControlPoint_2": [
-            0.0,
-            0.5,
-            0.9
-        ],
-        "ControlPoint_3": [
-            0.6364,
-            0.5,
-            0.6364
-        ],
-        "ControlPoint_4": [
-            0.9,
-            0.5,
-            0.0
-        ],
-        "ControlPoint_5": [
-            0.6364,
-            0.5,
-            -0.6364
-        ],
-        "ControlPoint_6": [
-            0.0,
-            0.5,
-            -0.9
-        ],
-        "ControlPoint_7": [
-            -0.6364,
-            0.5,
-            -0.6364
-        ],
-        "ControlPoint_8": [
-            -0.9,
-            0.5,
-            0.0
-        ],
-        "ControlPoint_9": [
-            -0.6364,
-            0.5,
-            0.6364
-        ],
         "ControlPoint_10": [
             0.0,
             0.5,
@@ -103,6 +63,46 @@
             0.5,
             1.1
         ],
+        "ControlPoint_2": [
+            0.0,
+            0.5,
+            0.9
+        ],
+        "ControlPoint_3": [
+            0.6364,
+            0.5,
+            0.6364
+        ],
+        "ControlPoint_4": [
+            0.9,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_5": [
+            0.6364,
+            0.5,
+            -0.6364
+        ],
+        "ControlPoint_6": [
+            0.0,
+            0.5,
+            -0.9
+        ],
+        "ControlPoint_7": [
+            -0.6364,
+            0.5,
+            -0.6364
+        ],
+        "ControlPoint_8": [
+            -0.9,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_9": [
+            -0.6364,
+            0.5,
+            0.6364
+        ],
         "ControlRotation_0": [
             45.0,
             0.0,
@@ -110,46 +110,6 @@
         ],
         "ControlRotation_1": [
             45.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_2": [
-            90.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_3": [
-            135.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_4": [
-            180.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_5": [
-            225.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_6": [
-            270.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_7": [
-            315.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_8": [
-            360.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_9": [
-            405.0,
             0.0,
             90.0
         ],
@@ -198,6 +158,46 @@
             0.0,
             90.0
         ],
+        "ControlRotation_2": [
+            90.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_3": [
+            135.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_4": [
+            180.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_5": [
+            225.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_6": [
+            270.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_7": [
+            315.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_8": [
+            360.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_9": [
+            405.0,
+            0.0,
+            90.0
+        ],
         "CounterFlag": false,
         "Damage": 1.0,
         "DirIndex": 0,
@@ -209,6 +209,8 @@
         "FinalStunTime": 0.0,
         "FinalTorqueForce": 20.0,
         "FinalUpwardRatio": 0.5,
+        "GuideName": "回転斬り",
+        "GuideVisible": true,
         "HitCount": 2,
         "HitStopIntensity": 0.05,
         "HitStopStrength": 1,
@@ -218,6 +220,7 @@
         "InvincibleTime": 0.0,
         "IsAir": false,
         "IsCharge": false,
+        "IsFinisher": true,
         "IsMove": false,
         "LockOnFlag": false,
         "MoveSpeed": [
@@ -239,7 +242,6 @@
         "TorqueForce": 0.0,
         "TotalDuration": 1.2,
         "UpwardRatio": 0.0,
-        "UseFinalHit": true,
-        "IsFinisher": true
+        "UseFinalHit": true
     }
 }

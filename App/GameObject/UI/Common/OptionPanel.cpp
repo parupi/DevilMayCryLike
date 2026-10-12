@@ -28,7 +28,11 @@ namespace {
 		"CAMERA SENSITIVITY",
 		"INVERT CAMERA Y",
 		"TUTORIAL",
+		"ACTION GUIDE",
 	};
+
+	/// ACTION GUIDE の値の表示。GameSettings::GetActionGuideMode の並び（0=OFF / 1=戦闘中 / 2=常に）
+	const char* kActionGuideTexts[] = { "OFF", "BATTLE ONLY", "ALWAYS" };
 
 	/// 0.0～1.0 の値を 0～100 の表示用の数へ直す
 	int32_t ToPercent(float value) {
@@ -194,6 +198,10 @@ void OptionPanel::ChangeValue(int32_t direction)
 	case Row::Tutorial:
 		settings.SetTutorialEnabled(direction > 0);
 		break;
+	// 3択は左右で1つずつ動かし、端で止める（押しっぱなしで往復しないように）
+	case Row::ActionGuide:
+		settings.SetActionGuideMode(settings.GetActionGuideMode() + direction);
+		break;
 	default:
 		break;
 	}
@@ -266,6 +274,9 @@ void OptionPanel::Refresh()
 		case Row::Tutorial:
 			RefreshToggleRow(row, settings.IsTutorialEnabled(), brightness);
 			break;
+		case Row::ActionGuide:
+			RefreshChoiceRow(row, kActionGuideTexts[settings.GetActionGuideMode()], brightness);
+			break;
 		default:
 			break;
 		}
@@ -303,9 +314,14 @@ void OptionPanel::RefreshNumberRow(RowSprites& row, float ratio, int32_t number,
 
 void OptionPanel::RefreshToggleRow(RowSprites& row, bool value, float brightness)
 {
+	RefreshChoiceRow(row, value ? "ON" : "OFF", brightness);
+}
+
+void OptionPanel::RefreshChoiceRow(RowSprites& row, const char* text, float brightness)
+{
 	const bool visible = (state_ != State::Hidden);
 
-	row.value->SetText(value ? "ON" : "OFF");
+	row.value->SetText(text);
 	row.value->SetColor({ brightness, brightness, brightness, alpha_ });
 	row.value->GetRenderState().isVisible = visible;
 	row.value->Update();

@@ -174,6 +174,8 @@ void MyGameTitle::Update() {
 		PROF_SCOPE("Object3d");
 		Object3dManager::GetInstance().Update();
 	}
+	// オブジェクトの更新が済んだ状態を見る処理（UI など）。レンダラーへ流す前に走らせる
+	SceneManager::GetInstance().LateUpdate();
 	{
 		PROF_SCOPE("Renderer");
 		RendererManager::GetInstance().Update();

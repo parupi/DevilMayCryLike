@@ -5,7 +5,9 @@
 #include "World3D/Object/Object3d.h"
 #include "GameObject/Character/CharacterStructs.h"
 #include "AttackStructs.h"
+#include <vector>
 class Player;
+class PlayerCombat;
 
 class PlayerStateAttack
 {
@@ -92,7 +94,30 @@ public:
 	}
 	// エディタの値そのままの攻撃データ（溜め・最終段の差し替え前）
 	const AttackData& GetBaseAttackData() const { return attackData_; }
+
+	// ── アクションガイド（ActionGuide）が見る読み取り専用の問い合わせ ──
+	// どれも状態を変えない。実際に出すかどうかは従来どおり ExecuteCommand / Update が決める
+	/// <summary>
+	/// このボタンを今押したら出る派生先の名前。出せなければ空。
+	/// Cancel 前なら「先行入力として覚え、Cancel に入った瞬間に出るもの」を返す
+	/// （先行入力は Cancel に入った瞬間＝受付の先頭で選ばれるため）
+	/// </summary>
+	std::string PeekBranch(const PlayerCombat& combat, InputButton button) const;
+	/// <summary>このボタンで出せる派生先を、受付時間の早い順に並べたもの（同じボタンで時間により変わる技）</summary>
+	std::vector<std::string> GetBranchCandidates(const PlayerCombat& combat, InputButton button) const;
+	// 派生をその場で出せる段階（Cancel）か
+	bool IsCancelPhase() const { return attackPhase_ == AttackPhase::Cancel; }
+	// 先行入力を覚えているか・そのボタン
+	bool HasBufferedInput() const { return hasPendingBuffer_; }
+	InputButton GetBufferedButton() const { return pendingButton_; }
+	// ジャンプでキャンセルできる段階か（ExecuteCommand の Jump と同じ条件）
+	bool CanJumpCancel() const;
 private:
+	/// <summary>
+	/// 押したボタンで出せる派生先のうち、受付の経過時間 elapsed で選ばれるもの。無ければ nullptr。
+	/// BuildRequestFromNode（実際に出す側）とガイド（PeekBranch）がこれを共有する
+	/// </summary>
+	const std::string* SelectBranch(const PlayerCombat& combat, InputButton button, float elapsed) const;
 	// タイミングに基づいて次の攻撃リクエストを生成する。
 	// 押したボタンで出せる派生先だけを候補にし、その中から入力のタイミングで選ぶ
 	AttackRequestData BuildRequestFromNode(Player& player, InputButton button);

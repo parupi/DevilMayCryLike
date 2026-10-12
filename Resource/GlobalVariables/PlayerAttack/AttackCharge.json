@@ -99,6 +99,8 @@
         "FinalStunTime": 0.0,
         "FinalTorqueForce": 0.0,
         "FinalUpwardRatio": 0.0,
+        "GuideName": "溜め斬り",
+        "GuideVisible": true,
         "HitCount": 1,
         "HitStopIntensity": 0.1,
         "HitStopStrength": 2,

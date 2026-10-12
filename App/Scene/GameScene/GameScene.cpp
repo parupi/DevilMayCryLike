@@ -203,6 +203,13 @@ void GameScene::Initialize() {
 		tutorialSkipGauge_->Initialize();
 	}
 
+	// アクションガイド（画面右下の操作案内）。ポーズの暗幕より先に作って、暗幕がこの上に来るようにする
+	actionGuideSettings_.RegisterAndLoad();
+	actionGuideProvider_ = std::make_unique<PlayerActionAvailability>(*player_, actionGuideCatalog_, actionGuideSettings_);
+	actionGuideUI_ = std::make_unique<ActionGuideUI>();
+	actionGuideUI_->Initialize();
+	ActionGuideSystem::SetCurrent(&actionGuideSystem_);
+
 	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "menuMask", "white.png");
 	mask_->SetSize({1280.0f, 720.0f});
 	mask_->SetColor({0.0f, 0.0f, 0.0f, 0.5f});
@@ -259,6 +266,7 @@ void GameScene::Finalize() {
 
 	// カメラ・プレイヤーが破棄される前に参照を切る
 	HitEffectSystem::GetInstance().Finalize();
+	ActionGuideSystem::SetCurrent(nullptr);
 	// 出したままの予兆マーカーを次のシーンへ持ち越さない
 	AttackTelegraph::GetInstance().Clear();
 
@@ -368,6 +376,22 @@ void GameScene::Update() {
 	// 「前フレームに出し直されなかったマーカー＝判定が出た」と判断しているので、
 	// 敵より後に呼ぶと出したそばから畳まれてしまう
 	AttackTelegraph::GetInstance().Update(sceneDeltaTime_);
+}
+
+void GameScene::LateUpdate() {
+	if (!actionGuideUI_ || !actionGuideProvider_ || !player_) return;
+
+	// 調整値はエディタから毎フレーム書き換わりうるので読み直す
+	actionGuideSettings_.Apply();
+
+	const ActionGuideContext context = ActionGuideContextBuilder::Build(*player_, inputContext_.get());
+	const auto mode = static_cast<ActionGuideMode>(GameSettings::GetInstance().GetActionGuideMode());
+	actionGuideSystem_.Update(context, *actionGuideProvider_, actionGuideCatalog_, actionGuideSettings_, mode);
+
+	// ポーズ・ゲームオーバー・設定メニュー中は消す。チュートリアルの部屋ではスキップゲージの上へ逃がす
+	const bool inPlay = (currentState_ == states_["Play"].get());
+	const float raise = tutorialSkipGauge_ ? actionGuideSettings_.tutorialRoomRaise : 0.0f;
+	actionGuideUI_->Update(actionGuideSystem_.GetViewModel(), actionGuideSettings_, inPlay, raise, DeltaTime::GetDeltaTime());
 }
 
 void GameScene::Draw() {

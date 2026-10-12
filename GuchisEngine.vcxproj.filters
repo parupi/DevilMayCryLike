@@ -4,6 +4,9 @@
     <Filter Include="App">
       <UniqueIdentifier>{46D6870B-B2DF-877C-3B5B-9E7CA763937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\ActionGuide">
+      <UniqueIdentifier>{01CB0533-6D56-73F7-7667-F6EBE271CFF7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Audio">
       <UniqueIdentifier>{C7807902-33EB-2D79-7C29-DF1EE8D20BCE}</UniqueIdentifier>
     </Filter>
@@ -303,6 +306,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\ActionGuide\ActionAvailabilityProvider.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideCatalog.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideContext.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideSettings.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideSystem.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideTypes.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideUI.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\InputIconProvider.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
     <ClInclude Include="App\Audio\FootstepTracker.h">
       <Filter>App\Audio</Filter>
     </ClInclude>
@@ -1376,6 +1403,27 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\ActionGuide\ActionAvailabilityProvider.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideCatalog.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideContext.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideSettings.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideSystem.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideUI.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\InputIconProvider.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
     <ClCompile Include="App\Audio\FootstepTracker.cpp">
       <Filter>App\Audio</Filter>
     </ClCompile>
@@ -1393,6 +1441,9 @@
     </ClCompile>
     <ClCompile Include="App\Editor\AppEditor.cpp">
       <Filter>App\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\ActionGuideWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp">
       <Filter>App\Editor\Windows</Filter>

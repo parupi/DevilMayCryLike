@@ -96,6 +96,8 @@
         "Damage": 1.0,
         "DirIndex": 1,
         "DrawDebugControlPoints": false,
+        "GuideName": "スティンガー",
+        "GuideVisible": true,
         "HitStopIntensity": 0.029999999329447746,
         "HitStopStrength": 1,
         "HitStopTime": 0.029999999329447746,

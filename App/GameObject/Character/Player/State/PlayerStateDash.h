@@ -15,6 +15,7 @@ public:
 	void Exit(Player& player) override;
 	void ExecuteCommand(Player& player, const PlayerCommand& command) override;
 	const char* GetDebugName() const override { return "Dash"; }
+	bool CanJump() const override { return true; }
 
 private:
 	// ダッシュ開始からの経過時間

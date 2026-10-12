@@ -109,6 +109,14 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="App\ActionGuide\ActionAvailabilityProvider.h" />
+    <ClInclude Include="App\ActionGuide\ActionGuideCatalog.h" />
+    <ClInclude Include="App\ActionGuide\ActionGuideContext.h" />
+    <ClInclude Include="App\ActionGuide\ActionGuideSettings.h" />
+    <ClInclude Include="App\ActionGuide\ActionGuideSystem.h" />
+    <ClInclude Include="App\ActionGuide\ActionGuideTypes.h" />
+    <ClInclude Include="App\ActionGuide\ActionGuideUI.h" />
+    <ClInclude Include="App\ActionGuide\InputIconProvider.h" />
     <ClInclude Include="App\Audio\FootstepTracker.h" />
     <ClInclude Include="App\Audio\GameSoundBuilders.h" />
     <ClInclude Include="App\Audio\GameSoundLibrary.h" />
@@ -468,12 +476,20 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Externals\imgui\imstb_truetype.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\ActionGuide\ActionAvailabilityProvider.cpp" />
+    <ClCompile Include="App\ActionGuide\ActionGuideCatalog.cpp" />
+    <ClCompile Include="App\ActionGuide\ActionGuideContext.cpp" />
+    <ClCompile Include="App\ActionGuide\ActionGuideSettings.cpp" />
+    <ClCompile Include="App\ActionGuide\ActionGuideSystem.cpp" />
+    <ClCompile Include="App\ActionGuide\ActionGuideUI.cpp" />
+    <ClCompile Include="App\ActionGuide\InputIconProvider.cpp" />
     <ClCompile Include="App\Audio\FootstepTracker.cpp" />
     <ClCompile Include="App\Audio\GameSoundEnemy.cpp" />
     <ClCompile Include="App\Audio\GameSoundLibrary.cpp" />
     <ClCompile Include="App\Audio\GameSoundPlayer.cpp" />
     <ClCompile Include="App\Audio\GameSoundSystem.cpp" />
     <ClCompile Include="App\Editor\AppEditor.cpp" />
+    <ClCompile Include="App\Editor\Windows\ActionGuideWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp" />

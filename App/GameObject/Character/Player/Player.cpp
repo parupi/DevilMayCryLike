@@ -561,7 +561,9 @@ void Player::Update(float deltaTime) {
 	// 被弾フラッシュ。dt（ヒットストップ適用後）で進めるので、時間が止まっている間は白いまま保持される
 	hitFlash_->Update(dt);
 
-	// 接地フラグを毎フレーム切っておく
+	// 接地フラグを毎フレーム切っておく。
+	// 切る前に、このフレームの入力を処理したときの値を写しておく（更新後に問い合わせる側のため）
+	groundedForActions_ = onGround_;
 	onGround_ = false;
 
 	// HPのハート。死亡演出中は hudAlpha_ が下がってフェードアウトする
@@ -644,10 +646,10 @@ float Player::GetWorldTimeScale() const {
 	return (justDodgeSlowTimer_ > 0.0f) ? dodgeParams_.justDodgeTimeScale : 1.0f;
 }
 
-bool Player::CanStartDodge() const {
+bool Player::CanStartDodge(bool onGround) const {
 	if (dodgeCooldownTimer_ > 0.0f) return false;
 	// 空中では回避できない。宙に浮いたまま滑る絵にならないよう接地を必須にしている
-	if (!onGround_) return false;
+	if (!onGround) return false;
 
 	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
 	if (!current) return false;

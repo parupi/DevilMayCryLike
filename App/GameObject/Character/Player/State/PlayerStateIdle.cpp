@@ -30,7 +30,7 @@ void PlayerStateIdle::ExecuteCommand(Player& player, const PlayerCommand& comman
 		player.ChangeState("Move");
 		return;
 	}
-	if (command.action == PlayerAction::Jump) {
+	if (command.action == PlayerAction::Jump && CanJump()) {
  		player.ChangeState("Jump");
 		return;
 	}

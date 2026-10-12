@@ -66,6 +66,8 @@
         "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
+        "GuideName": "斬り",
+        "GuideVisible": true,
         "HitStopIntensity": 0.11999999731779099,
         "HitStopStrength": 0,
         "HitStopTime": 0.04,

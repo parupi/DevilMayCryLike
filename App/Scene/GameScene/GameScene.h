@@ -20,6 +20,11 @@
 #include "Tutorial/System/TutorialSystem.h"
 #include "Tutorial/Skip/TutorialSkipInput.h"
 #include "Tutorial/Skip/TutorialSkipGauge.h"
+#include "ActionGuide/ActionGuideSettings.h"
+#include "ActionGuide/ActionGuideCatalog.h"
+#include "ActionGuide/ActionAvailabilityProvider.h"
+#include "ActionGuide/ActionGuideSystem.h"
+#include "ActionGuide/ActionGuideUI.h"
 #include "Graphics/Rendering/Sprite/AnimatedSprite.h"
 
 /// <summary>
@@ -58,6 +63,13 @@ public:
 	/// 3Dモデル、パーティクル、スプライト、UIなどの描画を行う。
 	/// </summary>
 	void Draw() override;
+
+	/// <summary>
+	/// オブジェクトの更新の後に呼ばれる。
+	/// アクションガイドはここで更新する（プレイヤーが今フレームの入力を処理した後の状態を出すため。
+	/// Update で出すと1フレーム遅れ、短い受付窓で誤った案内になる）
+	/// </summary>
+	void LateUpdate() override;
 
 #ifdef _DEBUG
 	/// <summary>
@@ -141,4 +153,11 @@ private:
 	// チュートリアルのスキップ。チュートリアルの部屋でだけ作る
 	std::unique_ptr<TutorialSkipInput> tutorialSkip_ = nullptr;
 	std::unique_ptr<TutorialSkipGauge> tutorialSkipGauge_ = nullptr;
+
+	// アクションガイド（画面右下の操作案内）。戦闘ロジックは読むだけで、ここから何も変えない
+	ActionGuideSettings actionGuideSettings_;
+	ActionGuideCatalog actionGuideCatalog_;
+	std::unique_ptr<PlayerActionAvailability> actionGuideProvider_ = nullptr;
+	ActionGuideSystem actionGuideSystem_;
+	std::unique_ptr<ActionGuideUI> actionGuideUI_ = nullptr;
 };

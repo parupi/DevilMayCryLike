@@ -157,6 +157,11 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "PoseBoneCount", int32_t(0));
 	gv->AddItem(name_, "PoseFadeIn", 0.25f);
 	gv->AddItem(name_, "PoseFadeOut", 0.3f);
+
+	// ── アクションガイド（画面右下の操作案内）での見せ方 ──
+	// 空なら攻撃名をそのまま出す。納刀モーションのように操作で出さないものは GuideVisible を切る
+	gv->AddItem(name_, "GuideName", std::string(""));
+	gv->AddItem(name_, "GuideVisible", bool(true));
 }
 
 void PlayerStateAttack::Enter(Player& player) {
@@ -282,28 +287,55 @@ AttackRequestData PlayerStateAttack::BuildRequestFromNode(Player& player, InputB
 	AttackRequestData req{};
 	req.type = AttackRequest::None;
 
-	const PlayerCombat* combat = player.GetCombat();
-	const AttackNode& node = combat->GetAttackNode(name_);
+	if (const std::string* next = SelectBranch(*player.GetCombat(), button, attackChangeTimer_.current)) {
+		req.nextAttack = *next;
+		req.type = AttackRequest::ChangeAttack;
+	}
+	return req;
+}
+
+const std::string* PlayerStateAttack::SelectBranch(const PlayerCombat& combat, InputButton button, float elapsed) const {
+	const AttackNode& node = combat.GetAttackNode(name_);
 
 	// 押したボタンで出せる派生先だけを候補にして、その中から入力のタイミングで選ぶ。
 	// 以前は全派生先をタイミングだけで選んでからボタンで弾いていたので、
 	// 「Y の派生と X の派生を両方持つ攻撃」を作っても、タイミング次第で X が出なかった
 	std::vector<const std::string*> candidates;
 	for (const std::string& nextAttack : node.nextAttacks) {
-		if (AcceptsButton(combat->GetAttackNode(nextAttack), button)) {
+		if (AcceptsButton(combat.GetAttackNode(nextAttack), button)) {
 			candidates.push_back(&nextAttack);
 		}
 	}
 
 	const int candidateCount = static_cast<int>(candidates.size());
-	if (candidateCount > 0 && attackChangeTimer_.max > 0.0f) {
-		float segment = attackChangeTimer_.max / static_cast<float>(candidateCount);
-		int derivedIndex = std::clamp(static_cast<int>(attackChangeTimer_.current / segment), 0, candidateCount - 1);
-		req.nextAttack = *candidates[derivedIndex];
-		req.type = AttackRequest::ChangeAttack;
+	if (candidateCount == 0 || attackChangeTimer_.max <= 0.0f) {
+		return nullptr;
 	}
+	const float segment = attackChangeTimer_.max / static_cast<float>(candidateCount);
+	const int derivedIndex = std::clamp(static_cast<int>(elapsed / segment), 0, candidateCount - 1);
+	return candidates[derivedIndex];
+}
 
-	return req;
+std::string PlayerStateAttack::PeekBranch(const PlayerCombat& combat, InputButton button) const {
+	// Cancel 前に押した入力は、Cancel に入った瞬間（受付の経過時間 0）に選ばれる。
+	// 受付の経過時間は Cancel の間しか進まないので、どちらも今の値で選べば実際に出るものと一致する
+	const std::string* next = SelectBranch(combat, button, attackChangeTimer_.current);
+	return next ? *next : std::string();
+}
+
+std::vector<std::string> PlayerStateAttack::GetBranchCandidates(const PlayerCombat& combat, InputButton button) const {
+	std::vector<std::string> result;
+	const AttackNode& node = combat.GetAttackNode(name_);
+	for (const std::string& nextAttack : node.nextAttacks) {
+		if (AcceptsButton(combat.GetAttackNode(nextAttack), button)) {
+			result.push_back(nextAttack);
+		}
+	}
+	return result;
+}
+
+bool PlayerStateAttack::CanJumpCancel() const {
+	return attackPhase_ == AttackPhase::Cancel && gv->GetValueRef<int32_t>(name_, "AttackPosture") != 1;
 }
 
 bool PlayerStateAttack::CanBranchWith(Player& player, InputButton button) const {
@@ -338,7 +370,7 @@ AttackRequestData PlayerStateAttack::ExecuteCommand(Player& player, const Player
 		return BuildRequestFromNode(player, command.button);
 	}
 	else if (command.action == PlayerAction::Jump) {
-		if (attackPhase_ != AttackPhase::Cancel || gv->GetValueRef<int32_t>(name_, "AttackPosture") == 1) {
+		if (!CanJumpCancel()) {
 			return req;
 		}
 		req.type = AttackRequest::Jump;

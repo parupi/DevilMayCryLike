@@ -255,7 +255,10 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 }
 
 const AttackNode* PlayerCombat::FindRootAttack(const PlayerCommand& command) const {
-	bool onGround = player_->GetOnGround();
+	return FindRootAttack(command.button, command.stickDir, player_->GetOnGround());
+}
+
+const AttackNode* PlayerCombat::FindRootAttack(InputButton button, const Vector2& stickDir, bool onGround) const {
 	bool lockedOn = player_->IsLockOn();
 
 	const AttackNode* bestMatch = nullptr;
@@ -274,16 +277,16 @@ const AttackNode* PlayerCombat::FindRootAttack(const PlayerCommand& command) con
 		if (node.condition.requireCounter && !IsCounterWindowOpen()) continue;
 
 		// ボタンが指定されていてコマンドと違えばスキップ
-		if (node.condition.button != InputButton::None && node.condition.button != command.button) continue;
+		if (node.condition.button != InputButton::None && node.condition.button != button) continue;
 
 		// スティック方向チェック
 		bool stickMatch = false;
 		switch (node.condition.stick) {
 		case StickDirection::ToEnemy:
-			stickMatch = command.stickDir.y >= 0.7f;
+			stickMatch = stickDir.y >= 0.7f;
 			break;
 		case StickDirection::AwayFromEnemy:
-			stickMatch = command.stickDir.y <= -0.7f;
+			stickMatch = stickDir.y <= -0.7f;
 			break;
 		case StickDirection::None:
 		case StickDirection::Any:
@@ -333,6 +336,14 @@ bool PlayerCombat::CanStartRootAttackOver(const PlayerStateAttack& attack, Input
 	const auto it = attackGraph_.find(attack.GetAttackName());
 	if (it == attackGraph_.end()) return false;
 	return it->second.condition.button != button;
+}
+
+PlayerCombat::RootOverTiming PlayerCombat::PeekRootAttackOver(InputButton button) const {
+	// ExecuteCommand の割り込みの分岐と同じ判定
+	if (currentState_.empty()) return RootOverTiming::NotAllowed;
+	const PlayerStateAttack& top = *currentState_.back();
+	if (!CanStartRootAttackOver(top, button)) return RootOverTiming::NotAllowed;
+	return IsReadyForRootAttack(top) ? RootOverTiming::Now : RootOverTiming::Buffer;
 }
 
 bool PlayerCombat::IsReadyForRootAttack(const PlayerStateAttack& attack) const {
@@ -631,6 +642,20 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 
 	// 出ないときに理由を探せるよう、一番上に出す
 	DrawRootAttackCheck(attack->name_);
+
+	// ── アクションガイド（画面右下の操作案内）での見せ方 ──
+	ImGui::SeparatorText("Guide（アクションガイドでの表示）");
+	{
+		std::string& guideName = global_->GetValueRef<std::string>(attackName, "GuideName");
+		char buffer[128] = {};
+		strncpy_s(buffer, guideName.c_str(), sizeof(buffer) - 1);
+		if (ImGui::InputText("Guide Name", buffer, sizeof(buffer))) {
+			guideName = buffer;
+		}
+		ImGui::SetItemTooltip("ガイドに出す技の名前。空なら攻撃名（%s）をそのまま出す", attackName);
+		ImGui::Checkbox("Show In Guide", &global_->GetValueRef<bool>(attackName, "GuideVisible"));
+		ImGui::SetItemTooltip("OFF にするとガイドに出さない（納刀モーションなど、操作で出さないもの）");
+	}
 	ImGui::Separator();
 
 	int32_t& pointCount = global_->GetValueRef<int32_t>(attackName, "PointCount");

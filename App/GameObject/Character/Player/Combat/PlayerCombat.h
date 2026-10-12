@@ -98,6 +98,29 @@ public:
 	// 受付中か
 	bool IsCounterWindowOpen() const { return counterWindowTimer_ > 0.0f; }
 
+	// ======================
+	// アクションガイド（ActionGuide）が見る読み取り専用の問い合わせ。
+	// どれも状態を変えない。実際に出すかどうかは従来どおり ExecuteCommand / Update が決める
+	// ======================
+	/// <summary>
+	/// このボタンとスティックの向きで、今ルート攻撃を探したら選ばれるもの（ExecuteCommand と同じ選び方）。無ければ nullptr
+	/// </summary>
+	const AttackNode* FindRootAttack(InputButton button, const Vector2& stickDir, bool onGround) const;
+	/// <summary>攻撃中にこのボタンを押したときの、別のボタンのルート攻撃による割り込みの扱い</summary>
+	enum class RootOverTiming {
+		NotAllowed, ///< 割り込まない（今の攻撃の派生になる・同じボタンの連打・攻撃中でない）
+		Now,        ///< すぐ割り込む
+		Buffer,     ///< 硬直中なので覚えておき、割り込めるようになったら出す
+	};
+	RootOverTiming PeekRootAttackOver(InputButton button) const;
+	// 別のボタンのルート攻撃の先行入力を覚えているか
+	bool HasPendingRootAttack() const { return pendingRootTimer_ > 0.0f; }
+	InputButton GetPendingRootButton() const { return pendingRootCommand_.button; }
+	// 攻撃のつながり全体（ガイドが派生やルート攻撃を並べるのに使う）
+	const std::unordered_map<std::string, AttackNode>& GetAttackGraph() const { return attackGraph_; }
+	// 今の攻撃（ガイド用。const 版）
+	const PlayerStateAttack* GetCurrentAttackState() const { return currentState_.empty() ? nullptr : currentState_.back(); }
+
 #ifdef _DEBUG
 	// 攻撃グラフと攻撃データはこのクラスの内部表現そのものなので、UIの中身はここに置いたまま。
 	// ただしウィンドウの開閉と描画タイミングは App/Editor/Windows/AttackEditorWindow.cpp が握る

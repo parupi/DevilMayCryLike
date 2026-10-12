@@ -43,7 +43,7 @@ void PlayerStateMove::Exit(Player& player) {
 
 void PlayerStateMove::ExecuteCommand(Player& player, const PlayerCommand& command) {
 	// ジャンプを要求されたら飛ぶ
-	if (command.action == PlayerAction::Jump) {
+	if (command.action == PlayerAction::Jump && CanJump()) {
 		player.ChangeState("Jump");
 		return;
 	}
