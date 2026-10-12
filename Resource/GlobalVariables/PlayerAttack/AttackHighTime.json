@@ -86,6 +86,8 @@
         "Damage": 1.0,
         "DirIndex": 2,
         "DrawDebugControlPoints": false,
+        "GuideName": "切り上げ",
+        "GuideVisible": true,
         "HitStopIntensity": 0.17499999701976776,
         "HitStopStrength": 2,
         "HitStopTime": 0.17499999701976776,

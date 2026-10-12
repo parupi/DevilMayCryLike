@@ -66,6 +66,8 @@
         "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
+        "GuideName": "空中斬り 2段目",
+        "GuideVisible": true,
         "HitStopIntensity": 0.15000000596046448,
         "HitStopStrength": 1,
         "HitStopTime": 0.15000000596046448,

@@ -76,6 +76,8 @@
         "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
+        "GuideName": "空中斬り",
+        "GuideVisible": true,
         "HitStopIntensity": 0.03999999910593033,
         "HitStopStrength": 0,
         "HitStopTime": 0.03999999910593033,

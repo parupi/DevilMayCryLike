@@ -50,6 +50,12 @@ void SceneManager::Update() {
 	scene_->Update();
 }
 
+void SceneManager::LateUpdate() {
+	if (scene_) {
+		scene_->LateUpdate();
+	}
+}
+
 void SceneManager::Draw() {
 	scene_->Draw();
 }

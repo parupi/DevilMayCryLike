@@ -453,6 +453,7 @@ void AppEditor::Register()
 	Editor::AddWindowDrawer([] { DrawStylishWindow(); });
 	Editor::AddWindowDrawer([] { DrawHitEffectWindows(); });
 	Editor::AddWindowDrawer([] { DrawTrainingWindow(); });
+	Editor::AddWindowDrawer([] { DrawActionGuideWindow(); });
 
 	// ゲーム固有のメニュー。Help の右、再生コントロールの左に並ぶ
 	Editor::AddMenu("Stage", [] { DrawStageMenu(); });

@@ -16,6 +16,7 @@ void DrawCameraWorkWindow();    // GameCamera のカメラワーク調整
 void DrawStylishWindow();       // スタイリッシュランク
 void DrawHitEffectWindows();    // HitEffect / HitPostEffect
 void DrawTrainingWindow();      // トレーニングルームの操作と起動時の行き先
+void DrawActionGuideWindow();   // アクションガイド（画面右下の操作案内）の調整とデバッグ表示
 
 } // namespace AppEditor
 

@@ -86,6 +86,8 @@
         "Damage": 2.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
+        "GuideName": "コンボA フィニッシュ",
+        "GuideVisible": true,
         "HitStopIntensity": 0.15,
         "HitStopStrength": 2,
         "HitStopTime": 0.15,

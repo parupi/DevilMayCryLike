@@ -10,6 +10,7 @@ namespace {
 	const char* kKeySensitivity = "CameraSensitivity";
 	const char* kKeyInvertY = "InvertCameraY";
 	const char* kKeyTutorial = "TutorialEnabled";
+	const char* kKeyActionGuide = "ActionGuideMode";
 }
 
 GameSettings& GameSettings::GetInstance() {
@@ -31,6 +32,7 @@ void GameSettings::Initialize() {
 	global->AddItem(kGroup, kKeySensitivity, cameraSensitivity_);
 	global->AddItem(kGroup, kKeyInvertY, invertCameraY_);
 	global->AddItem(kGroup, kKeyTutorial, tutorialEnabled_);
+	global->AddItem(kGroup, kKeyActionGuide, actionGuideMode_);
 	PullValues();
 }
 
@@ -53,6 +55,11 @@ void GameSettings::SetTutorialEnabled(bool enabled) {
 	GlobalVariables::GetInstance().SetValue(kGroup, kKeyTutorial, tutorialEnabled_);
 }
 
+void GameSettings::SetActionGuideMode(int32_t mode) {
+	actionGuideMode_ = std::clamp(mode, 0, kActionGuideModeCount - 1);
+	GlobalVariables::GetInstance().SetValue(kGroup, kKeyActionGuide, actionGuideMode_);
+}
+
 void GameSettings::PullValues() {
 	GlobalVariables* global = &GlobalVariables::GetInstance();
 	if (!global->HasItem(kGroup, kKeySensitivity)) { return; }
@@ -60,4 +67,7 @@ void GameSettings::PullValues() {
 	cameraSensitivity_ = std::clamp(global->GetValueRef<float>(kGroup, kKeySensitivity), kMinSensitivity, kMaxSensitivity);
 	invertCameraY_ = global->GetValueRef<bool>(kGroup, kKeyInvertY);
 	tutorialEnabled_ = global->GetValueRef<bool>(kGroup, kKeyTutorial);
+	if (global->HasItem(kGroup, kKeyActionGuide)) {
+		actionGuideMode_ = std::clamp(global->GetValueRef<int32_t>(kGroup, kKeyActionGuide), 0, kActionGuideModeCount - 1);
+	}
 }
