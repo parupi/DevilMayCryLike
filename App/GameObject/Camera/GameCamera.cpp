@@ -114,6 +114,10 @@ void GameCamera::RegisterParams() {
 	global_->AddItem(name_, "SensitivityX", sensitivityX_);
 	global_->AddItem(name_, "SensitivityY", sensitivityY_);
 	global_->AddItem(name_, "PitchLimit", pitchLimit_);
+	global_->AddItem(name_, "PitchInputEnabled", pitchInputEnabled_);
+	global_->AddItem(name_, "FixedPitch", fixedPitch_);
+	global_->AddItem(name_, "PitchReturnSpeed", pitchReturnSpeed_);
+	global_->AddItem(name_, "MinCameraHeight", minCameraHeight_);
 	global_->AddItem(name_, "AutoRotateEnabled", autoRotateEnabled_);
 	global_->AddItem(name_, "AutoRotateDelay", autoRotateDelay_);
 	global_->AddItem(name_, "AutoRotateSpeed", autoRotateSpeed_);
@@ -193,6 +197,10 @@ void GameCamera::ApplyParams() {
 	sensitivityX_ = global_->GetValueRef<float>(name_, "SensitivityX");
 	sensitivityY_ = global_->GetValueRef<float>(name_, "SensitivityY");
 	pitchLimit_ = global_->GetValueRef<float>(name_, "PitchLimit");
+	pitchInputEnabled_ = global_->GetValueRef<bool>(name_, "PitchInputEnabled");
+	fixedPitch_ = global_->GetValueRef<float>(name_, "FixedPitch");
+	pitchReturnSpeed_ = global_->GetValueRef<float>(name_, "PitchReturnSpeed");
+	minCameraHeight_ = global_->GetValueRef<float>(name_, "MinCameraHeight");
 	autoRotateEnabled_ = global_->GetValueRef<bool>(name_, "AutoRotateEnabled");
 	autoRotateDelay_ = global_->GetValueRef<float>(name_, "AutoRotateDelay");
 	autoRotateSpeed_ = global_->GetValueRef<float>(name_, "AutoRotateSpeed");
@@ -553,6 +561,16 @@ void GameCamera::Update() {
 		break;
 	}
 
+	// 地面すれすれ・地面の下へ潜らないよう、プレイヤーの足元から最低の高さを確保する。
+	// 地形との衝突は ApplyFollowPosition（注視点 → カメラのスイープ）が先に寄せているので、ここは最後の保険。
+	// 補間の状態（idealPos_）には書き戻さないので、次フレームの追従へは効き戻らない
+	{
+		const float minY = player_->GetWorldTransform()->GetTranslation().y + kPlayerFootOffsetY + minCameraHeight_;
+		if (GetTranslate().y < minY) {
+			GetTranslate().y = minY;
+		}
+	}
+
 	// ⑥ 最終保証：構図がどれだけ遅れても、プレイヤーだけは画面内に残るよう向きを詰める。
 	// smoothedLookTarget_ には触らないので、この補正が次フレームの補間へ効き戻ることはない
 	if (framingSafetyEnabled_) {
@@ -611,7 +629,7 @@ void GameCamera::SnapToFollow(const Vector3& playerForward) {
 		forward = Normalize(forward);
 		yaw_ = std::atan2(-forward.x, -forward.z);
 	}
-	pitch_ = 0.0f;
+	pitch_ = pitchInputEnabled_ ? 0.0f : fixedPitch_;
 
 	const Vector3 pivot = playerPos + Vector3(0.0f, lookHeight_, 0.0f);
 	const Vector3 desiredPos = CalcDesiredPosition(playerPos);
@@ -656,13 +674,20 @@ void GameCamera::UpdateFree() {
 	const float sensitivityScale = settings.GetCameraSensitivity();
 	const float verticalSign = settings.IsInvertCameraY() ? -1.0f : 1.0f;
 
+	const float dt = DeltaTime::GetDeltaTime();
+
+	// 旋回は左右だけ。上下入力では pitch を変えず、固定の俯角へ寄せる
+	// （ロックオン解除の直後など、別の理由でずれた分も滑らかに戻す）
 	yaw_ += stick.x * sensitivityX_ * sensitivityScale;
-	pitch_ -= stick.y * sensitivityY_ * sensitivityScale * verticalSign;
+	if (pitchInputEnabled_) {
+		pitch_ -= stick.y * sensitivityY_ * sensitivityScale * verticalSign;
+	} else {
+		pitch_ += (fixedPitch_ - pitch_) * (1.0f - std::exp(-pitchReturnSpeed_ * dt));
+	}
 
 	pitch_ = std::clamp(pitch_, -pitchLimit_, pitchLimit_);
 
 	// ⑤ Auto Rotation：右スティック無入力が続き、かつ移動中なら徐々に背後へ戻す
-	const float dt = DeltaTime::GetDeltaTime();
 	if (cameraInput_->GetStickMagnitude() > 0.01f) {
 		autoRotateTimer_ = 0.0f;
 	} else {

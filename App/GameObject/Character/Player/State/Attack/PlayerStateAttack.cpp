@@ -106,6 +106,8 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "KnockbackBlend", int32_t(static_cast<int32_t>(KnockbackBlend::Override)));
 	gv->AddItem(name_, "KnockbackOverrideVelocity", bool(true));
 	gv->AddItem(name_, "KnockbackCanLaunch", bool(true));
+	// コンボの締めか（ヒットストップを完全停止にし、強いヒット演出を使う）
+	gv->AddItem(name_, "IsFinisher", bool(false));
 
 	gv->AddItem(name_, "ButtonIndex", int32_t(0));
 	gv->AddItem(name_, "LockOnFlag", bool(false));
@@ -178,6 +180,8 @@ void PlayerStateAttack::Enter(Player& player) {
 	isChargeReleased_ = false;
 	isChargeFullNotified_ = false;
 	hitIndex_ = 0;
+	// 新しい攻撃なので、前の攻撃で当てた敵にもまた当たる
+	player.GetWeapon()->ResetHitTargets();
 
 	// 今回の攻撃のパラメータを送っておく（最終段・溜めの差し替えもここを通す）
 	ApplyHitData(player);
@@ -404,6 +408,7 @@ void PlayerStateAttack::UpdateAttackData() {
 	// エディタの調整値は ImpulseForce（水平の強さ）と UpwardRatio（それに対する上方向の割合）のまま。
 	// KnockbackData は速度[m/s]で持つので、ここで掛けて verticalPower にする
 	attackData_.knockback = LoadKnockback("");
+	attackData_.isFinisher = gv->GetValueRef<bool>(name_, "IsFinisher");
 
 	// 多段ヒット・当たり判定
 	attackData_.hitCount = gv->GetValueRef<int32_t>(name_, "HitCount");
@@ -587,8 +592,8 @@ void PlayerStateAttack::UpdateHitSegment(Player& player) {
 	if (index == hitIndex_) return;
 	hitIndex_ = index;
 
-	// 触れたままの敵にも次の段が当たるよう、武器の判定を1回だけ切る
-	player.GetWeapon()->RequestRehit();
+	// 段が変わったので、前の段で当てた敵にもまた当たるようにする（触れたままでも Stay で当たる）
+	player.GetWeapon()->ResetHitTargets();
 	// 最終段だけ性能を差し替える場合に備えて、攻撃データを渡し直す
 	ApplyHitData(player);
 }
@@ -598,10 +603,18 @@ void PlayerStateAttack::ApplyHitData(Player& player) {
 
 	// 多段ヒットの最終段
 	const int32_t hitCount = (std::max)(attackData_.hitCount, 1);
-	if (attackData_.useFinalHit && hitCount >= 2 && hitIndex_ >= hitCount - 1) {
+	const bool isFinalSegment = (hitIndex_ >= hitCount - 1);
+	if (attackData_.useFinalHit && hitCount >= 2 && isFinalSegment) {
 		data.damage = attackData_.finalDamage;
 		data.hitStopTime = attackData_.finalHitStopTime;
 		data.knockback = attackData_.finalKnockback;
+	}
+
+	// コンボの締めは最終段だけ。止まり方を完全停止にして、停止 → 衝撃 → 吹き飛び の区切りをはっきりさせる
+	// （敵は停止が明けるまで動かず、明けた瞬間に初速のまま吹き飛ぶ。Enemy::Update 参照）
+	data.isFinisher = attackData_.isFinisher && isFinalSegment;
+	if (data.isFinisher) {
+		data.hitStopStrength = HitStopStrength::Heavy;
 	}
 
 	// 溜め具合の倍率（溜め攻撃でなければ掛けない）

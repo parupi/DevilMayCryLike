@@ -59,8 +59,18 @@ public:
 	bool IsCharging() const { return !currentState_.empty() && currentState_.back()->IsCharging(); }
 	// 今の攻撃（攻撃中でなければ nullptr）。演出が振りの段階を読むのに使う
 	const PlayerStateAttack* GetCurrentAttack() const { return currentState_.empty() ? nullptr : currentState_.back(); }
-	// 攻撃を強制中断する（被弾時など）
+	// 攻撃を強制中断する（被弾時など）。コンボも終了扱いになる
 	void InterruptCombat();
+
+	// ======================
+	// コンボの区切り（敵の死亡待ちが見る）
+	// ======================
+	// コンボの途中か。最初の攻撃を出してから、次段へつながらずに終わる・中断されるまで true。
+	// 納刀モーション(Sheathe)はコンボに含めない
+	bool IsComboActive() const { return comboActive_; }
+	// 今（または直前）のコンボの通し番号。新しいコンボを始めるたびに増える。
+	// 「死亡待ちに入ったときのコンボが終わったか」を、知らせを受け取らずに番号の比較で判定できる
+	uint32_t GetComboId() const { return comboId_; }
 	// 攻撃を振り終えて、次の技（派生）か納刀モーションを待っている間か
 	bool IsWaitingForNextCombo() const { return waitingForNextCombo_; }
 	// 納刀モーション(Sheathe)か。振り終えた時点で剣は背中に収まっている
@@ -116,6 +126,10 @@ private:
 	bool CanStartRootAttackOver(const PlayerStateAttack& attack, InputButton button) const;
 	// 今の攻撃が、ルート攻撃で割り込める段階に来ているか（硬直が解けた・納刀モーション中）
 	bool IsReadyForRootAttack(const PlayerStateAttack& attack) const;
+	// 攻撃を始めたときに呼ぶ。コンボの途中でなければ新しいコンボを始める（納刀モーションは数えない）
+	void BeginCombo(const std::string& attackName);
+	// コンボを終える。何度呼んでもよい（終わっていれば何もしない）
+	void EndCombo();
 
 #ifdef _DEBUG
 	// 選択中の攻撃が、今ルート攻撃として出せるかを並べる（出ないときに理由を探すため）
@@ -151,4 +165,7 @@ private:
 	PlayerCommand pendingRootCommand_{};
 	// 上の入力を覚えておく残り時間[秒]。0 以下なら先行入力なし
 	float pendingRootTimer_ = 0.0f;
+	// コンボの途中か・通し番号（IsComboActive / GetComboId）
+	bool comboActive_ = false;
+	uint32_t comboId_ = 0;
 };

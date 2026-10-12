@@ -200,19 +200,22 @@ void GruntMelee::Update(float deltaTime) {
 
 void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	Enemy::OnCollisionEnter(other);
+}
 
-	if (other->category_ != CollisionCategory::PlayerWeapon) return;
-	if (!player_ || !player_->IsAttack()) return;
+bool GruntMelee::ReceivePlayerHit() {
+	if (!player_ || !player_->IsAttack()) return false;
 	// 出現・死亡演出中は被弾処理をしない
-	if (IsAppearanceEffectPlaying()) return;
+	if (IsAppearanceEffectPlaying()) return false;
 
 	// ── 仕様書 §20 の実装フロー ──
 	// ① 攻撃判定がヒット
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 
-	// ② ダメージ計算
-	hp_ -= atk.damage;
-	RecordDamage(atk.damage);
+	// ② ダメージ計算。死亡待ち（HP 0）の間はダメージを入れず、リアクションだけ受ける
+	if (!IsPendingDeath()) {
+		hp_ -= atk.damage;
+		RecordDamage(atk.damage);
+	}
 
 	// ③④ ノックバックの方向と耐性。CombatHit が水平化・種類補正・耐性をまとめて解決する
 	CombatHit::Attacker attacker;
@@ -223,13 +226,11 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 
 	if (hp_ <= 0.0f) {
 		if (CanDie()) {
-			// 死亡演出中はステートが回らないので、構えの途中で倒されると攻撃が残る。
-			// ボスと同じく攻撃ごと中断する（予兆は閃光なしで消え、向きの固定も解ける）
-			meleeAttack_->Cancel(*this);
-			OnDeath();
-			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える
-			ApplyDeathLaunch(hit.info.direction, hit.info.knockback);
-			return;
+			// すぐには倒れず死亡待ちへ。コンボと吹き飛びが終わったら Enemy::Update が死亡演出へ移す。
+			// のけぞりだけの一撃なら、死亡演出に入るときに改めて少し吹き飛ばす
+			const bool launched = hit.causesReaction && hit.info.knockback.type != ReactionType::HitStun
+				&& hit.info.knockback.power + hit.info.knockback.verticalPower > 0.0f;
+			EnterPendingDeath(hit.info.direction, hit.info.knockback, launched);
 		} else {
 			// まだ死亡できない（チュートリアル中など）ので生存を維持する
 			hp_ = 1.0f;
@@ -251,6 +252,7 @@ void GruntMelee::OnCollisionEnter(BaseCollider* other) {
 	// 骸骨自身の被弾の音。手応え（プレイヤー側）と重ねて、骨が軋む音を敵の位置から出す
 	SoundManager::GetInstance().PlaySE3D(
 		GameSound::kSkeletonHit, GetWorldTransform()->GetTranslation(), 0.7f);
+	return true;
 }
 
 void GruntMelee::OnDeathEffectFinished() {
@@ -260,6 +262,12 @@ void GruntMelee::OnDeathEffectFinished() {
 		weapon_->ResetObject();
 		weapon_ = nullptr;
 	}
+}
+
+void GruntMelee::OnPendingDeathEntered() {
+	// 行動ステートは止まるので、構えの途中で倒されると攻撃が残る。
+	// 攻撃ごと中断する（予兆は閃光なしで消え、向きの固定も解ける）
+	meleeAttack_->Cancel(*this);
 }
 
 void GruntMelee::OnCollisionStay(BaseCollider* other) {

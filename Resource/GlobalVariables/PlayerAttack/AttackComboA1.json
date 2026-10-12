@@ -68,7 +68,7 @@
         "DrawDebugControlPoints": false,
         "HitStopIntensity": 0.11999999731779099,
         "HitStopStrength": 0,
-        "HitStopTime": 0.009999999776482582,
+        "HitStopTime": 0.04,
         "ImpulseForce": 10.0,
         "IsAir": false,
         "IsMove": false,

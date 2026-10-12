@@ -3,8 +3,10 @@
 #include "World3D/Object/Model/Animation/BoneAttachment.h"
 #include <GameData/Score/StylishScoreManager.h>
 #include <string>
+#include <unordered_set>
 
 class Player;
+class Enemy;
 class BaseRenderer;
 class PlayerWeapon : public Object3d
 {
@@ -42,10 +44,10 @@ public:
 	void SetPlayer(Player* player) { player_ = player; }
 	void SetScoreManager(StylishScoreManager* scoreManager) { scoreManager_ = scoreManager; }
 	/// <summary>
-	/// 次の当たり判定を1回だけ切る（多段ヒット用）。
-	/// 触れたままの敵に、もう一度 OnCollisionEnter を起こすために使う
+	/// 「この攻撃で当てた敵」の記録を空にする。攻撃の出始めと、多段ヒットの段の区切りで呼ぶ。
+	/// 記録にある敵には、剣が何度触れ直しても当たらない（1つの攻撃が同じ敵に2回当たらない）
 	/// </summary>
-	void RequestRehit() { rehitRequested_ = true; }
+	void ResetHitTargets() { hitTargets_.clear(); }
 
 	/// <summary>刃先のワールド座標（今のワールド行列から計算する）。剣の軌跡とヒット位置に使う</summary>
 	Vector3 GetBladeTipWorld();
@@ -105,9 +107,13 @@ public:
 private:
 	// GlobalVariables から握りの調整値を読む（エディタで動かしながら合わせられるよう毎フレーム）
 	void LoadGripParams();
+	// 敵に触れていたら当てる（まだ当てていなければ）。OnCollisionEnter / Stay の両方から呼ぶ
+	void TryHitEnemy(BaseCollider* other);
+
 	bool isAttack_ = false;
-	// RequestRehit で立てる。次の Update で判定を1回切ったら下ろす
-	bool rehitRequested_ = false;
+	// 今の攻撃（多段ヒットなら今の段）で当てた敵。ResetHitTargets で空にする。
+	// 比べるだけで中身は触らない（倒れて消えた敵のポインタが残っていても次の攻撃で消える）
+	std::unordered_set<const Enemy*> hitTargets_;
 	// 当たり判定（OBB）の基準の大きさ。攻撃ごとの倍率（Hitbox Scale）はこれに掛ける
 	Vector3 baseHalfExtents_ = { 0.5f, 1.0f, 0.5f };
 

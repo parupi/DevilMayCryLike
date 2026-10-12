@@ -203,7 +203,7 @@
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "FinalDamage": 2.5,
-        "FinalHitStopTime": 0.12,
+        "FinalHitStopTime": 0.15,
         "FinalImpulseForce": 16.0,
         "FinalReactionType": 1,
         "FinalStunTime": 0.0,
@@ -239,6 +239,7 @@
         "TorqueForce": 0.0,
         "TotalDuration": 1.2,
         "UpwardRatio": 0.0,
-        "UseFinalHit": true
+        "UseFinalHit": true,
+        "IsFinisher": true
     }
 }

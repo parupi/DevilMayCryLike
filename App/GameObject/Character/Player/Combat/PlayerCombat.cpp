@@ -70,6 +70,12 @@ void PlayerCombat::Update(float deltaTime) {
 		node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(name, "DirIndex"));
 		node.condition.requireCounter = global_->GetValueRef<bool>(name, "CounterFlag");
 	}
+	// 死亡演出・操作不能に入ったら、攻撃の途中でもコンボを打ち切る
+	// （被弾は Player::OnDamage が中断するが、デバッグの即死など他の経路でも取り残さない）
+	if (player_->IsDying() && (IsAttacking() || comboActive_)) {
+		InterruptCombat();
+	}
+
 	// コンボのリセット処理
 	if (waitingForNextCombo_) {
 
@@ -101,6 +107,7 @@ void PlayerCombat::Update(float deltaTime) {
 			top->Exit(*player_);
 			currentState_.pop_back();
 			auto* next = states_[req.nextAttack].get();
+			BeginCombo(req.nextAttack);
 			next->Enter(*player_);
 			currentState_.push_back(next);
 		} else if (req.type == AttackRequest::Jump) {
@@ -131,6 +138,12 @@ void PlayerCombat::Update(float deltaTime) {
 		top->Exit(*player_);
 		currentState_.pop_back();
 
+		// 次段へつながらずに振り終えたので、ここでコンボは終わり
+		// （派生の受付は振り終える前の Cancel フェーズまでで、ここから先の入力は新しいコンボになる）
+		if (currentState_.empty()) {
+			EndCombo();
+		}
+
 		// 次の攻撃を待つ状態に入る
 		if (wasBranching) {
 			waitingForNextCombo_ = true;
@@ -160,12 +173,25 @@ void PlayerCombat::InterruptCombat() {
 	waitingForNextCombo_ = false;
 	comboResetTimer_ = 0.0f;
 	pendingRootTimer_ = 0.0f;
+	EndCombo();
+}
+
+void PlayerCombat::BeginCombo(const std::string& attackName) {
+	if (attackName == kSheatheName) return;
+	if (comboActive_) return;
+	comboActive_ = true;
+	++comboId_;
+}
+
+void PlayerCombat::EndCombo() {
+	comboActive_ = false;
 }
 
 void PlayerCombat::AddState(const std::string& stateName) {
 	// 攻撃中でなければそのまま遷移
 	if (currentState_.empty()) {
 		auto it = states_[stateName].get();
+		BeginCombo(stateName);
 		it->Enter(*player_);
 		currentState_.push_back(it);
 		return;
@@ -173,6 +199,7 @@ void PlayerCombat::AddState(const std::string& stateName) {
 	// 攻撃中であっても、現在の攻撃が割り込み可能であれば遷移
 	if (currentState_.back()->CanBeInterrupted()) {
 		auto it = states_[stateName].get();
+		BeginCombo(stateName);
 		it->Enter(*player_);
 		currentState_.back()->OnInterrupted(*player_);
 		currentState_.push_back(it);
@@ -704,6 +731,11 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::Checkbox("Draw Debug Control Points", &global_->GetValueRef<bool>(attackName, "DrawDebugControlPoints"));
 
 	ImGui::DragFloat("Damage", &global_->GetValueRef<float>(attackName, "Damage"), 0.01f);
+
+	ImGui::Checkbox("Is Finisher", &global_->GetValueRef<bool>(attackName, "IsFinisher"));
+	ImGui::SetItemTooltip("コンボの締め。当たるとヒットストップが完全停止になり、強攻撃のヒット演出を使う。\n"
+		"敵は停止が明けてから吹き飛ぶ。多段ヒットの攻撃は最終段だけがフィニッシュになる。\n"
+		"HitStopTime の目安: 通常 0.03〜0.06 / 強攻撃 0.07〜0.12 / フィニッシュ 0.12〜0.20 秒");
 
 	ImGui::DragFloat("HitStopTime", &global_->GetValueRef<float>(attackName, "HitStopTime"), 0.01f);
 	ImGui::DragFloat("HitStopIntensity", &global_->GetValueRef<float>(attackName, "HitStopIntensity"), 0.01f);

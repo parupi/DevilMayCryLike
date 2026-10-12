@@ -47,17 +47,19 @@ void HitStop::Start(float time, float intensity, HitStopStrength strength)
 	const float timeScale = ToTimeScale(strength);
 
 	if (hitStopData_.isActive) {
-		// 発生中に重ねてヒットした場合は「長く・強く(より止まる方)」を優先する
-		maxTime_ = std::max(maxTime_, time);
-		intensity_ = std::max(intensity_, intensity);
-		stopScale_ = std::min(stopScale_, timeScale);
+		// 発生中に重ねてヒットした場合は、単純に足さず「今からその長さ」まで延ばすだけにする。
+		// ただし最初のヒットから数えた長さは kMaxChainDuration で頭打ち（今の残りより短くはしない）。
+		// timer_ は戻さないので、連打しても停止が際限なく延びることはない
+		const float extended = (std::min)(timer_ + time, (std::max)(kMaxChainDuration, time));
+		maxTime_ = (std::max)(maxTime_, extended);
+		intensity_ = (std::max)(intensity_, intensity);
+		stopScale_ = (std::min)(stopScale_, timeScale);
 	} else {
 		maxTime_ = time;
 		intensity_ = intensity;
 		stopScale_ = timeScale;
+		timer_ = 0.0f;
 	}
-
-	timer_ = 0.0f;
 
 	hitStopData_.isActive = true;
 	hitStopData_.translate = {};

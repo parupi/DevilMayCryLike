@@ -155,6 +155,12 @@ struct AttackData {
 	/// <summary>攻撃を受けた側に送るノックバック性能（仕様書 §3）</summary>
 	KnockbackData knockback{};
 
+	/// <summary>
+	/// コンボの締め（フィニッシュ）か。ON の攻撃が当たると、ヒットストップを完全停止にし、
+	/// ヒット演出も強攻撃のものを使う。多段ヒットの攻撃は最終段だけがフィニッシュになる
+	/// </summary>
+	bool isFinisher = false;
+
 	// ── 多段ヒット・当たり判定 ──
 	// 攻撃判定が出ている間に何回当たり直すか（Attack Duration を等分する）。1 なら従来通り1回
 	int32_t hitCount = 1;

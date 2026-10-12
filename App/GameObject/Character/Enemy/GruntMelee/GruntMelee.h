@@ -40,6 +40,7 @@ public:
     void OnCollisionEnter(BaseCollider* other) override;
     void OnCollisionStay(BaseCollider* other) override;
     void OnCollisionExit(BaseCollider* other) override;
+    bool ReceivePlayerHit() override;
 
     /// <summary>骸骨なので、斬ると白い骨の欠片が飛ぶ</summary>
     HitMaterial GetHitMaterial() const override { return HitMaterial::Bone; }
@@ -50,6 +51,8 @@ public:
 protected:
     /// <summary>死亡演出終了時に武器を後始末する</summary>
     void OnDeathEffectFinished() override;
+    /// <summary>死亡待ちに入ったら構えの途中の攻撃を畳む（予兆も閃光なしで消える）</summary>
+    void OnPendingDeathEntered() override;
 
 private:
     GruntMeleeWeapon* weapon_        = nullptr;
