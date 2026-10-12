@@ -846,6 +846,8 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 
 	// ── 多段ヒット・当たり判定 ──
 	ImGui::SeparatorText("Hit");
+	ImGui::Checkbox("Has Hitbox", &global_->GetValueRef<bool>(attackName, "HasHitbox"));
+	ImGui::SetItemTooltip("OFF にすると振っても攻撃判定を出さない（納刀モーションなど、見た目だけの動き）");
 	int32_t& hitCount = global_->GetValueRef<int32_t>(attackName, "HitCount");
 	ImGui::DragInt("Hit Count", &hitCount, 0.05f, 1, 10);
 	ImGui::SetItemTooltip("攻撃判定が出ている間に何回当たり直すか。\n"

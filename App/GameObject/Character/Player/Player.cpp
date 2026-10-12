@@ -611,6 +611,10 @@ void Player::ExecuteCommand(const PlayerCommand& command) {
 		if (CanStartDodge()) {
 			combat_->InterruptCombat();
 			ChangeState("Dodge");
+			// 回避のチュートリアル。ジャスト回避で Dodge に入り直す経路は数えないよう、入力で始めたときだけ進める
+			if (tutorialService_) {
+				tutorialService_->StepTutorial(TutorialState::Dodge);
+			}
 		}
 		return;
 	}

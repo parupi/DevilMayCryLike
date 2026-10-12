@@ -123,6 +123,7 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	// 多段ヒット・当たり判定
 	gv->AddItem(name_, "HitCount", int32_t(1));          // 攻撃判定が出ている間に何回当たるか
 	gv->AddItem(name_, "HitboxScale", 1.0f);             // 武器の当たり判定の大きさの倍率
+	gv->AddItem(name_, "HasHitbox", bool(true));         // 攻撃判定を出すか（納刀モーションなど見た目だけの動きは OFF）
 	// 最終段だけ別の性能にする（HitCount が2以上のときだけ使う）
 	gv->AddItem(name_, "UseFinalHit", bool(false));
 	gv->AddItem(name_, "FinalDamage", float());
@@ -445,6 +446,7 @@ void PlayerStateAttack::UpdateAttackData() {
 	// 多段ヒット・当たり判定
 	attackData_.hitCount = gv->GetValueRef<int32_t>(name_, "HitCount");
 	attackData_.hitboxScale = gv->GetValueRef<float>(name_, "HitboxScale");
+	attackData_.hasHitbox = gv->GetValueRef<bool>(name_, "HasHitbox");
 	attackData_.useFinalHit = gv->GetValueRef<bool>(name_, "UseFinalHit");
 	attackData_.finalDamage = gv->GetValueRef<float>(name_, "FinalDamage");
 	attackData_.finalHitStopTime = gv->GetValueRef<float>(name_, "FinalHitStopTime");
@@ -705,8 +707,8 @@ void PlayerStateAttack::UpdateStartup(Player& player, float deltaTime) {
 }
 
 void PlayerStateAttack::UpdateActive(Player& player) {
-	// 攻撃判定ON、移動処理
-	player.GetWeapon()->SetIsAttack(true);
+	// 攻撃判定ON（判定を持たない攻撃は出さない）、移動処理
+	player.GetWeapon()->SetIsAttack(attackData_.hasHitbox);
 	// ローカル速度の取得
 	Vector3 localVelocity = attackData_.moveVelocity;
 	// プレイヤーの回転を取得

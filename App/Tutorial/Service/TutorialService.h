@@ -4,7 +4,8 @@ enum class TutorialState {
 	Move, // 移動のチュートリアル
 	Jump, // ジャンプのチュートリアル
 	AttackA, // 攻撃Aコンボのチュートリアル
-	AttackB, // 攻撃Bコンボのチュートリアル
+	Dodge, // 回避のチュートリアル
+	ChargeAttack, // 溜め攻撃のチュートリアル
 	LockOn, // ロックオンのチュートリアル
 	RoundUpAttack, // 切り上げ攻撃のチュートリアル
 

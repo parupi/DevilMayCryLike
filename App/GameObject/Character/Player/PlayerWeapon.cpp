@@ -16,7 +16,7 @@ namespace {
 	// 攻撃名からチュートリアルの種類を判定する（該当しない攻撃はCountを返す）
 	TutorialState ResolveTutorialState(const std::string& attackName) {
 		if (attackName.rfind("AttackComboA", 0) == 0) return TutorialState::AttackA;
-		if (attackName.rfind("AttackComboB", 0) == 0) return TutorialState::AttackB;
+		if (attackName == "AttackCharge") return TutorialState::ChargeAttack;
 		if (attackName == "AttackHighTime") return TutorialState::RoundUpAttack;
 		return TutorialState::Count;
 	}

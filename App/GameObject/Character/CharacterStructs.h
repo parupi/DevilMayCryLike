@@ -166,6 +166,8 @@ struct AttackData {
 	int32_t hitCount = 1;
 	// 武器の当たり判定の大きさの倍率
 	float hitboxScale = 1.0f;
+	// 攻撃判定を出すか。納刀モーションのように見た目だけの動きは false にする
+	bool hasHitbox = true;
 	// 最終段だけ別の性能にするか（hitCount が2以上のときだけ効く）
 	bool useFinalHit = false;
 	float finalDamage = 0.0f;
