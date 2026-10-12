@@ -11,4 +11,5 @@ public:
 	void Exit(Player& player) override;
 	void ExecuteCommand(Player& player, const PlayerCommand& command) override;
 	const char* GetDebugName() const override { return "Move"; };
+	bool CanJump() const override { return true; }
 };

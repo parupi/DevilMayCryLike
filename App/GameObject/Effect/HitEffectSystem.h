@@ -43,6 +43,14 @@ struct HitEffectRequest {
 
 	/// <summary>VFXの大きさの倍率。大きな敵ほど少し大きくする</summary>
 	float sizeScale = 1.0f;
+
+	/// <summary>
+	/// コントローラーの振動（攻撃データ由来。最終段・溜めを反映済み）。
+	/// 弾かれたヒット（isArmorHit）のときは使わず、共通の「弾かれた」振動に差し替える
+	/// </summary>
+	float rumbleLow = 0.0f;
+	float rumbleHigh = 0.0f;
+	float rumbleDuration = 0.0f;
 };
 
 /// <summary>
@@ -98,6 +106,8 @@ private:
 		float shakeTrauma;   // カメラに加えるトラウマ量[0,1]
 	};
 
+	/// <summary>コントローラーを震わせる（攻撃の値 × 全体の倍率。弾かれたときは共通の振動）</summary>
+	void PlayRumble(const HitEffectRequest& request);
 	/// <summary>GlobalVariables から現在のプリセットを読む</summary>
 	Preset LoadPreset(HitStopStrength strength, bool isArmorHit) const;
 	/// <summary>ワールド座標を画面UV(0〜1)に変換する。画面外・カメラ後方なら画面中央</summary>

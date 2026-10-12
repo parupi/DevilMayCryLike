@@ -16,7 +16,7 @@ namespace {
 	// 攻撃名からチュートリアルの種類を判定する（該当しない攻撃はCountを返す）
 	TutorialState ResolveTutorialState(const std::string& attackName) {
 		if (attackName.rfind("AttackComboA", 0) == 0) return TutorialState::AttackA;
-		if (attackName.rfind("AttackComboB", 0) == 0) return TutorialState::AttackB;
+		if (attackName == "AttackCharge") return TutorialState::ChargeAttack;
 		if (attackName == "AttackHighTime") return TutorialState::RoundUpAttack;
 		return TutorialState::Count;
 	}
@@ -85,11 +85,8 @@ void PlayerWeapon::Update(float deltaTime) {
 	if (!player_) return;
 
 	auto* collider = static_cast<OBBCollider*>(GetCollider("WeaponCollider"));
-	// 攻撃中だけ判定を出す。
-	// 多段ヒットの区切りでは1回だけ切る。CollisionManager は「前回も触れていたか」で Enter と Stay を
-	// 分けるので、一度離れたことにしないと、触れたままの敵へ次の段が入らない
-	collider->GetColliderData().isActive = isAttack_ && !rehitRequested_;
-	rehitRequested_ = false;
+	// 攻撃中だけ判定を出す。同じ敵に何回当たるかは hitTargets_ が決める（TryHitEnemy）
+	collider->GetColliderData().isActive = isAttack_;
 	// 攻撃ごとの当たり判定の大きさ（回転攻撃などで広げる）
 	const float hitboxScale = player_->IsAttack() ? player_->GetAttackData().hitboxScale : 1.0f;
 	collider->GetColliderData().halfExtents = baseHalfExtents_ * hitboxScale;
@@ -260,8 +257,21 @@ Vector3 PlayerWeapon::GetBladeBaseWorld() {
 }
 
 void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
+	TryHitEnemy(other);
+}
+
+void PlayerWeapon::TryHitEnemy(BaseCollider* other) {
 	if (other->category_ == CollisionCategory::Enemy) {
 		if (!player_->IsAttack()) return;
+
+		// 当たりを決めるのはここだけ。触れ始め（Enter）に頼ると、振りの途中で刃が敵から一瞬抜けて
+		// 触れ直したときにもう一度当たってしまうので、「この攻撃（この段）で当てた敵」を覚えておく。
+		// 触れ続け（Stay）からも呼ぶので、触れたままの敵にも多段ヒットの次の段や次の攻撃が入る
+		auto* enemy = dynamic_cast<Enemy*>(other->owner_);
+		if (!enemy || hitTargets_.contains(enemy)) return;
+		// 敵が受け付けなかった（出現・死亡演出中など）ときは当てたことにしない。受け付けられるようになれば当たる
+		if (!enemy->ReceivePlayerHit()) return;
+		hitTargets_.insert(enemy);
 
 		// 攻撃の状況（空中・強攻撃・敵の強さ）を集めてスタイルスコアへ渡す
 		const AttackData& attack = player_->GetAttackData();
@@ -271,10 +281,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		hitCtx.isAir = (attack.posture == AttackPosture::Air);
 		// 打ち上げ・吹き飛ばしは強攻撃として高めに評価する
 		hitCtx.isStrong = (attack.knockback.type == ReactionType::Launch || attack.knockback.type == ReactionType::Knockback);
-		auto* enemy = dynamic_cast<Enemy*>(other->owner_);
-		if (enemy) {
-			hitCtx.enemyMultiplier = enemy->GetStyleMultiplier();
-		}
+		hitCtx.enemyMultiplier = enemy->GetStyleMultiplier();
 		scoreManager_->OnAttackHit(hitCtx);
 
 		// ── ヒット演出（VFX・カメラシェイク・ポストエフェクト・ヒットストップ・ライト）──
@@ -306,6 +313,9 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 
 		fx.strength = attack.hitStopStrength;
 		fx.hitStopTime = attack.hitStopTime;
+		fx.rumbleLow = attack.rumbleLow;
+		fx.rumbleHigh = attack.rumbleHigh;
+		fx.rumbleDuration = attack.rumbleDuration;
 		fx.hitStopIntensity = attack.hitStopIntensity;
 		// スーパーアーマーで弾かれた場合は控えめな演出にする
 		fx.isArmorHit = (enemy && enemy->IsKnockbackImmune());
@@ -314,7 +324,9 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 		// 「攻撃が通っていない」ことは敵側の紫の火花（BossArmorHitSpark）が伝える
 		if (!fx.isArmorHit) {
 			const AttackVfxStyle style = attackEffect ? attackEffect->GetCurrentStyle() : AttackVfxStyle::Slash;
-			const bool isHeavy = (style == AttackVfxStyle::Heavy || style == AttackVfxStyle::Slam || style == AttackVfxStyle::Thrust);
+			// コンボの締め（フィニッシュ）は技の見た目の種類に関わらず強い光にする
+			const bool isHeavy = (style == AttackVfxStyle::Heavy || style == AttackVfxStyle::Slam || style == AttackVfxStyle::Thrust)
+				|| attack.isFinisher;
 			// 通常斬りは白＋青の十字の光、強攻撃は白＋金の大きな光
 			fx.vfxName = isHeavy ? "PlayerHitHeavy" : "PlayerHitSlash";
 			fx.materialVfxName = enemy ? MaterialVfxName(enemy->GetHitMaterial()) : "";
@@ -351,7 +363,7 @@ void PlayerWeapon::OnCollisionEnter(BaseCollider* other) {
 }
 
 void PlayerWeapon::OnCollisionStay(BaseCollider* other) {
-	other;
+	TryHitEnemy(other);
 }
 
 void PlayerWeapon::OnCollisionExit(BaseCollider* other) {

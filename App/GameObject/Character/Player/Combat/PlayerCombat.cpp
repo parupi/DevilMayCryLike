@@ -4,6 +4,7 @@
 #include <Utility/DeltaTime.h>
 #include "Audio/GameSoundLibrary.h"
 #include "Audio/SoundManager.h"
+#include "Input/GamepadRumble.h"
 #ifdef _DEBUG
 #include "World3D/Object/Renderer/BaseRenderer.h"
 #include "World3D/Object/Model/SkinnedModel.h"
@@ -70,6 +71,12 @@ void PlayerCombat::Update(float deltaTime) {
 		node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(name, "DirIndex"));
 		node.condition.requireCounter = global_->GetValueRef<bool>(name, "CounterFlag");
 	}
+	// 死亡演出・操作不能に入ったら、攻撃の途中でもコンボを打ち切る
+	// （被弾は Player::OnDamage が中断するが、デバッグの即死など他の経路でも取り残さない）
+	if (player_->IsDying() && (IsAttacking() || comboActive_)) {
+		InterruptCombat();
+	}
+
 	// コンボのリセット処理
 	if (waitingForNextCombo_) {
 
@@ -101,6 +108,7 @@ void PlayerCombat::Update(float deltaTime) {
 			top->Exit(*player_);
 			currentState_.pop_back();
 			auto* next = states_[req.nextAttack].get();
+			BeginCombo(req.nextAttack);
 			next->Enter(*player_);
 			currentState_.push_back(next);
 		} else if (req.type == AttackRequest::Jump) {
@@ -131,6 +139,12 @@ void PlayerCombat::Update(float deltaTime) {
 		top->Exit(*player_);
 		currentState_.pop_back();
 
+		// 次段へつながらずに振り終えたので、ここでコンボは終わり
+		// （派生の受付は振り終える前の Cancel フェーズまでで、ここから先の入力は新しいコンボになる）
+		if (currentState_.empty()) {
+			EndCombo();
+		}
+
 		// 次の攻撃を待つ状態に入る
 		if (wasBranching) {
 			waitingForNextCombo_ = true;
@@ -160,12 +174,25 @@ void PlayerCombat::InterruptCombat() {
 	waitingForNextCombo_ = false;
 	comboResetTimer_ = 0.0f;
 	pendingRootTimer_ = 0.0f;
+	EndCombo();
+}
+
+void PlayerCombat::BeginCombo(const std::string& attackName) {
+	if (attackName == kSheatheName) return;
+	if (comboActive_) return;
+	comboActive_ = true;
+	++comboId_;
+}
+
+void PlayerCombat::EndCombo() {
+	comboActive_ = false;
 }
 
 void PlayerCombat::AddState(const std::string& stateName) {
 	// 攻撃中でなければそのまま遷移
 	if (currentState_.empty()) {
 		auto it = states_[stateName].get();
+		BeginCombo(stateName);
 		it->Enter(*player_);
 		currentState_.push_back(it);
 		return;
@@ -173,6 +200,7 @@ void PlayerCombat::AddState(const std::string& stateName) {
 	// 攻撃中であっても、現在の攻撃が割り込み可能であれば遷移
 	if (currentState_.back()->CanBeInterrupted()) {
 		auto it = states_[stateName].get();
+		BeginCombo(stateName);
 		it->Enter(*player_);
 		currentState_.back()->OnInterrupted(*player_);
 		currentState_.push_back(it);
@@ -228,7 +256,10 @@ void PlayerCombat::ExecuteCommand(const PlayerCommand& command) {
 }
 
 const AttackNode* PlayerCombat::FindRootAttack(const PlayerCommand& command) const {
-	bool onGround = player_->GetOnGround();
+	return FindRootAttack(command.button, command.stickDir, player_->GetOnGround());
+}
+
+const AttackNode* PlayerCombat::FindRootAttack(InputButton button, const Vector2& stickDir, bool onGround) const {
 	bool lockedOn = player_->IsLockOn();
 
 	const AttackNode* bestMatch = nullptr;
@@ -247,16 +278,16 @@ const AttackNode* PlayerCombat::FindRootAttack(const PlayerCommand& command) con
 		if (node.condition.requireCounter && !IsCounterWindowOpen()) continue;
 
 		// ボタンが指定されていてコマンドと違えばスキップ
-		if (node.condition.button != InputButton::None && node.condition.button != command.button) continue;
+		if (node.condition.button != InputButton::None && node.condition.button != button) continue;
 
 		// スティック方向チェック
 		bool stickMatch = false;
 		switch (node.condition.stick) {
 		case StickDirection::ToEnemy:
-			stickMatch = command.stickDir.y >= 0.7f;
+			stickMatch = stickDir.y >= 0.7f;
 			break;
 		case StickDirection::AwayFromEnemy:
-			stickMatch = command.stickDir.y <= -0.7f;
+			stickMatch = stickDir.y <= -0.7f;
 			break;
 		case StickDirection::None:
 		case StickDirection::Any:
@@ -306,6 +337,14 @@ bool PlayerCombat::CanStartRootAttackOver(const PlayerStateAttack& attack, Input
 	const auto it = attackGraph_.find(attack.GetAttackName());
 	if (it == attackGraph_.end()) return false;
 	return it->second.condition.button != button;
+}
+
+PlayerCombat::RootOverTiming PlayerCombat::PeekRootAttackOver(InputButton button) const {
+	// ExecuteCommand の割り込みの分岐と同じ判定
+	if (currentState_.empty()) return RootOverTiming::NotAllowed;
+	const PlayerStateAttack& top = *currentState_.back();
+	if (!CanStartRootAttackOver(top, button)) return RootOverTiming::NotAllowed;
+	return IsReadyForRootAttack(top) ? RootOverTiming::Now : RootOverTiming::Buffer;
 }
 
 bool PlayerCombat::IsReadyForRootAttack(const PlayerStateAttack& attack) const {
@@ -598,12 +637,79 @@ void PlayerCombat::AddAttackState(const std::string& attackName) {
 	attackPlayer_->SetAttacks(list);
 }
 
+#ifdef _DEBUG
+void PlayerCombat::DrawRumbleEditor(const std::string& attackName) {
+	ImGui::SeparatorText("Rumble（当たったときのコントローラーの振動）");
+
+	float& low = global_->GetValueRef<float>(attackName, "RumbleLow");
+	float& high = global_->GetValueRef<float>(attackName, "RumbleHigh");
+	float& duration = global_->GetValueRef<float>(attackName, "RumbleDuration");
+
+	// 数字だけでは手触りが分からないので、目安のプリセットを置く
+	struct Preset { const char* label; float low; float high; float duration; };
+	constexpr Preset kPresets[] = {
+		{ "なし", 0.0f, 0.0f, 0.0f },
+		{ "弱", 0.25f, 0.35f, 0.10f },
+		{ "中", 0.5f, 0.45f, 0.16f },
+		{ "強", 0.8f, 0.7f, 0.24f },
+	};
+	for (const Preset& preset : kPresets) {
+		if (ImGui::Button(preset.label)) {
+			low = preset.low;
+			high = preset.high;
+			duration = preset.duration;
+		}
+		ImGui::SameLine();
+	}
+	if (ImGui::Button("試しに振動")) {
+		RumbleRequest request;
+		request.low = low;
+		request.high = high;
+		request.duration = duration;
+		GamepadRumble::GetInstance().Play(request);
+	}
+	ImGui::SetItemTooltip("この攻撃の振動をその場でパッドに出す（全体の倍率と OPTION の倍率は掛けない）");
+
+	ImGui::SliderFloat("Rumble Low", &low, 0.0f, 1.0f);
+	ImGui::SetItemTooltip("左モーター。低周波の重い揺れ（大振り・叩きつけ向き）");
+	ImGui::SliderFloat("Rumble High", &high, 0.0f, 1.0f);
+	ImGui::SetItemTooltip("右モーター。高周波の鋭い揺れ（斬った手応え・突き向き）");
+	ImGui::DragFloat("Rumble Duration", &duration, 0.005f, 0.0f, 2.0f, "%.3f 秒");
+	ImGui::SetItemTooltip("振動の長さ（実時間）。ヒットストップやスローでは伸びない");
+
+	// 多段ヒットの最終段・溜めは、それぞれの設定があるときだけ出す
+	if (global_->GetValueRef<bool>(attackName, "UseFinalHit") && global_->GetValueRef<int32_t>(attackName, "HitCount") >= 2) {
+		ImGui::SliderFloat("Final Rumble Low", &global_->GetValueRef<float>(attackName, "FinalRumbleLow"), 0.0f, 1.0f);
+		ImGui::SliderFloat("Final Rumble High", &global_->GetValueRef<float>(attackName, "FinalRumbleHigh"), 0.0f, 1.0f);
+		ImGui::DragFloat("Final Rumble Duration", &global_->GetValueRef<float>(attackName, "FinalRumbleDuration"), 0.005f, 0.0f, 2.0f, "%.3f 秒");
+	}
+	if (global_->GetValueRef<bool>(attackName, "IsCharge")) {
+		ImGui::DragFloat("Charge Rumble Scale", &global_->GetValueRef<float>(attackName, "ChargeRumbleScale"), 0.01f, 0.0f, 5.0f);
+		ImGui::SetItemTooltip("最大まで溜めたときの振動の強さの倍率");
+	}
+}
+#endif // _DEBUG
+
 void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* attack) {
 #ifdef _DEBUG
 	const char* attackName = attack->name_.c_str();
 
 	// 出ないときに理由を探せるよう、一番上に出す
 	DrawRootAttackCheck(attack->name_);
+
+	// ── アクションガイド（画面右下の操作案内）での見せ方 ──
+	ImGui::SeparatorText("Guide（アクションガイドでの表示）");
+	{
+		std::string& guideName = global_->GetValueRef<std::string>(attackName, "GuideName");
+		char buffer[128] = {};
+		strncpy_s(buffer, guideName.c_str(), sizeof(buffer) - 1);
+		if (ImGui::InputText("Guide Name", buffer, sizeof(buffer))) {
+			guideName = buffer;
+		}
+		ImGui::SetItemTooltip("ガイドに出す技の名前。空なら攻撃名（%s）をそのまま出す", attackName);
+		ImGui::Checkbox("Show In Guide", &global_->GetValueRef<bool>(attackName, "GuideVisible"));
+		ImGui::SetItemTooltip("OFF にするとガイドに出さない（納刀モーションなど、操作で出さないもの）");
+	}
 	ImGui::Separator();
 
 	int32_t& pointCount = global_->GetValueRef<int32_t>(attackName, "PointCount");
@@ -705,6 +811,11 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 
 	ImGui::DragFloat("Damage", &global_->GetValueRef<float>(attackName, "Damage"), 0.01f);
 
+	ImGui::Checkbox("Is Finisher", &global_->GetValueRef<bool>(attackName, "IsFinisher"));
+	ImGui::SetItemTooltip("コンボの締め。当たるとヒットストップが完全停止になり、強攻撃のヒット演出を使う。\n"
+		"敵は停止が明けてから吹き飛ぶ。多段ヒットの攻撃は最終段だけがフィニッシュになる。\n"
+		"HitStopTime の目安: 通常 0.03〜0.06 / 強攻撃 0.07〜0.12 / フィニッシュ 0.12〜0.20 秒");
+
 	ImGui::DragFloat("HitStopTime", &global_->GetValueRef<float>(attackName, "HitStopTime"), 0.01f);
 	ImGui::DragFloat("HitStopIntensity", &global_->GetValueRef<float>(attackName, "HitStopIntensity"), 0.01f);
 
@@ -788,7 +899,11 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 		"（OFF にすると Launch を指定しても吹き飛びに落ちる）");
 
 	// ── 多段ヒット・当たり判定 ──
+	DrawRumbleEditor(attack->name_);
+
 	ImGui::SeparatorText("Hit");
+	ImGui::Checkbox("Has Hitbox", &global_->GetValueRef<bool>(attackName, "HasHitbox"));
+	ImGui::SetItemTooltip("OFF にすると振っても攻撃判定を出さない（納刀モーションなど、見た目だけの動き）");
 	int32_t& hitCount = global_->GetValueRef<int32_t>(attackName, "HitCount");
 	ImGui::DragInt("Hit Count", &hitCount, 0.05f, 1, 10);
 	ImGui::SetItemTooltip("攻撃判定が出ている間に何回当たり直すか。\n"

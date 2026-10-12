@@ -57,6 +57,10 @@ void AppEditor::DrawCameraWorkWindow()
 		DragFloatParam(group, "BaseHeight", 0.1f, 0.0f, 50.0f);
 		DragFloatParam(group, "MinDistance", 0.1f, 0.0f, 50.0f);
 		DragFloatParam(group, "SensitivityX", 0.001f, 0.0f, 1.0f);
+		// 上下の旋回は既定で無効（俯角を FixedPitch に固定する）
+		CheckboxParam(group, "PitchInputEnabled");
+		DragFloatParam(group, "FixedPitch", 0.005f, -1.0f, 1.2f);
+		DragFloatParam(group, "PitchReturnSpeed", 0.05f, 0.1f, 30.0f);
 		DragFloatParam(group, "SensitivityY", 0.001f, 0.0f, 1.0f);
 		DragFloatParam(group, "PitchLimit", 0.01f, 0.0f, 1.5f);
 	}
@@ -88,6 +92,8 @@ void AppEditor::DrawCameraWorkWindow()
 		// 遮蔽されたら速く寄り、晴れたらゆっくり戻す
 		DragFloatParam(group, "CollisionInSpeed", 0.5f, 0.1f, 100.0f);
 		DragFloatParam(group, "CollisionOutSpeed", 0.05f, 0.1f, 30.0f);
+		// 足元からカメラまでの最低の高さ。地面の下へ潜らせない最後の保険
+		DragFloatParam(group, "MinCameraHeight", 0.05f, 0.0f, 20.0f);
 		ImGui::Text("Ratio: %.2f", status.collisionRatio);
 	}
 

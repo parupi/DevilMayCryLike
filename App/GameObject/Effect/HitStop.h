@@ -21,6 +21,13 @@ public:
         0.0f,  // Heavy
     };
 
+    /// <summary>
+    /// 連続ヒットでヒットストップがつながったときの最大の長さ[秒]（最初のヒットから数える）。
+    /// 多段ヒットや連打で停止が延び続けてテンポが止まるのを防ぐ。
+    /// 1回のヒットストップがこれより長い場合（フィニッシュ・死亡など）は、その長さまでは止める
+    /// </summary>
+    static constexpr float kMaxChainDuration = 0.25f;
+
     // 強さをタイムスケールに変換する
     static float ToTimeScale(HitStopStrength strength);
     // int32_t(GlobalVariables等)から安全に強さへ変換する

@@ -6,6 +6,7 @@
 #include <GameData/GameSettings.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Input/Input.h>
+#include <Input/GamepadRumble.h>
 #include <Utility/DeltaTime.h>
 
 #include <algorithm>
@@ -26,9 +27,14 @@ namespace {
 		"BGM VOLUME",
 		"SE VOLUME",
 		"CAMERA SENSITIVITY",
+		"VIBRATION",
 		"INVERT CAMERA Y",
 		"TUTORIAL",
+		"ACTION GUIDE",
 	};
+
+	/// ACTION GUIDE の値の表示。GameSettings::GetActionGuideMode の並び（0=OFF / 1=戦闘中 / 2=常に）
+	const char* kActionGuideTexts[] = { "OFF", "BATTLE ONLY", "ALWAYS" };
 
 	/// 0.0～1.0 の値を 0～100 の表示用の数へ直す
 	int32_t ToPercent(float value) {
@@ -186,6 +192,16 @@ void OptionPanel::ChangeValue(int32_t direction)
 	case Row::Sensitivity:
 		settings.SetCameraSensitivity(settings.GetCameraSensitivity() + GameSettings::kSensitivityStep * direction);
 		break;
+	case Row::Vibration: {
+		settings.SetVibration(settings.GetVibration() + GameSettings::kVibrationStep * direction);
+		// 変えた強さをその場で確かめられるように、短く震わせる（OPTION の倍率が掛かる）
+		RumbleRequest test;
+		test.low = 0.5f;
+		test.high = 0.5f;
+		test.duration = 0.15f;
+		GamepadRumble::GetInstance().Play(test);
+		break;
+	}
 	// ON/OFF は左で OFF・右で ON にする。
 	// 押すたびに反転させると、押しっぱなしのリピートで往復してしまう
 	case Row::InvertY:
@@ -193,6 +209,10 @@ void OptionPanel::ChangeValue(int32_t direction)
 		break;
 	case Row::Tutorial:
 		settings.SetTutorialEnabled(direction > 0);
+		break;
+	// 3択は左右で1つずつ動かし、端で止める（押しっぱなしで往復しないように）
+	case Row::ActionGuide:
+		settings.SetActionGuideMode(settings.GetActionGuideMode() + direction);
 		break;
 	default:
 		break;
@@ -260,11 +280,17 @@ void OptionPanel::Refresh()
 			RefreshNumberRow(row, ratio, ToPercent(sensitivity), brightness);
 			break;
 		}
+		case Row::Vibration:
+			RefreshNumberRow(row, settings.GetVibration(), ToPercent(settings.GetVibration()), brightness);
+			break;
 		case Row::InvertY:
 			RefreshToggleRow(row, settings.IsInvertCameraY(), brightness);
 			break;
 		case Row::Tutorial:
 			RefreshToggleRow(row, settings.IsTutorialEnabled(), brightness);
+			break;
+		case Row::ActionGuide:
+			RefreshChoiceRow(row, kActionGuideTexts[settings.GetActionGuideMode()], brightness);
 			break;
 		default:
 			break;
@@ -303,9 +329,14 @@ void OptionPanel::RefreshNumberRow(RowSprites& row, float ratio, int32_t number,
 
 void OptionPanel::RefreshToggleRow(RowSprites& row, bool value, float brightness)
 {
+	RefreshChoiceRow(row, value ? "ON" : "OFF", brightness);
+}
+
+void OptionPanel::RefreshChoiceRow(RowSprites& row, const char* text, float brightness)
+{
 	const bool visible = (state_ != State::Hidden);
 
-	row.value->SetText(value ? "ON" : "OFF");
+	row.value->SetText(text);
 	row.value->SetColor({ brightness, brightness, brightness, alpha_ });
 	row.value->GetRenderState().isVisible = visible;
 	row.value->Update();

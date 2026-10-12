@@ -12,6 +12,7 @@
 #include "World3D/Object/Renderer/PrimitiveRenderer.h"
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneBuilder.h"
+#include "Stage/StageDocument.h"
 #include "Utility/Logger.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
@@ -31,9 +32,11 @@
 #include "GameObject/Effect/AttackTelegraph.h"
 #include "World3D/Object/Object3dManager.h"
 #include "Input/Input.h"
+#include "Input/GamepadRumble.h"
 #include "Audio/SoundManager.h"
 #include "Audio/GameSoundLibrary.h"
 #include <cmath>
+#include <Utility/DeltaTime.h>
 
 void GameScene::Initialize() {
 	// 戦闘中に差し替えるぶんも含めて先に読み込んでおく。
@@ -151,6 +154,10 @@ void GameScene::Initialize() {
 	// トレーニングは専用ステージで固定される
 	const std::string stagePath = GameSession::GetStagePath();
 	SceneBuilder::BuildScene(SceneLoader::Load(stagePath));
+	// エディタの保存先を、いま読んだステージに揃える。
+	// 本編はチュートリアル → ボス戦とステージが切り替わるので、揃えずにおくと
+	// エディタで保存したときに別のステージへ上書きしてしまう
+	StageDocument::SetPath(stagePath);
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
@@ -189,6 +196,21 @@ void GameScene::Initialize() {
 	bossHealthBar_ = std::make_unique<BossHealthBar>();
 	bossHealthBar_->Initialize();
 
+	// チュートリアルのスキップ（START 長押し）。チュートリアルの部屋でだけ作る。
+	// ゲージはポーズの暗幕より先に作って、暗幕がこの上に来るようにする
+	if (GameSession::IsTutorialStage()) {
+		tutorialSkip_ = std::make_unique<TutorialSkipInput>();
+		tutorialSkipGauge_ = std::make_unique<TutorialSkipGauge>();
+		tutorialSkipGauge_->Initialize();
+	}
+
+	// アクションガイド（画面右下の操作案内）。ポーズの暗幕より先に作って、暗幕がこの上に来るようにする
+	actionGuideSettings_.RegisterAndLoad();
+	actionGuideProvider_ = std::make_unique<PlayerActionAvailability>(*player_, actionGuideCatalog_, actionGuideSettings_);
+	actionGuideUI_ = std::make_unique<ActionGuideUI>();
+	actionGuideUI_->Initialize();
+	ActionGuideSystem::SetCurrent(&actionGuideSystem_);
+
 	mask_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "menuMask", "white.png");
 	mask_->SetSize({1280.0f, 720.0f});
 	mask_->SetColor({0.0f, 0.0f, 0.0f, 0.5f});
@@ -217,9 +239,10 @@ void GameScene::Initialize() {
 	gameOverUI_->Initialize();
 
 	// チュートリアルを流すかどうかの判断はここ1か所にまとめる。
-	// トレーニングは操作を確認済みで入る場所なので流さない。本編は OPTION の設定に従う。
-	// 流さない場合は TutorialSystem が表示物を1つも作らない（＝画面に何も出ない）
-	const bool tutorialEnabled = !IsTrainingMode() && GameSettings::GetInstance().IsTutorialEnabled();
+	// 流すのは本編のチュートリアルの部屋だけ（ボス戦・トレーニングでは流さない）で、OPTION の設定にも従う。
+	// 流さない場合は TutorialSystem が表示物を1つも作らない（＝画面に何も出ない）。
+	// チュートリアルの部屋で流さなかった場合は最初から完了扱いになり、すぐボス戦へ進む（GameSceneStatePlay）
+	const bool tutorialEnabled = GameSession::IsTutorialStage() && GameSettings::GetInstance().IsTutorialEnabled();
 	tutorial_ = std::make_unique<TutorialSystem>();
 	tutorial_->Initialize(tutorialEnabled);
 	// PlayerのチュートリアルサービスをGameSceneのものに接続する
@@ -238,12 +261,15 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Finalize() {
+	// 振動を次のシーンへ持ち越さない
+	GamepadRumble::GetInstance().StopAll();
 	// 環境音はループなので、シーンを抜けるときに必ず止める
 	SoundManager::GetInstance().StopSE(ambienceVoice_);
 	ambienceVoice_ = -1;
 
 	// カメラ・プレイヤーが破棄される前に参照を切る
 	HitEffectSystem::GetInstance().Finalize();
+	ActionGuideSystem::SetCurrent(nullptr);
 	// 出したままの予兆マーカーを次のシーンへ持ち越さない
 	AttackTelegraph::GetInstance().Clear();
 
@@ -316,6 +342,16 @@ void GameScene::Update() {
 		bossHealthBar_->Update(player_ && !player_->IsDying());
 	}
 
+	// スキップの長押しゲージ。押す処理は GameSceneStatePlay が回すので、ここは見た目だけ。
+	// チュートリアルが終わるまでは押していなくても案内として出しておく。
+	// ポーズ・ゲームオーバー中は消す
+	if (tutorialSkipGauge_ && tutorialSkip_) {
+		const bool inPlay = (currentState_ == states_["Play"].get());
+		const bool tutorialActive = !tutorial_->IsAllFinished();
+		tutorialSkipGauge_->Update(tutorialSkip_->GetProgress(), tutorialSkip_->IsGaugeVisible(),
+			tutorialActive, inPlay, DeltaTime::GetDeltaTime());
+	}
+
 	// トレーニングの状態表示。ポーズ・ゲームオーバー・設定メニュー中は邪魔になるので引っ込める
 	if (trainingHud_ && training_) {
 		if (currentState_ == states_["Play"].get()) {
@@ -343,6 +379,22 @@ void GameScene::Update() {
 	// 「前フレームに出し直されなかったマーカー＝判定が出た」と判断しているので、
 	// 敵より後に呼ぶと出したそばから畳まれてしまう
 	AttackTelegraph::GetInstance().Update(sceneDeltaTime_);
+}
+
+void GameScene::LateUpdate() {
+	if (!actionGuideUI_ || !actionGuideProvider_ || !player_) return;
+
+	// 調整値はエディタから毎フレーム書き換わりうるので読み直す
+	actionGuideSettings_.Apply();
+
+	const ActionGuideContext context = ActionGuideContextBuilder::Build(*player_, inputContext_.get());
+	const auto mode = static_cast<ActionGuideMode>(GameSettings::GetInstance().GetActionGuideMode());
+	actionGuideSystem_.Update(context, *actionGuideProvider_, actionGuideCatalog_, actionGuideSettings_, mode);
+
+	// ポーズ・ゲームオーバー・設定メニュー中は消す。チュートリアルの部屋ではスキップゲージの上へ逃がす
+	const bool inPlay = (currentState_ == states_["Play"].get());
+	const float raise = tutorialSkipGauge_ ? actionGuideSettings_.tutorialRoomRaise : 0.0f;
+	actionGuideUI_->Update(actionGuideSystem_.GetViewModel(), actionGuideSettings_, inPlay, raise, DeltaTime::GetDeltaTime());
 }
 
 void GameScene::Draw() {

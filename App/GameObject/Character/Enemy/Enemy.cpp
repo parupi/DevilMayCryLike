@@ -251,6 +251,13 @@ void Enemy::Update(float deltaTime) {
 		characterLight_->Update(GetWorldTransform()->GetTranslation(), deltaTime);
 	}
 
+	// ── 死亡待ち ──
+	// HP が 0 になってもすぐには倒れず、コンボと吹き飛びが終わってから死亡演出へ移る。
+	// 移った場合はこの下の死亡演出の分岐が同じフレームから受け持つ
+	if (lifeState_ == EnemyLifeState::PendingDeath) {
+		UpdatePendingDeath(deltaTime);
+	}
+
 	// ── 出現・死亡演出 ──
 	if (appearanceFx_) {
 		appearanceFx_->Update(deltaTime);
@@ -313,13 +320,21 @@ void Enemy::Update(float deltaTime) {
 	// ノックバックの速度を先に進める（仕様書 §6・§7）。
 	// ステートより先に更新することで、被弾リアクションのステートは今フレームの値を読める。
 	// 接地は前フレームの押し出し結果（Update の最後で落とし、衝突コールバックが立て直す）
+	// ヒットストップ中は被弾した本人をその場に止める。
+	// ノックバックの時間も進めないので、吹き飛びは停止が明けてから初速のまま始まる
+	// （弱いヒットストップはタイムスケールが 0 ではないため、止めないと停止中に少しずつ滑り出していた）
+	const bool hitStopped = hitStop_->IsActive();
 	knockback_.SetGrounded(onGround_);
-	knockback_.Update(dt, kGravity);
+	if (!hitStopped) {
+		knockback_.Update(dt, kGravity);
+	}
 
 	// 行動停止中は意思決定のステートを回さず、水平方向の自走も止める。
 	// 被弾リアクションと落下（IsReaction）は最後まで再生させないと、
-	// のけぞりの傾きが戻らない・空中で固まる、といった見た目の破綻になる
-	const bool holdStill = actionSuppressed_ && currentState_ && !currentState_->IsReaction();
+	// のけぞりの傾きが戻らない・空中で固まる、といった見た目の破綻になる。
+	// 死亡待ちの敵も同じ扱い（HP 0 のまま攻撃してこないように）
+	const bool holdStill = (actionSuppressed_ || lifeState_ == EnemyLifeState::PendingDeath)
+		&& currentState_ && !currentState_->IsReaction();
 	if (holdStill) {
 		velocity_.x = 0.0f;
 		velocity_.z = 0.0f;
@@ -332,8 +347,9 @@ void Enemy::Update(float deltaTime) {
 
 	// 仕様書 §6: velocity = moveVelocity + knockbackVelocity。
 	// ノックバックを別の速度として足すので、のけぞらない敵（ボス）でも位置だけは押される
-	GetWorldTransform()->GetTranslation() += (velocity_ + knockback_.GetVelocity()) * dt;
-	velocity_ += acceleration_ * dt;
+	const float moveDt = hitStopped ? 0.0f : dt;
+	GetWorldTransform()->GetTranslation() += (velocity_ + knockback_.GetVelocity()) * moveDt;
+	velocity_ += acceleration_ * moveDt;
 
 	// 追跡・突進・ノックバックのどれで動いた場合もここを通るので、まとめて範囲内に収める
 	ClampToMovementBounds();
@@ -344,7 +360,8 @@ void Enemy::Update(float deltaTime) {
 
 	// 攻撃の振り始めから終わりまでは向きを固定する（EnemyAttackAim が LockFacing で止める）。
 	// ここで向き直ると、予兆が消えた後に横へ動いたプレイヤーの方へ攻撃が曲がってしまう
-	if (!facingLocked_) {
+	// 死亡待ちの敵はもうプレイヤーを追って振り向かない
+	if (!facingLocked_ && lifeState_ != EnemyLifeState::PendingDeath) {
 		// ローカル +Z をプレイヤーと反対側へ向ける（＝前方向のローカル -Z がプレイヤーを向く）
 		TurnToward(GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation(), dt);
 	}
@@ -618,6 +635,8 @@ void Enemy::ChangeState(const std::string& stateName) {
 }
 
 void Enemy::OnDeath() {
+	lifeState_ = EnemyLifeState::Dead;
+
 	// 撃破スコアは一度だけ加算する（OnDeathは死亡演出中に複数回呼ばれ得る）
 	if (!killScored_) {
 		killScored_ = true;
@@ -720,6 +739,73 @@ void Enemy::ApplyDeathLaunch(const Vector3& direction, const KnockbackData& knoc
 	velocity_ = horizontalDir * horizontalSpeed;
 	velocity_.y = verticalSpeed;
 	onGround_ = false;
+}
+
+void Enemy::EnterPendingDeath(const Vector3& launchDirection, const KnockbackData& deathLaunch, bool launchedByHit) {
+	// 死亡演出を始めた後は戻らない
+	if (lifeState_ == EnemyLifeState::Dead) return;
+
+	const bool firstTime = (lifeState_ == EnemyLifeState::Alive);
+	lifeState_ = EnemyLifeState::PendingDeath;
+	// HP は 0 で止める（死亡待ち中の追加ダメージはリアクションだけ受け付ける）
+	hp_ = 0.0f;
+
+	// 待ちの基準は「最後に当たったコンボ」。死亡待ち中に別のコンボで拾い直されたら、そちらの終わりまで待つ
+	pendingDeathTimer_ = 0.0f;
+	if (player_) {
+		if (const PlayerCombat* combat = player_->GetCombat()) {
+			pendingComboId_ = combat->GetComboId();
+		}
+	}
+
+	// 死亡演出の頭の吹き飛び。最後の一撃のものを使う
+	deathLaunchDirection_ = launchDirection;
+	deathLaunch_ = deathLaunch;
+	deathLaunchNeeded_ = !launchedByHit;
+
+	if (firstTime) {
+		// 攻撃の途中だったら畳む（振り向きの固定も外す）
+		UnlockFacing();
+		ClearFaceTurnSpeedOverride();
+		OnPendingDeathEntered();
+	}
+}
+
+bool Enemy::IsReactionInProgress() const {
+	// ヒットストップで止まっている・ノックバックで動いている・宙に浮いている
+	if (hitStop_ && hitStop_->IsActive()) return true;
+	if (knockback_.IsActive()) return true;
+	if (!onGround_) return true;
+	// のけぞり・落下のステート（復帰の姿勢を戻している途中）
+	return currentStateName_ == EnemyStateName::KnockBack || currentStateName_ == EnemyStateName::Air;
+}
+
+bool Enemy::IsComboFinishedForPendingDeath() const {
+	if (!player_) return true;
+	const PlayerCombat* combat = player_->GetCombat();
+	if (!combat) return true;
+	// コンボが終わった、または別のコンボに移った（ルート攻撃で割り込んだ等）
+	return !combat->IsComboActive() || combat->GetComboId() != pendingComboId_;
+}
+
+void Enemy::UpdatePendingDeath(float deltaTime) {
+	pendingDeathTimer_ += deltaTime;
+
+	const bool timedOut = pendingDeathTimer_ >= kPendingDeathTimeout;
+	if (!timedOut && (!IsComboFinishedForPendingDeath() || IsReactionInProgress())) {
+		return;
+	}
+
+	// ── 死亡演出へ移る ──
+	// とどめの一撃でまだ吹き飛んでいなければ、ここで少し飛ばす（死亡演出の「吹き飛び」段階）。
+	// 吹き飛んで着地した後なら、残っている勢いのまま倒れる（もう一度跳ねると不自然なため）
+	const Vector3 carriedVelocity = velocity_ + knockback_.GetVelocity();
+	OnDeath();
+	if (deathLaunchNeeded_) {
+		ApplyDeathLaunch(deathLaunchDirection_, deathLaunch_);
+	} else {
+		velocity_ = carriedVelocity;
+	}
 }
 
 void Enemy::SetupLockOn(LockOnSystem* lockOnSystem) {

@@ -1,10 +1,13 @@
 ﻿#include "GameSceneStateClear.h"
+#include <Input/GamepadRumble.h>
 #include "Scene/GameScene/GameScene.h"
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Utility/DeltaTime.h>
 #include <Audio/SoundManager.h>
 
 void GameSceneStateClear::Enter(GameScene& scene) {
+	// 当たった直後に開いても、振動を引きずらない
+	GamepadRumble::GetInstance().StopAll();
 	// クリア演出に入ったら戦闘中のBGMを引かせる（CLEARシーンで ClearBGM に切り替わる）
 	SoundManager::GetInstance().StopBGM(1.0f);
 	scene.GetInputContext()->SetCanPlayerMove(false);

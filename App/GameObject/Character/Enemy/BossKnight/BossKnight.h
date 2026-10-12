@@ -92,6 +92,7 @@ public:
     void OnCollisionEnter(BaseCollider* other) override;
     void OnCollisionStay(BaseCollider* other) override;
     void OnCollisionExit(BaseCollider* other) override;
+    bool ReceivePlayerHit() override;
 
     /// <summary>攻撃の軌跡（噛みつきの風切り・突進の翼の軌跡）を描く。GameScene::Draw が敵ごとに呼ぶ</summary>
     void DrawEffect() override;
@@ -137,6 +138,8 @@ public:
 protected:
     /// <summary>死亡演出終了時に武器を後始末する</summary>
     void OnDeathEffectFinished() override;
+    /// <summary>死亡待ちに入ったら攻撃をやめて待機の姿勢へ戻す</summary>
+    void OnPendingDeathEntered() override;
 
 private:
     // 今そのステートにいるか

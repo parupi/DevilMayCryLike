@@ -4,6 +4,9 @@
     <Filter Include="App">
       <UniqueIdentifier>{46D6870B-B2DF-877C-3B5B-9E7CA763937C}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\ActionGuide">
+      <UniqueIdentifier>{01CB0533-6D56-73F7-7667-F6EBE271CFF7}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Audio">
       <UniqueIdentifier>{C7807902-33EB-2D79-7C29-DF1EE8D20BCE}</UniqueIdentifier>
     </Filter>
@@ -160,6 +163,9 @@
     <Filter Include="App\Tutorial\Service">
       <UniqueIdentifier>{490C6A54-359B-F31D-DEB9-0719CA2704C4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Tutorial\Skip">
+      <UniqueIdentifier>{CF6B83F1-3B82-8187-84F9-0CA9F04E520F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Tutorial\System">
       <UniqueIdentifier>{DD8C1061-49EE-ED6E-D25B-34213EBC242E}</UniqueIdentifier>
     </Filter>
@@ -300,6 +306,30 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="App\ActionGuide\ActionAvailabilityProvider.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideCatalog.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideContext.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideSettings.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideSystem.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideTypes.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\ActionGuideUI.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
+    <ClInclude Include="App\ActionGuide\InputIconProvider.h">
+      <Filter>App\ActionGuide</Filter>
+    </ClInclude>
     <ClInclude Include="App\Audio\FootstepTracker.h">
       <Filter>App\Audio</Filter>
     </ClInclude>
@@ -726,6 +756,12 @@
     <ClInclude Include="App\Tutorial\Service\TutorialService.h">
       <Filter>App\Tutorial\Service</Filter>
     </ClInclude>
+    <ClInclude Include="App\Tutorial\Skip\TutorialSkipGauge.h">
+      <Filter>App\Tutorial\Skip</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Tutorial\Skip\TutorialSkipInput.h">
+      <Filter>App\Tutorial\Skip</Filter>
+    </ClInclude>
     <ClInclude Include="App\Tutorial\System\TutorialSystem.h">
       <Filter>App\Tutorial\System</Filter>
     </ClInclude>
@@ -1110,6 +1146,9 @@
     <ClInclude Include="Engine\Graphics\Text\TextLabel.h">
       <Filter>Engine\Graphics\Text</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Input\GamepadRumble.h">
+      <Filter>Engine\Input</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Input\Input.h">
       <Filter>Engine\Input</Filter>
     </ClInclude>
@@ -1367,6 +1406,27 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="App\ActionGuide\ActionAvailabilityProvider.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideCatalog.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideContext.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideSettings.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideSystem.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\ActionGuideUI.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
+    <ClCompile Include="App\ActionGuide\InputIconProvider.cpp">
+      <Filter>App\ActionGuide</Filter>
+    </ClCompile>
     <ClCompile Include="App\Audio\FootstepTracker.cpp">
       <Filter>App\Audio</Filter>
     </ClCompile>
@@ -1384,6 +1444,9 @@
     </ClCompile>
     <ClCompile Include="App\Editor\AppEditor.cpp">
       <Filter>App\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\ActionGuideWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
@@ -1796,6 +1859,12 @@
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
       <Filter>App\Tutorial\Decoration</Filter>
     </ClCompile>
+    <ClCompile Include="App\Tutorial\Skip\TutorialSkipGauge.cpp">
+      <Filter>App\Tutorial\Skip</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Tutorial\Skip\TutorialSkipInput.cpp">
+      <Filter>App\Tutorial\Skip</Filter>
+    </ClCompile>
     <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp">
       <Filter>App\Tutorial\System</Filter>
     </ClCompile>
@@ -2152,6 +2221,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Text\TextLabel.cpp">
       <Filter>Engine\Graphics\Text</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Input\GamepadRumble.cpp">
+      <Filter>Engine\Input</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Input\Input.cpp">
       <Filter>Engine\Input</Filter>

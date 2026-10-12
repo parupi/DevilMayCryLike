@@ -1,8 +1,11 @@
 #include "GameSceneStateTrainingMenu.h"
+#include <Input/GamepadRumble.h>
 #include "Scene/GameScene/GameScene.h"
 
 void GameSceneStateTrainingMenu::Enter(GameScene& scene)
 {
+	// 当たった直後に開いても、振動を引きずらない
+	GamepadRumble::GetInstance().StopAll();
 	// メニュー操作がそのままプレイヤーやカメラを動かさないように切っておく
 	scene.GetInputContext()->SetCanPlayerMove(false);
 	scene.GetInputContext()->SetCanLockOn(false);

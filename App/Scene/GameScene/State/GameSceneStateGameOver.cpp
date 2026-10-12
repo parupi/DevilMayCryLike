@@ -1,4 +1,5 @@
 #include "GameSceneStateGameOver.h"
+#include <Input/GamepadRumble.h>
 #include "Scene/GameScene/GameScene.h"
 
 #include <Scene/Transition/SceneTransitionController.h>
@@ -7,6 +8,8 @@
 #include <Scene/Transition/TransitionManager.h>
 
 void GameSceneStateGameOver::Enter(GameScene& scene) {
+	// 当たった直後に開いても、振動を引きずらない
+	GamepadRumble::GetInstance().StopAll();
 	requested_ = false;
 
 	scene.GetInputContext()->SetCanPlayerMove(false);

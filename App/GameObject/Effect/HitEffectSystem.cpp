@@ -7,6 +7,7 @@
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "Platform/WindowManager.h"
 #include "World3D/Camera/CameraManager.h"
+#include "Input/GamepadRumble.h"
 #ifdef _DEBUG
 #include <imgui/imgui.h>
 #endif // _DEBUG
@@ -75,6 +76,15 @@ void HitEffectSystem::Initialize(GameCamera* camera, Player* player)
 		global_->AddItem(kGroupName, MakeKey(static_cast<HitStopStrength>(i), false, "FovPunch"), kFovPunchDefaults[i]);
 	}
 	global_->AddItem(kGroupName, "ArmorFovPunch", 0.0f);
+
+	// コントローラーの振動。攻撃ごとの強さ・長さは攻撃データ（攻撃エディタの Rumble）にあり、
+	// ここにあるのは全攻撃に掛ける倍率・終わりぎわの弱め方・弾かれたときの振動だけ
+	global_->AddItem(kGroupName, "RumbleGain", 1.0f);
+	global_->AddItem(kGroupName, "RumbleFadeRatio", 0.4f);
+	// 弾かれたとき：重さの無い、短く鋭い揺れ（攻撃が通っていない手応え）
+	global_->AddItem(kGroupName, "ArmorRumbleLow", 0.0f);
+	global_->AddItem(kGroupName, "ArmorRumbleHigh", 0.45f);
+	global_->AddItem(kGroupName, "ArmorRumbleDuration", 0.07f);
 }
 
 void HitEffectSystem::Finalize()
@@ -99,6 +109,27 @@ HitEffectSystem::Preset HitEffectSystem::LoadPreset(HitStopStrength strength, bo
 	preset.particleScale = global_->GetValueRef<float>(kGroupName, MakeKey(strength, isArmorHit, "ParticleScale"));
 	preset.shakeTrauma = global_->GetValueRef<float>(kGroupName, MakeKey(strength, isArmorHit, "ShakeTrauma"));
 	return preset;
+}
+
+void HitEffectSystem::PlayRumble(const HitEffectRequest& request)
+{
+	RumbleRequest rumble;
+	if (request.isArmorHit) {
+		rumble.low = global_ ? global_->GetValueRef<float>(kGroupName, "ArmorRumbleLow") : 0.0f;
+		rumble.high = global_ ? global_->GetValueRef<float>(kGroupName, "ArmorRumbleHigh") : 0.45f;
+		rumble.duration = global_ ? global_->GetValueRef<float>(kGroupName, "ArmorRumbleDuration") : 0.07f;
+	} else {
+		rumble.low = request.rumbleLow;
+		rumble.high = request.rumbleHigh;
+		rumble.duration = request.rumbleDuration;
+	}
+
+	const float gain = global_ ? global_->GetValueRef<float>(kGroupName, "RumbleGain") : 1.0f;
+	rumble.low *= gain;
+	rumble.high *= gain;
+	rumble.fadeRatio = global_ ? global_->GetValueRef<float>(kGroupName, "RumbleFadeRatio") : 0.4f;
+
+	GamepadRumble::GetInstance().Play(rumble);
 }
 
 Vector2 HitEffectSystem::CalcScreenUV(const Vector3& worldPosition)
@@ -146,6 +177,9 @@ void HitEffectSystem::Play(const HitEffectRequest& request)
 			camera_->AddFovPunch(fovPunch);
 		}
 	}
+
+	// ⑥ コントローラーの振動。弾かれたときは攻撃の値ではなく共通の「弾かれた」振動にする
+	PlayRumble(request);
 
 	if (!player_) return;
 

@@ -208,7 +208,8 @@ void BossKnight::Update(float deltaTime) {
 	// 演出中はステートの更新が止まるので、溜めの途中で倒されると攻撃が「溜め中」のまま残り、
 	// チャージリングが死亡演出の間ずっと出続けたり、予兆が「攻撃が出た」閃光で畳まれたりする。
 	// 判定を消すだけでなく攻撃ごと中断する（予兆は閃光なしで消え、体の向きの固定も解ける）
-	if (IsAppearanceEffectPlaying()) {
+	// 死亡待ち（HP 0 でコンボの終わりを待っている）の間も同じ。崩れも溜めない
+	if (IsAppearanceEffectPlaying() || IsPendingDeath()) {
 		boneAttack_->Cancel(*this);
 		if (hitbox_) hitbox_->Deactivate();
 	} else {
@@ -422,6 +423,14 @@ void BossKnight::OnDeathEffectFinished() {
 	}
 }
 
+void BossKnight::OnPendingDeathEntered() {
+	// 攻撃・崩れ・咆哮の途中でも待機へ戻す。攻撃のステートは Exit が攻撃ごと中断する（予兆も判定も消える）。
+	// 待機ステートは Enemy::Update が回さないので、死亡演出に入るまで待機の姿勢で止まる
+	ChangeState(BossStateName::CombatIdle);
+	boneAttack_->Cancel(*this);
+	if (hitbox_) hitbox_->Deactivate();
+}
+
 void BossKnight::UpdateBreak(float deltaTime) {
 	if (IsInState(BossStateName::Down)) return;
 
@@ -466,11 +475,12 @@ void BossKnight::StartBreak() {
 
 void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	Enemy::OnCollisionEnter(other);
+}
 
-	if (other->category_ != CollisionCategory::PlayerWeapon) return;
-	if (!player_ || !player_->IsAttack()) return;
+bool BossKnight::ReceivePlayerHit() {
+	if (!player_ || !player_->IsAttack()) return false;
 	// 出現・死亡演出中は被弾処理をしない
-	if (IsAppearanceEffectPlaying()) return;
+	if (IsAppearanceEffectPlaying()) return false;
 
 	// ── 仕様書 §20 の実装フロー ──
 	// ① 攻撃判定がヒット
@@ -493,17 +503,21 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
 		armorHitEmitter_->Emit();
 		armorHitFlashTimer_ = kArmorHitFlashDuration;
-		return;
+		return true;
 	}
 
-	// ② ダメージ計算（弾かれていてもダメージは通る。崩れている間は増える）
+	// ② ダメージ計算（弾かれていてもダメージは通る。崩れている間は増える）。
+	// 死亡待ち（HP 0）の間はダメージを入れず、ヒットストップ・演出だけ受ける
+	const bool isPendingDeath = IsPendingDeath();
 	const float damage = atk.damage * (isDown ? kDownDamageScale : 1.0f);
-	hp_ -= damage;
-	RecordDamage(damage);
+	if (!isPendingDeath) {
+		hp_ -= damage;
+		RecordDamage(damage);
+	}
 
 	// ブレイク値を溜める（崩れるかどうかは UpdateBreak が決める）。
 	// 崩れている間は溜めない（明けた直後にまた崩れて、ずっと殴り放題になるのを防ぐ）
-	if (!isDown) {
+	if (!isDown && !isPendingDeath) {
 		breakGauge_ += atk.damage;
 		breakDecayTimer_ = kBreakDecayDelay;
 	}
@@ -518,16 +532,15 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 
 	if (hp_ <= 0.0f) {
 		if (CanDie()) {
-			OnDeath();
-			// 死亡演出中はステート更新が止まるため、吹き飛びの初速を直接与える。
-			// 生きている間は耐性で動かせないので、とどめだけは **耐性を通さない** 攻撃の値で飛ばす
+			// すぐには倒れず死亡待ちへ。コンボが終わったら Enemy::Update が死亡演出へ移す。
+			// 生きている間は耐性で動かせないので、死亡演出の頭の吹き飛びだけは **耐性を通さない** 攻撃の値で飛ばす
 			const Vector3 awayFromPlayer =
 				GetWorldTransform()->GetTranslation() - player_->GetWorldTransform()->GetTranslation();
-			ApplyDeathLaunch(awayFromPlayer, CombatHit::ApplyTypeScale(atk.knockback));
-			return;
+			EnterPendingDeath(awayFromPlayer, CombatHit::ApplyTypeScale(atk.knockback), false);
+		} else {
+			// まだ死亡できない（トレーニングの敵無敵など）ので生存を維持する
+			hp_ = 1.0f;
 		}
-		// まだ死亡できない（トレーニングの敵無敵など）ので生存を維持する
-		hp_ = 1.0f;
 	}
 
 	// ⑤⑥ ノックバック。
@@ -545,7 +558,7 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 		hitStop_->Start(atk.hitStopTime * 0.35f, atk.hitStopIntensity, atk.hitStopStrength);
 		armorHitEmitter_->Emit();
 		armorHitFlashTimer_ = kArmorHitFlashDuration;
-		return;
+		return true;
 	}
 
 	// 通常時のヒットストップ（手応えはここで返す）
@@ -554,6 +567,7 @@ void BossKnight::OnCollisionEnter(BaseCollider* other) {
 	// 鱗を斬られた鈍い手応え。剣側の材質音（HitArmor）に重ねてボスの位置から鳴らす
 	SoundManager::GetInstance().PlaySE3D(
 		GameSound::kDragonHit, GetWorldTransform()->GetTranslation(), 0.7f);
+	return true;
 }
 
 void BossKnight::OnCollisionStay(BaseCollider* other) { Enemy::OnCollisionStay(other); }

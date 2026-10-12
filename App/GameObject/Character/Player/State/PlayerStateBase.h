@@ -18,5 +18,10 @@ public:
 	virtual void ExecuteCommand(Player& player, const PlayerCommand& command) = 0;
 	// デバッグ用のステート名を返す
 	virtual const char* GetDebugName() const = 0;
+	/// <summary>
+	/// このステートでジャンプの入力を受け付けるか。
+	/// ExecuteCommand のジャンプの分岐と、アクションガイドの表示がこれを共有する
+	/// </summary>
+	virtual bool CanJump() const { return false; }
 };
 

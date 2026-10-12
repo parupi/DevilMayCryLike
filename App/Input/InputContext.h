@@ -18,6 +18,8 @@ public:
 	PlayerInput* GetPlayerInput() { return playerInput_.get(); }
 	// プレイヤーの入力フラグを設定
 	void SetCanPlayerMove(bool canPlayerMove) { canPlayerMove_ = canPlayerMove; }
+	// プレイヤーの入力を受け付けているか（開始演出・ポーズ・クリア中は false）
+	bool CanPlayerMove() const { return canPlayerMove_; }
 	// ロックオン用の入力を取得
 	LockOnInput* GetLockOnInput() { return lockOnInput_.get(); }
 	// ロックオンの入力フラグを設定

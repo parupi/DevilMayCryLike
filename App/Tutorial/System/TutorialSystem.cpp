@@ -40,8 +40,10 @@ void TutorialSystem::Initialize(bool enabled) {
 		{ TutorialState::Jump,          { "PlayerJump", { "Aボタンを押したら", "SPACEキーを押したら", "ジャンプ" }, 1 } },
 		// 攻撃Aを3回当てたら完了
 		{ TutorialState::AttackA,       { "AttackA", { "Y → Y → Y", "J → J → J", "コンボA" }, 3 } },
-		// 攻撃Bを3回当てたら完了
-		{ TutorialState::AttackB,       { "AttackB", { "Y → 少し待つ → Y → Y", "J → 少し待つ → J → J", "コンボB" }, 2 } },
+		// 2回回避したら完了（回避を始めた回数で数える。当てる相手はいらない）
+		{ TutorialState::Dodge,         { "Dodge", { "RT", "左SHIFT", "回避" }, 2 } },
+		// 溜め斬りを1回当てたら完了（X / K を押し続けて構え、離すと振る）
+		{ TutorialState::ChargeAttack,  { "ChargeAttack", { "X 長押し → 離す", "K 長押し → 離す", "溜め斬り" }, 1 } },
 		// ロックオンを1回行ったら完了（離すと外れるので長押し）
 		{ TutorialState::LockOn,        { "LockOn", { "RB 長押し", "P 長押し", "ロックオン" }, 1 } },
 		// 切り上げ攻撃を3回当てたら完了（ロックオン中にスティック／Sキーを手前へ入れて攻撃）

@@ -163,6 +163,12 @@ private:
 	float sensitivityX_ = 0.03f;      // 右スティック水平感度
 	float sensitivityY_ = 0.025f;     // 右スティック垂直感度
 	float pitchLimit_ = 1.2f;         // pitchの上下限（ラジアン）
+	// 上下の旋回。既定では右スティックの上下を使わず、俯角を fixedPitch_ に固定する
+	// （上下に回せると地面が画面を覆う極端な視点になり、攻撃も吹き飛びも見づらくなるため）
+	bool pitchInputEnabled_ = false;  // true で従来どおり上下入力で pitch を動かす
+	float fixedPitch_ = 0.0f;         // 固定する仰角[rad]。正で上から見下ろす（高さは BaseHeight と合わせて決まる）
+	float pitchReturnSpeed_ = 6.0f;   // ロックオン解除などでずれた pitch を固定値へ戻す速さ
+	float minCameraHeight_ = 1.0f;    // プレイヤーの足元からカメラまでの最低の高さ[m]。地面すれすれ・地面の下へ潜らせない
 
 	// ⑤ Auto Rotation（スティック放置＋移動中に背後へ戻る）
 	bool autoRotateEnabled_ = true;

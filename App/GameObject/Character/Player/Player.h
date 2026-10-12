@@ -192,6 +192,13 @@ public:
 	/// 地面に接地しているかどうかを取得する。
 	/// </summary>
 	bool GetOnGround() const { return onGround_; }
+	/// <summary>
+	/// このフレームのコマンド（攻撃・回避の入力）を処理したときの接地。
+	/// onGround_ は Player::Update の最後で切られ、その後の当たり判定で立て直されるので、
+	/// プレイヤーの更新が終わった後（アクションガイドなど）に GetOnGround() を読むと常に false になる。
+	/// 更新後に「入力がどう扱われるか」を問い合わせるときはこちらを使う
+	/// </summary>
+	bool IsGroundedForActions() const { return groundedForActions_; }
 
 	// プレイヤーの移動方向を取得する。
 	Vector3 GetMoveDirection() const;
@@ -227,7 +234,9 @@ public:
 	/// 今このフレームに回避を始められるか。
 	/// 死亡・クリア・ノックバック中、クールダウン中、空中では回避できない
 	/// </summary>
-	bool CanStartDodge() const;
+	bool CanStartDodge() const { return CanStartDodge(onGround_); }
+	/// <summary>接地を指定して判定する（更新後に問い合わせるときは IsGroundedForActions() を渡す）</summary>
+	bool CanStartDodge(bool onGround) const;
 
 	/// <summary>
 	/// 回避方向を決める。スティック入力があればその方向（カメラ基準）、無ければキャラクターの前方向。
@@ -445,6 +454,8 @@ private:
 	std::unique_ptr<PlayerWeapon> weapon_; ///< 武器クラス
 	// 接地判定フラグ
 	bool onGround_ = false;
+	// IsGroundedForActions の値。onGround_ を切る直前に写しておく
+	bool groundedForActions_ = false;
 	// HPのハートのスプライト
 	std::vector<Sprite*> hearts_;
 	// 移動速度

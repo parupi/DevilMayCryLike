@@ -14,6 +14,16 @@ class Player;
 class AnimationPlayer;
 
 /// <summary>
+/// 敵のライフサイクル。行動ステート（KnockBack など）とは別に持つので、
+/// 「死亡待ち」と「吹き飛び中」は同時に成り立つ。
+/// </summary>
+enum class EnemyLifeState {
+	Alive,        // 通常の生存状態
+	PendingDeath, // HP は 0。コンボと被弾リアクションが終わるのを待っている
+	Dead,         // 死亡演出を始めた（以降は戻らない）
+};
+
+/// <summary>
 /// 敵キャラクターの基底クラス。
 /// ステートマシン・物理演算・地形衝突・接地判定・死亡管理を担う。
 /// 武器・エフェクト・被弾ロジックなどキャラクター固有の処理は派生クラスで実装する。
@@ -82,6 +92,14 @@ public:
 	/// </summary>
 	virtual void OnCollisionExit([[maybe_unused]] BaseCollider* other) override;
 
+	/// <summary>
+	/// プレイヤーの攻撃を受ける（ダメージ・ノックバック・ヒットストップ・被弾演出）。
+	/// 呼ぶのは PlayerWeapon だけで、「この攻撃（多段ヒットならこの段）でまだ当てていない敵」にしか呼ばれない。
+	/// 当たりを判断する場所を武器側の1か所にまとめて、1つの攻撃が同じ敵に2回当たらないようにしている
+	/// </summary>
+	/// <returns>受け付けたら true。出現・死亡演出中などで受け付けなければ false（武器側は当てたことにしない）</returns>
+	virtual bool ReceivePlayerHit() { return false; }
+
 	// ======================
 	// ステート・挙動制御
 	// ======================
@@ -93,9 +111,31 @@ public:
 	void ChangeState(const std::string& stateName);
 
 	/// <summary>
-	/// HP が 0 になったときに呼ぶ。isAlive_ を false にしてコンポーネントを無効化する。
+	/// 死亡演出を始める（ライフサイクルを Dead にする）。何度呼んでも演出・スコア・音は1回だけ。
+	/// 被弾で HP が 0 になったときは直接呼ばず、EnterPendingDeath() を使うこと
+	/// （コンボと吹き飛びが終わってから Enemy::Update がここを呼ぶ）。
 	/// </summary>
 	void OnDeath();
+
+	/// <summary>
+	/// HP が 0 になったときに派生クラスの被弾処理が呼ぶ。即座には死なず、
+	/// 「プレイヤーのコンボが終わり、かつ被弾リアクション（ヒットストップ・吹き飛び・着地）が終わった」
+	/// 時点で Enemy::Update が死亡演出へ移す。
+	/// 死亡待ち中にもう一度当たったときも呼んでよい（待ちの基準になるコンボととどめの情報を更新する）。
+	/// launchDirection / deathLaunch は死亡演出に入るときの吹き飛び。
+	/// launchedByHit が true（その一撃で吹き飛ばした）なら、着地済みなので死亡時にもう一度は飛ばさない
+	/// </summary>
+	void EnterPendingDeath(const Vector3& launchDirection, const KnockbackData& deathLaunch, bool launchedByHit);
+
+	EnemyLifeState GetLifeState() const { return lifeState_; }
+	/// <summary>HP が 0 で、コンボ・リアクションの終わりを待っているか</summary>
+	bool IsPendingDeath() const { return lifeState_ == EnemyLifeState::PendingDeath; }
+
+	/// <summary>
+	/// 被弾リアクションの途中か（ヒットストップ・ノックバック・空中・被弾ステート）。
+	/// 死亡待ちの敵はこれが false になるまで死亡演出へ移らない
+	/// </summary>
+	bool IsReactionInProgress() const;
 
 	/// <summary>
 	/// とどめの一撃で吹き飛ばす初速を与える。
@@ -486,6 +526,12 @@ protected:
 	virtual void OnDeathEffectFinished() {}
 
 	/// <summary>
+	/// 死亡待ちに入った瞬間に一度だけ呼ばれる。構えの途中の攻撃を畳むなど、
+	/// 「もう行動しない」ための後始末を派生クラスで行う（行動ステートは Enemy::Update が止める）
+	/// </summary>
+	virtual void OnPendingDeathEntered() {}
+
+	/// <summary>
 	/// ノックバック中に壁（移動範囲の境界）へぶつかった瞬間に1度だけ呼ばれる（仕様書 §10）。
 	/// 既定では体を光らせるだけ。派生クラスで火花などを足せる。
 	/// </summary>
@@ -522,6 +568,9 @@ protected:
 	bool isAlive_ = true;
 
 	bool isAttack_ = false;
+
+	// ライフサイクル（HP の増減とは別に、死亡演出へ移ったかを持つ）
+	EnemyLifeState lifeState_ = EnemyLifeState::Alive;
 
 	// 撃破スコアを二重加算しないためのガード（OnDeathは演出中に複数回呼ばれ得る）
 	bool killScored_ = false;
@@ -582,6 +631,26 @@ private:
 	// とどめの吹き飛びの下限[m/s]。攻撃側の吹き飛ばしが 0 でも倒れたことが分かるようにする
 	static constexpr float kDeathLaunchMinSpeed = 5.0f;
 	static constexpr float kDeathLaunchMinUpSpeed = 3.5f;
+
+	// ── 死亡待ち ──
+	// 最後に当たってからこの秒数が経ったら、コンボやリアクションが終わっていなくても死亡演出へ移す。
+	// コンボ終了の知らせが来ない経路（想定外の状態遷移など）で敵が残り続けないための保険
+	static constexpr float kPendingDeathTimeout = 4.0f;
+	// 死亡待ちに入った（最後に当たった）ときのプレイヤーのコンボ番号。これが変わるか、
+	// コンボが終わっていれば「コンボ終了」とみなす
+	uint32_t pendingComboId_ = 0;
+	// 最後に当たってからの経過時間[秒]
+	float pendingDeathTimer_ = 0.0f;
+	// 死亡演出に入るときの吹き飛び（とどめの一撃の向きと強さ）
+	Vector3 deathLaunchDirection_{};
+	KnockbackData deathLaunch_{};
+	// とどめの一撃でまだ吹き飛んでいない（のけぞりだけだった）なら、死亡演出の頭で飛ばす
+	bool deathLaunchNeeded_ = true;
+
+	// 死亡待ちを進め、コンボとリアクションが終わっていれば死亡演出へ移す。Enemy::Update から毎フレーム呼ぶ
+	void UpdatePendingDeath(float deltaTime);
+	// プレイヤーのコンボが（死亡待ちに入ったときのものから）終わったか
+	bool IsComboFinishedForPendingDeath() const;
 	std::unordered_map<std::string, StateClip> stateClips_;
 	StateClip spawnClip_;
 	StateClip deathClip_;

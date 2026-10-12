@@ -59,8 +59,18 @@ public:
 	bool IsCharging() const { return !currentState_.empty() && currentState_.back()->IsCharging(); }
 	// 今の攻撃（攻撃中でなければ nullptr）。演出が振りの段階を読むのに使う
 	const PlayerStateAttack* GetCurrentAttack() const { return currentState_.empty() ? nullptr : currentState_.back(); }
-	// 攻撃を強制中断する（被弾時など）
+	// 攻撃を強制中断する（被弾時など）。コンボも終了扱いになる
 	void InterruptCombat();
+
+	// ======================
+	// コンボの区切り（敵の死亡待ちが見る）
+	// ======================
+	// コンボの途中か。最初の攻撃を出してから、次段へつながらずに終わる・中断されるまで true。
+	// 納刀モーション(Sheathe)はコンボに含めない
+	bool IsComboActive() const { return comboActive_; }
+	// 今（または直前）のコンボの通し番号。新しいコンボを始めるたびに増える。
+	// 「死亡待ちに入ったときのコンボが終わったか」を、知らせを受け取らずに番号の比較で判定できる
+	uint32_t GetComboId() const { return comboId_; }
 	// 攻撃を振り終えて、次の技（派生）か納刀モーションを待っている間か
 	bool IsWaitingForNextCombo() const { return waitingForNextCombo_; }
 	// 納刀モーション(Sheathe)か。振り終えた時点で剣は背中に収まっている
@@ -87,6 +97,29 @@ public:
 	void OpenCounterWindow(float seconds);
 	// 受付中か
 	bool IsCounterWindowOpen() const { return counterWindowTimer_ > 0.0f; }
+
+	// ======================
+	// アクションガイド（ActionGuide）が見る読み取り専用の問い合わせ。
+	// どれも状態を変えない。実際に出すかどうかは従来どおり ExecuteCommand / Update が決める
+	// ======================
+	/// <summary>
+	/// このボタンとスティックの向きで、今ルート攻撃を探したら選ばれるもの（ExecuteCommand と同じ選び方）。無ければ nullptr
+	/// </summary>
+	const AttackNode* FindRootAttack(InputButton button, const Vector2& stickDir, bool onGround) const;
+	/// <summary>攻撃中にこのボタンを押したときの、別のボタンのルート攻撃による割り込みの扱い</summary>
+	enum class RootOverTiming {
+		NotAllowed, ///< 割り込まない（今の攻撃の派生になる・同じボタンの連打・攻撃中でない）
+		Now,        ///< すぐ割り込む
+		Buffer,     ///< 硬直中なので覚えておき、割り込めるようになったら出す
+	};
+	RootOverTiming PeekRootAttackOver(InputButton button) const;
+	// 別のボタンのルート攻撃の先行入力を覚えているか
+	bool HasPendingRootAttack() const { return pendingRootTimer_ > 0.0f; }
+	InputButton GetPendingRootButton() const { return pendingRootCommand_.button; }
+	// 攻撃のつながり全体（ガイドが派生やルート攻撃を並べるのに使う）
+	const std::unordered_map<std::string, AttackNode>& GetAttackGraph() const { return attackGraph_; }
+	// 今の攻撃（ガイド用。const 版）
+	const PlayerStateAttack* GetCurrentAttackState() const { return currentState_.empty() ? nullptr : currentState_.back(); }
 
 #ifdef _DEBUG
 	// 攻撃グラフと攻撃データはこのクラスの内部表現そのものなので、UIの中身はここに置いたまま。
@@ -116,6 +149,10 @@ private:
 	bool CanStartRootAttackOver(const PlayerStateAttack& attack, InputButton button) const;
 	// 今の攻撃が、ルート攻撃で割り込める段階に来ているか（硬直が解けた・納刀モーション中）
 	bool IsReadyForRootAttack(const PlayerStateAttack& attack) const;
+	// 攻撃を始めたときに呼ぶ。コンボの途中でなければ新しいコンボを始める（納刀モーションは数えない）
+	void BeginCombo(const std::string& attackName);
+	// コンボを終える。何度呼んでもよい（終わっていれば何もしない）
+	void EndCombo();
 
 #ifdef _DEBUG
 	// 選択中の攻撃が、今ルート攻撃として出せるかを並べる（出ないときに理由を探すため）
@@ -125,6 +162,8 @@ private:
 	/// クリップ名とジョイント名は、プレイヤーのモデルが持っているものから選ばせる
 	/// </summary>
 	void DrawAttackAnimationEditor(const std::string& attackName);
+	/// <summary>当たったときのコントローラーの振動（強さ・長さ・最終段・溜め）</summary>
+	void DrawRumbleEditor(const std::string& attackName);
 #endif // _DEBUG
 
 private:
@@ -151,4 +190,7 @@ private:
 	PlayerCommand pendingRootCommand_{};
 	// 上の入力を覚えておく残り時間[秒]。0 以下なら先行入力なし
 	float pendingRootTimer_ = 0.0f;
+	// コンボの途中か・通し番号（IsComboActive / GetComboId）
+	bool comboActive_ = false;
+	uint32_t comboId_ = 0;
 };

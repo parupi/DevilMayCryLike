@@ -8,52 +8,13 @@
         "ChargeImpulseScale": 1.0,
         "ChargeMaxTime": 1.0,
         "ChargeMinTime": 0.2,
+        "ChargeRumbleScale": 1.0,
         "ControlPoint_0": [
             -0.6364,
             0.5,
             0.6364
         ],
         "ControlPoint_1": [
-            -0.6364,
-            0.5,
-            0.6364
-        ],
-        "ControlPoint_2": [
-            0.0,
-            0.5,
-            0.9
-        ],
-        "ControlPoint_3": [
-            0.6364,
-            0.5,
-            0.6364
-        ],
-        "ControlPoint_4": [
-            0.9,
-            0.5,
-            0.0
-        ],
-        "ControlPoint_5": [
-            0.6364,
-            0.5,
-            -0.6364
-        ],
-        "ControlPoint_6": [
-            0.0,
-            0.5,
-            -0.9
-        ],
-        "ControlPoint_7": [
-            -0.6364,
-            0.5,
-            -0.6364
-        ],
-        "ControlPoint_8": [
-            -0.9,
-            0.5,
-            0.0
-        ],
-        "ControlPoint_9": [
             -0.6364,
             0.5,
             0.6364
@@ -103,6 +64,46 @@
             0.5,
             1.1
         ],
+        "ControlPoint_2": [
+            0.0,
+            0.5,
+            0.9
+        ],
+        "ControlPoint_3": [
+            0.6364,
+            0.5,
+            0.6364
+        ],
+        "ControlPoint_4": [
+            0.9,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_5": [
+            0.6364,
+            0.5,
+            -0.6364
+        ],
+        "ControlPoint_6": [
+            0.0,
+            0.5,
+            -0.9
+        ],
+        "ControlPoint_7": [
+            -0.6364,
+            0.5,
+            -0.6364
+        ],
+        "ControlPoint_8": [
+            -0.9,
+            0.5,
+            0.0
+        ],
+        "ControlPoint_9": [
+            -0.6364,
+            0.5,
+            0.6364
+        ],
         "ControlRotation_0": [
             45.0,
             0.0,
@@ -110,46 +111,6 @@
         ],
         "ControlRotation_1": [
             45.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_2": [
-            90.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_3": [
-            135.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_4": [
-            180.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_5": [
-            225.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_6": [
-            270.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_7": [
-            315.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_8": [
-            360.0,
-            0.0,
-            90.0
-        ],
-        "ControlRotation_9": [
-            405.0,
             0.0,
             90.0
         ],
@@ -198,17 +159,62 @@
             0.0,
             90.0
         ],
+        "ControlRotation_2": [
+            90.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_3": [
+            135.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_4": [
+            180.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_5": [
+            225.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_6": [
+            270.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_7": [
+            315.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_8": [
+            360.0,
+            0.0,
+            90.0
+        ],
+        "ControlRotation_9": [
+            405.0,
+            0.0,
+            90.0
+        ],
         "CounterFlag": false,
         "Damage": 1.0,
         "DirIndex": 0,
         "DrawDebugControlPoints": false,
         "FinalDamage": 2.5,
-        "FinalHitStopTime": 0.12,
+        "FinalHitStopTime": 0.15,
         "FinalImpulseForce": 16.0,
         "FinalReactionType": 1,
+        "FinalRumbleDuration": 0.24,
+        "FinalRumbleHigh": 0.7,
+        "FinalRumbleLow": 0.8,
         "FinalStunTime": 0.0,
         "FinalTorqueForce": 20.0,
         "FinalUpwardRatio": 0.5,
+        "GuideName": "回転斬り",
+        "GuideVisible": true,
         "HitCount": 2,
         "HitStopIntensity": 0.05,
         "HitStopStrength": 1,
@@ -218,6 +224,7 @@
         "InvincibleTime": 0.0,
         "IsAir": false,
         "IsCharge": false,
+        "IsFinisher": true,
         "IsMove": false,
         "LockOnFlag": false,
         "MoveSpeed": [
@@ -235,6 +242,9 @@
         "PreDelay": 0.2,
         "ReactionType": 0,
         "RootAttackFlag": false,
+        "RumbleDuration": 0.1,
+        "RumbleHigh": 0.35,
+        "RumbleLow": 0.25,
         "StunTime": 0.5,
         "TorqueForce": 0.0,
         "TotalDuration": 1.2,

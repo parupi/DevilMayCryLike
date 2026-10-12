@@ -2,6 +2,7 @@
 #include "Utility/DeltaTime.h"
 #include "Utility/TimeManager.h"
 #include "Scene/SceneManager.h"
+#include "Input/GamepadRumble.h"
 
 void GuchisFramework::Initialize() {
 	// WinDowsAPIの初期化
@@ -29,6 +30,8 @@ void GuchisFramework::Initialize() {
 }
 
 void GuchisFramework::Finalize() {
+	// 震えたままアプリを終えると、パッドが震え続けることがある
+	GamepadRumble::GetInstance().StopAll();
 	Input::GetInstance().Finalize();
 	// 鳴っているボイスを返してから Audio を落とす
 	SoundManager::GetInstance().Finalize();
@@ -42,6 +45,8 @@ void GuchisFramework::Finalize() {
 void GuchisFramework::Update() {
 	Input::GetInstance().Update();
 	DeltaTime::Update();
+	// 振動は実時間で進める（ヒットストップ・スロー・エディタの一時停止で伸びないように）
+	GamepadRumble::GetInstance().Update(DeltaTime::GetUnscaledDeltaTime());
 	// BGMのフェードを進める。シーン更新より前でも後でも構わないが、
 	// DeltaTime::Update() の後であること
 	SoundManager::GetInstance().Update();

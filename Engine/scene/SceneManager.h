@@ -22,6 +22,8 @@ public:
 	void Finalize();
 	// 更新
 	void Update();
+	// オブジェクトの更新の後に呼ぶ（BaseScene::LateUpdate）
+	void LateUpdate();
 	// 描画
 	void Draw();
 	// シーンの変更

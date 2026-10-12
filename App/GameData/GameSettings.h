@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 /// <summary>
 /// タイトルの OPTION から触る、プレイに関わる設定値。
@@ -36,6 +37,19 @@ public:
 	bool IsTutorialEnabled() const { return tutorialEnabled_; }
 	void SetTutorialEnabled(bool enabled);
 
+	/// <summary>
+	/// アクションガイド（画面右下の操作案内）をいつ出すか。
+	/// 0 = OFF / 1 = 戦闘中のみ / 2 = 常に（ActionGuideMode と同じ並び）
+	/// </summary>
+	static constexpr int32_t kActionGuideModeCount = 3;
+
+	/// <summary>コントローラーの振動の強さ 0〜1（0 で振動しない）。変えるとすぐ GamepadRumble に渡す</summary>
+	float GetVibration() const { return vibration_; }
+	void SetVibration(float scale);
+	static constexpr float kVibrationStep = 0.1f;
+	int32_t GetActionGuideMode() const { return actionGuideMode_; }
+	void SetActionGuideMode(int32_t mode);
+
 private:
 	GameSettings() = default;
 	~GameSettings() = default;
@@ -48,6 +62,8 @@ private:
 	float cameraSensitivity_ = 1.0f;
 	bool invertCameraY_ = false;
 	bool tutorialEnabled_ = true;
+	int32_t actionGuideMode_ = 2;
+	float vibration_ = 1.0f;
 
 	bool isInitialized_ = false;
 };
