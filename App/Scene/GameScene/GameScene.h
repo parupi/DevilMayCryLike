@@ -18,6 +18,8 @@
 #include <memory>
 #include "Input/InputContext.h"
 #include "Tutorial/System/TutorialSystem.h"
+#include "Tutorial/Skip/TutorialSkipInput.h"
+#include "Tutorial/Skip/TutorialSkipGauge.h"
 #include "Graphics/Rendering/Sprite/AnimatedSprite.h"
 
 /// <summary>
@@ -92,6 +94,9 @@ public:
 	InputContext* GetInputContext() { return inputContext_.get(); }
 
 	TutorialService* GetTutorialService() { return tutorial_.get(); }
+	/// <summary>チュートリアルのスキップ（START 長押し）。チュートリアルの部屋以外では nullptr</summary>
+	TutorialSkipInput* GetTutorialSkip() { return tutorialSkip_.get(); }
+	TutorialSkipGauge* GetTutorialSkipGauge() { return tutorialSkipGauge_.get(); }
 	// プレイヤーを取得（ステート側からスコア・戦闘状態を引くのに使う）
 	Player* GetPlayer() { return player_; }
 private:
@@ -133,4 +138,7 @@ private:
 	float sceneDeltaTime_ = 0.0f;
 
 	std::unique_ptr<TutorialSystem> tutorial_ = nullptr;
+	// チュートリアルのスキップ。チュートリアルの部屋でだけ作る
+	std::unique_ptr<TutorialSkipInput> tutorialSkip_ = nullptr;
+	std::unique_ptr<TutorialSkipGauge> tutorialSkipGauge_ = nullptr;
 };

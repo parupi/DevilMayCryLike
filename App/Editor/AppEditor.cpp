@@ -26,6 +26,7 @@
 #include "Stage/SceneSaver.h"
 #include "Audio/GameSoundLibrary.h"
 #include "Stage/StageDocument.h"
+#include "GameData/GameSession.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -315,6 +316,8 @@ void DrawOpenMenu(bool canReload)
 	for (const std::string& name : names) {
 		if (ImGui::MenuItem(name.c_str(), nullptr, name == current, canReload)) {
 			SwitchStage(StageDocument::MakePath(name));
+			// 本編はチュートリアル → ボス戦の順にステージを決めるので、開いたものを直接指定する
+			GameSession::BeginStoryAt(StageDocument::GetPath());
 			EditorUndo::Clear();
 			SceneManager::GetInstance().ReloadCurrentScene();
 			DeltaTime::SetPaused(true);

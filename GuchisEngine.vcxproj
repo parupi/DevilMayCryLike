@@ -251,6 +251,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Stage\StageDocument.h" />
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
     <ClInclude Include="App\Tutorial\Service\TutorialService.h" />
+    <ClInclude Include="App\Tutorial\Skip\TutorialSkipGauge.h" />
+    <ClInclude Include="App\Tutorial\Skip\TutorialSkipInput.h" />
     <ClInclude Include="App\Tutorial\System\TutorialSystem.h" />
     <ClInclude Include="App\Tutorial\Tutorial.h" />
     <ClInclude Include="Engine\Application\MyGameTitle.h" />
@@ -609,6 +611,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Stage\SceneSaver.cpp" />
     <ClCompile Include="App\Stage\StageDocument.cpp" />
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
+    <ClCompile Include="App\Tutorial\Skip\TutorialSkipGauge.cpp" />
+    <ClCompile Include="App\Tutorial\Skip\TutorialSkipInput.cpp" />
     <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp" />
     <ClCompile Include="App\Tutorial\Tutorial.cpp" />
     <ClCompile Include="Engine\Application\MyGameTitle.cpp" />

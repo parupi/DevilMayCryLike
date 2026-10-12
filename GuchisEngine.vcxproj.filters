@@ -160,6 +160,9 @@
     <Filter Include="App\Tutorial\Service">
       <UniqueIdentifier>{490C6A54-359B-F31D-DEB9-0719CA2704C4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Tutorial\Skip">
+      <UniqueIdentifier>{CF6B83F1-3B82-8187-84F9-0CA9F04E520F}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Tutorial\System">
       <UniqueIdentifier>{DD8C1061-49EE-ED6E-D25B-34213EBC242E}</UniqueIdentifier>
     </Filter>
@@ -725,6 +728,12 @@
     </ClInclude>
     <ClInclude Include="App\Tutorial\Service\TutorialService.h">
       <Filter>App\Tutorial\Service</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Tutorial\Skip\TutorialSkipGauge.h">
+      <Filter>App\Tutorial\Skip</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Tutorial\Skip\TutorialSkipInput.h">
+      <Filter>App\Tutorial\Skip</Filter>
     </ClInclude>
     <ClInclude Include="App\Tutorial\System\TutorialSystem.h">
       <Filter>App\Tutorial\System</Filter>
@@ -1795,6 +1804,12 @@
     </ClCompile>
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
       <Filter>App\Tutorial\Decoration</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Tutorial\Skip\TutorialSkipGauge.cpp">
+      <Filter>App\Tutorial\Skip</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Tutorial\Skip\TutorialSkipInput.cpp">
+      <Filter>App\Tutorial\Skip</Filter>
     </ClCompile>
     <ClCompile Include="App\Tutorial\System\TutorialSystem.cpp">
       <Filter>App\Tutorial\System</Filter>
