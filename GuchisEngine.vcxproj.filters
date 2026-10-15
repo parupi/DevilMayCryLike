@@ -927,6 +927,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.h">
       <Filter>Engine\Graphics\Rendering\Environment</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.h">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClInclude>
@@ -2031,6 +2034,9 @@
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.cpp">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.cpp">
       <Filter>Engine\Graphics\Rendering\Environment</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp">

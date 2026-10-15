@@ -315,6 +315,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Device\SwapChainManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.h" />
@@ -685,6 +686,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Device\SwapChainManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.cpp" />

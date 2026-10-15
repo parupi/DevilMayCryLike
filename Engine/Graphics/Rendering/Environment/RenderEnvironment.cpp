@@ -33,13 +33,14 @@ void RenderEnvironment::Finalize()
 	buffer_.Reset();
 }
 
+Vector3 RenderEnvironment::ToLinear(const Vector3& srgb)
+{
+	return { SrgbToLinear(srgb.x), SrgbToLinear(srgb.y), SrgbToLinear(srgb.z) };
+}
+
 Vector3 RenderEnvironment::GetBackgroundLinear() const
 {
-	return {
-		SrgbToLinear(params_.backgroundColor.x),
-		SrgbToLinear(params_.backgroundColor.y),
-		SrgbToLinear(params_.backgroundColor.z),
-	};
+	return ToLinear(params_.backgroundColor);
 }
 
 void RenderEnvironment::BindToLighting(ID3D12GraphicsCommandList* cmd, UINT rootParameterIndex)
@@ -61,6 +62,28 @@ void RenderEnvironment::BindToLighting(ID3D12GraphicsCommandList* cmd, UINT root
 	cb.darkStartHeight = params_.darkStartHeight;
 	cb.darkEndHeight = params_.darkEndHeight;
 	cb.darkStrength = params_.heightDarkEnabled ? params_.darkStrength : 0.0f;
+	const Vector3 fogColor = ToLinear(params_.heightFogColor);
+	cb.heightFogColor[0] = fogColor.x;
+	cb.heightFogColor[1] = fogColor.y;
+	cb.heightFogColor[2] = fogColor.z;
+	cb.heightFogDensity = params_.heightFogEnabled ? params_.heightFogDensity : 0.0f;
+	cb.heightFogBaseHeight = params_.heightFogBaseHeight;
+	cb.heightFogFalloff = params_.heightFogFalloff;
+	cb.heightFogMaxOpacity = params_.heightFogMaxOpacity;
+	const Vector3 distanceFogColor = ToLinear(params_.distanceFogColor);
+	cb.distanceFogColor[0] = distanceFogColor.x;
+	cb.distanceFogColor[1] = distanceFogColor.y;
+	cb.distanceFogColor[2] = distanceFogColor.z;
+	cb.distanceFogDensity = params_.distanceFogEnabled ? params_.distanceFogDensity : 0.0f;
+	cb.distanceFogStart = params_.distanceFogStart;
+	cb.distanceFogMaxOpacity = params_.distanceFogMaxOpacity;
+	cb.characterAmbient[0] = params_.characterAmbient.x;
+	cb.characterAmbient[1] = params_.characterAmbient.y;
+	cb.characterAmbient[2] = params_.characterAmbient.z;
+	cb.rimPower = params_.rimPower;
+	cb.rimColor[0] = params_.rimColor.x;
+	cb.rimColor[1] = params_.rimColor.y;
+	cb.rimColor[2] = params_.rimColor.z;
 	*mapped_ = cb;
 
 	cmd->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer_->GetGPUVirtualAddress());

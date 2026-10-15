@@ -154,15 +154,17 @@ void GameScene::Initialize() {
 	// 本編で読むステージはエディタで切り替えられる（Release では既定のまま）が、
 	// トレーニングは専用ステージで固定される
 	const std::string stagePath = GameSession::GetStagePath();
+	// ステージの雰囲気（洞窟なら空を消して暗くし、色調整を掛ける）。名前はステージデータの "environment"。
+	// 組み立てより先に呼ぶ: 色調整のパスを、ボスのブレスなど組み立て中に足される演出より前に並べるため
+	const std::string environmentName = SceneLoader::LoadEnvironmentName(stagePath);
+	StageDocument::SetEnvironment(environmentName);
+	StageEnvironment::Apply(environmentName);
+
 	SceneBuilder::BuildScene(SceneLoader::Load(stagePath));
 	// エディタの保存先を、いま読んだステージに揃える。
 	// 本編はチュートリアル → ボス戦とステージが切り替わるので、揃えずにおくと
 	// エディタで保存したときに別のステージへ上書きしてしまう
 	StageDocument::SetPath(stagePath);
-	// ステージの雰囲気（洞窟なら空を消して暗くする）。名前はステージデータの "environment"
-	const std::string environmentName = SceneLoader::LoadEnvironmentName(stagePath);
-	StageDocument::SetEnvironment(environmentName);
-	StageEnvironment::Apply(environmentName);
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 

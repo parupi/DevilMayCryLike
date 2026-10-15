@@ -300,6 +300,9 @@ void DirectXManager::Render(PSOManager* psoManager, uint32_t srvIndex) {
 	commandList->SetPipelineState(psoManager->GetFinalCompositePSO());
 	commandList->SetGraphicsRootSignature(psoManager->GetFinalCompositeRootSignature());
 	commandList->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(srvIndex));
+	// 露出・トーンマップは ping へ写すとき（OffScreenManager::CopyLightingToPing）に済んでいるので、ここでは何もしない
+	const float noToneMap[4] = { 1.0f, 0.0f, 1.0f, 0.0f };
+	commandList->SetGraphicsRoot32BitConstants(1, 4, noToneMap, 0);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->DrawInstanced(3, 1, 0, 0);
 }

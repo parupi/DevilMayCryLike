@@ -61,6 +61,46 @@ cbuffer EnvironmentCB : register(b5)
     float DarkEndHeight;
     float DarkStrength;      // 0 で無効
     float _envPad3;
+    float3 HeightFogColor;   // 高さフォグの色（リニア）
+    float HeightFogDensity;  // 基準の高さでの濃さ（1mあたり）。0 で無効
+    float HeightFogBaseHeight;
+    float HeightFogFalloff;  // 1m 上がるごとの濃さの伸び（指数）
+    float HeightFogMaxOpacity;
+    float _envPad4;
+    float3 DistanceFogColor;  // 距離フォグの色（リニア）
+    float DistanceFogDensity; // 0 で無効
+    float DistanceFogStart;   // これより近い所には掛けない[m]
+    float DistanceFogMaxOpacity;
+    float2 _envPad5;
+    float3 CharacterAmbient; // キャラだけに足す環境光（アルベドに掛ける）
+    float RimPower;
+    float3 RimColor;         // キャラの輪郭光（0 で無効）
+    float _envPad6;
+}
+
+// 距離フォグの量（0〜1）。仕様書 3.1 の 1 - exp(-density * distance) に、掛け始める距離と上限を足したもの
+float CalcDistanceFog(float3 cameraPos, float3 P)
+{
+    if (DistanceFogDensity <= 0.0f)
+        return 0.0f;
+    float d = max(length(P - cameraPos) - DistanceFogStart, 0.0f);
+    return min(1.0f - exp(-DistanceFogDensity * d), DistanceFogMaxOpacity);
+}
+
+// 高さフォグ。濃さ ρ(y) = d·exp(k·(y - y0)) の霧を、カメラから P までの線分で積分した量を返す（0〜1）。
+// ∫ρ ds = d·L·exp(k·(c.y - y0))·(exp(k·Δy) - 1)/(k·Δy)   （Δy = P.y - c.y, L = |P - c|）
+float CalcHeightFog(float3 cameraPos, float3 P)
+{
+    if (HeightFogDensity <= 0.0f)
+        return 0.0f;
+    float L = length(P - cameraPos);
+    float dy = P.y - cameraPos.y;
+    float kdy = HeightFogFalloff * dy;
+    // Δy がほぼ0（水平に見ている）なら (e^x - 1)/x → 1
+    float grow = abs(kdy) > 1e-4f ? (exp(clamp(kdy, -30.0f, 30.0f)) - 1.0f) / kdy : 1.0f;
+    float base = exp(clamp(HeightFogFalloff * (cameraPos.y - HeightFogBaseHeight), -30.0f, 30.0f));
+    float amount = HeightFogDensity * L * base * grow;
+    return min(1.0f - exp(-amount), HeightFogMaxOpacity);
 }
 
 // Normal decode

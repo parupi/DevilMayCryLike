@@ -1,4 +1,5 @@
 #include "OffScreenManager.h"
+#include "Graphics/Rendering/Environment/RenderEnvironment.h"
 #include "Graphics/Resource/SrvManager.h"
 #include <Math/MathUtils.h>
 
@@ -178,6 +179,15 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 
 	// t0 に LightingTexture をバインド
 	cmd->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvManager()->GetGPUDescriptorHandle(lightingSrv));
+
+	// 露出とトーンマップ。ライティング結果は R16F で 1 を超えるが、ping-pong は 8bit なので
+	// ここで収めないと松明の周りや炎が白く切れる。既定（RenderEnvironment の初期値）は何もしない
+	{
+		const RenderEnvironment::Params& env = RenderEnvironment::GetInstance().GetParams();
+		const float toneMap[4] = {
+			env.exposure, env.toneMapEnabled ? 1.0f : 0.0f, env.toneMapShoulderStart, 0.0f };
+		cmd->SetGraphicsRoot32BitConstants(1, 4, toneMap, 0);
+	}
 
 	// フルスクリーントライアングルを描画
 	cmd->DrawInstanced(3, 1, 0, 0);

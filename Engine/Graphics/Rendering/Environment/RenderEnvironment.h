@@ -34,6 +34,51 @@ public:
 		float darkStartHeight = 0.0f;
 		float darkEndHeight = 10.0f;
 		float darkStrength = 0.0f;
+
+		// 高さフォグ。高い所ほど濃くなる霧を、視線が通った分だけ積み上げる（Lighting.PS）。
+		// 濃さ(1mあたり) = heightFogDensity * exp(heightFogFalloff * (y - heightFogBaseHeight))
+		bool heightFogEnabled = false;
+		Vector3 heightFogColor{ 0.0f, 0.0f, 0.0f }; // 画面に出る色（sRGB）
+		float heightFogBaseHeight = 0.0f;
+		float heightFogDensity = 0.02f;
+		float heightFogFalloff = 0.25f;
+		float heightFogMaxOpacity = 1.0f;
+
+		// 距離フォグ。カメラから離れるほど霧の色へ寄せて奥行きを出す（Lighting.PS）。
+		// 量 = 1 - exp(-density * max(距離 - start, 0))。上限 maxOpacity
+		bool distanceFogEnabled = false;
+		Vector3 distanceFogColor{ 0.0f, 0.0f, 0.0f }; // 画面に出る色（sRGB）
+		float distanceFogDensity = 0.01f;
+		float distanceFogStart = 0.0f;
+		float distanceFogMaxOpacity = 1.0f;
+
+		// キャラ（環境オブジェクト以外＝プレイヤー・敵・小物）だけに足す光。暗い場面で見失わないようにする。
+		// characterAmbient はアルベドに掛けて足し、rim は視線と面の向きがずれた輪郭ほど強く足す（色そのまま）
+		// 露出とトーンマップ。ライティング結果をポストエフェクトへ写すときに掛ける（FinalComposite.PS）。
+		// 無効なら従来どおり（1 を超えた所は 8bit のバッファで切り捨て）
+		bool toneMapEnabled = false;
+		float exposure = 1.0f;
+		float toneMapShoulderStart = 0.6f; // ここまでは素通し、ここから上を 1 へなめらかに収める
+
+		Vector3 characterAmbient{ 0.0f, 0.0f, 0.0f };
+		Vector3 rimColor{ 0.0f, 0.0f, 0.0f };
+		float rimPower = 3.0f;
+
+		// 上部の霧の層（水平な半透明の板。ノイズで濃淡をつけてゆっくり流す）。UpperFogRenderer が描く
+		struct FogLayer {
+			bool enabled = false;
+			float height = 5.0f;                // 置く高さ（ワールドの y）
+			Vector3 color{ 0.05f, 0.06f, 0.08f }; // 画面に出る色（sRGB）
+			float opacity = 0.5f;               // 一番濃い所の不透明度
+			float noiseScale = 0.05f;           // ノイズの細かさ（1mあたりの周期）
+			Vector3 noiseSpeed{ 0.2f, 0.0f, 0.1f }; // 流れる速さ（x,z を使う。m/秒）
+		};
+		static constexpr int kFogLayerCount = 3;
+		FogLayer fogLayers[kFogLayerCount];
+		Vector3 fogLayerCenter{ 0.0f, 0.0f, 0.0f }; // 板の中心（x,z を使う）
+		float fogLayerHalfSize = 30.0f;             // 板の半分の大きさ[m]。部屋より少し大きくして端を壁の裏へ隠す
+		float fogLayerEdgeFade = 0.3f;              // 板の端を薄くする幅（半分の大きさに対する割合）
+		float fogLayerSoftDistance = 8.0f;          // 壁や岩と交わる所を薄くする距離[m]。短いと板が壁に刺さる線が見える
 	};
 
 	static RenderEnvironment& GetInstance();
@@ -46,8 +91,11 @@ public:
 	/// <summary>既定（洞窟化する前の見た目）へ戻す</summary>
 	void ResetToDefault() { params_ = Params{}; }
 
-	/// <summary>背景色をリニアにした値。レンダーターゲットのクリアにも使う</summary>
+	/// <summary>背景色をリニアにした値</summary>
 	Vector3 GetBackgroundLinear() const;
+
+	/// <summary>sRGB の色（0〜1）をリニアへ</summary>
+	static Vector3 ToLinear(const Vector3& srgb);
 
 	/// <summary>定数バッファを今の設定で書き換え、ライティングのルート引数へ積む</summary>
 	void BindToLighting(ID3D12GraphicsCommandList* cmd, UINT rootParameterIndex);
@@ -69,6 +117,21 @@ private:
 		float darkEndHeight;
 		float darkStrength; // 暗化が無効なら 0
 		float _pad3;
+		float heightFogColor[3]; // リニア
+		float heightFogDensity;  // 無効なら 0
+		float heightFogBaseHeight;
+		float heightFogFalloff;
+		float heightFogMaxOpacity;
+		float _pad4;
+		float distanceFogColor[3]; // リニア
+		float distanceFogDensity;  // 無効なら 0
+		float distanceFogStart;
+		float distanceFogMaxOpacity;
+		float _pad5[2];
+		float characterAmbient[3];
+		float rimPower;
+		float rimColor[3];
+		float _pad6;
 	};
 
 	Params params_{};

@@ -114,12 +114,26 @@ float4 main(PSInput input) : SV_Target
             finalColor += CalcSpotLight(light, P, N, V, albedo);
     }
 
+    // キャラ（環境オブジェクト以外）だけに足す光。暗い洞窟でもプレイヤーや敵のシルエットが読めるようにする
+    if (posS.w < 1.5f)
+    {
+        finalColor += CharacterAmbient * albedo;
+        float rim = pow(1.0f - saturate(dot(N, V)), max(RimPower, 0.1f));
+        finalColor += RimColor * rim;
+    }
+
     // 高さによる暗化。壁の上ほど暗くして、壁の上端を闇に溶かす（プレイヤーや敵には掛けない）
     if (posS.w > 1.5f && DarkStrength > 0.0f)
     {
         float heightFactor = saturate((P.y - DarkStartHeight) / max(DarkEndHeight - DarkStartHeight, 0.001f));
         finalColor *= 1.0f - heightFactor * DarkStrength;
     }
+
+    // 距離フォグ。遠くの壁ほど暗がりに沈めて奥行きを出す（松明の炎や攻撃予兆はフォワードで描くので掛からない）
+    finalColor = lerp(finalColor, DistanceFogColor, CalcDistanceFog(CameraPosWS.xyz, P));
+
+    // 高さフォグ。壁の上端を霧の中へ消す（背景色に近い色にすると、空との境目も消える）
+    finalColor = lerp(finalColor, HeightFogColor, CalcHeightFog(CameraPosWS.xyz, P));
 
     return float4(finalColor, 1.0f);
 }

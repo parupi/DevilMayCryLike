@@ -21,4 +21,7 @@ void Update();
 /// <summary>シーン終了時に呼ぶ。次のシーン（タイトル等）へ持ち越さない</summary>
 void Clear();
 
+/// <summary>松明の揺らぎの強さの倍率（雰囲気の "TorchFlickerStrength"。雰囲気が無ければ 1）。WallTorch が読む</summary>
+float GetTorchFlickerScale();
+
 } // namespace StageEnvironment

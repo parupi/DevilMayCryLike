@@ -2,6 +2,11 @@
 #include "Debugger/GlobalVariables.h"
 #include "Graphics/Rendering/Environment/RenderEnvironment.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
+#include "Graphics/Rendering/PostEffect/OffScreenManager.h"
+#include "Graphics/Rendering/PostEffect/ColorGradingEffect.h"
+#include "Graphics/Rendering/PostEffect/BloomEffect.h"
+#include <memory>
+#include <string>
 
 namespace {
 
@@ -9,6 +14,46 @@ constexpr const char* kDirectory = "Environment";
 
 // 今適用している雰囲気の GlobalVariables のグループ名。空なら既定の見た目
 std::string g_group;
+
+// 雰囲気ごとの色調整。ボスのブレス用（BossBreathColorGrading）とは別のパスで、常に掛けておく。
+// パスはシーンをまたいで生き続ける（OffScreenManager が持つ）ので、最初の1回だけ作る
+constexpr const char* kGradingEffectName = "EnvironmentColorGrading";
+
+// ブルームは全シーン共通（MyGameTitle が常時有効で登録）なので、雰囲気の間だけ値を差し替え、
+// 抜けるときに元へ戻す。元の値は最初に差し替える直前に覚える
+constexpr const char* kBloomEffectName = "Bloom";
+bool g_bloomOverridden = false;
+bool g_bloomWasActive = true;
+BloomEffect::BloomSettings g_bloomOriginal{};
+
+float g_torchFlickerScale = 1.0f;
+
+BloomEffect* FindBloom()
+{
+	return dynamic_cast<BloomEffect*>(OffScreenManager::GetInstance().FindEffect(kBloomEffectName));
+}
+
+void RestoreBloom()
+{
+	if (!g_bloomOverridden) return;
+	if (BloomEffect* bloom = FindBloom()) {
+		bloom->GetSettings() = g_bloomOriginal;
+		bloom->SetActive(g_bloomWasActive);
+	}
+	g_bloomOverridden = false;
+}
+
+ColorGradingEffect* EnsureGradingEffect()
+{
+	auto& offScreen = OffScreenManager::GetInstance();
+	if (auto* existing = dynamic_cast<ColorGradingEffect*>(offScreen.FindEffect(kGradingEffectName))) {
+		return existing;
+	}
+	auto grading = std::make_unique<ColorGradingEffect>(kGradingEffectName);
+	grading->SetActive(false);
+	offScreen.AddEffect(std::move(grading));
+	return dynamic_cast<ColorGradingEffect*>(offScreen.FindEffect(kGradingEffectName));
+}
 
 std::string MakeGroupName(const std::string& environmentName)
 {
@@ -32,6 +77,80 @@ void AddCaveDefaults(GlobalVariables& gv, const std::string& group)
 	gv.AddItem(group, "DarkStartHeight", -1.0f);
 	gv.AddItem(group, "DarkEndHeight", 9.0f);
 	gv.AddItem(group, "DarkStrength", 0.9f);
+
+	// 高さフォグ。壁の上端（y≒7）あたりから急に濃くなり、張り出しの岩の上は霧に消える。
+	// 色は背景色と同じにする。少しでも違うと、霧に沈んだ岩と背景の境目が線になって残る
+	gv.AddItem(group, "HeightFogEnabled", true);
+	gv.AddItem(group, "HeightFogColor", Vector3{ 8.0f / 255.0f, 12.0f / 255.0f, 16.0f / 255.0f });
+	gv.AddItem(group, "HeightFogBaseHeight", 3.0f);
+	gv.AddItem(group, "HeightFogDensity", 0.02f);
+	gv.AddItem(group, "HeightFogFalloff", 0.25f);
+	gv.AddItem(group, "HeightFogMaxOpacity", 1.0f);
+
+	// 上部の霧の層（仕様書 2.2 の FogLayer_01〜03）。低い層ほど薄く、高い層ほど濃く暗い
+	struct LayerDefault { float height; Vector3 color; float opacity; float noiseScale; Vector3 speed; };
+	const LayerDefault layers[RenderEnvironment::Params::kFogLayerCount] = {
+		{ 4.0f, { 36.0f / 255.0f, 45.0f / 255.0f, 56.0f / 255.0f }, 0.30f, 0.060f, {  0.25f, 0.0f,  0.10f } },
+		{ 6.5f, { 25.0f / 255.0f, 32.0f / 255.0f, 41.0f / 255.0f }, 0.50f, 0.045f, { -0.18f, 0.0f,  0.12f } },
+		{ 9.0f, { 15.0f / 255.0f, 20.0f / 255.0f, 27.0f / 255.0f }, 0.70f, 0.035f, {  0.12f, 0.0f, -0.20f } },
+	};
+	for (int i = 0; i < RenderEnvironment::Params::kFogLayerCount; ++i) {
+		const std::string prefix = "FogLayer" + std::to_string(i + 1) + "_";
+		gv.AddItem(group, prefix + "Enabled", true);
+		gv.AddItem(group, prefix + "Height", layers[i].height);
+		gv.AddItem(group, prefix + "Color", layers[i].color);
+		gv.AddItem(group, prefix + "Opacity", layers[i].opacity);
+		gv.AddItem(group, prefix + "NoiseScale", layers[i].noiseScale);
+		gv.AddItem(group, prefix + "NoiseSpeed", layers[i].speed);
+	}
+	gv.AddItem(group, "FogLayerHalfSize", 30.0f);
+	gv.AddItem(group, "FogLayerEdgeFade", 0.3f);
+	// 下の2層は壁の上端より低く壁を横切るので、短いと板が壁に刺さる線が見える
+	gv.AddItem(group, "FogLayerSoftDistance", 8.0f);
+
+	// キャラの見やすさ（仕様書 9.2）。平行光を弱めた洞窟では、縦の面が多いキャラはほぼ光を受けず黒い影になる
+	gv.AddItem(group, "CharacterAmbient", Vector3{ 0.22f, 0.24f, 0.28f });
+	gv.AddItem(group, "RimColor", Vector3{ 0.06f, 0.08f, 0.11f });
+	gv.AddItem(group, "RimPower", 3.0f);
+
+	// 距離フォグ（仕様書 3.1）。遠くの壁を暗がりに沈める。強すぎると敵が見えなくなるので上限を置く
+	gv.AddItem(group, "DistanceFogEnabled", true);
+	gv.AddItem(group, "DistanceFogColor", Vector3{ 8.0f / 255.0f, 12.0f / 255.0f, 16.0f / 255.0f });
+	gv.AddItem(group, "DistanceFogDensity", 0.015f);
+	gv.AddItem(group, "DistanceFogStart", 8.0f);
+	gv.AddItem(group, "DistanceFogMaxOpacity", 0.7f);
+
+	// カラーグレーディング（仕様書 3.3）。やや寒色・彩度やや低め・コントラスト中程度、
+	// 暗部は青緑、ハイライトは松明の暖色を残す
+	gv.AddItem(group, "GradingEnabled", true);
+	gv.AddItem(group, "GradingStrength", 1.0f);
+	gv.AddItem(group, "GradingGain", Vector3{ 0.97f, 1.0f, 1.04f });
+	gv.AddItem(group, "GradingLift", Vector3{ 0.0f, 0.0f, 0.0f });
+	// 彩度は下げすぎるとプレイヤーの赤や攻撃予兆の色が沈むので控えめに
+	gv.AddItem(group, "GradingSaturation", 0.92f);
+	gv.AddItem(group, "GradingContrast", 1.06f);
+	// コントラストの中心。洞窟の絵はほとんどが暗いので、0.5 のままだと暗部（とキャラ）が真っ黒に潰れる
+	gv.AddItem(group, "GradingContrastPivot", 0.2f);
+	gv.AddItem(group, "GradingSplitBalance", 0.45f);
+	gv.AddItem(group, "GradingShadowTint", Vector3{ 0.0f, 0.02f, 0.03f });
+	gv.AddItem(group, "GradingShadowTintStrength", 1.0f);
+	gv.AddItem(group, "GradingHighlightTint", Vector3{ 1.08f, 1.0f, 0.86f });
+	gv.AddItem(group, "GradingHighlightTintStrength", 0.6f);
+
+	// 露出とトーンマップ（仕様書 3.2 の手順5）。暗部は素通しにして、松明の周りや炎だけを収める
+	gv.AddItem(group, "ToneMapEnabled", true);
+	gv.AddItem(group, "Exposure", 1.0f);
+	gv.AddItem(group, "ToneMapShoulderStart", 0.6f);
+
+	// ブルーム（仕様書 3.2）。控えめにして、戦闘エフェクトが白飛びしないようにする
+	gv.AddItem(group, "BloomEnabled", true);
+	gv.AddItem(group, "BloomThreshold", 0.65f);
+	gv.AddItem(group, "BloomSoftKnee", 0.3f);
+	gv.AddItem(group, "BloomBlurRadius", 1.8f);
+	gv.AddItem(group, "BloomIntensity", 0.7f);
+
+	// 松明の揺らぎの強さ（WallTorch の揺れ幅に掛ける倍率）
+	gv.AddItem(group, "TorchFlickerStrength", 1.0f);
 }
 
 void PushToRenderer(GlobalVariables& gv, const std::string& group)
@@ -45,15 +164,87 @@ void PushToRenderer(GlobalVariables& gv, const std::string& group)
 	params.darkStartHeight = gv.GetValueRef<float>(group, "DarkStartHeight");
 	params.darkEndHeight = gv.GetValueRef<float>(group, "DarkEndHeight");
 	params.darkStrength = gv.GetValueRef<float>(group, "DarkStrength");
+
+	params.heightFogEnabled = gv.GetValueRef<bool>(group, "HeightFogEnabled");
+	params.heightFogColor = gv.GetValueRef<Vector3>(group, "HeightFogColor");
+	params.heightFogBaseHeight = gv.GetValueRef<float>(group, "HeightFogBaseHeight");
+	params.heightFogDensity = gv.GetValueRef<float>(group, "HeightFogDensity");
+	params.heightFogFalloff = gv.GetValueRef<float>(group, "HeightFogFalloff");
+	params.heightFogMaxOpacity = gv.GetValueRef<float>(group, "HeightFogMaxOpacity");
+
+	for (int i = 0; i < RenderEnvironment::Params::kFogLayerCount; ++i) {
+		const std::string prefix = "FogLayer" + std::to_string(i + 1) + "_";
+		auto& layer = params.fogLayers[i];
+		layer.enabled = gv.GetValueRef<bool>(group, prefix + "Enabled");
+		layer.height = gv.GetValueRef<float>(group, prefix + "Height");
+		layer.color = gv.GetValueRef<Vector3>(group, prefix + "Color");
+		layer.opacity = gv.GetValueRef<float>(group, prefix + "Opacity");
+		layer.noiseScale = gv.GetValueRef<float>(group, prefix + "NoiseScale");
+		layer.noiseSpeed = gv.GetValueRef<Vector3>(group, prefix + "NoiseSpeed");
+	}
+	params.fogLayerHalfSize = gv.GetValueRef<float>(group, "FogLayerHalfSize");
+	params.fogLayerEdgeFade = gv.GetValueRef<float>(group, "FogLayerEdgeFade");
+	params.fogLayerSoftDistance = gv.GetValueRef<float>(group, "FogLayerSoftDistance");
+
+	params.distanceFogEnabled = gv.GetValueRef<bool>(group, "DistanceFogEnabled");
+	params.distanceFogColor = gv.GetValueRef<Vector3>(group, "DistanceFogColor");
+	params.distanceFogDensity = gv.GetValueRef<float>(group, "DistanceFogDensity");
+	params.distanceFogStart = gv.GetValueRef<float>(group, "DistanceFogStart");
+	params.distanceFogMaxOpacity = gv.GetValueRef<float>(group, "DistanceFogMaxOpacity");
+
+	params.toneMapEnabled = gv.GetValueRef<bool>(group, "ToneMapEnabled");
+	params.exposure = gv.GetValueRef<float>(group, "Exposure");
+	params.toneMapShoulderStart = gv.GetValueRef<float>(group, "ToneMapShoulderStart");
+
+	params.characterAmbient = gv.GetValueRef<Vector3>(group, "CharacterAmbient");
+	params.rimColor = gv.GetValueRef<Vector3>(group, "RimColor");
+	params.rimPower = gv.GetValueRef<float>(group, "RimPower");
 	RenderEnvironment::GetInstance().SetParams(params);
 
 	SkySystem::GetInstance().SetVisible(gv.GetValueRef<bool>(group, "SkyVisible"));
+
+	if (BloomEffect* bloom = FindBloom()) {
+		if (!g_bloomOverridden) {
+			g_bloomOriginal = bloom->GetSettings();
+			g_bloomWasActive = bloom->IsActive();
+			g_bloomOverridden = true;
+		}
+		bloom->SetActive(gv.GetValueRef<bool>(group, "BloomEnabled"));
+		auto& s = bloom->GetSettings();
+		s.threshold = gv.GetValueRef<float>(group, "BloomThreshold");
+		s.softKnee = gv.GetValueRef<float>(group, "BloomSoftKnee");
+		s.blurRadius = gv.GetValueRef<float>(group, "BloomBlurRadius");
+		s.intensity = gv.GetValueRef<float>(group, "BloomIntensity");
+	}
+
+	g_torchFlickerScale = gv.GetValueRef<float>(group, "TorchFlickerStrength");
+
+	if (ColorGradingEffect* grading = EnsureGradingEffect()) {
+		const bool enabled = gv.GetValueRef<bool>(group, "GradingEnabled");
+		grading->SetActive(enabled);
+		auto& d = grading->GetEffectData();
+		d.strength = enabled ? gv.GetValueRef<float>(group, "GradingStrength") : 0.0f;
+		d.gain = gv.GetValueRef<Vector3>(group, "GradingGain");
+		d.lift = gv.GetValueRef<Vector3>(group, "GradingLift");
+		d.saturation = gv.GetValueRef<float>(group, "GradingSaturation");
+		d.contrast = gv.GetValueRef<float>(group, "GradingContrast");
+		d.perceptual = 1.0f;
+		d.splitBalance = gv.GetValueRef<float>(group, "GradingSplitBalance");
+		d.contrastPivot = gv.GetValueRef<float>(group, "GradingContrastPivot");
+		d.shadowTint = gv.GetValueRef<Vector3>(group, "GradingShadowTint");
+		d.shadowTintStrength = gv.GetValueRef<float>(group, "GradingShadowTintStrength");
+		d.highlightTint = gv.GetValueRef<Vector3>(group, "GradingHighlightTint");
+		d.highlightTintStrength = gv.GetValueRef<float>(group, "GradingHighlightTintStrength");
+	}
 }
 
 } // namespace
 
 void StageEnvironment::Apply(const std::string& environmentName)
 {
+	// 色調整のパスはチェーンの登録順にかかる。ボスのブレスなど、ステージを組み立てたときに
+	// 足される演出より前に掛けたいので、雰囲気が無いステージでも先に（無効のまま）作っておく
+	EnsureGradingEffect();
 	Clear();
 	if (environmentName.empty()) {
 		return;
@@ -84,5 +275,16 @@ void StageEnvironment::Clear()
 {
 	g_group.clear();
 	RenderEnvironment::GetInstance().ResetToDefault();
+	RestoreBloom();
+	g_torchFlickerScale = 1.0f;
 	SkySystem::GetInstance().SetVisible(true);
+	if (auto* grading = dynamic_cast<ColorGradingEffect*>(OffScreenManager::GetInstance().FindEffect(kGradingEffectName))) {
+		grading->SetActive(false);
+		grading->GetEffectData().strength = 0.0f;
+	}
+}
+
+float StageEnvironment::GetTorchFlickerScale()
+{
+	return g_torchFlickerScale;
 }

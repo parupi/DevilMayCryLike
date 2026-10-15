@@ -16,7 +16,13 @@ cbuffer ColorGradingParam : register(b0)
     float3 lift;      // 色ごとの加算
     float saturation; // 彩度（1=そのまま）
     float contrast;   // コントラスト（1=そのまま）
-    float3 _pad0;
+    float perceptual; // 1 なら見た目の明るさ（ガンマ）の空間で計算する
+    float splitBalance; // 暗部とハイライトの境目の明るさ
+    float contrastPivot; // コントラストの中心
+    float3 shadowTint;  // 暗部に足す色
+    float shadowTintStrength;
+    float3 highlightTint; // ハイライトに掛ける色
+    float highlightTintStrength;
 }
 
 PixelShaderOutput main(VertexShaderOutput input)
@@ -30,11 +36,32 @@ PixelShaderOutput main(VertexShaderOutput input)
         return output;
     }
 
-    float3 graded = (source.rgb - 0.5f) * contrast + 0.5f;
+    // 入力はリニア（ping-pong は SRGB なので読むとリニアに戻る）
+    float3 color = source.rgb;
+    if (perceptual > 0.5f)
+    {
+        color = pow(max(color, 0.0f), 1.0f / 2.2f);
+    }
+
+    float3 graded = (color - contrastPivot) * contrast + contrastPivot;
     graded = graded * gain + lift;
     float luminance = dot(graded, float3(0.2126f, 0.7152f, 0.0722f));
     graded = lerp(luminance.xxx, graded, saturation);
 
-    output.color = float4(lerp(source.rgb, saturate(graded), saturate(strength)), source.a);
+    // スプリットトーン: 暗い所には色を足し、明るい所には色を掛ける
+    float l = saturate(luminance);
+    float balance = clamp(splitBalance, 0.05f, 0.95f);
+    float shadowWeight = 1.0f - smoothstep(0.0f, balance, l);
+    float highlightWeight = smoothstep(balance, 1.0f, l);
+    graded += shadowTint * (shadowTintStrength * shadowWeight);
+    graded = lerp(graded, graded * highlightTint, saturate(highlightTintStrength * highlightWeight));
+
+    graded = saturate(graded);
+    if (perceptual > 0.5f)
+    {
+        graded = pow(graded, 2.2f);
+    }
+
+    output.color = float4(lerp(source.rgb, graded, saturate(strength)), source.a);
     return output;
 }

@@ -8,6 +8,7 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "Graphics/Rendering/Environment/UpperFogRenderer.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Graphics/Text/FontManager.h"
 #include "Scene/Transition/TransitionManager.h"
@@ -65,6 +66,10 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 		ctx_.particleManager->SetSceneWorldPositionSrv(
 			gBufferManager_->GetSRVHandle(GBufferManager::GBufferType::WorldPos));
 	}
+	// 上部の霧の層も、壁や岩と交わる所を薄くするのに同じものを読む
+	UpperFogRenderer::GetInstance().Initialize(ctx_.dxManager);
+	UpperFogRenderer::GetInstance().SetSceneWorldPositionSrv(
+		gBufferManager_->GetSRVHandle(GBufferManager::GBufferType::WorldPos));
 
 	// --- パスを順番に登録 ---
 	{
@@ -97,6 +102,7 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 
 void RenderPipeline::Finalize() {
 	passes_.clear();
+	UpperFogRenderer::GetInstance().Finalize();
 	gBufferManager_->Finalize();
 	rtvResource_.Reset();
 	depthBuffer_.Reset();

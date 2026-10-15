@@ -13,6 +13,7 @@
 #include "World3D/Camera/BaseCamera.h"
 #include "World3D/Light/DynamicPointLight.h"
 #include "World3D/Object/Object3dManager.h"
+#include "Stage/StageEnvironment.h"
 
 namespace {
 
@@ -82,12 +83,15 @@ void WallTorch::Update(float deltaTime) {
 
 	// ── ライトのゆらぎ ──
 	if (DynamicPointLight* light = GetLight()) {
-		light->SetIntensity(GetLightIntensity() * (1.0f + FlickerNoise(flickerTime_) * kFlickerAmount));
+		// 揺れ幅はステージの雰囲気で調整できる（洞窟なら Environment_Cave.json の TorchFlickerStrength）
+		const float flickerScale = StageEnvironment::GetTorchFlickerScale();
+		light->SetIntensity(GetLightIntensity() * (1.0f + FlickerNoise(flickerTime_) * kFlickerAmount * flickerScale));
 		// 光源自体もわずかに揺らす。壁に落ちる影が動いて「燃えている」感じが出る
+		const float shake = kFlickerShake * flickerScale;
 		light->SetPosition(tip + Vector3{
-			FlickerNoise(flickerTime_ * 0.7f + 3.1f) * kFlickerShake,
-			FlickerNoise(flickerTime_ * 0.9f + 8.4f) * kFlickerShake,
-			FlickerNoise(flickerTime_ * 0.8f + 5.6f) * kFlickerShake });
+			FlickerNoise(flickerTime_ * 0.7f + 3.1f) * shake,
+			FlickerNoise(flickerTime_ * 0.9f + 8.4f) * shake,
+			FlickerNoise(flickerTime_ * 0.8f + 5.6f) * shake });
 	}
 
 	// ── パチパチという音 ──

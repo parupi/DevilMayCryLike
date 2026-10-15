@@ -8,8 +8,11 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> FinalCompositePipeline::CreateRootSi
 	CD3DX12_DESCRIPTOR_RANGE rangeSRV;
 	rangeSRV.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // t0
 
-	CD3DX12_ROOT_PARAMETER params[1];
+	CD3DX12_ROOT_PARAMETER params[2];
 	params[0].InitAsDescriptorTable(1, &rangeSRV, D3D12_SHADER_VISIBILITY_PIXEL);
+	// b0: 露出とトーンマップ（4値のルート定数）。ライティング結果を ping へ写すときだけ効かせ、
+	// バックバッファへの最終出力では「何もしない」値を積む
+	params[1].InitAsConstants(4, 0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc(
 		0, // s0
