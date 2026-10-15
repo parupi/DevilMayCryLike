@@ -3432,8 +3432,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_1",
@@ -3454,8 +3453,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_2",
@@ -3476,8 +3474,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_3",
@@ -3498,8 +3495,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_4",
@@ -3520,8 +3516,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_5",
@@ -3542,8 +3537,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_6",
@@ -3564,8 +3558,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_7",
@@ -3586,8 +3579,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopWest_8",
@@ -3608,8 +3600,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_0",
@@ -3630,8 +3621,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_1",
@@ -3652,8 +3642,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_2",
@@ -3674,8 +3663,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_3",
@@ -3696,8 +3684,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_4",
@@ -3718,8 +3705,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_5",
@@ -3740,8 +3726,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_6",
@@ -3762,8 +3747,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_7",
@@ -3784,8 +3768,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopEast_8",
@@ -3806,8 +3789,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_0",
@@ -3828,8 +3810,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_1",
@@ -3850,8 +3831,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_2",
@@ -3872,8 +3852,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_3",
@@ -3894,8 +3873,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_4",
@@ -3916,8 +3894,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_5",
@@ -3938,8 +3915,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_6",
@@ -3960,8 +3936,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_7",
@@ -3982,8 +3957,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopSouth_8",
@@ -4004,8 +3978,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_0",
@@ -4026,8 +3999,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_1",
@@ -4048,8 +4020,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_2",
@@ -4070,8 +4041,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_3",
@@ -4092,8 +4062,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_4",
@@ -4114,8 +4083,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_5",
@@ -4136,8 +4104,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_01",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_01"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_6",
@@ -4158,8 +4125,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_03",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_03"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_7",
@@ -4180,8 +4146,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_04",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_04"
     },
     {
       "name": "Cave_Overhang_TrainingWallTopNorth_8",
@@ -4202,8 +4167,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_02",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_02"
     },
     {
       "name": "Cave_OverhangCorner_EN",
@@ -4224,8 +4188,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_Corner",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_Corner"
     },
     {
       "name": "Cave_OverhangCorner_WS",
@@ -4246,8 +4209,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_Corner",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_Corner"
     },
     {
       "name": "Cave_OverhangCorner_WN",
@@ -4268,8 +4230,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_Corner",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_Corner"
     },
     {
       "name": "Cave_OverhangCorner_ES",
@@ -4290,8 +4251,7 @@
         3.0,
         3.0
       ],
-      "model": "Cave/CaveOverhang_Corner",
-      "castShadow": false
+      "model": "Cave/CaveOverhang_Corner"
     },
     {
       "name": "Cave_Torch_x-_0",

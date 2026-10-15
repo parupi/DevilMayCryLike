@@ -13,7 +13,8 @@ cbuffer FogLayerCB : register(b0)
     float gSoftDistance; // 壁や岩と交わる所を薄くする距離[m]
     float gEdgeFade;     // 板の端を薄くする幅（半分の大きさに対する割合）
     float gLayerSeed;
-    float2 _pad;
+    float gGrazingFade;  // 1 なら視線が水平に近いほど薄くする（見上げる上部の霧）
+    float _pad;
 };
 
 struct FogVSOutput

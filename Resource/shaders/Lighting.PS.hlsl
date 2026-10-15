@@ -82,7 +82,16 @@ float4 main(PSInput input) : SV_Target
 
     if (posS.w < 0.5f)
     {
-        return float4(BackgroundColor, 1.0f);
+        // 何も描かれていない所でも、松明の光が空気中で散る分は見える
+        float3 background = BackgroundColor;
+        if (VolumetricStrength > 0.0f)
+        {
+            float2 ndc = float2(uv.x * 2.0f - 1.0f, 1.0f - uv.y * 2.0f);
+            float4 farPoint = mul(float4(ndc, 1.0f, 1.0f), InvViewProj);
+            float3 dir = normalize(farPoint.xyz / farPoint.w - CameraPosWS.xyz);
+            background += CalcVolumetricLight(CameraPosWS.xyz, dir, VolumetricMaxDistance);
+        }
+        return float4(background, 1.0f);
     }
 
     float4 albedoRough = gAlbedo.Sample(sampler_Linear, uv);
@@ -95,7 +104,13 @@ float4 main(PSInput input) : SV_Target
 
     float3 V = normalize(CameraPosWS.xyz - P);
 
-    float3 finalColor = AmbientColor * lerp(float3(1.0f, 1.0f, 1.0f), albedo, AmbientAlbedoMix);
+    // SSAO。環境光にはしっかり、直接光には弱く掛ける（暗い場所で直接光まで削ると黒く潰れる）
+    float ao = gAO.Load(int3(input.pos.xy, 0));
+    float aoAmbient = lerp(1.0f, ao, SsaoAmbientStrength);
+    float aoDirect = lerp(1.0f, ao, SsaoDirectStrength);
+
+    float3 ambient = AmbientColor * lerp(float3(1.0f, 1.0f, 1.0f), albedo, AmbientAlbedoMix);
+    float3 direct = float3(0.0f, 0.0f, 0.0f);
 
     float shadow = CalcShadow(P);
 
@@ -105,19 +120,21 @@ float4 main(PSInput input) : SV_Target
         if (!light.enabled) continue;
 
         if (light.type == 0)
-            finalColor += CalcDirectionalLight(light, N, V, albedo) * shadow * DirectionalScale;
+            direct += CalcDirectionalLight(light, N, V, albedo) * shadow * DirectionalScale;
 
         else if (light.type == 1)
-            finalColor += CalcPointLight(light, P, N, V, albedo);
+            direct += CalcPointLight(light, P, N, V, albedo);
 
         else if (light.type == 2)
-            finalColor += CalcSpotLight(light, P, N, V, albedo);
+            direct += CalcSpotLight(light, P, N, V, albedo);
     }
+
+    float3 finalColor = ambient * aoAmbient + direct * aoDirect;
 
     // キャラ（環境オブジェクト以外）だけに足す光。暗い洞窟でもプレイヤーや敵のシルエットが読めるようにする
     if (posS.w < 1.5f)
     {
-        finalColor += CharacterAmbient * albedo;
+        finalColor += CharacterAmbient * albedo * aoAmbient;
         float rim = pow(1.0f - saturate(dot(N, V)), max(RimPower, 0.1f));
         finalColor += RimColor * rim;
     }
@@ -134,6 +151,10 @@ float4 main(PSInput input) : SV_Target
 
     // 高さフォグ。壁の上端を霧の中へ消す（背景色に近い色にすると、空との境目も消える）
     finalColor = lerp(finalColor, HeightFogColor, CalcHeightFog(CameraPosWS.xyz, P));
+
+    // 空気中で散る松明の光（物の手前にある分だけ。霧の後に足すので霧に隠れない）
+    float viewDistance = length(P - CameraPosWS.xyz);
+    finalColor += CalcVolumetricLight(CameraPosWS.xyz, (P - CameraPosWS.xyz) / max(viewDistance, 1e-4f), viewDistance);
 
     return float4(finalColor, 1.0f);
 }

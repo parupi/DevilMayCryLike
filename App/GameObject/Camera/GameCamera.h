@@ -41,6 +41,9 @@ public:
 	/// <param name="add">足す画角[rad]。既に残っている量より大きいときだけ置き換わる</param>
 	void AddFovPunch(float add);
 
+	/// <summary>戦闘状態への寄り具合（0=探索 / 1=戦闘。なめらかに変わる）。洞窟の地面の霧が戦闘中に薄くなるのに使う</summary>
+	float GetBattleBlend() const { return battleBlend_; }
+
 #ifdef _DEBUG
 	/// <summary>
 	/// エディタ表示用の状態スナップショット。

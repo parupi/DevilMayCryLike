@@ -601,4 +601,27 @@ namespace GameSoundDefs {
 		return sound;
 	}
 
+	/// <summary>
+	/// 水滴が床で跳ねる「ポチャン」。水滴の音は音程が上がっていく（水面の泡が縮むため）ので、
+	/// 正弦波を短く上へ掃引し、着いた瞬間の小さなしぶきを重ねる。洞窟らしく残響を長めにかける
+	/// </summary>
+	SoundDefinition WaterDrip()
+	{
+		SoundDefinition sound = Sound("WaterDrip", 15);
+
+		SELayer plink = Layer("Plink", Wave::Sine, 0.12f, 0.6f);
+		Pitch(plink, 950.0f, 2300.0f);
+		Env(plink, 0.001f, 0.0f, 0.1f, 0.0f, 0.015f, 2.4f);
+		sound.layers.push_back(plink);
+
+		SELayer splash = Layer("Splash", Wave::WhiteNoise, 0.03f, 0.18f);
+		splash.noiseSeed = 4127;
+		Env(splash, 0.001f, 0.0f, 0.025f, 0.0f, 0.005f, 3.0f);
+		Filt(splash, Filter::HighPass, 3500.0f, 0.8f);
+		sound.layers.push_back(splash);
+
+		Reverb(sound, 0.75f, 0.5f, 0.35f);
+		return sound;
+	}
+
 } // namespace GameSoundDefs

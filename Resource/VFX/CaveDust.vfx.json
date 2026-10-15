@@ -1,0 +1,125 @@
+{
+    "Name": "CaveDust",
+    "Emitter": {
+        "Frequency": 1.0,
+        "IsActive": false,
+        "ShapeModel": "",
+        "Position": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "Particles": [
+            {
+                "ParticleName": "CaveDustMote",
+                "Count": 1,
+                "SpawnRate": 1.0
+            }
+        ]
+    },
+    "Particles": {
+        "CaveDustMote": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 0,
+                "BlendMode": 2,
+                "Drag": 1.0,
+                "FadeType": 1,
+                "Gravity": [
+                    0.0,
+                    -0.01,
+                    0.0
+                ],
+                "IsBillboard": true,
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 0.0,
+                "SpeedMin": 0.0,
+                "SpreadDegrees": 0.0,
+                "UseDirectional": false,
+                "VelocityStretch": 0.0,
+                "maxAlpha": 0.0,
+                "maxColor": [
+                    0.26,
+                    0.29,
+                    0.33
+                ],
+                "maxLifeTime": 10.0,
+                "maxRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxScale": [
+                    0.045,
+                    0.045,
+                    0.045
+                ],
+                "maxTranslate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxVelocity": [
+                    0.07,
+                    0.04,
+                    0.07
+                ],
+                "minAlpha": 0.0,
+                "minColor": [
+                    0.14,
+                    0.16,
+                    0.19
+                ],
+                "minLifeTime": 6.0,
+                "minRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minScale": [
+                    0.022,
+                    0.022,
+                    0.022
+                ],
+                "minTranslate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minVelocity": [
+                    -0.07,
+                    -0.04,
+                    -0.07
+                ]
+            },
+            "Curves": {
+                "AlphaCurve": [
+                    {
+                        "t": 0.0,
+                        "v": 0.0
+                    },
+                    {
+                        "t": 0.2,
+                        "v": 1.0
+                    },
+                    {
+                        "t": 0.8,
+                        "v": 1.0
+                    },
+                    {
+                        "t": 1.0,
+                        "v": 0.0
+                    }
+                ]
+            }
+        }
+    }
+}

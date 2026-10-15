@@ -7,6 +7,9 @@
 #include "Utility/Logger.h"
 #include <cassert>
 #include <cstring>
+#include <algorithm>
+#include <cmath>
+#include <iterator>
 
 UpperFogRenderer& UpperFogRenderer::GetInstance()
 {
@@ -148,8 +151,15 @@ void UpperFogRenderer::Draw()
 	const Matrix4x4& viewProj = camera->GetViewProjectionMatrix();
 	const Matrix4x4& camWorld = camera->GetWorldMatrix();
 
-	// 上の層から描く（下から見上げるので、遠い順＝高い順に重ねる）
-	for (int i = RenderEnvironment::Params::kFogLayerCount - 1; i >= 0; --i) {
+	// カメラから高さが離れている層から描く（見上げる上部の霧も、見下ろす地面の霧も、遠い順に重なる）
+	const float cameraY = camWorld.m[3][1];
+	int order[RenderEnvironment::Params::kFogLayerCount];
+	for (int i = 0; i < RenderEnvironment::Params::kFogLayerCount; ++i) order[i] = i;
+	std::sort(std::begin(order), std::end(order), [&](int a, int b) {
+		return std::abs(env.fogLayers[a].height - cameraY) > std::abs(env.fogLayers[b].height - cameraY);
+	});
+
+	for (int i : order) {
 		const auto& layer = env.fogLayers[i];
 		if (!layer.enabled || layer.opacity <= 0.0f || i >= kMaxLayers) continue;
 
@@ -172,7 +182,8 @@ void UpperFogRenderer::Draw()
 		cb.noiseOffset[0] = layer.noiseSpeed.x * time_;
 		cb.noiseOffset[1] = layer.noiseSpeed.z * time_;
 		cb.noiseScale = layer.noiseScale;
-		cb.softDistance = env.fogLayerSoftDistance;
+		cb.softDistance = layer.softDistance >= 0.0f ? layer.softDistance : env.fogLayerSoftDistance;
+		cb.grazingFade = layer.grazingFade ? 1.0f : 0.0f;
 		cb.edgeFade = env.fogLayerEdgeFade;
 		cb.layerSeed = static_cast<float>(i) * 17.31f;
 

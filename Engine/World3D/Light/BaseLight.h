@@ -30,6 +30,10 @@ public:
     const std::string& GetName() const { return name_; }
     // ライトの情報を取得
     const LightData& GetLightData() const { return lightData_; }
+    // 空気中で光が散る（ボリューメトリックライト）量の倍率。既定 0 = 散らない。
+    // LightData の空き（padding[0]）に入れて GPU へ渡す
+    void SetVolumetricScale(float scale) { lightData_.padding[0] = scale; }
+    float GetVolumetricScale() const { return lightData_.padding[0]; }
 protected:
     // ライトの名前
     std::string name_;

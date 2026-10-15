@@ -43,9 +43,16 @@ void WallTorch::Initialize() {
 
 	// モデル・コライダー・ポイントライトの生成は Prop に任せる
 	Prop::Initialize();
+	// 松明の光は空気中で散らせる（洞窟の雰囲気で volumetric が有効なときだけ見える）
+	if (DynamicPointLight* light = GetLight()) {
+		light->SetVolumetricScale(1.0f);
+	}
 
 	EnsureFireVFXLoaded();
-	canEmitEmber_ = ParticleManager::GetInstance().GetParticleGroups().contains(kEmberParticle);
+	const auto& groups = ParticleManager::GetInstance().GetParticleGroups();
+	canEmitEmber_ = groups.contains(kEmberParticle);
+	canEmitSmoke_ = groups.contains(kSmokeParticle);
+	canEmitMote_ = groups.contains(kMoteParticle);
 
 	// トーチごとにゆらぎと発生の位相をずらす。
 	// 揃っていると隣り合ったトーチが同じ瞬間に瞬いて機械仕掛けに見える
@@ -53,6 +60,8 @@ void WallTorch::Initialize() {
 	flickerTime_ = phase;
 	flameTimer_ = std::fmod(phase, kFlameInterval);
 	emberTimer_ = std::fmod(phase, kEmberInterval);
+	smokeTimer_ = std::fmod(phase, kSmokeInterval);
+	moteTimer_ = std::fmod(phase, kMoteInterval);
 }
 
 WallTorch::~WallTorch() {
@@ -133,6 +142,26 @@ void WallTorch::Update(float deltaTime) {
 		while (emberTimer_ >= kEmberInterval) {
 			emberTimer_ -= kEmberInterval;
 			particles.Emit(kEmberParticle, tip, 1);
+		}
+	}
+
+	// 煙と、明かりの中を漂う埃。発生頻度はステージの雰囲気の ParticleSpawnRate で増減する（0 で出さない）
+	const float spawnRate = StageEnvironment::GetParticleSpawnRate();
+	if (spawnRate <= 0.0f) {
+		return;
+	}
+	if (canEmitSmoke_) {
+		smokeTimer_ += dt * spawnRate;
+		while (smokeTimer_ >= kSmokeInterval) {
+			smokeTimer_ -= kSmokeInterval;
+			particles.Emit(kSmokeParticle, tip, 1);
+		}
+	}
+	if (canEmitMote_) {
+		moteTimer_ += dt * spawnRate;
+		while (moteTimer_ >= kMoteInterval) {
+			moteTimer_ -= kMoteInterval;
+			particles.Emit(kMoteParticle, tip, 1);
 		}
 	}
 }

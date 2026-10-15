@@ -52,10 +52,11 @@ private:
 		float softDistance;
 		float edgeFade;
 		float layerSeed;  // 層ごとにノイズの模様をずらす
-		float _pad[2];
+		float grazingFade; // 1 なら視線が水平に近いほど薄くする
+		float _pad;
 	};
 	static constexpr UINT kSlotSize = 256;
-	static constexpr int kMaxLayers = 3;
+	static constexpr int kMaxLayers = 4;
 
 	DirectXManager* dxManager_ = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;

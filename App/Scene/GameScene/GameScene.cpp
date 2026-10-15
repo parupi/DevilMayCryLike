@@ -14,6 +14,8 @@
 #include "Stage/SceneBuilder.h"
 #include "Stage/StageDocument.h"
 #include "Stage/StageEnvironment.h"
+#include "GameObject/Effect/CaveDustEmitter.h"
+#include "Utility/TimeManager.h"
 #include "Utility/Logger.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
@@ -56,7 +58,7 @@ void GameScene::Initialize() {
 		GameSound::kSwordSlam, GameSound::kSwordCharge, GameSound::kSwordChargeReady,
 		GameSound::kHitFlesh, GameSound::kHitBone, GameSound::kHitWood,
 		GameSound::kHitArmor, GameSound::kHitHeavy, GameSound::kHitBlocked,
-		GameSound::kAttackWarning, GameSound::kTorchCrackle, GameSound::kAmbienceDungeon,
+		GameSound::kAttackWarning, GameSound::kTorchCrackle, GameSound::kAmbienceDungeon, GameSound::kWaterDrip,
 		}) {
 		SoundManager::GetInstance().PreloadSE(name);
 	}
@@ -179,6 +181,8 @@ void GameScene::Initialize() {
 			+ "\n  Hierarchy の「+作成」でクラス Player を置いて保存してください。").c_str());
 
 	player_->SetInput(inputContext_->GetPlayerInput());
+	caveDust_ = std::make_unique<CaveDustEmitter>();
+	caveDrip_ = std::make_unique<CaveDripEmitter>();
 	player_->SetLockOn(lockOnSystem_.get());
 
 	lockOnSystem_->Initialize(inputContext_->GetLockOnInput(), player_);
@@ -294,7 +298,13 @@ void GameScene::Finalize() {
 }
 
 void GameScene::Update() {
-	StageEnvironment::Update();
+	StageEnvironment::Update(gameCamera_ ? gameCamera_->GetBattleBlend() : 0.0f);
+	if (caveDust_ && player_) {
+		caveDust_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation());
+	}
+	if (caveDrip_ && player_) {
+		caveDrip_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation());
+	}
 	//lightManager_->Update();
 	//gameUI_->Update();
 

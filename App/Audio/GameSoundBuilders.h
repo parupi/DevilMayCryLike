@@ -188,5 +188,6 @@ namespace GameSoundDefs {
 
 	SoundDefinition AmbienceDungeon();
 	SoundDefinition TorchCrackle();
+	SoundDefinition WaterDrip();
 
 } // namespace GameSoundDefs

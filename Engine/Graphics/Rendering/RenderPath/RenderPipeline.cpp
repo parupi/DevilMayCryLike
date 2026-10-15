@@ -3,6 +3,7 @@
 #include "Pass/ShadowRenderPass.h"
 #include "Pass/GBufferRenderPass.h"
 #include "Pass/LightingRenderPass.h"
+#include "Pass/SSAORenderPass.h"
 #include "Pass/ForwardSceneRenderPass.h"
 #include "Graphics/Device/DirectXManager.h"
 #include "Graphics/Rendering/PSO/PSOManager.h"
@@ -89,6 +90,12 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 		passes_.push_back(std::move(pass));
 	}
 	{
+		// SSAO は GBuffer の法線・ワールド座標を読み、結果をライティングへ渡す
+		auto pass = std::make_unique<SSAORenderPass>();
+		pass->Initialize(ctx_, gBufferManager_.get());
+		passes_.push_back(std::move(pass));
+	}
+	{
 		auto pass = std::make_unique<LightingRenderPass>();
 		pass->Initialize(ctx_, gBufferManager_.get(), sharedRT_);
 		passes_.push_back(std::move(pass));
@@ -114,7 +121,7 @@ void RenderPipeline::Execute() {
 	FontManager::GetInstance().FlushAtlases();
 
 	// 各描画パスを順番に実行
-	static const char* kPassNames[] = { "Pass:Skinning", "Pass:Shadow", "Pass:GBuffer", "Pass:Lighting", "Pass:Forward" };
+	static const char* kPassNames[] = { "Pass:Skinning", "Pass:Shadow", "Pass:GBuffer", "Pass:SSAO", "Pass:Lighting", "Pass:Forward" };
 	for (size_t i = 0; i < passes_.size(); ++i) {
 		PROF_SCOPE(i < std::size(kPassNames) ? kPassNames[i] : "Pass:?");
 		passes_[i]->Execute();

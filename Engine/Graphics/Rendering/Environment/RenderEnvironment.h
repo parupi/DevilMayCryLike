@@ -60,6 +60,22 @@ public:
 		float exposure = 1.0f;
 		float toneMapShoulderStart = 0.6f; // ここまでは素通し、ここから上を 1 へなめらかに収める
 
+		// SSAO（仕様書 3.4）。SSAORenderPass が AO を作り、ライティングが環境光と直接光に別々の強さで掛ける。
+		// 暗い場所で直接光まで強く削ると黒く潰れるので、直接光の方は弱くする
+		bool ssaoEnabled = false;
+		float ssaoRadius = 0.8f;          // サンプルを散らす半径[m]
+		float ssaoBias = 0.05f;           // 自分の面を遮蔽と数えないための余裕[m]
+		float ssaoIntensity = 1.0f;       // 遮蔽の強さ
+		float ssaoPower = 1.0f;           // 仕上げのカーブ
+		float ssaoAmbientStrength = 1.0f; // 環境光に掛ける割合
+		float ssaoDirectStrength = 0.3f;  // 直接光（平行光・ポイントライト等）に掛ける割合
+
+		// ボリューメトリックライト（仕様書 7章）。ポイントライトの光が空気中で散る量を視線に沿って解析的に足す。
+		// 光ごとの効き具合は BaseLight::SetVolumetricScale（既定 0 = 散らない）。松明だけが立てる
+		bool volumetricEnabled = false;
+		float volumetricStrength = 0.02f;    // 散乱の強さ
+		float volumetricMaxDistance = 60.0f; // 視線をどこまで積分するか[m]（何も無い所＝背景のとき）
+
 		Vector3 characterAmbient{ 0.0f, 0.0f, 0.0f };
 		Vector3 rimColor{ 0.0f, 0.0f, 0.0f };
 		float rimPower = 3.0f;
@@ -72,8 +88,15 @@ public:
 			float opacity = 0.5f;               // 一番濃い所の不透明度
 			float noiseScale = 0.05f;           // ノイズの細かさ（1mあたりの周期）
 			Vector3 noiseSpeed{ 0.2f, 0.0f, 0.1f }; // 流れる速さ（x,z を使う。m/秒）
+			// 壁や床と交わる所を薄くする距離[m]。負なら共通の fogLayerSoftDistance を使う。
+			// 床のすぐ上を這う霧は、共通の長い距離だと床と近すぎて全部消えるので短くする
+			float softDistance = -1.0f;
+			// 視線が水平に近いほど薄くするか。見上げる霧は板だと分かるので薄くし、見下ろす地面の霧では切る
+			bool grazingFade = true;
 		};
-		static constexpr int kFogLayerCount = 3;
+		// 0〜2 が上部の霧（仕様書 2.2 の FogLayer_01〜03）、3 が地面を這う霧（仕様書 4.2）
+		static constexpr int kFogLayerCount = 4;
+		static constexpr int kGroundMistLayer = 3;
 		FogLayer fogLayers[kFogLayerCount];
 		Vector3 fogLayerCenter{ 0.0f, 0.0f, 0.0f }; // 板の中心（x,z を使う）
 		float fogLayerHalfSize = 30.0f;             // 板の半分の大きさ[m]。部屋より少し大きくして端を壁の裏へ隠す
@@ -97,8 +120,14 @@ public:
 	/// <summary>sRGB の色（0〜1）をリニアへ</summary>
 	static Vector3 ToLinear(const Vector3& srgb);
 
-	/// <summary>定数バッファを今の設定で書き換え、ライティングのルート引数へ積む</summary>
+	/// <summary>
+	/// 定数バッファを今の設定で書き換え、ライティングのルート引数へ積む。
+	/// rootParameterIndex に b5、その次に AO テクスチャ（t8）のテーブルを積む
+	/// </summary>
 	void BindToLighting(ID3D12GraphicsCommandList* cmd, UINT rootParameterIndex);
+
+	/// <summary>SSAO の結果（SSAORenderPass が作る）。ライティングの t8 に積む</summary>
+	void SetAoSrv(D3D12_GPU_DESCRIPTOR_HANDLE srv) { aoSrv_ = srv; }
 
 private:
 	RenderEnvironment() = default;
@@ -132,9 +161,15 @@ private:
 		float rimPower;
 		float rimColor[3];
 		float _pad6;
+		float ssaoAmbientStrength; // 無効なら 0
+		float ssaoDirectStrength;  // 無効なら 0
+		float volumetricStrength;  // 無効なら 0
+		float volumetricMaxDistance;
+		float invViewProj[16];     // 背景の画素の視線方向を出すのに使う
 	};
 
 	Params params_{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
 	EnvironmentCB* mapped_ = nullptr;
+	D3D12_GPU_DESCRIPTOR_HANDLE aoSrv_{};
 };

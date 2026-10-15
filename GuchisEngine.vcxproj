@@ -193,6 +193,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\AttackTelegraph.h" />
+    <ClInclude Include="App\GameObject\Effect\CaveDripEmitter.h" />
+    <ClInclude Include="App\GameObject\Effect\CaveDustEmitter.h" />
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h" />
     <ClInclude Include="App\GameObject\Effect\DeathScreenEffect.h" />
     <ClInclude Include="App\GameObject\Effect\DissolveOutEffect.h" />
@@ -360,6 +362,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\IRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.h" />
@@ -369,6 +372,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ForwardSceneRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\GBufferRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
@@ -566,6 +570,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\AttackTelegraph.cpp" />
+    <ClCompile Include="App\GameObject\Effect\CaveDripEmitter.cpp" />
+    <ClCompile Include="App\GameObject\Effect\CaveDustEmitter.cpp" />
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp" />
     <ClCompile Include="App\GameObject\Effect\DeathScreenEffect.cpp" />
     <ClCompile Include="App\GameObject\Effect\DissolveOutEffect.cpp" />
@@ -726,6 +732,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\GBufferManager.cpp" />
@@ -734,6 +741,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ForwardSceneRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\GBufferRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />

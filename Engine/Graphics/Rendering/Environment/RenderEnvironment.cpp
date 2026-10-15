@@ -1,5 +1,9 @@
 #include "RenderEnvironment.h"
 #include "Graphics/Device/DirectXManager.h"
+#include "World3D/Camera/CameraManager.h"
+#include "World3D/Camera/BaseCamera.h"
+#include "Math/MathUtils.h"
+#include <cstring>
 #include <cmath>
 
 namespace {
@@ -84,7 +88,19 @@ void RenderEnvironment::BindToLighting(ID3D12GraphicsCommandList* cmd, UINT root
 	cb.rimColor[0] = params_.rimColor.x;
 	cb.rimColor[1] = params_.rimColor.y;
 	cb.rimColor[2] = params_.rimColor.z;
+	const bool ssao = params_.ssaoEnabled && aoSrv_.ptr != 0;
+	cb.ssaoAmbientStrength = ssao ? params_.ssaoAmbientStrength : 0.0f;
+	cb.ssaoDirectStrength = ssao ? params_.ssaoDirectStrength : 0.0f;
+	cb.volumetricStrength = params_.volumetricEnabled ? params_.volumetricStrength : 0.0f;
+	cb.volumetricMaxDistance = params_.volumetricMaxDistance;
+	if (BaseCamera* camera = CameraManager::GetInstance().GetActiveCamera()) {
+		const Matrix4x4 inv = Inverse(camera->GetViewProjectionMatrix());
+		std::memcpy(cb.invViewProj, &inv, sizeof(cb.invViewProj));
+	}
 	*mapped_ = cb;
 
 	cmd->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer_->GetGPUVirtualAddress());
+	if (aoSrv_.ptr != 0) {
+		cmd->SetGraphicsRootDescriptorTable(rootParameterIndex + 1, aoSrv_);
+	}
 }

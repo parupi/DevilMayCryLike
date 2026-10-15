@@ -57,7 +57,7 @@ float4 main(FogVSOutput input) : SV_TARGET
     float3 toPixel = input.worldPos - gCameraPos;
     float distanceToPixel = length(toPixel);
     float facing = abs(toPixel.y) / max(distanceToPixel, 1e-3f);
-    alpha *= saturate(facing * 4.0f);
+    alpha *= lerp(1.0f, saturate(facing * 4.0f), gGrazingFade);
 
     // 壁や岩と交わる所を薄くする（ソフトパーティクルと同じ）。何も無い画素（w=0）はそのまま
     float4 scene = gSceneWorldPos.Load(int3(input.position.xy, 0));

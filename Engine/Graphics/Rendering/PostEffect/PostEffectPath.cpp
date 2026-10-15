@@ -71,7 +71,8 @@ void PostEffectPath::SetOutput(ID3D12Resource* target, D3D12_CPU_DESCRIPTOR_HAND
 
     if (!outputInitialized_) {
         auto* srvManager = dxManager_->GetSrvManager();
-        outputSrvIndex_ = srvManager->CreateSRVFromResource(outputResource_);
+        // 形式は出力バッファに合わせる（既定の R8G8B8A8_UNORM のままだと、R16F の ping-pong には作れない）
+        outputSrvIndex_ = srvManager->CreateSRVFromResource(outputResource_, outputResource_->GetDesc().Format);
         outputInitialized_ = true;
     }
 }

@@ -561,6 +561,12 @@
     <ClInclude Include="App\GameObject\Effect\AttackTelegraph.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CaveDripEmitter.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CaveDustEmitter.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -1062,6 +1068,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
@@ -1087,6 +1096,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.h">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.h">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h">
@@ -1676,6 +1688,12 @@
     <ClCompile Include="App\GameObject\Effect\AttackTelegraph.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CaveDripEmitter.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CaveDustEmitter.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
@@ -2156,6 +2174,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
@@ -2178,6 +2199,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.cpp">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.cpp">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp">

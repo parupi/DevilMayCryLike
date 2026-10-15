@@ -29,6 +29,8 @@ public:
 	static constexpr const char* kVfxName = "TorchFire";
 	static constexpr const char* kFlameParticle = "TorchFlame"; // 炎本体（エミッターが束ねる）
 	static constexpr const char* kEmberParticle = "TorchEmber"; // 舞い上がる火の粉
+	static constexpr const char* kSmokeParticle = "TorchSmoke"; // 上がりながら広がる煙
+	static constexpr const char* kMoteParticle = "TorchMote";   // 炎の明かりの中を漂う埃（光源の近くの埃は明るく見える）
 
 	// 穂先（＝炎とライトの位置）。モデルの Fire マテリアルの位置から採った既定値
 	static constexpr Vector3 kDefaultTipOffset = { -0.89f, 0.95f, 0.02f };
@@ -50,6 +52,8 @@ public:
 	// パーティクルの発生間隔[秒]
 	static constexpr float kFlameInterval = 0.05f;
 	static constexpr float kEmberInterval = 0.35f;
+	static constexpr float kSmokeInterval = 0.16f;
+	static constexpr float kMoteInterval = 0.45f;
 
 	// これより遠いトーチは炎を出さない[m]（ライトは点いたまま）
 	static constexpr float kEmitDistance = 45.0f;
@@ -82,13 +86,17 @@ private:
 	void StopCrackle();
 
 	bool isLit_ = true;
-	// 火の粉のグループが登録できているか。VFXファイルが無いときに空グループを作らないための保険
+	// 火の粉・煙・埃のグループが登録できているか。VFXファイルが無いときに空グループを作らないための保険
 	bool canEmitEmber_ = false;
+	bool canEmitSmoke_ = false;
+	bool canEmitMote_ = false;
 
 	// ゆらぎ・発生間隔用の時計。トーチごとに位相をずらして、隣同士が同じ瞬間に瞬かないようにする
 	float flickerTime_ = 0.0f;
 	float flameTimer_ = 0.0f;
 	float emberTimer_ = 0.0f;
+	float smokeTimer_ = 0.0f;
+	float moteTimer_ = 0.0f;
 
 	// パチパチという音。ループなので再生番号を持って、消灯・破棄で必ず止める。
 	// 位置つきで鳴らすので、毎フレーム UpdateSE3D で音量と定位を計算し直す

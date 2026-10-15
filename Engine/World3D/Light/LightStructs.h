@@ -18,5 +18,5 @@ struct LightData
 	float cosAngle;        // spot only
 
 	float distance;        // spot only
-	float padding[3];
+	float padding[3];      // [0] = ボリューメトリックライトの倍率（BaseLight::SetVolumetricScale）
 };

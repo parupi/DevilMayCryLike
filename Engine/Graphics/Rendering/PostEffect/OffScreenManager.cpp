@@ -180,13 +180,12 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 	// t0 に LightingTexture をバインド
 	cmd->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvManager()->GetGPUDescriptorHandle(lightingSrv));
 
-	// 露出とトーンマップ。ライティング結果は R16F で 1 を超えるが、ping-pong は 8bit なので
-	// ここで収めないと松明の周りや炎が白く切れる。既定（RenderEnvironment の初期値）は何もしない
+	// トーンマップを使うシーンでは HDR のまま写す（ブルームの後の ToneMapEffect が 0〜1 に収める）。
+	// 使わないシーンでは従来どおりここで 0〜1 に切り詰める（ブルームが拾う明るさを今までと同じにするため）
 	{
-		const RenderEnvironment::Params& env = RenderEnvironment::GetInstance().GetParams();
-		const float toneMap[4] = {
-			env.exposure, env.toneMapEnabled ? 1.0f : 0.0f, env.toneMapShoulderStart, 0.0f };
-		cmd->SetGraphicsRoot32BitConstants(1, 4, toneMap, 0);
+		const bool toneMap = RenderEnvironment::GetInstance().GetParams().toneMapEnabled;
+		const float mode[4] = { toneMap ? 0.0f : 1.0f, 0.0f, 0.0f, 0.0f };
+		cmd->SetGraphicsRoot32BitConstants(1, 4, mode, 0);
 	}
 
 	// フルスクリーントライアングルを描画
@@ -203,12 +202,12 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 
 Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget() {
 	GpuResourceFactory::TextureDesc desc;
-	// 中身はリニアの色。8bit のまま UNORM で持つと暗部が 1/255 刻みになり、洞窟の背景のような暗い色が
-	// 0 と 1 に割れて輪が出る。SRGB にすると書き込み時にガンマを掛けて持ち、読むときにリニアへ戻るので、
-	// シェーダーの計算はそのままで暗部の階調だけが増える。
+	// 中身はリニアの色で、1 を超える明るさ（HDR）もそのまま持つ。ブルームは HDR のまま光を抜き出し、
+	// その直後の ToneMapEffect で 0〜1 に収める（それ以降の演出は 0〜1 の前提のまま）。
+	// 8bit の UNORM だと暗部が 1/255 刻みになり、洞窟の暗い背景や影の中の壁が同心円の段になって見えた。
 	// **ポストエフェクトの PSO（OffScreenPipeline / FinalCompositePipeline の isPostCopy）と
 	// ブルームの作業用RTも同じフォーマットに揃えること**
-	desc.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	desc.format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	desc.usage = GpuResourceFactory::Usage::RenderTarget;
 	desc.clearColor[0] = 0.0f;
 	desc.clearColor[1] = 0.0f;
@@ -227,7 +226,7 @@ uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Res
 
 uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource) {
 	uint32_t index = dxManager_->GetSrvManager()->Allocate();
-	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
+	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R16G16B16A16_FLOAT, 1);
 	return index;
 }
 

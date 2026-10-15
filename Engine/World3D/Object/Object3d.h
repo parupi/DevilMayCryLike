@@ -108,8 +108,8 @@ public: // ゲッター // セッター //
 	void SetIsDraw(bool flag) { isDraw = flag; }
 	bool GetIsDraw() const { return isDraw; }
 
-	// 影を落とすか。壁の上の張り出しのような大きな飾りは、影を落とすと
-	// 下の壁が丸ごと影に入り、カスケードの境目が輪になって見えるので切る
+	// 影を落とすか（ステージデータの "castShadow"、Inspector の「影を落とす」）。
+	// 遠くの飾りなど、影が要らない・影で見づらくなる物を個別に切るためのもの
 	void SetCastShadow(bool flag) { castShadow_ = flag; }
 	bool GetCastShadow() const { return castShadow_; }
 

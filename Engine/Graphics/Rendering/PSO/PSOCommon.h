@@ -25,4 +25,5 @@ enum class OffScreenEffectType {
 	kHeatDistortion,      // 熱の歪み（画面上の帯の範囲だけUVを揺らす）
 	kColorGrading,        // 色の調整（暖色寄りなど）
 	kSpeedLine,           // 集中線（突進などの速度感）
+	kToneMap,             // 露出とトーンマップ（HDR → 0〜1）。ブルームの直後に置く
 };

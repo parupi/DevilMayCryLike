@@ -57,7 +57,6 @@ def place(path):
         o = {"name": PREFIX + name, "class": "Ground", "translate": [round(v, 4) for v in t],
              "rotate": r, "scale": s, "model": model}
         if not cast_shadow:
-            # 張り出しが影を落とすと下の壁が丸ごと影に入り、CSM のカスケードの境目が輪になって見える
             o["castShadow"] = False
         if collider:
             o["collider"] = collider
@@ -69,12 +68,12 @@ def place(path):
         choices = [m for m in OVERHANGS if m != prev]
         m = rng.choice(choices)
         prev = m
-        add("Overhang_" + o["name"], m, o["translate"], o["rotate"], o["scale"], cast_shadow=False)
+        add("Overhang_" + o["name"], m, o["translate"], o["rotate"], o["scale"])
 
     # 2) 四隅
     for (sx, sz), rot in CORNER_ROT.items():
         add(f"OverhangCorner_{'E' if sx > 0 else 'W'}{'N' if sz > 0 else 'S'}", "Cave/CaveOverhang_Corner",
-            [sx * edge, top_y, sz * edge], rot, scale, cast_shadow=False)
+            [sx * edge, top_y, sz * edge], rot, scale)
 
     # 3) 松明。壁ごとに2本、壁面に付ける。回転はその壁のタイルと同じ（穂先が部屋の内側を向く）
     rot_of_side = {}

@@ -7,8 +7,8 @@ namespace {
 	// 作業用RTの縮小率。半解像度にすると1回のブラーで倍の広がりが得られる
 	constexpr uint32_t kDownScale = 2;
 	// 作業用RTのフォーマット（チェーンのping-pongに合わせる）
-	// ポストエフェクトの PSO を使い回すので ping-pong と同じフォーマット
-	constexpr DXGI_FORMAT kWorkFormat = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	// ポストエフェクトの PSO を使い回すので ping-pong と同じフォーマット。1 を超える明るさもそのまま持つ
+	constexpr DXGI_FORMAT kWorkFormat = DXGI_FORMAT_R16G16B16A16_FLOAT;
 }
 
 BloomEffect::BloomEffect(const std::string& name) {

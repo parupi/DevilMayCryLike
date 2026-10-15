@@ -16,6 +16,8 @@
 #include "GameObject/UI/Training/TrainingHUD.h"
 #include "GameObject/UI/Training/TrainingMenu.h"
 #include <memory>
+#include "GameObject/Effect/CaveDustEmitter.h"
+#include "GameObject/Effect/CaveDripEmitter.h"
 #include "Input/InputContext.h"
 #include "Tutorial/System/TutorialSystem.h"
 #include "Tutorial/Skip/TutorialSkipInput.h"
@@ -127,6 +129,10 @@ private:
 	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 
 	Player* player_ = nullptr; ///< プレイヤーオブジェクトへのポインタ
+	/// 洞窟の空気中を漂う埃。雰囲気（StageEnvironment）が無いステージでは何もしない
+	std::unique_ptr<CaveDustEmitter> caveDust_;
+	/// 洞窟の天井から落ちる水滴と波紋。ステージの岩の位置から落とすので、ステージを組み立てた後に作る
+	std::unique_ptr<CaveDripEmitter> caveDrip_;
 
 	std::unique_ptr<GameUI> gameUI_;
 

@@ -13,9 +13,9 @@
         ],
         "BloomBlurRadius": 1.8,
         "BloomEnabled": true,
-        "BloomIntensity": 0.7,
+        "BloomIntensity": 0.6,
         "BloomSoftKnee": 0.3,
-        "BloomThreshold": 0.65,
+        "BloomThreshold": 1.0,
         "CharacterAmbient": [
             0.22,
             0.24,
@@ -38,6 +38,17 @@
         "DistanceFogEnabled": true,
         "DistanceFogMaxOpacity": 0.7,
         "DistanceFogStart": 8.0,
+        "DripCeilingHeight": 3.6,
+        "DripEnabled": true,
+        "DripFloorHeight": -5.05,
+        "DripPerSecond": 0.8,
+        "DripRadius": 18.0,
+        "DripVolume": 0.5,
+        "DustEnabled": true,
+        "DustHeightMax": 5.0,
+        "DustHeightMin": -1.0,
+        "DustPerSecond": 22.0,
+        "DustRadius": 9.0,
         "Exposure": 1.0,
         "FogLayer1_Color": [
             0.141176,
@@ -112,6 +123,22 @@
         "GradingShadowTintStrength": 1.0,
         "GradingSplitBalance": 0.45,
         "GradingStrength": 1.0,
+        "GroundMist_BattleOpacityScale": 0.45,
+        "GroundMist_Color": [
+            0.372549,
+            0.423529,
+            0.486275
+        ],
+        "GroundMist_Enabled": true,
+        "GroundMist_Height": -4.55,
+        "GroundMist_NoiseScale": 0.11,
+        "GroundMist_NoiseSpeed": [
+            0.18,
+            0.0,
+            0.06
+        ],
+        "GroundMist_Opacity": 0.45,
+        "GroundMist_SoftDistance": 0.6,
         "HeightDarkEnabled": true,
         "HeightFogBaseHeight": 3.0,
         "HeightFogColor": [
@@ -123,6 +150,7 @@
         "HeightFogEnabled": true,
         "HeightFogFalloff": 0.25,
         "HeightFogMaxOpacity": 1.0,
+        "ParticleSpawnRate": 1.0,
         "RimColor": [
             0.06,
             0.08,
@@ -130,8 +158,18 @@
         ],
         "RimPower": 3.0,
         "SkyVisible": false,
+        "SsaoAmbientStrength": 1.0,
+        "SsaoBias": 0.05,
+        "SsaoDirectStrength": 0.35,
+        "SsaoEnabled": true,
+        "SsaoIntensity": 1.2,
+        "SsaoPower": 1.0,
+        "SsaoRadius": 0.9,
         "ToneMapEnabled": true,
         "ToneMapShoulderStart": 0.6,
-        "TorchFlickerStrength": 1.0
+        "TorchFlickerStrength": 1.0,
+        "VolumetricEnabled": true,
+        "VolumetricMaxDistance": 60.0,
+        "VolumetricStrength": 0.012
     }
 }

@@ -31,7 +31,7 @@ struct LightData
     float cosAngle;
 
     float distance;
-    float3 padding;
+    float3 padding; // x = ボリューメトリックライトの倍率（BaseLight::SetVolumetricScale）
 };
 
 StructuredBuffer<LightData> Lights : register(t4);
@@ -76,6 +76,51 @@ cbuffer EnvironmentCB : register(b5)
     float RimPower;
     float3 RimColor;         // キャラの輪郭光（0 で無効）
     float _envPad6;
+    float SsaoAmbientStrength; // AO を環境光に掛ける割合（0 で無効）
+    float SsaoDirectStrength;  // AO を直接光に掛ける割合（0 で無効）
+    float VolumetricStrength;  // 空気中の光の散乱の強さ（0 で無効）
+    float VolumetricMaxDistance; // 背景の画素で視線を積分する距離[m]
+    float4x4 InvViewProj;      // 背景の画素の視線方向を出すのに使う
+}
+
+// SSAO の結果（1 = 遮られていない）。SSAORenderPass が作る
+Texture2D<float> gAO : register(t8);
+
+// ポイントライトの光が、カメラから距離 L まで視線 dir に沿って空気中で散る量を足し合わせる。
+// 減衰 1/(1 + decay·d²) = (1/decay)/(1/decay + d²) を線分で積分すると atan で閉じた形になる:
+//   ∫ (1/decay)/(H² + (t-b)²) dt = (1/decay)/H · atan((t-b)/H)
+//   （b = 光源の視線上への射影, H² = 光源と視線の距離² + 1/decay）
+// 二乗の減衰は裾が長く、松明が何本もあると画面全体が霞むので、ライトの半径の球の中だけを積分し、
+// 球の境目の減衰値 c を引いて境目で 0 になるようにする（霞が光源のまわりにまとまり、段も出ない）
+float3 CalcVolumetricLight(float3 cameraPos, float3 dir, float L)
+{
+    float3 result = float3(0.0f, 0.0f, 0.0f);
+    if (VolumetricStrength <= 0.0f)
+        return result;
+    for (uint i = 0; i < LightCount; i++)
+    {
+        LightData light = Lights[i];
+        if (!light.enabled || light.type != 1 || light.padding.x <= 0.0f)
+            continue;
+        float3 toLight = light.position - cameraPos;
+        float b = dot(toLight, dir);
+        float h2 = max(dot(toLight, toLight) - b * b, 0.0f);
+        float r2 = light.radius * light.radius;
+        if (h2 >= r2)
+            continue;
+        // 視線が球を通る区間を [0, L] で切る
+        float halfChord = sqrt(r2 - h2);
+        float t0 = max(b - halfChord, 0.0f);
+        float t1 = min(b + halfChord, L);
+        if (t1 <= t0)
+            continue;
+        float invDecay = 1.0f / max(light.decay, 1e-3f);
+        float H = sqrt(h2 + invDecay);
+        float edge = 1.0f / (1.0f + light.decay * r2);
+        float integral = invDecay / H * (atan((t1 - b) / H) - atan((t0 - b) / H)) - edge * (t1 - t0);
+        result += light.color.rgb * light.intensity * light.padding.x * max(integral, 0.0f);
+    }
+    return result * VolumetricStrength;
 }
 
 // 距離フォグの量（0〜1）。仕様書 3.1 の 1 - exp(-density * distance) に、掛け始める距離と上限を足したもの
