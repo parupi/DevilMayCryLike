@@ -21,6 +21,9 @@ constexpr int kUpperFogLayerCount = RenderEnvironment::Params::kGroundMistLayer;
 // 戦闘状態への寄り具合（GameCamera の battleBlend）。地面の霧を戦闘中に薄くするのに使う
 float g_battleBlend = 0.0f;
 
+// 漂う埃のパーティクルグループ（Resource/VFX/CaveDust.vfx.json）。戦闘中に透明度を下げる
+constexpr const char* kDustParticleGroup = "CaveDustMote";
+
 // 雰囲気ごとの色調整。ボスのブレス用（BossBreathColorGrading）とは別のパスで、常に掛けておく。
 // パスはシーンをまたいで生き続ける（OffScreenManager が持つ）ので、最初の1回だけ作る
 constexpr const char* kGradingEffectName = "EnvironmentColorGrading";
@@ -187,14 +190,29 @@ void AddCaveDefaults(GlobalVariables& gv, const std::string& group)
 	gv.AddItem(group, "VolumetricEnabled", true);
 	gv.AddItem(group, "VolumetricStrength", 0.012f);
 	gv.AddItem(group, "VolumetricMaxDistance", 60.0f);
+	// スポットライト（天井の隙間）の光の筋。視線と円錐の重なる区間をレイマーチする。戦闘中は BattleScale まで薄くする
+	gv.AddItem(group, "SpotVolumetricStrength", 0.02f);
+	gv.AddItem(group, "SpotVolumetricSteps", 12);
+	gv.AddItem(group, "SpotFogNoiseScale", 0.25f);
+	gv.AddItem(group, "SpotFogNoiseSpeed", Vector3{ 0.05f, -0.12f, 0.03f });
+	gv.AddItem(group, "SpotFogNoiseInfluence", 0.6f);
+	gv.AddItem(group, "SpotPhaseG", 0.35f);
+	gv.AddItem(group, "SpotApexFade", 8.0f);
+	gv.AddItem(group, "SpotVolumetricBattleScale", 0.5f);
 
 	// 環境パーティクル（仕様書 4章・8章）。ParticleSpawnRate は埃・松明の煙と明かりの埃に掛ける倍率
 	gv.AddItem(group, "ParticleSpawnRate", 1.0f);
 	gv.AddItem(group, "DustEnabled", true);
-	gv.AddItem(group, "DustPerSecond", 22.0f);
-	gv.AddItem(group, "DustRadius", 9.0f);
+	gv.AddItem(group, "DustPerSecond", 30.0f);
+	gv.AddItem(group, "DustRadius", 10.0f);
 	gv.AddItem(group, "DustHeightMin", -1.0f);
 	gv.AddItem(group, "DustHeightMax", 5.0f);
+	gv.AddItem(group, "DustTowardCamera", 0.5f);
+	gv.AddItem(group, "DustConePerSecond", 26.0f);
+	gv.AddItem(group, "DustConeStart", 0.4f);
+	gv.AddItem(group, "DustConeEnd", 0.66f);
+	// 戦闘中は埃をこの倍率まで薄くする（敵や攻撃予兆の邪魔をしないように）
+	gv.AddItem(group, "DustBattleScale", 0.5f);
 
 	// 天井から落ちる水滴と波紋（仕様書 4.4）。張り出しの岩の下面は y≒3.4〜5、床の上面は y≒-5.05
 	gv.AddItem(group, "DripEnabled", true);
@@ -271,6 +289,16 @@ void PushToRenderer(GlobalVariables& gv, const std::string& group)
 	params.volumetricEnabled = gv.GetValueRef<bool>(group, "VolumetricEnabled");
 	params.volumetricStrength = gv.GetValueRef<float>(group, "VolumetricStrength");
 	params.volumetricMaxDistance = gv.GetValueRef<float>(group, "VolumetricMaxDistance");
+	{
+		const float battleScale = gv.GetValueRef<float>(group, "SpotVolumetricBattleScale");
+		params.spotVolumetricStrength = gv.GetValueRef<float>(group, "SpotVolumetricStrength") * (1.0f + (battleScale - 1.0f) * g_battleBlend);
+	}
+	params.spotVolumetricSteps = gv.GetValueRef<int32_t>(group, "SpotVolumetricSteps");
+	params.spotFogNoiseScale = gv.GetValueRef<float>(group, "SpotFogNoiseScale");
+	params.spotFogNoiseSpeed = gv.GetValueRef<Vector3>(group, "SpotFogNoiseSpeed");
+	params.spotFogNoiseInfluence = gv.GetValueRef<float>(group, "SpotFogNoiseInfluence");
+	params.spotPhaseG = gv.GetValueRef<float>(group, "SpotPhaseG");
+	params.spotApexFade = gv.GetValueRef<float>(group, "SpotApexFade");
 
 	params.characterAmbient = gv.GetValueRef<Vector3>(group, "CharacterAmbient");
 	params.rimColor = gv.GetValueRef<Vector3>(group, "RimColor");
@@ -300,6 +328,15 @@ void PushToRenderer(GlobalVariables& gv, const std::string& group)
 	g_dust.radius = gv.GetValueRef<float>(group, "DustRadius");
 	g_dust.heightMin = gv.GetValueRef<float>(group, "DustHeightMin");
 	g_dust.heightMax = gv.GetValueRef<float>(group, "DustHeightMax");
+	g_dust.towardCamera = gv.GetValueRef<float>(group, "DustTowardCamera");
+	g_dust.conePerSecond = gv.GetValueRef<float>(group, "DustConePerSecond") * g_particleSpawnRate;
+	g_dust.coneStart = gv.GetValueRef<float>(group, "DustConeStart");
+	g_dust.coneEnd = gv.GetValueRef<float>(group, "DustConeEnd");
+	// 埃のグループ全体の透明度を、戦闘の度合いに合わせて毎フレーム書き換える（生きている粒にもすぐ効く）
+	if (gv.HasItem(kDustParticleGroup, "GroupAlphaScale")) {
+		const float battleScale = gv.GetValueRef<float>(group, "DustBattleScale");
+		gv.SetValue(kDustParticleGroup, "GroupAlphaScale", 1.0f + (battleScale - 1.0f) * g_battleBlend);
+	}
 	g_drip.enabled = gv.GetValueRef<bool>(group, "DripEnabled");
 	g_drip.perSecond = gv.GetValueRef<float>(group, "DripPerSecond") * g_particleSpawnRate;
 	g_drip.radius = gv.GetValueRef<float>(group, "DripRadius");
@@ -368,6 +405,10 @@ void StageEnvironment::Clear()
 	g_torchFlickerScale = 1.0f;
 	g_particleSpawnRate = 1.0f;
 	g_dust = StageEnvironment::DustSettings{};
+	// 戦闘中に下げた埃の透明度を戻す
+	if (GlobalVariables::GetInstance().HasItem(kDustParticleGroup, "GroupAlphaScale")) {
+		GlobalVariables::GetInstance().SetValue(kDustParticleGroup, "GroupAlphaScale", 1.0f);
+	}
 	g_drip = StageEnvironment::DripSettings{};
 	SkySystem::GetInstance().SetVisible(true);
 	if (auto* grading = dynamic_cast<ColorGradingEffect*>(OffScreenManager::GetInstance().FindEffect(kGradingEffectName))) {

@@ -20,6 +20,7 @@
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Event/BaseEvent.h"
 #include "GameObject/Light/StagePointLight.h"
+#include "GameObject/Light/StageSpotLight.h"
 #include "GameObject/Prop/Prop.h"
 #include "GameObject/Prop/WallTorch.h"
 #include "Stage/SceneLoader.h"
@@ -166,6 +167,26 @@ void DrawStageObjectInspector(Object3d* object)
 	if (auto* event = dynamic_cast<BaseEvent*>(object)) {
 		if (ImGui::CollapsingHeader("イベント", ImGuiTreeNodeFlags_DefaultOpen)) {
 			DrawEventTargets(event);
+		}
+		return;
+	}
+
+	if (auto* spotLight = dynamic_cast<StageSpotLight*>(object)) {
+		if (ImGui::CollapsingHeader("スポットライト", ImGuiTreeNodeFlags_DefaultOpen)) {
+			StageSpotLight::Params& p = spotLight->GetParamsRef();
+			bool changed = false;
+			ImGui::TextDisabled("向きはオブジェクトの回転（ローカルの -Y を照らす）");
+			changed |= ImGui::ColorEdit3("色", &p.color.x);
+			changed |= ImGui::DragFloat("明るさ", &p.intensity, 0.05f, 0.0f, 100.0f);
+			changed |= ImGui::DragFloat("届く距離", &p.distance, 0.1f, 0.0f, 1000.0f);
+			changed |= ImGui::DragFloat("減衰", &p.decay, 0.001f, 0.0f, 10.0f, "%.4f");
+			changed |= ImGui::DragFloat("外側の角度[度]", &p.outerAngle, 0.1f, 0.5f, 89.0f);
+			changed |= ImGui::DragFloat("内側の角度[度]", &p.innerAngle, 0.1f, 0.0f, 89.0f);
+			changed |= ImGui::DragFloat("埃を照らす", &p.particleLighting, 0.01f, 0.0f, 10.0f);
+			changed |= ImGui::DragFloat("空気中に散る", &p.volumetric, 0.01f, 0.0f, 10.0f);
+			if (changed) {
+				spotLight->ApplyLightParams();
+			}
 		}
 		return;
 	}
@@ -454,6 +475,7 @@ void AppEditor::Register()
 	Editor::AddWindowDrawer([] { DrawHitEffectWindows(); });
 	Editor::AddWindowDrawer([] { DrawTrainingWindow(); });
 	Editor::AddWindowDrawer([] { DrawActionGuideWindow(); });
+	Editor::AddWindowDrawer([] { DrawCaveLightingWindow(); });
 
 	// ゲーム固有のメニュー。Help の右、再生コントロールの左に並ぶ
 	Editor::AddMenu("Stage", [] { DrawStageMenu(); });
@@ -463,6 +485,12 @@ void AppEditor::Register()
 
 	// 複製したときに、エンジンが知らないクラス固有の設定を引き継ぐ
 	Editor::AddDuplicateHandler([](Object3d* source, Object3d* created) {
+		if (auto* srcSpot = dynamic_cast<StageSpotLight*>(source)) {
+			if (auto* dstSpot = dynamic_cast<StageSpotLight*>(created)) {
+				dstSpot->SetParams(srcSpot->GetParams());
+			}
+			return;
+		}
 		if (auto* srcLight = dynamic_cast<StagePointLight*>(source)) {
 			if (auto* dstLight = dynamic_cast<StagePointLight*>(created)) {
 				dstLight->SetLight(srcLight->GetLightColor(), srcLight->GetLightOffset(),

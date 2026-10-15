@@ -91,6 +91,20 @@ SceneObject SceneLoader::ParseObject(const json& j) {
 		out.lightInfo = info;
 	}
 
+	if (j.contains("spotLight")) {
+		const auto& l = j["spotLight"];
+		SpotLightInfo info;
+		info.color = ReadVector3(l.value("color", json::array()), info.color);
+		info.intensity = l.value("intensity", info.intensity);
+		info.distance = l.value("distance", info.distance);
+		info.decay = l.value("decay", info.decay);
+		info.outerAngle = l.value("outerAngle", info.outerAngle);
+		info.innerAngle = l.value("innerAngle", info.innerAngle);
+		info.particleLighting = l.value("particleLighting", info.particleLighting);
+		info.volumetric = l.value("volumetric", info.volumetric);
+		out.spotLightInfo = info;
+	}
+
 	if (j.contains("event")) {
 		const auto& e = j["event"];
 		EventInfo info;

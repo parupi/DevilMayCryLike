@@ -132,6 +132,9 @@ void UpperFogRenderer::Draw()
 
 	time_ += TimeManager::GetVFXDelta();
 
+	// デバッグ表示（光の筋だけ・埃だけ）のときは霧の層を描かない（上に重なって見づらいので）
+	if (RenderEnvironment::GetInstance().GetDebugView() != RenderEnvironment::DebugView::None) return;
+
 	const RenderEnvironment::Params& env = RenderEnvironment::GetInstance().GetParams();
 	bool any = false;
 	for (const auto& layer : env.fogLayers) {

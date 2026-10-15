@@ -57,7 +57,9 @@ float3 CalcSpotLight(LightData light, float3 P, float3 N, float3 V, float3 albed
         return 0;
 
     float atten = 1.0 / (1.0 + light.decay * dist * dist);
-    float spotFactor = smoothstep(light.cosAngle, 1.0, spot);
+    // 内側の角度（padding.z）があればそこまで最も明るく、無ければ従来どおり中心だけが最も明るい
+    float innerCos = light.padding.z > light.cosAngle ? light.padding.z : 1.0;
+    float spotFactor = smoothstep(light.cosAngle, innerCos, spot);
 
     float NdotL = saturate(dot(N, L));
     float3 diffuse = albedo * light.color.rgb * NdotL * light.intensity * atten * spotFactor;
@@ -84,13 +86,21 @@ float4 main(PSInput input) : SV_Target
     {
         // 何も描かれていない所でも、松明の光が空気中で散る分は見える
         float3 background = BackgroundColor;
-        if (VolumetricStrength > 0.0f)
+        if (VolumetricStrength > 0.0f || SpotVolumetricStrength > 0.0f)
         {
             float2 ndc = float2(uv.x * 2.0f - 1.0f, 1.0f - uv.y * 2.0f);
             float4 farPoint = mul(float4(ndc, 1.0f, 1.0f), InvViewProj);
             float3 dir = normalize(farPoint.xyz / farPoint.w - CameraPosWS.xyz);
-            background += CalcVolumetricLight(CameraPosWS.xyz, dir, VolumetricMaxDistance);
+            float3 scatter = CalcVolumetricLight(CameraPosWS.xyz, dir, VolumetricMaxDistance)
+                + CalcSpotVolumetric(CameraPosWS.xyz, dir, VolumetricMaxDistance, input.pos.xy);
+            // デバッグ表示: 光の筋だけ
+            if (DebugView > 0.5f && DebugView < 1.5f)
+                return float4(scatter, 1.0f);
+            background += scatter;
         }
+        // デバッグ表示: 埃だけを見るときは背景を黒に
+        if (DebugView > 0.5f)
+            return float4(0.0f, 0.0f, 0.0f, 1.0f);
         return float4(background, 1.0f);
     }
 
@@ -154,7 +164,15 @@ float4 main(PSInput input) : SV_Target
 
     // 空気中で散る松明の光（物の手前にある分だけ。霧の後に足すので霧に隠れない）
     float viewDistance = length(P - CameraPosWS.xyz);
-    finalColor += CalcVolumetricLight(CameraPosWS.xyz, (P - CameraPosWS.xyz) / max(viewDistance, 1e-4f), viewDistance);
+    float3 viewDir = (P - CameraPosWS.xyz) / max(viewDistance, 1e-4f);
+    float3 scatter = CalcVolumetricLight(CameraPosWS.xyz, viewDir, viewDistance)
+        // 天井から差すスポットライトの光の筋（物に当たった所で止まる）
+        + CalcSpotVolumetric(CameraPosWS.xyz, viewDir, viewDistance, input.pos.xy);
+    finalColor += scatter;
+
+    // デバッグ表示: 1=光の筋だけ / 2・3=埃だけを見るので物は黒に
+    if (DebugView > 0.5f)
+        finalColor = DebugView < 1.5f ? scatter : float3(0.0f, 0.0f, 0.0f);
 
     return float4(finalColor, 1.0f);
 }

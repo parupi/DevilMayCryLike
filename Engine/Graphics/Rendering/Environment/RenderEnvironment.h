@@ -76,6 +76,16 @@ public:
 		float volumetricStrength = 0.02f;    // 散乱の強さ
 		float volumetricMaxDistance = 60.0f; // 視線をどこまで積分するか[m]（何も無い所＝背景のとき）
 
+		// スポットライトの光の筋（埃パーティクル仕様書 Step 4）。視線と円錐の重なる区間をレイマーチする。
+		// 光ごとの効き具合は点光源と同じく BaseLight::SetVolumetricScale
+		float spotVolumetricStrength = 0.0f; // 0 で無効
+		int spotVolumetricSteps = 12;        // 1本の視線あたりのサンプル数
+		float spotFogNoiseScale = 0.25f;     // 霧の濃淡の細かさ（1mあたり）
+		Vector3 spotFogNoiseSpeed{ 0.05f, -0.12f, 0.03f }; // 霧の濃淡が流れる速さ[m/秒]
+		float spotFogNoiseInfluence = 0.6f;  // 濃淡の強さ（0=一様な霧）
+		float spotPhaseG = 0.35f;            // 前方散乱の強さ（0=全方向に同じ / 正=光源の方を向くと明るい）
+		float spotApexFade = 8.0f;           // 光源からこの距離[m]までは筋を薄くする（円錐の頂点が照明器具のように見えないように）
+
 		Vector3 characterAmbient{ 0.0f, 0.0f, 0.0f };
 		Vector3 rimColor{ 0.0f, 0.0f, 0.0f };
 		float rimPower = 3.0f;
@@ -126,6 +136,14 @@ public:
 	/// </summary>
 	void BindToLighting(ID3D12GraphicsCommandList* cmd, UINT rootParameterIndex);
 
+	/// <summary>
+	/// デバッグ表示（埃パーティクル仕様書 10.3）。雰囲気の設定（Params）とは別に持つ（毎フレーム上書きされないように）。
+	/// 0=通常 / 1=光の筋だけ（空間散乱だけを出す） / 2=埃の受けた光だけ / 3=埃の透明度（2・3 は背景を黒にする）
+	/// </summary>
+	enum class DebugView : int { None = 0, VolumetricOnly = 1, ParticleLightingOnly = 2, DustAlpha = 3 };
+	void SetDebugView(DebugView view) { debugView_ = view; }
+	DebugView GetDebugView() const { return debugView_; }
+
 	/// <summary>SSAO の結果（SSAORenderPass が作る）。ライティングの t8 に積む</summary>
 	void SetAoSrv(D3D12_GPU_DESCRIPTOR_HANDLE srv) { aoSrv_ = srv; }
 
@@ -166,10 +184,22 @@ private:
 		float volumetricStrength;  // 無効なら 0
 		float volumetricMaxDistance;
 		float invViewProj[16];     // 背景の画素の視線方向を出すのに使う
+		float spotVolumetricStrength; // 無効なら 0
+		float spotVolumetricSteps;
+		float spotFogNoiseScale;
+		float spotFogNoiseInfluence;
+		float spotFogNoiseSpeed[3];
+		float spotPhaseG;
+		float time; // 霧の濃淡を流す時計[秒]
+		float spotApexFade;
+		float debugView; // DebugView
+		float _pad7;
 	};
 
 	Params params_{};
 	Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
 	EnvironmentCB* mapped_ = nullptr;
 	D3D12_GPU_DESCRIPTOR_HANDLE aoSrv_{};
+	float time_ = 0.0f;
+	DebugView debugView_ = DebugView::None;
 };

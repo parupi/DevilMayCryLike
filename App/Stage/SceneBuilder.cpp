@@ -18,6 +18,7 @@
 #include "GameObject/Ground/Ground.h"
 #include "GameObject/Prop/Prop.h"
 #include "GameObject/Light/StagePointLight.h"
+#include "GameObject/Light/StageSpotLight.h"
 
 // ---------------------------------------------------------------------------
 // helpers
@@ -112,6 +113,23 @@ void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObj
 		if (sceneObj.lightInfo.has_value()) {
 			const LightInfo& li = sceneObj.lightInfo.value();
 			stageLight->SetLight(li.color, li.offset, li.intensity, li.radius, li.decay);
+		}
+	}
+
+	// ステージに配置したスポットライト（天井の隙間から差す光など）
+	if (auto* spotLight = dynamic_cast<StageSpotLight*>(object.get())) {
+		if (sceneObj.spotLightInfo.has_value()) {
+			const SpotLightInfo& si = sceneObj.spotLightInfo.value();
+			StageSpotLight::Params params;
+			params.color = si.color;
+			params.intensity = si.intensity;
+			params.distance = si.distance;
+			params.decay = si.decay;
+			params.outerAngle = si.outerAngle;
+			params.innerAngle = si.innerAngle;
+			params.particleLighting = si.particleLighting;
+			params.volumetric = si.volumetric;
+			spotLight->SetParams(params);
 		}
 	}
 

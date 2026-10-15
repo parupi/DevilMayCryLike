@@ -9,6 +9,9 @@ public:
 	// パーティクルグループ全体の更新
 	// （params の gravity/drag と curves を参照するためグループごと受け取る）
 	void Update(ParticleGroup& group, float dt);
+	// 生まれたばかりの粒に、寿命 0 の時点のカーブ（大きさ・色・透明度）を当てる。
+	// これをしないと、生まれたフレームだけ白・不透明度 1・元の大きさで描かれる（暗い煙が一瞬白く光る）
+	void ApplyCurvesAtBirth(Particle& p, const ParticleCurves& curves) { UpdateCurves(p, curves); }
 private:
 	// 生存時間の更新
 	void UpdateLife(Particle& p, float dt);

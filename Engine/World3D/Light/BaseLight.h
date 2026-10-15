@@ -34,6 +34,13 @@ public:
     // LightData の空き（padding[0]）に入れて GPU へ渡す
     void SetVolumetricScale(float scale) { lightData_.padding[0] = scale; }
     float GetVolumetricScale() const { return lightData_.padding[0]; }
+    // 埃などのパーティクルを照らす倍率。既定 0 = 照らさない（padding[1]）
+    void SetParticleLightingScale(float scale) { lightData_.padding[1] = scale; }
+    float GetParticleLightingScale() const { return lightData_.padding[1]; }
+    // スポットライトの内側の角度の cos（padding[2]）。ここより内側は最も明るく、cosAngle（外側）へ向けて暗くなる。
+    // cosAngle 以下（既定 0）なら従来どおり smoothstep(cosAngle, 1) で中心だけが最も明るい
+    void SetSpotInnerCos(float innerCos) { lightData_.padding[2] = innerCos; }
+    float GetSpotInnerCos() const { return lightData_.padding[2]; }
 protected:
     // ライトの名前
     std::string name_;

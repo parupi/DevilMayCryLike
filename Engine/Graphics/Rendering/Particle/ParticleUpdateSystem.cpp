@@ -41,6 +41,18 @@ void ParticleUpdateSystem::UpdateMovement(Particle& p, const ParticleParameters&
     // 重力（火花が落ちる・煙が昇るなど）
     p.velocity += params.gravity * dt;
 
+    // ゆっくり漂う動き。位置と時間で変わる低周波の揺らぎで速度を少しずつ曲げる（急な方向転換をしない）
+    if (params.noiseMoveStrength > 0.0f) {
+        const float f = params.noiseMoveFrequency;
+        const Vector3& x = p.transform.translate;
+        const float t = p.currentTime * f + p.seed * 37.0f;
+        const Vector3 n{
+            std::sin(x.y * f * 1.31f + t * 0.73f + p.seed * 11.0f) + std::sin(x.z * f * 0.71f - t * 0.41f),
+            std::sin(x.z * f * 1.17f + t * 0.59f + p.seed * 23.0f) + std::sin(x.x * f * 0.83f + t * 0.37f),
+            std::sin(x.x * f * 1.07f - t * 0.67f + p.seed * 31.0f) + std::sin(x.y * f * 0.91f + t * 0.47f) };
+        p.velocity += n * (0.5f * params.noiseMoveStrength * dt);
+    }
+
     // 空気抵抗。drag は「1秒後に残る速度の割合」なので、
     // フレームレートに依存しないよう pow(drag, dt) で1フレームぶんに換算する
     if (params.drag < 1.0f) {

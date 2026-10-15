@@ -34,6 +34,9 @@ public:
 	void DeleteAllLight();
 
 	void BindLightsToShader();
+	// ライトの一覧（StructuredBuffer）と数（CBV）。ライティング以外（パーティクルなど）が自分の番号に積むのに使う
+	D3D12_GPU_DESCRIPTOR_HANDLE GetLightBufferSrv() const;
+	D3D12_GPU_VIRTUAL_ADDRESS GetLightCountAddress() const;
 	// 全ライトの情報を取得
 	std::vector<LightData> GetAllLightData() { return gpuLightCache_; }
 	// ライトの実体一覧（エディタが個別編集・削除に使う）

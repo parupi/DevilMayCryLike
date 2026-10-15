@@ -9,6 +9,7 @@
         "Audio": false,
         "Bloom": false,
         "Camera": true,
+        "Cave Lighting": true,
         "Debug Log": false,
         "DeltaTime": false,
         "Dodge / Dash": true,

@@ -8,6 +8,7 @@
 #include "GameObject/Prop/Prop.h"
 #include "GameObject/Prop/WallTorch.h"
 #include "GameObject/Light/StagePointLight.h"
+#include "GameObject/Light/StageSpotLight.h"
 #include "GameObject/Event/BossSpawnEvent.h"
 #include "GameObject/Event/ClearEvent.h"
 #include "GameObject/Event/EnemySpawnEvent.h"
@@ -24,6 +25,7 @@ void RegisterAllGameObjects() {
 	Object3dFactory::Register("Prop", [](const std::string& n) { return std::make_unique<Prop>(n); }, true);
 	Object3dFactory::Register("WallTorch", [](const std::string& n) { return std::make_unique<WallTorch>(n); }, true);
 	Object3dFactory::Register("PointLight", [](const std::string& n) { return std::make_unique<StagePointLight>(n); });
+	Object3dFactory::Register("SpotLight", [](const std::string& n) { return std::make_unique<StageSpotLight>(n); });
 
 	// イベントも BaseEvent : Object3d なので同じファクトリに乗せる。
 	// EventManager への登録は BaseEvent のコンストラクタが自分で行う

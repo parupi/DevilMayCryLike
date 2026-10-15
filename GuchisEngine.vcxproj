@@ -214,6 +214,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h" />
     <ClInclude Include="App\GameObject\Ground\Ground.h" />
     <ClInclude Include="App\GameObject\Light\StagePointLight.h" />
+    <ClInclude Include="App\GameObject\Light\StageSpotLight.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
     <ClInclude Include="App\GameObject\Prop\Prop.h" />
@@ -416,6 +417,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Scene\Transition\SceneTransitionController.h" />
     <ClInclude Include="Engine\Scene\Transition\TransitionManager.h" />
     <ClInclude Include="Engine\Utility\DeltaTime.h" />
+    <ClInclude Include="Engine\Utility\GpuProfiler.h" />
     <ClInclude Include="Engine\Utility\Logger.h" />
     <ClInclude Include="Engine\Utility\ScopeProfiler.h" />
     <ClInclude Include="Engine\Utility\StringUtility.h" />
@@ -500,6 +502,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Editor\Windows\ActionGuideWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\CaveLightingWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp" />
@@ -591,6 +594,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp" />
     <ClCompile Include="App\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="App\GameObject\Light\StagePointLight.cpp" />
+    <ClCompile Include="App\GameObject\Light\StageSpotLight.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
     <ClCompile Include="App\GameObject\Prop\Prop.cpp" />
@@ -780,6 +784,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Scene\Transition\SceneTransitionController.cpp" />
     <ClCompile Include="Engine\Scene\Transition\TransitionManager.cpp" />
     <ClCompile Include="Engine\Utility\DeltaTime.cpp" />
+    <ClCompile Include="Engine\Utility\GpuProfiler.cpp" />
     <ClCompile Include="Engine\Utility\Logger.cpp" />
     <ClCompile Include="Engine\Utility\StringUtility.cpp" />
     <ClCompile Include="Engine\Utility\TimeManager.cpp" />

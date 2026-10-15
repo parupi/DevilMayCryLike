@@ -624,6 +624,9 @@
     <ClInclude Include="App\GameObject\Light\StagePointLight.h">
       <Filter>App\GameObject\Light</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Light\StageSpotLight.h">
+      <Filter>App\GameObject\Light</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h">
       <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
@@ -1230,6 +1233,9 @@
     <ClInclude Include="Engine\Utility\DeltaTime.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Utility\GpuProfiler.h">
+      <Filter>Engine\Utility</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Utility\Logger.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
@@ -1476,6 +1482,9 @@
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Editor\Windows\CaveLightingWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp">
@@ -1749,6 +1758,9 @@
       <Filter>App\GameObject\Ground</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\Light\StagePointLight.cpp">
+      <Filter>App\GameObject\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Light\StageSpotLight.cpp">
       <Filter>App\GameObject\Light</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp">
@@ -2316,6 +2328,9 @@
       <Filter>Engine\Scene\Transition</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Utility\DeltaTime.cpp">
+      <Filter>Engine\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Utility\GpuProfiler.cpp">
       <Filter>Engine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Utility\Logger.cpp">

@@ -33,6 +33,18 @@ struct LightInfo {
 	float decay = 1.0f;
 };
 
+// SpotLight（StageSpotLight）の設定。向きはオブジェクトの回転（ローカル -Y）で決まる
+struct SpotLightInfo {
+	Vector3 color = { 0.8f, 0.88f, 1.0f };
+	float intensity = 4.0f;
+	float distance = 22.0f;
+	float decay = 0.012f;
+	float outerAngle = 12.0f; // 光軸からの半角[度]
+	float innerAngle = 7.0f;
+	float particleLighting = 1.0f;
+	float volumetric = 1.0f;
+};
+
 enum class ColliderShape {
 	None,
 	OBB,
@@ -61,6 +73,7 @@ struct SceneObject {
 	std::optional<ColliderInfo> collider;
 	std::optional<EventInfo> eventInfo;
 	std::optional<LightInfo> lightInfo;
+	std::optional<SpotLightInfo> spotLightInfo;
 };
 
 class SceneLoader

@@ -46,6 +46,8 @@ void WallTorch::Initialize() {
 	// 松明の光は空気中で散らせる（洞窟の雰囲気で volumetric が有効なときだけ見える）
 	if (DynamicPointLight* light = GetLight()) {
 		light->SetVolumetricScale(1.0f);
+		// 松明のまわりの埃（LitByLights のパーティクル）を暖色に照らす
+		light->SetParticleLightingScale(1.0f);
 	}
 
 	EnsureFireVFXLoaded();

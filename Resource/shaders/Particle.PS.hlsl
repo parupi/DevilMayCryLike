@@ -9,30 +9,7 @@ struct Material
 
 ConstantBuffer<Material> gMaterial : register(b0);
 
-// グループ単位の設定。ParticleManager.h の ParticleGroupConstantsGPU と並び順を合わせること
-cbuffer ParticleGroupParam : register(b1)
-{
-    float time;
-    float noiseDistortion;
-    float noiseColorBlend;
-    float emissiveIntensity;
-
-    float2 noiseTiling;
-    float2 noiseScroll;
-
-    float noiseErosion;
-    float noiseErosionSoftness;
-    float softDistance;
-    uint flags;
-
-    float3 cameraPosition;
-    float _pad0;
-};
-
-// ParticleShaderFlag と合わせること
-static const uint kFlagNoise = 1;
-static const uint kFlagGrayscale = 2;
-static const uint kFlagSoft = 4;
+// グループ単位の設定（ParticleGroupParam）とフラグは Particle.hlsli にある（頂点シェーダーも読むため）
 
 struct PixelShaderOutput
 {
@@ -87,6 +64,42 @@ PixelShaderOutput main(VertexShaderOutput input)
 
     output.color = gMaterial.color * float4(rgb, alpha) * input.color;
     output.color.rgb *= emissiveIntensity;
+
+    // 光源に照らされる（埃）。光の当たらない所ではほとんど見えず、松明や天井の光の中で浮かび上がる。
+    // 色と透明度を別々の係数で変える（両方を強く変えると明るくなりすぎるため）
+    if ((flags & kFlagLit) != 0)
+    {
+        float3 light = ambientDustColor + input.lighting;
+        float luminance = dot(light, float3(0.2126f, 0.7152f, 0.0722f));
+        output.color.rgb *= lerp(luminance.xxx, light, colorResponse);
+        float lightLevel = saturate(luminance * lightResponse);
+        output.color.a *= lerp(ambientVisibility, 1.0f, lightLevel);
+    }
+
+    // カメラからの距離で薄くする。目の前を横切る大きな粒と、遠くの粒を消す
+    if ((flags & kFlagCameraFade) != 0)
+    {
+        float cameraDistance = distance(input.worldPos, cameraPosition);
+        float nearFade = smoothstep(nearFadeStart, nearFadeEnd, cameraDistance);
+        float farFade = 1.0f - smoothstep(farFadeStart, farFadeEnd, cameraDistance);
+        output.color.a *= nearFade * farFade;
+    }
+    output.color.a *= alphaScale;
+
+    // デバッグ表示（埃パーティクル仕様書 10.3）。光源に照らされるグループだけを、形の分だけ不透明で描く
+    if (debugView > 1.5f)
+    {
+        if ((flags & kFlagLit) == 0)
+            discard;
+        float shape = saturate(alpha * 4.0f);
+        if (shape <= 0.01f)
+            discard;
+        if (debugView < 2.5f)
+            output.color = float4(ambientDustColor + input.lighting, shape); // 2: 受けた光
+        else
+            output.color = float4(saturate(output.color.a * 6.0f).xxx, shape); // 3: 透明度（6倍して見やすく）
+        return output;
+    }
 
     // ソフトパーティクル: 地面や壁に近い部分ほど薄くして、交わる所がくっきり切れないようにする
     if ((flags & kFlagSoft) != 0 && softDistance > 0.0f)

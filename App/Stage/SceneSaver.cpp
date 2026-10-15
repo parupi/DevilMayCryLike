@@ -13,6 +13,7 @@
 
 #include "GameObject/Event/BaseEvent.h"
 #include "GameObject/Light/StagePointLight.h"
+#include "GameObject/Light/StageSpotLight.h"
 #include "GameObject/Prop/Prop.h"
 #include "Stage/StageDocument.h"
 
@@ -65,6 +66,24 @@ namespace {
 			}
 		}
 		return std::nullopt;
+	}
+
+	std::optional<SpotLightInfo> CaptureSpotLight(Object3d* object) {
+		auto* spotLight = dynamic_cast<StageSpotLight*>(object);
+		if (!spotLight) {
+			return std::nullopt;
+		}
+		const StageSpotLight::Params& p = spotLight->GetParams();
+		SpotLightInfo info;
+		info.color = p.color;
+		info.intensity = p.intensity;
+		info.distance = p.distance;
+		info.decay = p.decay;
+		info.outerAngle = p.outerAngle;
+		info.innerAngle = p.innerAngle;
+		info.particleLighting = p.particleLighting;
+		info.volumetric = p.volumetric;
+		return info;
 	}
 
 	std::optional<LightInfo> CaptureLight(Object3d* object) {
@@ -145,6 +164,20 @@ namespace {
 			j["light"] = l;
 		}
 
+		if (object.spotLightInfo.has_value()) {
+			const SpotLightInfo& si = object.spotLightInfo.value();
+			json l;
+			l["color"] = ToJson(si.color);
+			l["intensity"] = si.intensity;
+			l["distance"] = si.distance;
+			l["decay"] = si.decay;
+			l["outerAngle"] = si.outerAngle;
+			l["innerAngle"] = si.innerAngle;
+			l["particleLighting"] = si.particleLighting;
+			l["volumetric"] = si.volumetric;
+			j["spotLight"] = l;
+		}
+
 		if (object.eventInfo.has_value()) {
 			const EventInfo& ev = object.eventInfo.value();
 			json e;
@@ -176,6 +209,7 @@ SceneObject SceneSaver::CaptureObject(Object3d* object) {
 
 	out.collider = CaptureCollider(object);
 	out.lightInfo = CaptureLight(object);
+	out.spotLightInfo = CaptureSpotLight(object);
 	out.eventInfo = CaptureEvent(object);
 
 	return out;

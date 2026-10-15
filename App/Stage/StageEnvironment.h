@@ -34,6 +34,10 @@ struct DustSettings {
 	float radius = 9.0f;      // プレイヤーから水平にこの距離の中に出す[m]
 	float heightMin = -1.0f;  // プレイヤーの位置からの高さの範囲[m]
 	float heightMax = 5.0f;
+	float towardCamera = 0.5f; // 撒く中心をプレイヤーからカメラへどれだけ寄せるか（0=プレイヤー / 1=カメラ）
+	float conePerSecond = 0.0f; // スポットライト1本あたり、光の円錐の中に1秒に撒く粒数
+	float coneStart = 0.45f;    // 円錐のどこから撒くか（光源からの距離 / 届く距離）
+	float coneEnd = 0.95f;      // どこまで撒くか
 };
 const DustSettings& GetDustSettings();
 

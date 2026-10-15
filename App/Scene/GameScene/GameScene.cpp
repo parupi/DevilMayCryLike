@@ -300,7 +300,12 @@ void GameScene::Finalize() {
 void GameScene::Update() {
 	StageEnvironment::Update(gameCamera_ ? gameCamera_->GetBattleBlend() : 0.0f);
 	if (caveDust_ && player_) {
-		caveDust_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation());
+		Vector3 cameraPosition = player_->GetWorldTransform()->GetTranslation();
+		if (gameCamera_) {
+			const Matrix4x4& cameraWorld = gameCamera_->GetWorldMatrix();
+			cameraPosition = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
+		}
+		caveDust_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation(), cameraPosition);
 	}
 	if (caveDrip_ && player_) {
 		caveDrip_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation());

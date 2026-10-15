@@ -3,7 +3,9 @@
 #include "World3D/Camera/CameraManager.h"
 #include "World3D/Camera/BaseCamera.h"
 #include "Math/MathUtils.h"
+#include "Utility/TimeManager.h"
 #include <cstring>
+#include <algorithm>
 #include <cmath>
 
 namespace {
@@ -93,6 +95,19 @@ void RenderEnvironment::BindToLighting(ID3D12GraphicsCommandList* cmd, UINT root
 	cb.ssaoDirectStrength = ssao ? params_.ssaoDirectStrength : 0.0f;
 	cb.volumetricStrength = params_.volumetricEnabled ? params_.volumetricStrength : 0.0f;
 	cb.volumetricMaxDistance = params_.volumetricMaxDistance;
+	cb.spotVolumetricStrength = params_.volumetricEnabled ? params_.spotVolumetricStrength : 0.0f;
+	cb.spotVolumetricSteps = static_cast<float>((std::max)(params_.spotVolumetricSteps, 1));
+	cb.spotFogNoiseScale = params_.spotFogNoiseScale;
+	cb.spotFogNoiseInfluence = params_.spotFogNoiseInfluence;
+	cb.spotFogNoiseSpeed[0] = params_.spotFogNoiseSpeed.x;
+	cb.spotFogNoiseSpeed[1] = params_.spotFogNoiseSpeed.y;
+	cb.spotFogNoiseSpeed[2] = params_.spotFogNoiseSpeed.z;
+	cb.spotPhaseG = params_.spotPhaseG;
+	cb.spotApexFade = params_.spotApexFade;
+	cb.debugView = static_cast<float>(static_cast<int>(debugView_));
+	// 霧の濃淡はヒットストップ中は止まるよう VFX の時間で進める
+	time_ += TimeManager::GetVFXDelta();
+	cb.time = time_;
 	if (BaseCamera* camera = CameraManager::GetInstance().GetActiveCamera()) {
 		const Matrix4x4 inv = Inverse(camera->GetViewProjectionMatrix());
 		std::memcpy(cb.invViewProj, &inv, sizeof(cb.invViewProj));

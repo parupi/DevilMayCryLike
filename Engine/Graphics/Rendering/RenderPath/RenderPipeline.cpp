@@ -14,6 +14,7 @@
 #include "Graphics/Text/FontManager.h"
 #include "Scene/Transition/TransitionManager.h"
 #include "Utility/ScopeProfiler.h"
+#include "Utility/GpuProfiler.h"
 #include <iterator>
 #ifdef _DEBUG
 #include <Debugger/ImGuiManager.h>
@@ -57,6 +58,9 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 	auto* commandCtx = ctx_.dxManager->GetCommandContext();
 	commandCtx->TransitionResource(rtvResource_.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 	commandCtx->TransitionResource(depthBuffer_.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+	// 描画パスごとの GPU 処理時間
+	GpuProfiler::GetInstance().Initialize(ctx_.dxManager);
 
 	// --- GBufferManager ---
 	gBufferManager_ = std::make_unique<GBufferManager>();
@@ -109,6 +113,7 @@ void RenderPipeline::Initialize(const EngineContext& ctx) {
 
 void RenderPipeline::Finalize() {
 	passes_.clear();
+	GpuProfiler::GetInstance().Finalize();
 	UpperFogRenderer::GetInstance().Finalize();
 	gBufferManager_->Finalize();
 	rtvResource_.Reset();
@@ -120,16 +125,22 @@ void RenderPipeline::Execute() {
 	// アトラスを読む描画より前で、かつフレームに1回で済むのがここ
 	FontManager::GetInstance().FlushAtlases();
 
+	// 前のフレームの GPU 処理時間を読み、このフレームの計測を始める
+	GpuProfiler::GetInstance().BeginFrame();
+
 	// 各描画パスを順番に実行
 	static const char* kPassNames[] = { "Pass:Skinning", "Pass:Shadow", "Pass:GBuffer", "Pass:SSAO", "Pass:Lighting", "Pass:Forward" };
 	for (size_t i = 0; i < passes_.size(); ++i) {
-		PROF_SCOPE(i < std::size(kPassNames) ? kPassNames[i] : "Pass:?");
+		const char* name = i < std::size(kPassNames) ? kPassNames[i] : "Pass:?";
+		PROF_SCOPE(name);
+		GpuProfileScope gpuScope(name);
 		passes_[i]->Execute();
 	}
 
 	// OffScreen / PostEffect / 最終合成
 	{
 		PROF_SCOPE("PostEffect");
+		GpuProfileScope gpuScope("PostEffect");
 		ctx_.offScreenManager->CopyLightingToPing(srvIndex_);
 		ctx_.offScreenManager->BeginDrawToPingPong();
 		ctx_.offScreenManager->EndDrawToPingPong();
@@ -147,6 +158,7 @@ void RenderPipeline::Execute() {
 
 	{
 		PROF_SCOPE("UI/Sprite");
+		GpuProfileScope gpuScope("UI/Sprite");
 		// UIはポストエフェクトの影響を受けないよう、合成後のバックバッファへ直接描く。
 		// フェードはPersistentレイヤーのスプライトとして DrawUILayers() 内で描かれる。
 		ctx_.spriteManager->DrawUILayers();
@@ -163,6 +175,9 @@ void RenderPipeline::Execute() {
 		ctx_.imGuiManager->Draw();
 	}
 #endif
+
+	// このフレームの GPU 計測の結果を読み戻し用バッファへ（コマンドリストを閉じる前）
+	GpuProfiler::GetInstance().EndFrame();
 
 	{
 		// Present とGPU待ち。ここが大きければGPUバウンド

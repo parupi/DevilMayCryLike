@@ -15,6 +15,9 @@ WALL_FACE_INSET = 0.18
 # 松明: 床からの高さと、壁ごとに置く位置（壁に沿った座標）
 TORCH_HEIGHT = 2.0
 TORCH_ALONG = [-12.0, 12.0]
+# 天井の光: 霧の層（最上段 y=9）より上に置く。ボスが居ないステージでは Boss.json の出現位置を使う
+CEILING_LIGHT_HEIGHT = 14.0
+CEILING_LIGHT_DEFAULT_XZ = (0.0, 10.0)
 
 # 部屋の角の向き。CaveOverhang_Corner は回転なしで「+X と +Z の角（北東）」に合う。
 # 他の角は、その向きの壁と同じ回転を使うと合う（南西=西の壁、北西=北の壁、南東=南の壁）
@@ -108,6 +111,18 @@ def place(path):
         rot = [0.0, 0.7071068, 0.0, 0.7071068] if axis == "x" else [0.0, 0.0, 0.0, 1.0]
         t = [sign * base, floor_top - 0.1, a] if axis == "x" else [a, floor_top - 0.1, sign * base]
         add(f"RockCluster_{k}", "Cave/CaveRockCluster_01", t, rot, [2.0, 2.0, 2.0])
+
+    # 5) 天井の隙間から差す光（スポットライト）。ボスの出現位置の真上から真下へ。
+    #    ボスが居ないステージ（チュートリアル）でも、同じ部屋の同じ場所に置いて「ここに何か来る」予告にする
+    boss = next((o for o in objs if o.get("class") == "BossKnight"), None)
+    bx, bz = (boss["translate"][0], boss["translate"][2]) if boss else CEILING_LIGHT_DEFAULT_XZ
+    added.append({
+        "name": PREFIX + "CeilingLight", "class": "SpotLight",
+        "translate": [round(bx, 4), CEILING_LIGHT_HEIGHT, round(bz, 4)],
+        "rotate": [0.0, 0.0, 0.0, 1.0], "scale": [1.0, 1.0, 1.0],
+        "spotLight": {"color": [0.78, 0.86, 1.0], "intensity": 4.0, "distance": 30.0, "decay": 0.012,
+                      "outerAngle": 12.0, "innerAngle": 7.0, "particleLighting": 1.0, "volumetric": 1.0},
+    })
 
     data["objects"] = objs + added
     # SceneSaver と同じ書式（インデント2・CRLF）で書く。差分が足した分だけになる
