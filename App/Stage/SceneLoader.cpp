@@ -52,6 +52,16 @@ std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
 	return objects;
 }
 
+std::string SceneLoader::LoadEnvironmentName(const std::string& path) {
+	std::ifstream file(path);
+	if (!file) {
+		return {};
+	}
+	json root;
+	file >> root;
+	return root.value("environment", "");
+}
+
 SceneObject SceneLoader::ParseObject(const json& j) {
 	SceneObject out;
 	out.name = j.value("name", "");
@@ -64,6 +74,7 @@ SceneObject SceneLoader::ParseObject(const json& j) {
 	if (j.contains("model")) {
 		out.modelName = j["model"].get<std::string>();
 	}
+	out.castShadow = j.value("castShadow", true);
 
 	if (j.contains("collider")) {
 		out.collider = ParseCollider(j["collider"]);

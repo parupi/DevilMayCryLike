@@ -208,6 +208,9 @@
     <Filter Include="Engine\Graphics\Rendering\Effect">
       <UniqueIdentifier>{44F49B36-3045-8778-59A9-753A45591AE2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Engine\Graphics\Rendering\Environment">
+      <UniqueIdentifier>{8CF8F9F0-F8BC-F8E0-C122-29AB2DA69416}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Engine\Graphics\Rendering\PSO">
       <UniqueIdentifier>{A99E9ED4-15B7-85FE-DE63-15984A3B1A98}</UniqueIdentifier>
     </Filter>
@@ -750,6 +753,9 @@
     <ClInclude Include="App\Stage\StageDocument.h">
       <Filter>App\Stage</Filter>
     </ClInclude>
+    <ClInclude Include="App\Stage\StageEnvironment.h">
+      <Filter>App\Stage</Filter>
+    </ClInclude>
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h">
       <Filter>App\Tutorial\Decoration</Filter>
     </ClInclude>
@@ -917,6 +923,9 @@
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.h">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
@@ -1856,6 +1865,9 @@
     <ClCompile Include="App\Stage\StageDocument.cpp">
       <Filter>App\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="App\Stage\StageEnvironment.cpp">
+      <Filter>App\Stage</Filter>
+    </ClCompile>
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
       <Filter>App\Tutorial\Decoration</Filter>
     </ClCompile>
@@ -2017,6 +2029,9 @@
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.cpp">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>

@@ -61,7 +61,9 @@ void LightingPath::Begin(uint32_t rtvIndex)
 	// 描画ターゲットの設定
 	commandContext->SetRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndex));
 
-	// rtvのクリア（UI等で参照する場合は残す）
+	// rtvのクリア。全画面を描き直すので色は見えない（背景色は Lighting.PS が RenderEnvironment から塗る）。
+	// **値はリソース作成時の最適化クリア値（RenderPipeline の rtvDesc）と揃えること**。
+	// 食い違うとデバッグレイヤーが警告で止まる
 	float clearColor[4] = { 0.6f, 0.5f, 0.1f, 1.0f };
 	commandContext->ClearRenderTarget(dxManager_->GetRtvManager()->GetCPUDescriptorHandle(rtvIndex), clearColor);
 

@@ -39,4 +39,12 @@ bool IsValidName(const std::string& name);
 /// <summary>その名前のステージが既にあるか</summary>
 bool Exists(const std::string& name);
 
+/// <summary>
+/// 現在のステージの雰囲気の名前（ステージデータの "environment"。空なら既定の見た目）。
+/// GameScene が読み込んだときに入れ、SceneSaver が保存するときに書き戻す。
+/// 保存は最上位を作り直すので、ここに覚えておかないとエディタで保存した瞬間に消える
+/// </summary>
+const std::string& GetEnvironment();
+void SetEnvironment(const std::string& environment);
+
 } // namespace StageDocument

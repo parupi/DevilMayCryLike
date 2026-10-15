@@ -77,6 +77,8 @@ private: // メンバ変数
 	}drawOption_;
 	// 描画するかどうかの設定
 	bool isDraw = true;
+	// 影を落とすか（ステージデータの "castShadow"）
+	bool castShadow_ = true;
 
 	// ステージデータに書き出す型名。Object3dFactory::Create が入れる
 	std::string className_ = "Object3d";
@@ -105,6 +107,11 @@ public: // ゲッター // セッター //
 
 	void SetIsDraw(bool flag) { isDraw = flag; }
 	bool GetIsDraw() const { return isDraw; }
+
+	// 影を落とすか。壁の上の張り出しのような大きな飾りは、影を落とすと
+	// 下の壁が丸ごと影に入り、カスケードの境目が輪になって見えるので切る
+	void SetCastShadow(bool flag) { castShadow_ = flag; }
+	bool GetCastShadow() const { return castShadow_; }
 
 	// ワールドトランスフォームの取得
 	WorldTransform* GetWorldTransform() { return transform_.get(); }

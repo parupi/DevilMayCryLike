@@ -35,6 +35,7 @@ void SkySystem::Finalize()
 void SkySystem::Draw()
 {
 	if (!material_) return; // SkyBoxが作られていない場合は描画しない
+	if (!visible_) return;
 
 	auto* commandList = dxManager_->GetCommandList();
 
@@ -87,6 +88,7 @@ void SkySystem::CreateSkyBox(const std::string& textureFilePath)
 	material_->Initialize(dxManager_, srvManager_, materialData);
 	// テクスチャのインデックスを保存しておく
 	textureIndex_ = materialData.textureIndex;
+	visible_ = true;
 
 	// 定数バッファリソースの生成
 	transform_ = std::make_unique<WorldTransform>();

@@ -193,7 +193,12 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 
 Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget() {
 	GpuResourceFactory::TextureDesc desc;
-	desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	// 中身はリニアの色。8bit のまま UNORM で持つと暗部が 1/255 刻みになり、洞窟の背景のような暗い色が
+	// 0 と 1 に割れて輪が出る。SRGB にすると書き込み時にガンマを掛けて持ち、読むときにリニアへ戻るので、
+	// シェーダーの計算はそのままで暗部の階調だけが増える。
+	// **ポストエフェクトの PSO（OffScreenPipeline / FinalCompositePipeline の isPostCopy）と
+	// ブルームの作業用RTも同じフォーマットに揃えること**
+	desc.format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	desc.usage = GpuResourceFactory::Usage::RenderTarget;
 	desc.clearColor[0] = 0.0f;
 	desc.clearColor[1] = 0.0f;
@@ -212,7 +217,7 @@ uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Res
 
 uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource) {
 	uint32_t index = dxManager_->GetSrvManager()->Allocate();
-	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM, 1);
+	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM_SRGB, 1);
 	return index;
 }
 

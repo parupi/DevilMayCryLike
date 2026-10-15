@@ -13,6 +13,7 @@
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneBuilder.h"
 #include "Stage/StageDocument.h"
+#include "Stage/StageEnvironment.h"
 #include "Utility/Logger.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
@@ -158,6 +159,10 @@ void GameScene::Initialize() {
 	// 本編はチュートリアル → ボス戦とステージが切り替わるので、揃えずにおくと
 	// エディタで保存したときに別のステージへ上書きしてしまう
 	StageDocument::SetPath(stagePath);
+	// ステージの雰囲気（洞窟なら空を消して暗くする）。名前はステージデータの "environment"
+	const std::string environmentName = SceneLoader::LoadEnvironmentName(stagePath);
+	StageDocument::SetEnvironment(environmentName);
+	StageEnvironment::Apply(environmentName);
 
 	lightManager_->AddLight(std::make_unique<DirectionalLight>("GameDirectionalLight"));
 
@@ -261,6 +266,8 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Finalize() {
+	// 洞窟の暗さや空の非表示をタイトルへ持ち越さない
+	StageEnvironment::Clear();
 	// 振動を次のシーンへ持ち越さない
 	GamepadRumble::GetInstance().StopAll();
 	// 環境音はループなので、シーンを抜けるときに必ず止める
@@ -285,6 +292,7 @@ void GameScene::Finalize() {
 }
 
 void GameScene::Update() {
+	StageEnvironment::Update();
 	//lightManager_->Update();
 	//gameUI_->Update();
 

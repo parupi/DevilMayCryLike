@@ -48,7 +48,20 @@ cbuffer LightCountCB : register(b3)
     uint LightCount;
 };
 
-static const float3 BACKBUFFER_CLEAR_COLOR = float3(0.6f, 0.5f, 0.1f);
+// 画面全体の空気（RenderEnvironment.h の EnvironmentCB と並びを合わせること）
+cbuffer EnvironmentCB : register(b5)
+{
+    float3 BackgroundColor;  // 何も描かれていない画素の色（リニア）
+    float _envPad0;
+    float3 AmbientColor;     // 環境光
+    float AmbientAlbedoMix;  // 環境光にアルベドを掛ける割合（0=そのまま足す）
+    float3 DirectionalScale; // 平行光に掛ける色
+    float _envPad2;
+    float DarkStartHeight;   // 高さによる暗化（環境オブジェクトだけ）
+    float DarkEndHeight;
+    float DarkStrength;      // 0 で無効
+    float _envPad3;
+}
 
 // Normal decode
 float3 DecodeNormal(float3 packed)

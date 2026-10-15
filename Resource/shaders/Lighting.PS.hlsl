@@ -76,12 +76,13 @@ float4 main(PSInput input) : SV_Target
 {
     float2 uv = input.uv;
 
-    float4 posS = gWorldPos.Sample(sampler_Linear, uv);
+    // w はフラグなので補間されないよう Load で読む（0=何も無い / 1=通常 / 2=環境オブジェクト）
+    float4 posS = gWorldPos.Load(int3(input.pos.xy, 0));
     float3 P = posS.xyz;
-    
-    if (length(P) < 1e-4f)
+
+    if (posS.w < 0.5f)
     {
-        return float4(BACKBUFFER_CLEAR_COLOR, 1.0f);
+        return float4(BackgroundColor, 1.0f);
     }
 
     float4 albedoRough = gAlbedo.Sample(sampler_Linear, uv);
@@ -94,7 +95,7 @@ float4 main(PSInput input) : SV_Target
 
     float3 V = normalize(CameraPosWS.xyz - P);
 
-    float3 finalColor = float3(0.06, 0.06, 0.06); // ambient
+    float3 finalColor = AmbientColor * lerp(float3(1.0f, 1.0f, 1.0f), albedo, AmbientAlbedoMix);
 
     float shadow = CalcShadow(P);
 
@@ -104,13 +105,20 @@ float4 main(PSInput input) : SV_Target
         if (!light.enabled) continue;
 
         if (light.type == 0)
-            finalColor += CalcDirectionalLight(light, N, V, albedo) * shadow;
+            finalColor += CalcDirectionalLight(light, N, V, albedo) * shadow * DirectionalScale;
 
         else if (light.type == 1)
             finalColor += CalcPointLight(light, P, N, V, albedo);
 
         else if (light.type == 2)
             finalColor += CalcSpotLight(light, P, N, V, albedo);
+    }
+
+    // 高さによる暗化。壁の上ほど暗くして、壁の上端を闇に溶かす（プレイヤーや敵には掛けない）
+    if (posS.w > 1.5f && DarkStrength > 0.0f)
+    {
+        float heightFactor = saturate((P.y - DarkStartHeight) / max(DarkEndHeight - DarkStartHeight, 0.001f));
+        finalColor *= 1.0f - heightFactor * DarkStrength;
     }
 
     return float4(finalColor, 1.0f);

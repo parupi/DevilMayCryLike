@@ -7,6 +7,7 @@
 namespace {
 
 std::string g_path = SceneLoader::kDefaultStagePath;
+std::string g_environment;
 
 } // namespace
 
@@ -65,4 +66,14 @@ bool StageDocument::Exists(const std::string& name)
 {
 	std::error_code ec;
 	return std::filesystem::is_regular_file(MakePath(name), ec);
+}
+
+const std::string& StageDocument::GetEnvironment()
+{
+	return g_environment;
+}
+
+void StageDocument::SetEnvironment(const std::string& environment)
+{
+	g_environment = environment;
 }

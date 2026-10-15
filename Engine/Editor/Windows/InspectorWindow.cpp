@@ -113,6 +113,11 @@ void DrawDrawOptionSection(Object3d* object)
 		object->SetIsDraw(isDraw);
 	}
 
+	bool castShadow = object->GetCastShadow();
+	if (ImGui::Checkbox("影を落とす", &castShadow)) {
+		object->SetCastShadow(castShadow);
+	}
+
 	// DrawOption は Object3d の非公開の入れ子型なので、型名を書かずに auto& で受ける
 	auto& option = object->GetOption();
 

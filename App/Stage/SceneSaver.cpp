@@ -14,6 +14,7 @@
 #include "GameObject/Event/BaseEvent.h"
 #include "GameObject/Light/StagePointLight.h"
 #include "GameObject/Prop/Prop.h"
+#include "Stage/StageDocument.h"
 
 // 書き出しは挿入順を保つ ordered_json を使う。
 // 既定の json は キーを辞書順に並べ替えてしまい、差分が読みにくくなるため
@@ -113,6 +114,9 @@ namespace {
 		if (object.modelName.has_value()) {
 			j["model"] = object.modelName.value();
 		}
+		if (!object.castShadow) {
+			j["castShadow"] = false;
+		}
 
 		if (object.collider.has_value()) {
 			const ColliderInfo& col = object.collider.value();
@@ -168,6 +172,7 @@ SceneObject SceneSaver::CaptureObject(Object3d* object) {
 	if (!modelName.empty()) {
 		out.modelName = modelName;
 	}
+	out.castShadow = object->GetCastShadow();
 
 	out.collider = CaptureCollider(object);
 	out.lightInfo = CaptureLight(object);
@@ -195,6 +200,10 @@ bool SceneSaver::Save(const std::string& path) {
 	json root;
 	root["format"] = SceneLoader::kFormatName;
 	root["version"] = SceneLoader::kFormatVersion;
+	// 雰囲気は Object3d に乗らないので、読み込んだときに覚えた名前を書き戻す
+	if (!StageDocument::GetEnvironment().empty()) {
+		root["environment"] = StageDocument::GetEnvironment();
+	}
 	root["objects"] = json::array();
 	for (const SceneObject& object : objects) {
 		root["objects"].push_back(ToJson(object));

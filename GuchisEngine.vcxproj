@@ -257,6 +257,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Stage\SceneLoader.h" />
     <ClInclude Include="App\Stage\SceneSaver.h" />
     <ClInclude Include="App\Stage\StageDocument.h" />
+    <ClInclude Include="App\Stage\StageEnvironment.h" />
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
     <ClInclude Include="App\Tutorial\Service\TutorialService.h" />
     <ClInclude Include="App\Tutorial\Skip\TutorialSkipGauge.h" />
@@ -313,6 +314,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Device\ShaderCompiler.h" />
     <ClInclude Include="Engine\Graphics\Device\SwapChainManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.h" />
@@ -627,6 +629,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Stage\SceneLoader.cpp" />
     <ClCompile Include="App\Stage\SceneSaver.cpp" />
     <ClCompile Include="App\Stage\StageDocument.cpp" />
+    <ClCompile Include="App\Stage\StageEnvironment.cpp" />
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
     <ClCompile Include="App\Tutorial\Skip\TutorialSkipGauge.cpp" />
     <ClCompile Include="App\Tutorial\Skip\TutorialSkipInput.cpp" />
@@ -681,6 +684,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Device\ShaderCompiler.cpp" />
     <ClCompile Include="Engine\Graphics\Device\SwapChainManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.cpp" />

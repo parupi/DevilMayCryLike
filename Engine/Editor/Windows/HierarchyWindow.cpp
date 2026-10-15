@@ -366,6 +366,7 @@ Object3d* DuplicateObject(Object3d* source)
 	to->GetScale() = from->GetScale();
 	created->GetOption() = source->GetOption();
 	created->SetIsDraw(source->GetIsDraw());
+	created->SetCastShadow(source->GetCastShadow());
 
 	// 球コライダーは CreateStageObject が扱わないので、ここで足す
 	if (!halfExtents) {

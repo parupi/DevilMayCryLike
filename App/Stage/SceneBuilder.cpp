@@ -116,6 +116,7 @@ void SceneBuilder::BuildObject(const SceneObject& sceneObj, std::vector<SceneObj
 	}
 
 	ApplyTransform(object->GetWorldTransform(), sceneObj);
+	object->SetCastShadow(sceneObj.castShadow);
 
 	if (sceneObj.collider) {
 		ApplyCollider(object.get(), sceneObj.name, sceneObj.collider.value());

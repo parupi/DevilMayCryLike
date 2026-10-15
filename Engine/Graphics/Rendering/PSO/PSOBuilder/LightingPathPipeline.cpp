@@ -51,7 +51,7 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> LightingPathPipeline::CreateRootSign
 	descriptorRangesForShadow[0].RegisterSpace = 0;
 	descriptorRangesForShadow[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[6] = {};
+	D3D12_ROOT_PARAMETER rootParameters[7] = {};
 	// 0: GBuffer SRVs (PS)
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -79,6 +79,10 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> LightingPathPipeline::CreateRootSign
 	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[5].Descriptor.ShaderRegister = 4;
 	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// 6: Environment b5 (PS)。背景色・アンビエント・平行光の倍率・高さによる暗化（RenderEnvironment）
+	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[6].Descriptor.ShaderRegister = 5;
+	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC samplers[2] = { samplerDesc, shadowSampler };
 

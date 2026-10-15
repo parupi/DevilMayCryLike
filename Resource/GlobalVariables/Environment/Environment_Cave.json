@@ -1,0 +1,25 @@
+{
+    "Environment_Cave": {
+        "AmbientAlbedoMix": 1.0,
+        "AmbientColor": [
+            0.06,
+            0.075,
+            0.095
+        ],
+        "BackgroundColor": [
+            0.0313725,
+            0.0470588,
+            0.0627451
+        ],
+        "DarkEndHeight": 9.0,
+        "DarkStartHeight": -1.0,
+        "DarkStrength": 0.9,
+        "DirectionalScale": [
+            0.1,
+            0.12,
+            0.16
+        ],
+        "HeightDarkEnabled": true,
+        "SkyVisible": false
+    }
+}

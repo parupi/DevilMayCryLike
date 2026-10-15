@@ -34,6 +34,11 @@ public:
 	// テクスチャインデックスを取得
 	int32_t GetEnvironmentMapIndex() const { return textureIndex_; }
 
+	// 空を描くか。洞窟のように空が見えてはいけないシーンで切る。
+	// 環境マップ（反射）には使い続けるので、キューブマップ自体は残す。CreateSkyBox で表示に戻る
+	void SetVisible(bool visible) { visible_ = visible; }
+	bool IsVisible() const { return visible_; }
+
 private:
 	// VertexData生成
 	void CreateSkyBoxVertex();
@@ -53,6 +58,7 @@ private:
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
 
 	int32_t textureIndex_ = -1;
+	bool visible_ = true;
 
 	std::unique_ptr<Material> material_;
 

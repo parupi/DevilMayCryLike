@@ -38,6 +38,11 @@ public:
 	void SetEmissiveTint(const Vector4& color) { emissiveTint_ = color; }
 	const Vector4& GetEmissiveTint() const { return emissiveTint_; }
 
+	// 壁や床などの環境オブジェクトか。立っていると RenderEnvironment の「高さによる暗化」が掛かる
+	// （プレイヤーや敵には掛けない）。GBuffer の WorldPos.w に 2 として書かれる
+	void SetEnvironmentSurface(bool flag) { environmentSurface_ = flag; }
+	bool IsEnvironmentSurface() const { return environmentSurface_; }
+
 	std::string name_;
 	bool isAlive = true;
 
@@ -48,5 +53,6 @@ protected:
 	float dissolveEdgeWidth_ = 0.05f;
 	Vector4 dissolveEdgeColor_ = { 1.0f, 0.3f, 0.0f, 8.0f };
 	Vector4 emissiveTint_ = { 0.0f, 0.0f, 0.0f, 0.0f };
+	bool environmentSurface_ = false;
 };
 

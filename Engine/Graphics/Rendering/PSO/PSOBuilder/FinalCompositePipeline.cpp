@@ -57,7 +57,8 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> FinalCompositePipeline::CreatePSO(
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = isPostCopy ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	// isPostCopy はライティング結果を ping へ写すとき。ping-pong も SRGB なので、どちらも SRGB
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.SampleDesc.Count = 1;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;

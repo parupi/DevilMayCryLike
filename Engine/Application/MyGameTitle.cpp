@@ -16,6 +16,7 @@
 #include <Scene/Transition/TransitionManager.h>
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
+#include <Graphics/Rendering/Environment/RenderEnvironment.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Text/FontManager.h>
 #include <Utility/TimeManager.h>
@@ -58,6 +59,7 @@ void MyGameTitle::Initialize() {
 	PrimitiveLineDrawer::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
 	SkySystem::GetInstance().Initialize(dxManager.get(), psoManager.get());
+	RenderEnvironment::GetInstance().Initialize(dxManager.get());
 
 	RendererManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
@@ -119,6 +121,7 @@ void MyGameTitle::Finalize() {
 	PrimitiveLineDrawer::GetInstance().Finalize();
 
 	SkySystem::GetInstance().Finalize();
+	RenderEnvironment::GetInstance().Finalize();
 
 	// シーン
 	SceneManager::GetInstance().Finalize();

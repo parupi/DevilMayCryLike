@@ -121,6 +121,7 @@ void Object3d::Draw() {
 void Object3d::DrawShadow(const Matrix4x4& lightViewProj) {
 	// 非表示のオブジェクトは影も落とさない
 	if (!isDraw) return;
+	if (!castShadow_) return;
 	if (drawOption_.drawPath != DrawPath::Deferred) return;
 	for (auto* s : shadowCasters_) {
 		// このカスケードに入らないものは描かない。

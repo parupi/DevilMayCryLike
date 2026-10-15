@@ -88,7 +88,7 @@ void GBufferManager::CreateResources(UINT width, UINT height)
 	desc.clearColor[0] = 0.0f;
 	desc.clearColor[1] = 0.0f;
 	desc.clearColor[2] = 0.0f;
-	desc.clearColor[3] = 1.0f;
+	desc.clearColor[3] = 0.0f; // w=0 は何も描かれていない（GBufferPath のクリアと揃える）
 	gBufferResources_[(size_t)GBufferType::WorldPos] = resourceFactory->CreateTexture2D(desc);
 
 	//===========================

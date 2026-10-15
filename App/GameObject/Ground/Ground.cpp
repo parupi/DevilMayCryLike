@@ -23,6 +23,8 @@ void Ground::Initialize()
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, GetModelName()));
 
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
+	// 壁や床は環境オブジェクト。洞窟の「高さによる暗化」はこれが立っているものだけに掛かる
+	GetRenderer(name_)->SetEnvironmentSurface(true);
 
 	// コライダーはステージデータで付けた場合のみ存在する。
 	// エディタで作った直後は無いので、付いているものだけ Ground カテゴリにする

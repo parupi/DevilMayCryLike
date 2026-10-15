@@ -57,6 +57,7 @@ struct SceneObject {
 	Vector3 scale = { 1.0f, 1.0f, 1.0f };
 
 	std::optional<std::string> modelName;
+	bool castShadow = true;                 // false のときだけ "castShadow": false を書く
 	std::optional<ColliderInfo> collider;
 	std::optional<EventInfo> eventInfo;
 	std::optional<LightInfo> lightInfo;
@@ -77,6 +78,12 @@ public:
 
 	/// <summary>ステージデータを読み込む。開けない・形式が違う場合は例外を投げる</summary>
 	static std::vector<SceneObject> Load(const std::string& path);
+
+	/// <summary>
+	/// ステージの雰囲気の名前（最上位の "environment"）。書かれていなければ空。
+	/// 中身の設定は Resource/GlobalVariables/Environment/ にあり、StageEnvironment が読む
+	/// </summary>
+	static std::string LoadEnvironmentName(const std::string& path);
 
 private:
 	static SceneObject ParseObject(const nlohmann::json& j);

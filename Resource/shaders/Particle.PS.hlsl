@@ -95,9 +95,10 @@ PixelShaderOutput main(VertexShaderOutput input)
         uint height;
         gSceneWorldPos.GetDimensions(width, height);
         int2 pixel = clamp(int2(input.position.xy), int2(0, 0), int2(width - 1, height - 1));
-        float3 scenePos = gSceneWorldPos.Load(int3(pixel, 0)).xyz;
-        // 何も描かれていない所（空）は (0,0,0) が入っている。そこでは薄くしない
-        if (dot(scenePos, scenePos) > 1e-8f)
+        float4 sceneSample = gSceneWorldPos.Load(int3(pixel, 0));
+        float3 scenePos = sceneSample.xyz;
+        // 何も描かれていない所（空）は w=0。そこでは薄くしない
+        if (sceneSample.w > 0.5f)
         {
             float sceneDistance = distance(cameraPosition, scenePos);
             float particleDistance = distance(cameraPosition, input.worldPos);
