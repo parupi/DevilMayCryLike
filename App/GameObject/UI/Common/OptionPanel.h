@@ -38,6 +38,7 @@ private:
 		InvertY,
 		Tutorial,
 		ActionGuide,
+		AntiAliasing,
 
 		Count,
 	};
@@ -70,7 +71,9 @@ private:
 	void RefreshChoiceRow(RowSprites& row, const char* text, float brightness);
 
 	// 選択肢の行（ON/OFF や OFF/BATTLE/ALWAYS）。バーを使わず、値を文字で出す
-	static bool IsToggleRow(Row row) { return row == Row::InvertY || row == Row::Tutorial || row == Row::ActionGuide; }
+	static bool IsToggleRow(Row row) {
+		return row == Row::InvertY || row == Row::Tutorial || row == Row::ActionGuide || row == Row::AntiAliasing;
+	}
 
 	std::array<RowSprites, kRowCount> rows_{};
 	Sprite* backdrop_ = nullptr;
@@ -87,9 +90,9 @@ private:
 	// ==========================
 	// レイアウト
 	// ==========================
-	// 8行が、上のタイトル（y=128）と下の操作案内（y=654）の間に収まる位置と間隔
-	static constexpr float kRowStartY = 212.0f;
-	static constexpr float kRowSpacing = 52.0f;
+	// 9行が、上のタイトル（y=128）と下の操作案内（y=654）の間に収まる位置と間隔
+	static constexpr float kRowStartY = 204.0f;
+	static constexpr float kRowSpacing = 48.0f;
 	static constexpr float kLabelX = 330.0f;
 	static constexpr float kValueX = 700.0f;
 	static constexpr float kBarWidth = 240.0f;

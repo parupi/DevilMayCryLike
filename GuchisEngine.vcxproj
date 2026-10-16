@@ -353,6 +353,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.h" />
@@ -726,6 +727,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.cpp" />

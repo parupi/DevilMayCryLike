@@ -1047,6 +1047,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
@@ -2160,6 +2163,9 @@
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp">

@@ -1,6 +1,7 @@
 #include "GameSettings.h"
 #include "Debugger/GlobalVariables.h"
 #include "Input/GamepadRumble.h"
+#include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 
 #include <algorithm>
 
@@ -13,6 +14,9 @@ namespace {
 	const char* kKeyTutorial = "TutorialEnabled";
 	const char* kKeyActionGuide = "ActionGuideMode";
 	const char* kKeyVibration = "Vibration";
+	const char* kKeyAntiAliasing = "AntiAliasing";
+	// MyGameTitle が OffScreenManager::SetFinalEffect で登録する名前
+	const char* kFxaaEffectName = "FXAA";
 }
 
 GameSettings& GameSettings::GetInstance() {
@@ -36,6 +40,7 @@ void GameSettings::Initialize() {
 	global->AddItem(kGroup, kKeyTutorial, tutorialEnabled_);
 	global->AddItem(kGroup, kKeyActionGuide, actionGuideMode_);
 	global->AddItem(kGroup, kKeyVibration, vibration_);
+	global->AddItem(kGroup, kKeyAntiAliasing, antiAliasing_);
 	PullValues();
 }
 
@@ -69,6 +74,18 @@ void GameSettings::SetVibration(float scale) {
 	GamepadRumble::GetInstance().SetMasterScale(vibration_);
 }
 
+void GameSettings::SetAntiAliasingEnabled(bool enabled) {
+	antiAliasing_ = enabled;
+	GlobalVariables::GetInstance().SetValue(kGroup, kKeyAntiAliasing, antiAliasing_);
+	ApplyAntiAliasing();
+}
+
+void GameSettings::ApplyAntiAliasing() const {
+	if (BaseOffScreen* fxaa = OffScreenManager::GetInstance().FindEffect(kFxaaEffectName)) {
+		fxaa->SetActive(antiAliasing_);
+	}
+}
+
 void GameSettings::PullValues() {
 	GlobalVariables* global = &GlobalVariables::GetInstance();
 	if (!global->HasItem(kGroup, kKeySensitivity)) { return; }
@@ -84,4 +101,8 @@ void GameSettings::PullValues() {
 	if (global->HasItem(kGroup, kKeyActionGuide)) {
 		actionGuideMode_ = std::clamp(global->GetValueRef<int32_t>(kGroup, kKeyActionGuide), 0, kActionGuideModeCount - 1);
 	}
+	if (global->HasItem(kGroup, kKeyAntiAliasing)) {
+		antiAliasing_ = global->GetValueRef<bool>(kGroup, kKeyAntiAliasing);
+	}
+	ApplyAntiAliasing();
 }

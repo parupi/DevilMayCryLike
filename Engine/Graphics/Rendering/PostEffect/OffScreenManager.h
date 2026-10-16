@@ -26,8 +26,12 @@ public:
 	void AddEffect(std::unique_ptr<BaseOffScreen> effect);
 	// エフェクトを探す
 	BaseOffScreen* FindEffect(const std::string& name);
-	// 全エフェクトを取得
+	// 全エフェクトを取得（最後の枠のエフェクトは含まない。並び替えの対象ではないため）
 	std::vector<BaseOffScreen*> GetEffects();
+	// チェーンが全部終わった後に必ず1回だけ走らせるエフェクト（アンチエイリアス用）。
+	// AddEffect は後ろに付け足すので、App 側が後から足す演出に追い越されないようにここへ置く
+	void SetFinalEffect(std::unique_ptr<BaseOffScreen> effect);
+	BaseOffScreen* GetFinalEffect() { return finalEffect_.get(); }
 	// 適用順を1つ入れ替える（direction: -1で前へ、+1で後ろへ）。
 	// 端に達している場合は何もしない
 	void MoveEffect(size_t index, int direction);
@@ -87,5 +91,8 @@ private:
 	// effects
 	std::vector<std::unique_ptr<BaseOffScreen>> effects_;
 	std::vector<std::unique_ptr<PostEffectPath>> paths_;
+	// 最後の枠
+	std::unique_ptr<BaseOffScreen> finalEffect_;
+	std::unique_ptr<PostEffectPath> finalPath_;
 };
 
