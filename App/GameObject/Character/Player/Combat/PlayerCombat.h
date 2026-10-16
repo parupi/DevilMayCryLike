@@ -139,6 +139,13 @@ private:
 
 	AttackNode LoadAttackNode(const std::string& attackName);
 
+	/// <summary>
+	/// 1つの攻撃のデータと、攻撃グラフの出す条件（派生先以外）を GlobalVariables から読み直す。
+	/// 以前は毎フレーム全攻撃を読み直しており、それだけで Debug の1フレームの 5.7ms を使っていた。
+	/// いまは起動時に1回読み、Debug ではエディタで開いている攻撃と振っている攻撃だけをこれで読み直す
+	/// </summary>
+	void RefreshAttack(const std::string& attackName);
+
 	void DrawAttackNodeEditor(const std::string& attackName, AttackNode& node);
 
 	// 入力に合うルート攻撃を探す（条件が多いほど優先）。無ければ nullptr
@@ -167,6 +174,12 @@ private:
 #endif // _DEBUG
 
 private:
+#ifdef _DEBUG
+	// 攻撃エディタがこのフレームに表示した攻撃。次の Update で読み直してから空にする
+	// （エディタを閉じれば読み直しも止まる）
+	std::string liveEditAttack_;
+#endif // _DEBUG
+
 	std::unordered_map<std::string, AttackNode> attackGraph_;
 	// ステート名とステートインスタンスのマップ
 	std::unordered_map<std::string, std::unique_ptr<PlayerStateAttack>> states_;

@@ -60,17 +60,19 @@ void PlayerCombat::Update(float deltaTime) {
 		pendingRootTimer_ -= deltaTime;
 	}
 
-	// エディタのUIは App/Editor/Windows/AttackEditorWindow.cpp から呼ばれる
-	for (auto& [name, state] : states_) {
-		state->UpdateAttackData();
-		auto& node = attackGraph_[name];
-		node.isRootAttack = global_->GetValueRef<bool>(name, "RootAttackFlag");
-		node.isAir = global_->GetValueRef<bool>(name, "IsAir");
-		node.condition.button = static_cast<InputButton>(global_->GetValueRef<int32_t>(name, "ButtonIndex"));
-		node.condition.requireLockOn = global_->GetValueRef<bool>(name, "LockOnFlag");
-		node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(name, "DirIndex"));
-		node.condition.requireCounter = global_->GetValueRef<bool>(name, "CounterFlag");
+#ifdef _DEBUG
+	// 攻撃のデータは起動時に読んである（CreateState）。Release では値が変わらないので読み直さない。
+	// Debug では、エディタで触っている攻撃と今振っている攻撃だけ毎フレーム読み直し、
+	// 調整しながらその場で確認できるようにしておく
+	// （エディタのUIは App/Editor/Windows/AttackEditorWindow.cpp から呼ばれる）
+	if (!liveEditAttack_.empty()) {
+		RefreshAttack(liveEditAttack_);
 	}
+	if (!currentState_.empty() && currentState_.back()->name_ != liveEditAttack_) {
+		RefreshAttack(currentState_.back()->name_);
+	}
+	liveEditAttack_.clear();
+#endif // _DEBUG
 	// 死亡演出・操作不能に入ったら、攻撃の途中でもコンボを打ち切る
 	// （被弾は Player::OnDamage が中断するが、デバッグの即死など他の経路でも取り残さない）
 	if (player_->IsDying() && (IsAttacking() || comboActive_)) {
@@ -694,6 +696,9 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 #ifdef _DEBUG
 	const char* attackName = attack->name_.c_str();
 
+	// 表示している攻撃は次の Update で読み直す（ここで触った値をすぐ試せるように）
+	liveEditAttack_ = attack->name_;
+
 	// 出ないときに理由を探せるよう、一番上に出す
 	DrawRootAttackCheck(attack->name_);
 
@@ -993,6 +998,21 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 		MessageBoxA(nullptr, message.c_str(), "GlobalVariables", 0);
 	}
 #endif // IMGUI
+}
+
+void PlayerCombat::RefreshAttack(const std::string& attackName) {
+	const auto state = states_.find(attackName);
+	if (state == states_.end()) return;
+	state->second->UpdateAttackData();
+
+	// 派生先（nextAttacks）は派生エディタが attackGraph_ を直接書き換えるので、ここでは読み直さない
+	AttackNode& node = attackGraph_[attackName];
+	node.isRootAttack = global_->GetValueRef<bool>(attackName, "RootAttackFlag");
+	node.isAir = global_->GetValueRef<bool>(attackName, "IsAir");
+	node.condition.button = static_cast<InputButton>(global_->GetValueRef<int32_t>(attackName, "ButtonIndex"));
+	node.condition.requireLockOn = global_->GetValueRef<bool>(attackName, "LockOnFlag");
+	node.condition.stick = static_cast<StickDirection>(global_->GetValueRef<int32_t>(attackName, "DirIndex"));
+	node.condition.requireCounter = global_->GetValueRef<bool>(attackName, "CounterFlag");
 }
 
 AttackNode PlayerCombat::LoadAttackNode(const std::string& attackName) {

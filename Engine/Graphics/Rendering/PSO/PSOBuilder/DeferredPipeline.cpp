@@ -6,6 +6,28 @@
 
 Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateRootSignature(DirectXManager* dxManager)
 {
+	return CreateRootSignatureImpl(dxManager, false);
+}
+
+Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateInstancedRootSignature(DirectXManager* dxManager)
+{
+	return CreateRootSignatureImpl(dxManager, true);
+}
+
+Microsoft::WRL::ComPtr<ID3D12PipelineState> DeferredPipeline::CreatePSO(
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature)
+{
+	return CreatePSOImpl(dxManager, rootSignature, L"./resource/shaders/GBuffer.VS.hlsl");
+}
+
+Microsoft::WRL::ComPtr<ID3D12PipelineState> DeferredPipeline::CreateInstancedPSO(
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature)
+{
+	return CreatePSOImpl(dxManager, rootSignature, L"./resource/shaders/GBufferInstanced.VS.hlsl");
+}
+
+Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateRootSignatureImpl(DirectXManager* dxManager, bool instanced)
+{
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[1] = {};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
 	staticSamplers[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -27,17 +49,25 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateRootSignatur
 	descriptorRangeNoise[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRangeNoise[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	CD3DX12_ROOT_PARAMETER rootParams[5];
+	CD3DX12_ROOT_PARAMETER rootParams[6];
 	rootParams[0].InitAsConstantBufferView(0); // b0
-	rootParams[1].InitAsConstantBufferView(1); // b1
+	if (instanced) {
+		// b1: カメラの VP（行列1つ = 16DWORD）。インスタンスの行列と掛けて使う
+		rootParams[1].InitAsConstants(16, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	} else {
+		rootParams[1].InitAsConstantBufferView(1); // b1
+	}
 	rootParams[2].InitAsDescriptorTable(1, &descriptorRange[0]); // t0
 	rootParams[3].InitAsDescriptorTable(1, &descriptorRangeNoise[0]); // t1
 	// b2: レンダラー単位のDissolve上書き + エミッシブティント（float4 x3 = 12DWORD のルート定数）
 	// 共有マテリアルのCBではフレーム内の per-draw 差し替えができないため、ルート定数で渡す
 	rootParams[4].InitAsConstants(12, 2); // b2
+	// t2: インスタンスごとの行列（StructuredBuffer）。グループごとに先頭アドレスをずらして渡す
+	rootParams[5].InitAsShaderResourceView(2, 0, D3D12_SHADER_VISIBILITY_VERTEX);
+	const UINT paramCount = instanced ? 6u : 5u;
 
 	CD3DX12_ROOT_SIGNATURE_DESC rsDesc;
-	rsDesc.Init(_countof(rootParams), rootParams,
+	rsDesc.Init(paramCount, rootParams,
 		_countof(staticSamplers), staticSamplers,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
 
@@ -51,10 +81,10 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> DeferredPipeline::CreateRootSignatur
 	return rootSignature;
 }
 
-Microsoft::WRL::ComPtr<ID3D12PipelineState> DeferredPipeline::CreatePSO(
-	DirectXManager* dxManager, ID3D12RootSignature* rootSignature)
+Microsoft::WRL::ComPtr<ID3D12PipelineState> DeferredPipeline::CreatePSOImpl(
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature, const wchar_t* vertexShaderPath)
 {
-	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/GBuffer.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vertexShaderBlob = dxManager->CompileShader(vertexShaderPath, L"vs_6_0");
 	assert(vertexShaderBlob != nullptr);
 	Microsoft::WRL::ComPtr<IDxcBlob> pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/GBuffer.PS.hlsl", L"ps_6_0");
 	assert(pixelShaderBlob != nullptr);

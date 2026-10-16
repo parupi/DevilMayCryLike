@@ -9,6 +9,7 @@
 #include "Graphics/Rendering/PSO/PSOManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
+#include "World3D/Object/Object3dManager.h"
 #include "Graphics/Rendering/Environment/UpperFogRenderer.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Graphics/Text/FontManager.h"
@@ -127,6 +128,9 @@ void RenderPipeline::Execute() {
 
 	// 前のフレームの GPU 処理時間を読み、このフレームの計測を始める
 	GpuProfiler::GetInstance().BeginFrame();
+
+	// 床・壁をまとめて描く用のバッファを先頭へ戻す（影・GBuffer の両方が使う）
+	ctx_.object3dManager->BeginRenderFrame();
 
 	// 各描画パスを順番に実行
 	static const char* kPassNames[] = { "Pass:Skinning", "Pass:Shadow", "Pass:GBuffer", "Pass:SSAO", "Pass:Lighting", "Pass:Forward" };
