@@ -124,6 +124,9 @@
     <Filter Include="App\GameObject\UI\Menu">
       <UniqueIdentifier>{774B3579-6345-5ECB-4CB2-F4DB384BC437}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\GameObject\UI\PlayerHealthBar">
+      <UniqueIdentifier>{BA028F12-2671-E491-6F5A-9F91DB07DA2D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\GameObject\UI\StageStart">
       <UniqueIdentifier>{A4ED4E8D-90A8-3E39-3960-B78325FA88C9}</UniqueIdentifier>
     </Filter>
@@ -677,6 +680,9 @@
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h">
       <Filter>App\GameObject\UI\Menu</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\UI\PlayerHealthBar\PlayerHealthBar.h">
+      <Filter>App\GameObject\UI\PlayerHealthBar</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h">
       <Filter>App\GameObject\UI\StageStart</Filter>
@@ -1810,6 +1816,9 @@
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp">
       <Filter>App\GameObject\UI\Menu</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\UI\PlayerHealthBar\PlayerHealthBar.cpp">
+      <Filter>App\GameObject\UI\PlayerHealthBar</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp">
       <Filter>App\GameObject\UI\StageStart</Filter>

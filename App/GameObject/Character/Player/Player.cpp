@@ -32,6 +32,7 @@
 #include "World3D/Camera/CameraManager.h"
 #include "GameObject/Camera/GameCamera.h"
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
+#include "GameObject/Character/Enemy/GruntMelee/GruntMeleeWeapon.h"
 #include "Audio/SoundManager.h"
 #include "Audio/GameSoundLibrary.h"
 
@@ -112,15 +113,9 @@ void Player::Initialize() {
 
 	weapon_->SetScoreManager(scoreManager.get());
 
-	// HP表示用のハートスプライトを生成
-	hearts_.resize(maxHp_);
-	for (int32_t i = 0; i < maxHp_; ++i) {
-		// UI要素の初期化
-		hearts_[i] = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "heart" + std::to_string(i), "Heart.png");
-		hearts_[i]->SetSize({64.0f, 64.0f});
-		hearts_[i]->SetAnchorPoint({0.5f, 0.5f});
-		hearts_[i]->SetPosition({50.0f + i * 50.0f, 50.0f}); // 左上に横並びで配置
-	}
+	// HPバー（左上）。ハートを並べていた頃と同じくここで作るので、ポーズの暗幕より奥に描かれる
+	healthBar_ = std::make_unique<PlayerHealthBar>();
+	healthBar_->Initialize(maxHp_);
 
 	hitStop_ = std::make_unique<HitStop>();
 
@@ -391,8 +386,10 @@ void Player::UpdateMovementSound() {
 	}
 
 	// ── HPが少ないときの心音 ──
-	// 残り1つ（かつ生きている）の間だけ鳴らし続ける。ループなので必ず止めること
-	const bool lowHealth = (hp_ <= 1) && !IsDying() && !isDeathFinished_;
+	// 瀕死（HPバーが赤く脈打つのと同じ境目）かつ生きている間だけ鳴らし続ける。ループなので必ず止めること
+	const bool lowHealth = (hp_ > 0)
+		&& (static_cast<float>(hp_) <= static_cast<float>(maxHp_) * PlayerHealthBar::kLowHealthRatio)
+		&& !IsDying() && !isDeathFinished_;
 	if (lowHealth && lowHealthVoice_ < 0) {
 		SEPlayParams params;
 		params.name = GameSound::kPlayerLowHealth;
@@ -568,15 +565,8 @@ void Player::Update(float deltaTime) {
 	groundedForActions_ = onGround_;
 	onGround_ = false;
 
-	// HPのハート。死亡演出中は hudAlpha_ が下がってフェードアウトする
-	for (size_t i = 0; i < hearts_.size(); ++i) {
-		if (i < hp_) {
-			hearts_[i]->SetColor({1.0f, 1.0f, 1.0f, hudAlpha_}); // HP分は表示
-		} else {
-			hearts_[i]->SetColor({0.0f, 0.0f, 0.0f, 0.3f * hudAlpha_}); // 残りは半透明で表示
-		}
-		hearts_[i]->Update();
-	}
+	// HPバー。死亡演出中は hudAlpha_ が下がってフェードアウトする
+	healthBar_->Update((std::max)(hp_, int32_t(0)), maxHp_, hudAlpha_);
 }
 
 void Player::Draw() {
@@ -942,13 +932,16 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		const Vector3 attackerPos = other->owner_->GetWorldTransform()->GetWorldPos();
 		const Vector3 playerPos = GetWorldTransform()->GetTranslation();
 
-		// ボーン追従の判定（噛みつき・叩きつけ等）は攻撃ごとにダメージが違うので、
-		// 判定側が持っている値を使う。武器を振る敵（剣を持つ雑魚）は従来どおりの既定値
+		// ダメージは当たった判定の側が持っている。
+		// ボーン追従の判定（ボスの噛みつき・叩きつけ等）は攻撃ごと、雑魚の剣は剣ごと
 		DamageInfo raw;
 		if (auto* hitbox = dynamic_cast<EnemyHitbox*>(other->owner_)) {
 			raw = hitbox->GetDamageInfo();
+		} else if (auto* sword = dynamic_cast<GruntMeleeWeapon*>(other->owner_)) {
+			raw = sword->GetDamageInfo();
 		} else {
-			raw.damage = 1.0f;
+			// どちらでもない敵の武器（新しく足した敵など）。雑魚の剣と同じ強さにしておく
+			raw.damage = GruntMeleeWeapon::kDamage;
 			raw.knockback.type = ReactionType::Knockback;
 			raw.knockback.power = 15.0f;
 			raw.knockback.verticalPower = 15.0f * 0.4f;
