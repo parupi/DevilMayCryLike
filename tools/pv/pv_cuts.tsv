@@ -1,0 +1,29 @@
+# PV（1本目）のカット表。絵コンテの「① PV」と同じ番号。タブ区切り、空欄は "-"。
+# 列: id  dur(秒)  src  start  vol  bgm  pos  telop  label
+#   src   : 動画ファイル（tools/pv から見た相対 or 絶対パス） / placeholder = 撮影待ちの黒画面 / black = 暗転 / card = 制作者情報
+#   start : 素材の切り出し開始（秒 or m:ss）
+#   vol   : 素材の音量（0〜1）。BGMを0にして録った素材なら 1（SEだけ入る）
+#   bgm   : Resource/sound のファイル名。"名前@秒" で途中から。前のカットと同じ文字列なら続けて流れる / - = BGMなし
+#   pos   : テロップ位置 br=右下 bc=下中央
+#   label : placeholder のとき画面中央に出す説明
+#
+# 素材: G=雑魚戦(13-51-19), B=ボス戦(12-48-10)。どちらもBGMを0にして録った版。タイトルだけ 11-34-19 の24fps版(通知アイコンが映らない)。
+1	6	placeholder	-	0	TitleBGM.wav	br	-	洞窟の回廊をゆっくり前進（松明・埃・霧）
+2	4	placeholder	-	0	TitleBGM.wav	br	自作 DirectX12 エンジン	天井から差す光の筋と光る埃
+3	4	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 13-51-19.mp4	0	1.5	TitleBGM.wav	br	-	-
+4	4	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 11-34-19.mp4	0	0	GamePlayBGM.wav	bc	C++ / DirectX12 自作エンジン製 3Dアクション	-
+5	4	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 13-51-19.mp4	4.5	1.5	GamePlayBGM.wav	br	-	-
+6	8	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 13-51-19.mp4	16	1.5	GamePlayBGM.wav	br	コンボ派生・空中追撃	-
+7	4	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 13-51-19.mp4	24	1.5	GamePlayBGM.wav	br	ヒットストップ・ノックバック	-
+8	6	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 13-51-19.mp4	10.5	1.5	GamePlayBGM.wav	br	ジャスト回避	-
+9	3	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 13-51-19.mp4	28	1.5	GamePlayBGM.wav	br	-	-
+10	3	black	-	0	-	br	-	-
+11	6	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	11	1.5	BattleBGM.wav	br	-	-
+12	6	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	39.5	1.5	BattleBGM.wav	br	ブレス：パーティクル＋熱歪み＋動的ライト	-
+13	6	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	18	1.5	BattleBGM.wav	br	攻撃予兆と射程を見た行動AI	-
+14	6	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	30	1.5	BattleBGM.wav	br	-	-
+15	6	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	53	1.5	BattleBGM.wav	br	-	-
+16	8	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	62	1.5	BattleBGM.wav	br	-	-
+17	5	../../../../../Videos/Captures/Eclipser with GuchisEngine 2026-10-16 12-48-10.mp4	73	1.5	ClearBGM.wav	br	-	-
+18	9	placeholder	-	0	ClearBGM.wav	br	エディタもSEも、すべて自作	エディタ4分割（ステージ・アニメ・パーティクル・SE）
+19	6	card	-	0	ClearBGM.wav	br	-	-
