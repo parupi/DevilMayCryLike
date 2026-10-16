@@ -142,6 +142,9 @@
     <Filter Include="App\Scene">
       <UniqueIdentifier>{E35FB503-4FCA-697A-9808-1B2004B247CF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Scene\Clear">
+      <UniqueIdentifier>{F95080C8-65DC-ED8C-6EED-7081DAF7498D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Scene\GameScene">
       <UniqueIdentifier>{7A5A0DDC-E6BB-EAE9-6F29-319CDB8921A9}</UniqueIdentifier>
     </Filter>
@@ -648,12 +651,6 @@
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClInclude>
-    <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClInclude>
     <ClInclude Include="App\GameObject\UI\Common\ConfirmDialog.h">
       <Filter>App\GameObject\UI\Common</Filter>
     </ClInclude>
@@ -710,6 +707,9 @@
     </ClInclude>
     <ClInclude Include="App\Input\LockOnInput.h">
       <Filter>App\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Scene\Clear\ClearSequence.h">
+      <Filter>App\Scene\Clear</Filter>
     </ClInclude>
     <ClInclude Include="App\Scene\ClearScene.h">
       <Filter>App\Scene</Filter>
@@ -1784,12 +1784,6 @@
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClCompile>
-    <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClCompile>
     <ClCompile Include="App\GameObject\UI\Common\ConfirmDialog.cpp">
       <Filter>App\GameObject\UI\Common</Filter>
     </ClCompile>
@@ -1846,6 +1840,9 @@
     </ClCompile>
     <ClCompile Include="App\Input\LockOnInput.cpp">
       <Filter>App\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Scene\Clear\ClearSequence.cpp">
+      <Filter>App\Scene\Clear</Filter>
     </ClCompile>
     <ClCompile Include="App\Scene\ClearScene.cpp">
       <Filter>App\Scene</Filter>

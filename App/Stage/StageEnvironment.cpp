@@ -380,10 +380,9 @@ void StageEnvironment::Apply(const std::string& environmentName)
 	gv.CreateGroup(g_group);
 	gv.LoadFile(kDirectory, g_group);
 
-	// 既定値を持っているのは今のところ洞窟だけ。他の名前はファイルに全項目を書いておくこと
-	if (environmentName == "Cave") {
-		AddCaveDefaults(gv, g_group);
-	}
+	// どの雰囲気も洞窟の値を下地にする（AddItem はファイルに書いてある値を上書きしない）。
+	// タイトル（"Title"）のように一部だけ変えたい雰囲気は、変えたい項目だけをファイルに書けばよい
+	AddCaveDefaults(gv, g_group);
 
 	PushToRenderer(gv, g_group);
 }

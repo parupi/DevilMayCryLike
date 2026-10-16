@@ -7,7 +7,7 @@
 
 void StyleHUD::Initialize()
 {
-	// ランク画像（クリア画面と同じ Ranks.png。横5フレームのUVシート）
+	// ランク画像（Ranks.png。横5フレームのUVシート）
 	rank_ = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "styleRank", "Ranks.png");
 	rank_->SetUVSize({ 0.2f, 1.0f });
 	rank_->SetAnchorPoint({ 0.5f, 0.5f });

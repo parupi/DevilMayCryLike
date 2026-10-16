@@ -10,6 +10,7 @@
 #include <GameObject/UI/TitleUI/TitleUI.h>
 #include <GameObject/UI/TitleUI/TitleMenu.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
+#include <GameObject/Effect/CaveDustEmitter.h>
 
 /// <summary>
 /// タイトルシーンを管理するクラス  
@@ -83,6 +84,8 @@ private:
 	LightManager* lightManager_ = &LightManager::GetInstance(); ///< ライト管理クラス
 	std::unique_ptr<TitleUI> titleUI_ = nullptr; ///< タイトル画面のUI要素管理
 	std::unique_ptr<TitleMenu> titleMenu_ = nullptr; ///< 操作案内のあとに出る選択メニュー
+	/// 洞窟の埃（プレイヤーのまわりと、プレイヤーの真上から差す天井の光の中）
+	std::unique_ptr<CaveDustEmitter> caveDust_;
 
 	/// <summary>アプリの終了処理に入ったか。暗転中に再入力を拾わないための見張り</summary>
 	bool isQuitting_ = false;

@@ -1,0 +1,13 @@
+{
+    "Environment_Clear": {
+        "AmbientColor": [
+            0.05,
+            0.062,
+            0.08
+        ],
+        "DistanceFogDensity": 0.035,
+        "DistanceFogStart": 10.0,
+        "DistanceFogMaxOpacity": 0.92,
+        "DripEnabled": false
+    }
+}
