@@ -51,7 +51,15 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> LightingPathPipeline::CreateRootSign
 	descriptorRangesForShadow[0].RegisterSpace = 0;
 	descriptorRangesForShadow[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[6] = {};
+	// AO (t8)。SSAORenderPass の結果
+	D3D12_DESCRIPTOR_RANGE descriptorRangesForAo[1] = {};
+	descriptorRangesForAo[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangesForAo[0].NumDescriptors = 1;
+	descriptorRangesForAo[0].BaseShaderRegister = 8; // t8
+	descriptorRangesForAo[0].RegisterSpace = 0;
+	descriptorRangesForAo[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParameters[8] = {};
 	// 0: GBuffer SRVs (PS)
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[0].DescriptorTable.NumDescriptorRanges = 1;
@@ -79,6 +87,15 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> LightingPathPipeline::CreateRootSign
 	rootParameters[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[5].Descriptor.ShaderRegister = 4;
 	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// 6: Environment b5 (PS)。背景色・アンビエント・平行光の倍率・高さによる暗化（RenderEnvironment）
+	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[6].Descriptor.ShaderRegister = 5;
+	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// 7: AO SRV (PS)。RenderEnvironment::BindToLighting が b5 と一緒に積む
+	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[7].DescriptorTable.NumDescriptorRanges = 1;
+	rootParameters[7].DescriptorTable.pDescriptorRanges = descriptorRangesForAo;
+	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
 	D3D12_STATIC_SAMPLER_DESC samplers[2] = { samplerDesc, shadowSampler };
 

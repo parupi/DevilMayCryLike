@@ -13,7 +13,9 @@
 
 #include "GameObject/Event/BaseEvent.h"
 #include "GameObject/Light/StagePointLight.h"
+#include "GameObject/Light/StageSpotLight.h"
 #include "GameObject/Prop/Prop.h"
+#include "Stage/StageDocument.h"
 
 // 書き出しは挿入順を保つ ordered_json を使う。
 // 既定の json は キーを辞書順に並べ替えてしまい、差分が読みにくくなるため
@@ -66,6 +68,24 @@ namespace {
 		return std::nullopt;
 	}
 
+	std::optional<SpotLightInfo> CaptureSpotLight(Object3d* object) {
+		auto* spotLight = dynamic_cast<StageSpotLight*>(object);
+		if (!spotLight) {
+			return std::nullopt;
+		}
+		const StageSpotLight::Params& p = spotLight->GetParams();
+		SpotLightInfo info;
+		info.color = p.color;
+		info.intensity = p.intensity;
+		info.distance = p.distance;
+		info.decay = p.decay;
+		info.outerAngle = p.outerAngle;
+		info.innerAngle = p.innerAngle;
+		info.particleLighting = p.particleLighting;
+		info.volumetric = p.volumetric;
+		return info;
+	}
+
 	std::optional<LightInfo> CaptureLight(Object3d* object) {
 		if (auto* stageLight = dynamic_cast<StagePointLight*>(object)) {
 			LightInfo info;
@@ -113,6 +133,9 @@ namespace {
 		if (object.modelName.has_value()) {
 			j["model"] = object.modelName.value();
 		}
+		if (!object.castShadow) {
+			j["castShadow"] = false;
+		}
 
 		if (object.collider.has_value()) {
 			const ColliderInfo& col = object.collider.value();
@@ -139,6 +162,20 @@ namespace {
 			l["radius"] = li.radius;
 			l["decay"] = li.decay;
 			j["light"] = l;
+		}
+
+		if (object.spotLightInfo.has_value()) {
+			const SpotLightInfo& si = object.spotLightInfo.value();
+			json l;
+			l["color"] = ToJson(si.color);
+			l["intensity"] = si.intensity;
+			l["distance"] = si.distance;
+			l["decay"] = si.decay;
+			l["outerAngle"] = si.outerAngle;
+			l["innerAngle"] = si.innerAngle;
+			l["particleLighting"] = si.particleLighting;
+			l["volumetric"] = si.volumetric;
+			j["spotLight"] = l;
 		}
 
 		if (object.eventInfo.has_value()) {
@@ -168,9 +205,11 @@ SceneObject SceneSaver::CaptureObject(Object3d* object) {
 	if (!modelName.empty()) {
 		out.modelName = modelName;
 	}
+	out.castShadow = object->GetCastShadow();
 
 	out.collider = CaptureCollider(object);
 	out.lightInfo = CaptureLight(object);
+	out.spotLightInfo = CaptureSpotLight(object);
 	out.eventInfo = CaptureEvent(object);
 
 	return out;
@@ -195,6 +234,10 @@ bool SceneSaver::Save(const std::string& path) {
 	json root;
 	root["format"] = SceneLoader::kFormatName;
 	root["version"] = SceneLoader::kFormatVersion;
+	// 雰囲気は Object3d に乗らないので、読み込んだときに覚えた名前を書き戻す
+	if (!StageDocument::GetEnvironment().empty()) {
+		root["environment"] = StageDocument::GetEnvironment();
+	}
 	root["objects"] = json::array();
 	for (const SceneObject& object : objects) {
 		root["objects"].push_back(ToJson(object));

@@ -1,6 +1,7 @@
 {
   "format": "GuchisStage",
   "version": 2,
+  "environment": "Cave",
   "objects": [
     {
       "name": "TrainingFloor_0_0",
@@ -3410,6 +3411,1388 @@
         "targets": [
           "BossDragon"
         ]
+      }
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_0",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        -24.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_1",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_2",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_3",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_4",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_5",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_6",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_7",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopWest_8",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_0",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        -24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_1",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_2",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_3",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_4",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_5",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_6",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_7",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopEast_8",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_0",
+      "class": "Ground",
+      "translate": [
+        -24.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_1",
+      "class": "Ground",
+      "translate": [
+        -18.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_2",
+      "class": "Ground",
+      "translate": [
+        -12.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_3",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_4",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_5",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_6",
+      "class": "Ground",
+      "translate": [
+        12.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_7",
+      "class": "Ground",
+      "translate": [
+        18.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopSouth_8",
+      "class": "Ground",
+      "translate": [
+        24.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_0",
+      "class": "Ground",
+      "translate": [
+        -24.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_1",
+      "class": "Ground",
+      "translate": [
+        -18.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_2",
+      "class": "Ground",
+      "translate": [
+        -12.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_3",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_4",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_5",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_6",
+      "class": "Ground",
+      "translate": [
+        12.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_7",
+      "class": "Ground",
+      "translate": [
+        18.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "Cave_Overhang_TrainingWallTopNorth_8",
+      "class": "Ground",
+      "translate": [
+        24.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "Cave_OverhangCorner_EN",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_Corner"
+    },
+    {
+      "name": "Cave_OverhangCorner_WS",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_Corner"
+    },
+    {
+      "name": "Cave_OverhangCorner_WN",
+      "class": "Ground",
+      "translate": [
+        -27.0,
+        3.375,
+        27.0
+      ],
+      "rotate": [
+        0.0,
+        -0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_Corner"
+    },
+    {
+      "name": "Cave_OverhangCorner_ES",
+      "class": "Ground",
+      "translate": [
+        27.0,
+        3.375,
+        -27.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_Corner"
+    },
+    {
+      "name": "Cave_Torch_x-_0",
+      "class": "WallTorch",
+      "translate": [
+        -26.82,
+        -3.045,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_x-_1",
+      "class": "WallTorch",
+      "translate": [
+        -26.82,
+        -3.045,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_x+_0",
+      "class": "WallTorch",
+      "translate": [
+        26.82,
+        -3.045,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_x+_1",
+      "class": "WallTorch",
+      "translate": [
+        26.82,
+        -3.045,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_z-_0",
+      "class": "WallTorch",
+      "translate": [
+        -12.0,
+        -3.045,
+        -26.82
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_z-_1",
+      "class": "WallTorch",
+      "translate": [
+        12.0,
+        -3.045,
+        -26.82
+      ],
+      "rotate": [
+        0.0,
+        0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_z+_0",
+      "class": "WallTorch",
+      "translate": [
+        -12.0,
+        -3.045,
+        26.82
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_Torch_z+_1",
+      "class": "WallTorch",
+      "translate": [
+        12.0,
+        -3.045,
+        26.82
+      ],
+      "rotate": [
+        0.0,
+        -0.7071,
+        0.0,
+        0.7071
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_RockLarge_0",
+      "class": "Ground",
+      "translate": [
+        23.8,
+        -5.195,
+        23.8
+      ],
+      "rotate": [
+        0.0,
+        0.525574,
+        0.0,
+        0.850748
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockLarge_02",
+      "collider": {
+        "shape": "OBB",
+        "offset": [
+          0.0,
+          1.3,
+          0.0
+        ],
+        "halfExtents": [
+          1.105,
+          0.78,
+          1.105
+        ]
+      }
+    },
+    {
+      "name": "Cave_RockLarge_1",
+      "class": "Ground",
+      "translate": [
+        -23.8,
+        -5.195,
+        23.8
+      ],
+      "rotate": [
+        0.0,
+        0.073633,
+        0.0,
+        0.997285
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockLarge_01",
+      "collider": {
+        "shape": "OBB",
+        "offset": [
+          0.0,
+          0.9,
+          0.0
+        ],
+        "halfExtents": [
+          0.765,
+          0.54,
+          0.765
+        ]
+      }
+    },
+    {
+      "name": "Cave_RockLarge_2",
+      "class": "Ground",
+      "translate": [
+        -23.8,
+        -5.195,
+        -23.8
+      ],
+      "rotate": [
+        0.0,
+        0.831326,
+        0.0,
+        -0.555785
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockLarge_02",
+      "collider": {
+        "shape": "OBB",
+        "offset": [
+          0.0,
+          1.3,
+          0.0
+        ],
+        "halfExtents": [
+          1.105,
+          0.78,
+          1.105
+        ]
+      }
+    },
+    {
+      "name": "Cave_RockLarge_3",
+      "class": "Ground",
+      "translate": [
+        23.8,
+        -5.195,
+        -23.8
+      ],
+      "rotate": [
+        0.0,
+        0.189805,
+        0.0,
+        -0.981822
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockLarge_01",
+      "collider": {
+        "shape": "OBB",
+        "offset": [
+          0.0,
+          0.9,
+          0.0
+        ],
+        "halfExtents": [
+          0.765,
+          0.54,
+          0.765
+        ]
+      }
+    },
+    {
+      "name": "Cave_RockCluster_0",
+      "class": "Ground",
+      "translate": [
+        25.6,
+        -5.145,
+        -5.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_RockCluster_1",
+      "class": "Ground",
+      "translate": [
+        -25.6,
+        -5.145,
+        7.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_RockCluster_2",
+      "class": "Ground",
+      "translate": [
+        4.0,
+        -5.145,
+        25.6
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_RockCluster_3",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        -5.145,
+        -25.6
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_CeilingLight",
+      "class": "SpotLight",
+      "translate": [
+        0.0,
+        14.0,
+        10.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "spotLight": {
+        "color": [
+          0.78,
+          0.86,
+          1.0
+        ],
+        "intensity": 4.0,
+        "distance": 30.0,
+        "decay": 0.012,
+        "outerAngle": 12.0,
+        "innerAngle": 7.0,
+        "particleLighting": 1.0,
+        "volumetric": 1.0
       }
     }
   ]

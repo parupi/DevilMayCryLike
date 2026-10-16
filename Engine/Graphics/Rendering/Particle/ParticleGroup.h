@@ -102,6 +102,34 @@ struct ParticleParameters {
 	bool sortByDepth = false;
 	// ソフトパーティクル: 地面や壁との距離がこれ[m]より近い部分を薄くする。0=使わない
 	float softDistance = 0.0f;
+
+	// ── 粒ごとの透明度のばらつき ──
+	// BaseAlphaMax が 0 なら従来どおり全粒アルファ 1。正なら BaseAlphaMin〜BaseAlphaMax から選ぶ。
+	// alphaPower を 1 より大きくすると暗い（薄い）粒が多くなる（u^alphaPower で選ぶ）
+	float alphaMin = 0.0f;
+	float alphaMax = 0.0f;
+	float alphaPower = 1.0f;
+
+	// ── カメラからの距離で薄くする ──（farFadeEnd が 0 以下なら使わない）
+	float nearFadeStart = 0.0f; // これより近いと透明
+	float nearFadeEnd = 0.0f;   // ここから先は不透明
+	float farFadeStart = 0.0f;  // ここから薄くなり始め
+	float farFadeEnd = 0.0f;    // ここで透明
+
+	// ── ゆっくり漂う動き ──（低周波の揺らぎで速度を少しずつ曲げる。0 で無効）
+	float noiseMoveStrength = 0.0f;  // 加速度の大きさ[m/s^2]
+	float noiseMoveFrequency = 0.3f; // 揺らぎの細かさ（1mあたり・1秒あたり）
+
+	// ── 光源に照らされる（埃など）──
+	// ライトの padding[1]（BaseLight::SetParticleLightingScale）が正のライトだけが照らす
+	bool litByLights = false;
+	Vector3 ambientDustColor{ 0.0f, 0.0f, 0.0f }; // 光が当たっていない所での明るさ（色に掛ける）
+	float ambientVisibility = 1.0f; // 光が当たっていない所での透明度の倍率（小さいほど暗所で消える）
+	float lightResponse = 1.0f;     // 光の強さで透明度がどれだけ上がるか
+	float colorResponse = 1.0f;     // 光源の色をどれだけ映すか（0=明るさだけ）
+
+	// グループ全体に掛ける透明度の倍率。生きている粒にもすぐ効く（戦闘中に埃を薄くするのに使う）
+	float groupAlphaScale = 1.0f;
 };
 
 struct ParticleGroup

@@ -52,6 +52,16 @@ std::vector<SceneObject> SceneLoader::Load(const std::string& path) {
 	return objects;
 }
 
+std::string SceneLoader::LoadEnvironmentName(const std::string& path) {
+	std::ifstream file(path);
+	if (!file) {
+		return {};
+	}
+	json root;
+	file >> root;
+	return root.value("environment", "");
+}
+
 SceneObject SceneLoader::ParseObject(const json& j) {
 	SceneObject out;
 	out.name = j.value("name", "");
@@ -64,6 +74,7 @@ SceneObject SceneLoader::ParseObject(const json& j) {
 	if (j.contains("model")) {
 		out.modelName = j["model"].get<std::string>();
 	}
+	out.castShadow = j.value("castShadow", true);
 
 	if (j.contains("collider")) {
 		out.collider = ParseCollider(j["collider"]);
@@ -78,6 +89,20 @@ SceneObject SceneLoader::ParseObject(const json& j) {
 		info.radius = l.value("radius", info.radius);
 		info.decay = l.value("decay", info.decay);
 		out.lightInfo = info;
+	}
+
+	if (j.contains("spotLight")) {
+		const auto& l = j["spotLight"];
+		SpotLightInfo info;
+		info.color = ReadVector3(l.value("color", json::array()), info.color);
+		info.intensity = l.value("intensity", info.intensity);
+		info.distance = l.value("distance", info.distance);
+		info.decay = l.value("decay", info.decay);
+		info.outerAngle = l.value("outerAngle", info.outerAngle);
+		info.innerAngle = l.value("innerAngle", info.innerAngle);
+		info.particleLighting = l.value("particleLighting", info.particleLighting);
+		info.volumetric = l.value("volumetric", info.volumetric);
+		out.spotLightInfo = info;
 	}
 
 	if (j.contains("event")) {

@@ -125,6 +125,10 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> OffScreenPipeline::CreatePSO(
 		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
 		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/SpeedLine.PS.hlsl", L"ps_6_0");
 		break;
+	case OffScreenEffectType::kToneMap:
+		vertexShaderBlob = dxManager->CompileShader(L"./resource/shaders/Fullscreen.VS.hlsl", L"vs_6_0");
+		pixelShaderBlob = dxManager->CompileShader(L"./resource/shaders/ToneMap.PS.hlsl", L"ps_6_0");
+		break;
 	}
 	assert(pixelShaderBlob != nullptr);
 
@@ -153,7 +157,7 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> OffScreenPipeline::CreatePSO(
 	psoDesc.DepthStencilState = depthStencilDesc;
 	psoDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R16G16B16A16_FLOAT; // ping-pong と同じ（OffScreenManager::CreateOffScreenRenderTarget）
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.SampleDesc.Count = 1;
 	psoDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;

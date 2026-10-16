@@ -151,6 +151,8 @@ namespace GameSound {
 	inline constexpr const char* kAmbienceDungeon = "AmbienceDungeon";
 	/// <summary>松明のパチパチ。ループ</summary>
 	inline constexpr const char* kTorchCrackle = "TorchCrackle";
+	/// <summary>天井から落ちた水滴が床で跳ねる「ポチャン」。洞窟の水滴（CaveDripEmitter）が位置つきで鳴らす</summary>
+	inline constexpr const char* kWaterDrip = "WaterDrip";
 
 	// ───────────────────────────── 登録 ─────────────────────────────
 

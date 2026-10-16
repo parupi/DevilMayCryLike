@@ -1,5 +1,7 @@
 #define NOMINMAX
 #include "ParticleManager.h"
+#include "World3D/Light/LightManager.h"
+#include "Graphics/Rendering/Environment/RenderEnvironment.h"
 #include "Math/MathUtils.h"
 #include <Debugger/ImGuiManager.h>
 #include <algorithm>
@@ -231,6 +233,11 @@ void ParticleManager::Draw()
 			srvManager_->SetGraphicsRootDescriptorTable(5, renderState.noiseTextureIndex);
 		}
 
+		// 光源（埃が照らされる）。ライティングとは別の番号に積む（LightManager::BindLightsToShader は 2/3 決め打ち）
+		LightManager& lights = LightManager::GetInstance();
+		commandList->SetGraphicsRootDescriptorTable(6, lights.GetLightBufferSrv());
+		commandList->SetGraphicsRootConstantBufferView(7, lights.GetLightCountAddress());
+
 		// ④ 描画
 		particleRenderer_.Draw(commandList, instanceCount, gpu.indexCount);
 	}
@@ -392,7 +399,20 @@ void ParticleManager::WriteGroupConstants(const ParticleGroup& group, ParticleGr
 	if (params.noiseEnabled) flags |= kParticleFlagNoise;
 	if (params.noiseGrayscale) flags |= kParticleFlagGrayscale;
 	if (params.softDistance > 0.0f && hasSceneWorldPositionSrv_) flags |= kParticleFlagSoft;
+	if (params.litByLights) flags |= kParticleFlagLit;
+	if (params.farFadeEnd > 0.0f) flags |= kParticleFlagCameraFade;
 	constants.flags = flags;
+
+	constants.nearFadeStart = params.nearFadeStart;
+	constants.nearFadeEnd = (std::max)(params.nearFadeEnd, params.nearFadeStart + 0.001f);
+	constants.farFadeStart = params.farFadeStart;
+	constants.farFadeEnd = (std::max)(params.farFadeEnd, params.farFadeStart + 0.001f);
+	constants.ambientDustColor = params.ambientDustColor;
+	constants.ambientVisibility = params.ambientVisibility;
+	constants.lightResponse = params.lightResponse;
+	constants.colorResponse = params.colorResponse;
+	constants.alphaScale = params.groupAlphaScale;
+	constants.debugView = static_cast<float>(static_cast<int>(RenderEnvironment::GetInstance().GetDebugView()));
 
 	// 行ベクトル規約なので、カメラのワールド行列の4行目がカメラの位置
 	const Matrix4x4& cameraMatrix = camera_->GetWorldMatrix();
@@ -476,6 +496,25 @@ void ParticleManager::RegisterEditorParameters(const std::string& name)
 	global_->AddItem(name, "SortOrder", int{});
 	global_->AddItem(name, "SortByDepth", bool{});
 	global_->AddItem(name, "SoftDistance", float{});
+
+	// 透明度のばらつき・カメラ距離フェード・漂う動き・光源に照らされる。既定値のままなら従来と同じ
+	// 粒ごとの透明度のばらつき。旧 minAlpha/maxAlpha は一度も使われないまま値が入っているグループがあるので、
+	// それに影響しないよう別のキーにする（BaseAlphaMax が 0 なら従来どおりアルファ 1）
+	global_->AddItem(name, "BaseAlphaMin", float{});
+	global_->AddItem(name, "BaseAlphaMax", float{});
+	global_->AddItem(name, "AlphaPower", float{ 1.0f });
+	global_->AddItem(name, "NearFadeStart", float{});
+	global_->AddItem(name, "NearFadeEnd", float{});
+	global_->AddItem(name, "FarFadeStart", float{});
+	global_->AddItem(name, "FarFadeEnd", float{});
+	global_->AddItem(name, "NoiseMoveStrength", float{});
+	global_->AddItem(name, "NoiseMoveFrequency", float{ 0.3f });
+	global_->AddItem(name, "LitByLights", bool{});
+	global_->AddItem(name, "AmbientDustColor", Vector3{});
+	global_->AddItem(name, "AmbientVisibility", float{ 1.0f });
+	global_->AddItem(name, "LightResponse", float{ 1.0f });
+	global_->AddItem(name, "ColorResponse", float{ 1.0f });
+	global_->AddItem(name, "GroupAlphaScale", float{ 1.0f });
 }
 
 void ParticleManager::UploadInstanceData(const std::string& groupName, const std::vector<InstanceData>& instanceList, size_t instanceCount)
@@ -626,6 +665,12 @@ Particle ParticleManager::MakeNewParticle(const std::string& name, const Vector3
 	particle.transform.translate = translate + randomTranslate;
 	particle.velocity = { distVelocityX(randomEngine), distVelocityY(randomEngine), distVelocityZ(randomEngine) };
 	particle.color = { distColorR(randomEngine) , distColorG(randomEngine) , distColorB(randomEngine) , 1.0f };
+	// 透明度のばらつき。BaseAlphaMax が 0 のグループは従来どおり 1
+	if (params.alphaMax > 0.0f) {
+		std::uniform_real_distribution<float> distUnit(0.0f, 1.0f);
+		const float u = std::pow(distUnit(randomEngine), (std::max)(params.alphaPower, 0.01f));
+		particle.color.w = params.alphaMin + (params.alphaMax - params.alphaMin) * u;
+	}
 	particle.lifeTime = distTime(randomEngine);
 	particle.currentTime = 0.0f;
 	particle.isBillboard = params.isBillboard;
@@ -783,6 +828,21 @@ ParticleParameters ParticleManager::LoadParticleParameters(GlobalVariables* glob
 	// 描画順・ソフトパーティクル
 	params.sortOrder = global->GetValueRef<int>(groupName, "SortOrder");
 	params.sortByDepth = global->GetValueRef<bool>(groupName, "SortByDepth");
+	params.alphaMin = global->GetValueRef<float>(groupName, "BaseAlphaMin");
+	params.alphaMax = global->GetValueRef<float>(groupName, "BaseAlphaMax");
+	params.alphaPower = global->GetValueRef<float>(groupName, "AlphaPower");
+	params.nearFadeStart = global->GetValueRef<float>(groupName, "NearFadeStart");
+	params.nearFadeEnd = global->GetValueRef<float>(groupName, "NearFadeEnd");
+	params.farFadeStart = global->GetValueRef<float>(groupName, "FarFadeStart");
+	params.farFadeEnd = global->GetValueRef<float>(groupName, "FarFadeEnd");
+	params.noiseMoveStrength = global->GetValueRef<float>(groupName, "NoiseMoveStrength");
+	params.noiseMoveFrequency = global->GetValueRef<float>(groupName, "NoiseMoveFrequency");
+	params.litByLights = global->GetValueRef<bool>(groupName, "LitByLights");
+	params.ambientDustColor = global->GetValueRef<Vector3>(groupName, "AmbientDustColor");
+	params.ambientVisibility = global->GetValueRef<float>(groupName, "AmbientVisibility");
+	params.lightResponse = global->GetValueRef<float>(groupName, "LightResponse");
+	params.colorResponse = global->GetValueRef<float>(groupName, "ColorResponse");
+	params.groupAlphaScale = global->GetValueRef<float>(groupName, "GroupAlphaScale");
 	params.softDistance = global->GetValueRef<float>(groupName, "SoftDistance");
 
 	return params;
@@ -800,12 +860,16 @@ void ParticleManager::Emit(const std::string& name, const Vector3& position, uin
 
 void ParticleManager::EmitInternal(const std::string& name, const Vector3& position, uint32_t count, const Vector3* direction)
 {
-	auto& particles = particleGroups_[name].particles;
+	ParticleGroup& group = particleGroups_[name];
+	auto& particles = group.particles;
 
 	particles.reserve(particles.size() + count);
 
 	for (uint32_t i = 0; i < count; ++i) {
-		particles.emplace_back(MakeNewParticle(name, position, direction));
+		Particle particle = MakeNewParticle(name, position, direction);
+		// 生まれたフレームに描かれても、カーブの始まりの見た目になるようにする
+		updateSystem_.ApplyCurvesAtBirth(particle, group.curves);
+		particles.emplace_back(particle);
 	}
 }
 
@@ -1014,7 +1078,8 @@ void ParticleManager::EmitFromMesh(const std::string& groupName, const std::stri
 	MeshShapeSampler* sampler = GetMeshSampler(modelName);
 	if (!sampler) return;
 
-	auto& particles = particleGroups_[groupName].particles;
+	ParticleGroup& group = particleGroups_[groupName];
+	auto& particles = group.particles;
 
 	particles.reserve(particles.size() + count);
 
@@ -1022,6 +1087,8 @@ void ParticleManager::EmitFromMesh(const std::string& groupName, const std::stri
 		// メッシュ表面上の点（モデルローカル）をワールドへ変換して発生させる
 		Vector3 localPos = sampler->Sample(randomEngine);
 		Vector3 worldPos = Transform(localPos, worldMatrix);
-		particles.emplace_back(MakeNewParticle(groupName, worldPos, nullptr));
+		Particle particle = MakeNewParticle(groupName, worldPos, nullptr);
+		updateSystem_.ApplyCurvesAtBirth(particle, group.curves);
+		particles.emplace_back(particle);
 	}
 }

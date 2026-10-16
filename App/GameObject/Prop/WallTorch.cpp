@@ -13,6 +13,7 @@
 #include "World3D/Camera/BaseCamera.h"
 #include "World3D/Light/DynamicPointLight.h"
 #include "World3D/Object/Object3dManager.h"
+#include "Stage/StageEnvironment.h"
 
 namespace {
 
@@ -42,9 +43,18 @@ void WallTorch::Initialize() {
 
 	// モデル・コライダー・ポイントライトの生成は Prop に任せる
 	Prop::Initialize();
+	// 松明の光は空気中で散らせる（洞窟の雰囲気で volumetric が有効なときだけ見える）
+	if (DynamicPointLight* light = GetLight()) {
+		light->SetVolumetricScale(1.0f);
+		// 松明のまわりの埃（LitByLights のパーティクル）を暖色に照らす
+		light->SetParticleLightingScale(1.0f);
+	}
 
 	EnsureFireVFXLoaded();
-	canEmitEmber_ = ParticleManager::GetInstance().GetParticleGroups().contains(kEmberParticle);
+	const auto& groups = ParticleManager::GetInstance().GetParticleGroups();
+	canEmitEmber_ = groups.contains(kEmberParticle);
+	canEmitSmoke_ = groups.contains(kSmokeParticle);
+	canEmitMote_ = groups.contains(kMoteParticle);
 
 	// トーチごとにゆらぎと発生の位相をずらす。
 	// 揃っていると隣り合ったトーチが同じ瞬間に瞬いて機械仕掛けに見える
@@ -52,6 +62,8 @@ void WallTorch::Initialize() {
 	flickerTime_ = phase;
 	flameTimer_ = std::fmod(phase, kFlameInterval);
 	emberTimer_ = std::fmod(phase, kEmberInterval);
+	smokeTimer_ = std::fmod(phase, kSmokeInterval);
+	moteTimer_ = std::fmod(phase, kMoteInterval);
 }
 
 WallTorch::~WallTorch() {
@@ -82,12 +94,15 @@ void WallTorch::Update(float deltaTime) {
 
 	// ── ライトのゆらぎ ──
 	if (DynamicPointLight* light = GetLight()) {
-		light->SetIntensity(GetLightIntensity() * (1.0f + FlickerNoise(flickerTime_) * kFlickerAmount));
+		// 揺れ幅はステージの雰囲気で調整できる（洞窟なら Environment_Cave.json の TorchFlickerStrength）
+		const float flickerScale = StageEnvironment::GetTorchFlickerScale();
+		light->SetIntensity(GetLightIntensity() * (1.0f + FlickerNoise(flickerTime_) * kFlickerAmount * flickerScale));
 		// 光源自体もわずかに揺らす。壁に落ちる影が動いて「燃えている」感じが出る
+		const float shake = kFlickerShake * flickerScale;
 		light->SetPosition(tip + Vector3{
-			FlickerNoise(flickerTime_ * 0.7f + 3.1f) * kFlickerShake,
-			FlickerNoise(flickerTime_ * 0.9f + 8.4f) * kFlickerShake,
-			FlickerNoise(flickerTime_ * 0.8f + 5.6f) * kFlickerShake });
+			FlickerNoise(flickerTime_ * 0.7f + 3.1f) * shake,
+			FlickerNoise(flickerTime_ * 0.9f + 8.4f) * shake,
+			FlickerNoise(flickerTime_ * 0.8f + 5.6f) * shake });
 	}
 
 	// ── パチパチという音 ──
@@ -129,6 +144,26 @@ void WallTorch::Update(float deltaTime) {
 		while (emberTimer_ >= kEmberInterval) {
 			emberTimer_ -= kEmberInterval;
 			particles.Emit(kEmberParticle, tip, 1);
+		}
+	}
+
+	// 煙と、明かりの中を漂う埃。発生頻度はステージの雰囲気の ParticleSpawnRate で増減する（0 で出さない）
+	const float spawnRate = StageEnvironment::GetParticleSpawnRate();
+	if (spawnRate <= 0.0f) {
+		return;
+	}
+	if (canEmitSmoke_) {
+		smokeTimer_ += dt * spawnRate;
+		while (smokeTimer_ >= kSmokeInterval) {
+			smokeTimer_ -= kSmokeInterval;
+			particles.Emit(kSmokeParticle, tip, 1);
+		}
+	}
+	if (canEmitMote_) {
+		moteTimer_ += dt * spawnRate;
+		while (moteTimer_ >= kMoteInterval) {
+			moteTimer_ -= kMoteInterval;
+			particles.Emit(kMoteParticle, tip, 1);
 		}
 	}
 }

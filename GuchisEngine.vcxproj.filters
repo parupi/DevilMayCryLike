@@ -142,6 +142,9 @@
     <Filter Include="App\Scene">
       <UniqueIdentifier>{E35FB503-4FCA-697A-9808-1B2004B247CF}</UniqueIdentifier>
     </Filter>
+    <Filter Include="App\Scene\Clear">
+      <UniqueIdentifier>{F95080C8-65DC-ED8C-6EED-7081DAF7498D}</UniqueIdentifier>
+    </Filter>
     <Filter Include="App\Scene\GameScene">
       <UniqueIdentifier>{7A5A0DDC-E6BB-EAE9-6F29-319CDB8921A9}</UniqueIdentifier>
     </Filter>
@@ -207,6 +210,9 @@
     </Filter>
     <Filter Include="Engine\Graphics\Rendering\Effect">
       <UniqueIdentifier>{44F49B36-3045-8778-59A9-753A45591AE2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Engine\Graphics\Rendering\Environment">
+      <UniqueIdentifier>{8CF8F9F0-F8BC-F8E0-C122-29AB2DA69416}</UniqueIdentifier>
     </Filter>
     <Filter Include="Engine\Graphics\Rendering\PSO">
       <UniqueIdentifier>{A99E9ED4-15B7-85FE-DE63-15984A3B1A98}</UniqueIdentifier>
@@ -558,6 +564,12 @@
     <ClInclude Include="App\GameObject\Effect\AttackTelegraph.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CaveDripEmitter.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
+    <ClInclude Include="App\GameObject\Effect\CaveDustEmitter.h">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h">
       <Filter>App\GameObject\Effect</Filter>
     </ClInclude>
@@ -615,6 +627,9 @@
     <ClInclude Include="App\GameObject\Light\StagePointLight.h">
       <Filter>App\GameObject\Light</Filter>
     </ClInclude>
+    <ClInclude Include="App\GameObject\Light\StageSpotLight.h">
+      <Filter>App\GameObject\Light</Filter>
+    </ClInclude>
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h">
       <Filter>App\GameObject\LockOn</Filter>
     </ClInclude>
@@ -634,12 +649,6 @@
       <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClInclude>
-    <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClInclude>
     <ClInclude Include="App\GameObject\UI\Common\ConfirmDialog.h">
@@ -699,6 +708,9 @@
     <ClInclude Include="App\Input\LockOnInput.h">
       <Filter>App\Input</Filter>
     </ClInclude>
+    <ClInclude Include="App\Scene\Clear\ClearSequence.h">
+      <Filter>App\Scene\Clear</Filter>
+    </ClInclude>
     <ClInclude Include="App\Scene\ClearScene.h">
       <Filter>App\Scene</Filter>
     </ClInclude>
@@ -748,6 +760,9 @@
       <Filter>App\Stage</Filter>
     </ClInclude>
     <ClInclude Include="App\Stage\StageDocument.h">
+      <Filter>App\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="App\Stage\StageEnvironment.h">
       <Filter>App\Stage</Filter>
     </ClInclude>
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h">
@@ -918,6 +933,12 @@
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.h">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.h">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClInclude>
@@ -1050,6 +1071,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
@@ -1075,6 +1099,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.h">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.h">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h">
@@ -1204,6 +1231,9 @@
       <Filter>Engine\Scene\Transition</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Utility\DeltaTime.h">
+      <Filter>Engine\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\Utility\GpuProfiler.h">
       <Filter>Engine\Utility</Filter>
     </ClInclude>
     <ClInclude Include="Engine\Utility\Logger.h">
@@ -1454,6 +1484,9 @@
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="App\Editor\Windows\CaveLightingWindow.cpp">
+      <Filter>App\Editor\Windows</Filter>
+    </ClCompile>
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp">
       <Filter>App\Editor\Windows</Filter>
     </ClCompile>
@@ -1664,6 +1697,12 @@
     <ClCompile Include="App\GameObject\Effect\AttackTelegraph.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CaveDripEmitter.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
+    <ClCompile Include="App\GameObject\Effect\CaveDustEmitter.cpp">
+      <Filter>App\GameObject\Effect</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp">
       <Filter>App\GameObject\Effect</Filter>
     </ClCompile>
@@ -1721,6 +1760,9 @@
     <ClCompile Include="App\GameObject\Light\StagePointLight.cpp">
       <Filter>App\GameObject\Light</Filter>
     </ClCompile>
+    <ClCompile Include="App\GameObject\Light\StageSpotLight.cpp">
+      <Filter>App\GameObject\Light</Filter>
+    </ClCompile>
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp">
       <Filter>App\GameObject\LockOn</Filter>
     </ClCompile>
@@ -1740,12 +1782,6 @@
       <Filter>App\GameObject\UI\BossHealthBar</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp">
-      <Filter>App\GameObject\UI\ClearUI</Filter>
-    </ClCompile>
-    <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp">
       <Filter>App\GameObject\UI\ClearUI</Filter>
     </ClCompile>
     <ClCompile Include="App\GameObject\UI\Common\ConfirmDialog.cpp">
@@ -1805,6 +1841,9 @@
     <ClCompile Include="App\Input\LockOnInput.cpp">
       <Filter>App\Input</Filter>
     </ClCompile>
+    <ClCompile Include="App\Scene\Clear\ClearSequence.cpp">
+      <Filter>App\Scene\Clear</Filter>
+    </ClCompile>
     <ClCompile Include="App\Scene\ClearScene.cpp">
       <Filter>App\Scene</Filter>
     </ClCompile>
@@ -1854,6 +1893,9 @@
       <Filter>App\Stage</Filter>
     </ClCompile>
     <ClCompile Include="App\Stage\StageDocument.cpp">
+      <Filter>App\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="App\Stage\StageEnvironment.cpp">
       <Filter>App\Stage</Filter>
     </ClCompile>
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp">
@@ -2018,6 +2060,12 @@
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp">
       <Filter>Engine\Graphics\Rendering\Effect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.cpp">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.cpp">
+      <Filter>Engine\Graphics\Rendering\Environment</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp">
       <Filter>Engine\Graphics\Rendering\PSO\PSOBuilder</Filter>
     </ClCompile>
@@ -2135,6 +2183,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
@@ -2157,6 +2208,9 @@
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.cpp">
+      <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.cpp">
       <Filter>Engine\Graphics\Rendering\RenderPath\Pass</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp">
@@ -2271,6 +2325,9 @@
       <Filter>Engine\Scene\Transition</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Utility\DeltaTime.cpp">
+      <Filter>Engine\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\Utility\GpuProfiler.cpp">
       <Filter>Engine\Utility</Filter>
     </ClCompile>
     <ClCompile Include="Engine\Utility\Logger.cpp">

@@ -221,6 +221,274 @@
                     { "t": 1.0, "c": [ 0.7, 0.15, 0.03, 1.0 ] }
                 ]
             }
+        },
+        "TorchSmoke": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 0,
+                "BlendMode": 1,
+                "Drag": 0.55,
+                "FadeType": 1,
+                "Gravity": [
+                    0.0,
+                    0.18,
+                    0.0
+                ],
+                "IsBillboard": true,
+                "NoiseColorBlend": 0.0,
+                "NoiseDistortion": 0.2,
+                "NoiseEnabled": true,
+                "NoiseErosion": 0.9,
+                "NoiseErosionSoftness": 0.3,
+                "NoiseGrayscale": true,
+                "NoiseScroll": [
+                    0.0,
+                    -0.25,
+                    0.0
+                ],
+                "NoiseTiling": [
+                    0.8,
+                    0.8,
+                    0.0
+                ],
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SoftDistance": 0.4,
+                "SortByDepth": true,
+                "SortOrder": -10,
+                "SpeedMax": 0.0,
+                "SpeedMin": 0.0,
+                "SpreadDegrees": 0.0,
+                "UseDirectional": false,
+                "VelocityStretch": 0.0,
+                "maxAlpha": 0.0,
+                "maxColor": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "maxLifeTime": 3.4,
+                "maxRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxScale": [
+                    0.42,
+                    0.42,
+                    0.42
+                ],
+                "maxTranslate": [
+                    0.06,
+                    0.55,
+                    0.06
+                ],
+                "maxVelocity": [
+                    0.12,
+                    0.6,
+                    0.12
+                ],
+                "minAlpha": 0.0,
+                "minColor": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "minLifeTime": 2.4,
+                "minRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minScale": [
+                    0.3,
+                    0.3,
+                    0.3
+                ],
+                "minTranslate": [
+                    -0.06,
+                    0.38,
+                    -0.06
+                ],
+                "minVelocity": [
+                    -0.12,
+                    0.35,
+                    -0.12
+                ]
+            },
+            "Curves": {
+                "SizeCurve": [
+                    {
+                        "t": 0.0,
+                        "v": 0.5
+                    },
+                    {
+                        "t": 0.3,
+                        "v": 1.0
+                    },
+                    {
+                        "t": 1.0,
+                        "v": 2.6
+                    }
+                ],
+                "AlphaCurve": [
+                    {
+                        "t": 0.0,
+                        "v": 0.0
+                    },
+                    {
+                        "t": 0.2,
+                        "v": 0.7
+                    },
+                    {
+                        "t": 0.6,
+                        "v": 0.4
+                    },
+                    {
+                        "t": 1.0,
+                        "v": 0.0
+                    }
+                ],
+                "ColorGradient": [
+                    {
+                        "t": 0.0,
+                        "c": [
+                            0.07,
+                            0.06,
+                            0.05,
+                            1.0
+                        ]
+                    },
+                    {
+                        "t": 0.5,
+                        "c": [
+                            0.05,
+                            0.05,
+                            0.055,
+                            1.0
+                        ]
+                    },
+                    {
+                        "t": 1.0,
+                        "c": [
+                            0.04,
+                            0.045,
+                            0.05,
+                            1.0
+                        ]
+                    }
+                ]
+            }
+        },
+        "TorchMote": {
+            "Texture": "SoftCircle.png",
+            "Shape": "Plane",
+            "Params": {
+                "AnimColumns": 1,
+                "AnimFps": 0.0,
+                "AnimLoop": true,
+                "AnimRows": 1,
+                "BillboardType": 0,
+                "BlendMode": 2,
+                "Drag": 0.9,
+                "FadeType": 1,
+                "Gravity": [
+                    0.0,
+                    0.03,
+                    0.0
+                ],
+                "IsBillboard": true,
+                "OrientToDirection": false,
+                "RadialMode": 0,
+                "RadialSpeed": 1.0,
+                "ShrinkStartRatio": 0.0,
+                "SpeedMax": 0.0,
+                "SpeedMin": 0.0,
+                "SpreadDegrees": 0.0,
+                "UseDirectional": false,
+                "VelocityStretch": 0.0,
+                "maxAlpha": 0.0,
+                "maxColor": [
+                    0.95,
+                    0.62,
+                    0.32
+                ],
+                "maxLifeTime": 5.0,
+                "maxRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxScale": [
+                    0.075,
+                    0.075,
+                    0.075
+                ],
+                "maxTranslate": [
+                    1.6,
+                    1.0,
+                    1.6
+                ],
+                "maxVelocity": [
+                    0.1,
+                    0.08,
+                    0.1
+                ],
+                "minAlpha": 0.0,
+                "minColor": [
+                    0.7,
+                    0.42,
+                    0.2
+                ],
+                "minLifeTime": 3.0,
+                "minRotate": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minScale": [
+                    0.04,
+                    0.04,
+                    0.04
+                ],
+                "minTranslate": [
+                    -1.6,
+                    -1.2,
+                    -1.6
+                ],
+                "minVelocity": [
+                    -0.1,
+                    -0.03,
+                    -0.1
+                ]
+            },
+            "Curves": {
+                "AlphaCurve": [
+                    {
+                        "t": 0.0,
+                        "v": 0.0
+                    },
+                    {
+                        "t": 0.25,
+                        "v": 1.0
+                    },
+                    {
+                        "t": 0.75,
+                        "v": 1.0
+                    },
+                    {
+                        "t": 1.0,
+                        "v": 0.0
+                    }
+                ]
+            }
         }
     }
 }

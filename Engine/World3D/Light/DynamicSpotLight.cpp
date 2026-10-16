@@ -80,5 +80,15 @@ void DynamicSpotLight::DrawDebug(PrimitiveLineDrawer* drawer)
 
 	drawer->DrawLine(lightData_.position, baseCenter, color);
 	drawer->DrawWireCircle(baseCenter, radius, dir, color, 24);
+
+	// 内側の角度（ここまでは最も明るい）。padding[2] に cos が入っているときだけ
+	const float innerCos = lightData_.padding[2];
+	if (innerCos > cosAngle && innerCos < 1.0f) {
+		const float innerSin = std::sqrt(1.0f - innerCos * innerCos);
+		const float innerRadius = distance * innerSin / innerCos;
+		Vector4 innerColor = color;
+		innerColor.w = 0.5f;
+		drawer->DrawWireCircle(baseCenter, innerRadius, dir, innerColor, 24);
+	}
 }
 #endif // DEBUG

@@ -300,6 +300,9 @@ void DirectXManager::Render(PSOManager* psoManager, uint32_t srvIndex) {
 	commandList->SetPipelineState(psoManager->GetFinalCompositePSO());
 	commandList->SetGraphicsRootSignature(psoManager->GetFinalCompositeRootSignature());
 	commandList->SetGraphicsRootDescriptorTable(0, srvManager_->GetGPUDescriptorHandle(srvIndex));
+	// 最終出力はそのまま写す（トーンマップはポストエフェクトの ToneMapEffect が済ませている）
+	const float passThrough[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	commandList->SetGraphicsRoot32BitConstants(1, 4, passThrough, 0);
 	commandList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	commandList->DrawInstanced(3, 1, 0, 0);
 }

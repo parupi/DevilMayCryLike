@@ -1,0 +1,192 @@
+{
+    "Environment_Cave": {
+        "AmbientAlbedoMix": 1.0,
+        "AmbientColor": [
+            0.06,
+            0.075,
+            0.095
+        ],
+        "BackgroundColor": [
+            0.0313725,
+            0.0470588,
+            0.0627451
+        ],
+        "BloomBlurRadius": 1.8,
+        "BloomEnabled": true,
+        "BloomIntensity": 0.6,
+        "BloomSoftKnee": 0.3,
+        "BloomThreshold": 1.0,
+        "CharacterAmbient": [
+            0.22,
+            0.24,
+            0.28
+        ],
+        "DarkEndHeight": 9.0,
+        "DarkStartHeight": -1.0,
+        "DarkStrength": 0.9,
+        "DirectionalScale": [
+            0.1,
+            0.12,
+            0.16
+        ],
+        "DistanceFogColor": [
+            0.0313725,
+            0.0470588,
+            0.0627451
+        ],
+        "DistanceFogDensity": 0.015,
+        "DistanceFogEnabled": true,
+        "DistanceFogMaxOpacity": 0.7,
+        "DistanceFogStart": 8.0,
+        "DripCeilingHeight": 3.6,
+        "DripEnabled": true,
+        "DripFloorHeight": -5.05,
+        "DripPerSecond": 0.8,
+        "DripRadius": 18.0,
+        "DripVolume": 0.5,
+        "DustBattleScale": 0.5,
+        "DustConeEnd": 0.66,
+        "DustConePerSecond": 26.0,
+        "DustConeStart": 0.4,
+        "DustEnabled": true,
+        "DustHeightMax": 5.0,
+        "DustHeightMin": -1.0,
+        "DustPerSecond": 30.0,
+        "DustRadius": 10.0,
+        "DustTowardCamera": 0.5,
+        "Exposure": 1.0,
+        "FogLayer1_Color": [
+            0.141176,
+            0.176471,
+            0.219608
+        ],
+        "FogLayer1_Enabled": true,
+        "FogLayer1_Height": 4.0,
+        "FogLayer1_NoiseScale": 0.06,
+        "FogLayer1_NoiseSpeed": [
+            0.25,
+            0.0,
+            0.1
+        ],
+        "FogLayer1_Opacity": 0.3,
+        "FogLayer2_Color": [
+            0.098039,
+            0.12549,
+            0.160784
+        ],
+        "FogLayer2_Enabled": true,
+        "FogLayer2_Height": 6.5,
+        "FogLayer2_NoiseScale": 0.045,
+        "FogLayer2_NoiseSpeed": [
+            -0.18,
+            0.0,
+            0.12
+        ],
+        "FogLayer2_Opacity": 0.5,
+        "FogLayer3_Color": [
+            0.058824,
+            0.078431,
+            0.105882
+        ],
+        "FogLayer3_Enabled": true,
+        "FogLayer3_Height": 9.0,
+        "FogLayer3_NoiseScale": 0.035,
+        "FogLayer3_NoiseSpeed": [
+            0.12,
+            0.0,
+            -0.2
+        ],
+        "FogLayer3_Opacity": 0.7,
+        "FogLayerEdgeFade": 0.3,
+        "FogLayerHalfSize": 30.0,
+        "FogLayerSoftDistance": 8.0,
+        "GradingContrast": 1.06,
+        "GradingContrastPivot": 0.2,
+        "GradingEnabled": true,
+        "GradingGain": [
+            0.97,
+            1.0,
+            1.04
+        ],
+        "GradingHighlightTint": [
+            1.08,
+            1.0,
+            0.86
+        ],
+        "GradingHighlightTintStrength": 0.6,
+        "GradingLift": [
+            0.0,
+            0.0,
+            0.0
+        ],
+        "GradingSaturation": 0.92,
+        "GradingShadowTint": [
+            0.0,
+            0.02,
+            0.03
+        ],
+        "GradingShadowTintStrength": 1.0,
+        "GradingSplitBalance": 0.45,
+        "GradingStrength": 1.0,
+        "GroundMist_BattleOpacityScale": 0.45,
+        "GroundMist_Color": [
+            0.372549,
+            0.423529,
+            0.486275
+        ],
+        "GroundMist_Enabled": true,
+        "GroundMist_Height": -4.55,
+        "GroundMist_NoiseScale": 0.11,
+        "GroundMist_NoiseSpeed": [
+            0.18,
+            0.0,
+            0.06
+        ],
+        "GroundMist_Opacity": 0.45,
+        "GroundMist_SoftDistance": 0.6,
+        "HeightDarkEnabled": true,
+        "HeightFogBaseHeight": 3.0,
+        "HeightFogColor": [
+            0.0313725,
+            0.0470588,
+            0.0627451
+        ],
+        "HeightFogDensity": 0.02,
+        "HeightFogEnabled": true,
+        "HeightFogFalloff": 0.25,
+        "HeightFogMaxOpacity": 1.0,
+        "ParticleSpawnRate": 1.0,
+        "RimColor": [
+            0.06,
+            0.08,
+            0.11
+        ],
+        "RimPower": 3.0,
+        "SkyVisible": false,
+        "SpotApexFade": 8.0,
+        "SpotFogNoiseInfluence": 0.6,
+        "SpotFogNoiseScale": 0.25,
+        "SpotFogNoiseSpeed": [
+            0.05,
+            -0.12,
+            0.03
+        ],
+        "SpotPhaseG": 0.35,
+        "SpotVolumetricBattleScale": 0.5,
+        "SpotVolumetricSteps": 12,
+        "SpotVolumetricStrength": 0.02,
+        "SsaoAmbientStrength": 1.0,
+        "SsaoBias": 0.05,
+        "SsaoDirectStrength": 0.35,
+        "SsaoEnabled": true,
+        "SsaoIntensity": 1.2,
+        "SsaoPower": 1.0,
+        "SsaoRadius": 0.9,
+        "ToneMapEnabled": true,
+        "ToneMapShoulderStart": 0.6,
+        "TorchFlickerStrength": 1.0,
+        "VolumetricEnabled": true,
+        "VolumetricMaxDistance": 60.0,
+        "VolumetricStrength": 0.012
+    }
+}

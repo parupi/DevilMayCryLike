@@ -23,6 +23,9 @@
 #include <Graphics/Rendering/PostEffect/OffScreenManager.h>
 #include <Graphics/Rendering/PostEffect/VignetteEffect.h>
 #include <cmath>
+#include "Utility/TimeManager.h"
+#include "World3D/Object/Object3dManager.h"
+#include "Stage/StageEnvironment.h"
 
 namespace {
 // タイトルの常時ビネット。四隅でも6割ほどの明るさに留まる「軽い」かかり方にしてある
@@ -31,6 +34,8 @@ constexpr const char* kTitleVignetteName = "TitleVignette";
 constexpr float kTitleVignetteRadius = 0.4f;
 constexpr float kTitleVignetteSoftness = -0.4f;
 constexpr float kTitleVignetteIntensity = 0.45f;
+// タイトルの回廊。tools/cave_props/build_corridor_stages.py で作る
+constexpr const char* kStagePath = "Resource/Stage/Title.json";
 }
 
 
@@ -54,6 +59,8 @@ void TitleScene::Initialize() {
 
 	// タイトルのBGM。読み込み（数十MB）もここで済ませる
 	SoundManager::GetInstance().PlayBGM("TitleBGM", 1.5f);
+	// 壁の松明のパチパチ。鳴らす瞬間に読み込むと最初の1回だけ引っかかるので先に読む
+	SoundManager::GetInstance().PreloadSE(GameSound::kTorchCrackle);
 
 	// カメラの生成
 
@@ -64,13 +71,8 @@ void TitleScene::Initialize() {
 	camera_->Initialize();
 	camera_->Enter();
 
-	// タイトルシーンにあるもやもやを生成
-	ParticleManager::GetInstance().CreateParticleGroup("TitleSphere", "circle2.png");
-	ParticleManager::GetInstance().CreateEmitter("TitleSphere", "TitleSphere");
-	ParticleManager::GetInstance().CreateParticleGroup("TitleSmoke", "circle.png");
-	ParticleManager::GetInstance().CreateEmitter("TitleSmoke", "TitleSmoke");
-	ParticleManager::GetInstance().CreateParticleGroup("TitleSmoke2", "smoke.png");
-	ParticleManager::GetInstance().CreateEmitter("TitleSmoke2", "TitleSmoke2");
+	// 空気のもやもやは、洞窟の雰囲気（霧の層・地面の霧）と埃（CaveDustEmitter）が受け持つ。
+	// 以前の TitleSphere / TitleSmoke / TitleSmoke2 は洞窟の霧と重なって画面全体が茶色く霞むので使わない
 
 	// スカイボックスを生成
 	SkySystem::GetInstance().CreateSkyBox("qwantani_moon_noon_puresky_4k.dds");
@@ -82,13 +84,21 @@ void TitleScene::Initialize() {
 	// 明滅の中心にする明るさを、jsonで設定された値から拾っておく
 	basePointLightIntensity_ = GlobalVariables::GetInstance().GetValueRef<float>(kPointLightName, "Intensity");
 
-	SceneBuilder::BuildScene(SceneLoader::Load("Resource/Stage/Title.json"));
+	// ゲームと同じ洞窟の雰囲気にする（空を消し、暗さ・霧・光の筋・色調整）。
+	// 雰囲気の名前はステージデータの "environment"（タイトルは奥を闇に消す "Title"）。
+	// 色調整のパスを組み立て中に足される演出より前に並べるため、組み立てより先に呼ぶ
+	StageEnvironment::Apply(SceneLoader::LoadEnvironmentName(kStagePath));
+
+	SceneBuilder::BuildScene(SceneLoader::Load(kStagePath));
 
 	titleUI_ = std::make_unique<TitleUI>();
 	titleUI_->Initialize();
 
 	titleMenu_ = std::make_unique<TitleMenu>();
 	titleMenu_->Initialize();
+
+	// 埃。天井の光（ステージの SpotLight）を見て、その光の中にも撒くので、ステージを組み立てた後に作る
+	caveDust_ = std::make_unique<CaveDustEmitter>();
 
 	// 新しいトランジションの追加。
 	// 生成してから登録を弾かれると、コンストラクタで作った常駐スプライトだけが
@@ -120,6 +130,9 @@ void TitleScene::Initialize() {
 }
 
 void TitleScene::Finalize() {
+	// 洞窟の暗さや空の非表示を次のシーンへ持ち越さない（ゲームシーンは自分のステージの雰囲気を掛け直す）
+	StageEnvironment::Clear();
+
 	// タイトルのビネットはゲーム中に残さない（エフェクト自体は次にタイトルへ戻ったとき使い回す）
 	if (auto* vignette = OffScreenManager::GetInstance().FindEffect(kTitleVignetteName)) {
 		vignette->SetActive(false);
@@ -142,6 +155,16 @@ void TitleScene::Finalize() {
 }
 
 void TitleScene::Update() {
+	// ステージのオブジェクト（松明など）へ渡す経過時間。設定するのは各シーンの役目で、
+	// これが無いと 0 のまま（以前の値のまま）になり、松明が炎を出さず揺らぎも止まる
+	Object3dManager::GetInstance().SetDeltaTime(TimeManager::GetGameDelta());
+	StageEnvironment::Update();
+	if (caveDust_ && camera_) {
+		const Matrix4x4& cameraWorld = camera_->GetWorldMatrix();
+		const Vector3 cameraPosition{ cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
+		caveDust_->Update(TimeManager::GetVFXDelta(), titleUI_->GetPlayerBasePosition(), cameraPosition);
+	}
+
 	titleUI_->Update();
 	titleMenu_->Update();
 

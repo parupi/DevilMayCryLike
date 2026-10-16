@@ -47,6 +47,19 @@ struct ParticleGroupConstantsGPU {
 
 	Vector3 cameraPosition;
 	float _pad0;
+
+	float nearFadeStart;
+	float nearFadeEnd;
+	float farFadeStart;
+	float farFadeEnd;
+
+	Vector3 ambientDustColor;
+	float ambientVisibility;
+
+	float lightResponse;
+	float colorResponse;
+	float alphaScale; // グループ全体に掛ける透明度の倍率（戦闘中に埃を薄くするなど）
+	float debugView;  // RenderEnvironment::DebugView（2=埃の受けた光だけ / 3=埃の透明度）
 };
 
 // Particle.PS.hlsl の kFlag* と合わせること
@@ -54,6 +67,8 @@ enum ParticleShaderFlag : uint32_t {
 	kParticleFlagNoise = 1u << 0,     // ノイズで質感を付ける
 	kParticleFlagGrayscale = 1u << 1, // ノイズの色ではなく明るさだけを使う
 	kParticleFlagSoft = 1u << 2,      // ソフトパーティクル
+	kParticleFlagLit = 1u << 3,       // 光源に照らされる（埃）
+	kParticleFlagCameraFade = 1u << 4, // カメラからの距離で薄くする
 };
 
 struct ParticleGroupGPU

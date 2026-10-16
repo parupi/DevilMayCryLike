@@ -1,0 +1,3352 @@
+{
+  "format": "GuchisStage",
+  "version": 2,
+  "environment": "Clear",
+  "objects": [
+    {
+      "name": "ClearFloor_0_0",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_0",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_0",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_1",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_1",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_1",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_2",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_2",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_2",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_3",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_3",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_3",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_4",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_4",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_4",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_5",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_5",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_5",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_6",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_6",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_6",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_7",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_7",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_7",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_8",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_8",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_8",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_9",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_9",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_9",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_10",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_10",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_10",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_11",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_11",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_11",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_12",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_12",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_12",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_13",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_13",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_13",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_0_14",
+      "class": "Ground",
+      "translate": [
+        -6.0,
+        -1.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_1_14",
+      "class": "Ground",
+      "translate": [
+        0.0,
+        -1.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearFloor_2_14",
+      "class": "Ground",
+      "translate": [
+        6.0,
+        -1.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularFloor"
+    },
+    {
+      "name": "ClearWallR_0",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_0",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_0",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallR_1",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_1",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_1",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "ClearWallR_2",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_2",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_2",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallR_3",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_3",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_3",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "ClearWallR_4",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_4",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_4",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallR_5",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_5",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_5",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "ClearWallR_6",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_6",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_6",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallR_7",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_7",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_7",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallR_8",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_8",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_8",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallR_9",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_9",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_9",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallR_10",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_10",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_10",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallR_11",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_11",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_11",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallR_12",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_12",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_12",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "ClearWallR_13",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_13",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_13",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallR_14",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        1.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopR_14",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearR_14",
+      "class": "Ground",
+      "translate": [
+        8.0,
+        7.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "ClearWallL_0",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_0",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_0",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        -18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallL_1",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_1",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_1",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        -12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallL_2",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_2",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_2",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "ClearWallL_3",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_3",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_3",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        0.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallL_4",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_4",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_4",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallL_5",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_5",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_5",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "ClearWallL_6",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_6",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_6",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        18.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "ClearWallL_7",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_7",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_7",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        24.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallL_8",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_8",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_8",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "ClearWallL_9",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_9",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_9",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        36.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "ClearWallL_10",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_10",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_10",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        42.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallL_11",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_11",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_11",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_02"
+    },
+    {
+      "name": "ClearWallL_12",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_12",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_12",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        54.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_03"
+    },
+    {
+      "name": "ClearWallL_13",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_13",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_13",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_04"
+    },
+    {
+      "name": "ClearWallL_14",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        1.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall"
+    },
+    {
+      "name": "ClearWallTopL_14",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "ModularStoneWall_top"
+    },
+    {
+      "name": "Cave_Overhang_ClearL_14",
+      "class": "Ground",
+      "translate": [
+        -8.0,
+        7.0,
+        66.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        3.0,
+        3.0,
+        3.0
+      ],
+      "model": "Cave/CaveOverhang_01"
+    },
+    {
+      "name": "Cave_ClearTorchR_0",
+      "class": "WallTorch",
+      "translate": [
+        7.82,
+        2.08,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchL_0",
+      "class": "WallTorch",
+      "translate": [
+        -7.82,
+        2.08,
+        -6.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchR_1",
+      "class": "WallTorch",
+      "translate": [
+        7.82,
+        2.08,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchL_1",
+      "class": "WallTorch",
+      "translate": [
+        -7.82,
+        2.08,
+        12.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchR_2",
+      "class": "WallTorch",
+      "translate": [
+        7.82,
+        2.08,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchL_2",
+      "class": "WallTorch",
+      "translate": [
+        -7.82,
+        2.08,
+        30.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchR_3",
+      "class": "WallTorch",
+      "translate": [
+        7.82,
+        2.08,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearTorchL_3",
+      "class": "WallTorch",
+      "translate": [
+        -7.82,
+        2.08,
+        48.0
+      ],
+      "rotate": [
+        0.0,
+        1.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "model": "Torch_wall",
+      "light": {
+        "color": [
+          1.0,
+          0.62,
+          0.26
+        ],
+        "offset": [
+          -0.89,
+          0.95,
+          0.02
+        ],
+        "intensity": 3.0,
+        "radius": 9.0,
+        "decay": 1.2
+      }
+    },
+    {
+      "name": "Cave_ClearRock_0",
+      "class": "Ground",
+      "translate": [
+        6.6,
+        -0.02,
+        5.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_ClearRock_1",
+      "class": "Ground",
+      "translate": [
+        -6.6,
+        -0.02,
+        15.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_ClearRock_2",
+      "class": "Ground",
+      "translate": [
+        6.6,
+        -0.02,
+        33.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_ClearRock_3",
+      "class": "Ground",
+      "translate": [
+        -6.6,
+        -0.02,
+        45.0
+      ],
+      "rotate": [
+        0.0,
+        0.7071068,
+        0.0,
+        0.7071068
+      ],
+      "scale": [
+        2.0,
+        2.0,
+        2.0
+      ],
+      "model": "Cave/CaveRockCluster_01"
+    },
+    {
+      "name": "Cave_ClearMainLight",
+      "class": "SpotLight",
+      "translate": [
+        0.4,
+        13.0,
+        -0.4
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "spotLight": {
+        "color": [
+          1.0,
+          0.92,
+          0.8
+        ],
+        "intensity": 2.6,
+        "distance": 30.0,
+        "decay": 0.012,
+        "outerAngle": 12.0,
+        "innerAngle": 7.0,
+        "particleLighting": 1.0,
+        "volumetric": 1.0
+      }
+    },
+    {
+      "name": "Cave_ClearExitLight",
+      "class": "SpotLight",
+      "translate": [
+        0.0,
+        9.0,
+        72.0
+      ],
+      "rotate": [
+        0.4617486,
+        0.0,
+        0.0,
+        0.8870108
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "spotLight": {
+        "color": [
+          1.0,
+          0.8,
+          0.55
+        ],
+        "intensity": 4.0,
+        "distance": 40.0,
+        "decay": 0.004,
+        "outerAngle": 24.0,
+        "innerAngle": 12.0,
+        "particleLighting": 0.0,
+        "volumetric": 0.35
+      }
+    },
+    {
+      "name": "Cave_ClearFillLight",
+      "class": "PointLight",
+      "translate": [
+        -1.6,
+        1.8,
+        -2.2
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "light": {
+        "color": [
+          0.85,
+          0.9,
+          1.0
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "intensity": 0.9,
+        "radius": 6.0,
+        "decay": 1.0
+      }
+    },
+    {
+      "name": "Cave_ClearExitGlow",
+      "class": "PointLight",
+      "translate": [
+        0.0,
+        3.0,
+        60.0
+      ],
+      "rotate": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "light": {
+        "color": [
+          1.0,
+          0.78,
+          0.5
+        ],
+        "offset": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "intensity": 5.0,
+        "radius": 24.0,
+        "decay": 0.02
+      }
+    }
+  ]
+}

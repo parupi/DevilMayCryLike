@@ -58,7 +58,8 @@ void GBufferPath::Begin(uint32_t dsvIndex)
 	worldPosClear.Color[0] = 0.0f;
 	worldPosClear.Color[1] = 0.0f;
 	worldPosClear.Color[2] = 0.0f;
-	worldPosClear.Color[3] = 1.0f;
+	// w は「何が描かれたか」（0=何も無い / 1=通常 / 2=環境オブジェクト）。GBuffer.PS が書く
+	worldPosClear.Color[3] = 0.0f;
 
 	// --- クリア ---
 	commandContext->ClearRenderTarget(rtvs[0], albedoClear.Color);

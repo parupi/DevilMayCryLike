@@ -24,7 +24,7 @@ cbuffer MaterialParam : register(b0)
 // 個別オブジェクトを溶かしたり発光させたりする場合はこちらをドロー毎に設定する。
 cbuffer DissolveOverride : register(b2)
 {
-    float4 gDissolveOverrideParam;     // x: threshold (-0.5未満で無効=マテリアル値を使用), y: edgeWidth
+    float4 gDissolveOverrideParam;     // x: threshold (-0.5未満で無効=マテリアル値を使用), y: edgeWidth, z: 環境オブジェクトなら1
     float4 gDissolveOverrideEdgeColor; // rgb = emissive color, a = intensity multiplier
     float4 gEmissiveTint;              // rgb = 加算する発光色, a = 強度(0で無効)
 };
@@ -61,7 +61,8 @@ GBufferOutput main(VSOutput input)
     output.normal_Metal = float4(packedNormal, metal);
 
     // ------- World Pos -------
-    output.worldPos_Padding = input.worldPosWS;
+    // w は Lighting.PS が背景の判定と「高さによる暗化」の対象かに使う
+    output.worldPos_Padding = float4(input.worldPosWS.xyz, gDissolveOverrideParam.z > 0.5f ? 2.0f : 1.0f);
 
     return output;
 }

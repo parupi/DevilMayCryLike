@@ -1,6 +1,7 @@
 #include "LightingRenderPass.h"
 #include "World3D/Light/LightManager.h"
 #include "World3D/Camera/CameraManager.h"
+#include "Graphics/Rendering/Environment/RenderEnvironment.h"
 
 void LightingRenderPass::Initialize(const EngineContext& ctx, GBufferManager* gBufferManager,
 	const SharedRenderTarget& sharedRT)
@@ -27,6 +28,7 @@ void LightingRenderPass::Execute()
 	ctx_.lightManager->GetCSM()->BindCascadeCB(5);
 	ctx_.lightManager->BindLightsToShader();
 	ctx_.cameraManager->BindCameraToShader();
+	RenderEnvironment::GetInstance().BindToLighting(ctx_.dxManager->GetCommandList(), 6);
 
 	lightingPath_->End();
 

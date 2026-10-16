@@ -35,7 +35,7 @@ public:
 	void Hide();
 
 private:
-	// ランクコードから Ranks.png の UV X座標を求める（クリア画面のRankUIと同じ対応）
+	// ランクコードから Ranks.png の UV X座標を求める
 	static float RankToUvX(const std::string& rankCode);
 
 private:

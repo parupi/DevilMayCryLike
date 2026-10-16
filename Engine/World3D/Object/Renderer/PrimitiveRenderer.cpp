@@ -53,7 +53,7 @@ void PrimitiveRenderer::DrawGBuffer() {
 
 	// レンダラー単位のDissolve上書き+エミッシブティント（b2ルート定数）。無効時も毎ドロー設定して前の値が残らないようにする
 	const float dissolveConstants[12] = {
-		dissolveThreshold_, dissolveEdgeWidth_, 0.0f, 0.0f,
+		dissolveThreshold_, dissolveEdgeWidth_, environmentSurface_ ? 1.0f : 0.0f, 0.0f,
 		dissolveEdgeColor_.x, dissolveEdgeColor_.y, dissolveEdgeColor_.z, dissolveEdgeColor_.w,
 		emissiveTint_.x, emissiveTint_.y, emissiveTint_.z, emissiveTint_.w,
 	};

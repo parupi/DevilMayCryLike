@@ -8,8 +8,10 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> FinalCompositePipeline::CreateRootSi
 	CD3DX12_DESCRIPTOR_RANGE rangeSRV;
 	rangeSRV.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0); // t0
 
-	CD3DX12_ROOT_PARAMETER params[1];
+	CD3DX12_ROOT_PARAMETER params[2];
 	params[0].InitAsDescriptorTable(1, &rangeSRV, D3D12_SHADER_VISIBILITY_PIXEL);
+	// b0: 写し方（4値のルート定数）。x=0 はそのまま、x=1 は 0〜1 に切り詰める
+	params[1].InitAsConstants(4, 0, 0, D3D12_SHADER_VISIBILITY_PIXEL);
 
 	CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc(
 		0, // s0
@@ -57,7 +59,8 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> FinalCompositePipeline::CreatePSO(
 	psoDesc.SampleMask = UINT_MAX;
 	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 	psoDesc.NumRenderTargets = 1;
-	psoDesc.RTVFormats[0] = isPostCopy ? DXGI_FORMAT_R8G8B8A8_UNORM : DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	// isPostCopy はライティング結果を ping へ写すとき（ping-pong は R16F）。そうでなければバックバッファ（SRGB）へ
+	psoDesc.RTVFormats[0] = isPostCopy ? DXGI_FORMAT_R16G16B16A16_FLOAT : DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
 	psoDesc.SampleDesc.Count = 1;
 
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso;

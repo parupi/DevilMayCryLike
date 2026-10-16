@@ -100,6 +100,16 @@ void DrawEffectParams(BaseOffScreen* effect)
 		ImGui::DragFloat3("lift", &d.lift.x, 0.002f, -0.5f, 0.5f);
 		ImGui::DragFloat("saturation", &d.saturation, 0.01f, 0.0f, 2.0f);
 		ImGui::DragFloat("contrast", &d.contrast, 0.01f, 0.0f, 2.0f);
+		bool perceptual = d.perceptual > 0.5f;
+		if (ImGui::Checkbox("perceptual", &perceptual)) {
+			d.perceptual = perceptual ? 1.0f : 0.0f;
+		}
+		ImGui::DragFloat("splitBalance", &d.splitBalance, 0.01f, 0.05f, 0.95f);
+		ImGui::DragFloat("contrastPivot", &d.contrastPivot, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat3("shadowTint", &d.shadowTint.x, 0.002f, -0.2f, 0.2f);
+		ImGui::DragFloat("shadowTintStrength", &d.shadowTintStrength, 0.01f, 0.0f, 2.0f);
+		ImGui::DragFloat3("highlightTint", &d.highlightTint.x, 0.005f, 0.0f, 2.0f);
+		ImGui::DragFloat("highlightTintStrength", &d.highlightTintStrength, 0.01f, 0.0f, 1.0f);
 		return;
 	}
 	if (auto* smooth = dynamic_cast<SmoothEffect*>(effect)) {

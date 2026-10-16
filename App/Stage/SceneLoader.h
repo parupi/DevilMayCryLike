@@ -33,6 +33,18 @@ struct LightInfo {
 	float decay = 1.0f;
 };
 
+// SpotLight（StageSpotLight）の設定。向きはオブジェクトの回転（ローカル -Y）で決まる
+struct SpotLightInfo {
+	Vector3 color = { 0.8f, 0.88f, 1.0f };
+	float intensity = 4.0f;
+	float distance = 22.0f;
+	float decay = 0.012f;
+	float outerAngle = 12.0f; // 光軸からの半角[度]
+	float innerAngle = 7.0f;
+	float particleLighting = 1.0f;
+	float volumetric = 1.0f;
+};
+
 enum class ColliderShape {
 	None,
 	OBB,
@@ -57,9 +69,11 @@ struct SceneObject {
 	Vector3 scale = { 1.0f, 1.0f, 1.0f };
 
 	std::optional<std::string> modelName;
+	bool castShadow = true;                 // false のときだけ "castShadow": false を書く
 	std::optional<ColliderInfo> collider;
 	std::optional<EventInfo> eventInfo;
 	std::optional<LightInfo> lightInfo;
+	std::optional<SpotLightInfo> spotLightInfo;
 };
 
 class SceneLoader
@@ -77,6 +91,12 @@ public:
 
 	/// <summary>ステージデータを読み込む。開けない・形式が違う場合は例外を投げる</summary>
 	static std::vector<SceneObject> Load(const std::string& path);
+
+	/// <summary>
+	/// ステージの雰囲気の名前（最上位の "environment"）。書かれていなければ空。
+	/// 中身の設定は Resource/GlobalVariables/Environment/ にあり、StageEnvironment が読む
+	/// </summary>
+	static std::string LoadEnvironmentName(const std::string& path);
 
 private:
 	static SceneObject ParseObject(const nlohmann::json& j);

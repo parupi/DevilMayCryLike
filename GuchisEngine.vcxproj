@@ -193,6 +193,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Character\Player\State\PlayerStateMove.h" />
     <ClInclude Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.h" />
     <ClInclude Include="App\GameObject\Effect\AttackTelegraph.h" />
+    <ClInclude Include="App\GameObject\Effect\CaveDripEmitter.h" />
+    <ClInclude Include="App\GameObject\Effect\CaveDustEmitter.h" />
     <ClInclude Include="App\GameObject\Effect\CharacterLight.h" />
     <ClInclude Include="App\GameObject\Effect\DeathScreenEffect.h" />
     <ClInclude Include="App\GameObject\Effect\DissolveOutEffect.h" />
@@ -212,6 +214,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Event\ForceBattleEvent.h" />
     <ClInclude Include="App\GameObject\Ground\Ground.h" />
     <ClInclude Include="App\GameObject\Light\StagePointLight.h" />
+    <ClInclude Include="App\GameObject\Light\StageSpotLight.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnSystem.h" />
     <ClInclude Include="App\GameObject\LockOn\LockOnTarget.h" />
     <ClInclude Include="App\GameObject\Prop\Prop.h" />
@@ -219,8 +222,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\Training\TrainingController.h" />
     <ClInclude Include="App\GameObject\UI\BossHealthBar\BossHealthBar.h" />
     <ClInclude Include="App\GameObject\UI\ClearUI\ClearUI.h" />
-    <ClInclude Include="App\GameObject\UI\ClearUI\RankUI.h" />
-    <ClInclude Include="App\GameObject\UI\ClearUI\ScoreUI.h" />
     <ClInclude Include="App\GameObject\UI\Common\ConfirmDialog.h" />
     <ClInclude Include="App\GameObject\UI\Common\ControlsPanel.h" />
     <ClInclude Include="App\GameObject\UI\Common\MenuItemList.h" />
@@ -240,6 +241,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Input\CameraInput.h" />
     <ClInclude Include="App\Input\InputContext.h" />
     <ClInclude Include="App\Input\LockOnInput.h" />
+    <ClInclude Include="App\Scene\Clear\ClearSequence.h" />
     <ClInclude Include="App\Scene\ClearScene.h" />
     <ClInclude Include="App\Scene\EditScene.h" />
     <ClInclude Include="App\Scene\GameScene\GameScene.h" />
@@ -257,6 +259,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\Stage\SceneLoader.h" />
     <ClInclude Include="App\Stage\SceneSaver.h" />
     <ClInclude Include="App\Stage\StageDocument.h" />
+    <ClInclude Include="App\Stage\StageEnvironment.h" />
     <ClInclude Include="App\Tutorial\Decoration\TutorialDecoration.h" />
     <ClInclude Include="App\Tutorial\Service\TutorialService.h" />
     <ClInclude Include="App\Tutorial\Skip\TutorialSkipGauge.h" />
@@ -313,6 +316,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Device\ShaderCompiler.h" />
     <ClInclude Include="Engine\Graphics\Device\SwapChainManager.h" />
     <ClInclude Include="Engine\Graphics\Rendering\Effect\WeaponTrail.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.h" />
@@ -357,6 +362,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\IRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.h" />
@@ -366,6 +372,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ForwardSceneRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\GBufferRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.h" />
     <ClInclude Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.h" />
@@ -409,6 +416,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Scene\Transition\SceneTransitionController.h" />
     <ClInclude Include="Engine\Scene\Transition\TransitionManager.h" />
     <ClInclude Include="Engine\Utility\DeltaTime.h" />
+    <ClInclude Include="Engine\Utility\GpuProfiler.h" />
     <ClInclude Include="Engine\Utility\Logger.h" />
     <ClInclude Include="Engine\Utility\ScopeProfiler.h" />
     <ClInclude Include="Engine\Utility\StringUtility.h" />
@@ -493,6 +501,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Editor\Windows\ActionGuideWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\AttackEditorWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\CameraWorkWindow.cpp" />
+    <ClCompile Include="App\Editor\Windows\CaveLightingWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\EnemyWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\HitEffectWindow.cpp" />
     <ClCompile Include="App\Editor\Windows\PlayerDodgeWindow.cpp" />
@@ -563,6 +572,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Character\Player\State\PlayerStateMove.cpp" />
     <ClCompile Include="App\GameObject\Character\Player\StateMachine\PlayerStateMachine.cpp" />
     <ClCompile Include="App\GameObject\Effect\AttackTelegraph.cpp" />
+    <ClCompile Include="App\GameObject\Effect\CaveDripEmitter.cpp" />
+    <ClCompile Include="App\GameObject\Effect\CaveDustEmitter.cpp" />
     <ClCompile Include="App\GameObject\Effect\CharacterLight.cpp" />
     <ClCompile Include="App\GameObject\Effect\DeathScreenEffect.cpp" />
     <ClCompile Include="App\GameObject\Effect\DissolveOutEffect.cpp" />
@@ -582,6 +593,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Event\ForceBattleEvent.cpp" />
     <ClCompile Include="App\GameObject\Ground\Ground.cpp" />
     <ClCompile Include="App\GameObject\Light\StagePointLight.cpp" />
+    <ClCompile Include="App\GameObject\Light\StageSpotLight.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnSystem.cpp" />
     <ClCompile Include="App\GameObject\LockOn\LockOnTarget.cpp" />
     <ClCompile Include="App\GameObject\Prop\Prop.cpp" />
@@ -589,8 +601,6 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\Training\TrainingController.cpp" />
     <ClCompile Include="App\GameObject\UI\BossHealthBar\BossHealthBar.cpp" />
     <ClCompile Include="App\GameObject\UI\ClearUI\ClearUI.cpp" />
-    <ClCompile Include="App\GameObject\UI\ClearUI\RankUI.cpp" />
-    <ClCompile Include="App\GameObject\UI\ClearUI\ScoreUI.cpp" />
     <ClCompile Include="App\GameObject\UI\Common\ConfirmDialog.cpp" />
     <ClCompile Include="App\GameObject\UI\Common\ControlsPanel.cpp" />
     <ClCompile Include="App\GameObject\UI\Common\MenuItemList.cpp" />
@@ -610,6 +620,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Input\CameraInput.cpp" />
     <ClCompile Include="App\Input\InputContext.cpp" />
     <ClCompile Include="App\Input\LockOnInput.cpp" />
+    <ClCompile Include="App\Scene\Clear\ClearSequence.cpp" />
     <ClCompile Include="App\Scene\ClearScene.cpp" />
     <ClCompile Include="App\Scene\EditScene.cpp" />
     <ClCompile Include="App\Scene\GameScene\GameScene.cpp" />
@@ -627,6 +638,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\Stage\SceneLoader.cpp" />
     <ClCompile Include="App\Stage\SceneSaver.cpp" />
     <ClCompile Include="App\Stage\StageDocument.cpp" />
+    <ClCompile Include="App\Stage\StageEnvironment.cpp" />
     <ClCompile Include="App\Tutorial\Decoration\TutorialDecoration.cpp" />
     <ClCompile Include="App\Tutorial\Skip\TutorialSkipGauge.cpp" />
     <ClCompile Include="App\Tutorial\Skip\TutorialSkipInput.cpp" />
@@ -681,6 +693,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Device\ShaderCompiler.cpp" />
     <ClCompile Include="Engine\Graphics\Device\SwapChainManager.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\Effect\WeaponTrail.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\RenderEnvironment.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\Environment\UpperFogRenderer.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\AttackMarkerPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CSMPipeline.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PSO\PSOBuilder\CompositePipeline.cpp" />
@@ -720,6 +734,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\RadialBlurEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SmoothEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\SpeedLineEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ToneMapEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\VignetteEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\ForwardRenderPath.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Impl\GBufferManager.cpp" />
@@ -728,6 +743,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ForwardSceneRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\GBufferRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\LightingRenderPass.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SSAORenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\ShadowRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\Pass\SkinningRenderPass.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\RenderPath\RenderPipeline.cpp" />
@@ -766,6 +782,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Scene\Transition\SceneTransitionController.cpp" />
     <ClCompile Include="Engine\Scene\Transition\TransitionManager.cpp" />
     <ClCompile Include="Engine\Utility\DeltaTime.cpp" />
+    <ClCompile Include="Engine\Utility\GpuProfiler.cpp" />
     <ClCompile Include="Engine\Utility\Logger.cpp" />
     <ClCompile Include="Engine\Utility\StringUtility.cpp" />
     <ClCompile Include="Engine\Utility\TimeManager.cpp" />

@@ -1,0 +1,8 @@
+{
+    "Environment_Title": {
+        "DistanceFogDensity": 0.06,
+        "DistanceFogStart": 12.0,
+        "DistanceFogMaxOpacity": 1.0,
+        "DripEnabled": false
+    }
+}

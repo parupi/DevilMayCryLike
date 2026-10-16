@@ -18,5 +18,5 @@ struct LightData
 	float cosAngle;        // spot only
 
 	float distance;        // spot only
-	float padding[3];
+	float padding[3];      // [0] = ボリューメトリックの倍率 / [1] = パーティクルを照らす倍率 / [2] = スポットの内側の cos（BaseLight の Set*）
 };

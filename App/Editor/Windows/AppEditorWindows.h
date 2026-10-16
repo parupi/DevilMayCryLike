@@ -17,6 +17,7 @@ void DrawStylishWindow();       // スタイリッシュランク
 void DrawHitEffectWindows();    // HitEffect / HitPostEffect
 void DrawTrainingWindow();      // トレーニングルームの操作と起動時の行き先
 void DrawActionGuideWindow();   // アクションガイド（画面右下の操作案内）の調整とデバッグ表示
+void DrawCaveLightingWindow();  // 洞窟の埃・光の筋のデバッグ表示と GPU 処理時間
 
 } // namespace AppEditor
 

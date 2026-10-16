@@ -1,4 +1,5 @@
 #include "OffScreenManager.h"
+#include "Graphics/Rendering/Environment/RenderEnvironment.h"
 #include "Graphics/Resource/SrvManager.h"
 #include <Math/MathUtils.h>
 
@@ -179,6 +180,14 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 	// t0 に LightingTexture をバインド
 	cmd->SetGraphicsRootDescriptorTable(0, dxManager_->GetSrvManager()->GetGPUDescriptorHandle(lightingSrv));
 
+	// トーンマップを使うシーンでは HDR のまま写す（ブルームの後の ToneMapEffect が 0〜1 に収める）。
+	// 使わないシーンでは従来どおりここで 0〜1 に切り詰める（ブルームが拾う明るさを今までと同じにするため）
+	{
+		const bool toneMap = RenderEnvironment::GetInstance().GetParams().toneMapEnabled;
+		const float mode[4] = { toneMap ? 0.0f : 1.0f, 0.0f, 0.0f, 0.0f };
+		cmd->SetGraphicsRoot32BitConstants(1, 4, mode, 0);
+	}
+
 	// フルスクリーントライアングルを描画
 	cmd->DrawInstanced(3, 1, 0, 0);
 
@@ -193,7 +202,12 @@ void OffScreenManager::CopyLightingToPing(uint32_t lightingSrv) {
 
 Microsoft::WRL::ComPtr<ID3D12Resource> OffScreenManager::CreateOffScreenRenderTarget() {
 	GpuResourceFactory::TextureDesc desc;
-	desc.format = DXGI_FORMAT_R8G8B8A8_UNORM;
+	// 中身はリニアの色で、1 を超える明るさ（HDR）もそのまま持つ。ブルームは HDR のまま光を抜き出し、
+	// その直後の ToneMapEffect で 0〜1 に収める（それ以降の演出は 0〜1 の前提のまま）。
+	// 8bit の UNORM だと暗部が 1/255 刻みになり、洞窟の暗い背景や影の中の壁が同心円の段になって見えた。
+	// **ポストエフェクトの PSO（OffScreenPipeline / FinalCompositePipeline の isPostCopy）と
+	// ブルームの作業用RTも同じフォーマットに揃えること**
+	desc.format = DXGI_FORMAT_R16G16B16A16_FLOAT;
 	desc.usage = GpuResourceFactory::Usage::RenderTarget;
 	desc.clearColor[0] = 0.0f;
 	desc.clearColor[1] = 0.0f;
@@ -212,7 +226,7 @@ uint32_t OffScreenManager::CreateRTVForResource(Microsoft::WRL::ComPtr<ID3D12Res
 
 uint32_t OffScreenManager::CreateSRVForResource(Microsoft::WRL::ComPtr<ID3D12Resource> resource) {
 	uint32_t index = dxManager_->GetSrvManager()->Allocate();
-	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R8G8B8A8_UNORM, 1);
+	dxManager_->GetSrvManager()->CreateSRVforTexture2D(index, resource.Get(), DXGI_FORMAT_R16G16B16A16_FLOAT, 1);
 	return index;
 }
 

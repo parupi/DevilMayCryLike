@@ -32,7 +32,14 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> ParticlePipeline::CreateRootSignatur
 	descriptorRangeForScene[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 	descriptorRangeForScene[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 
-	D3D12_ROOT_PARAMETER rootParameters[6] = {};
+	// 光源の一覧 (t3, VS)。埃は粒の中心で光を受けるので頂点シェーダーで読む
+	D3D12_DESCRIPTOR_RANGE descriptorRangeForLights[1] = {};
+	descriptorRangeForLights[0].BaseShaderRegister = 3;
+	descriptorRangeForLights[0].NumDescriptors = 1;
+	descriptorRangeForLights[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorRangeForLights[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	D3D12_ROOT_PARAMETER rootParameters[8] = {};
 	rootParameters[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 	rootParameters[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[0].Descriptor.ShaderRegister = 0;
@@ -46,7 +53,8 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> ParticlePipeline::CreateRootSignatur
 	rootParameters[2].DescriptorTable.NumDescriptorRanges = _countof(descriptorRange);
 	// b1: グループ単位の設定（ノイズ・ソフトパーティクル）
 	rootParameters[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
-	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	// グループ単位の設定は、光源に照らされるかどうかを頂点シェーダーも見るので両方から読む
+	rootParameters[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	rootParameters[3].Descriptor.ShaderRegister = 1;
 	rootParameters[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rootParameters[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -56,6 +64,14 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> ParticlePipeline::CreateRootSignatur
 	rootParameters[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	rootParameters[5].DescriptorTable.pDescriptorRanges = descriptorRangeForScene;
 	rootParameters[5].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForScene);
+	// 6: 光源の一覧 t3 (VS) / 7: 光源の数 b2 (VS)。ParticleManager::Draw が LightManager から積む
+	rootParameters[6].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParameters[6].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[6].DescriptorTable.pDescriptorRanges = descriptorRangeForLights;
+	rootParameters[6].DescriptorTable.NumDescriptorRanges = _countof(descriptorRangeForLights);
+	rootParameters[7].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParameters[7].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	rootParameters[7].Descriptor.ShaderRegister = 2;
 
 	D3D12_STATIC_SAMPLER_DESC staticSamplers[2] = {};
 	staticSamplers[0].Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;

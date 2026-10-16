@@ -112,6 +112,7 @@ namespace {
 		// ── 環境音 ──
 		{ GameSound::kAmbienceDungeon,   "ダンジョンの空気（ループ）",                       GameSoundDefs::AmbienceDungeon },
 		{ GameSound::kTorchCrackle,      "松明のパチパチ（ループ）",                         GameSoundDefs::TorchCrackle },
+		{ GameSound::kWaterDrip,         "水滴が床で跳ねる",                                 GameSoundDefs::WaterDrip },
 	};
 
 } // namespace

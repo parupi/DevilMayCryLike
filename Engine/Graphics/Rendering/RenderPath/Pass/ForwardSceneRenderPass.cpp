@@ -6,6 +6,7 @@
 #include "World3D/Collider/CollisionManager.h"
 #include "World3D/Light/LightManager.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
+#include "Graphics/Rendering/Environment/UpperFogRenderer.h"
 #include "Graphics/Rendering/Sprite/SpriteManager.h"
 #include "Scene/Transition/TransitionManager.h"
 #include "World3D/Primitive/PrimitiveLineDrawer.h"
@@ -32,6 +33,8 @@ void ForwardSceneRenderPass::Execute() {
 
 	ctx_.skySystem->Draw();
 	ctx_.object3dManager->DrawForward();
+	// 上部の霧の層。不透明物の後・パーティクルの前（半透明だが深度は書かないので、後のものは霧の手前に出る）
+	UpperFogRenderer::GetInstance().Draw();
 	ctx_.sceneManager->Draw();
 	ctx_.spriteManager->DrawSceneLayers();
 	// UIレイヤーとトランジションはポストエフェクトの後（RenderPipeline::Execute）で描く

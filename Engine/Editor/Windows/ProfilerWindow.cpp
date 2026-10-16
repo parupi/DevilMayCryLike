@@ -14,6 +14,7 @@
 #include "World3D/Object/Object3dManager.h"
 #include "Utility/DeltaTime.h"
 #include "Utility/ScopeProfiler.h"
+#include "Utility/GpuProfiler.h"
 
 #include <imgui/imgui.h>
 
@@ -105,6 +106,28 @@ void Editor::DrawProfilerWindow()
 	}
 
 	DrawFrameTimeTable();
+
+	// GPU が各パスに使った時間（タイムスタンプ）。CPU の内訳とは別物
+	if (ImGui::CollapsingHeader("GPU 内訳", ImGuiTreeNodeFlags_DefaultOpen)) {
+		const GpuProfiler& gpu = GpuProfiler::GetInstance();
+		ImGui::Text("合計 %.2f ms", gpu.TotalMs());
+		if (ImGui::BeginTable("##gpu", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+			ImGui::TableSetupColumn("パス", ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("平均ms", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+			ImGui::TableSetupColumn("ピーク", ImGuiTableColumnFlags_WidthFixed, 60.0f);
+			ImGui::TableHeadersRow();
+			for (const GpuProfiler::Entry& entry : gpu.Entries()) {
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				ImGui::TextUnformatted(entry.name.c_str());
+				ImGui::TableNextColumn();
+				ImGui::Text("%.2f", entry.avgMs);
+				ImGui::TableNextColumn();
+				ImGui::Text("%.2f", entry.maxMs);
+			}
+			ImGui::EndTable();
+		}
+	}
 
 	if (!ImGui::CollapsingHeader("シーンの内訳", ImGuiTreeNodeFlags_DefaultOpen)) {
 		EditorWindow::End();

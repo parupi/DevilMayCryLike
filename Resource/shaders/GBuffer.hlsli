@@ -20,7 +20,7 @@ struct GBufferOutput
 {
     float4 baseColor_Roughness : SV_Target0; // rgb = baseColor , a = roughness
     float4 normal_Metal : SV_Target1; // rgb = packed normal (0..1), a = metal
-    float4 worldPos_Padding : SV_Target2; // xyz = world position (WS), w = unused/padding
+    float4 worldPos_Padding : SV_Target2; // xyz = world position (WS), w = 何が描かれたか（0=何も無い / 1=通常 / 2=環境オブジェクト）
 };
 
 #endif

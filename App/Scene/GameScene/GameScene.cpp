@@ -13,6 +13,9 @@
 #include "Stage/SceneLoader.h"
 #include "Stage/SceneBuilder.h"
 #include "Stage/StageDocument.h"
+#include "Stage/StageEnvironment.h"
+#include "GameObject/Effect/CaveDustEmitter.h"
+#include "Utility/TimeManager.h"
 #include "Utility/Logger.h"
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "GameObject/Event/EventManager.h"
@@ -55,7 +58,7 @@ void GameScene::Initialize() {
 		GameSound::kSwordSlam, GameSound::kSwordCharge, GameSound::kSwordChargeReady,
 		GameSound::kHitFlesh, GameSound::kHitBone, GameSound::kHitWood,
 		GameSound::kHitArmor, GameSound::kHitHeavy, GameSound::kHitBlocked,
-		GameSound::kAttackWarning, GameSound::kTorchCrackle, GameSound::kAmbienceDungeon,
+		GameSound::kAttackWarning, GameSound::kTorchCrackle, GameSound::kAmbienceDungeon, GameSound::kWaterDrip,
 		}) {
 		SoundManager::GetInstance().PreloadSE(name);
 	}
@@ -153,6 +156,12 @@ void GameScene::Initialize() {
 	// 本編で読むステージはエディタで切り替えられる（Release では既定のまま）が、
 	// トレーニングは専用ステージで固定される
 	const std::string stagePath = GameSession::GetStagePath();
+	// ステージの雰囲気（洞窟なら空を消して暗くし、色調整を掛ける）。名前はステージデータの "environment"。
+	// 組み立てより先に呼ぶ: 色調整のパスを、ボスのブレスなど組み立て中に足される演出より前に並べるため
+	const std::string environmentName = SceneLoader::LoadEnvironmentName(stagePath);
+	StageDocument::SetEnvironment(environmentName);
+	StageEnvironment::Apply(environmentName);
+
 	SceneBuilder::BuildScene(SceneLoader::Load(stagePath));
 	// エディタの保存先を、いま読んだステージに揃える。
 	// 本編はチュートリアル → ボス戦とステージが切り替わるので、揃えずにおくと
@@ -172,6 +181,8 @@ void GameScene::Initialize() {
 			+ "\n  Hierarchy の「+作成」でクラス Player を置いて保存してください。").c_str());
 
 	player_->SetInput(inputContext_->GetPlayerInput());
+	caveDust_ = std::make_unique<CaveDustEmitter>();
+	caveDrip_ = std::make_unique<CaveDripEmitter>();
 	player_->SetLockOn(lockOnSystem_.get());
 
 	lockOnSystem_->Initialize(inputContext_->GetLockOnInput(), player_);
@@ -261,6 +272,8 @@ void GameScene::Initialize() {
 }
 
 void GameScene::Finalize() {
+	// 洞窟の暗さや空の非表示をタイトルへ持ち越さない
+	StageEnvironment::Clear();
 	// 振動を次のシーンへ持ち越さない
 	GamepadRumble::GetInstance().StopAll();
 	// 環境音はループなので、シーンを抜けるときに必ず止める
@@ -285,6 +298,18 @@ void GameScene::Finalize() {
 }
 
 void GameScene::Update() {
+	StageEnvironment::Update(gameCamera_ ? gameCamera_->GetBattleBlend() : 0.0f);
+	if (caveDust_ && player_) {
+		Vector3 cameraPosition = player_->GetWorldTransform()->GetTranslation();
+		if (gameCamera_) {
+			const Matrix4x4& cameraWorld = gameCamera_->GetWorldMatrix();
+			cameraPosition = { cameraWorld.m[3][0], cameraWorld.m[3][1], cameraWorld.m[3][2] };
+		}
+		caveDust_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation(), cameraPosition);
+	}
+	if (caveDrip_ && player_) {
+		caveDrip_->Update(TimeManager::GetVFXDelta(), player_->GetWorldTransform()->GetTranslation());
+	}
 	//lightManager_->Update();
 	//gameUI_->Update();
 

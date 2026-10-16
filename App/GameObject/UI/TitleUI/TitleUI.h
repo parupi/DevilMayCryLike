@@ -14,6 +14,8 @@ class TextLabel;
 class TitleUI
 {
 public:
+	/// <summary>タイトルに立たせているプレイヤーの位置（埃を撒く中心に使う）</summary>
+	const Vector3& GetPlayerBasePosition() const { return playerBasePosition_; }
 	TitleUI() = default;
 	~TitleUI() = default;
 

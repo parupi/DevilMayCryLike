@@ -7,6 +7,7 @@
 #include <Graphics/Rendering/Particle/ParticleManager.h>
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/PostEffect/BloomEffect.h"
+#include "Graphics/Rendering/PostEffect/ToneMapEffect.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -16,6 +17,7 @@
 #include <Scene/Transition/TransitionManager.h>
 #include <Scene/Transition/SceneTransitionController.h>
 #include <Graphics/Rendering/Sky/SkySystem.h>
+#include <Graphics/Rendering/Environment/RenderEnvironment.h>
 #include <Graphics/Rendering/Sprite/SpriteManager.h>
 #include <Graphics/Text/FontManager.h>
 #include <Utility/TimeManager.h>
@@ -54,10 +56,14 @@ void MyGameTitle::Initialize() {
 		bloom->SetActive(true);
 		OffScreenManager::GetInstance().AddEffect(std::move(bloom));
 	}
+	// 露出とトーンマップはブルームの直後（ブルームは HDR のまま光を抜き出し、ここで 0〜1 に収める）。
+	// 有効にするかはシーンの雰囲気が決める（ToneMapEffect::Update）
+	OffScreenManager::GetInstance().AddEffect(std::make_unique<ToneMapEffect>("ToneMap"));
 
 	PrimitiveLineDrawer::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
 	SkySystem::GetInstance().Initialize(dxManager.get(), psoManager.get());
+	RenderEnvironment::GetInstance().Initialize(dxManager.get());
 
 	RendererManager::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
@@ -119,6 +125,7 @@ void MyGameTitle::Finalize() {
 	PrimitiveLineDrawer::GetInstance().Finalize();
 
 	SkySystem::GetInstance().Finalize();
+	RenderEnvironment::GetInstance().Finalize();
 
 	// シーン
 	SceneManager::GetInstance().Finalize();

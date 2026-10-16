@@ -91,6 +91,14 @@ void LightManager::BindLightsToShader() {
 	cmd->SetGraphicsRootDescriptorTable(3, srv->GetGPUDescriptorHandle(srvIndex_));
 }
 
+D3D12_GPU_DESCRIPTOR_HANDLE LightManager::GetLightBufferSrv() const {
+	return dxManager_->GetSrvManager()->GetGPUDescriptorHandle(srvIndex_);
+}
+
+D3D12_GPU_VIRTUAL_ADDRESS LightManager::GetLightCountAddress() const {
+	return dxManager_->GetResourceManager()->GetGPUVirtualAddress(lightCountHandle_);
+}
+
 #ifdef _DEBUG
 void LightManager::DrawDebug() {
 	// 表示のON/OFFはエディタのDebug Drawメニューに集約している
