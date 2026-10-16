@@ -32,6 +32,7 @@
 #include "World3D/Camera/CameraManager.h"
 #include "GameObject/Camera/GameCamera.h"
 #include "GameObject/Character/Enemy/Component/EnemyHitbox.h"
+#include "GameObject/Character/Enemy/GruntMelee/GruntMeleeWeapon.h"
 #include "Audio/SoundManager.h"
 #include "Audio/GameSoundLibrary.h"
 
@@ -112,15 +113,9 @@ void Player::Initialize() {
 
 	weapon_->SetScoreManager(scoreManager.get());
 
-	// HP表示用のハートスプライトを生成
-	hearts_.resize(maxHp_);
-	for (int32_t i = 0; i < maxHp_; ++i) {
-		// UI要素の初期化
-		hearts_[i] = SpriteManager::GetInstance().CreateSprite(SpriteLayer::UI, "heart" + std::to_string(i), "Heart.png");
-		hearts_[i]->SetSize({64.0f, 64.0f});
-		hearts_[i]->SetAnchorPoint({0.5f, 0.5f});
-		hearts_[i]->SetPosition({50.0f + i * 50.0f, 50.0f}); // 左上に横並びで配置
-	}
+	// HPバー（左上）。ハートを並べていた頃と同じくここで作るので、ポーズの暗幕より奥に描かれる
+	healthBar_ = std::make_unique<PlayerHealthBar>();
+	healthBar_->Initialize(maxHp_);
 
 	hitStop_ = std::make_unique<HitStop>();
 
@@ -391,8 +386,10 @@ void Player::UpdateMovementSound() {
 	}
 
 	// ── HPが少ないときの心音 ──
-	// 残り1つ（かつ生きている）の間だけ鳴らし続ける。ループなので必ず止めること
-	const bool lowHealth = (hp_ <= 1) && !IsDying() && !isDeathFinished_;
+	// 瀕死（HPバーが赤く脈打つのと同じ境目）かつ生きている間だけ鳴らし続ける。ループなので必ず止めること
+	const bool lowHealth = (hp_ > 0)
+		&& (static_cast<float>(hp_) <= static_cast<float>(maxHp_) * PlayerHealthBar::kLowHealthRatio)
+		&& !IsDying() && !isDeathFinished_;
 	if (lowHealth && lowHealthVoice_ < 0) {
 		SEPlayParams params;
 		params.name = GameSound::kPlayerLowHealth;
@@ -423,8 +420,9 @@ void Player::Update(float deltaTime) {
 	dodgeParams_.Apply();
 
 	// ジャスト回避のスローモーションは実時間で数える。
-	// スケール済みの時間で数えると、遅くした分だけ演出が伸びて自分の首を絞める
-	const float realDelta = DeltaTime::GetDeltaTime();
+	// スケール済みの時間で数えると、遅くした分だけ演出が伸びて自分の首を絞める。
+	// ただしポーズ中（シーンの時間が 0）は止める。止めないとポーズを閉じた時にはスローが終わっている
+	const float realDelta = (deltaTime > 0.0f) ? DeltaTime::GetDeltaTime() : 0.0f;
 	if (justDodgeSlowTimer_ > 0.0f) {
 		justDodgeSlowTimer_ -= realDelta;
 	}
@@ -442,7 +440,8 @@ void Player::Update(float deltaTime) {
 		ChangeState("Death");
 	}
 
-	scoreManager->Update();
+	// 実時間ではなくシーンの時間で進める。実時間だとポーズ中もスコアが減っていた
+	scoreManager->Update(deltaTime);
 
 	LockOn();
 
@@ -566,15 +565,8 @@ void Player::Update(float deltaTime) {
 	groundedForActions_ = onGround_;
 	onGround_ = false;
 
-	// HPのハート。死亡演出中は hudAlpha_ が下がってフェードアウトする
-	for (size_t i = 0; i < hearts_.size(); ++i) {
-		if (i < hp_) {
-			hearts_[i]->SetColor({1.0f, 1.0f, 1.0f, hudAlpha_}); // HP分は表示
-		} else {
-			hearts_[i]->SetColor({0.0f, 0.0f, 0.0f, 0.3f * hudAlpha_}); // 残りは半透明で表示
-		}
-		hearts_[i]->Update();
-	}
+	// HPバー。死亡演出中は hudAlpha_ が下がってフェードアウトする
+	healthBar_->Update((std::max)(hp_, int32_t(0)), maxHp_, hudAlpha_);
 }
 
 void Player::Draw() {
@@ -650,10 +642,10 @@ float Player::GetWorldTimeScale() const {
 	return (justDodgeSlowTimer_ > 0.0f) ? dodgeParams_.justDodgeTimeScale : 1.0f;
 }
 
-bool Player::CanStartDodge(bool onGround) const {
+bool Player::CanStartDodge(bool /*onGround*/) const {
 	if (dodgeCooldownTimer_ > 0.0f) return false;
-	// 空中では回避できない。宙に浮いたまま滑る絵にならないよう接地を必須にしている
-	if (!onGround) return false;
+	// 空中でも回避できる。中身は地上と同じで、重力で落ちながら滑る（PlayerStateDodge）。
+	// 浮いたまま滑らないので、連打しても滞空は伸びない
 
 	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
 	if (!current) return false;
@@ -702,9 +694,11 @@ void Player::OnDodgeStart() {
 	dodgeTrail_->SetLifetime(params.trailLifetime);
 	dodgeTrail_->SetTintColor({ 0.30f, 0.65f, 1.0f, 0.85f });
 
-	// 足元の砂埃。回避方向の逆へ舞わせる
-	const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
-	ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
+	// 足元の砂埃。回避方向の逆へ舞わせる。空中回避では蹴る地面が無いので出さない
+	if (onGround_) {
+		const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
+		ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
+	}
 
 	SoundManager::GetInstance().PlaySE(GameSound::kDodge, 0.6f);
 
@@ -783,7 +777,22 @@ void Player::Move(Vector3 moveDir, float) {
 	// y軸の速度はそのままにしておく
 	float velocityY = velocity_.y;
 
-	velocity_ = moveDir * moveSpeed_;
+	// ロックオン中は後ろへ下がるときだけ遅くする。
+	// 切り上げ（ロックオン中に 後ろ + 攻撃）を狙ってスティックを倒すと、
+	// 同じ速さで離れていって敵が射程から外れていたため。
+	// 後ろ判定は FindRootAttack と同じくスティックの生の Y で取る（ロックオン中はカメラが敵を向いている）
+	float speed = moveSpeed_;
+	if (lockOn_->IsLockOn()) {
+		const Vector2& stick = input_->GetContext().move;
+		const float stickLength = std::sqrt(stick.x * stick.x + stick.y * stick.y);
+		if (stickLength > 0.01f) {
+			// 真後ろで 1、真横より前なら 0
+			const float backAmount = (std::max)(0.0f, -stick.y / stickLength);
+			speed *= 1.0f + (kLockOnBackSpeedRate - 1.0f) * backAmount;
+		}
+	}
+
+	velocity_ = moveDir * speed;
 	velocity_.y = velocityY;
 }
 
@@ -923,13 +932,16 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		const Vector3 attackerPos = other->owner_->GetWorldTransform()->GetWorldPos();
 		const Vector3 playerPos = GetWorldTransform()->GetTranslation();
 
-		// ボーン追従の判定（噛みつき・叩きつけ等）は攻撃ごとにダメージが違うので、
-		// 判定側が持っている値を使う。武器を振る敵（剣を持つ雑魚）は従来どおりの既定値
+		// ダメージは当たった判定の側が持っている。
+		// ボーン追従の判定（ボスの噛みつき・叩きつけ等）は攻撃ごと、雑魚の剣は剣ごと
 		DamageInfo raw;
 		if (auto* hitbox = dynamic_cast<EnemyHitbox*>(other->owner_)) {
 			raw = hitbox->GetDamageInfo();
+		} else if (auto* sword = dynamic_cast<GruntMeleeWeapon*>(other->owner_)) {
+			raw = sword->GetDamageInfo();
 		} else {
-			raw.damage = 1.0f;
+			// どちらでもない敵の武器（新しく足した敵など）。雑魚の剣と同じ強さにしておく
+			raw.damage = GruntMeleeWeapon::kDamage;
 			raw.knockback.type = ReactionType::Knockback;
 			raw.knockback.power = 15.0f;
 			raw.knockback.verticalPower = 15.0f * 0.4f;

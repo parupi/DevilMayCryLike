@@ -105,9 +105,9 @@
             0.0,
             0.0
         ],
-        "NextAttackCount": 0,
+        "NextAttackCount": 1,
         "NextAttackDelay": 0.49000000953674316,
-        "NextAttack_0": "",
+        "NextAttack_0": "AttackAirSlam",
         "NextAttack_1": "",
         "NextAttack_2": "",
         "PointCount": 8,

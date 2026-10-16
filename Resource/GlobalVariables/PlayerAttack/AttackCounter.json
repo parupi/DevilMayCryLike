@@ -2,7 +2,7 @@
     "AttackCounter": {
         "AttackDuration": 0.18,
         "AttackPosture": 0,
-        "ButtonIndex": 1,
+        "ButtonIndex": 0,
         "ChargeDamageScale": 1.0,
         "ChargeHitStopScale": 1.0,
         "ChargeImpulseScale": 1.0,

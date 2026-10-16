@@ -762,6 +762,16 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 
 	// 移動系
 	ImGui::DragFloat3("Move Speed", &global_->GetValueRef<Vector3>(attackName, "MoveSpeed").x, 0.01f);
+	// 急降下（空中の叩きつけ）。Move Speed の Y をマイナスにして使う
+	ImGui::Checkbox("Dive Until Landing", &global_->GetValueRef<bool>(attackName, "DiveUntilLanding"));
+	ImGui::SetItemTooltip("ON にすると、振りの最後の手前で止めたまま Move Speed で落ち続け、\n"
+		"着地したら振りの残り（Dive Land Time）を出す");
+	if (global_->GetValueRef<bool>(attackName, "DiveUntilLanding")) {
+		ImGui::DragFloat("Dive Land Time", &global_->GetValueRef<float>(attackName, "DiveLandTime"), 0.01f, 0.0f, 1.0f, "%.2f 秒");
+		ImGui::SetItemTooltip("着地してから振り切るまでの時間。振りの最後のこの長さを着地後に残す");
+		ImGui::DragFloat("Dive Max Time", &global_->GetValueRef<float>(attackName, "DiveMaxTime"), 0.05f, 0.0f, 5.0f, "%.2f 秒");
+		ImGui::SetItemTooltip("着地しなくてもこれだけ落ちたら振り切る（敵の上に乗ったときなどの保険）");
+	}
 
 	ImGui::Separator();
 

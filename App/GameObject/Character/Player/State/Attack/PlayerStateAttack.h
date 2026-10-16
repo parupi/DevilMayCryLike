@@ -92,6 +92,10 @@ public:
 		const float t = (chargeTime_ - attackData_.chargeMinTime) / range;
 		return t < 0.0f ? 0.0f : (t > 1.0f ? 1.0f : t);
 	}
+	// 急降下の攻撃か（空中の叩きつけ。着地するまで振りを止めて落ち続ける）
+	bool IsDiveAttack() const { return attackData_.diveUntilLanding; }
+	// 急降下の攻撃が地面に着いたか（着いたフレームから true）
+	bool HasDiveLanded() const { return diveLanded_; }
 	// エディタの値そのままの攻撃データ（溜め・最終段の差し替え前）
 	const AttackData& GetBaseAttackData() const { return attackData_; }
 
@@ -131,6 +135,8 @@ private:
 	bool IsAttackButtonHeld(Player& player) const;
 	// 多段ヒットの段を進める。段が変わるたびに当たり直させる
 	void UpdateHitSegment(Player& player);
+	// 急降下の攻撃なら、着地するまで振りの最後の手前で時間を止める
+	void UpdateDive(Player& player, float deltaTime);
 	// ノックバック性能を GlobalVariables から読む（仕様書 §3）。
 	// prefix は "" で通常、"Final" で最終段ぶん。
 	// 時間・減速・向き・合成方法は段で変える必要が無いので、最終段でも共通の値を読む
@@ -142,7 +148,7 @@ private:
 	// 予備動作の更新
 	void UpdateStartup(Player& player, float deltaTime);
 	// アクティブ状態の更新
-	void UpdateActive(Player& player);
+	void UpdateActive(Player& player, float deltaTime);
 	// 後隙状態の更新
 	void UpdateRecovery(Player& player);
 
@@ -184,5 +190,11 @@ private:
 	// ── 多段ヒット ──
 	// 今が何段目か（0 始まり）
 	int32_t hitIndex_ = 0;
+
+	// ── 急降下 ──
+	// 振りを止めて落ちている時間[秒]
+	float diveTime_ = 0.0f;
+	// 地面に着いたか
+	bool diveLanded_ = false;
 };
 

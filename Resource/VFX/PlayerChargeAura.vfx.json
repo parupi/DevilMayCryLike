@@ -1,0 +1,239 @@
+{
+  "Name": "PlayerChargeAura",
+  "Emitter": {
+    "Frequency": 0.5,
+    "IsActive": false,
+    "ShapeModel": "",
+    "Position": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "Particles": [
+      {
+        "ParticleName": "PAtkChargeFlame",
+        "Count": 4,
+        "SpawnRate": 1.0
+      },
+      {
+        "ParticleName": "PAtkChargeStreak",
+        "Count": 2,
+        "SpawnRate": 1.0
+      }
+    ]
+  },
+  "Particles": {
+    "PAtkChargeFlame": {
+      "Texture": "SoftCircle.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 0,
+        "BlendMode": 2,
+        "Drag": 0.6,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 2.0,
+        "SpeedMin": 0.8,
+        "SpreadDegrees": 10.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.0,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          1.0,
+          0.86,
+          0.5
+        ],
+        "minColor": [
+          1.0,
+          0.62,
+          0.18
+        ],
+        "maxLifeTime": 0.7,
+        "minLifeTime": 0.45,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.26,
+          0.26,
+          0.26
+        ],
+        "minScale": [
+          0.14,
+          0.14,
+          0.14
+        ],
+        "maxTranslate": [
+          0.45,
+          0.5,
+          0.45
+        ],
+        "minTranslate": [
+          -0.45,
+          0.0,
+          -0.45
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "SizeCurve": [
+          {
+            "t": 0.0,
+            "v": 0.6
+          },
+          {
+            "t": 0.25,
+            "v": 1.0
+          },
+          {
+            "t": 1.0,
+            "v": 0.15
+          }
+        ],
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.2,
+            "v": 0.8
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    },
+    "PAtkChargeStreak": {
+      "Texture": "white.png",
+      "Shape": "Plane",
+      "Params": {
+        "AnimColumns": 1,
+        "AnimFps": 0.0,
+        "AnimLoop": true,
+        "AnimRows": 1,
+        "BillboardType": 2,
+        "BlendMode": 2,
+        "Drag": 0.2,
+        "FadeType": 1,
+        "Gravity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "IsBillboard": true,
+        "OrientToDirection": false,
+        "RadialMode": 0,
+        "RadialSpeed": 1.0,
+        "ShrinkStartRatio": 0.0,
+        "SpeedMax": 6.0,
+        "SpeedMin": 3.0,
+        "SpreadDegrees": 8.0,
+        "UseDirectional": true,
+        "VelocityStretch": 0.08,
+        "maxAlpha": 0.0,
+        "minAlpha": 0.0,
+        "maxColor": [
+          1.0,
+          0.95,
+          0.8
+        ],
+        "minColor": [
+          1.0,
+          0.75,
+          0.35
+        ],
+        "maxLifeTime": 0.4,
+        "minLifeTime": 0.25,
+        "maxRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minRotate": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "maxScale": [
+          0.04,
+          0.04,
+          0.04
+        ],
+        "minScale": [
+          0.025,
+          0.025,
+          0.025
+        ],
+        "maxTranslate": [
+          0.5,
+          1.0,
+          0.5
+        ],
+        "minTranslate": [
+          -0.5,
+          0.0,
+          -0.5
+        ],
+        "maxVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "minVelocity": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "Curves": {
+        "AlphaCurve": [
+          {
+            "t": 0.0,
+            "v": 0.0
+          },
+          {
+            "t": 0.15,
+            "v": 0.9
+          },
+          {
+            "t": 1.0,
+            "v": 0.0
+          }
+        ]
+      }
+    }
+  }
+}

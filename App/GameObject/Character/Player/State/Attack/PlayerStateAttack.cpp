@@ -16,6 +16,9 @@
 #include <vector>
 
 namespace {
+	// 急降下で1フレームに落ちてよい距離[m]。床のコライダーをすり抜けない長さにしておく
+	constexpr float kMaxDiveStep = 0.4f;
+
 	// 攻撃に割り当てたボタンで出せるか（ボタン指定なしの攻撃はどのボタンでもよい）
 	bool AcceptsButton(const AttackNode& node, InputButton button) {
 		return node.condition.button == InputButton::None || node.condition.button == button;
@@ -154,6 +157,11 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	// 攻撃の出始めから被弾しない時間
 	gv->AddItem(name_, "InvincibleTime", float());
 
+	// 急降下（空中の叩きつけ）。OFF なら今までどおり時間で振り切る
+	gv->AddItem(name_, "DiveUntilLanding", bool(false));
+	gv->AddItem(name_, "DiveLandTime", 0.1f);
+	gv->AddItem(name_, "DiveMaxTime", 2.0f);
+
 	// 見た目の種類（AttackVfxStyle）。0 = Auto は攻撃の性能から決める
 	gv->AddItem(name_, "VfxStyle", int32_t(0));
 
@@ -195,6 +203,8 @@ void PlayerStateAttack::Enter(Player& player) {
 	isChargeReleased_ = false;
 	isChargeFullNotified_ = false;
 	hitIndex_ = 0;
+	diveTime_ = 0.0f;
+	diveLanded_ = false;
 	// 新しい攻撃なので、前の攻撃で当てた敵にもまた当たる
 	player.GetWeapon()->ResetHitTargets();
 
@@ -226,6 +236,7 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 	}
 
 	stateTime_.current += deltaTime;
+	UpdateDive(player, deltaTime);
 
 	// 攻撃フェーズの更新処理
 	AttackPhase prevPhase = attackPhase_;
@@ -249,7 +260,7 @@ void PlayerStateAttack::Update(Player& player, float deltaTime) {
 		break;
 	case AttackPhase::Active:
 	{
-		UpdateActive(player);
+		UpdateActive(player, deltaTime);
 		UpdateHitSegment(player);
 		break;
 	}
@@ -291,6 +302,30 @@ void PlayerStateAttack::Exit(Player& player) {
 	isChargeReleased_ = false;
 	isChargeFullNotified_ = false;
 	hitIndex_ = 0;
+	diveTime_ = 0.0f;
+	diveLanded_ = false;
+}
+
+void PlayerStateAttack::UpdateDive(Player& player, float deltaTime) {
+	if (!attackData_.diveUntilLanding || diveLanded_) return;
+
+	const float activeStart = attackData_.preDelay;
+	const float activeEnd = attackData_.preDelay + attackData_.attackDuration;
+	if (stateTime_.current < activeStart) return;
+
+	// 着地した（または落ちすぎた）ら、止めていた振りの残りをそのまま流す。
+	// 振りの最後 diveLandTime ぶんは着地後に残してあるので、地面を叩く瞬間に判定と振り抜きが重なる
+	diveTime_ += deltaTime;
+	if (player.GetOnGround() || diveTime_ >= attackData_.diveMaxTime) {
+		diveLanded_ = true;
+		return;
+	}
+
+	// まだ空中なら、振りの最後の手前で時間を止めて落ち続ける（速度は UpdateActive が MoveSpeed で毎フレーム入れる）
+	const float holdTime = activeEnd - (std::min)(attackData_.diveLandTime, attackData_.attackDuration * 0.5f);
+	if (stateTime_.current > holdTime) {
+		stateTime_.current = (std::max)(holdTime, activeStart);
+	}
 }
 
 AttackRequestData PlayerStateAttack::BuildRequestFromNode(Player& player, InputButton button) {
@@ -480,6 +515,11 @@ void PlayerStateAttack::UpdateAttackData() {
 
 	// 無敵
 	attackData_.invincibleTime = gv->GetValueRef<float>(name_, "InvincibleTime");
+
+	// 急降下
+	attackData_.diveUntilLanding = gv->GetValueRef<bool>(name_, "DiveUntilLanding");
+	attackData_.diveLandTime = (std::max)(0.0f, gv->GetValueRef<float>(name_, "DiveLandTime"));
+	attackData_.diveMaxTime = (std::max)(0.0f, gv->GetValueRef<float>(name_, "DiveMaxTime"));
 
 	// 見た目の種類（範囲外の値は Auto に落とさず端へ寄せる）
 	attackData_.vfxStyle = static_cast<AttackVfxStyle>(std::clamp(gv->GetValueRef<int32_t>(name_, "VfxStyle"),
@@ -731,7 +771,7 @@ void PlayerStateAttack::UpdateStartup(Player& player, float deltaTime) {
 	}
 }
 
-void PlayerStateAttack::UpdateActive(Player& player) {
+void PlayerStateAttack::UpdateActive(Player& player, float deltaTime) {
 	// 攻撃判定ON（判定を持たない攻撃は出さない）、移動処理
 	player.GetWeapon()->SetIsAttack(attackData_.hasHitbox);
 	// ローカル速度の取得
@@ -742,6 +782,14 @@ void PlayerStateAttack::UpdateActive(Player& player) {
 	Vector3 worldVelocity = RotateVector(localVelocity, rotation);
 	// 速度を設定
 	player.GetVelocity() = worldVelocity;
+	// 急降下で着地した後は止める。振りの残りの間も降下速度を入れ続けると、床に押し戻される前に突き抜ける
+	if (attackData_.diveUntilLanding && diveLanded_) {
+		player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
+	} else if (attackData_.diveUntilLanding && deltaTime > 0.0f) {
+		// 1フレームで落ちる距離に上限を付ける。フレームレートが落ちると床をすり抜けるため（60fps なら効かない）
+		Vector3& velocity = player.GetVelocity();
+		velocity.y = (std::max)(velocity.y, -kMaxDiveStep / deltaTime);
+	}
 
 	// 正規化t
 	float activeStart = attackData_.preDelay;

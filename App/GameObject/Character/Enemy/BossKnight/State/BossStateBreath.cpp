@@ -26,7 +26,7 @@ namespace {
         p.duration = 2.8f;
         p.rushSpeed = 0.0f;                     // その場で吐き続ける
 
-        p.damage.damage = 3.0f;                 // 叩きつけ(2.0)より更に重い必殺技
+        p.damage.damage = 35.0f;                // 叩きつけ(25)より更に重い必殺技。HP100で3発
         p.damage.knockback.type = ReactionType::Knockback;
         p.damage.knockback.power = 20.0f;
         p.damage.knockback.verticalPower = 20.0f * 0.35f;

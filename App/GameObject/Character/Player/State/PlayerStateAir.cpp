@@ -35,7 +35,14 @@ void PlayerStateAir::Update(Player& player, float deltaTime)
 
 void PlayerStateAir::Exit(Player& player)
 {
-	player.GetVelocity() = { 0.0f, 0.0f, 0.0f };
+	// 落ちている途中で抜けた（空中回避など）ときは落下の速さを残す。
+	// 0 に戻すと、空中回避を繰り返すたびに落下が振り出しに戻ってふわふわ降りてしまう
+	Vector3& velocity = player.GetVelocity();
+	velocity.x = 0.0f;
+	velocity.z = 0.0f;
+	if (player.GetOnGround()) {
+		velocity.y = 0.0f;
+	}
 }
 
 void PlayerStateAir::ExecuteCommand(Player&, const PlayerCommand&)

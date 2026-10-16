@@ -30,3 +30,13 @@ void GruntMeleeWeapon::DebugGui()
 void GruntMeleeWeapon::OnCollisionEnter(BaseCollider* other) { other; }
 void GruntMeleeWeapon::OnCollisionStay(BaseCollider* other)  { other; }
 void GruntMeleeWeapon::OnCollisionExit(BaseCollider* other)  { other; }
+
+DamageInfo GruntMeleeWeapon::GetDamageInfo() const {
+	DamageInfo info;
+	info.damage = kDamage;
+	info.knockback.type = ReactionType::Knockback;
+	info.knockback.power = 15.0f;
+	info.knockback.verticalPower = 15.0f * 0.4f;
+	info.knockback.stunTime = 0.7f;
+	return info;
+}

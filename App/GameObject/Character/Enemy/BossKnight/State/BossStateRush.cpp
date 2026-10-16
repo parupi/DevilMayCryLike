@@ -18,7 +18,7 @@ namespace {
         p.duration = 0.88f;                     // Dragon_Attack のクリップ長
         p.rushSpeed = 22.0f;                    // 判定が出ている間だけ、振り始めの正面へ突っ込む
 
-        p.damage.damage = 1.0f;
+        p.damage.damage = 18.0f;                // HP100で6発
         p.damage.knockback.type = ReactionType::Knockback;
         p.damage.knockback.power = 18.0f;
         p.damage.knockback.verticalPower = 18.0f * 0.35f;

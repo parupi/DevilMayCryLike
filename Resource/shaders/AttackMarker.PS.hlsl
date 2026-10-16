@@ -19,7 +19,13 @@ static const float kShapeCircle = 0.0f; // 円（中心から外へ広がる）
 static const float kShapeFan    = 1.0f; // 扇（敵の正面へ開く）
 static const float kShapeRect   = 2.0f; // 矩形（敵の正面へ伸びる帯）
 
-static const float kBaseFill    = 0.16f; // 範囲全体に薄く敷く赤。まだ来ていない場所も見える
+// 色は2色に分ける。下地（範囲全体の塗り・外枠）は赤以外にして、
+// 発生までのゲージ（進む塗り・先端の光の帯）だけを赤で上から重ねる。
+// 全部赤だと、範囲とゲージの境目が読みにくかったため。
+// ゲージの赤は C++ 側の kMarkerColor（頂点色）から来る
+static const float3 kBaseColor  = float3(1.0f, 0.68f, 0.16f); // 下地の色（琥珀）
+
+static const float kBaseFill    = 0.18f; // 範囲全体に薄く敷く下地。まだ来ていない場所も見える
 static const float kFillGain    = 0.42f; // 塗りつぶされた側の濃さ
 static const float kLeadGain    = 1.40f; // 塗りの先端に走る光の帯の強さ
 static const float kLeadWidth   = 0.45f; // その帯の太さ[m]
@@ -81,27 +87,33 @@ float4 main(PSInput input) : SV_TARGET
     const float inside = 1.0f - smoothstep(-aa, aa, sd);
     if (inside <= 0.002f) discard;
 
-    // ── 1) 攻撃範囲そのもの。薄く敷いて「ここが危ない」を先に見せる
-    float intensity = kBaseFill;
-
-    // ── 2) 発生タイミング。塗りが外枠へ届いた瞬間に判定が出る
+    // 下地（kBaseColor）とゲージ（赤）の強さを別々に積んで、最後に混ぜる
+    // 塗られた所は下地をゲージで覆う（下地は塗られていない所にだけ残る）
     const float front  = progress * fillMax;
     const float fillAA = max(fwidth(fill), 1.0e-4f);
     const float filled = 1.0f - smoothstep(front - fillAA, front + fillAA, fill);
-    intensity += filled * kFillGain;
+
+    // ── 1) 攻撃範囲そのもの。薄く敷いて「ここが危ない」を先に見せる
+    float baseI  = kBaseFill * (1.0f - filled);
+    // ── 2) 発生タイミング。塗りが外枠へ届いた瞬間に判定が出る
+    float gaugeI = filled * (kBaseFill + kFillGain);
 
     // ── 3) 塗りの先端に走る光の帯。今どこまで進んだかを一目で読めるようにする
     const float leadT = (fill - front) / kLeadWidth;
-    intensity += exp(-leadT * leadT) * kLeadGain;
+    gaugeI += exp(-leadT * leadT) * kLeadGain;
 
-    // ── 4) 外枠。発生が近づくほど明るくして緊張感を出す
+    // ── 4) 外枠。発生が近づくほど明るくして緊張感を出す。塗りが届いた所から赤に変わる
     const float outline = 1.0f - smoothstep(edgeW - edgeAA, edgeW + edgeAA, abs(sd));
-    intensity += outline * kOutlineGain * (0.55f + 0.95f * progress);
+    const float outlineI = outline * kOutlineGain * (0.55f + 0.95f * progress);
+    baseI  += outlineI * (1.0f - filled);
+    gaugeI += outlineI * filled;
 
-    intensity *= inside;
+    baseI  *= inside;
+    gaugeI *= inside;
+    float intensity = baseI + gaugeI;
+    float3 color = (kBaseColor * baseI + input.color.rgb * gaugeI) / max(intensity, 1.0e-4f);
 
     // ── 5) 判定が出た瞬間の閃光。白く飛ばしてから消える
-    float3 color = input.color.rgb;
     color = lerp(color, float3(1.0f, 0.92f, 0.82f), saturate(flash) * 0.8f);
     intensity += flash * inside * (0.7f + outline * 1.5f);
 

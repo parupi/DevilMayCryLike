@@ -22,7 +22,7 @@ namespace {
 		p.duration = 0.88f;                   // Dragon_Attack のクリップ長
 		p.rushSpeed = 3.0f;                   // 噛みつきながら少し踏み込む（振り始めの正面へ）
 
-		p.damage.damage = 1.0f;
+		p.damage.damage = 15.0f;		// 噛みつき。HP100で7発
 		p.damage.knockback.type = ReactionType::Knockback;
 		p.damage.knockback.power = 12.0f;
 		p.damage.knockback.verticalPower = 12.0f * 0.25f;

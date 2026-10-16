@@ -231,6 +231,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="App\GameObject\UI\Menu\GameOverUI.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuDivider.h" />
     <ClInclude Include="App\GameObject\UI\Menu\MenuUI.h" />
+    <ClInclude Include="App\GameObject\UI\PlayerHealthBar\PlayerHealthBar.h" />
     <ClInclude Include="App\GameObject\UI\StageStart\StageStart.h" />
     <ClInclude Include="App\GameObject\UI\StyleHUD\StyleHUD.h" />
     <ClInclude Include="App\GameObject\UI\TitleUI\TitleMenu.h" />
@@ -610,6 +611,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="App\GameObject\UI\Menu\GameOverUI.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuDivider.cpp" />
     <ClCompile Include="App\GameObject\UI\Menu\MenuUI.cpp" />
+    <ClCompile Include="App\GameObject\UI\PlayerHealthBar\PlayerHealthBar.cpp" />
     <ClCompile Include="App\GameObject\UI\StageStart\StageStart.cpp" />
     <ClCompile Include="App\GameObject\UI\StyleHUD\StyleHUD.cpp" />
     <ClCompile Include="App\GameObject\UI\TitleUI\TitleMenu.cpp" />

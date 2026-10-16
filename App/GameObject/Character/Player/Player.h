@@ -1,6 +1,7 @@
 #pragma once
 #include <unordered_map>
 #include <memory>
+#include "GameObject/UI/PlayerHealthBar/PlayerHealthBar.h"
 #include <string>
 #include <World3D/Object/Object3dManager.h>
 #include <World3D/WorldTransform.h>
@@ -456,16 +457,18 @@ private:
 	bool onGround_ = false;
 	// IsGroundedForActions の値。onGround_ を切る直前に写しておく
 	bool groundedForActions_ = false;
-	// HPのハートのスプライト
-	std::vector<Sprite*> hearts_;
+	// HPバー（画面左上）
+	std::unique_ptr<PlayerHealthBar> healthBar_;
 	// 移動速度
 	const float moveSpeed_ = 10.0f;
+	// ロックオン中に真後ろへ下がるときの速さの倍率（斜め後ろは間を取る）
+	static constexpr float kLockOnBackSpeedRate = 0.6f;
 	// 回転速度
 	const float rotateSpeed_ = 5.0f;
-	// 最大HP
-	int32_t maxHp_ = 5;
+	// 最大HP。敵のダメージ（雑魚の剣12・ボス15〜35）はこの100を基準に決めてある
+	int32_t maxHp_ = 100;
 	// HP
-	int32_t hp_ = 5;
+	int32_t hp_ = 100;
 	// 無敵時間（被弾直後の連続ヒット防止）
 	float invincibleTimer_ = 0.0f;
 	// 常時無敵（トレーニング用。通常のプレイでは false のまま）

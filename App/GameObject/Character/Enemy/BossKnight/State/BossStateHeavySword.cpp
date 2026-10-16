@@ -20,7 +20,7 @@ namespace {
         p.duration = 1.67f;                     // Dragon_Attack2 のクリップ長
         p.rushSpeed = 0.0f;                     // その場で叩きつける
 
-        p.damage.damage = 2.0f;                 // 噛みつきの倍
+        p.damage.damage = 25.0f;                // 噛みつきより重い。HP100で4発
         p.damage.knockback.type = ReactionType::Knockback;
         p.damage.knockback.power = 22.0f;
         p.damage.knockback.verticalPower = 22.0f * 0.5f;
