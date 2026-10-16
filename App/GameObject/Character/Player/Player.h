@@ -460,6 +460,8 @@ private:
 	std::vector<Sprite*> hearts_;
 	// 移動速度
 	const float moveSpeed_ = 10.0f;
+	// ロックオン中に真後ろへ下がるときの速さの倍率（斜め後ろは間を取る）
+	static constexpr float kLockOnBackSpeedRate = 0.6f;
 	// 回転速度
 	const float rotateSpeed_ = 5.0f;
 	// 最大HP

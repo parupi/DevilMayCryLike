@@ -199,6 +199,12 @@ struct AttackData {
 	// 攻撃の出始めから被弾しない時間[秒]
 	float invincibleTime = 0.0f;
 
+	// ── 急降下（空中の叩きつけ）──
+	// 振りの途中で止めたまま MoveSpeed で落ち続け、着地したら振りの残りを出す
+	bool diveUntilLanding = false;
+	float diveLandTime = 0.1f;        // 着地してから振り切るまでの時間[秒]（振りの最後のこの長さを着地後に残す）
+	float diveMaxTime = 2.0f;         // 着地しなくてもこれだけ落ちたら振り切る[秒]（敵の上に乗ったときなどの保険）
+
 	// ── 見た目 ──
 	// 剣の軌跡の色・溜めの光・技ごとの追加演出の種類（PlayerAttackEffect）。Auto は攻撃の性能から決める
 	AttackVfxStyle vfxStyle = AttackVfxStyle::Auto;

@@ -20,7 +20,7 @@ class BaseRenderer;
 /// 段階が変わった瞬間と、その段階の間に出すものを決める（BossAttackEffect と同じ作り）。
 ///
 ///   構え     … 刀身が光り始め、柄から刃先へ光の粒が流れる
-///   溜め     … 溜めるほど光と粒が強くなり、溜めきると足元に光の輪
+///   溜め     … 溜めるほど光と粒が強くなり、体のまわりから金色のオーラが昇る（追従ライトも金色に）。溜めきると足元に光の輪
 ///   振り始め … 刀身が一瞬強く光る・柄の近くから初速の火花
 ///   振り     … 二重の軌跡（太い色の帯＋刃先の白い帯）と、速く振っている間だけ刃のブレ
 ///   振り終わり … 軌跡が残光として消え、刀身の光が抜けていく（強攻撃ほどゆっくり）
@@ -30,6 +30,7 @@ class BaseRenderer;
 ///   打ち上げ … 足元の衝撃・上へ昇る光・長い軌跡
 ///   強攻撃 … 前方へ風の筋・放射ブラー
 ///   叩きつけ … 刃先が地面に届いた所に衝撃波・ひび・土煙・火花、カメラの揺れと寄り
+///             （空中の叩きつけ＝急降下は、落ちている間の集中線と、着地した瞬間の衝撃）
 ///
 /// 当たった瞬間の演出は PlayerWeapon → HitEffectSystem が出す（ここは刃先の速度と種類を教えるだけ）。
 /// </summary>
@@ -87,6 +88,10 @@ private:
 	void OnAttackBegin(const PlayerStateAttack& attack);
 	void UpdateStartup(const PlayerStateAttack& attack, float deltaTime);
 	void UpdateCharge(const PlayerStateAttack& attack, float deltaTime);
+	// 溜め中のオーラ（体のまわりから昇る光と、追従ライトの色）
+	void UpdateChargeAura(float deltaTime);
+	// オーラで変えた追従ライトを元に戻す（変えていなければ何もしない）
+	void StopChargeAuraLight();
 	void OnSwingBegin();
 	void UpdateSwing(const PlayerStateAttack& attack, float deltaTime);
 	void PlaySlamImpact();
@@ -124,6 +129,12 @@ private:
 	float chargeRatio_ = 0.0f;
 	bool chargeFull_ = false;
 	bool slamImpactDone_ = false;
+	// 今の攻撃が急降下（空中の叩きつけ）か
+	bool isDive_ = false;
+	// 溜めのオーラを次に出すまでの時間
+	float auraTimer_ = 0.0f;
+	// 溜めのオーラで追従ライトの色・明るさを変えているか
+	bool auraLightActive_ = false;
 	float moteTimer_ = 0.0f;
 	float thrustTimer_ = 0.0f;
 	float pulseTime_ = 0.0f;

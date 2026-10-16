@@ -11,7 +11,8 @@
 
 namespace {
 	// ── 見た目の調整値 ──
-	// マーカーの色。加算合成なので、暗いステージでも沈まない強い赤にしてある
+	// ゲージ（進む塗り・先端の光の帯）の色。暗いステージでも沈まない強い赤にしてある。
+	// 下地（範囲全体・外枠）の色は AttackMarker.PS.hlsl の kBaseColor
 	constexpr Vector4 kMarkerColor = { 1.0f, 0.11f, 0.07f, 1.0f };
 	// 外枠の太さ[m]。ワールド単位なので、遠くの敵の予兆も同じ太さで見える
 	constexpr float kOutlineWidth = 0.13f;

@@ -1,6 +1,7 @@
 #include "PlayerAttackEffect.h"
 #include "GameObject/Character/Player/Player.h"
 #include "GameObject/Camera/GameCamera.h"
+#include "GameObject/Effect/CharacterLight.h"
 #include "Graphics/Rendering/Effect/WeaponTrail.h"
 #include "Graphics/Rendering/Particle/ParticleManager.h"
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
@@ -29,6 +30,8 @@ namespace {
 	constexpr const char* kAirSlashVfx = "PlayerAirSlash";
 	constexpr const char* kThrustRingVfx = "PlayerThrustRing";
 	constexpr const char* kLaunchRiseVfx = "PlayerLaunchRise";
+	// 溜め中に体のまわりから昇るオーラ
+	constexpr const char* kChargeAuraVfx = "PlayerChargeAura";
 	// ボスの叩きつけ用の地面の演出を、大きさの倍率で小さくして使い回す
 	constexpr const char* kGroundImpactVfx = "BossImpact";
 	constexpr const char* kGroundCrackVfx = "BossGroundCrack";
@@ -62,6 +65,18 @@ namespace {
 	constexpr float kChargeMoteIntervalEnd = 0.025f;
 	constexpr float kChargeFullShake = 0.12f;
 	constexpr float kChargeFullRingScale = 1.2f;
+	// 溜めのオーラ。溜めるほど間隔が詰まり、粒が大きく多くなる
+	constexpr float kChargeAuraIntervalStart = 0.08f;
+	constexpr float kChargeAuraIntervalEnd = 0.035f;
+	constexpr float kChargeAuraCountStart = 0.6f;  // 溜め始めの発生数の倍率
+	constexpr float kChargeAuraCountEnd = 1.6f;    // 溜めきる直前
+	constexpr float kChargeAuraCountFull = 2.2f;   // 溜めきった後
+	constexpr float kChargeAuraSizeStart = 0.8f;
+	constexpr float kChargeAuraSizeEnd = 1.3f;
+	// 溜め中は追従ライトを金色にして、溜めるほど明るくする（体と足元がオーラの色に照らされる）
+	const Vector4 kChargeAuraLightColor{ 1.0f, 0.72f, 0.32f, 1.0f };
+	constexpr float kChargeAuraLightStart = 1.3f;  // 明るさの倍率
+	constexpr float kChargeAuraLightEnd = 3.0f;
 
 	// ── 突進 ──
 	constexpr float kThrustExtraInterval = 0.05f;
@@ -78,6 +93,9 @@ namespace {
 	constexpr float kHeavyBlurStrength = 0.018f;
 
 	// ── 叩きつけ ──
+	// 空中の叩きつけ（急降下）で落ちている間の集中線
+	constexpr float kDiveSpeedLineStrength = 0.35f;
+	constexpr float kDiveSpeedLineTime = 0.5f;
 	constexpr float kSlamGroundHeight = 0.35f; // 刃先が足元からこの高さまで下りたら地面に届いた
 	constexpr float kSlamEarliest = 0.25f;     // 振りのこの割合より前は届いたとみなさない
 	constexpr float kSlamLatest = 0.85f;       // 届かなくてもこの割合で出す
@@ -149,7 +167,7 @@ void PlayerAttackEffect::LoadVfx() {
 	// パーティクルグループはシーンをまたいで残るので、未登録のときだけ読む
 	static constexpr const char* kNames[] = {
 		kHitSlashVfx, kHitHeavyVfx, kSwingSparkVfx, kBladeMoteVfx, kBladeMoteGoldVfx,
-		kAirSlashVfx, kThrustRingVfx, kLaunchRiseVfx,
+		kAirSlashVfx, kThrustRingVfx, kLaunchRiseVfx, kChargeAuraVfx,
 		// 当たった相手の材質ごとの破片（PlayerWeapon が名前で呼ぶ）
 		"HitMatFlesh", "HitMatBone", "HitMatArmor", "HitMatWood",
 		kGroundImpactVfx, kGroundCrackVfx, kGroundDustVfx,
@@ -293,6 +311,18 @@ void PlayerAttackEffect::Update(float deltaTime) {
 	}
 	prevStage_ = stage;
 
+	// 溜めのオーラで変えた追従ライトを、溜めが終わったら戻す
+	if (stage != Stage::Charge) {
+		StopChargeAuraLight();
+	}
+
+	// 空中の叩きつけ（急降下）は、刃先の高さではなく着地した瞬間に地面を叩く
+	if (attack && attack->IsDiveAttack() && attack->HasDiveLanded()
+		&& !slamImpactDone_ && player_->GetOnGround()) {
+		slamImpactDone_ = true;
+		PlaySlamImpact();
+	}
+
 	mainTrail_->Update(deltaTime);
 	coreTrail_->Update(deltaTime);
 	smearTrail_->Update(deltaTime);
@@ -319,6 +349,7 @@ void PlayerAttackEffect::UpdateBladePose(float deltaTime) {
 
 void PlayerAttackEffect::OnAttackBegin(const PlayerStateAttack& attack) {
 	attackName_ = attack.GetAttackName();
+	isDive_ = attack.IsDiveAttack();
 	style_ = ResolveStyle(attackName_, attack.GetBaseAttackData());
 	profile_ = &GetProfile(style_);
 	ApplyProfile();
@@ -326,6 +357,7 @@ void PlayerAttackEffect::OnAttackBegin(const PlayerStateAttack& attack) {
 	chargeRatio_ = 0.0f;
 	chargeFull_ = false;
 	moteTimer_ = 0.0f;
+	auraTimer_ = 0.0f;
 }
 
 void PlayerAttackEffect::UpdateStartup(const PlayerStateAttack& attack, float deltaTime) {
@@ -364,6 +396,40 @@ void PlayerAttackEffect::UpdateCharge(const PlayerStateAttack& attack, float del
 	// 溜めきった後は脈打たせて「いつ離してもいい」を見せる
 	if (chargeFull_) {
 		glowTarget_ *= 0.85f + 0.3f * (0.5f + 0.5f * std::sin(pulseTime_ * 14.0f));
+	}
+
+	UpdateChargeAura(deltaTime);
+}
+
+void PlayerAttackEffect::UpdateChargeAura(float deltaTime) {
+	// 体のまわりから昇る光。溜めるほど密に・大きく、溜めきったらさらに一段濃くする
+	auraTimer_ -= deltaTime;
+	if (auraTimer_ <= 0.0f) {
+		auraTimer_ = kChargeAuraIntervalStart + (kChargeAuraIntervalEnd - kChargeAuraIntervalStart) * chargeRatio_;
+		const float count = chargeFull_ ? kChargeAuraCountFull
+			: kChargeAuraCountStart + (kChargeAuraCountEnd - kChargeAuraCountStart) * chargeRatio_;
+		const float size = kChargeAuraSizeStart + (kChargeAuraSizeEnd - kChargeAuraSizeStart) * chargeRatio_;
+		ParticleManager::GetInstance().PlayVFX(kChargeAuraVfx, GetFeet(), kUp, count, size);
+	}
+
+	// 追従ライトもオーラの色にする。溜めきった後は刀身と同じ速さで脈打たせる
+	if (CharacterLight* light = player_->GetCharacterLight()) {
+		float intensity = kChargeAuraLightStart + (kChargeAuraLightEnd - kChargeAuraLightStart) * chargeRatio_;
+		if (chargeFull_) {
+			intensity *= 0.85f + 0.3f * (0.5f + 0.5f * std::sin(pulseTime_ * 14.0f));
+		}
+		light->SetColorOverride(kChargeAuraLightColor);
+		light->SetIntensityScale(intensity);
+		auraLightActive_ = true;
+	}
+}
+
+void PlayerAttackEffect::StopChargeAuraLight() {
+	if (!auraLightActive_) return;
+	auraLightActive_ = false;
+	if (CharacterLight* light = player_->GetCharacterLight()) {
+		light->ClearColorOverride();
+		light->SetIntensityScale(1.0f);
 	}
 }
 
@@ -410,8 +476,14 @@ void PlayerAttackEffect::OnSwingBegin() {
 		break;
 
 	case AttackVfxStyle::Slam:
-		// 地面の衝撃は刃先が届いた瞬間（UpdateSwing）
+		// 地面の衝撃は刃先が届いた瞬間（UpdateSwing）。急降下なら着地した瞬間（Update）
 		PlayRadialBlur(GetChest(), 0.02f + 0.015f * chargeRatio_, kBlurDuration);
+		if (isDive_) {
+			// 落ちていく勢いを集中線で見せる
+			speedLineTimer_ = kDiveSpeedLineTime;
+			speedLineDuration_ = kDiveSpeedLineTime;
+			speedLineStrength_ = kDiveSpeedLineStrength;
+		}
 		break;
 
 	default:
@@ -444,6 +516,8 @@ void PlayerAttackEffect::UpdateSwing(const PlayerStateAttack& attack, float delt
 		break;
 	}
 	case AttackVfxStyle::Slam: {
+		// 急降下は着地で出す（Update）。空中で刃先の高さを見ると、足元より下へ振った瞬間に宙で出てしまう
+		if (attack.IsDiveAttack()) break;
 		const float progress = attack.GetActiveProgress();
 		const bool reachedGround = bladeTip_.y <= GetFeet().y + kSlamGroundHeight;
 		if (!slamImpactDone_ && progress >= kSlamEarliest && (reachedGround || progress >= kSlamLatest)) {
@@ -526,6 +600,7 @@ void PlayerAttackEffect::Draw() {
 }
 
 void PlayerAttackEffect::Stop() {
+	StopChargeAuraLight();
 	if (mainTrail_) mainTrail_->Clear();
 	if (coreTrail_) coreTrail_->Clear();
 	if (smearTrail_) smearTrail_->Clear();

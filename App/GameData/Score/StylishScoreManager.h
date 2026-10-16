@@ -41,7 +41,8 @@ public:
 	void Initialize();
 
 	/// <summary>毎フレームの更新（時間減衰・コンボ終了判定・UI・GameData同期）。</summary>
-	void Update();
+	/// <param name="dt">シーンの経過秒。ポーズ中は 0 が来るので、減衰もコンボの途切れも止まる</param>
+	void Update(float dt);
 
 	// ======================
 	// 戦闘セッション（戦闘ごとにスコアを決め、最終スコアはその平均）

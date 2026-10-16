@@ -423,8 +423,9 @@ void Player::Update(float deltaTime) {
 	dodgeParams_.Apply();
 
 	// ジャスト回避のスローモーションは実時間で数える。
-	// スケール済みの時間で数えると、遅くした分だけ演出が伸びて自分の首を絞める
-	const float realDelta = DeltaTime::GetDeltaTime();
+	// スケール済みの時間で数えると、遅くした分だけ演出が伸びて自分の首を絞める。
+	// ただしポーズ中（シーンの時間が 0）は止める。止めないとポーズを閉じた時にはスローが終わっている
+	const float realDelta = (deltaTime > 0.0f) ? DeltaTime::GetDeltaTime() : 0.0f;
 	if (justDodgeSlowTimer_ > 0.0f) {
 		justDodgeSlowTimer_ -= realDelta;
 	}
@@ -442,7 +443,8 @@ void Player::Update(float deltaTime) {
 		ChangeState("Death");
 	}
 
-	scoreManager->Update();
+	// 実時間ではなくシーンの時間で進める。実時間だとポーズ中もスコアが減っていた
+	scoreManager->Update(deltaTime);
 
 	LockOn();
 
@@ -650,10 +652,10 @@ float Player::GetWorldTimeScale() const {
 	return (justDodgeSlowTimer_ > 0.0f) ? dodgeParams_.justDodgeTimeScale : 1.0f;
 }
 
-bool Player::CanStartDodge(bool onGround) const {
+bool Player::CanStartDodge(bool /*onGround*/) const {
 	if (dodgeCooldownTimer_ > 0.0f) return false;
-	// 空中では回避できない。宙に浮いたまま滑る絵にならないよう接地を必須にしている
-	if (!onGround) return false;
+	// 空中でも回避できる。中身は地上と同じで、重力で落ちながら滑る（PlayerStateDodge）。
+	// 浮いたまま滑らないので、連打しても滞空は伸びない
 
 	const PlayerStateBase* current = stateMachine_ ? stateMachine_->GetCurrentState() : nullptr;
 	if (!current) return false;
@@ -702,9 +704,11 @@ void Player::OnDodgeStart() {
 	dodgeTrail_->SetLifetime(params.trailLifetime);
 	dodgeTrail_->SetTintColor({ 0.30f, 0.65f, 1.0f, 0.85f });
 
-	// 足元の砂埃。回避方向の逆へ舞わせる
-	const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
-	ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
+	// 足元の砂埃。回避方向の逆へ舞わせる。空中回避では蹴る地面が無いので出さない
+	if (onGround_) {
+		const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
+		ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
+	}
 
 	SoundManager::GetInstance().PlaySE(GameSound::kDodge, 0.6f);
 
@@ -783,7 +787,22 @@ void Player::Move(Vector3 moveDir, float) {
 	// y軸の速度はそのままにしておく
 	float velocityY = velocity_.y;
 
-	velocity_ = moveDir * moveSpeed_;
+	// ロックオン中は後ろへ下がるときだけ遅くする。
+	// 切り上げ（ロックオン中に 後ろ + 攻撃）を狙ってスティックを倒すと、
+	// 同じ速さで離れていって敵が射程から外れていたため。
+	// 後ろ判定は FindRootAttack と同じくスティックの生の Y で取る（ロックオン中はカメラが敵を向いている）
+	float speed = moveSpeed_;
+	if (lockOn_->IsLockOn()) {
+		const Vector2& stick = input_->GetContext().move;
+		const float stickLength = std::sqrt(stick.x * stick.x + stick.y * stick.y);
+		if (stickLength > 0.01f) {
+			// 真後ろで 1、真横より前なら 0
+			const float backAmount = (std::max)(0.0f, -stick.y / stickLength);
+			speed *= 1.0f + (kLockOnBackSpeedRate - 1.0f) * backAmount;
+		}
+	}
+
+	velocity_ = moveDir * speed;
 	velocity_.y = velocityY;
 }
 

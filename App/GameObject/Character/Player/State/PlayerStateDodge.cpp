@@ -3,7 +3,7 @@
 #include "GameObject/Character/Player/Controller/PlayerInput.h"
 
 namespace {
-	// 空中に出てしまったときの落下加速度。他のステートと揃えてある
+	// 空中回避・崖から出たときの落下加速度。他のステートと揃えてある
 	constexpr float kGravity = -12.0f;
 }
 
@@ -53,9 +53,9 @@ void PlayerStateDodge::Update(Player& player, float deltaTime) {
 		return;
 	}
 
-	// 回避時間を使い切ったらダッシュへ
+	// 回避時間を使い切ったらダッシュへ。空中ではダッシュせず、そのまま落ちる
 	if (runtime.elapsed >= params.dodgeDuration) {
-		player.ChangeState("Dash");
+		player.ChangeState(player.GetOnGround() ? "Dash" : "Air");
 		return;
 	}
 }

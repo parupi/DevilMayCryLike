@@ -91,12 +91,11 @@ void StylishScoreManager::ApplyParams()
 	rankSSS_ = global_->GetValueRef<float>("StylishScore", "RankSSS");
 }
 
-void StylishScoreManager::Update()
+void StylishScoreManager::Update(float dt)
 {
 	// エディタでの変更を毎フレーム反映する
 	ApplyParams();
 
-	const float dt = DeltaTime::GetDeltaTime();
 	timeSinceLastAction_ += dt;
 
 	// コンボ終了判定：一定時間ヒットが途切れたらコンボをリセット
