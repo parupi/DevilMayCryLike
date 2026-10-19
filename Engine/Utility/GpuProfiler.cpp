@@ -25,7 +25,7 @@ void GpuProfiler::Initialize(DirectXManager* dxManager)
 	heapProps.Type = D3D12_HEAP_TYPE_READBACK;
 	D3D12_RESOURCE_DESC desc{};
 	desc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-	desc.Width = sizeof(uint64_t) * kMaxScopes * 2;
+	desc.Width = sizeof(uint64_t) * kMaxScopes * 2 * kSlotCount;
 	desc.Height = 1;
 	desc.DepthOrArraySize = 1;
 	desc.MipLevels = 1;
@@ -61,16 +61,21 @@ void GpuProfiler::BeginFrame()
 {
 	if (!queryHeap_) return;
 
-	// 前のフレームの結果を読む（EndDraw が GPU の完了を待っているので、もう書き込まれている）
-	if (resolved_ && frequency_ > 0 && !lastScopes_.empty()) {
+	// このフレームが書く枠を進める。そこに残っているのは2フレーム前の結果で、
+	// その GPU 処理は前のフレームの提出前に待ち終えているので、もう書き込まれている
+	slot_ = (slot_ + 1) % kSlotCount;
+	const std::vector<Scope>& lastScopes = slotScopes_[slot_];
+	if (slotResolved_[slot_] && frequency_ > 0 && !lastScopes.empty()) {
 		const uint32_t count = kMaxScopes * 2;
-		D3D12_RANGE range{ 0, sizeof(uint64_t) * count };
-		uint64_t* data = nullptr;
-		if (SUCCEEDED(readback_->Map(0, &range, reinterpret_cast<void**>(&data)))) {
+		const size_t offset = sizeof(uint64_t) * count * slot_;
+		D3D12_RANGE range{ offset, offset + sizeof(uint64_t) * count };
+		uint8_t* mapped = nullptr;
+		if (SUCCEEDED(readback_->Map(0, &range, reinterpret_cast<void**>(&mapped)))) {
+			const uint64_t* data = reinterpret_cast<const uint64_t*>(mapped + offset);
 			++frameCount_;
 			// ピークはしばらくで忘れる（一瞬の山がずっと残らないように）
 			const bool resetPeak = (frameCount_ % 120) == 0;
-			for (const Scope& scope : lastScopes_) {
+			for (const Scope& scope : lastScopes) {
 				const uint64_t begin = data[scope.beginIndex];
 				const uint64_t end = data[scope.endIndex];
 				const double ms = end > begin ? double(end - begin) * 1000.0 / double(frequency_) : 0.0;
@@ -86,7 +91,7 @@ void GpuProfiler::BeginFrame()
 
 	scopes_.clear();
 	nextIndex_ = 0;
-	resolved_ = false;
+	slotResolved_[slot_] = false;
 }
 
 void GpuProfiler::Begin(const char* name)
@@ -112,9 +117,10 @@ void GpuProfiler::End(const char* name)
 void GpuProfiler::EndFrame()
 {
 	if (!queryHeap_ || nextIndex_ == 0) return;
-	dxManager_->GetCommandList()->ResolveQueryData(queryHeap_.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, nextIndex_, readback_.Get(), 0);
-	lastScopes_ = scopes_;
-	resolved_ = true;
+	const uint64_t offset = sizeof(uint64_t) * kMaxScopes * 2 * slot_;
+	dxManager_->GetCommandList()->ResolveQueryData(queryHeap_.Get(), D3D12_QUERY_TYPE_TIMESTAMP, 0, nextIndex_, readback_.Get(), offset);
+	slotScopes_[slot_] = scopes_;
+	slotResolved_[slot_] = true;
 }
 
 double GpuProfiler::TotalMs() const

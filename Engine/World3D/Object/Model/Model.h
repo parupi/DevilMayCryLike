@@ -38,6 +38,10 @@ public: // メンバ関数
 	void DrawGBuffer() override;
 
 	void DrawShadow() override;
+	// 同じモデルを instanceCount 個まとめて描く（StaticInstanceBatcher）。
+	// 行列はルートで渡したインスタンスのバッファから読むので、ここではマテリアルとメッシュだけを積む
+	void DrawGBufferInstanced(uint32_t instanceCount);
+	void DrawShadowInstanced(uint32_t instanceCount);
 
 	std::vector<Material*> GetMaterials() override;
 	// 

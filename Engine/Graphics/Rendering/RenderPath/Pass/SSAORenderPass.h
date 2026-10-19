@@ -3,6 +3,7 @@
 #include "Core/EngineContext.h"
 #include <wrl.h>
 #include <d3d12.h>
+#include "Graphics/Resource/ResourceManager.h"
 
 class GBufferManager;
 
@@ -60,9 +61,9 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> ssaoPso_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> blurPso_;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> ssaoParamBuffer_;
+	BufferHandle ssaoParamHandle_ = kInvalidBufferHandle;
 	SSAOParam* ssaoParam_ = nullptr;
-	Microsoft::WRL::ComPtr<ID3D12Resource> blurParamBuffer_;
+	BufferHandle blurParamHandle_ = kInvalidBufferHandle;
 	BlurParam* blurParam_ = nullptr;
 
 	D3D12_VIEWPORT viewport_{};

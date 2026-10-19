@@ -18,6 +18,7 @@
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "World3D/Camera/BaseCamera.h"
 #include "World3D/Light/LightManager.h"
+#include "World3D/Object/Object3dManager.h"
 
 #include <imgui/imgui.h>
 #include <string>
@@ -291,6 +292,24 @@ void Editor::DrawRenderWindow()
 				DrawShadowSection(*csm);
 			}
 		}
+	}
+
+	if (ImGui::CollapsingHeader("カリング")) {
+		Object3dManager& objects = Object3dManager::GetInstance();
+		bool culling = objects.IsFrustumCullingEnabled();
+		if (ImGui::Checkbox("カメラの視錐台カリング", &culling)) {
+			objects.SetFrustumCullingEnabled(culling);
+		}
+		ImGui::TextDisabled("GBuffer  描画 %u / 省略 %u（スキンモデルは数えない）",
+			objects.GetLastDrawnCount(), objects.GetLastCulledCount());
+
+		StaticInstanceBatcher& batcher = objects.GetInstanceBatcher();
+		bool instancing = batcher.IsEnabled();
+		if (ImGui::Checkbox("床・壁をまとめて描く（インスタンシング）", &instancing)) {
+			batcher.SetEnabled(instancing);
+		}
+		ImGui::TextDisabled("GBuffer  %u 個を %u 回で描画", batcher.GetLastGBufferInstances(), batcher.GetLastGBufferDraws());
+		ImGui::TextDisabled("影(全カスケード)  %u 個を %u 回で描画", batcher.GetLastShadowInstances(), batcher.GetLastShadowDraws());
 	}
 
 	if (SkySystem* sky = Ctx().skySystem) {

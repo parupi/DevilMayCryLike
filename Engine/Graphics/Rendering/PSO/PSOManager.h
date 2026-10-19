@@ -38,6 +38,9 @@ public:
 	// DeferredRendering
 	ID3D12RootSignature* GetDeferredSignature() { return deferredSignature_.Get(); }
 	ID3D12PipelineState* GetDeferredPSO();
+	// 静的モデルのインスタンシング用（StaticInstanceBatcher）
+	ID3D12RootSignature* GetDeferredInstancedSignature();
+	ID3D12PipelineState* GetDeferredInstancedPSO();
 
 	// LightingPath
 	ID3D12RootSignature* GetLightingPathSignature() { return lightingPathSignature_.Get(); }
@@ -54,6 +57,9 @@ public:
 	// CascadedShadowMap
 	ID3D12RootSignature* GetCSMRootSignature() { return csmRootSignature_.Get(); }
 	ID3D12PipelineState* GetCSMPSO();
+	// 静的モデルのインスタンシング用（StaticInstanceBatcher）
+	ID3D12RootSignature* GetCSMInstancedRootSignature();
+	ID3D12PipelineState* GetCSMInstancedPSO();
 
 	// Trail
 	ID3D12RootSignature* GetTrailSignature() { return trailSignature_.Get(); }
@@ -124,6 +130,8 @@ private:
 	// DeferredRendering
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> deferredSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> deferredPipelineState_;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> deferredInstancedSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> deferredInstancedPipelineState_;
 	// LightingPath
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> lightingPathSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> lightingPathPipelineState_;
@@ -136,6 +144,8 @@ private:
 	// CascadedShadowMap
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> csmRootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmPSO_;
+	Microsoft::WRL::ComPtr<ID3D12RootSignature> csmInstancedRootSignature_;
+	Microsoft::WRL::ComPtr<ID3D12PipelineState> csmInstancedPSO_;
 	// Trail
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> trailSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> trailPSO_;      // 加算

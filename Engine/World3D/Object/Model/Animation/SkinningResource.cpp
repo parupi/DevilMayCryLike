@@ -39,7 +39,7 @@ void SkinningResource::CreateInfluence(
 	auto* resourceManager = dxManager_->GetResourceManager();
 
 	const size_t size = sizeof(VertexInfluence) * meshData.vertices.size();
-	influenceHandle_ = resourceManager->CreateUploadBuffer(size, L"Skin:Influence");
+	influenceHandle_ = resourceManager->CreateUploadBuffer(size, L"Skin:Influence", ResourceManager::UploadUsage::Static);
 
 	auto* mapped = reinterpret_cast<VertexInfluence*>(resourceManager->Map(influenceHandle_));
 
@@ -76,7 +76,7 @@ void SkinningResource::CreateInputVertex(const SkinnedMeshData& meshData)
 	auto* resourceManager = dxManager_->GetResourceManager();
 
 	const size_t size = sizeof(VertexData) * meshData.vertices.size();
-	inputVertexHandle_ = resourceManager->CreateUploadBuffer(size, L"Skin:InputVertex");
+	inputVertexHandle_ = resourceManager->CreateUploadBuffer(size, L"Skin:InputVertex", ResourceManager::UploadUsage::Static);
 
 	// 入力頂点はアニメーションで変わらないのでここで1回書くだけ
 	void* mapped = resourceManager->Map(inputVertexHandle_);

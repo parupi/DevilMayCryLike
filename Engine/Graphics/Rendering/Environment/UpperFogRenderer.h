@@ -1,6 +1,7 @@
 #pragma once
 #include <wrl.h>
 #include <d3d12.h>
+#include "Graphics/Resource/ResourceManager.h"
 
 class DirectXManager;
 
@@ -61,7 +62,7 @@ private:
 	DirectXManager* dxManager_ = nullptr;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature_;
 	Microsoft::WRL::ComPtr<ID3D12PipelineState> pso_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
+	BufferHandle bufferHandle_ = kInvalidBufferHandle;
 	unsigned char* mapped_ = nullptr;
 	D3D12_GPU_DESCRIPTOR_HANDLE sceneWorldPosSrv_{};
 

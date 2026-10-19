@@ -23,18 +23,21 @@ void UpperFogRenderer::Initialize(DirectXManager* dxManager)
 	CreateRootSignature();
 	CreatePSO();
 
-	buffer_ = dxManager_->GetResourceManager()->CreateUploadResource(kSlotSize * kMaxLayers);
-	buffer_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_));
+	// ResourceManager 経由（Map が返すのは CPU 側の写しで、提出の直前に GPU へ写される）。
+	// 直接 Map した upload ヒープへ書くと、CPU と GPU が並行して走るときに GPU が読んでいる最中に書き換えてしまう
+	auto* resourceManager = dxManager_->GetResourceManager();
+	bufferHandle_ = resourceManager->CreateUploadBuffer(kSlotSize * kMaxLayers, L"UpperFog");
+	mapped_ = reinterpret_cast<unsigned char*>(resourceManager->Map(bufferHandle_));
 	std::memset(mapped_, 0, kSlotSize * kMaxLayers);
 }
 
 void UpperFogRenderer::Finalize()
 {
-	if (buffer_ && mapped_) {
-		buffer_->Unmap(0, nullptr);
+	if (dxManager_ && bufferHandle_ != kInvalidBufferHandle) {
+		dxManager_->GetResourceManager()->ReleaseBuffer(bufferHandle_);
 	}
+	bufferHandle_ = kInvalidBufferHandle;
 	mapped_ = nullptr;
-	buffer_.Reset();
 	pso_.Reset();
 	rootSignature_.Reset();
 }
@@ -191,7 +194,7 @@ void UpperFogRenderer::Draw()
 		cb.layerSeed = static_cast<float>(i) * 17.31f;
 
 		std::memcpy(mapped_ + kSlotSize * i, &cb, sizeof(cb));
-		cmd->SetGraphicsRootConstantBufferView(0, buffer_->GetGPUVirtualAddress() + kSlotSize * i);
+		cmd->SetGraphicsRootConstantBufferView(0, dxManager_->GetResourceManager()->GetGPUVirtualAddress(bufferHandle_) + kSlotSize * i);
 		cmd->DrawInstanced(6, 1, 0, 0);
 	}
 }

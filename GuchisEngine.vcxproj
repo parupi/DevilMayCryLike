@@ -469,6 +469,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\World3D\Object\Renderer\PrimitiveRenderer.h" />
     <ClInclude Include="Engine\World3D\Object\Renderer\PrimitiveType.h" />
     <ClInclude Include="Engine\World3D\Object\Renderer\RendererManager.h" />
+    <ClInclude Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.h" />
     <ClInclude Include="Engine\World3D\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="Engine\World3D\WorldTransform.h" />
     <ClInclude Include="Externals\imgui-node-editor\crude_json.h" />
@@ -824,6 +825,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\World3D\Object\Renderer\PrimitiveFactory.cpp" />
     <ClCompile Include="Engine\World3D\Object\Renderer\PrimitiveRenderer.cpp" />
     <ClCompile Include="Engine\World3D\Object\Renderer\RendererManager.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.cpp" />
     <ClCompile Include="Engine\World3D\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="Engine\World3D\WorldTransform.cpp" />
     <ClCompile Include="Externals\imgui-node-editor\crude_json.cpp">

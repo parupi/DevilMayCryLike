@@ -25,8 +25,13 @@ void PrimitiveLineDrawer::Initialize(DirectXManager* dxManager, PSOManager* psoM
 void PrimitiveLineDrawer::Finalize()
 {
 	// 頂点・インデックスリソースの解放
-	vertexResource_.Reset();
-	indexResource_.Reset();
+	if (dxManager_) {
+		auto* resourceManager = dxManager_->GetResourceManager();
+		resourceManager->ReleaseBuffer(vertexHandle_);
+		resourceManager->ReleaseBuffer(indexHandle_);
+	}
+	vertexHandle_ = kInvalidBufferHandle;
+	indexHandle_ = kInvalidBufferHandle;
 
 	// ビューデータ初期化
 	vertexBufferView_ = {};
@@ -47,20 +52,24 @@ void PrimitiveLineDrawer::Finalize()
 void PrimitiveLineDrawer::CreateVertexResource(DirectXManager* dxManager)
 {
 	// --- Vertex buffer ---
-	vertexResource_ = dxManager->GetResourceManager()->CreateUploadResource(sizeof(Vertex) * kMaxLineVertices);
-	vertexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedVertexPtr_));
+	// ResourceManager 経由（Map が返すのは CPU 側の写しで、提出の直前に GPU へ写される）。
+	// 直接 Map した upload ヒープへ書くと、CPU と GPU が並行して走るときに GPU が読んでいる最中に書き換えてしまう
+	auto* resourceManager = dxManager->GetResourceManager();
+	vertexHandle_ = resourceManager->CreateUploadBuffer(sizeof(Vertex) * kMaxLineVertices, L"PrimitiveLineVB", ResourceManager::UploadUsage::Ranged);
+	mappedVertexPtr_ = reinterpret_cast<Vertex*>(resourceManager->Map(vertexHandle_));
 
-	vertexBufferView_.BufferLocation = vertexResource_->GetGPUVirtualAddress();
+	vertexBufferView_.BufferLocation = resourceManager->GetGPUVirtualAddress(vertexHandle_);
 	vertexBufferView_.SizeInBytes = sizeof(Vertex) * kMaxLineVertices;
 	vertexBufferView_.StrideInBytes = sizeof(Vertex);
 }
 
 void PrimitiveLineDrawer::CreateIndexResource(DirectXManager* dxManager)
 {
-	indexResource_ = dxManager->GetResourceManager()->CreateUploadResource(sizeof(uint32_t) * kMaxLineIndices);
-	indexResource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedIndexPtr_));
+	auto* resourceManager = dxManager->GetResourceManager();
+	indexHandle_ = resourceManager->CreateUploadBuffer(sizeof(uint32_t) * kMaxLineIndices, L"PrimitiveLineIB", ResourceManager::UploadUsage::Ranged);
+	mappedIndexPtr_ = reinterpret_cast<uint32_t*>(resourceManager->Map(indexHandle_));
 
-	indexBufferView_.BufferLocation = indexResource_->GetGPUVirtualAddress();
+	indexBufferView_.BufferLocation = resourceManager->GetGPUVirtualAddress(indexHandle_);
 	indexBufferView_.SizeInBytes = sizeof(uint32_t) * kMaxLineIndices;
 	indexBufferView_.Format = DXGI_FORMAT_R32_UINT;
 }
@@ -203,6 +212,11 @@ void PrimitiveLineDrawer::Draw()
 	cmdList->IASetVertexBuffers(0, 1, &vertexBufferView_);
 	cmdList->IASetIndexBuffer(&indexBufferView_);
 	cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	// 積んだ本数ぶんだけ GPU へ写してもらう（バッファは 2万頂点ぶんあるので全部は写さない）
+	auto* resourceManager = dxManager_->GetResourceManager();
+	resourceManager->MarkDirty(vertexHandle_, 0, sizeof(Vertex) * currentVertexCount_);
+	resourceManager->MarkDirty(indexHandle_, 0, sizeof(uint32_t) * currentIndexCount_);
 
 	cmdList->DrawIndexedInstanced(currentIndexCount_, 1, 0, 0, 0);
 }

@@ -1395,6 +1395,9 @@
     <ClInclude Include="Engine\World3D\Object\Renderer\RendererManager.h">
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.h">
+      <Filter>Engine\World3D\Object\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\World3D\Primitive\PrimitiveLineDrawer.h">
       <Filter>Engine\World3D\Primitive</Filter>
     </ClInclude>
@@ -2454,6 +2457,9 @@
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Renderer\RendererManager.cpp">
+      <Filter>Engine\World3D\Object\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.cpp">
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Primitive\PrimitiveLineDrawer.cpp">

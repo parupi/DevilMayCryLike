@@ -1,6 +1,8 @@
 #include "ResourceManager.h"
 #include <cassert>
 #include <cstring>
+#include <algorithm>
+#include <malloc.h>
 #include <format>
 #include <sstream>
 
@@ -51,7 +53,12 @@ bool ResourceManager::IsValidHandle(BufferHandle h) const
 }
 
 // debugName は Debug ビルドの SetName でしか使わないので maybe_unused
-BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, [[maybe_unused]] const std::wstring& debugName)
+void ResourceManager::AlignedFree::operator()(uint8_t* p) const
+{
+    _aligned_free(p);
+}
+
+BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, [[maybe_unused]] const std::wstring& debugName, UploadUsage usage)
 {
     assert(desc_.device);
     BufferHandle h = AllocHandle();
@@ -94,7 +101,53 @@ BufferHandle ResourceManager::CreateUploadBuffer(size_t sizeInBytes, [[maybe_unu
     table_[h].isUpload = true;
     table_[h].alive = true;
 
+    // Dynamic / Ranged は CPU 側の写しへ書かせ、提出の直前に GPU へ写す（SyncUploads）
+    table_[h].usage = usage;
+    table_[h].dirtyBegin = 0;
+    table_[h].dirtyEnd = 0;
+    if (usage == UploadUsage::Static) {
+        table_[h].shadow.reset();
+    } else {
+        // 行列を SIMD で書かれても困らないよう、余裕を持って揃えておく
+        table_[h].shadow.reset(static_cast<uint8_t*>(_aligned_malloc(sizeInBytes, 64)));
+        assert(table_[h].shadow);
+        std::memset(table_[h].shadow.get(), 0, sizeInBytes);
+        syncList_.push_back(h);
+    }
+
     return h;
+}
+
+void ResourceManager::MarkDirty(BufferHandle handle, size_t offset, size_t size)
+{
+    if (!IsValidHandle(handle) || size == 0) return;
+    Entry& e = table_[handle];
+    if (e.usage != UploadUsage::Ranged) return;
+    const size_t begin = (std::min)(offset, e.size);
+    const size_t end = (std::min)(offset + size, e.size);
+    if (e.dirtyEnd <= e.dirtyBegin) {
+        e.dirtyBegin = begin;
+        e.dirtyEnd = end;
+    } else {
+        e.dirtyBegin = (std::min)(e.dirtyBegin, begin);
+        e.dirtyEnd = (std::max)(e.dirtyEnd, end);
+    }
+}
+
+void ResourceManager::SyncUploads()
+{
+    for (BufferHandle h : syncList_) {
+        Entry& e = table_[h];
+        if (!e.alive || !e.shadow || !e.mappedPtr) continue;
+        uint8_t* dst = static_cast<uint8_t*>(e.mappedPtr);
+        if (e.usage == UploadUsage::Dynamic) {
+            std::memcpy(dst, e.shadow.get(), e.size);
+        } else if (e.dirtyEnd > e.dirtyBegin) {
+            std::memcpy(dst + e.dirtyBegin, e.shadow.get() + e.dirtyBegin, e.dirtyEnd - e.dirtyBegin);
+            e.dirtyBegin = 0;
+            e.dirtyEnd = 0;
+        }
+    }
 }
 
 BufferHandle ResourceManager::CreateDefaultBuffer(size_t sizeInBytes, D3D12_RESOURCE_FLAGS flags, [[maybe_unused]] const std::wstring& debugName)
@@ -235,7 +288,8 @@ void* ResourceManager::Map(BufferHandle handle)
     if (!IsValidHandle(handle)) return nullptr;
     auto& e = table_[handle];
     if (!e.isUpload) return nullptr; // Default buffer は Map しない
-    return e.mappedPtr;
+    // Dynamic / Ranged は CPU 側の写しへ書かせる（GPU が前のフレームで読んでいる最中のメモリに触らない）
+    return e.shadow ? static_cast<void*>(e.shadow.get()) : e.mappedPtr;
 }
 
 D3D12_GPU_VIRTUAL_ADDRESS ResourceManager::GetGPUVirtualAddress(BufferHandle handle) const
@@ -262,6 +316,12 @@ void ResourceManager::ReleaseBuffer(BufferHandle handle)
         // mark entry dead so nobody else tries to use it
         entry.resource.Reset();
         entry.alive = false;
+        // CPU 側の写しは GPU と関係ないのでここで捨ててよい。ハンドルは使い回されるので写す対象からも外す
+        if (entry.shadow) {
+            entry.shadow.reset();
+            syncList_.erase(std::remove(syncList_.begin(), syncList_.end(), handle), syncList_.end());
+        }
+        entry.usage = UploadUsage::Static;
         // add to free list to reuse handle
         freeList_.push_back(handle);
     }
@@ -316,5 +376,14 @@ void ResourceManager::AddPendingUpload(Microsoft::WRL::ComPtr<ID3D12Resource> re
 
 void ResourceManager::ReleasePendingUploads()
 {
+    pendingUploadBuffers_.clear();
+}
+
+void ResourceManager::RetirePendingUploads(uint64_t fenceValue)
+{
+    std::lock_guard<std::mutex> lk(mutex_);
+    for (auto& res : pendingUploadBuffers_) {
+        pending_.emplace_back(fenceValue, std::move(res));
+    }
     pendingUploadBuffers_.clear();
 }

@@ -61,10 +61,14 @@ private:
 	Microsoft::WRL::ComPtr<ID3D12Resource> readback_;
 	uint64_t frequency_ = 0;
 
-	std::vector<Scope> scopes_;     // このフレームの区間
-	std::vector<Scope> lastScopes_; // 前のフレームの区間（結果の読み取り用）
+	// 読み戻し先は2枠を交互に使う。CPU と GPU が並行して走るので、前のフレームの結果は
+	// まだ GPU が書いている最中かもしれない。2フレーム前の枠（＝提出前の待ちで完了が確定している）を読む
+	static constexpr uint32_t kSlotCount = 2;
+	std::vector<Scope> scopes_;                 // このフレームの区間
+	std::vector<Scope> slotScopes_[kSlotCount]; // 枠ごとの区間（結果の読み取り用）
+	bool slotResolved_[kSlotCount]{};
+	uint32_t slot_ = 0;                          // このフレームが書く枠
 	uint32_t nextIndex_ = 0;
-	bool resolved_ = false;
 	uint32_t frameCount_ = 0;
 
 	std::vector<Entry> entries_;

@@ -30,7 +30,9 @@ void ModelRenderer::Update(WorldTransform* parentTransform) {
 		localTransform_->SetParent(parentTransform);
 	}
 
-	localTransform_->TransferMatrix(camera_);
+	// まとめて描くものは、カメラの VP をシェーダーで掛けるので WVP を作らない（カメラを渡さない）。
+	// ワールド行列とその逆転置はこれまでどおり変わったときだけ作り直される
+	localTransform_->TransferMatrix(CanDrawInstanced() ? nullptr : camera_);
 
 	// アニメーションはゲーム時間で進める。
 	// ヒットストップ中は GetGameDelta() が 0 になるのでポーズもそこで止まる
@@ -79,6 +81,26 @@ void ModelRenderer::DrawGBuffer() {
 	} else {
 		model_->DrawGBuffer(); // Model側へ委譲
 	}
+}
+
+bool ModelRenderer::CanDrawInstanced() const {
+	if (!instanced_ || skinnedInstance_ || !model_) return false;
+	if (!Object3dManager::GetInstance().GetInstanceBatcher().IsEnabled()) return false;
+	// 見た目がレンダラーごとに違う間（ディゾルブ・発光）は、ルート定数を1個ずつ渡すので普通に描く
+	if (dissolveThreshold_ > -0.5f || emissiveTint_.w > 0.0f) return false;
+	return dynamic_cast<Model*>(model_) != nullptr;
+}
+
+bool ModelRenderer::SubmitInstanced() {
+	if (!CanDrawInstanced()) return false;
+	Object3dManager::GetInstance().GetInstanceBatcher().SubmitGBuffer(this, static_cast<Model*>(model_), environmentSurface_);
+	return true;
+}
+
+bool ModelRenderer::SubmitShadowInstanced() {
+	if (!CanDrawInstanced()) return false;
+	Object3dManager::GetInstance().GetInstanceBatcher().SubmitShadow(this, static_cast<Model*>(model_));
+	return true;
 }
 
 void ModelRenderer::DrawShadow() {

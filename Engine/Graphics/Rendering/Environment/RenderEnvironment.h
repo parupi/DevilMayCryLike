@@ -2,6 +2,7 @@
 #include <Math/Vector3.h>
 #include <wrl.h>
 #include <d3d12.h>
+#include "Graphics/Resource/ResourceManager.h"
 
 class DirectXManager;
 
@@ -197,7 +198,8 @@ private:
 	};
 
 	Params params_{};
-	Microsoft::WRL::ComPtr<ID3D12Resource> buffer_;
+	DirectXManager* dxManager_ = nullptr;
+	BufferHandle bufferHandle_ = kInvalidBufferHandle;
 	EnvironmentCB* mapped_ = nullptr;
 	D3D12_GPU_DESCRIPTOR_HANDLE aoSrv_{};
 	float time_ = 0.0f;

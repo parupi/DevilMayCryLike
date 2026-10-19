@@ -114,6 +114,23 @@ void Model::DrawGBuffer() {
 	}
 }
 
+void Model::DrawGBufferInstanced(uint32_t instanceCount) {
+	auto* cmd = modelLoader_->GetDxManager()->GetCommandList();
+	for (auto& mesh : meshes_) {
+		materials_[mesh->GetMeshData().materialIndex]->BindForGBuffer();
+		mesh->Bind();
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), instanceCount, 0, 0, 0);
+	}
+}
+
+void Model::DrawShadowInstanced(uint32_t instanceCount) {
+	auto* cmd = modelLoader_->GetDxManager()->GetCommandList();
+	for (auto& mesh : meshes_) {
+		mesh->Bind();
+		cmd->DrawIndexedInstanced(UINT(mesh->GetMeshData().indices.size()), instanceCount, 0, 0, 0);
+	}
+}
+
 void Model::DrawShadow() {
 	for (auto& mesh : meshes_) {
 		auto cmd = modelLoader_->GetDxManager()->GetCommandList();

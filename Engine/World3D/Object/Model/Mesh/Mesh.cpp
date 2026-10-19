@@ -66,7 +66,7 @@ void Mesh::CreateVertexResource()
 	auto* resourceManager = directXManager_->GetResourceManager();
 	const size_t vertexSize = sizeof(VertexData) * meshData_.vertices.size();
 
-	vertexHandle_ = resourceManager->CreateUploadBuffer(vertexSize, L"Mesh:Vertex");
+	vertexHandle_ = resourceManager->CreateUploadBuffer(vertexSize, L"Mesh:Vertex", ResourceManager::UploadUsage::Static);
 
 	void* ptr = resourceManager->Map(vertexHandle_);
 	assert(ptr);
@@ -85,7 +85,7 @@ void Mesh::CreateIndexResource()
 	auto* resourceManager = directXManager_->GetResourceManager();
 	const size_t indexSize = sizeof(uint32_t) * meshData_.indices.size();
 
-	indexHandle_ = resourceManager->CreateUploadBuffer(indexSize, L"Mesh:Index");
+	indexHandle_ = resourceManager->CreateUploadBuffer(indexSize, L"Mesh:Index", ResourceManager::UploadUsage::Static);
 
 	void* ptr = resourceManager->Map(indexHandle_);
 	assert(ptr);

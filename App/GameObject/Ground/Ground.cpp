@@ -25,6 +25,10 @@ void Ground::Initialize()
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	// 壁や床は環境オブジェクト。洞窟の「高さによる暗化」はこれが立っているものだけに掛かる
 	GetRenderer(name_)->SetEnvironmentSurface(true);
+	// 動かない環境モデルなので、同じモデルの床・壁とまとめて1回で描く（StaticInstanceBatcher）
+	if (auto* modelRenderer = dynamic_cast<ModelRenderer*>(GetRenderer(name_))) {
+		modelRenderer->SetInstanced(true);
+	}
 
 	// コライダーはステージデータで付けた場合のみ存在する。
 	// エディタで作った直後は無いので、付いているものだけ Ground カテゴリにする

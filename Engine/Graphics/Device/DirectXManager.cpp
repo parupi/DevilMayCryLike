@@ -68,6 +68,15 @@ void DirectXManager::Initialize(WindowManager* winManager) {
 
 	resourceManager_ = std::make_unique<ResourceManager>();
 	resourceManager_->Initialize(GetDevice());
+	// 提出の直前（前に提出したものの GPU 処理が終わった後）に、CPU 側の写しを GPU のバッファへ移す。
+	// これで「GPU が前のフレームを描いている間に CPU が次のフレームの値を書く」ことができる
+	commandContext_->SetPreExecuteCallback([this]() {
+		resourceManager_->SyncUploads();
+		// SRV のマネージャはこの後で作るので、それより前の提出（初期化中のアップロード）では無い
+		if (srvManager_) {
+			srvManager_->ProcessDeferredFrees();
+		}
+	});
 
 	srvManager_ = std::make_unique<SrvManager>();
 	srvManager_->Initialize(this);
@@ -334,7 +343,9 @@ void DirectXManager::EndDraw() {
 	}
 
 	{
-		PROF_SCOPE("Gfx:Begin(GPU完了待ち)");
+		// 次のフレームのコマンドを積み始める。今提出したフレームは GPU が描いている最中でよい
+		// （前の提出の完了待ちは Flush の中＝次のフレームの提出直前に移した）
+		PROF_SCOPE("Gfx:Begin");
 		commandContext_->Begin();
 	}
 
@@ -342,8 +353,8 @@ void DirectXManager::EndDraw() {
 	{
 		PROF_SCOPE("Gfx:リソース解放");
 		resourceManager_->ProcessPendingReleases(completed);
-		// 直前の Begin() がフェンスを待っているので、ここでの解放は安全
-		resourceManager_->ReleasePendingUploads();
+		// テクスチャのコピー元は、今提出したフレームの GPU 処理が終わってから捨てる
+		resourceManager_->RetirePendingUploads(fenceValue);
 	}
 	pendingUploadBytes_ = 0;
 

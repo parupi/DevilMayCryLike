@@ -292,7 +292,7 @@ void ParticleManager::CreateParticleGPU(const std::string& name, PrimitiveType s
 	ParticleGroupGPU gpu{};
 
 	// --- インスタンシングバッファ ---
-	gpu.instancingHandle = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleInstancing");
+	gpu.instancingHandle = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleInstancing", ResourceManager::UploadUsage::Ranged);
 	gpu.mappedPtr = reinterpret_cast<ParticleForGPU*>(rm->Map(gpu.instancingHandle));
 
 	gpu.srvIndex = srvManager_->Allocate();
@@ -529,6 +529,8 @@ void ParticleManager::UploadInstanceData(const std::string& groupName, const std
 		dst[i].color = instanceList[i].color;
 		dst[i].uvOffsetScale = instanceList[i].uvOffsetScale;
 	}
+	// 書いた粒のぶんだけ GPU へ写す（バッファはグループごとに 2048 粒ぶんあり、全部写すと重い）
+	dxManager_->GetResourceManager()->MarkDirty(gpuBuffer.instancingHandle, 0, sizeof(ParticleForGPU) * instanceCount);
 }
 
 void ParticleManager::CreateParticleResource()
@@ -538,7 +540,7 @@ void ParticleManager::CreateParticleResource()
 	// -----------------------------
 	// インスタンス用バッファ
 	// -----------------------------
-	instancingHandle_ = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleGlobalInstancing");
+	instancingHandle_ = rm->CreateUploadBuffer(sizeof(ParticleForGPU) * kNumMaxInstance, L"ParticleGlobalInstancing", ResourceManager::UploadUsage::Static);
 
 	instancingData_ = reinterpret_cast<ParticleForGPU*>(rm->Map(instancingHandle_));
 
