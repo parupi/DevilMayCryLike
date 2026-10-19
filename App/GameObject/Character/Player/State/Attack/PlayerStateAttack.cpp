@@ -192,9 +192,14 @@ void PlayerStateAttack::Enter(Player& player) {
 	attackChangeTimer_.max = attackData_.nextAttackDelay;
 	attackChangeTimer_.current = 0.0f;
 
+	// 足すのではなく数を合わせてから入れる。以前は push_back で毎回後ろに足しており、
+	// 毎フレームの UpdateAttackData() の resize が切り詰めていたので表に出ていなかった
+	// （読み直しを編集中の攻撃だけにしたので、ここで揃えないと出すたびに制御点が後ろへ増え続け、スプラインが壊れる）
+	attackData_.controlPoints.resize(attackData_.pointCount);
+	attackData_.controlRotations.resize(attackData_.pointCount);
 	for (int32_t i = 0; i < attackData_.pointCount; i++) {
-		attackData_.controlPoints.push_back(gv->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i)));
-		attackData_.controlRotations.push_back(gv->GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i)));
+		attackData_.controlPoints[i] = gv->GetValueRef<Vector3>(name_, "ControlPoint_" + std::to_string(i));
+		attackData_.controlRotations[i] = gv->GetValueRef<Vector3>(name_, "ControlRotation_" + std::to_string(i));
 	}
 
 	// 溜めと多段ヒットの進み具合を戻す

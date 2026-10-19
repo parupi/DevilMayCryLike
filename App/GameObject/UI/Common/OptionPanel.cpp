@@ -31,6 +31,7 @@ namespace {
 		"INVERT CAMERA Y",
 		"TUTORIAL",
 		"ACTION GUIDE",
+		"ANTI-ALIASING",
 	};
 
 	/// ACTION GUIDE の値の表示。GameSettings::GetActionGuideMode の並び（0=OFF / 1=戦闘中 / 2=常に）
@@ -54,7 +55,7 @@ void OptionPanel::Initialize()
 	// 選択行の後ろに敷く加算グロー。タイトルの操作案内と同じ見せ方に揃えている
 	highlight_ = sprites.CreateSprite(SpriteLayer::UI, "optHighlight", "circle.png");
 	highlight_->SetAnchorPoint({ 0.5f, 0.5f });
-	highlight_->SetSize({ 760.0f, 54.0f });
+	highlight_->SetSize({ 760.0f, 50.0f });
 	highlight_->GetRenderState().blendMode = BlendMode::kAdd;
 
 	cursor_ = sprites.CreateSprite(SpriteLayer::UI, "optCursor", "SelectArrow.png");
@@ -214,6 +215,9 @@ void OptionPanel::ChangeValue(int32_t direction)
 	case Row::ActionGuide:
 		settings.SetActionGuideMode(settings.GetActionGuideMode() + direction);
 		break;
+	case Row::AntiAliasing:
+		settings.SetAntiAliasingEnabled(direction > 0);
+		break;
 	default:
 		break;
 	}
@@ -291,6 +295,9 @@ void OptionPanel::Refresh()
 			break;
 		case Row::ActionGuide:
 			RefreshChoiceRow(row, kActionGuideTexts[settings.GetActionGuideMode()], brightness);
+			break;
+		case Row::AntiAliasing:
+			RefreshToggleRow(row, settings.IsAntiAliasingEnabled(), brightness);
 			break;
 		default:
 			break;

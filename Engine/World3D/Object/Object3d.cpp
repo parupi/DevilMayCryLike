@@ -112,6 +112,16 @@ void Object3d::Draw() {
 		break;
 	case DrawPath::Deferred:
 		for (auto* d : deferredDrawables_) {
+			// カメラに映らないものは描かない（境界球を持たないスキンモデル等は常に描く）
+			Vector3 center{};
+			float radius = 0.0f;
+			if (d->GetCullingSphere(center, radius)) {
+				const bool visible = objectManager_->IsInViewFrustum(center, radius);
+				objectManager_->CountCulling(visible);
+				if (!visible) continue;
+			}
+			// 動かない床・壁などは、同じモデルとまとめてパスの最後に描く
+			if (d->SubmitInstanced()) continue;
 			d->DrawGBuffer();
 		}
 		break;
@@ -131,6 +141,7 @@ void Object3d::DrawShadow(const Matrix4x4& lightViewProj) {
 		if (s->GetShadowBoundingSphere(center, radius) && !IsSphereInLightFrustum(lightViewProj, center, radius)) {
 			continue;
 		}
+		if (s->SubmitShadowInstanced()) continue;
 		s->DrawShadow();
 	}
 }

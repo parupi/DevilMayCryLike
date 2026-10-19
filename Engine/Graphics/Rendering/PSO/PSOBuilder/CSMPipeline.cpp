@@ -14,7 +14,23 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> CSMPipeline::CreateRootSignature(Dir
 	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
 	rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr,
 		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	return SerializeAndCreate(dxManager, rootSigDesc);
+}
 
+Microsoft::WRL::ComPtr<ID3D12RootSignature> CSMPipeline::CreateInstancedRootSignature(DirectXManager* dxManager)
+{
+	CD3DX12_ROOT_PARAMETER rootParams[2]{};
+	rootParams[0].InitAsShaderResourceView(0, 0, D3D12_SHADER_VISIBILITY_VERTEX); // t0: インスタンスの行列
+	rootParams[1].InitAsConstants(16, 1, 0, D3D12_SHADER_VISIBILITY_VERTEX);    // b1: Light ViewProjection
+
+	CD3DX12_ROOT_SIGNATURE_DESC rootSigDesc{};
+	rootSigDesc.Init(_countof(rootParams), rootParams, 0, nullptr,
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+	return SerializeAndCreate(dxManager, rootSigDesc);
+}
+
+Microsoft::WRL::ComPtr<ID3D12RootSignature> CSMPipeline::SerializeAndCreate(DirectXManager* dxManager, const D3D12_ROOT_SIGNATURE_DESC& rootSigDesc)
+{
 	Microsoft::WRL::ComPtr<ID3DBlob> signatureBlob;
 	Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 	HRESULT hr = D3D12SerializeRootSignature(&rootSigDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signatureBlob, &errorBlob);
@@ -34,6 +50,18 @@ Microsoft::WRL::ComPtr<ID3D12RootSignature> CSMPipeline::CreateRootSignature(Dir
 
 Microsoft::WRL::ComPtr<ID3D12PipelineState> CSMPipeline::CreatePSO(
 	DirectXManager* dxManager, ID3D12RootSignature* rootSignature)
+{
+	return CreatePSOImpl(dxManager, rootSignature, L"./resource/shaders/Shadow/CSM/CascadedShadowMap.VS.hlsl");
+}
+
+Microsoft::WRL::ComPtr<ID3D12PipelineState> CSMPipeline::CreateInstancedPSO(
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature)
+{
+	return CreatePSOImpl(dxManager, rootSignature, L"./resource/shaders/Shadow/CSM/CascadedShadowMapInstanced.VS.hlsl");
+}
+
+Microsoft::WRL::ComPtr<ID3D12PipelineState> CSMPipeline::CreatePSOImpl(
+	DirectXManager* dxManager, ID3D12RootSignature* rootSignature, const wchar_t* vertexShaderPath)
 {
 	std::array<D3D12_INPUT_ELEMENT_DESC, 3> inputElementDescs{};
 	inputElementDescs[0].SemanticName = "POSITION";
@@ -67,8 +95,7 @@ Microsoft::WRL::ComPtr<ID3D12PipelineState> CSMPipeline::CreatePSO(
 	depthStencilDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS_EQUAL;
 	depthStencilDesc.StencilEnable = FALSE;
 
-	Microsoft::WRL::ComPtr<IDxcBlob> vsBlob = dxManager->CompileShader(
-		L"./resource/shaders/Shadow/CSM/CascadedShadowMap.VS.hlsl", L"vs_6_0");
+	Microsoft::WRL::ComPtr<IDxcBlob> vsBlob = dxManager->CompileShader(vertexShaderPath, L"vs_6_0");
 	assert(vsBlob);
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};

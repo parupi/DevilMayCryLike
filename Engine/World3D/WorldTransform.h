@@ -54,6 +54,8 @@ public:
 	/// </summary>
 	/// <param name="wvp">WVP行列</param>
 	const Matrix4x4& GetMatWorld() { return matWorld_; }
+	// 法線用（ワールド行列の逆転置）。TransferMatrix でワールド行列が変わったときだけ作り直される
+	const Matrix4x4& GetWorldInverseTranspose() const { return cachedWorldInverseTranspose_; }
 
 	// アクセッサ	
 	Vector3& GetTranslation() { return translation_; }

@@ -18,8 +18,22 @@ public:
 	void DrawGBuffer() override;
 	void DrawShadow() override;
 	bool GetShadowBoundingSphere(Vector3& outCenter, float& outRadius) const override;
+	// カメラのカリングも影と同じ球を使う（スキンモデルは false＝常に描く）
+	bool GetCullingSphere(Vector3& outCenter, float& outRadius) const override { return GetShadowBoundingSphere(outCenter, outRadius); }
 
 	void SetModel(const std::string& filePath);
+
+	/// <summary>
+	/// 動かない環境モデル（床・壁・岩）として、同じモデルとまとめて描いてよいか（StaticInstanceBatcher）。
+	/// まとめて描く間はオブジェクトごとの WVP を作らないので、カメラに追従して動かす物には立てないこと
+	/// （ワールド行列はこれまでどおり毎フレーム見ているので、エディタで動かすのは問題ない）
+	/// </summary>
+	void SetInstanced(bool instanced) { instanced_ = instanced; }
+	bool IsInstanced() const { return instanced_; }
+	// 今このフレームにまとめて描けるか（スキン・ディゾルブ中・発光中は1個ずつ描く）
+	bool CanDrawInstanced() const;
+	bool SubmitInstanced() override;
+	bool SubmitShadowInstanced() override;
 
 #ifdef _DEBUG
 	void DebugGui(size_t index) override;
@@ -39,5 +53,7 @@ private:
 	// スキンモデルのときだけ生成される、このレンダラー専用のポーズと変形後頂点。
 	// モデル本体は ModelManager が共有しているので、可変状態はこちら側に置く
 	std::unique_ptr<SkinnedInstance> skinnedInstance_;
+
+	bool instanced_ = false;
 };
 

@@ -1047,6 +1047,9 @@
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.h">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClInclude>
@@ -1390,6 +1393,9 @@
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Object\Renderer\RendererManager.h">
+      <Filter>Engine\World3D\Object\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.h">
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="Engine\World3D\Primitive\PrimitiveLineDrawer.h">
@@ -2162,6 +2168,9 @@
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.cpp">
+      <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp">
       <Filter>Engine\Graphics\Rendering\PostEffect</Filter>
     </ClCompile>
@@ -2448,6 +2457,9 @@
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Object\Renderer\RendererManager.cpp">
+      <Filter>Engine\World3D\Object\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.cpp">
       <Filter>Engine\World3D\Object\Renderer</Filter>
     </ClCompile>
     <ClCompile Include="Engine\World3D\Primitive\PrimitiveLineDrawer.cpp">

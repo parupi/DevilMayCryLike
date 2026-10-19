@@ -6,6 +6,7 @@
 #include "Graphics/Rendering/PostEffect/BaseOffScreen.h"
 #include "Graphics/Rendering/PostEffect/BloomEffect.h"
 #include "Graphics/Rendering/PostEffect/ColorGradingEffect.h"
+#include "Graphics/Rendering/PostEffect/FxaaEffect.h"
 #include "Graphics/Rendering/PostEffect/GaussianEffect.h"
 #include "Graphics/Rendering/PostEffect/HeatDistortionEffect.h"
 #include "Graphics/Rendering/PostEffect/GrayEffect.h"
@@ -17,6 +18,7 @@
 #include "Graphics/Rendering/Sky/SkySystem.h"
 #include "World3D/Camera/BaseCamera.h"
 #include "World3D/Light/LightManager.h"
+#include "World3D/Object/Object3dManager.h"
 
 #include <imgui/imgui.h>
 #include <string>
@@ -112,6 +114,17 @@ void DrawEffectParams(BaseOffScreen* effect)
 		ImGui::DragFloat("highlightTintStrength", &d.highlightTintStrength, 0.01f, 0.0f, 1.0f);
 		return;
 	}
+	if (auto* fxaa = dynamic_cast<FxaaEffect*>(effect)) {
+		FxaaEffect::FxaaData& d = fxaa->GetEffectData();
+		ImGui::SliderFloat("subpix", &d.subpix, 0.0f, 1.0f, "%.2f");
+		ImGui::SliderFloat("edgeThreshold", &d.edgeThreshold, 0.063f, 0.333f, "%.3f");
+		ImGui::SliderFloat("edgeThresholdMin", &d.edgeThresholdMin, 0.0f, 0.0833f, "%.4f");
+		bool showEdges = d.showEdges > 0.5f;
+		if (ImGui::Checkbox("showEdges (赤=横の線 / 黄=縦の線)", &showEdges)) {
+			d.showEdges = showEdges ? 1.0f : 0.0f;
+		}
+		return;
+	}
 	if (auto* smooth = dynamic_cast<SmoothEffect*>(effect)) {
 		if (auto* d = smooth->GetEffectData()) {
 			ImGui::DragFloat("blurStrength", &d->blurStrength, 0.01f);
@@ -186,6 +199,22 @@ void DrawPostEffectChain(OffScreenManager& manager)
 		}
 
 		ImGui::EndTable();
+	}
+
+	// 最後の枠（並び替え不可。チェーンの後に必ず走る）
+	if (BaseOffScreen* finalEffect = manager.GetFinalEffect()) {
+		ImGui::PushID("##final");
+		bool active = finalEffect->IsActive();
+		if (ImGui::Checkbox("##active", &active)) {
+			finalEffect->SetActive(active);
+		}
+		ImGui::SameLine();
+		const std::string name = finalEffect->GetName();
+		const std::string label = name + "（常に最後）";
+		if (ImGui::Selectable(label.c_str(), g_selectedEffect == name)) {
+			g_selectedEffect = name;
+		}
+		ImGui::PopID();
 	}
 
 	if (g_pendingMoveIndex >= 0) {
@@ -263,6 +292,24 @@ void Editor::DrawRenderWindow()
 				DrawShadowSection(*csm);
 			}
 		}
+	}
+
+	if (ImGui::CollapsingHeader("カリング")) {
+		Object3dManager& objects = Object3dManager::GetInstance();
+		bool culling = objects.IsFrustumCullingEnabled();
+		if (ImGui::Checkbox("カメラの視錐台カリング", &culling)) {
+			objects.SetFrustumCullingEnabled(culling);
+		}
+		ImGui::TextDisabled("GBuffer  描画 %u / 省略 %u（スキンモデルは数えない）",
+			objects.GetLastDrawnCount(), objects.GetLastCulledCount());
+
+		StaticInstanceBatcher& batcher = objects.GetInstanceBatcher();
+		bool instancing = batcher.IsEnabled();
+		if (ImGui::Checkbox("床・壁をまとめて描く（インスタンシング）", &instancing)) {
+			batcher.SetEnabled(instancing);
+		}
+		ImGui::TextDisabled("GBuffer  %u 個を %u 回で描画", batcher.GetLastGBufferInstances(), batcher.GetLastGBufferDraws());
+		ImGui::TextDisabled("影(全カスケード)  %u 個を %u 回で描画", batcher.GetLastShadowInstances(), batcher.GetLastShadowDraws());
 	}
 
 	if (SkySystem* sky = Ctx().skySystem) {

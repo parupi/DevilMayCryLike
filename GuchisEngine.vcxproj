@@ -353,6 +353,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.h" />
+    <ClInclude Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.h" />
     <ClInclude Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.h" />
@@ -468,6 +469,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClInclude Include="Engine\World3D\Object\Renderer\PrimitiveRenderer.h" />
     <ClInclude Include="Engine\World3D\Object\Renderer\PrimitiveType.h" />
     <ClInclude Include="Engine\World3D\Object\Renderer\RendererManager.h" />
+    <ClInclude Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.h" />
     <ClInclude Include="Engine\World3D\Primitive\PrimitiveLineDrawer.h" />
     <ClInclude Include="Engine\World3D\WorldTransform.h" />
     <ClInclude Include="Externals\imgui-node-editor\crude_json.h" />
@@ -726,6 +728,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\BloomEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ChromaticAberrationEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\ColorGradingEffect.cpp" />
+    <ClCompile Include="Engine\Graphics\Rendering\PostEffect\FxaaEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GaussianEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\GrayEffect.cpp" />
     <ClCompile Include="Engine\Graphics\Rendering\PostEffect\HeatDistortionEffect.cpp" />
@@ -822,6 +825,7 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
     <ClCompile Include="Engine\World3D\Object\Renderer\PrimitiveFactory.cpp" />
     <ClCompile Include="Engine\World3D\Object\Renderer\PrimitiveRenderer.cpp" />
     <ClCompile Include="Engine\World3D\Object\Renderer\RendererManager.cpp" />
+    <ClCompile Include="Engine\World3D\Object\Renderer\StaticInstanceBatcher.cpp" />
     <ClCompile Include="Engine\World3D\Primitive\PrimitiveLineDrawer.cpp" />
     <ClCompile Include="Engine\World3D\WorldTransform.cpp" />
     <ClCompile Include="Externals\imgui-node-editor\crude_json.cpp">

@@ -27,7 +27,7 @@
         "Particle Node Graph": false,
         "Player": false,
         "Profiler": false,
-        "Render": false,
+        "Render": true,
         "Shadow Map (CSM)": true,
         "Sound Editor": false,
         "Stats": false,

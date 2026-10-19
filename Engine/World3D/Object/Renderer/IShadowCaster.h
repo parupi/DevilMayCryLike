@@ -11,4 +11,10 @@ public:
 	/// false を返した場合はカリングせず必ず描く（形が変わるスキンモデルなど）。
 	/// </summary>
 	virtual bool GetShadowBoundingSphere([[maybe_unused]] Vector3& outCenter, [[maybe_unused]] float& outRadius) const { return false; }
+
+	/// <summary>
+	/// 影を同じモデルとまとめて描く側（StaticInstanceBatcher）へ回せたら true。
+	/// true のときは DrawShadow を呼ばない（カスケードの最後にまとめて描かれる）
+	/// </summary>
+	virtual bool SubmitShadowInstanced() { return false; }
 };

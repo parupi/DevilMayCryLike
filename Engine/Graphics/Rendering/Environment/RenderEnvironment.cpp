@@ -25,18 +25,22 @@ RenderEnvironment& RenderEnvironment::GetInstance()
 void RenderEnvironment::Initialize(DirectXManager* dxManager)
 {
 	// 定数バッファは256バイト境界
-	buffer_ = dxManager->GetResourceManager()->CreateUploadResource((sizeof(EnvironmentCB) + 255) & ~255);
-	buffer_->Map(0, nullptr, reinterpret_cast<void**>(&mapped_));
+	// ResourceManager 経由（Map が返すのは CPU 側の写しで、提出の直前に GPU へ写される）。
+	// 直接 Map した upload ヒープへ書くと、CPU と GPU が並行して走るときに GPU が読んでいる最中に書き換えてしまう
+	dxManager_ = dxManager;
+	auto* resourceManager = dxManager_->GetResourceManager();
+	bufferHandle_ = resourceManager->CreateUploadBuffer((sizeof(EnvironmentCB) + 255) & ~255, L"RenderEnvironment");
+	mapped_ = reinterpret_cast<EnvironmentCB*>(resourceManager->Map(bufferHandle_));
 	*mapped_ = EnvironmentCB{};
 }
 
 void RenderEnvironment::Finalize()
 {
-	if (buffer_ && mapped_) {
-		buffer_->Unmap(0, nullptr);
+	if (dxManager_ && bufferHandle_ != kInvalidBufferHandle) {
+		dxManager_->GetResourceManager()->ReleaseBuffer(bufferHandle_);
 	}
+	bufferHandle_ = kInvalidBufferHandle;
 	mapped_ = nullptr;
-	buffer_.Reset();
 }
 
 Vector3 RenderEnvironment::ToLinear(const Vector3& srgb)
@@ -114,7 +118,7 @@ void RenderEnvironment::BindToLighting(ID3D12GraphicsCommandList* cmd, UINT root
 	}
 	*mapped_ = cb;
 
-	cmd->SetGraphicsRootConstantBufferView(rootParameterIndex, buffer_->GetGPUVirtualAddress());
+	cmd->SetGraphicsRootConstantBufferView(rootParameterIndex, dxManager_->GetResourceManager()->GetGPUVirtualAddress(bufferHandle_));
 	if (aoSrv_.ptr != 0) {
 		cmd->SetGraphicsRootDescriptorTable(rootParameterIndex + 1, aoSrv_);
 	}

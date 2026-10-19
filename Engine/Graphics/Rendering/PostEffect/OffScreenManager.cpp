@@ -45,6 +45,8 @@ void OffScreenManager::Initialize(DirectXManager* dxManager, PSOManager* psoMana
 
 void OffScreenManager::Finalize() {
 	// オフスクリーンエフェクトの解放
+	finalPath_.reset();
+	finalEffect_.reset();
 	effects_.clear();
 
 	for (auto& buffer : pingPongBuffers_) {
@@ -59,6 +61,9 @@ void OffScreenManager::Update() {
 	for (size_t i = 0; i < effects_.size(); i++) {
 		effects_[i]->Update();
 	}
+	if (finalEffect_) {
+		finalEffect_->Update();
+	}
 }
 
 void OffScreenManager::ExecutePostEffects() {
@@ -66,7 +71,17 @@ void OffScreenManager::ExecutePostEffects() {
 	// 1つでも有効なpathが動いたか判定
 	bool anyExecuted = false;
 
+	// 最後の枠はチェーンの後ろに1つ足した形で回す（ping/pong の受け渡しを同じにするため）
+	std::vector<PostEffectPath*> order;
+	order.reserve(paths_.size() + 1);
 	for (auto& path : paths_) {
+		order.push_back(path.get());
+	}
+	if (finalPath_) {
+		order.push_back(finalPath_.get());
+	}
+
+	for (PostEffectPath* path : order) {
 		if (!path->IsActive()) continue;
 		// 実行された
 		anyExecuted = true;
@@ -106,7 +121,18 @@ void OffScreenManager::AddEffect(std::unique_ptr<BaseOffScreen> effect) {
 	effects_.push_back(std::move(effect));
 }
 
+void OffScreenManager::SetFinalEffect(std::unique_ptr<BaseOffScreen> effect) {
+	finalPath_.reset();
+	finalEffect_ = std::move(effect);
+	if (finalEffect_) {
+		finalPath_ = std::make_unique<PostEffectPath>(finalEffect_.get());
+	}
+}
+
 BaseOffScreen* OffScreenManager::FindEffect(const std::string& name) {
+	if (finalEffect_ && finalEffect_->GetName() == name) {
+		return finalEffect_.get();
+	}
 	for (auto& effect : effects_) {
 		if (!effect) continue;
 

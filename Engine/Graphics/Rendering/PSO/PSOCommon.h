@@ -26,4 +26,5 @@ enum class OffScreenEffectType {
 	kColorGrading,        // 色の調整（暖色寄りなど）
 	kSpeedLine,           // 集中線（突進などの速度感）
 	kToneMap,             // 露出とトーンマップ（HDR → 0〜1）。ブルームの直後に置く
+	kFxaa,                // アンチエイリアス。チェーンの一番最後（OffScreenManager::SetFinalEffect）
 };

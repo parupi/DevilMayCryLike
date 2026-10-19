@@ -4,10 +4,12 @@
 // App側。SceneFactory.h と同じくAppのincludeディレクトリから引かれる。
 // 最初に入るシーンはゲーム側の都合（Debugのトレーニング直行）で変わるので、判断はあちらに任せる
 #include <GameData/GameSession.h>
+#include <GameData/GameSettings.h>
 #include <Graphics/Rendering/Particle/ParticleManager.h>
 #include "Graphics/Rendering/PostEffect/OffScreenManager.h"
 #include "Graphics/Rendering/PostEffect/BloomEffect.h"
 #include "Graphics/Rendering/PostEffect/ToneMapEffect.h"
+#include "Graphics/Rendering/PostEffect/FxaaEffect.h"
 #include <World3D/Primitive/PrimitiveLineDrawer.h>
 #include <World3D/Object/Renderer/RendererManager.h>
 #include <World3D/Collider/CollisionManager.h>
@@ -59,6 +61,10 @@ void MyGameTitle::Initialize() {
 	// 露出とトーンマップはブルームの直後（ブルームは HDR のまま光を抜き出し、ここで 0〜1 に収める）。
 	// 有効にするかはシーンの雰囲気が決める（ToneMapEffect::Update）
 	OffScreenManager::GetInstance().AddEffect(std::make_unique<ToneMapEffect>("ToneMap"));
+	// アンチエイリアスは全部の演出が終わった後（UI の前）。AddEffect ではなく最後の枠に入れる
+	OffScreenManager::GetInstance().SetFinalEffect(std::make_unique<FxaaEffect>("FXAA"));
+	// ON/OFF は OPTION の設定に従う（設定の読み込みがエフェクトの登録より先だった場合に備えて、ここでも反映する）
+	GameSettings::GetInstance().ApplyAntiAliasing();
 
 	PrimitiveLineDrawer::GetInstance().Initialize(dxManager.get(), psoManager.get());
 
@@ -118,6 +124,10 @@ void MyGameTitle::Initialize() {
 }
 
 void MyGameTitle::Finalize() {
+	// CPU と GPU が並行して走るので、最後に提出したフレームを GPU がまだ描いているかもしれない。
+	// 終わるのを待ってから各種リソースを解放する
+	GetDXManager()->GetCommandContext()->WaitForLastSubmit();
+
 	// 描画処理系
 #ifdef _DEBUG
 	ImGuiManager::GetInstance().Finalize();

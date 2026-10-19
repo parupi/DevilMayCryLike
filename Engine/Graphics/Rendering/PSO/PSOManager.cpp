@@ -45,6 +45,8 @@ void PSOManager::Finalize() {
 
 	deferredSignature_.Reset();
 	deferredPipelineState_.Reset();
+	deferredInstancedSignature_.Reset();
+	deferredInstancedPipelineState_.Reset();
 
 	lightingPathSignature_.Reset();
 	lightingPathPipelineState_.Reset();
@@ -57,6 +59,8 @@ void PSOManager::Finalize() {
 
 	csmRootSignature_.Reset();
 	csmPSO_.Reset();
+	csmInstancedRootSignature_.Reset();
+	csmInstancedPSO_.Reset();
 
 	trailSignature_.Reset();
 	trailPSO_.Reset();
@@ -244,6 +248,21 @@ void PSOManager::CreateDeferredPSO() {
 		DeferredPipeline::CreatePSO(dxManager_, deferredSignature_.Get());
 }
 
+ID3D12RootSignature* PSOManager::GetDeferredInstancedSignature() {
+	if (!deferredInstancedSignature_) {
+		deferredInstancedSignature_ = DeferredPipeline::CreateInstancedRootSignature(dxManager_);
+	}
+	return deferredInstancedSignature_.Get();
+}
+
+ID3D12PipelineState* PSOManager::GetDeferredInstancedPSO() {
+	if (!deferredInstancedPipelineState_) {
+		deferredInstancedPipelineState_ =
+			DeferredPipeline::CreateInstancedPSO(dxManager_, GetDeferredInstancedSignature());
+	}
+	return deferredInstancedPipelineState_.Get();
+}
+
 // ---------------------------------------------------------------------------
 // LightingPath
 // ---------------------------------------------------------------------------
@@ -330,6 +349,20 @@ void PSOManager::CreateCSMRootSignature() {
 void PSOManager::CreateCSMPSO() {
 	CreateCSMRootSignature();
 	csmPSO_ = CSMPipeline::CreatePSO(dxManager_, csmRootSignature_.Get());
+}
+
+ID3D12RootSignature* PSOManager::GetCSMInstancedRootSignature() {
+	if (!csmInstancedRootSignature_) {
+		csmInstancedRootSignature_ = CSMPipeline::CreateInstancedRootSignature(dxManager_);
+	}
+	return csmInstancedRootSignature_.Get();
+}
+
+ID3D12PipelineState* PSOManager::GetCSMInstancedPSO() {
+	if (!csmInstancedPSO_) {
+		csmInstancedPSO_ = CSMPipeline::CreateInstancedPSO(dxManager_, GetCSMInstancedRootSignature());
+	}
+	return csmInstancedPSO_.Get();
 }
 
 // ---------------------------------------------------------------------------

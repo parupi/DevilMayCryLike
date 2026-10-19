@@ -21,6 +21,8 @@ public:
 	// スキンモデルのインスタンスのように生成/破棄を繰り返すものは必ず返すこと。
 	// 返さないとヒープ(kMaxCount個)を使い切って Allocate() の assert で落ちる
 	void Free(uint32_t index);
+	// 提出の直前（前の提出の GPU 処理が終わった後）に呼ぶ。返却から提出2回たった番号を空きに戻す
+	void ProcessDeferredFrees();
 	void BeginDraw();
 	// SRVの確保が可能かどうかをチェックする関数
 	bool CanAllocate() const;
@@ -56,5 +58,11 @@ private:
 	uint32_t useIndex = 0;
 	// Free() で返却されて再利用できるインデックス
 	std::vector<uint32_t> freeList_;
+	// 返却されたが、GPU がまだ読むかもしれないので待っている番号
+	struct DeferredFree {
+		uint32_t index;
+		uint32_t submitsToWait;
+	};
+	std::vector<DeferredFree> deferredFrees_;
 };
 

@@ -50,6 +50,15 @@ public:
 	int32_t GetActionGuideMode() const { return actionGuideMode_; }
 	void SetActionGuideMode(int32_t mode);
 
+	/// <summary>アンチエイリアス（FXAA）を掛けるか。変えるとすぐ OffScreenManager の "FXAA" に渡す</summary>
+	bool IsAntiAliasingEnabled() const { return antiAliasing_; }
+	void SetAntiAliasingEnabled(bool enabled);
+	/// <summary>
+	/// 今の値を FXAA のエフェクトへ反映する。エフェクトの登録（MyGameTitle）より先に
+	/// 設定が読まれることがあるので、登録した側からも1回呼ぶ
+	/// </summary>
+	void ApplyAntiAliasing() const;
+
 private:
 	GameSettings() = default;
 	~GameSettings() = default;
@@ -64,6 +73,7 @@ private:
 	bool tutorialEnabled_ = true;
 	int32_t actionGuideMode_ = 2;
 	float vibration_ = 1.0f;
+	bool antiAliasing_ = true;
 
 	bool isInitialized_ = false;
 };

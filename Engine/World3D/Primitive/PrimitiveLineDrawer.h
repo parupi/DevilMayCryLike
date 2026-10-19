@@ -51,8 +51,9 @@ private:
 	static constexpr uint32_t kMaxLineVertices = 20000;
 	static constexpr uint32_t kMaxLineIndices = 40000;
 
-	Microsoft::WRL::ComPtr<ID3D12Resource> vertexResource_;
-	Microsoft::WRL::ComPtr<ID3D12Resource> indexResource_;
+	// ResourceManager の Ranged（書いた本数ぶんだけ提出の直前に GPU へ写す）
+	BufferHandle vertexHandle_ = kInvalidBufferHandle;
+	BufferHandle indexHandle_ = kInvalidBufferHandle;
 
 	D3D12_VERTEX_BUFFER_VIEW vertexBufferView_;
 	D3D12_INDEX_BUFFER_VIEW indexBufferView_;
