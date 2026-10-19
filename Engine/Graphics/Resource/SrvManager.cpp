@@ -58,9 +58,22 @@ uint32_t SrvManager::Allocate()
 void SrvManager::Free(uint32_t index)
 {
 	if (index >= useIndex) return; // 配っていない番号は無視
-	// ディスクリプタの中身は次に Create〜 されるまで残るが、
-	// GPU は毎フレーム Flush 済みなので前フレームの参照は完了している
-	freeList_.push_back(index);
+	// すぐには使い回さない。CPU と GPU が並行して走るので、返された時点では
+	// 前のフレーム（や、このフレームの返却前に積んだ描画）がまだこのディスクリプタを読むかもしれない。
+	// 提出2回ぶん待つ＝このフレームの GPU 処理が終わってから空きに戻す（ProcessDeferredFrees）
+	deferredFrees_.push_back({ index, 2 });
+}
+
+void SrvManager::ProcessDeferredFrees()
+{
+	for (auto it = deferredFrees_.begin(); it != deferredFrees_.end();) {
+		if (--it->submitsToWait == 0) {
+			freeList_.push_back(it->index);
+			it = deferredFrees_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
 void SrvManager::BeginDraw()

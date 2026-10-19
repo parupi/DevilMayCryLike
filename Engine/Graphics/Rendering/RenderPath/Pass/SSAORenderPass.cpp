@@ -26,10 +26,12 @@ void SSAORenderPass::Initialize(const EngineContext& ctx, GBufferManager* gBuffe
 	CreatePSOs();
 
 	auto* resourceManager = ctx_.dxManager->GetResourceManager();
-	ssaoParamBuffer_ = resourceManager->CreateUploadResource((sizeof(SSAOParam) + 255) & ~255);
-	ssaoParamBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&ssaoParam_));
-	blurParamBuffer_ = resourceManager->CreateUploadResource((sizeof(BlurParam) + 255) & ~255);
-	blurParamBuffer_->Map(0, nullptr, reinterpret_cast<void**>(&blurParam_));
+	// ResourceManager 経由（Map が返すのは CPU 側の写しで、提出の直前に GPU へ写される）。
+	// 直接 Map した upload ヒープへ書くと、CPU と GPU が並行して走るときに GPU が読んでいる最中に書き換えてしまう
+	ssaoParamHandle_ = resourceManager->CreateUploadBuffer((sizeof(SSAOParam) + 255) & ~255, L"SSAOParam");
+	ssaoParam_ = reinterpret_cast<SSAOParam*>(resourceManager->Map(ssaoParamHandle_));
+	blurParamHandle_ = resourceManager->CreateUploadBuffer((sizeof(BlurParam) + 255) & ~255, L"SSAOBlurParam");
+	blurParam_ = reinterpret_cast<BlurParam*>(resourceManager->Map(blurParamHandle_));
 
 	// ライティングは毎フレーム t8 を読むので、SSAO を使わないシーンでも有効な SRV を渡しておく
 	// （中身は使われない。ライティング側で掛ける強さが 0 になる）
@@ -193,6 +195,6 @@ void SSAORenderPass::Execute()
 	const D3D12_GPU_DESCRIPTOR_HANDLE normalSrv = gBufferManager_->GetSRVHandle(GBufferManager::GBufferType::Normal);
 	const D3D12_GPU_DESCRIPTOR_HANDLE worldPosSrv = gBufferManager_->GetSRVHandle(GBufferManager::GBufferType::WorldPos);
 
-	DrawFullscreen(ssaoPso_.Get(), ao_, ssaoParamBuffer_->GetGPUVirtualAddress(), normalSrv, worldPosSrv);
-	DrawFullscreen(blurPso_.Get(), blur_, blurParamBuffer_->GetGPUVirtualAddress(), ao_.srv, worldPosSrv);
+	DrawFullscreen(ssaoPso_.Get(), ao_, ctx_.dxManager->GetResourceManager()->GetGPUVirtualAddress(ssaoParamHandle_), normalSrv, worldPosSrv);
+	DrawFullscreen(blurPso_.Get(), blur_, ctx_.dxManager->GetResourceManager()->GetGPUVirtualAddress(blurParamHandle_), ao_.srv, worldPosSrv);
 }

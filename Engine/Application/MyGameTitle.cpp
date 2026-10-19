@@ -124,6 +124,10 @@ void MyGameTitle::Initialize() {
 }
 
 void MyGameTitle::Finalize() {
+	// CPU と GPU が並行して走るので、最後に提出したフレームを GPU がまだ描いているかもしれない。
+	// 終わるのを待ってから各種リソースを解放する
+	GetDXManager()->GetCommandContext()->WaitForLastSubmit();
+
 	// 描画処理系
 #ifdef _DEBUG
 	ImGuiManager::GetInstance().Finalize();

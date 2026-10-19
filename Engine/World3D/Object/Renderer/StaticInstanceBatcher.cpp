@@ -13,7 +13,7 @@ void StaticInstanceBatcher::Initialize(DirectXManager* dxManager, PSOManager* ps
 	psoManager_ = psoManager;
 
 	auto* resourceManager = dxManager_->GetResourceManager();
-	instanceBuffer_ = resourceManager->CreateUploadBuffer(sizeof(InstanceTransform) * kCapacity, L"StaticInstanceBatcher");
+	instanceBuffer_ = resourceManager->CreateUploadBuffer(sizeof(InstanceTransform) * kCapacity, L"StaticInstanceBatcher", ResourceManager::UploadUsage::Ranged);
 	mapped_ = reinterpret_cast<InstanceTransform*>(resourceManager->Map(instanceBuffer_));
 }
 
@@ -74,8 +74,11 @@ D3D12_GPU_VIRTUAL_ADDRESS StaticInstanceBatcher::WriteInstances(const Group& gro
 		dst.worldInverseTranspose = transform->GetWorldInverseTranspose();
 	}
 
+	auto* resourceManager = dxManager_->GetResourceManager();
+	// 書いた範囲だけ、提出の直前に GPU へ写してもらう
+	resourceManager->MarkDirty(instanceBuffer_, sizeof(InstanceTransform) * cursor_, sizeof(InstanceTransform) * count);
 	const D3D12_GPU_VIRTUAL_ADDRESS address =
-		dxManager_->GetResourceManager()->GetGPUVirtualAddress(instanceBuffer_) + sizeof(InstanceTransform) * cursor_;
+		resourceManager->GetGPUVirtualAddress(instanceBuffer_) + sizeof(InstanceTransform) * cursor_;
 	cursor_ += count;
 	return address;
 }

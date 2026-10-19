@@ -469,6 +469,8 @@ void TextureManager::UpdateTextureFromMemory(const std::string& fileName, const 
 	// すでにこのテクスチャを指している側のハンドルはそのまま使える
 	const bool needsRecreate = (texData.metadata.width != width || texData.metadata.height != height);
 	if (needsRecreate) {
+		// 古いほうは前のフレームの描画で GPU がまだ読んでいるかもしれないので、提出が終わるまで生かしておく
+		dxManager_->GetResourceManager()->DeferRelease(texData.resource);
 		texData.resource = dxManager_->GetResourceFactory()->CreateTexture2D(metadata);
 	} else {
 		// UploadTextureData は COPY_DEST から始まる前提なので、読み取り状態から戻してやる
