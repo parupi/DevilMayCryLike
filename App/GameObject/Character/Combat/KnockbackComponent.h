@@ -3,18 +3,7 @@
 #include "GameObject/Character/CharacterStructs.h"
 
 /// <summary>
-/// ノックバックの速度・減衰・時間だけを持つ部品（仕様書 §6, §7, §8）。
-///
-/// 仕様書 §6 の「通常移動とノックバックを速度として分離する」を実現するためのクラス。
-/// 所有者（Enemy / Player）は自分の移動速度とは **別に** これを持ち、
-/// 最終的な移動を moveVelocity + knockbackVelocity で求める。
-///
-/// これを分けたことで
-/// - ボスのように被弾リアクションのステートへ入らない敵でも位置だけは押される
-/// - 敵と味方で減速の式が食い違わない
-/// ようになっている（以前は Enemy / Player それぞれのステートが自前で速度を持っていた）。
-///
-/// 垂直方向は重力で落とすだけなので、接地しているかは所有者が SetGrounded() で教える。
+/// ノックバックの速度・減衰・時間だけを持つ部品。
 /// </summary>
 class KnockbackComponent {
 public:
@@ -38,7 +27,7 @@ public:
 	void Begin(const KnockbackData& data, const Vector3& direction, const Vector3& inheritVelocity = {});
 
 	/// <summary>
-	/// ノックバック中にもう一度攻撃を受けたときの合成（仕様書 §8）。
+	/// ノックバック中にもう一度攻撃を受けたときの合成
 	/// KnockbackBlend::Override なら Begin と同じ上書き、Additive なら加算して maxSpeed で頭打ちにする。
 	/// </summary>
 	void AddHit(const KnockbackData& data, const Vector3& direction);
@@ -49,7 +38,7 @@ public:
 
 	/// <summary>
 	/// 速度を1フレーム進める。gravity は負の値（例: -9.8f）を渡す。
-	/// 水平は時間ベースで減衰し（仕様書 §7）、垂直は重力で落ちる。
+	/// 水平は時間ベースで減衰し、垂直は重力で落ちる。
 	/// </summary>
 	void Update(float deltaTime, float gravity);
 
@@ -65,7 +54,7 @@ public:
 	void OnLand(float keepRatio = 0.3f);
 
 	/// <summary>
-	/// 壁・移動範囲の境界に当たったときに呼ぶ（仕様書 §10）。
+	/// 壁・移動範囲の境界に当たったときに呼ぶ
 	/// inwardNormal（内側を向く単位ベクトル）の外向き成分だけを取り除く。
 	/// 壁に押し付けられ続けるのを防ぐ。
 	/// </summary>
@@ -84,13 +73,13 @@ public:
 	}
 
 	/// <summary>
-	/// 水平の減衰が終わっているか（仕様書 §7 の終了条件）。
+	/// 水平の減衰が終わっているか
 	/// 速度を出し切って停止したあとも true のままにする（被弾リアクションの復帰判定に使うため）
 	/// </summary>
 	bool IsHorizontalFinished() const { return !active_ || elapsed_ >= Duration(); }
 
 	/// <summary>
-	/// のけぞりで動けない時間が残っているか（仕様書 §11）。
+	/// のけぞりで動けない時間が残っているか
 	/// ノックバックの速度が止まったあとも残り、追撃を受けると延長される。
 	/// 速度の減衰時間（duration）とは別枠なので、短く飛ばして長く固める攻撃も作れる
 	/// </summary>
@@ -106,7 +95,7 @@ public:
 	float Duration() const;
 
 private:
-	/// <summary>水平方向の減衰率[0,1]（仕様書 §7）。deceleration が 1.0 のとき 1-t の直線</summary>
+	/// <summary>水平方向の減衰率[0,1]。deceleration が 1.0 のとき 1-t の直線</summary>
 	float Falloff() const;
 	/// <summary>実際に与える上方向の強さ。のけぞりは接地中だけ 0 にする</summary>
 	float VerticalPower() const;

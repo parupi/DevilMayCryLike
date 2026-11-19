@@ -32,7 +32,7 @@ void PlayerStateDodge::Update(Player& player, float deltaTime) {
 
 	runtime.elapsed += deltaTime;
 
-	// 回避中は通常の移動入力で方向を変えない（仕様書 §5.3）。
+	// 回避中は通常の移動入力で方向を変えない。
 	// 「入力した方向へ素早く移動する」明確なアクションとして扱うため
 	Vector3& velocity = player.GetVelocity();
 	const float fallSpeed = velocity.y;
@@ -47,7 +47,7 @@ void PlayerStateDodge::Update(Player& player, float deltaTime) {
 		player.GetAcceleration().y = kGravity;
 	}
 
-	// 被弾側(Player::TakeDamage)が立てた印を拾う。ダメージより先に判定する（仕様書 §15）
+	// 被弾側(Player::TakeDamage)が立てた印を拾う。ダメージより先に判定する
 	if (runtime.justDodgePending) {
 		player.ChangeState("JustDodge");
 		return;

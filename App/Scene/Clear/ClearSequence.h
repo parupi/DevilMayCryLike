@@ -2,14 +2,13 @@
 #include "Math/Vector3.h"
 
 /// <summary>
-/// クリア画面の演出の進行（クリアシーン演出仕様書 4章のタイムライン）。
+/// クリア画面の演出の進行（クリアシーン演出のタイムライン）。
 ///
 /// シーン開始（暗転中）からの経過秒だけを持ち、各演出は「何秒から何秒か」をここで聞いて動く。
 /// 時刻は GlobalVariables のグループ ClearSequence（Resource/GlobalVariables/Clear/ClearSequence.json）にあり、
 /// 毎フレーム読み直すので、ImGui で書き換えるとその場で効く。
 /// </summary>
-class ClearSequence
-{
+class ClearSequence {
 public:
 	static constexpr const char* kGroup = "ClearSequence";
 	static constexpr const char* kDirectory = "Clear";
@@ -35,8 +34,8 @@ public:
 		float menuDuration = 0.4f;
 
 		// カメラ（固定。プレイヤーを斜め前の低い所から見上げ、画面の左を UI に空ける）
-		Vector3 cameraPosition{ -1.9f, 0.65f, -5.6f };
-		Vector3 cameraTarget{ -1.05f, 1.1f, 0.0f };
+		Vector3 cameraPosition{-1.9f, 0.65f, -5.6f};
+		Vector3 cameraTarget{-1.05f, 1.1f, 0.0f};
 		float cameraZoom = 0.05f;       // メニューが出るまでにゆっくり寄る量（画角の割合）
 		float rankZoomPunch = 0.025f;   // ランクが出た瞬間に一瞬寄る量（画角の割合）
 	};

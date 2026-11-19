@@ -64,17 +64,17 @@ public:
 
 	// ── アニメーションクリップ名（Alien.gltf が持つ15種のうち使うもの）──
 	// 差し替えは Player::UpdateAnimation() の対応表と合わせて見ること
-	static constexpr const char* kClipIdle      = "Alien_Idle";
-	static constexpr const char* kClipMove      = "Alien_Run";
-	static constexpr const char* kClipJump      = "Alien_Jump";
-	static constexpr const char* kClipAttack    = "Alien_SwordSlash";
+	static constexpr const char* kClipIdle = "Alien_Idle";
+	static constexpr const char* kClipMove = "Alien_Run";
+	static constexpr const char* kClipJump = "Alien_Jump";
+	static constexpr const char* kClipAttack = "Alien_SwordSlash";
 	static constexpr const char* kClipKnockBack = "Alien_Roll";
-	static constexpr const char* kClipDeath     = "Alien_Death";
-	static constexpr const char* kClipClear     = "Alien_Clapping";
+	static constexpr const char* kClipDeath = "Alien_Death";
+	static constexpr const char* kClipClear = "Alien_Clapping";
 	/// 回避の前転。ノックバックと同じクリップだが、再生速度と入り方が違うので別名で持つ
-	static constexpr const char* kClipDodge     = "Alien_Roll";
+	static constexpr const char* kClipDodge = "Alien_Roll";
 	/// ダッシュは走りを速回しして使う
-	static constexpr const char* kClipDash      = "Alien_Run";
+	static constexpr const char* kClipDash = "Alien_Run";
 
 	/// 回避モーションの再生速度の上下限。回避時間(0.25秒)に対して前転クリップが長いので速める
 	static constexpr float kDodgeSpeedMin = 1.0f;
@@ -97,7 +97,7 @@ public:
 	static constexpr float kDeathHitStopTime = 0.18f;
 	static constexpr float kDeathHitStopIntensity = 0.15f;
 
-	// ── 被弾時のヒットストップ（仕様書 §12・§13）──
+	// ── 被弾時のヒットストップ──
 	// 敵を殴ったときと同じく「一度止まってから動く」を作る。
 	// プレイヤーは拘束を嫌うので、敵に与える長さより短くしてある
 	static constexpr float kLightHitStopTime = 0.04f;
@@ -105,7 +105,7 @@ public:
 	static constexpr float kHitStopIntensity = 0.12f;
 
 	/// <summary>
-	/// これ以上のノックバックを受けたら「強被弾」として扱う速度[m/s]（仕様書 §11・§12）。
+	/// これ以上のノックバックを受けたら「強被弾」として扱う速度[m/s]。
 	/// 軽い攻撃はすぐ操作へ戻し、強い攻撃だけ長めに拘束する
 	/// </summary>
 	static constexpr float kHeavyHitPowerThreshold = 14.0f;
@@ -115,16 +115,11 @@ public:
 	static constexpr float kHeavyHitInvincibleTime = 1.2f;
 
 	/// <summary>
-	/// プレイヤーのノックバック耐性（仕様書 §9）。
+	/// プレイヤーのノックバック耐性
 	/// 打ち上げだけ禁止にしてある。プレイヤーには空中被弾のステートが無いので、
 	/// 打ち上げられると落ちるまで操作できない時間が伸びて §23 ⑦に反する
 	/// </summary>
-	static constexpr KnockbackResistance kPlayerKnockbackResistance{
-		/*resistance=*/ 0.0f,
-		/*canStagger=*/ true,
-		/*canBlowAway=*/ true,
-		/*canLaunch=*/ false,
-	};
+	static constexpr KnockbackResistance kPlayerKnockbackResistance{0.0f, true, true, false,};
 
 	Player(std::string objectName);
 	~Player() override = default;
@@ -292,14 +287,14 @@ public:
 	Vector3& GetAcceleration() { return acceleration_; } ///< 現在の加速度ベクトルを取得
 
 	/// <summary>
-	/// ノックバックの速度を持つ部品（仕様書 §6）。敵と同じ減衰・合成の式を使う。
+	/// ノックバックの速度を持つ部品。敵と同じ減衰・合成の式を使う。
 	/// 移動の速度（velocity_）とは分けて持ち、Player::Update が両方を足して位置へ反映する
 	/// </summary>
 	KnockbackComponent& GetKnockback() { return knockback_; }
 	const KnockbackComponent& GetKnockback() const { return knockback_; }
 
 	/// <summary>
-	/// 直前の被弾が「強被弾」だったか（仕様書 §11・§12）。
+	/// 直前の被弾が「強被弾」だったか
 	/// 軽い攻撃はすぐ操作へ戻し、強い攻撃だけ長めに拘束する
 	/// </summary>
 	bool IsHeavyHit() const { return heavyHit_; }
@@ -443,9 +438,9 @@ private:
 	Vector3 velocity_{}; ///< プレイヤーの速度（移動。ノックバックはここには混ぜない）
 	Vector3 acceleration_{0.0f, 0.0f, 0.0f}; ///< プレイヤーの加速度
 
-	/// ノックバックの速度（仕様書 §6 の knockbackVelocity）。敵と同じ部品を使う
+	/// ノックバックの速度。敵と同じ部品を使う
 	KnockbackComponent knockback_;
-	/// 直前の被弾が強被弾だったか（仕様書 §11）
+	/// 直前の被弾が強被弾だったか
 	bool heavyHit_ = false;
 
 	AttackData attackData_; ///< 現在実行中の攻撃データ

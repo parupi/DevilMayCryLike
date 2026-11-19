@@ -6,12 +6,12 @@
 #include <algorithm>
 
 namespace {
-	// 並べ替えの段：今押せるもの（Executable / Buffered）を上、Preview を下（仕様書 §8）
+	// 並べ替えの段：今押せるもの（Executable / Buffered）を上、Preview を下
 	int32_t AvailabilityRank(ActionAvailability availability) {
 		return (availability == ActionAvailability::Preview) ? 1 : 0;
 	}
 
-	// 隠す状態（仕様書 §3 の Stun / Death / Menu / Cutscene）。理由はエディタに出す
+	// 隠す状態（Stun / Death / Menu / Cutscene）。理由はエディタに出す
 	const char* ResolveHiddenReason(const ActionGuideContext& context, ActionGuideMode mode) {
 		if (mode == ActionGuideMode::Off) return "OPTION で OFF";
 		if (context.isDead) return "死亡演出中";
@@ -25,8 +25,7 @@ namespace {
 }
 
 void ActionGuideSystem::Update(const ActionGuideContext& context, const IActionAvailabilityProvider& provider,
-	const ActionGuideCatalog& catalog, const ActionGuideSettings& settings, ActionGuideMode mode)
-{
+	const ActionGuideCatalog& catalog, const ActionGuideSettings& settings, ActionGuideMode mode) {
 	ActionGuideViewModel next;
 	lastContext_ = context;
 
@@ -63,7 +62,7 @@ void ActionGuideSystem::Update(const ActionGuideContext& context, const IActionA
 			if (rankA != rankB) return rankA < rankB;
 			if (a.priority != b.priority) return a.priority > b.priority;
 			return a.id < b.id;
-		});
+			});
 
 		// 重複の解決：同じ入力の組み合わせが2つ以上あれば、上に来た方（実際に優先される方）だけを残す。
 		// 同じ技が別の入力で2回出るのも避ける
@@ -71,7 +70,7 @@ void ActionGuideSystem::Update(const ActionGuideContext& context, const IActionA
 		for (ActionGuideEntry& entry : next.entries) {
 			const bool duplicated = std::any_of(unique.begin(), unique.end(), [&](const ActionGuideEntry& kept) {
 				return kept.binding == entry.binding || kept.id == entry.id;
-			});
+				});
 			if (!duplicated) unique.push_back(std::move(entry));
 		}
 		next.entries = std::move(unique);

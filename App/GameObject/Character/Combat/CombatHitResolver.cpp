@@ -46,7 +46,7 @@ Vector3 ResolveDirection(const KnockbackData& knockback, const Attacker& attacke
 		return Vector3{ 0.0f, 0.0f, 0.0f };
 
 	case KnockbackDirection::TowardAttacker:
-		// 引き寄せ（仕様書 §5.5）
+		// 引き寄せ
 		return HorizontalUnit(attacker.position - targetPosition, fallback);
 
 	case KnockbackDirection::AwayFromAttacker:
@@ -107,7 +107,7 @@ Result Resolve(const DamageInfo& rawInfo, const Attacker& attacker,
 	result.info.attackerPosition = attacker.position;
 	result.info.attackerForward = attacker.forward;
 
-	// ③ 方向（仕様書 §20）
+	// ③ 方向
 	result.info.direction = ResolveDirection(rawInfo.knockback, attacker, targetPosition);
 
 	// ④ 種類ごとの補正 → 耐性

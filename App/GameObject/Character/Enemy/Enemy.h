@@ -160,7 +160,7 @@ public:
 	virtual bool IsKnockbackImmune() const { return false; }
 
 	// ======================
-	// ノックバック（仕様書 §6, §9）
+	// ノックバック
 	// ======================
 
 	/// <summary>
@@ -171,7 +171,7 @@ public:
 	const KnockbackComponent& GetKnockback() const { return knockback_; }
 
 	/// <summary>
-	/// この敵のノックバック耐性（仕様書 §9）。
+	/// この敵のノックバック耐性
 	/// 派生クラスがコンストラクタか Initialize で SetKnockbackResistance() を呼んで設定する。
 	/// 状況で変えたい場合（アーマー中だけ固くする等）はオーバーライドしてよい。
 	/// </summary>
@@ -179,7 +179,7 @@ public:
 	void SetKnockbackResistance(const KnockbackResistance& resistance) { knockbackResistance_ = resistance; }
 
 	/// <summary>
-	/// 解決済みのヒット情報を受けてノックバックを始める（仕様書 §20 ⑤⑥）。
+	/// 解決済みのヒット情報を受けてノックバックを始める
 	/// 被弾リアクションのステートへ入るかは causesReaction で決める。
 	/// 演出（ヒットストップ・VFX）は呼び出し側の担当。
 	/// </summary>
@@ -465,9 +465,9 @@ public:
 	/// loop=false なら演出の長さちょうどで1回流れるよう再生速度を合わせる（出現専用モーション向け）。
 	/// 出現専用のクリップが無いモデルは待機クリップを loop=true で渡す
 	/// </summary>
-	void SetSpawnClip(const std::string& clipName, bool loop = false) { spawnClip_ = { clipName, loop }; }
+	void SetSpawnClip(const std::string& clipName, bool loop = false) { spawnClip_ = {clipName, loop}; }
 	/// <summary>死亡演出中に流すクリップ。空なら切り替えない。演出の長さに合わせて1回流す</summary>
-	void SetDeathClip(const std::string& clipName) { deathClip_ = { clipName, false }; }
+	void SetDeathClip(const std::string& clipName) { deathClip_ = {clipName, false}; }
 
 	/// <summary>
 	/// 攻撃モーションを武器の振りに合わせて再生する。
@@ -532,7 +532,7 @@ protected:
 	virtual void OnPendingDeathEntered() {}
 
 	/// <summary>
-	/// ノックバック中に壁（移動範囲の境界）へぶつかった瞬間に1度だけ呼ばれる（仕様書 §10）。
+	/// ノックバック中に壁（移動範囲の境界）へぶつかった瞬間に1度だけ呼ばれる
 	/// 既定では体を光らせるだけ。派生クラスで火花などを足せる。
 	/// </summary>
 	virtual void OnKnockbackWallHit();
@@ -554,7 +554,7 @@ protected:
 	Vector3 velocity_{};
 	Vector3 acceleration_{0.0f, 0.0f, 0.0f};
 
-	// ノックバックの速度（仕様書 §6 の knockbackVelocity）。
+	// ノックバックの速度
 	// 被弾リアクションのステートに入らない敵（ボス）でも押されるよう、ステートではなく本体が持つ
 	KnockbackComponent knockback_;
 	KnockbackResistance knockbackResistance_{};

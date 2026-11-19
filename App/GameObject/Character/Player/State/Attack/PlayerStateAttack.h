@@ -9,8 +9,7 @@
 class Player;
 class PlayerCombat;
 
-class PlayerStateAttack
-{
+class PlayerStateAttack {
 public:
 	PlayerStateAttack(std::string attackName);
 	~PlayerStateAttack() = default;
@@ -137,7 +136,7 @@ private:
 	void UpdateHitSegment(Player& player);
 	// 急降下の攻撃なら、着地するまで振りの最後の手前で時間を止める
 	void UpdateDive(Player& player, float deltaTime);
-	// ノックバック性能を GlobalVariables から読む（仕様書 §3）。
+	// ノックバック性能を GlobalVariables から読む。
 	// prefix は "" で通常、"Final" で最終段ぶん。
 	// 時間・減速・向き・合成方法は段で変える必要が無いので、最終段でも共通の値を読む
 	KnockbackData LoadKnockback(const std::string& prefix) const;

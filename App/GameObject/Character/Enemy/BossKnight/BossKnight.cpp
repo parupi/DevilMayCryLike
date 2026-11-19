@@ -35,7 +35,7 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, kModelName));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
-	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
+	SetModelRotationOffset(EulerDegree({0.0f, 180.0f, 0.0f}));
 	// Dragon_Death は倒れきっても体が浮いたまま終わるので、倒れるのに合わせて沈める
 	SetDeathModelSink(kDeathModelSink);
 	// 大きな体なので、プレイヤーへ一瞬では振り向かない（攻撃の溜めの間はさらに遅くなる）
@@ -44,17 +44,7 @@ BossKnight::BossKnight(std::string objectName) : Enemy(objectName) {
 	hp_ = kMaxHp;
 	maxHp_ = kMaxHp;
 
-	// ノックバック耐性（仕様書 §9 の「ボス」）。
-	// のけぞらない・吹き飛ばない・打ち上がらないのは以前と同じだが、
-	// **位置だけは押される**ようにした（resistance のぶんだけ弱まった速度が入る）。
-	// 以前は KnockBack ステートを持たないことで無効化していたので、
-	// 攻撃が当たってもボスは1ミリも動かず、手応えがヒットストップと発光だけだった
-	SetKnockbackResistance(KnockbackResistance{
-		/*resistance=*/ kKnockbackResistance,
-		/*canStagger=*/ false,
-		/*canBlowAway=*/ false,
-		/*canLaunch=*/ false,
-	});
+	SetKnockbackResistance(KnockbackResistance{kKnockbackResistance, false, false, false,});
 }
 
 void BossKnight::Initialize() {
@@ -113,22 +103,22 @@ void BossKnight::Initialize() {
 	// ── アニメーションの割り当て（Dragon.gltf の5クリップ）──
 	// このモデルには待機が無いので Flying を待機・移動の両方に充てている。
 	// 攻撃クリップは EnemyMeleeAttackComponent が武器の振りの長さに合わせて伸縮させる
-	RegisterStateClip(EnemyStateName::Idle,            kClipIdle);
-	RegisterStateClip(EnemyStateName::Move,            kClipIdle);
-	RegisterStateClip(EnemyStateName::Air,             kClipIdle);
-	RegisterStateClip(BossStateName::CombatIdle,       kClipIdle);
-	RegisterStateClip(BossStateName::Approach,         kClipIdle);
-	RegisterStateClip(BossStateName::Slash,            kClipAttack,  false, kAttackImpactRatio);
-	RegisterStateClip(BossStateName::HeavySword,       kClipAttack2, false, kAttack2ImpactRatio);
-	RegisterStateClip(BossStateName::Rush,             kClipAttack,  false, kAttackImpactRatio);
+	RegisterStateClip(EnemyStateName::Idle, kClipIdle);
+	RegisterStateClip(EnemyStateName::Move, kClipIdle);
+	RegisterStateClip(EnemyStateName::Air, kClipIdle);
+	RegisterStateClip(BossStateName::CombatIdle, kClipIdle);
+	RegisterStateClip(BossStateName::Approach, kClipIdle);
+	RegisterStateClip(BossStateName::Slash, kClipAttack, false, kAttackImpactRatio);
+	RegisterStateClip(BossStateName::HeavySword, kClipAttack2, false, kAttack2ImpactRatio);
+	RegisterStateClip(BossStateName::Rush, kClipAttack, false, kAttackImpactRatio);
 	// ブレスは叩きつけと同じ大振りのクリップを使い回す。
 	// 攻撃の尺(4.2秒)がクリップ(1.67秒)より長いので、EnemyBoneAttackComponent が
 	// 引き伸ばして流す（最後のポーズで固まらない）
-	RegisterStateClip(BossStateName::Breath,           kClipAttack2, false, kAttack2ImpactRatio);
+	RegisterStateClip(BossStateName::Breath, kClipAttack2, false, kAttack2ImpactRatio);
 	// 崩れは被弾クリップを崩れの長さへ引き伸ばして1回流す（速さは BossStateDown が決める）
-	RegisterStateClip(BossStateName::Down,             kClipHit,     false);
+	RegisterStateClip(BossStateName::Down, kClipHit, false);
 	// 咆哮は専用のクリップが無いので、羽ばたき（待機）を速く回して見せる（速さは BossStateRoar が決める）
-	RegisterStateClip(BossStateName::Roar,             kClipIdle);
+	RegisterStateClip(BossStateName::Roar, kClipIdle);
 	// 出現専用のクリップは無いので、ディゾルブ中は Flying をループさせておく
 	SetSpawnClip(kClipIdle, true);
 	SetDeathClip(kClipDeath);
@@ -284,7 +274,7 @@ bool BossKnight::IsKnockbackImmune() const {
 const KnockbackResistance& BossKnight::GetKnockbackResistance() const {
 	// 突進ステートの間は溜めも含めて完全無効。咆哮中も押されない。
 	// 「弾いている」表示（IsKnockbackImmune）は突進の踏み込み中だけなので、ここは別に判定する
-	static const KnockbackResistance kImmune{ 1.0f, false, false, false };
+	static const KnockbackResistance kImmune{1.0f, false, false, false};
 	if (IsInState(BossStateName::Rush) || IsInState(BossStateName::Roar)) return kImmune;
 	return Enemy::GetKnockbackResistance();
 }
@@ -322,11 +312,11 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		glow = std::clamp(glow, 0.0f, 1.0f);
 
 		if (characterLight_) {
-			characterLight_->SetColorOverride({ 1.0f, 0.2f, 0.08f, 1.0f });
+			characterLight_->SetColorOverride({1.0f, 0.2f, 0.08f, 1.0f});
 			characterLight_->SetIntensityScale(1.0f + 3.0f * glow);
 		}
 		if (auto* bodyRenderer = GetRenderer(name_)) {
-			bodyRenderer->SetEmissiveTint({ 1.0f, 0.15f, 0.05f, 0.9f * glow });
+			bodyRenderer->SetEmissiveTint({1.0f, 0.15f, 0.05f, 0.9f * glow});
 		}
 	} else if (armorActive) {
 		// ── 紫オーラ（体のメッシュ表面から発生）──
@@ -338,7 +328,7 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 
 		// ── 追従ライトを紫+増光にして周囲へ状態を知らせる ──
 		if (characterLight_) {
-			characterLight_->SetColorOverride({ 0.65f, 0.3f, 1.0f, 1.0f });
+			characterLight_->SetColorOverride({0.65f, 0.3f, 1.0f, 1.0f});
 			characterLight_->SetIntensityScale(2.0f);
 		}
 
@@ -346,7 +336,7 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		armorTintPhase_ += deltaTime;
 		float pulse = 0.30f + 0.15f * std::sin(armorTintPhase_ * 10.0f);
 		pulse += (armorHitFlashTimer_ / kArmorHitFlashDuration) * 0.6f; // 被弾フラッシュ
-		const Vector4 tint = { 0.45f, 0.15f, 0.8f, pulse };
+		const Vector4 tint = {0.45f, 0.15f, 0.8f, pulse};
 
 		if (auto* bodyRenderer = GetRenderer(name_)) {
 			bodyRenderer->SetEmissiveTint(tint);
@@ -362,12 +352,12 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		const float glow = windupGlow_ * windupGlow_;
 
 		if (characterLight_) {
-			characterLight_->SetColorOverride({ 1.0f, 0.45f, 0.12f, 1.0f });
+			characterLight_->SetColorOverride({1.0f, 0.45f, 0.12f, 1.0f});
 			characterLight_->SetIntensityScale(1.0f + 2.5f * glow);
 		}
 
 		if (auto* bodyRenderer = GetRenderer(name_)) {
-			bodyRenderer->SetEmissiveTint({ 1.0f, 0.3f, 0.05f, 0.8f * glow });
+			bodyRenderer->SetEmissiveTint({1.0f, 0.3f, 0.05f, 0.8f * glow});
 		}
 	} else if (!effectPlaying && IsInState(BossStateName::Down)) {
 		// ── 崩れ: 追従ライトを落とし、体を黄色くゆっくり明滅させて「今が攻め時」を見せる ──
@@ -377,11 +367,11 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		const float pulse = 0.14f + 0.08f * std::sin(bodyPulsePhase_ * 6.0f);
 
 		if (characterLight_) {
-			characterLight_->SetColorOverride({ 1.0f, 0.85f, 0.35f, 1.0f });
+			characterLight_->SetColorOverride({1.0f, 0.85f, 0.35f, 1.0f});
 			characterLight_->SetIntensityScale(0.6f);
 		}
 		if (auto* bodyRenderer = GetRenderer(name_)) {
-			bodyRenderer->SetEmissiveTint({ 1.0f, 0.8f, 0.25f, pulse });
+			bodyRenderer->SetEmissiveTint({1.0f, 0.8f, 0.25f, pulse});
 		}
 	} else if (!effectPlaying && battleMemory_.shownPhase >= 3) {
 		// ── 瀕死（フェーズ3の咆哮の後）: 体に赤い脈動を残して、追い詰めたことを見せる ──
@@ -391,11 +381,11 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		const float pulse = 0.10f + 0.06f * std::sin(bodyPulsePhase_ * 3.0f);
 
 		if (characterLight_) {
-			characterLight_->SetColorOverride({ 1.0f, 0.2f, 0.1f, 1.0f });
+			characterLight_->SetColorOverride({1.0f, 0.2f, 0.1f, 1.0f});
 			characterLight_->SetIntensityScale(1.4f);
 		}
 		if (auto* bodyRenderer = GetRenderer(name_)) {
-			bodyRenderer->SetEmissiveTint({ 0.9f, 0.1f, 0.05f, pulse });
+			bodyRenderer->SetEmissiveTint({0.9f, 0.1f, 0.05f, pulse});
 		}
 	} else {
 		// アーマーも溜めも無し（出現・死亡演出中も含む）: すべての表示を通常状態に戻す
@@ -408,7 +398,7 @@ void BossKnight::UpdateBodyVisual(float deltaTime) {
 		}
 
 		if (auto* bodyRenderer = GetRenderer(name_)) {
-			bodyRenderer->SetEmissiveTint({ 0.0f, 0.0f, 0.0f, 0.0f });
+			bodyRenderer->SetEmissiveTint({0.0f, 0.0f, 0.0f, 0.0f});
 		}
 	}
 }
@@ -482,7 +472,6 @@ bool BossKnight::ReceivePlayerHit() {
 	// 出現・死亡演出中は被弾処理をしない
 	if (IsAppearanceEffectPlaying()) return false;
 
-	// ── 仕様書 §20 の実装フロー ──
 	// ① 攻撃判定がヒット
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 	const bool isArmorHit = IsKnockbackImmune();

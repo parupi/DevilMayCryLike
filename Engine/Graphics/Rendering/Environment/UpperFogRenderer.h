@@ -6,19 +6,9 @@
 class DirectXManager;
 
 /// <summary>
-/// 上部の霧の層（仕様書 2.2 の FogLayer_01〜03）を描く。
-///
-/// 天井があるはずの高さに水平な半透明の板を置き、手続きノイズで濃淡をつけてゆっくり流す。
-/// 設定は RenderEnvironment::Params の fogLayers にあり、有効な層だけを描く（既定は全部無効）。
-///
-/// - 頂点バッファは持たない。頂点番号から板の四隅を組む
-/// - 深度テストはするが書かない（壁の向こうの部分は隠れる）
-/// - 壁や岩と交わる所は GBuffer のワールド座標と比べて薄くする（ソフトパーティクルと同じ考え方）
-/// - 真横から見ると板だと分かるので、視線が水平に近いほど薄くする
-/// - 乗算済みアルファで合成し、RT のアルファは書き換えない
+/// 上部の霧の層を描く。
 /// </summary>
-class UpperFogRenderer
-{
+class UpperFogRenderer {
 public:
 	static UpperFogRenderer& GetInstance();
 

@@ -16,11 +16,10 @@ enum class ActionGuideMode : int32_t {
 };
 
 /// <summary>
-/// 候補の取得・評価・絞り込み・並べ替え・件数の制限まで（仕様書 §5.4 / §6）。
+/// 候補の取得・評価・絞り込み・並べ替え・件数の制限まで
 /// 描画の API には依存しない。結果は ViewModel として UI に渡す
 /// </summary>
-class ActionGuideSystem
-{
+class ActionGuideSystem {
 public:
 	void Update(const ActionGuideContext& context, const IActionAvailabilityProvider& provider,
 		const ActionGuideCatalog& catalog, const ActionGuideSettings& settings, ActionGuideMode mode);

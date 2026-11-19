@@ -27,7 +27,7 @@ void JustDodgeEffect::Play(const Vector3& position, const Vector3& attackDirecti
 
 	// 白フラッシュ。立ち上がりを見せたいので最大値から始める
 	if (flash_) {
-		flash_->GetEffectData().flashColor = { 1.0f, 1.0f, 1.0f, kFlashIntensity };
+		flash_->GetEffectData().flashColor = {1.0f, 1.0f, 1.0f, kFlashIntensity};
 		flash_->SetActive(true);
 	}
 
@@ -37,7 +37,7 @@ void JustDodgeEffect::Play(const Vector3& position, const Vector3& attackDirecti
 	// 専用SE。ファイルが無ければ SoundManager 側で握りつぶされる
 	SoundManager::GetInstance().PlaySE(kSEName, 0.9f);
 
-	// カメラは小さく揺らす。回避は頻繁に使うので強くしすぎない（仕様書 §11）
+	// カメラは小さく揺らす。回避は頻繁に使うので強くしすぎない
 	if (auto* camera = dynamic_cast<GameCamera*>(CameraManager::GetInstance().GetActiveCamera())) {
 		camera->AddShake(shakeTrauma);
 	}
@@ -57,7 +57,7 @@ void JustDodgeEffect::Update(float deltaTime) {
 	const float eased = (1.0f - t) * (1.0f - t);
 
 	if (flash_) {
-		flash_->GetEffectData().flashColor = { 1.0f, 1.0f, 1.0f, kFlashIntensity * eased };
+		flash_->GetEffectData().flashColor = {1.0f, 1.0f, 1.0f, kFlashIntensity * eased};
 	}
 }
 

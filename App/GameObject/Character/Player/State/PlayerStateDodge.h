@@ -6,10 +6,9 @@
 ///
 /// RightTrigger で入り、決めた方向へ一定速度で滑る。
 /// この間は無敵で、敵の攻撃に当たるとダメージではなくジャスト回避になる。
-/// 回避時間を使い切ったら、止まらずにそのままダッシュへ発展する（仕様書 §18.1）。
+/// 回避時間を使い切ったら、止まらずにそのままダッシュへ発展する。
 /// </summary>
-class PlayerStateDodge : public PlayerStateBase
-{
+class PlayerStateDodge : public PlayerStateBase {
 public:
 	void Enter(Player& player) override;
 	void Update(Player& player, float deltaTime) override;

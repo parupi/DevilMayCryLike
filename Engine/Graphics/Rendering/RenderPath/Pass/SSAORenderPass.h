@@ -8,15 +8,10 @@
 class GBufferManager;
 
 /// <summary>
-/// SSAO（仕様書 3.4）。GBuffer の法線とワールド座標から、物の隙間・接地部分がどれだけ周りに遮られているかを求め、
+/// SSAO。GBuffer の法線とワールド座標から、物の隙間・接地部分がどれだけ周りに遮られているかを求め、
 /// 深度を見ながらぼかして AO テクスチャ（R8、1=遮られていない）にする。
-///
-/// - GBuffer の後・ライティングの前に走る。結果は RenderEnvironment::SetAoSrv で渡し、Lighting.PS の t8 が読む
-/// - RenderEnvironment::Params::ssaoEnabled が false のフレームは何もしない（ライティング側も AO を掛けない）
-/// - サンプルはワールド空間の半球。暗い場所で強く掛けると黒く潰れるので、掛け方はライティング側で環境光と直接光に分ける
 /// </summary>
-class SSAORenderPass : public IRenderPass
-{
+class SSAORenderPass : public IRenderPass {
 public:
 	void Initialize(const EngineContext& ctx, GBufferManager* gBufferManager);
 	void Execute() override;

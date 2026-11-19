@@ -17,22 +17,20 @@ struct ActionGuideCandidate {
 };
 
 /// <summary>
-/// 既存の遷移条件を参照するアダプター（仕様書 §5.3）。
-///
-/// 仕様書の Evaluate(id, context) との違い: このゲームでは同じ攻撃が
-/// 「コンボの派生」としても「別ボタンの割り込み」としても出るので、id だけでは
+/// 既存の遷移条件を参照するアダプター
+///	
+/// このゲームでは同じ攻撃が「コンボの派生」としても「別ボタンの割り込み」としても出るので、id だけでは
 /// どの判定を見ればよいか決まらない。そこで候補（id ＋ 種類 ＋ 入力）を渡す形にしている。
-/// どちらの関数も状態を変えない
 /// </summary>
 class IActionAvailabilityProvider
 {
 public:
 	virtual ~IActionAvailabilityProvider() = default;
 
-	/// <summary>今の状態で候補になる行動を集める（仕様書 §6-2）</summary>
+	/// <summary>今の状態で候補になる行動を集める</summary>
 	virtual void CollectCandidates(const ActionGuideContext& context, std::vector<ActionGuideCandidate>& out) const = 0;
 
-	/// <summary>候補を評価する（仕様書 §6-3）。queued には「もう先行入力で押してあるか」を返す</summary>
+	/// <summary>候補を評価するqueued には「もう先行入力で押してあるか」を返す</summary>
 	virtual ActionAvailability Evaluate(const ActionGuideCandidate& candidate, const ActionGuideContext& context, bool& queued) const = 0;
 };
 

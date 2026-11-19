@@ -207,7 +207,7 @@ void ActionGuideUI::Update(const ActionGuideViewModel& viewModel, const ActionGu
 		const bool hasEntry = viewModel.visible && i < static_cast<int32_t>(viewModel.entries.size()) && i < slotCount;
 		if (hasEntry) {
 			const ActionGuideEntry& entry = viewModel.entries[i];
-			// 別の行動に入れ替わったら、フェードの始まりから出し直す（仕様書 §6-7）。
+			// 別の行動に入れ替わったら、フェードの始まりから出し直す
 			// 0 から始めないのは、1〜2フレームしかない受付窓で表示が遅れて情報が隠れないようにするため
 			const bool switched = !row.hasEntry || row.entry.id != entry.id || !(row.entry.binding == entry.binding);
 			if (switched) {
