@@ -7,14 +7,13 @@
 struct ActionGuideSettings;
 
 /// <summary>
-/// ガイドの表示定義（仕様書 §5.2）。
+/// ガイドの表示定義
 ///
 /// 攻撃以外（ジャンプ・回避・ロックオン）は固定の ID を持ち、名前は ActionGuideSettings。
 /// 攻撃は攻撃データの名前から ID を割り当て、表示名は攻撃データの GuideName（攻撃エディタで編集）を読む。
 /// ActionGuideID と攻撃名は別物として扱い、混同しない
 /// </summary>
-class ActionGuideCatalog
-{
+class ActionGuideCatalog {
 public:
 	// 攻撃以外の行動の ID
 	static constexpr ActionGuideID kJump = 1;

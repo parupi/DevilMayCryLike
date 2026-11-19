@@ -12,18 +12,9 @@ class ClearSequence;
 class MenuNavigator;
 
 /// <summary>
-/// クリア画面の UI（クリアシーン演出仕様書 2・4・5章）。
-///
-/// 画面の左に STAGE CLEAR → TOTAL SCORE（カウントアップ）→ RANK を時間差で出し、
-/// 最後に下へ RETRY / TITLE のメニューを出す。いつ何を出すかは ClearSequence の時刻で決まり、
-/// このクラスは「その時刻ならこう見える」を毎フレーム作り直すだけ（巻き戻しても同じ見た目になる）。
-/// SE だけは時刻をまたいだ瞬間に1回鳴らす。
-///
-/// 文字はフォントから描く。STAGE CLEAR とランクの文字は大きく出すので、
-/// 大きめに焼いた専用のフォント（kDisplayFont）を使う。
+/// クリア画面の UIクリアシーン演出
 /// </summary>
-class ClearUI
-{
+class ClearUI {
 public:
 	enum class MenuResult {
 		None,
@@ -49,7 +40,7 @@ public:
 	void ResetEffects();
 
 private:
-	/// <summary>ランクごとの見た目（仕様書 5章）</summary>
+	/// <summary>ランクごとの見た目</summary>
 	struct RankStyle {
 		Vector4 color;
 		float glow;        // 後ろの光の強さ（0〜1）

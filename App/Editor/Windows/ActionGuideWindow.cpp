@@ -192,7 +192,7 @@ void AppEditor::DrawActionGuideWindow()
 		DragFloatParam("通常の濃さ##NormalAlpha", "NormalAlpha", 0.01f, 0.0f, 1.0f, "%.2f");
 		DragFloatParam("Preview の濃さ##PreviewAlpha", "PreviewAlpha", 0.01f, 0.0f, 1.0f, "%.2f");
 		DragFloatParam("切り替えのフェード##FadeTime", "FadeTime", 0.005f, 0.0f, 1.0f, "%.3f 秒");
-		ImGui::SetItemTooltip("仕様書の目安は 0.10〜0.18 秒");
+		ImGui::SetItemTooltip("目安は 0.10〜0.18 秒");
 		DragFloatParam("フェードの始まりの濃さ##FadeStartAlpha", "FadeStartAlpha", 0.01f, 0.0f, 1.0f, "%.2f");
 		ImGui::SetItemTooltip("0 から始めると、短い受付窓で表示が遅れて情報が隠れる");
 		DragFloatParam("横すべりの量##SlideOffset", "SlideOffset", 0.5f, 0.0f, 100.0f);

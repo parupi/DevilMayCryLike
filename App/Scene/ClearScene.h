@@ -13,14 +13,9 @@ class Object3d;
 class StageSpotLight;
 
 /// <summary>
-/// クリア画面（クリアシーン演出仕様書）。
-///
-/// ゲームと同じ洞窟の回廊（Resource/Stage/Clear.json）の中に勝ったプレイヤーを立たせ、
-/// 頭上から一筋の光を当てる。回廊の奥には洞窟の出口があり、外の暖かい光が霧越しに差し込む。
-/// 画面の左に結果を時間差で出し（ClearUI）、進行は ClearSequence の時刻で決まる。
+/// クリア画面
 /// </summary>
-class ClearScene : public BaseScene
-{
+class ClearScene : public BaseScene {
 public:
 	ClearScene() = default;
 	~ClearScene() override;

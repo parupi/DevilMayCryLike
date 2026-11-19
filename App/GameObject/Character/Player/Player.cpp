@@ -58,10 +58,8 @@ Player::Player(std::string objectName) : Object3d(objectName) {
 	AddRenderer(RendererManager::GetInstance().FindRender(kRendererName));
 	// Alien.obj は素の高さが約2.9m。オブジェクト原点はコライダー(半径0.5)の中心なので、
 	// 縮めたうえで足元がコライダーの底に来るように下げる
-	GetRenderer(kRendererName)->GetWorldTransform()->GetScale() = { kModelScale, kModelScale, kModelScale };
+	GetRenderer(kRendererName)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
 	GetRenderer(kRendererName)->GetWorldTransform()->GetTranslation().y += kModelOffsetY;
-	// このモデルは正面が +Z。プレイヤーの前方向もローカル +Z（Rotate/LockOn の LookRotation と
-	// 攻撃モーションが +Z へ振り抜くのがその根拠）なので、敵と違って向き補正は要らない
 
 	// StateMachine生成
 	stateMachine_ = std::make_unique<PlayerStateMachine>();
@@ -85,8 +83,6 @@ void Player::Initialize() {
 	combat_->Initialize(this);
 
 	GetCollider(name_)->category_ = CollisionCategory::Player;
-	// レベルデータのコライダーサイズをそのまま使う
-	// （旧: レベル側の×2補正を打ち消すための *0.5f があったが、×2補正の撤廃に伴い削除。実効サイズは変わらない）
 	// 武器のレンダラー生成
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>("PlayerWeapon", "Sword"));
 	// 武器用のコライダー生成
@@ -128,7 +124,7 @@ void Player::Initialize() {
 
 	// プレイヤーに追従するポイントライト（攻撃ヒット時にフラッシュする）
 	characterLight_ = std::make_unique<CharacterLight>();
-	characterLight_->Initialize("PlayerLight", Vector4{ 0.45f, 0.65f, 1.0f, 1.0f });
+	characterLight_->Initialize("PlayerLight", Vector4{0.45f, 0.65f, 1.0f, 1.0f});
 
 	// 被弾時に体と武器を一瞬光らせる。体だけだと剣が暗いまま浮くので武器も対象に入れる
 	hitFlash_ = std::make_unique<HitFlashComponent>();
@@ -145,7 +141,7 @@ void Player::Initialize() {
 	deathDissolve_ = std::make_unique<DissolveOutEffect>();
 	deathDissolve_->AddRenderer(GetRenderer(kRendererName));
 	deathDissolve_->AddRenderer(weapon_->GetRenderer("PlayerWeapon"));
-	deathDissolve_->SetEdgeColor({ 0.45f, 0.75f, 1.0f, 6.0f });
+	deathDissolve_->SetEdgeColor({0.45f, 0.75f, 1.0f, 6.0f});
 	// レンダラーが作り直されていない経路（エディタからのシーン再読込など）でも
 	// 溶けたままにならないよう、ここで上書きを解除しておく
 	deathDissolve_->Reset();
@@ -178,10 +174,6 @@ void Player::Initialize() {
 // 各ステートの Enter に Play を撒くと「攻撃が終わったら元のクリップに戻す」が漏れやすいので、
 // 毎フレームここで決め直す方式にしている。
 // AnimationPlayer::Play は同じクリップなら何もしないので、毎フレーム呼んで問題ない。
-//
-// クリップを変えたいときはこの対応表をいじること。Alien.gltf が持つのは以下の15種:
-//   Idle / IdleHold / Standing / Sitting / Walk / Run / RunHold / Jump / RunningJump /
-//   Roll / Punch / SwordSlash / Death / Swimming / Clapping
 void Player::UpdateAnimation() {
 	AnimationPlayer* anim = GetAnimationPlayer();
 	if (!anim) return;
@@ -250,8 +242,7 @@ void Player::UpdateAnimation() {
 		dodgeAnimRestart_ = false;
 		// 前転クリップは回避時間(0.25秒)より長いので、収まるように速める
 		const float duration = anim->GetDuration();
-		const float speed = (duration > 0.01f && dodgeParams_.dodgeDuration > 0.01f)
-			? duration / dodgeParams_.dodgeDuration : 1.0f;
+		const float speed = (duration > 0.01f && dodgeParams_.dodgeDuration > 0.01f) ? duration / dodgeParams_.dodgeDuration : 1.0f;
 		anim->SetSpeed(std::clamp(speed, kDodgeSpeedMin, kDodgeSpeedMax));
 	} else if (name == "Dash") {
 		anim->Play(kClipDash, true, 0.12f);
@@ -288,7 +279,7 @@ namespace {
 		auto smooth = [](float t) {
 			t = std::clamp(t, 0.0f, 1.0f);
 			return t * t * (3.0f - 2.0f * t);
-		};
+			};
 
 		float weight = 1.0f;
 		if (fadeIn > 0.001f) {
@@ -387,9 +378,7 @@ void Player::UpdateMovementSound() {
 
 	// ── HPが少ないときの心音 ──
 	// 瀕死（HPバーが赤く脈打つのと同じ境目）かつ生きている間だけ鳴らし続ける。ループなので必ず止めること
-	const bool lowHealth = (hp_ > 0)
-		&& (static_cast<float>(hp_) <= static_cast<float>(maxHp_) * PlayerHealthBar::kLowHealthRatio)
-		&& !IsDying() && !isDeathFinished_;
+	const bool lowHealth = (hp_ > 0) && (static_cast<float>(hp_) <= static_cast<float>(maxHp_) * PlayerHealthBar::kLowHealthRatio) && !IsDying() && !isDeathFinished_;
 	if (lowHealth && lowHealthVoice_ < 0) {
 		SEPlayParams params;
 		params.name = GameSound::kPlayerLowHealth;
@@ -471,8 +460,7 @@ void Player::Update(float deltaTime) {
 	dodgeTrailActive_ = IsDodging() || IsDashing();
 	if (dodgeTrailActive_) {
 		const Vector3 pos = GetWorldTransform()->GetTranslation();
-		dodgeTrail_->AddPoint(pos + Vector3{ 0.0f, kTrailTopOffsetY, 0.0f },
-			pos + Vector3{ 0.0f, kTrailBottomOffsetY, 0.0f });
+		dodgeTrail_->AddPoint(pos + Vector3{0.0f, kTrailTopOffsetY, 0.0f}, pos + Vector3{0.0f, kTrailBottomOffsetY, 0.0f});
 	}
 	dodgeTrail_->Update(dt);
 
@@ -506,11 +494,11 @@ void Player::Update(float deltaTime) {
 	// 足音と心音。クリップが決まった後に呼ぶ（足音がアニメーションイベントを見るため）
 	UpdateMovementSound();
 
-	// ノックバックの速度を進める（仕様書 §6・§7）。敵と同じ部品・同じ減衰の式を使う
+	// ノックバックの速度を進める。敵と同じ部品・同じ減衰の式を使う
 	knockback_.SetGrounded(onGround_);
 	knockback_.Update(dt, kGravity);
 
-	// 移動処理。仕様書 §6: velocity = moveVelocity + knockbackVelocity
+	// 移動処理
 	GetWorldTransform()->GetTranslation() += (velocity_ + knockback_.GetVelocity()) * dt;
 	velocity_ += acceleration_ * dt;
 
@@ -522,7 +510,7 @@ void Player::Update(float deltaTime) {
 		Vector3& pos = GetWorldTransform()->GetTranslation();
 		Vector3 inwardNormal{};
 		if (movementBounds_.ClampPosition(pos, inwardNormal)) {
-			// 壁の外を向いているノックバック速度を削る（仕様書 §10）。
+			// 壁の外を向いているノックバック速度を削る
 			// 残すと押し戻されながら飛び続け、境界に貼り付いたまま操作不能になる
 			knockback_.CancelOutward(inwardNormal);
 		}
@@ -659,15 +647,15 @@ bool Player::CanStartDodge(bool /*onGround*/) const {
 }
 
 Vector3 Player::CalcDodgeDirection() {
-	// スティックが入っていれば画面基準の入力方向（仕様書 §5.2 の推奨）
+	// スティックが入っていれば画面基準の入力方向
 	const Vector3 inputDir = GetMoveDirection();
 	if (Length(inputDir) > 0.01f) return inputDir;
 
 	// 入力が無ければキャラクターの前方向。このモデルの正面はローカル +Z
-	Vector3 forward = TransformNormal(Vector3{ 0.0f, 0.0f, 1.0f }, GetWorldTransform()->GetMatWorld());
+	Vector3 forward = TransformNormal(Vector3{0.0f, 0.0f, 1.0f}, GetWorldTransform()->GetMatWorld());
 	forward.y = 0.0f;
 	const float length = Length(forward);
-	return (length > 0.0001f) ? forward * (1.0f / length) : Vector3{ 0.0f, 0.0f, 1.0f };
+	return (length > 0.0001f) ? forward * (1.0f / length) : Vector3{0.0f, 0.0f, 1.0f};
 }
 
 void Player::FaceDirection(const Vector3& direction) {
@@ -692,11 +680,11 @@ void Player::OnDodgeStart() {
 	// トレイルは加算合成なので、明るい床の上でも色が乗るように青を濃いめにしている
 	dodgeTrail_->Clear();
 	dodgeTrail_->SetLifetime(params.trailLifetime);
-	dodgeTrail_->SetTintColor({ 0.30f, 0.65f, 1.0f, 0.85f });
+	dodgeTrail_->SetTintColor({0.30f, 0.65f, 1.0f, 0.85f});
 
 	// 足元の砂埃。回避方向の逆へ舞わせる。空中回避では蹴る地面が無いので出さない
 	if (onGround_) {
-		const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{ 0.0f, kModelOffsetY, 0.0f };
+		const Vector3 feet = GetWorldTransform()->GetTranslation() + Vector3{0.0f, kModelOffsetY, 0.0f};
 		ParticleManager::GetInstance().PlayVFX("DodgeDust", feet, dodgeRuntime_.direction * -1.0f);
 	}
 
@@ -709,9 +697,9 @@ void Player::OnDodgeStart() {
 void Player::OnDashStart() {
 	const PlayerDodgeParams& params = dodgeParams_;
 
-	// 残像を強くする。回避との差をここではっきり付ける（仕様書 §10.3）
+	// 残像を強くする。回避との差をここではっきり付ける
 	dodgeTrail_->SetLifetime(params.trailLifetime * 1.6f);
-	dodgeTrail_->SetTintColor({ 0.55f, 0.85f, 1.0f, 1.0f });
+	dodgeTrail_->SetTintColor({0.55f, 0.85f, 1.0f, 1.0f});
 
 	SoundManager::GetInstance().PlaySE(GameSound::kDash, 0.7f);
 
@@ -737,7 +725,7 @@ void Player::OnJustDodge() {
 	Vector3 fromAttacker = playerPos - dodgeRuntime_.justDodgeInfo.attackerPosition;
 	fromAttacker.y = 0.0f;
 	const float length = Length(fromAttacker);
-	const Vector3 direction = (length > 0.001f) ? fromAttacker * (1.0f / length) : Vector3{ 0.0f, 1.0f, 0.0f };
+	const Vector3 direction = (length > 0.001f) ? fromAttacker * (1.0f / length) : Vector3{0.0f, 1.0f, 0.0f};
 
 	justDodgeEffect_->Play(playerPos, direction, params.justDodgeShake);
 	characterLight_->Flash();
@@ -797,11 +785,11 @@ void Player::Move(Vector3 moveDir, float) {
 }
 
 Vector3 Player::GetForward() {
-	Vector3 forward = TransformNormal({ 0.0f, 0.0f, 1.0f }, GetWorldTransform()->GetMatWorld());
+	Vector3 forward = TransformNormal({0.0f, 0.0f, 1.0f}, GetWorldTransform()->GetMatWorld());
 	// Rotate() / LockOn() が LookRotation に渡す前に X を反転しているぶんを戻す
 	forward.x *= -1.0f;
 	forward.y = 0.0f;
-	if (Length(forward) < 0.001f) return { 0.0f, 0.0f, 1.0f };
+	if (Length(forward) < 0.001f) return {0.0f, 0.0f, 1.0f};
 	return Normalize(forward);
 }
 
@@ -848,7 +836,7 @@ void Player::TakeDamage(const DamageInfo& info) {
 	auto* cur = stateMachine_->GetCurrentState();
 	if (cur && std::string(cur->GetDebugName()) == "Death") return;
 
-	// 優先順位は ジャスト回避 ＞ 通常無敵 ＞ 被弾（仕様書 §15）。
+	// 優先順位は ジャスト回避 ＞ 通常無敵 ＞ 被弾
 	// 回避中なら通常の無敵処理より先にジャスト回避を成立させる。
 	// 実際の演出と無敵の延長は、次の更新で Dodge ステートが JustDodge へ移ってから行う
 	if (IsDodging() && !dodgeRuntime_.justDodgeUsed) {
@@ -865,11 +853,10 @@ void Player::TakeDamage(const DamageInfo& info) {
 
 	hp_ -= static_cast<int32_t>(info.damage);
 
-	// 軽被弾／強被弾の切り分け（仕様書 §11・§12）。
+	// 軽被弾／強被弾の切り分け
 	// 弱い攻撃で毎回1.2秒も無敵と拘束を掛けると、当たり続けても反撃できない一方で
 	// 無敵が長すぎて緊張感が無くなる。ノックバックの強さで2段階に分ける
-	heavyHit_ = (info.knockback.power >= kHeavyHitPowerThreshold)
-		|| (info.knockback.type != ReactionType::HitStun && info.knockback.verticalPower > 0.0f);
+	heavyHit_ = (info.knockback.power >= kHeavyHitPowerThreshold) || (info.knockback.type != ReactionType::HitStun && info.knockback.verticalPower > 0.0f);
 	invincibleTimer_ = heavyHit_ ? kHeavyHitInvincibleTime : kLightHitInvincibleTime;
 
 	pendingDamageInfo_ = info;
@@ -880,8 +867,7 @@ void Player::TakeDamage(const DamageInfo& info) {
 	}
 
 	// 被弾の音。吹き飛ばされたかどうかで鳴らし分ける（heavyHit_ は上で決まっている）
-	SoundManager::GetInstance().PlaySE(
-		heavyHit_ ? GameSound::kPlayerDamageHeavy : GameSound::kPlayerDamage, 0.85f);
+	SoundManager::GetInstance().PlaySE(heavyHit_ ? GameSound::kPlayerDamageHeavy : GameSound::kPlayerDamage, 0.85f);
 
 	// 被弾ビネットフラッシュ
 	hitVignette_->Play();
@@ -904,13 +890,12 @@ void Player::TakeDamage(const DamageInfo& info) {
 		justDodgeEffect_->Stop();
 		ChangeState("Death");
 	} else {
-		// 仕様書 §13 の順番（ヒット → 止まる → ノックバック）。
 		// ヒットストップ中は Player::Update の dt が縮むので、実際に飛ぶのは停止が明けてから
 		hitStop_->Start(heavyHit_ ? kHeavyHitStopTime : kLightHitStopTime,
 			kHitStopIntensity,
 			heavyHit_ ? HitStopStrength::Medium : HitStopStrength::Light);
 
-		// ノックバックの速度は Knockback ステートではなく共通の部品が持つ（仕様書 §6）
+		// ノックバックの速度は Knockback ステートではなく共通の部品が持つ
 		knockback_.SetGrounded(onGround_);
 		if (knockback_.IsActive()) {
 			knockback_.AddHit(info.knockback, info.direction);
@@ -949,12 +934,12 @@ void Player::OnCollisionEnter(BaseCollider* other) {
 		}
 		raw.hitPosition = playerPos;
 
-		// 方向と耐性の解決は敵を殴るときと同じ CombatHit に通す（仕様書 §20 ③④）。
+		// 方向と耐性の解決は敵を殴るときと同じ CombatHit に通す
 		// 以前は敵側だけが3Dのまま正規化していて、高低差があると挙動が食い違っていた
 		CombatHit::Attacker attacker;
 		attacker.position = attackerPos;
 		// 敵の前方向はローカル -Z（Enemy::GetForward と同じ規約）
-		attacker.forward = TransformNormal({ 0.0f, 0.0f, -1.0f }, other->owner_->GetWorldTransform()->GetMatWorld());
+		attacker.forward = TransformNormal({0.0f, 0.0f, -1.0f}, other->owner_->GetWorldTransform()->GetMatWorld());
 		const CombatHit::Result hit = CombatHit::Resolve(raw, attacker, playerPos, kPlayerKnockbackResistance);
 
 		TakeDamage(hit.info);
@@ -987,7 +972,6 @@ void Player::ResolveGroundCollision(BaseCollider* other) {
 	if (result.normal.y > 0.5f) {
 		// 上に当たってる（接地）
 		GetWorldTransform()->GetTranslation().y -= 0.1f;
-		//velocity_.y = 0.0f;
 
 		// ノックバックで浮いていたならここが着地。落下速度を消して水平を弱める
 		if (knockback_.IsAirborne() && knockback_.GetVelocity().y <= 0.0f) {

@@ -5,7 +5,7 @@ class Player;
 class InputContext;
 
 /// <summary>
-/// 1フレームぶんの判定に使う状態のスナップショット（仕様書 §5.1）。
+/// 1フレームぶんの判定に使う状態のスナップショット
 /// ポインタは持たない。中身は ActionGuideContextBuilder が既存のシステムから集める
 /// </summary>
 struct ActionGuideContext {
@@ -27,9 +27,8 @@ struct ActionGuideContext {
 	bool isInBattle = false;    ///< 戦闘中（スタイルスコアの戦闘フラグ）
 };
 
-/// <summary>既存のシステムから ActionGuideContext を作る（仕様書 §5.1 / §6-1）</summary>
-class ActionGuideContextBuilder
-{
+/// <summary>既存のシステムから ActionGuideContext を作る</summary>
+class ActionGuideContextBuilder {
 public:
 	static ActionGuideContext Build(Player& player, const InputContext* inputContext);
 };

@@ -4,7 +4,7 @@
 #include <vector>
 
 /// <summary>
-/// 洞窟の空気中を漂う埃（仕様書 4.1）。プレイヤーのまわりの円柱の中にだけ粒を撒く。
+/// 洞窟の空気中を漂う埃。プレイヤーのまわりの円柱の中にだけ粒を撒く。
 ///
 /// - 粒の見た目は Resource/VFX/CaveDust.vfx.json の CaveDustMote（加算・ゆっくり漂ってフェードイン・アウト）
 /// - 出す数・範囲はステージの雰囲気（StageEnvironment::GetDustSettings）。雰囲気が無ければ何もしない

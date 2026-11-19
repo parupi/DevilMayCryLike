@@ -55,19 +55,19 @@ enum class AttackVfxStyle : int32_t {
 };
 
 /// <summary>
-/// ノックバックの向きの決め方（仕様書 §4）。
+/// ノックバックの向きの決め方。
 /// 基本は「攻撃者 → 被弾者」で、攻撃ごとに向きを固定したいときだけ他を選ぶ。
 /// </summary>
 enum class KnockbackDirection : int32_t {
 	AwayFromAttacker, // 攻撃者から離れる（既定）
 	AttackerForward,  // 攻撃者の正面へ。横から当てても同じ向きへ飛ばしたいとき
 	Upward,           // 真上へ。水平成分を捨てる
-	TowardAttacker,   // 引き寄せ（§5.5）。コンボ維持・距離調整用
+	TowardAttacker,   // 引き寄せ。コンボ維持・距離調整用
 	Count
 };
 
 /// <summary>
-/// ノックバック中に重ねて攻撃を受けたときの合成方法（仕様書 §8）。
+/// ノックバック中に重ねて攻撃を受けたときの合成方法。
 /// </summary>
 enum class KnockbackBlend : int32_t {
 	Override, // 上書き。強い攻撃を受けたときの反応が分かりやすい
@@ -76,7 +76,7 @@ enum class KnockbackBlend : int32_t {
 };
 
 /// <summary>
-/// 攻撃1回ぶんのノックバック性能（仕様書 §3）。
+/// 攻撃1回ぶんのノックバック性能。
 /// 攻撃を出す側（AttackData）と受ける側へ渡す情報（DamageInfo）で同じものを使う。
 ///
 /// power / verticalPower は **速度[m/s]**。
@@ -89,7 +89,7 @@ struct KnockbackData {
 	float power = 0.0f;          // 水平方向の強さ[m/s]
 	float verticalPower = 0.0f;  // 上方向の強さ[m/s]
 	float duration = 0.0f;       // ノックバックの時間[秒]。0 なら種類ごとの既定値を使う
-	float deceleration = 1.0f;   // 減速カーブの鋭さ。1.0 で仕様書どおりの直線 power*(1-t)
+	float deceleration = 1.0f;   // 減速カーブの鋭さ。1.0 で直線 power*(1-t)
 	float maxSpeed = 0.0f;       // 合成後の水平速度の上限[m/s]。0 なら無制限
 	float torque = 0.0f;         // 吹っ飛び中の回転量[度/秒]
 	float stunTime = 0.0f;       // のけぞり・操作不能の時間[秒]
@@ -104,7 +104,7 @@ struct KnockbackData {
 };
 
 /// <summary>
-/// 敵ごとのノックバック耐性（仕様書 §9）。
+/// 敵ごとのノックバック耐性
 /// 「すべての敵を同じように吹き飛ばさない」ための重み付け。
 /// </summary>
 struct KnockbackResistance {
@@ -152,7 +152,7 @@ struct AttackData {
 	float hitStopIntensity = 0.0f;
 	HitStopStrength hitStopStrength = HitStopStrength::Heavy; // 攻撃の強さ（止まり方の強弱）
 
-	/// <summary>攻撃を受けた側に送るノックバック性能（仕様書 §3）</summary>
+	/// <summary>攻撃を受けた側に送るノックバック性能</summary>
 	KnockbackData knockback{};
 
 	/// <summary>
@@ -247,6 +247,6 @@ struct DamageInfo {
 struct MoveIntent {
 	Vector3 moveDir{}; // 入力方向
 	float moveScale = 0.0f; // 0.0f〜1.0f
-	bool jump =	false; // このフレームでジャンプしたい
+	bool jump = false; // このフレームでジャンプしたい
 	bool dash = false; // ダッシュしたい
 };

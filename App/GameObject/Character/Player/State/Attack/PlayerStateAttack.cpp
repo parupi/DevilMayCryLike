@@ -90,7 +90,7 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	// 攻撃の強さ（0=Light, 1=Medium, 2=Heavy）。未設定の攻撃は従来通り完全停止のHeavy
 	gv->AddItem(name_, "HitStopStrength", int32_t(static_cast<int32_t>(HitStopStrength::Heavy)));
 
-	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3）──
+	// ── 攻撃を受けた側に送るノックバック情報 ──
 	// 既定値はどれも、作り直す前と同じ挙動になる値にしてある
 	gv->AddItem(name_, "ReactionType", int32_t(0));
 	// ノックバック＆打ち上げ共通
@@ -100,11 +100,11 @@ PlayerStateAttack::PlayerStateAttack(std::string attackName) {
 	gv->AddItem(name_, "TorqueForce", float());
 	// のけぞり用
 	gv->AddItem(name_, "StunTime", float());
-	// ノックバックの時間と減速（仕様書 §7）。0 なら ReactionType ごとの既定値
+	// ノックバックの時間と減速。0 なら ReactionType ごとの既定値
 	gv->AddItem(name_, "KnockbackDuration", float());
 	gv->AddItem(name_, "KnockbackDeceleration", 1.0f);
 	gv->AddItem(name_, "KnockbackMaxSpeed", float());
-	// 向き（仕様書 §4）と、連続ヒット時の合成方法（§8）
+	// 向きと、連続ヒット時の合成方法（§8）
 	gv->AddItem(name_, "KnockbackDirection", int32_t(static_cast<int32_t>(KnockbackDirection::AwayFromAttacker)));
 	gv->AddItem(name_, "KnockbackBlend", int32_t(static_cast<int32_t>(KnockbackBlend::Override)));
 	gv->AddItem(name_, "KnockbackOverrideVelocity", bool(true));
@@ -486,7 +486,7 @@ void PlayerStateAttack::UpdateAttackData() {
 
 	attackData_.hitStopStrength = HitStop::ToStrength(GlobalVariables::GetInstance().GetValueRef<int32_t>(name_, "HitStopStrength"));
 
-	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3）──
+	// ── 攻撃を受けた側に送るノックバック情報 ──
 	// エディタの調整値は ImpulseForce（水平の強さ）と UpwardRatio（それに対する上方向の割合）のまま。
 	// KnockbackData は速度[m/s]で持つので、ここで掛けて verticalPower にする
 	attackData_.knockback = LoadKnockback("");

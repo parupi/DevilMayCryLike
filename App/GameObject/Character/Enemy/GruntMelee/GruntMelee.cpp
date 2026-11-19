@@ -35,21 +35,16 @@ GruntMelee::GruntMelee(std::string objectName) : Enemy(objectName) {
 	RendererManager::GetInstance().AddRenderer(std::make_unique<ModelRenderer>(name_, kModelName));
 	AddRenderer(RendererManager::GetInstance().FindRender(name_));
 	// Skeleton.obj は素の高さが約5m。プレイヤー（約0.9m）より少し背が高い程度に縮める
-	GetRenderer(name_)->GetWorldTransform()->GetScale() = { kModelScale, kModelScale, kModelScale };
+	GetRenderer(name_)->GetWorldTransform()->GetScale() = {kModelScale, kModelScale, kModelScale};
 	// このモデルは正面が +Z。敵の前方向はローカル -Z なので180度回す（詳細は Enemy::SetModelRotationOffset）
-	SetModelRotationOffset(EulerDegree({ 0.0f, 180.0f, 0.0f }));
+	SetModelRotationOffset(EulerDegree({0.0f, 180.0f, 0.0f}));
 
 	hp_ = 8.0f;
 	maxHp_ = hp_;
 
-	// ノックバック耐性（仕様書 §9 の「小型」）。
+	// ノックバック耐性。
 	// 軽攻撃も強攻撃も打ち上げも素通しで、コンボの練習台になる敵
-	SetKnockbackResistance(KnockbackResistance{
-		/*resistance=*/ 0.0f,
-		/*canStagger=*/ true,
-		/*canBlowAway=*/ true,
-		/*canLaunch=*/ true,
-	});
+	SetKnockbackResistance(KnockbackResistance{0.0f, true, true, true,});
 }
 
 void GruntMelee::Initialize() {
@@ -95,19 +90,19 @@ void GruntMelee::Initialize() {
 
 	// ── アニメーションの割り当て（Skeleton.gltf の5クリップ）──
 	// 攻撃クリップは EnemyMeleeAttackComponent が武器の振りの長さに合わせて伸縮させる
-	RegisterStateClip(GruntMeleeStateName::Patrol,       kClipIdle);
-	RegisterStateClip(EnemyStateName::Idle,              kClipIdle);
-	RegisterStateClip(EnemyStateName::Move,              kClipIdle);
-	RegisterStateClip(GruntMeleeStateName::CombatIdle,   kClipIdle);
-	RegisterStateClip(GruntMeleeStateName::Approach,     kClipRun);
-	RegisterStateClip(GruntMeleeStateName::SideMove,     kClipRun);
-	RegisterStateClip(GruntMeleeStateName::Retreat,      kClipRun);
+	RegisterStateClip(GruntMeleeStateName::Patrol, kClipIdle);
+	RegisterStateClip(EnemyStateName::Idle, kClipIdle);
+	RegisterStateClip(EnemyStateName::Move, kClipIdle);
+	RegisterStateClip(GruntMeleeStateName::CombatIdle, kClipIdle);
+	RegisterStateClip(GruntMeleeStateName::Approach, kClipRun);
+	RegisterStateClip(GruntMeleeStateName::SideMove, kClipRun);
+	RegisterStateClip(GruntMeleeStateName::Retreat, kClipRun);
 	RegisterStateClip(GruntMeleeStateName::AttackNormal, kClipAttack, false, kAttackImpactRatio);
-	RegisterStateClip(GruntMeleeStateName::RushAttack,   kClipAttack, false, kAttackImpactRatio);
-	RegisterStateClip(EnemyStateName::Air,               kClipIdle);
+	RegisterStateClip(GruntMeleeStateName::RushAttack, kClipAttack, false, kAttackImpactRatio);
+	RegisterStateClip(EnemyStateName::Air, kClipIdle);
 	// のけぞり・吹き飛びは専用クリップが無いので待機のまま。
 	// 傾き/回転（SetModelReactionRotation）の方でリアクションを見せている
-	RegisterStateClip(EnemyStateName::KnockBack,         kClipIdle);
+	RegisterStateClip(EnemyStateName::KnockBack, kClipIdle);
 	SetSpawnClip(kClipSpawn);
 	SetDeathClip(kClipDeath);
 
@@ -156,8 +151,8 @@ void GruntMelee::Update(float deltaTime) {
 	if (meleeAttack_->IsFinished()) {
 		// -Z が敵の前方向。Y は Skeleton モデルの手の高さに合わせている
 		// （立方体だった頃は 0.1f で、そのままだと足元に剣が浮く）
-		weapon_->GetWorldTransform()->GetTranslation() = { 0.0f, 0.45f, -0.5f };
-		weapon_->GetWorldTransform()->GetRotation()    = EulerDegree({ 0.0f, 90.0f, 150.0f });
+		weapon_->GetWorldTransform()->GetTranslation() = {0.0f, 0.45f, -0.5f};
+		weapon_->GetWorldTransform()->GetRotation() = EulerDegree({0.0f, 90.0f, 150.0f});
 	}
 
 	// 攻撃フェーズのみ武器コライダーを有効化（予備動作・非攻撃時・出現/死亡演出中は無効）
@@ -207,7 +202,6 @@ bool GruntMelee::ReceivePlayerHit() {
 	// 出現・死亡演出中は被弾処理をしない
 	if (IsAppearanceEffectPlaying()) return false;
 
-	// ── 仕様書 §20 の実装フロー ──
 	// ① 攻撃判定がヒット
 	const AttackData atk = player_->GetAttackData(); // 値返しなのでローカルにコピー
 
@@ -241,8 +235,7 @@ bool GruntMelee::ReceivePlayerHit() {
 	// 空中で追撃を受けたときの合成（落下を止める・打ち上げ直す）は KnockbackComponent の担当
 	ApplyKnockback(hit.info, hit.causesReaction);
 
-	// ⑦ ヒットストップ。**ノックバックより後に開始する**のが仕様書 §13 の順番だが、
-	// ヒットストップ中は Enemy::Update の dt が縮むので、実際に敵が動き出すのは停止が明けてから
+	// ⑦ ヒットストップ
 	hitStop_->Start(atk.hitStopTime, atk.hitStopIntensity * 3.0f, atk.hitStopStrength);
 
 	// ⑧ 演出（ライトと白フラッシュ。剣の手応えの音は PlayerWeapon 側が材質を見て鳴らす）

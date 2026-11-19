@@ -220,10 +220,9 @@ void PlayerWeapon::UpdateGrip(float deltaTime) {
 void PlayerWeapon::DrawGripEditor() {
 	GlobalVariables& global = GlobalVariables::GetInstance();
 
-	static const char* const kHoldModeNames[] = { "振り（攻撃の制御点）", "手に持つ", "背中に背負う" };
+	static const char* const kHoldModeNames[] = {"振り（攻撃の制御点）", "手に持つ", "背中に背負う"};
 	ImGui::Text("持ち方: %s （寄せ %.2f）", kHoldModeNames[static_cast<int>(holdMode_)], gripWeight_);
-	ImGui::TextDisabled("背中の位置は攻撃エディタの Sheathe の最後の制御点 (%.2f, %.2f, %.2f)",
-		backPosition_.x, backPosition_.y, backPosition_.z);
+	ImGui::TextDisabled("背中の位置は攻撃エディタの Sheathe の最後の制御点 (%.2f, %.2f, %.2f)", backPosition_.x, backPosition_.y, backPosition_.z);
 
 	if (!gripReady_) {
 		ImGui::TextColored(ImVec4(1.0f, 0.45f, 0.40f, 1.0f), "スキンモデルが見つかりません（剣は従来通り制御点で動きます）");
@@ -303,7 +302,7 @@ void PlayerWeapon::TryHitEnemy(BaseCollider* other) {
 
 		// 火花は剣を振っている向きへ流す（斬った向きが見えるように）。
 		// 刃がほとんど動いていないとき（突き・溜めの出始め）は、攻撃者から離れる向き
-		const Vector3 away = SafeNormalize(fx.position - attackerPosition, Vector3{ 0.0f, 1.0f, 0.0f });
+		const Vector3 away = SafeNormalize(fx.position - attackerPosition, Vector3{0.0f, 1.0f, 0.0f});
 		const Vector3 tipVelocity = attackEffect ? attackEffect->GetTipVelocity() : Vector3{};
 		if (Length(tipVelocity) > 1.0f) {
 			fx.direction = SafeNormalize(SafeNormalize(tipVelocity, away) * 0.75f + away * 0.25f, away);
@@ -325,8 +324,7 @@ void PlayerWeapon::TryHitEnemy(BaseCollider* other) {
 		if (!fx.isArmorHit) {
 			const AttackVfxStyle style = attackEffect ? attackEffect->GetCurrentStyle() : AttackVfxStyle::Slash;
 			// コンボの締め（フィニッシュ）は技の見た目の種類に関わらず強い光にする
-			const bool isHeavy = (style == AttackVfxStyle::Heavy || style == AttackVfxStyle::Slam || style == AttackVfxStyle::Thrust)
-				|| attack.isFinisher;
+			const bool isHeavy = (style == AttackVfxStyle::Heavy || style == AttackVfxStyle::Slam || style == AttackVfxStyle::Thrust) || attack.isFinisher;
 			// 通常斬りは白＋青の十字の光、強攻撃は白＋金の大きな光
 			fx.vfxName = isHeavy ? "PlayerHitHeavy" : "PlayerHitSlash";
 			fx.materialVfxName = enemy ? MaterialVfxName(enemy->GetHitMaterial()) : "";

@@ -37,7 +37,7 @@ void DragFloatParam(const char* label, const char* group, const char* key, float
 } // namespace
 
 /// <summary>
-/// 洞窟の埃・空間ライティングのデバッグ（埃パーティクル仕様書 10章）。
+/// 洞窟の埃・空間ライティングのデバッグ
 /// デバッグ表示の切り替え、主な機能の有効/無効、埃と光の筋の主な値、各パスの GPU 処理時間。
 /// 細かい値は GlobalVariables（Environment_Cave）と VFX ウィンドウ（CaveDust）にある
 /// </summary>

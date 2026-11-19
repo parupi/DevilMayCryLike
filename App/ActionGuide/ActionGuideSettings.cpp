@@ -9,8 +9,7 @@ namespace {
 	constexpr const char* kGroup = ActionGuideSettings::kGroupName;
 }
 
-const char* ActionGuideSettings::PriorityKey(ActionGuideCategory category)
-{
+const char* ActionGuideSettings::PriorityKey(ActionGuideCategory category) {
 	switch (category) {
 	case ActionGuideCategory::ChargeRelease: return "PriorityChargeRelease";
 	case ActionGuideCategory::Counter:       return "PriorityCounter";
@@ -25,8 +24,7 @@ const char* ActionGuideSettings::PriorityKey(ActionGuideCategory category)
 	}
 }
 
-const char* ActionGuideSettings::CategoryLabel(ActionGuideCategory category)
-{
+const char* ActionGuideSettings::CategoryLabel(ActionGuideCategory category) {
 	switch (category) {
 	case ActionGuideCategory::ChargeRelease: return "溜め中に離す";
 	case ActionGuideCategory::Counter:       return "カウンター";
@@ -41,26 +39,23 @@ const char* ActionGuideSettings::CategoryLabel(ActionGuideCategory category)
 	}
 }
 
-int32_t ActionGuideSettings::DefaultPriority(ActionGuideCategory category)
-{
-	// 仕様書 §6-5「コンボ派生 → 回避 → 基本操作」の順。
+int32_t ActionGuideSettings::DefaultPriority(ActionGuideCategory category) {
 	// 溜め中に離す・カウンターは出せる時間が短いので、さらに上に置く
 	switch (category) {
 	case ActionGuideCategory::ChargeRelease: return 100;
-	case ActionGuideCategory::Counter:       return 95;
-	case ActionGuideCategory::ComboBranch:   return 80;
-	case ActionGuideCategory::BranchLater:   return 75;
+	case ActionGuideCategory::Counter: return 95;
+	case ActionGuideCategory::ComboBranch: return 80;
+	case ActionGuideCategory::BranchLater: return 75;
 	case ActionGuideCategory::RootInterrupt: return 70;
-	case ActionGuideCategory::RootAttack:    return 60;
-	case ActionGuideCategory::Dodge:         return 40;
-	case ActionGuideCategory::Jump:          return 20;
-	case ActionGuideCategory::LockOn:        return 10;
-	default:                                 return 0;
+	case ActionGuideCategory::RootAttack: return 60;
+	case ActionGuideCategory::Dodge: return 40;
+	case ActionGuideCategory::Jump: return 20;
+	case ActionGuideCategory::LockOn: return 10;
+	default: return 0;
 	}
 }
 
-void ActionGuideSettings::RegisterAndLoad()
-{
+void ActionGuideSettings::RegisterAndLoad() {
 	GlobalVariables& gv = Global();
 	gv.CreateGroup(kGroup);
 	// 保存済みの設定があれば読み込む（無ければ AddItem の既定値がそのまま残る）
@@ -104,8 +99,7 @@ void ActionGuideSettings::RegisterAndLoad()
 	Apply();
 }
 
-void ActionGuideSettings::Apply()
-{
+void ActionGuideSettings::Apply() {
 	GlobalVariables& gv = Global();
 	if (!gv.HasItem(kGroup, "MaxEntries")) return;
 
@@ -144,7 +138,6 @@ void ActionGuideSettings::Apply()
 	queuedMarkSize = gv.GetValueRef<float>(kGroup, "QueuedMarkSize");
 }
 
-void ActionGuideSettings::Save()
-{
+void ActionGuideSettings::Save() {
 	Global().SaveFile(kDirectoryName, kGroup);
 }

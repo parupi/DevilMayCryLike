@@ -4,8 +4,7 @@
 #include <vector>
 
 /// <summary>
-/// アクションガイド（画面右下の操作案内）で共有する型。
-/// 仕様書: ActionGuideSystem_Spec.md
+/// アクションガイド（画面右下の操作案内）で共有する型
 ///
 /// 依存の向きは「戦闘ロジック → (読むだけ) → ガイド」。戦闘側はこのフォルダを一切知らない
 /// </summary>
@@ -44,7 +43,7 @@ enum class StickHint : uint8_t {
 };
 
 /// <summary>
-/// 1項目の入力の組み合わせ（仕様書の InputBindingExpression の簡易版）。
+/// 1項目の入力の組み合わせ
 /// 「ロックオンを押しながら + スティック前 + 攻撃」のような組み合わせを表す
 /// </summary>
 struct InputBinding {

@@ -29,16 +29,8 @@ enum class BossActionKind {
 ///
 /// 攻撃の段階（溜め → 判定が出た瞬間 → 判定が出ている間 → 判定が消えた瞬間）は
 /// EnemyBoneAttackComponent の状態をそのまま見て判断するので、各攻撃ステートは何も呼ばなくてよい。
-///
-/// 仕様書から「このゲームに合わせて」変えたところ:
-///   - 予兆のアニメーション（頭を引く・前脚を上げる）はクリップ側なので作れない。
-///     代わりに溜めの間に足元の砂埃・爪の火花・地響きを出して、攻撃ごとに見分けが付くようにする
-///   - 当たり先ごとの演出（岩の破片・金属の火花）は、当たり先の材質を持っていないので
-///     「プレイヤーに当たった＝白い閃光」「外れて地面を噛んだ＝土煙」の2つにした
-///   - 地面のひびは本物のデカールではなく、地面へ寝かせた板のパーティクル（CrackDecal.png）
 /// </summary>
-class BossAttackEffect
-{
+class BossAttackEffect {
 public:
 	// ── VFX（Resource/VFX/<名前>.vfx.json）──
 	/// 足元の土煙＋小石。溜め・突進中・移動に使い回す
@@ -144,8 +136,8 @@ private:
 
 	// ── 毎フレーム取り直す位置 ──
 	Vector3 foot_{};
-	Vector3 forward_{ 0.0f, 0.0f, 1.0f };
-	Vector3 right_{ 1.0f, 0.0f, 0.0f };
+	Vector3 forward_{0.0f, 0.0f, 1.0f};
+	Vector3 right_{1.0f, 0.0f, 0.0f};
 	Vector3 bodyCenter_{};
 	float scale_ = 1.0f;
 

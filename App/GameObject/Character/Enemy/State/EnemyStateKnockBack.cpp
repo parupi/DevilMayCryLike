@@ -32,7 +32,7 @@ void EnemyStateKnockBack::Update(Enemy& enemy, float deltaTime) {
 		enemy.SetModelReactionRotation(EulerDegree({ currentTilt_, 0.0f, 0.0f }));
 	}
 
-	// ── 復帰の判定（仕様書 §11）──
+	// ── 復帰の判定──
 	if (knockback.GetType() == ReactionType::HitStun) {
 		// のけぞりは地上なので、時間が来たらすぐ戻す（拘束を長引かせない）。
 		// 追撃を受けると KnockbackComponent 側でのけぞりが延長される

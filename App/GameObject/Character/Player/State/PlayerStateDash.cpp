@@ -30,7 +30,7 @@ void PlayerStateDash::Enter(Player& player) {
 	const PlayerDodgeParams& params = player.GetDodgeParams();
 	const PlayerDodgeRuntime& runtime = player.GetDodgeRuntime();
 
-	// 回避から速度を一段上げる。ここは滑らかに繋がずはっきり変える（仕様書 §6.2）
+	// 回避から速度を一段上げる。ここは滑らかに繋がずはっきり変える
 	Vector3& velocity = player.GetVelocity();
 	const float fallSpeed = velocity.y;
 	velocity = runtime.direction * params.dashSpeed;
@@ -71,7 +71,7 @@ void PlayerStateDash::Update(Player& player, float deltaTime) {
 	velocity.y = 0.0f;
 	player.GetAcceleration().y = 0.0f;
 
-	// 終了条件（仕様書 §6.3）：時間切れ、または移動入力が途切れた
+	// 終了条件：時間切れ、または移動入力が途切れた
 	if (elapsed_ >= params.dashDuration || noInputTime_ >= params.dashInputGrace) {
 		player.ChangeState(player.GetInput()->GetContext().isMove ? "Move" : "Idle");
 		return;

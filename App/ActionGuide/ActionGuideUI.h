@@ -9,7 +9,7 @@ class TextLabel;
 struct ActionGuideSettings;
 
 /// <summary>
-/// ActionGuideViewModel を画面右下に描く（仕様書 §5.5 / §8）。
+/// ActionGuideViewModel を画面右下に描く
 /// 位置・濃さ・フェード・アイコンだけを受け持ち、行動を出せるかどうかの判断はしない。
 ///
 /// 1行の並び:  [組み合わせ "RB + ↑ +"] [アイコン] [押し方 "長押し"] [名前]
@@ -19,8 +19,7 @@ struct ActionGuideSettings;
 /// 絵のファイルは使わない。丸・角の丸み・帯は実行時にピクセルから作る（チュートリアルのパネルと同じ方式）。
 /// スプライトは生成順に描かれるので、ポーズの暗幕より先に作ること
 /// </summary>
-class ActionGuideUI
-{
+class ActionGuideUI {
 public:
 	void Initialize();
 

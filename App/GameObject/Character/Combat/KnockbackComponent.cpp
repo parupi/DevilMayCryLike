@@ -21,7 +21,7 @@ float KnockbackComponent::DefaultDuration(ReactionType type) {
 }
 
 bool KnockbackComponent::HorizontalUnit(const Vector3& v, Vector3& out) {
-	Vector3 horizontal{ v.x, 0.0f, v.z };
+	Vector3 horizontal{v.x, 0.0f, v.z};
 	const float length = Length(horizontal);
 	if (length < 0.0001f) {
 		out = {};
@@ -32,7 +32,7 @@ bool KnockbackComponent::HorizontalUnit(const Vector3& v, Vector3& out) {
 }
 
 float KnockbackComponent::VerticalPower() const {
-	// のけぞりは地上では浮かせない（仕様書 §5.1「少し後退するだけ」）。
+	// のけぞりは地上では浮かせない
 	// 空中の相手に当てたときだけ効かせて、空中コンボで敵を落とさずに留められるようにする。
 	// 攻撃データ側は種類を切り替えても UpwardRatio を付け直さなくてよい
 	if (data_.type == ReactionType::HitStun && grounded_) return 0.0f;
@@ -48,7 +48,6 @@ float KnockbackComponent::Falloff() const {
 	if (duration <= 0.0f) return 0.0f;
 	if (elapsed_ >= duration) return 0.0f;
 
-	// 仕様書 §7。deceleration が 1.0 なら power * (1 - t) の直線。
 	// 大きくすると初速だけ強く出てすぐ止まり、小さくすると長く滑る
 	const float t = elapsed_ / duration;
 	const float decel = (data_.deceleration > 0.0f) ? data_.deceleration : 1.0f;
@@ -83,7 +82,7 @@ void KnockbackComponent::Begin(const KnockbackData& data, const Vector3& directi
 	if (!data_.overrideVelocity) {
 		// 元の速度を捨てない場合、新しい向きに沿う成分だけを初速へ足す。
 		// （横向きの成分まで残すと、吹き飛ぶ向きが攻撃と食い違って見える）
-		horizontalSpeed_ += Dot(Vector3{ inheritVelocity.x, 0.0f, inheritVelocity.z }, horizontalDir_);
+		horizontalSpeed_ += Dot(Vector3{inheritVelocity.x, 0.0f, inheritVelocity.z}, horizontalDir_);
 		if (horizontalSpeed_ < 0.0f) horizontalSpeed_ = 0.0f;
 		// 落下中の速度までは引き継がない（受けた瞬間に落下が加速して見えるため）
 		inheritUp = (inheritVelocity.y > 0.0f) ? inheritVelocity.y : 0.0f;
@@ -111,14 +110,14 @@ void KnockbackComponent::AddHit(const KnockbackData& data, const Vector3& direct
 	const float risingSpeed = (velocity_.y > 0.0f) ? velocity_.y : 0.0f;
 
 	if (data.blend == KnockbackBlend::Override) {
-		// 上書き方式（仕様書 §8）。強い攻撃を受けたときの反応が分かりやすい
+		// 上書き方式。強い攻撃を受けたときの反応が分かりやすい
 		KnockbackData overridden = data;
 		overridden.overrideVelocity = false; // 上向きの勢いだけ引き継ぐ
-		Begin(overridden, direction, Vector3{ 0.0f, risingSpeed, 0.0f });
+		Begin(overridden, direction, Vector3{0.0f, risingSpeed, 0.0f});
 		return;
 	}
 
-	// ── 加算 + 上限方式（仕様書 §8）──
+	// ── 加算 + 上限方式──
 	// 多段ヒット攻撃で速度が際限なく伸びるのを防ぐ
 	Vector3 newDir{};
 	if (HorizontalUnit(direction, newDir)) {
@@ -126,7 +125,7 @@ void KnockbackComponent::AddHit(const KnockbackData& data, const Vector3& direct
 		const Vector3 current = horizontalDir_ * (horizontalSpeed_ * Falloff());
 		const Vector3 blended = current + newDir * data.power;
 		if (HorizontalUnit(blended, horizontalDir_)) {
-			horizontalSpeed_ = Length(Vector3{ blended.x, 0.0f, blended.z });
+			horizontalSpeed_ = Length(Vector3{blended.x, 0.0f, blended.z});
 		} else {
 			horizontalSpeed_ = 0.0f;
 		}
@@ -161,7 +160,7 @@ void KnockbackComponent::Update(float deltaTime, float gravity) {
 
 	elapsed_ += deltaTime;
 
-	// ── 水平: 時間ベースの減衰（仕様書 §7）──
+	// ── 水平: 時間ベースの減衰──
 	// 毎フレーム係数を掛けるのではなく初速から作り直すので、フレームレートに依存しない
 	const Vector3 horizontal = horizontalDir_ * (horizontalSpeed_ * Falloff());
 	velocity_.x = horizontal.x;
@@ -174,7 +173,7 @@ void KnockbackComponent::Update(float deltaTime, float gravity) {
 		velocity_.y = 0.0f;
 	}
 
-	// ── 終了条件（仕様書 §7）──
+	// ── 終了条件 ──
 	// 水平の減衰が終わり、かつ浮いていないなら終わり
 	if (IsHorizontalFinished() && grounded_ && std::abs(velocity_.y) <= kRestSpeed) {
 		Stop();
@@ -212,7 +211,7 @@ bool KnockbackComponent::CancelOutward(const Vector3& inwardNormal) {
 		Vector3 initial = horizontalDir_ * horizontalSpeed_;
 		initial -= inwardNormal * outwardInitial;
 		if (HorizontalUnit(initial, horizontalDir_)) {
-			horizontalSpeed_ = Length(Vector3{ initial.x, 0.0f, initial.z });
+			horizontalSpeed_ = Length(Vector3{initial.x, 0.0f, initial.z});
 		} else {
 			horizontalSpeed_ = 0.0f;
 		}

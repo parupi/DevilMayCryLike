@@ -850,7 +850,7 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::Combo("VFX Style", &global_->GetValueRef<int32_t>(attackName, "VfxStyle"), vfxStyleLabels, IM_ARRAYSIZE(vfxStyleLabels));
 	ImGui::SetItemTooltip("Auto = 溜め攻撃→叩きつけ / Stinger→突進 / 打ち上げ→打ち上げ / 吹き飛ばし→強攻撃 / それ以外→通常斬り");
 
-	// ── 攻撃を受けた側に送るノックバック情報（仕様書 §3〜§8）──
+	// ── 攻撃を受けた側に送るノックバック情報 ──
 	ImGui::SeparatorText("Knockback");
 	ImGui::Text("ReactionType:");
 	ImGui::SameLine();
@@ -878,7 +878,7 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::DragFloat("StunTime", &global_->GetValueRef<float>(attackName, "StunTime"), 0.01f);
 	ImGui::SetItemTooltip("のけぞりで動けなくなる時間[秒]。吹き飛び・打ち上げは着地するまでなので効かない");
 
-	// 時間と減速（仕様書 §7）
+	// 時間と減速
 	float& knockbackDuration = global_->GetValueRef<float>(attackName, "KnockbackDuration");
 	ImGui::DragFloat("Knockback Duration", &knockbackDuration, 0.01f, 0.0f, 5.0f, "%.2f 秒");
 	ImGui::SetItemTooltip("ノックバックが続く時間。0 なら ReactionType ごとの既定値\n"
@@ -890,7 +890,7 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 	ImGui::SetItemTooltip("合成後の速度の上限[m/s]。0 で無制限。\n"
 		"多段ヒットで速度が伸びすぎるときに使う");
 
-	// 向き（仕様書 §4）
+	// 向き
 	const char* knockbackDirLabels[] = { "Away From Attacker", "Attacker Forward", "Upward", "Toward Attacker" };
 	ImGui::Combo("Knockback Direction", &global_->GetValueRef<int32_t>(attackName, "KnockbackDirection"),
 		knockbackDirLabels, IM_ARRAYSIZE(knockbackDirLabels));
@@ -899,7 +899,7 @@ void PlayerCombat::DrawAttackDataEditor([[maybe_unused]] PlayerStateAttack* atta
 		"Upward = 水平には飛ばさず真上へ\n"
 		"Toward Attacker = 引き寄せる（コンボ維持用）");
 
-	// 連続ヒット時の合成（仕様書 §8）
+	// 連続ヒット時の合成
 	const char* knockbackBlendLabels[] = { "Override", "Additive" };
 	ImGui::Combo("Knockback Blend", &global_->GetValueRef<int32_t>(attackName, "KnockbackBlend"),
 		knockbackBlendLabels, IM_ARRAYSIZE(knockbackBlendLabels));

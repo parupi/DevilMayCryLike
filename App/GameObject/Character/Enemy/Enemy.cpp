@@ -317,7 +317,7 @@ void Enemy::Update(float deltaTime) {
 		hitFlash_->Update(dt);
 	}
 
-	// ノックバックの速度を先に進める（仕様書 §6・§7）。
+	// ノックバックの速度を先に進める
 	// ステートより先に更新することで、被弾リアクションのステートは今フレームの値を読める。
 	// 接地は前フレームの押し出し結果（Update の最後で落とし、衝突コールバックが立て直す）
 	// ヒットストップ中は被弾した本人をその場に止める。
@@ -345,7 +345,6 @@ void Enemy::Update(float deltaTime) {
 	// ステートが確定してからクリップを決める（この下に early return があるのでここで呼ぶ）
 	UpdateAnimation();
 
-	// 仕様書 §6: velocity = moveVelocity + knockbackVelocity。
 	// ノックバックを別の速度として足すので、のけぞらない敵（ボス）でも位置だけは押される
 	const float moveDt = hitStopped ? 0.0f : dt;
 	GetWorldTransform()->GetTranslation() += (velocity_ + knockback_.GetVelocity()) * moveDt;
@@ -502,7 +501,6 @@ void Enemy::ClampToMovementBounds() {
 		velocity_ -= inwardNormal * outwardSpeed;
 	}
 
-	// ノックバックの速度も同じように削る（仕様書 §10）。
 	// 初速のほうも削らないと、時間ベースの減衰カーブから次のフレームに同じ速度が復活する
 	if (knockback_.CancelOutward(inwardNormal)) {
 		// 壁ヒット演出は1回のノックバックにつき1度だけ（押し付けられている間ずっと鳴らさない）
@@ -600,7 +598,6 @@ void Enemy::ResolveGroundCollision(BaseCollider* other) {
 		}
 
 		// ノックバックで浮いていたなら、ここが着地。
-		// 落下速度を消して水平を弱め、滑って止まる形にする（仕様書 §11 の「復帰」）
 		if (knockback_.IsAirborne() && knockback_.GetVelocity().y <= 0.0f) {
 			knockback_.OnLand();
 		}
@@ -679,7 +676,6 @@ void Enemy::OnDeath() {
 }
 
 void Enemy::OnKnockbackWallHit() {
-	// 壁にぶつかったことを最小限伝える（仕様書 §10 の「壁ヒット演出」）。
 	// 壁バウンド・壁張り付きは Wall カテゴリのコライダーが要るのでまだ入れていない
 	FlashLight();
 	PlayHitFlash();
@@ -689,7 +685,6 @@ void Enemy::ApplyKnockback(const DamageInfo& info, bool causesReaction) {
 	pendingDamageInfo_ = info;
 	knockbackWallHit_ = false;
 
-	// 仕様書 §8: すでにノックバック中なら、攻撃ごとの合成方法（上書き / 加算+上限）に従う。
 	// 止まっているところへの1発目は、今の移動速度を引き継ぐかどうかを overrideVelocity で決める
 	if (knockback_.IsActive()) {
 		knockback_.AddHit(info.knockback, info.direction);

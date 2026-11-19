@@ -8,7 +8,7 @@
 void PlayerStateKnockBack::Enter(Player& player) {
 	timer_ = 0.0f;
 
-	// 軽被弾／強被弾で拘束の長さを変える（仕様書 §12）。
+	// 軽被弾／強被弾で拘束の長さを変える
 	// ノックバックの速度そのものは Player::TakeDamage が KnockbackComponent へ渡し済み
 	const float stunTime = player.GetKnockback().GetStunTime();
 	maxDuration_ = player.IsHeavyHit() ? kHeavyMaxDuration : kLightMaxDuration;
@@ -41,5 +41,5 @@ void PlayerStateKnockBack::Update(Player& player, float deltaTime) {
 }
 
 void PlayerStateKnockBack::Exit(Player& player) {
-	player.GetAcceleration() = { 0.0f, 0.0f, 0.0f };
+	player.GetAcceleration() = {0.0f, 0.0f, 0.0f};
 }
